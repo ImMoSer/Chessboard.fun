@@ -1,0 +1,202 @@
+/* src/features/about/about.css */
+
+.about-page-container {
+  position: relative;
+  padding: 20px 40px;
+  box-sizing: border-box;
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-default);
+  width: 80vw;
+  max-width: 900px;
+  margin: 20px auto;
+  border-radius: var(--panel-border-radius);
+  border: 1px solid var(--color-border-hover);
+  font-size: var(--font-size-base);
+  line-height: 1.7;
+}
+
+.about-page-container .language-switcher-container {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.about-page-container h1 {
+  font-size: var(--font-size-xxlarge);
+  color: var(--color-accent-primary);
+  text-align: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--color-border-hover);
+  padding-bottom: 15px;
+}
+
+.about-page-container h2 {
+  font-size: var(--font-size-xlarge);
+  color: var(--color-accent-success);
+  margin-top: 30px;
+  margin-bottom: 15px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.about-page-container h3 {
+  font-size: var(--font-size-large);
+  color: var(--color-accent-warning);
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.about-page-container p,
+.about-page-container li {
+  color: var(--color-text-muted);
+}
+
+.about-page-container strong {
+  color: var(--color-text-default);
+  font-weight: var(--font-weight-bold);
+}
+
+.about-page-container ul {
+  list-style-type: '–  '; /* Custom bullet point */
+  padding-left: 20px;
+  margin-top: 0;
+}
+
+.about-page-container ul li {
+  margin-bottom: 8px;
+  padding-left: 10px;
+}
+
+.about-page-container .licensing-note {
+  background-color: rgba(252, 98, 9, 0.1); /* var(--color-accent-warning) with alpha */
+  border-left: 4px solid var(--color-accent-warning);
+  padding: 15px;
+  margin: 15px 0;
+  border-radius: 4px;
+}
+
+/* --- Support Button Styles --- */
+.about-page-container .support-button-container {
+  text-align: center;
+  margin: 30px 0;
+}
+
+.about-page-container .support-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 12px 28px;
+  background-color: #FFDD00; /* Bright yellow, similar to Buy Me a Coffee */
+  color: #000000;
+  text-decoration: none;
+  font-size: var(--font-size-large);
+  font-weight: var(--font-weight-bold);
+  border-radius: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+.about-page-container .support-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+}
+
+.about-page-container .support-button svg {
+  width: 1.2em;
+  height: 1.2em;
+}
+/* --- End Support Button Styles --- */
+
+.about-page-container hr {
+  border: none;
+  border-top: 1px solid var(--color-border-hover);
+  margin: 40px 0;
+}
+
+/* --- Author Section Styles --- */
+.author-section {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  margin: 40px 0;
+  background-color: var(--color-bg-primary);
+  padding: 25px;
+  border-radius: var(--panel-border-radius);
+  border: 1px solid var(--color-border);
+}
+
+.author-photo {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--color-accent-primary);
+  flex-shrink: 0;
+}
+
+.author-bio {
+  flex-grow: 1;
+}
+
+.author-bio .author-title {
+  border-bottom: none;
+  margin-top: 0;
+  color: var(--color-accent-primary);
+}
+/* --- End Author Section Styles --- */
+
+
+.about-page-container .contact-info {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.about-page-container .contact-info p {
+  margin: 5px 0;
+}
+
+.about-page-container .footer-note {
+  text-align: center;
+  font-style: italic;
+  color: var(--color-text-muted);
+  margin-top: 30px;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .about-page-container {
+    width: 100%;
+    padding: 15px;
+    font-size: var(--font-size-small);
+  }
+
+  .about-page-container .language-switcher-container {
+    top: 10px;
+    right: 10px;
+  }
+
+  .author-section {
+    flex-direction: column;
+    text-align: center;
+    padding: 20px;
+    gap: 20px;
+  }
+
+  .author-photo {
+    width: 120px;
+    height: 120px;
+  }
+
+  .about-page-container h1 {
+    font-size: var(--font-size-xlarge);
+  }
+
+  .about-page-container h2 {
+    font-size: var(--font-size-large);
+  }
+
+  .about-page-container h3 {
+    font-size: var(--font-size-base);
+  }
+}

@@ -1,0 +1,119 @@
+/* src/features/attack/attack.css */
+
+/* Стили для левой панели */
+.attack-left-panel {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Фидбэк теперь в верхней панели, стилизуем его там */
+#attack-feedback {
+  text-align: center;
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+#attack-feedback p {
+    font-weight: var(--font-weight-bold);
+    margin: 0;
+}
+
+.puzzle-leaderboard-container {
+  background-color: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--panel-border-radius);
+  padding: 10px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+
+.puzzle-leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-small);
+  overflow-y: auto;
+}
+
+.puzzle-leaderboard-table th,
+.puzzle-leaderboard-table td {
+  padding: 6px 8px;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.puzzle-leaderboard-table th {
+  color: var(--color-text-muted);
+  font-weight: bold;
+}
+
+.puzzle-leaderboard-table td.rank,
+.puzzle-leaderboard-table th.rank {
+  text-align: center;
+  width: 1%;
+  padding-right: 10px;
+}
+
+.puzzle-leaderboard-table td.time,
+.puzzle-leaderboard-table th.time {
+  text-align: right;
+  font-weight: bold;
+}
+
+.puzzle-leaderboard-table td.player a {
+  color: var(--color-text-link);
+  text-decoration: none;
+}
+
+.puzzle-leaderboard-table td.player a:hover {
+  text-decoration: underline;
+}
+
+
+/* Стили для правой панели */
+.attack-right-panel {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  flex-grow: 1;
+  min-height: 0;
+  position: relative;
+}
+
+.analysis-panel-wrapper {
+  min-height: 0;
+  display: flex;
+  flex-grow: 1;
+  margin-top: 10px;
+}
+
+.analysis-panel-wrapper #analysis-panel-container {
+  width: 100%;
+  height: 100%;
+}
+
+/* Стили для таймера */
+.attack-timer-container {
+  background-color: var(--color-bg-primary);
+  color: var(--color-accent-warning);
+  border-radius: var(--panel-border-radius);
+  font-size: var(--font-size-large);
+  font-weight: var(--font-weight-bold);
+  text-align: center;
+  border: 1px solid var(--color-accent-warning);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  padding: 5px 0;
+  flex-shrink: 0; /* Prevent shrinking */
+}

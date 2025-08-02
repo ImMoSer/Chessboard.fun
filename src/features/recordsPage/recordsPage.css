@@ -1,0 +1,245 @@
+/* src/features/recordsPage/recordsPage.css */
+
+.records-page {
+  padding: 20px;
+  box-sizing: border-box;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-default);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 90vw;
+  max-width: 900px;
+  margin: 20px auto;
+  height: auto;
+  overflow: visible;
+}
+
+.records-page__banner {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  max-height: 200px;
+  border-radius: var(--panel-border-radius);
+  align-self: center;
+  max-width: 900px;
+}
+
+.records-page__error-message,
+.records-page__no-data-message {
+  color: var(--color-text-error);
+  background-color: rgba(229, 57, 53, 0.15);
+  border: 1px solid var(--color-accent-error);
+  padding: 10px 15px;
+  border-radius: var(--panel-border-radius);
+  max-width: 600px;
+  text-align: center;
+  margin: 15px auto;
+}
+
+/* <<< УДАЛЕНО: Стили для старой секции статистики */
+
+
+.records-page__table-container {
+  padding: 0;
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--panel-border-radius);
+  border: 1px solid var(--color-border-hover);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* <<< НАЧАЛО ИЗМЕНЕНИЙ: Стили для фильтров в новой секции */
+.records-page__table-container .stats-filters {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  padding: 10px;
+  background-color: var(--color-bg-tertiary);
+  border-bottom: 1px solid var(--color-border-hover);
+  flex-wrap: wrap;
+}
+
+.records-page__table-container .stats-filters select {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--color-border-hover);
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-default);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  cursor: pointer;
+}
+/* <<< КОНЕЦ ИЗМЕНЕНИЙ */
+
+
+.records-page__table-title {
+  color: var(--color-bg-primary);
+  font-size: var(--font-size-large);
+  padding: 10px 10px;
+  margin: 0;
+  text-align: center;
+  border-bottom: 1px solid var(--color-border-hover);
+  font-weight: var(--font-weight-bold);
+  font-family: var(--font-family-primary);
+  flex-shrink: 0;
+}
+
+.records-page__table-container--finishHimLeaderboard .records-page__table-title {
+  background-color: var(--color-accent-secondary);
+}
+
+.records-page__table-container--towerLeaderboard .records-page__table-title {
+  background-color: var(--color-accent-secondary);
+}
+
+.records-page__table-container--attackLeaderboard .records-page__table-title {
+  background-color: var(--color-accent-warning);
+}
+
+/* <<< ДОБАВЛЕНО: Цвет для новой таблицы активности */
+.records-page__table-container--activity .records-page__table-title {
+  background-color: var(--color-accent-primary);
+}
+
+
+.records-page__no-data-message {
+    padding: 20px;
+    text-align: center;
+    font-style: italic;
+    color: var(--color-text-muted);
+}
+
+.records-page__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-base);
+}
+
+.records-page__table th,
+.records-page__table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-default);
+  white-space: nowrap;
+}
+
+.records-page__table th.text-left,
+.records-page__table td.text-left { text-align: left; }
+.records-page__table th.text-center,
+.records-page__table td.text-center { text-align: center; }
+.records-page__table th.text-right,
+.records-page__table td.text-right { text-align: right; }
+
+.records-page__table thead th {
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-bold);
+  font-family: var(--font-family-primary);
+}
+
+.records-page__table tbody tr:nth-child(even) {
+  background-color: var(--color-bg-tertiary);
+}
+
+.records-page__table tbody tr:nth-child(odd) {
+  background-color: var(--color-bg-secondary);
+}
+
+.records-page__table tbody tr:hover {
+  background-color: var(--color-border-hover);
+}
+
+.records-page__table td a {
+  color: var(--color-text-link);
+  text-decoration: none;
+  font-weight: var(--font-weight-bold);
+}
+
+.records-page__table td a:hover {
+  text-decoration: underline;
+  color: var(--color-text-link-hover);
+}
+
+.records-page__sub-icon {
+  width: auto;
+  height: 1.7em;
+  vertical-align: -0.4em;
+  margin-right: 6px;
+}
+
+.records-page__table-section-header th {
+  font-size: var(--font-size-base);
+  color: var(--color-bg-primary);
+  padding: 8px 10px;
+  text-align: center;
+  font-weight: var(--font-weight-bold);
+  border-bottom: 2px solid var(--color-bg-secondary);
+  border-top: 2px solid var(--color-bg-secondary);
+}
+
+.records-page__table-section-header--CM th {
+  background-color: var(--color-accent-success);
+}
+.records-page__table-section-header--FM th {
+  background-color: var(--color-accent-warning);
+}
+.records-page__table-section-header--IM th {
+  background-color: var(--color-accent-primary);
+}
+.records-page__table-section-header--GM th {
+  background-color: var(--color-violett-lichess);
+}
+
+.records-page__challenge-button {
+  background-color: var(--color-accent-success);
+  color: var(--color-text-dark);
+  border: 1px solid transparent;
+  padding: 6px 14px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-bold);
+  border-radius: var(--panel-border-radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.records-page__challenge-button:hover:not(:disabled) {
+  background-color: #A0D003;
+  border-color: #A0D003;
+  transform: translateY(-1px);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+
+.records-page__challenge-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+@media (max-width: 768px) {
+  .records-page {
+    width: 100%;
+    padding: 10px;
+    gap: 15px;
+  }
+  .records-page__banner {
+    max-height: 150px;
+  }
+  .records-page__table-title,
+  .records-page__section-title {
+    font-size: var(--font-size-base);
+  }
+  .records-page__table {
+    font-size: var(--font-size-small);
+  }
+  .records-page__table .col-attempts {
+    display: none;
+  }
+}

@@ -1,0 +1,3 @@
+/** * Piece SVGs are now loaded dynamically by the ThemeService (src/core/theme.service.ts).
+ * This file is kept for structure but its content is no longer needed.
+ */

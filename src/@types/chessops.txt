@@ -1,0 +1,836 @@
+// attacks.d.ts
+/**
+ * Compute attacks and rays.
+ *
+ * These are low-level functions that can be used to implement chess rules.
+ *
+ * Implementation notes: Sliding attacks are computed using
+ * [Hyperbola Quintessence](https://www.chessprogramming.org/Hyperbola_Quintessence).
+ * Magic Bitboards would deliver slightly faster lookups, but also require
+ * initializing considerably larger attack tables. On the web, initialization
+ * time is important, so the chosen method may strike a better balance.
+ *
+ * @packageDocumentation
+ */
+import { SquareSet } from './squareSet.js';
+import { Color, Piece, Square } from './types.js';
+/**
+ * Gets squares attacked or defended by a king on `square`.
+ */
+export declare const kingAttacks: (square: Square) => SquareSet;
+/**
+ * Gets squares attacked or defended by a knight on `square`.
+ */
+export declare const knightAttacks: (square: Square) => SquareSet;
+/**
+ * Gets squares attacked or defended by a pawn of the given `color`
+ * on `square`.
+ */
+export declare const pawnAttacks: (color: Color, square: Square) => SquareSet;
+/**
+ * Gets squares attacked or defended by a bishop on `square`, given `occupied`
+ * squares.
+ */
+export declare const bishopAttacks: (square: Square, occupied: SquareSet) => SquareSet;
+/**
+ * Gets squares attacked or defended by a rook on `square`, given `occupied`
+ * squares.
+ */
+export declare const rookAttacks: (square: Square, occupied: SquareSet) => SquareSet;
+/**
+ * Gets squares attacked or defended by a queen on `square`, given `occupied`
+ * squares.
+ */
+export declare const queenAttacks: (square: Square, occupied: SquareSet) => SquareSet;
+/**
+ * Gets squares attacked or defended by a `piece` on `square`, given
+ * `occupied` squares.
+ */
+export declare const attacks: (piece: Piece, square: Square, occupied: SquareSet) => SquareSet;
+/**
+ * Gets all squares of the rank, file or diagonal with the two squares
+ * `a` and `b`, or an empty set if they are not aligned.
+ */
+export declare const ray: (a: Square, b: Square) => SquareSet;
+/**
+ * Gets all squares between `a` and `b` (bounds not included), or an empty set
+ * if they are not on the same rank, file or diagonal.
+ */
+export declare const between: (a: Square, b: Square) => SquareSet;
+
+
+// board.d.ts
+import { SquareSet } from './squareSet.js';
+import { ByColor, ByRole, Color, Piece, Role, Square } from './types.js';
+/**
+ * Piece positions on a board.
+ *
+ * Properties are sets of squares, like `board.occupied` for all occupied
+ * squares, `board[color]` for all pieces of that color, and `board[role]`
+ * for all pieces of that role. When modifying the properties directly, take
+ * care to keep them consistent.
+ */
+export declare class Board implements Iterable<[Square, Piece]>, ByRole<SquareSet>, ByColor<SquareSet> {
+    /**
+     * All occupied squares.
+     */
+    occupied: SquareSet;
+    /**
+     * All squares occupied by pieces known to be promoted. This information is
+     * relevant in chess variants like Crazyhouse.
+     */
+    promoted: SquareSet;
+    white: SquareSet;
+    black: SquareSet;
+    pawn: SquareSet;
+    knight: SquareSet;
+    bishop: SquareSet;
+    rook: SquareSet;
+    queen: SquareSet;
+    king: SquareSet;
+    private constructor();
+    static default(): Board;
+    /**
+     * Resets all pieces to the default starting position for standard chess.
+     */
+    reset(): void;
+    static empty(): Board;
+    clear(): void;
+    clone(): Board;
+    getColor(square: Square): Color | undefined;
+    getRole(square: Square): Role | undefined;
+    get(square: Square): Piece | undefined;
+    /**
+     * Removes and returns the piece from the given `square`, if any.
+     */
+    take(square: Square): Piece | undefined;
+    /**
+     * Put `piece` onto `square`, potentially replacing an existing piece.
+     * Returns the existing piece, if any.
+     */
+    set(square: Square, piece: Piece): Piece | undefined;
+    has(square: Square): boolean;
+    [Symbol.iterator](): Iterator<[Square, Piece]>;
+    pieces(color: Color, role: Role): SquareSet;
+    rooksAndQueens(): SquareSet;
+    bishopsAndQueens(): SquareSet;
+    /**
+     * Finds the unique king of the given `color`, if any.
+     */
+    kingOf(color: Color): Square | undefined;
+}
+export declare const boardEquals: (left: Board, right: Board) => boolean;
+
+
+// chess.d.ts
+import { Result } from '@badrap/result';
+import { Board } from './board.js';
+import { Material, RemainingChecks, Setup } from './setup.js';
+import { SquareSet } from './squareSet.js';
+import { ByCastlingSide, ByColor, CastlingSide, Color, Move, Outcome, Piece, Rules, Square } from './types.js';
+export declare enum IllegalSetup {
+    Empty = "ERR_EMPTY",
+    OppositeCheck = "ERR_OPPOSITE_CHECK",
+    PawnsOnBackrank = "ERR_PAWNS_ON_BACKRANK",
+    Kings = "ERR_KINGS",
+    Variant = "ERR_VARIANT"
+}
+export declare class PositionError extends Error {
+}
+export declare class Castles {
+    castlingRights: SquareSet;
+    rook: ByColor<ByCastlingSide<Square | undefined>>;
+    path: ByColor<ByCastlingSide<SquareSet>>;
+    private constructor();
+    static default(): Castles;
+    static empty(): Castles;
+    clone(): Castles;
+    private add;
+    static fromSetup(setup: Setup): Castles;
+    discardRook(square: Square): void;
+    discardColor(color: Color): void;
+}
+export interface Context {
+    king: Square | undefined;
+    blockers: SquareSet;
+    checkers: SquareSet;
+    variantEnd: boolean;
+    mustCapture: boolean;
+}
+export declare abstract class Position {
+    readonly rules: Rules;
+    board: Board;
+    pockets: Material | undefined;
+    turn: Color;
+    castles: Castles;
+    epSquare: Square | undefined;
+    remainingChecks: RemainingChecks | undefined;
+    halfmoves: number;
+    fullmoves: number;
+    protected constructor(rules: Rules);
+    reset(): void;
+    protected setupUnchecked(setup: Setup): void;
+    kingAttackers(square: Square, attacker: Color, occupied: SquareSet): SquareSet;
+    protected playCaptureAt(square: Square, captured: Piece): void;
+    ctx(): Context;
+    clone(): Position;
+    protected validate(): Result<undefined, PositionError>;
+    dropDests(_ctx?: Context): SquareSet;
+    dests(square: Square, ctx?: Context): SquareSet;
+    isVariantEnd(): boolean;
+    variantOutcome(_ctx?: Context): Outcome | undefined;
+    hasInsufficientMaterial(color: Color): boolean;
+    toSetup(): Setup;
+    isInsufficientMaterial(): boolean;
+    hasDests(ctx?: Context): boolean;
+    isLegal(move: Move, ctx?: Context): boolean;
+    isCheck(): boolean;
+    isEnd(ctx?: Context): boolean;
+    isCheckmate(ctx?: Context): boolean;
+    isStalemate(ctx?: Context): boolean;
+    outcome(ctx?: Context): Outcome | undefined;
+    allDests(ctx?: Context): Map<Square, SquareSet>;
+    play(move: Move): void;
+}
+export declare class Chess extends Position {
+    private constructor();
+    static default(): Chess;
+    static fromSetup(setup: Setup): Result<Chess, PositionError>;
+    clone(): Chess;
+}
+export declare const pseudoDests: (pos: Position, square: Square, ctx: Context) => SquareSet;
+export declare const equalsIgnoreMoves: (left: Position, right: Position) => boolean;
+export declare const castlingSide: (pos: Position, move: Move) => CastlingSide | undefined;
+export declare const normalizeMove: (pos: Position, move: Move) => Move;
+export declare const isStandardMaterialSide: (board: Board, color: Color) => boolean;
+export declare const isStandardMaterial: (pos: Chess) => boolean;
+export declare const isImpossibleCheck: (pos: Position) => boolean;
+
+
+// compat.d.ts
+/**
+ * Compatibility with other libraries.
+ *
+ * Convert between the formats used by chessops,
+ * [chessground](https://github.com/lichess-org/chessground),
+ * and [scalachess](https://github.com/lichess-org/scalachess).
+ *
+ * @packageDocumentation
+ */
+import { Position } from './chess.js';
+import { Move, Rules, SquareName } from './types.js';
+export interface ChessgroundDestsOpts {
+    chess960?: boolean;
+}
+/**
+ * Computes the legal move destinations in the format used by chessground.
+ *
+ * Includes both possible representations of castling moves (unless
+ * `chess960` mode is enabled), so that the `rookCastles` option will work
+ * correctly.
+ */
+export declare const chessgroundDests: (pos: Position, opts?: ChessgroundDestsOpts) => Map<SquareName, SquareName[]>;
+export declare const chessgroundMove: (move: Move) => SquareName[];
+export declare const scalachessCharPair: (move: Move) => string;
+export declare const lichessRules: (variant: "standard" | "chess960" | "antichess" | "fromPosition" | "kingOfTheHill" | "threeCheck" | "atomic" | "horde" | "racingKings" | "crazyhouse") => Rules;
+export declare const lichessVariant: (rules: Rules) => "standard" | "antichess" | "kingOfTheHill" | "threeCheck" | "atomic" | "horde" | "racingKings" | "crazyhouse";
+
+
+// debug.d.ts
+import { Board } from './board.js';
+import { Position } from './chess.js';
+import { SquareSet } from './squareSet.js';
+import { Piece, Square } from './types.js';
+export declare const squareSet: (squares: SquareSet) => string;
+export declare const piece: (piece: Piece) => string;
+export declare const board: (board: Board) => string;
+export declare const square: (sq: Square) => string;
+export declare const dests: (dests: Map<Square, SquareSet>) => string;
+export declare const perft: (pos: Position, depth: number, log?: boolean) => number;
+
+
+// fen.d.ts
+import { Result } from '@badrap/result';
+import { Board } from './board.js';
+import { Material, MaterialSide, RemainingChecks, Setup } from './setup.js';
+import { SquareSet } from './squareSet.js';
+import { Piece } from './types.js';
+export declare const INITIAL_BOARD_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+export declare const INITIAL_EPD: string;
+export declare const INITIAL_FEN: string;
+export declare const EMPTY_BOARD_FEN = "8/8/8/8/8/8/8/8";
+export declare const EMPTY_EPD: string;
+export declare const EMPTY_FEN: string;
+export declare enum InvalidFen {
+    Fen = "ERR_FEN",
+    Board = "ERR_BOARD",
+    Pockets = "ERR_POCKETS",
+    Turn = "ERR_TURN",
+    Castling = "ERR_CASTLING",
+    EpSquare = "ERR_EP_SQUARE",
+    RemainingChecks = "ERR_REMAINING_CHECKS",
+    Halfmoves = "ERR_HALFMOVES",
+    Fullmoves = "ERR_FULLMOVES"
+}
+export declare class FenError extends Error {
+}
+export declare const parseBoardFen: (boardPart: string) => Result<Board, FenError>;
+export declare const parsePockets: (pocketPart: string) => Result<Material, FenError>;
+export declare const parseCastlingFen: (board: Board, castlingPart: string) => Result<SquareSet, FenError>;
+export declare const parseRemainingChecks: (part: string) => Result<RemainingChecks, FenError>;
+export declare const parseFen: (fen: string) => Result<Setup, FenError>;
+export interface FenOpts {
+    epd?: boolean;
+}
+export declare const parsePiece: (str: string) => Piece | undefined;
+export declare const makePiece: (piece: Piece) => string;
+export declare const makeBoardFen: (board: Board) => string;
+export declare const makePocket: (material: MaterialSide) => string;
+export declare const makePockets: (pocket: Material) => string;
+export declare const makeCastlingFen: (board: Board, castlingRights: SquareSet) => string;
+export declare const makeRemainingChecks: (checks: RemainingChecks) => string;
+export declare const makeFen: (setup: Setup, opts?: FenOpts) => string;
+
+
+// index.d.ts
+export { ByCastlingSide, ByColor, ByRole, BySquare, CASTLING_SIDES, CastlingSide, Color, COLORS, DropMove, FILE_NAMES, FileName, isDrop, isNormal, Move, NormalMove, Outcome, Piece, RANK_NAMES, RankName, Role, ROLES, RULES, Rules, Square, SquareName, } from './types.js';
+export { charToRole, defined, kingCastlesTo, makeSquare, makeUci, opposite, parseSquare, parseUci, roleToChar, squareFile, squareRank, } from './util.js';
+export { SquareSet } from './squareSet.js';
+export { attacks, between, bishopAttacks, kingAttacks, knightAttacks, pawnAttacks, queenAttacks, ray, rookAttacks, } from './attacks.js';
+export { Board } from './board.js';
+export { defaultSetup, Material, MaterialSide, RemainingChecks, Setup } from './setup.js';
+export { Castles, Chess, Context, IllegalSetup, Position, PositionError } from './chess.js';
+export * as compat from './compat.js';
+export * as debug from './debug.js';
+export * as fen from './fen.js';
+export * as san from './san.js';
+export * as transform from './transform.js';
+export * as variant from './variant.js';
+export * as pgn from './pgn.js';
+
+
+// pgn.d.ts
+/**
+ * Parse, transform and write PGN.
+ *
+ * ## Parser
+ *
+ * The parser will interpret any input as a PGN, creating a tree of
+ * syntactically valid (but not necessarily legal) moves, skipping any invalid
+ * tokens.
+ *
+ * ```ts
+ * import { parsePgn, startingPosition } from 'chessops/pgn';
+ * import { parseSan } from 'chessops/san';
+ *
+ * const pgn = '1. d4 d5 *';
+ * const games = parsePgn(pgn);
+ * for (const game of games) {
+ *   const pos = startingPosition(game.headers).unwrap();
+ *   for (const node of game.moves.mainline()) {
+ *     const move = parseSan(pos, node.san);
+ *     if (!move) break; // Illegal move
+ *     pos.play(move);
+ *   }
+ * }
+ * ```
+ *
+ * ## Streaming parser
+ *
+ * The module also provides a denial-of-service resistant streaming parser.
+ * It can be configured with a budget for reasonable complexity of a single
+ * game, fed with chunks of text, and will yield parsed games as they are
+ * completed.
+ *
+ * ```ts
+ *
+ * import { createReadStream } from 'fs';
+ * import { PgnParser } from 'chessops/pgn';
+ *
+ * const stream = createReadStream('games.pgn', { encoding: 'utf-8' });
+ *
+ * const parser = new PgnParser((game, err) => {
+ *   if (err) {
+ *     // Budget exceeded.
+ *     stream.destroy(err);
+ *   }
+ *
+ *   // Use game ...
+ * });
+ *
+ * await new Promise<void>(resolve =>
+ *   stream
+ *     .on('data', (chunk: string) => parser.parse(chunk, { stream: true }))
+ *     .on('close', () => {
+ *       parser.parse('');
+ *       resolve();
+ *     })
+ * );
+ * ```
+ *
+ * ## Augmenting the game tree
+ *
+ * You can use `walk` to visit all nodes in the game tree, or `transform`
+ * to augment it with user data.
+ *
+ * Both allow you to provide context. You update the context inside the
+ * callback, and it is automatically `clone()`-ed at each fork.
+ * In the example below, the current position `pos` is provided as context.
+ *
+ * ```ts
+ * import { transform } from 'chessops/pgn';
+ * import { makeFen } from 'chessops/fen';
+ * import { parseSan, makeSanAndPlay } from 'chessops/san';
+ *
+ * const pos = startingPosition(game.headers).unwrap();
+ * game.moves = transform(game.moves, pos, (pos, node) => {
+ *   const move = parseSan(pos, node.san);
+ *   if (!move) {
+ *     // Illegal move. Returning undefined cuts off the tree here.
+ *     return;
+ *   }
+ *
+ *   const san = makeSanAndPlay(pos, move); // Mutating pos!
+ *
+ *   return {
+ *     ...node, // Keep comments and annotation glyphs
+ *     san, // Normalized SAN
+ *     fen: makeFen(pos.toSetup()), // Add arbitrary user data to node
+ *   };
+ * });
+ * ```
+ *
+ * ## Writing
+ *
+ * Requires each node to at least have a `san` property.
+ *
+ * ```
+ * import { makePgn } from 'chessops/pgn';
+ *
+ * const rewrittenPgn = makePgn(game);
+ * ```
+ *
+ * @packageDocumentation
+ */
+import { Result } from '@badrap/result';
+import { Position, PositionError } from './chess.js';
+import { FenError } from './fen.js';
+import { Outcome, Rules, Square } from './types.js';
+export interface Game<T> {
+    headers: Map<string, string>;
+    comments?: string[];
+    moves: Node<T>;
+}
+export declare const defaultGame: <T>(initHeaders?: () => Map<string, string>) => Game<T>;
+export declare class Node<T> {
+    children: ChildNode<T>[];
+    mainlineNodes(): Iterable<ChildNode<T>>;
+    mainline(): Iterable<T>;
+    end(): Node<T>;
+}
+export declare class ChildNode<T> extends Node<T> {
+    data: T;
+    constructor(data: T);
+}
+export declare const isChildNode: <T>(node: Node<T>) => node is ChildNode<T>;
+export declare const extend: <T>(node: Node<T>, data: T[]) => Node<T>;
+export declare class Box<T> {
+    value: T;
+    constructor(value: T);
+    clone(): Box<T>;
+}
+export declare const transform: <T, U, C extends {
+    clone(): C;
+}>(node: Node<T>, ctx: C, f: (ctx: C, data: T, childIndex: number) => U | undefined) => Node<U>;
+export declare const walk: <T, C extends {
+    clone(): C;
+}>(node: Node<T>, ctx: C, f: (ctx: C, data: T, childIndex: number) => boolean | void) => void;
+export interface PgnNodeData {
+    san: string;
+    startingComments?: string[];
+    comments?: string[];
+    nags?: number[];
+}
+export declare const makeOutcome: (outcome: Outcome | undefined) => string;
+export declare const parseOutcome: (s: string | undefined) => Outcome | undefined;
+export declare const makePgn: (game: Game<PgnNodeData>) => string;
+export declare const defaultHeaders: () => Map<string, string>;
+export declare const emptyHeaders: () => Map<string, string>;
+export interface ParseOptions {
+    stream: boolean;
+}
+export declare class PgnError extends Error {
+}
+export declare class PgnParser {
+    private emitGame;
+    private initHeaders;
+    private maxBudget;
+    private lineBuf;
+    private budget;
+    private found;
+    private state;
+    private game;
+    private stack;
+    private commentBuf;
+    constructor(emitGame: (game: Game<PgnNodeData>, err: PgnError | undefined) => void, initHeaders?: () => Map<string, string>, maxBudget?: number);
+    private resetGame;
+    private consumeBudget;
+    parse(data: string, options?: ParseOptions): void;
+    private handleLine;
+    private handleHeader;
+    private handleNag;
+    private handleComment;
+    private emit;
+}
+export declare const parsePgn: (pgn: string, initHeaders?: () => Map<string, string>) => Game<PgnNodeData>[];
+export declare const parseVariant: (variant: string | undefined) => Rules | undefined;
+export declare const makeVariant: (rules: Rules) => string | undefined;
+export declare const startingPosition: (headers: Map<string, string>) => Result<Position, FenError | PositionError>;
+export declare const setStartingPosition: (headers: Map<string, string>, pos: Position) => void;
+export type CommentShapeColor = 'green' | 'red' | 'yellow' | 'blue';
+export interface CommentShape {
+    color: CommentShapeColor;
+    from: Square;
+    to: Square;
+}
+export type EvaluationPawns = {
+    pawns: number;
+    depth?: number;
+};
+export type EvaluationMate = {
+    mate: number;
+    depth?: number;
+};
+export type Evaluation = EvaluationPawns | EvaluationMate;
+export declare const isPawns: (ev: Evaluation) => ev is EvaluationPawns;
+export declare const isMate: (ev: Evaluation) => ev is EvaluationMate;
+export interface Comment {
+    text: string;
+    shapes: CommentShape[];
+    clock?: number;
+    emt?: number;
+    evaluation?: Evaluation;
+}
+export declare const makeComment: (comment: Partial<Comment>) => string;
+export declare const parseComment: (comment: string) => Comment;
+
+
+// san.d.ts
+import { Position } from './chess.js';
+import { Move } from './types.js';
+export declare const makeSanAndPlay: (pos: Position, move: Move) => string;
+export declare const makeSanVariation: (pos: Position, variation: Move[]) => string;
+export declare const makeSan: (pos: Position, move: Move) => string;
+export declare const parseSan: (pos: Position, san: string) => Move | undefined;
+
+
+// setup.d.ts
+import { Board } from './board.js';
+import { SquareSet } from './squareSet.js';
+import { ByColor, ByRole, Color, Role, Square } from './types.js';
+export declare class MaterialSide implements ByRole<number> {
+    pawn: number;
+    knight: number;
+    bishop: number;
+    rook: number;
+    queen: number;
+    king: number;
+    private constructor();
+    static empty(): MaterialSide;
+    static fromBoard(board: Board, color: Color): MaterialSide;
+    clone(): MaterialSide;
+    equals(other: MaterialSide): boolean;
+    add(other: MaterialSide): MaterialSide;
+    subtract(other: MaterialSide): MaterialSide;
+    nonEmpty(): boolean;
+    isEmpty(): boolean;
+    hasPawns(): boolean;
+    hasNonPawns(): boolean;
+    size(): number;
+}
+export declare class Material implements ByColor<MaterialSide> {
+    white: MaterialSide;
+    black: MaterialSide;
+    constructor(white: MaterialSide, black: MaterialSide);
+    static empty(): Material;
+    static fromBoard(board: Board): Material;
+    clone(): Material;
+    equals(other: Material): boolean;
+    add(other: Material): Material;
+    subtract(other: Material): Material;
+    count(role: Role): number;
+    size(): number;
+    isEmpty(): boolean;
+    nonEmpty(): boolean;
+    hasPawns(): boolean;
+    hasNonPawns(): boolean;
+}
+export declare class RemainingChecks implements ByColor<number> {
+    white: number;
+    black: number;
+    constructor(white: number, black: number);
+    static default(): RemainingChecks;
+    clone(): RemainingChecks;
+    equals(other: RemainingChecks): boolean;
+}
+/**
+ * A not necessarily legal chess or chess variant position.
+ */
+export interface Setup {
+    board: Board;
+    pockets: Material | undefined;
+    turn: Color;
+    castlingRights: SquareSet;
+    epSquare: Square | undefined;
+    remainingChecks: RemainingChecks | undefined;
+    halfmoves: number;
+    fullmoves: number;
+}
+export declare const defaultSetup: () => Setup;
+export declare const setupClone: (setup: Setup) => Setup;
+export declare const setupEquals: (left: Setup, right: Setup) => boolean;
+
+
+// squareSet.d.ts
+import { Color, Square } from './types.js';
+/**
+ * An immutable set of squares, implemented as a bitboard.
+ */
+export declare class SquareSet implements Iterable<Square> {
+    readonly lo: number;
+    readonly hi: number;
+    constructor(lo: number, hi: number);
+    static fromSquare(square: Square): SquareSet;
+    static fromRank(rank: number): SquareSet;
+    static fromFile(file: number): SquareSet;
+    static empty(): SquareSet;
+    static full(): SquareSet;
+    static corners(): SquareSet;
+    static center(): SquareSet;
+    static backranks(): SquareSet;
+    static backrank(color: Color): SquareSet;
+    static lightSquares(): SquareSet;
+    static darkSquares(): SquareSet;
+    complement(): SquareSet;
+    xor(other: SquareSet): SquareSet;
+    union(other: SquareSet): SquareSet;
+    intersect(other: SquareSet): SquareSet;
+    diff(other: SquareSet): SquareSet;
+    intersects(other: SquareSet): boolean;
+    isDisjoint(other: SquareSet): boolean;
+    supersetOf(other: SquareSet): boolean;
+    subsetOf(other: SquareSet): boolean;
+    shr64(shift: number): SquareSet;
+    shl64(shift: number): SquareSet;
+    bswap64(): SquareSet;
+    rbit64(): SquareSet;
+    minus64(other: SquareSet): SquareSet;
+    equals(other: SquareSet): boolean;
+    size(): number;
+    isEmpty(): boolean;
+    nonEmpty(): boolean;
+    has(square: Square): boolean;
+    set(square: Square, on: boolean): SquareSet;
+    with(square: Square): SquareSet;
+    without(square: Square): SquareSet;
+    toggle(square: Square): SquareSet;
+    last(): Square | undefined;
+    first(): Square | undefined;
+    withoutFirst(): SquareSet;
+    moreThanOne(): boolean;
+    singleSquare(): Square | undefined;
+    [Symbol.iterator](): Iterator<Square>;
+    reversed(): Iterable<Square>;
+}
+
+
+// transform.d.ts
+import { Board } from './board.js';
+import { Setup } from './setup.js';
+import { SquareSet } from './squareSet.js';
+export declare const flipVertical: (s: SquareSet) => SquareSet;
+export declare const flipHorizontal: (s: SquareSet) => SquareSet;
+export declare const flipDiagonal: (s: SquareSet) => SquareSet;
+export declare const rotate180: (s: SquareSet) => SquareSet;
+export declare const transformBoard: (board: Board, f: (s: SquareSet) => SquareSet) => Board;
+export declare const transformSetup: (setup: Setup, f: (s: SquareSet) => SquareSet) => Setup;
+
+
+// types.d.ts
+export declare const FILE_NAMES: readonly ["a", "b", "c", "d", "e", "f", "g", "h"];
+export type FileName = (typeof FILE_NAMES)[number];
+export declare const RANK_NAMES: readonly ["1", "2", "3", "4", "5", "6", "7", "8"];
+export type RankName = (typeof RANK_NAMES)[number];
+export type Square = number;
+export type SquareName = `${FileName}${RankName}`;
+/**
+ * Indexable by square indices.
+ */
+export type BySquare<T> = T[];
+export declare const COLORS: readonly ["white", "black"];
+export type Color = (typeof COLORS)[number];
+/**
+ * Indexable by `white` and `black`.
+ */
+export type ByColor<T> = {
+    [color in Color]: T;
+};
+export declare const ROLES: readonly ["pawn", "knight", "bishop", "rook", "queen", "king"];
+export type Role = (typeof ROLES)[number];
+/**
+ * Indexable by `pawn`, `knight`, `bishop`, `rook`, `queen`, and `king`.
+ */
+export type ByRole<T> = {
+    [role in Role]: T;
+};
+export declare const CASTLING_SIDES: readonly ["a", "h"];
+export type CastlingSide = (typeof CASTLING_SIDES)[number];
+/**
+ * Indexable by `a` and `h`.
+ */
+export type ByCastlingSide<T> = {
+    [side in CastlingSide]: T;
+};
+export interface Piece {
+    role: Role;
+    color: Color;
+    promoted?: boolean;
+}
+export interface NormalMove {
+    from: Square;
+    to: Square;
+    promotion?: Role;
+}
+export interface DropMove {
+    role: Role;
+    to: Square;
+}
+export type Move = NormalMove | DropMove;
+export declare const isDrop: (v: Move) => v is DropMove;
+export declare const isNormal: (v: Move) => v is NormalMove;
+export declare const RULES: readonly ["chess", "antichess", "kingofthehill", "3check", "atomic", "horde", "racingkings", "crazyhouse"];
+export type Rules = (typeof RULES)[number];
+export interface Outcome {
+    winner: Color | undefined;
+}
+
+
+// util.d.ts
+import { CastlingSide, Color, Move, Role, Square, SquareName } from './types.js';
+export declare const defined: <A>(v: A | undefined) => v is A;
+export declare const opposite: (color: Color) => Color;
+export declare const squareRank: (square: Square) => number;
+export declare const squareFile: (square: Square) => number;
+export declare const squareFromCoords: (file: number, rank: number) => Square | undefined;
+export declare const roleToChar: (role: Role) => string;
+export declare function charToRole(ch: 'p' | 'n' | 'b' | 'r' | 'q' | 'k' | 'P' | 'N' | 'B' | 'R' | 'Q' | 'K'): Role;
+export declare function charToRole(ch: string): Role | undefined;
+export declare function parseSquare(str: SquareName): Square;
+export declare function parseSquare(str: string): Square | undefined;
+export declare const makeSquare: (square: Square) => SquareName;
+export declare const parseUci: (str: string) => Move | undefined;
+export declare const moveEquals: (left: Move, right: Move) => boolean;
+/**
+ * Converts a move to UCI notation, like `g1f3` for a normal move,
+ * `a7a8q` for promotion to a queen, and `Q@f7` for a Crazyhouse drop.
+ */
+export declare const makeUci: (move: Move) => string;
+export declare const kingCastlesTo: (color: Color, side: CastlingSide) => Square;
+export declare const rookCastlesTo: (color: Color, side: CastlingSide) => Square;
+
+
+// variant.d.ts
+import { Result } from '@badrap/result';
+import { Castles, castlingSide, Chess, Context, equalsIgnoreMoves, IllegalSetup, isImpossibleCheck, normalizeMove, Position, PositionError } from './chess.js';
+import { Setup } from './setup.js';
+import { SquareSet } from './squareSet.js';
+import { Color, Outcome, Piece, Rules, Square } from './types.js';
+export { Castles, castlingSide, Chess, Context, equalsIgnoreMoves, IllegalSetup, isImpossibleCheck, normalizeMove, Position, PositionError, };
+export declare class Crazyhouse extends Position {
+    private constructor();
+    reset(): void;
+    protected setupUnchecked(setup: Setup): void;
+    static default(): Crazyhouse;
+    static fromSetup(setup: Setup): Result<Crazyhouse, PositionError>;
+    clone(): Crazyhouse;
+    protected validate(): Result<undefined, PositionError>;
+    hasInsufficientMaterial(color: Color): boolean;
+    dropDests(ctx?: Context): SquareSet;
+}
+export declare class Atomic extends Position {
+    private constructor();
+    static default(): Atomic;
+    static fromSetup(setup: Setup): Result<Atomic, PositionError>;
+    clone(): Atomic;
+    protected validate(): Result<undefined, PositionError>;
+    kingAttackers(square: Square, attacker: Color, occupied: SquareSet): SquareSet;
+    protected playCaptureAt(square: Square, captured: Piece): void;
+    hasInsufficientMaterial(color: Color): boolean;
+    dests(square: Square, ctx?: Context): SquareSet;
+    isVariantEnd(): boolean;
+    variantOutcome(_ctx?: Context): Outcome | undefined;
+}
+export declare class Antichess extends Position {
+    private constructor();
+    reset(): void;
+    protected setupUnchecked(setup: Setup): void;
+    static default(): Antichess;
+    static fromSetup(setup: Setup): Result<Antichess, PositionError>;
+    clone(): Antichess;
+    protected validate(): Result<undefined, PositionError>;
+    kingAttackers(_square: Square, _attacker: Color, _occupied: SquareSet): SquareSet;
+    ctx(): Context;
+    dests(square: Square, ctx?: Context): SquareSet;
+    hasInsufficientMaterial(color: Color): boolean;
+    isVariantEnd(): boolean;
+    variantOutcome(ctx?: Context): Outcome | undefined;
+}
+export declare class KingOfTheHill extends Position {
+    private constructor();
+    static default(): KingOfTheHill;
+    static fromSetup(setup: Setup): Result<KingOfTheHill, PositionError>;
+    clone(): KingOfTheHill;
+    hasInsufficientMaterial(_color: Color): boolean;
+    isVariantEnd(): boolean;
+    variantOutcome(_ctx?: Context): Outcome | undefined;
+}
+export declare class ThreeCheck extends Position {
+    private constructor();
+    reset(): void;
+    protected setupUnchecked(setup: Setup): void;
+    static default(): ThreeCheck;
+    static fromSetup(setup: Setup): Result<ThreeCheck, PositionError>;
+    clone(): ThreeCheck;
+    hasInsufficientMaterial(color: Color): boolean;
+    isVariantEnd(): boolean;
+    variantOutcome(_ctx?: Context): Outcome | undefined;
+}
+export declare class RacingKings extends Position {
+    private constructor();
+    reset(): void;
+    setupUnchecked(setup: Setup): void;
+    static default(): RacingKings;
+    static fromSetup(setup: Setup): Result<RacingKings, PositionError>;
+    clone(): RacingKings;
+    protected validate(): Result<undefined, PositionError>;
+    dests(square: Square, ctx?: Context): SquareSet;
+    hasInsufficientMaterial(_color: Color): boolean;
+    isVariantEnd(): boolean;
+    variantOutcome(ctx?: Context): Outcome | undefined;
+}
+export declare class Horde extends Position {
+    private constructor();
+    reset(): void;
+    static default(): Horde;
+    static fromSetup(setup: Setup): Result<Horde, PositionError>;
+    clone(): Horde;
+    protected validate(): Result<undefined, PositionError>;
+    hasInsufficientMaterial(color: Color): boolean;
+    isVariantEnd(): boolean;
+    variantOutcome(_ctx?: Context): Outcome | undefined;
+}
+export declare const defaultPosition: (rules: Rules) => Position;
+export declare const setupPosition: (rules: Rules, setup: Setup) => Result<Position, PositionError>;
+export declare const isStandardMaterial: (pos: Position) => boolean;
+
+

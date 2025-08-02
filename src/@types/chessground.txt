@@ -1,0 +1,570 @@
+// anim.d.ts
+import { State } from './state.js';
+import * as cg from './types.js';
+export type Mutation<A> = (state: State) => A;
+export type AnimVector = cg.NumberQuad;
+export type AnimVectors = Map<cg.Key, AnimVector>;
+export type AnimFadings = Map<cg.Key, cg.Piece>;
+export interface AnimPlan {
+    anims: AnimVectors;
+    fadings: AnimFadings;
+}
+export interface AnimCurrent {
+    start: DOMHighResTimeStamp;
+    frequency: cg.KHz;
+    plan: AnimPlan;
+}
+export declare const anim: <A>(mutation: Mutation<A>, state: State) => A;
+export declare function render<A>(mutation: Mutation<A>, state: State): A;
+
+
+// api.d.ts
+import { State } from './state.js';
+import { Config } from './config.js';
+import { DrawShape } from './draw.js';
+import * as cg from './types.js';
+export interface Api {
+    set(config: Config): void;
+    state: State;
+    getFen(): cg.FEN;
+    toggleOrientation(): void;
+    move(orig: cg.Key, dest: cg.Key): void;
+    setPieces(pieces: cg.PiecesDiff): void;
+    selectSquare(key: cg.Key | null, force?: boolean): void;
+    newPiece(piece: cg.Piece, key: cg.Key): void;
+    playPremove(): boolean;
+    cancelPremove(): void;
+    playPredrop(validate: (drop: cg.Drop) => boolean): boolean;
+    cancelPredrop(): void;
+    cancelMove(): void;
+    stop(): void;
+    explode(keys: cg.Key[]): void;
+    setShapes(shapes: DrawShape[]): void;
+    setAutoShapes(shapes: DrawShape[]): void;
+    getKeyAtDomPos(pos: cg.NumberPair): cg.Key | undefined;
+    redrawAll: cg.Redraw;
+    dragNewPiece(piece: cg.Piece, event: cg.MouchEvent, force?: boolean): void;
+    destroy: cg.Unbind;
+}
+export declare function start(state: State, redrawAll: cg.Redraw): Api;
+
+
+// autoPieces.d.ts
+import { State } from './state.js';
+export declare function render(state: State, autoPieceEl: HTMLElement): void;
+export declare function renderResized(state: State): void;
+
+
+// board.d.ts
+import { HeadlessState } from './state.js';
+import * as cg from './types.js';
+export declare function callUserFunction<T extends (...args: any[]) => void>(f: T | undefined, ...args: Parameters<T>): void;
+export declare function toggleOrientation(state: HeadlessState): void;
+export declare function reset(state: HeadlessState): void;
+export declare function setPieces(state: HeadlessState, pieces: cg.PiecesDiff): void;
+export declare function setCheck(state: HeadlessState, color: cg.Color | boolean): void;
+export declare function unsetPremove(state: HeadlessState): void;
+export declare function unsetPredrop(state: HeadlessState): void;
+export declare function baseMove(state: HeadlessState, orig: cg.Key, dest: cg.Key): cg.Piece | boolean;
+export declare function baseNewPiece(state: HeadlessState, piece: cg.Piece, key: cg.Key, force?: boolean): boolean;
+export declare function userMove(state: HeadlessState, orig: cg.Key, dest: cg.Key): boolean;
+export declare function dropNewPiece(state: HeadlessState, orig: cg.Key, dest: cg.Key, force?: boolean): void;
+export declare function selectSquare(state: HeadlessState, key: cg.Key, force?: boolean): void;
+export declare function setSelected(state: HeadlessState, key: cg.Key): void;
+export declare function unselect(state: HeadlessState): void;
+export declare const canMove: (state: HeadlessState, orig: cg.Key, dest: cg.Key) => boolean;
+export declare function isDraggable(state: HeadlessState, orig: cg.Key): boolean;
+export declare function playPremove(state: HeadlessState): boolean;
+export declare function playPredrop(state: HeadlessState, validate: (drop: cg.Drop) => boolean): boolean;
+export declare function cancelMove(state: HeadlessState): void;
+export declare function stop(state: HeadlessState): void;
+export declare function getKeyAtDomPos(pos: cg.NumberPair, asWhite: boolean, bounds: DOMRectReadOnly): cg.Key | undefined;
+export declare function getSnappedKeyAtDomPos(orig: cg.Key, pos: cg.NumberPair, asWhite: boolean, bounds: DOMRectReadOnly): cg.Key | undefined;
+export declare const whitePov: (s: HeadlessState) => boolean;
+
+
+// chessground.d.ts
+import { Api } from './api.js';
+import { Config } from './config.js';
+export declare function initModule({ el, config }: {
+    el: HTMLElement;
+    config?: Config;
+}): Api;
+export declare function Chessground(element: HTMLElement, config?: Config): Api;
+
+
+// config.d.ts
+import { HeadlessState } from './state.js';
+import { DrawShape, DrawBrushes } from './draw.js';
+import * as cg from './types.js';
+export interface Config {
+    fen?: cg.FEN;
+    orientation?: cg.Color;
+    turnColor?: cg.Color;
+    check?: cg.Color | boolean;
+    lastMove?: cg.Key[];
+    selected?: cg.Key;
+    coordinates?: boolean;
+    coordinatesOnSquares?: boolean;
+    autoCastle?: boolean;
+    viewOnly?: boolean;
+    disableContextMenu?: boolean;
+    addPieceZIndex?: boolean;
+    addDimensionsCssVarsTo?: HTMLElement;
+    blockTouchScroll?: boolean;
+    trustAllEvents?: boolean;
+    highlight?: {
+        lastMove?: boolean;
+        check?: boolean;
+        custom?: cg.SquareClasses;
+    };
+    animation?: {
+        enabled?: boolean;
+        duration?: number;
+    };
+    movable?: {
+        free?: boolean;
+        color?: cg.Color | 'both';
+        dests?: cg.Dests;
+        showDests?: boolean;
+        events?: {
+            after?: (orig: cg.Key, dest: cg.Key, metadata: cg.MoveMetadata) => void;
+            afterNewPiece?: (role: cg.Role, key: cg.Key, metadata: cg.MoveMetadata) => void;
+        };
+        rookCastle?: boolean;
+    };
+    premovable?: {
+        enabled?: boolean;
+        showDests?: boolean;
+        castle?: boolean;
+        dests?: cg.Key[];
+        customDests?: cg.Dests;
+        events?: {
+            set?: (orig: cg.Key, dest: cg.Key, metadata?: cg.SetPremoveMetadata) => void;
+            unset?: () => void;
+        };
+    };
+    predroppable?: {
+        enabled?: boolean;
+        events?: {
+            set?: (role: cg.Role, key: cg.Key) => void;
+            unset?: () => void;
+        };
+    };
+    draggable?: {
+        enabled?: boolean;
+        distance?: number;
+        autoDistance?: boolean;
+        showGhost?: boolean;
+        deleteOnDropOff?: boolean;
+    };
+    selectable?: {
+        enabled?: boolean;
+    };
+    events?: {
+        change?: () => void;
+        move?: (orig: cg.Key, dest: cg.Key, capturedPiece?: cg.Piece) => void;
+        dropNewPiece?: (piece: cg.Piece, key: cg.Key) => void;
+        select?: (key: cg.Key) => void;
+        insert?: (elements: cg.Elements) => void;
+    };
+    drawable?: {
+        enabled?: boolean;
+        visible?: boolean;
+        defaultSnapToValidMove?: boolean;
+        eraseOnClick?: boolean;
+        shapes?: DrawShape[];
+        autoShapes?: DrawShape[];
+        brushes?: DrawBrushes;
+        onChange?: (shapes: DrawShape[]) => void;
+    };
+}
+export declare function applyAnimation(state: HeadlessState, config: Config): void;
+export declare function configure(state: HeadlessState, config: Config): void;
+
+
+// drag.d.ts
+import { State } from './state.js';
+import * as cg from './types.js';
+export interface DragCurrent {
+    orig: cg.Key;
+    piece: cg.Piece;
+    origPos: cg.NumberPair;
+    pos: cg.NumberPair;
+    started: boolean;
+    element: cg.PieceNode | (() => cg.PieceNode | undefined);
+    newPiece?: boolean;
+    force?: boolean;
+    previouslySelected?: cg.Key;
+    originTarget: EventTarget | null;
+    keyHasChanged: boolean;
+}
+export declare function start(s: State, e: cg.MouchEvent): void;
+export declare function dragNewPiece(s: State, piece: cg.Piece, e: cg.MouchEvent, force?: boolean): void;
+export declare function move(s: State, e: cg.MouchEvent): void;
+export declare function end(s: State, e: cg.MouchEvent): void;
+export declare function cancel(s: State): void;
+
+
+// draw.d.ts
+import { State } from './state.js';
+import * as cg from './types.js';
+export interface DrawShape {
+    orig: cg.Key;
+    dest?: cg.Key;
+    brush?: string;
+    modifiers?: DrawModifiers;
+    piece?: DrawShapePiece;
+    customSvg?: {
+        html: string;
+        center?: 'orig' | 'dest' | 'label';
+    };
+    label?: {
+        text: string;
+        fill?: string;
+    };
+}
+export interface DrawModifiers {
+    lineWidth?: number;
+    hilite?: boolean;
+}
+export interface DrawShapePiece {
+    role: cg.Role;
+    color: cg.Color;
+    scale?: number;
+}
+export interface DrawBrush {
+    key: string;
+    color: string;
+    opacity: number;
+    lineWidth: number;
+}
+export interface DrawBrushes {
+    green: DrawBrush;
+    red: DrawBrush;
+    blue: DrawBrush;
+    yellow: DrawBrush;
+    [color: string]: DrawBrush;
+}
+export interface Drawable {
+    enabled: boolean;
+    visible: boolean;
+    defaultSnapToValidMove: boolean;
+    eraseOnClick: boolean;
+    onChange?: (shapes: DrawShape[]) => void;
+    shapes: DrawShape[];
+    autoShapes: DrawShape[];
+    current?: DrawCurrent;
+    brushes: DrawBrushes;
+    prevSvgHash: string;
+}
+export interface DrawCurrent {
+    orig: cg.Key;
+    dest?: cg.Key;
+    mouseSq?: cg.Key;
+    pos: cg.NumberPair;
+    brush: cg.BrushColor;
+    snapToValidMove: boolean;
+}
+export declare function start(state: State, e: cg.MouchEvent): void;
+export declare function processDraw(state: State): void;
+export declare function move(state: State, e: cg.MouchEvent): void;
+export declare function end(state: State): void;
+export declare function cancel(state: State): void;
+export declare function clear(state: State): void;
+
+
+// drop.d.ts
+import { State } from './state.js';
+import * as cg from './types.js';
+export declare function setDropMode(s: State, piece?: cg.Piece): void;
+export declare function cancelDropMode(s: State): void;
+export declare function drop(s: State, e: cg.MouchEvent): void;
+
+
+// events.d.ts
+import { State } from './state.js';
+import * as cg from './types.js';
+export declare function bindBoard(s: State, onResize: () => void): void;
+export declare function bindDocument(s: State, onResize: () => void): cg.Unbind;
+
+
+// explosion.d.ts
+import { State } from './state.js';
+import { Key } from './types.js';
+export declare function explosion(state: State, keys: Key[]): void;
+
+
+// fen.d.ts
+import * as cg from './types.js';
+export declare const initial: cg.FEN;
+export declare function read(fen: cg.FEN): cg.Pieces;
+export declare function write(pieces: cg.Pieces): cg.FEN;
+
+
+// premove.d.ts
+import * as cg from './types.js';
+type Mobility = (x1: number, y1: number, x2: number, y2: number) => boolean;
+export declare const knight: Mobility;
+export declare const queen: Mobility;
+export declare function premove(pieces: cg.Pieces, key: cg.Key, canCastle: boolean): cg.Key[];
+export {};
+
+
+// render.d.ts
+import { State } from './state.js';
+export declare function render(s: State): void;
+export declare function renderResized(s: State): void;
+export declare function updateBounds(s: State): void;
+
+
+// state.d.ts
+import { AnimCurrent } from './anim.js';
+import { DragCurrent } from './drag.js';
+import { Drawable } from './draw.js';
+import * as cg from './types.js';
+export interface HeadlessState {
+    pieces: cg.Pieces;
+    orientation: cg.Color;
+    turnColor: cg.Color;
+    check?: cg.Key;
+    lastMove?: cg.Key[];
+    selected?: cg.Key;
+    coordinates: boolean;
+    coordinatesOnSquares: boolean;
+    ranksPosition: cg.RanksPosition;
+    autoCastle: boolean;
+    viewOnly: boolean;
+    disableContextMenu: boolean;
+    addPieceZIndex: boolean;
+    addDimensionsCssVarsTo?: HTMLElement;
+    blockTouchScroll: boolean;
+    pieceKey: boolean;
+    trustAllEvents?: boolean;
+    highlight: {
+        lastMove: boolean;
+        check: boolean;
+        custom?: cg.SquareClasses;
+    };
+    animation: {
+        enabled: boolean;
+        duration: number;
+        current?: AnimCurrent;
+    };
+    movable: {
+        free: boolean;
+        color?: cg.Color | 'both';
+        dests?: cg.Dests;
+        showDests: boolean;
+        events: {
+            after?: (orig: cg.Key, dest: cg.Key, metadata: cg.MoveMetadata) => void;
+            afterNewPiece?: (role: cg.Role, key: cg.Key, metadata: cg.MoveMetadata) => void;
+        };
+        rookCastle: boolean;
+    };
+    premovable: {
+        enabled: boolean;
+        showDests: boolean;
+        castle: boolean;
+        dests?: cg.Key[];
+        customDests?: cg.Dests;
+        current?: cg.KeyPair;
+        events: {
+            set?: (orig: cg.Key, dest: cg.Key, metadata?: cg.SetPremoveMetadata) => void;
+            unset?: () => void;
+        };
+    };
+    predroppable: {
+        enabled: boolean;
+        current?: {
+            role: cg.Role;
+            key: cg.Key;
+        };
+        events: {
+            set?: (role: cg.Role, key: cg.Key) => void;
+            unset?: () => void;
+        };
+    };
+    draggable: {
+        enabled: boolean;
+        distance: number;
+        autoDistance: boolean;
+        showGhost: boolean;
+        deleteOnDropOff: boolean;
+        current?: DragCurrent;
+    };
+    dropmode: {
+        active: boolean;
+        piece?: cg.Piece;
+    };
+    selectable: {
+        enabled: boolean;
+    };
+    stats: {
+        dragged: boolean;
+        ctrlKey?: boolean;
+    };
+    events: {
+        change?: () => void;
+        move?: (orig: cg.Key, dest: cg.Key, capturedPiece?: cg.Piece) => void;
+        dropNewPiece?: (piece: cg.Piece, key: cg.Key) => void;
+        select?: (key: cg.Key) => void;
+        insert?: (elements: cg.Elements) => void;
+    };
+    drawable: Drawable;
+    exploding?: cg.Exploding;
+    hold: cg.Timer;
+}
+export interface State extends HeadlessState {
+    dom: cg.Dom;
+}
+export declare function defaults(): HeadlessState;
+
+
+// svg.d.ts
+import { State } from './state.js';
+export { createElement, setAttributes };
+export declare function createDefs(): Element;
+export declare function renderSvg(state: State, shapesEl: SVGElement, customsEl: SVGElement): void;
+declare function createElement(tagName: string): SVGElement;
+declare function setAttributes(el: SVGElement, attrs: {
+    [key: string]: any;
+}): SVGElement;
+
+
+// sync.d.ts
+import { DrawShape } from './draw';
+export interface SyncableShape {
+    shape: DrawShape;
+    current: boolean;
+    hash: Hash;
+}
+export type Hash = string;
+export declare function syncShapes(shapes: SyncableShape[], root: HTMLElement | SVGElement, renderShape: (shape: SyncableShape) => HTMLElement | SVGElement): void;
+
+
+// types.d.ts
+export type Color = (typeof colors)[number];
+export type Role = 'king' | 'queen' | 'rook' | 'bishop' | 'knight' | 'pawn';
+export type File = (typeof files)[number];
+export type Rank = (typeof ranks)[number];
+export type Key = 'a0' | `${File}${Rank}`;
+export type FEN = string;
+export type Pos = [number, number];
+export interface Piece {
+    role: Role;
+    color: Color;
+    promoted?: boolean;
+}
+export interface Drop {
+    role: Role;
+    key: Key;
+}
+export type Pieces = Map<Key, Piece>;
+export type PiecesDiff = Map<Key, Piece | undefined>;
+export type KeyPair = [Key, Key];
+export type NumberPair = [number, number];
+export type NumberQuad = [number, number, number, number];
+export interface Rect {
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+}
+export type Dests = Map<Key, Key[]>;
+export interface Elements {
+    board: HTMLElement;
+    wrap: HTMLElement;
+    container: HTMLElement;
+    ghost?: HTMLElement;
+    svg?: SVGElement;
+    customSvg?: SVGElement;
+    autoPieces?: HTMLElement;
+}
+export interface Dom {
+    elements: Elements;
+    bounds: Memo<DOMRectReadOnly>;
+    redraw: () => void;
+    redrawNow: (skipSvg?: boolean) => void;
+    unbind?: Unbind;
+    destroyed?: boolean;
+}
+export interface Exploding {
+    stage: number;
+    keys: readonly Key[];
+}
+export interface MoveMetadata {
+    premove: boolean;
+    ctrlKey?: boolean;
+    holdTime?: number;
+    captured?: Piece;
+    predrop?: boolean;
+}
+export interface SetPremoveMetadata {
+    ctrlKey?: boolean;
+}
+export type MouchEvent = Event & Partial<MouseEvent & TouchEvent>;
+export interface KeyedNode extends HTMLElement {
+    cgKey: Key;
+}
+export interface PieceNode extends KeyedNode {
+    tagName: 'PIECE';
+    cgPiece: string;
+    cgAnimating?: boolean;
+    cgFading?: boolean;
+    cgDragging?: boolean;
+    cgScale?: number;
+}
+export interface SquareNode extends KeyedNode {
+    tagName: 'SQUARE';
+}
+export interface Memo<A> {
+    (): A;
+    clear: () => void;
+}
+export interface Timer {
+    start: () => void;
+    cancel: () => void;
+    stop: () => number;
+}
+export type Redraw = () => void;
+export type Unbind = () => void;
+export type Milliseconds = number;
+export type KHz = number;
+export declare const colors: readonly ["white", "black"];
+export declare const files: readonly ["a", "b", "c", "d", "e", "f", "g", "h"];
+export declare const ranks: readonly ["1", "2", "3", "4", "5", "6", "7", "8"];
+export type RanksPosition = 'left' | 'right';
+export type BrushColor = 'green' | 'red' | 'blue' | 'yellow';
+export type SquareClasses = Map<Key, string>;
+
+
+// util.d.ts
+import * as cg from './types.js';
+export declare const invRanks: readonly cg.Rank[];
+export declare const allKeys: readonly cg.Key[];
+export declare const pos2key: (pos: cg.Pos) => cg.Key;
+export declare const key2pos: (k: cg.Key) => cg.Pos;
+export declare const uciToMove: (uci: string | undefined) => cg.Key[] | undefined;
+export declare const allPos: readonly cg.Pos[];
+export declare function memo<A>(f: () => A): cg.Memo<A>;
+export declare const timer: () => cg.Timer;
+export declare const opposite: (c: cg.Color) => cg.Color;
+export declare const distanceSq: (pos1: cg.Pos, pos2: cg.Pos) => number;
+export declare const samePiece: (p1: cg.Piece, p2: cg.Piece) => boolean;
+export declare const posToTranslate: (bounds: DOMRectReadOnly) => (pos: cg.Pos, asWhite: boolean) => cg.NumberPair;
+export declare const translate: (el: HTMLElement, pos: cg.NumberPair) => void;
+export declare const translateAndScale: (el: HTMLElement, pos: cg.NumberPair, scale?: number) => void;
+export declare const setVisible: (el: HTMLElement, v: boolean) => void;
+export declare const eventPosition: (e: cg.MouchEvent) => cg.NumberPair | undefined;
+export declare const isRightButton: (e: cg.MouchEvent) => boolean;
+export declare const createEl: (tagName: string, className?: string) => HTMLElement;
+export declare function computeSquareCenter(key: cg.Key, asWhite: boolean, bounds: DOMRectReadOnly): cg.NumberPair;
+
+
+// wrap.d.ts
+import { HeadlessState } from './state.js';
+import { Elements } from './types.js';
+export declare function renderWrap(element: HTMLElement, s: HeadlessState): Elements;
+
+

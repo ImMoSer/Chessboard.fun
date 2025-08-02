@@ -1,0 +1,91 @@
+/**
+ * Wooden Chessboard Theme
+ * Uses a background image for the board texture.
+ * Highlights for possible moves are restored to the "dot" style.
+ */
+
+cg-board {
+  /* background-image is now set dynamically by ThemeService */
+  background-size: 100% 100%; 
+  background-repeat: no-repeat;
+  border-radius: 10px; /* Rounded corners */
+}
+
+cg-board square.dark {
+  background-color: transparent; 
+}
+cg-board square.light {
+  background-color: transparent; 
+}
+
+cg-board square {
+  box-sizing: border-box;
+  border: 1px solid rgba(80, 45, 20, 0.2); 
+}
+
+/**
+ * Interactive board square colors
+ * Restored "dot" style for move destinations.
+ */
+cg-board square.move-dest {
+  background: radial-gradient(rgba(20, 85, 30, 0.5) 19%, transparent 22%); /* Greenish dot */
+  pointer-events: auto;
+}
+cg-board square.premove-dest {
+  background: radial-gradient(rgba(20, 30, 85, 0.5) 19%, transparent 22%); /* Bluish dot */
+  pointer-events: auto;
+}
+
+/* For squares where a capture is possible */
+cg-board square.oc.move-dest {
+  background: radial-gradient(transparent 0%, transparent 79%, rgba(20, 85, 0, 0.3) 80%); /* Outer ring for capture */
+}
+cg-board square.oc.premove-dest {
+  background: radial-gradient(transparent 0%, transparent 79%, rgba(20, 30, 85, 0.2) 80%); /* Outer ring for premove capture */
+}
+
+cg-board square.move-dest:hover {
+  background: rgba(20, 85, 30, 0.3); /* Solid fill on hover for better feedback */
+}
+cg-board square.premove-dest:hover {
+  background: rgba(20, 30, 85, 0.2); /* Solid fill on hover */
+}
+
+cg-board square.last-move {
+  background-color: rgba(200, 200, 0, 0.3); 
+}
+cg-board square.selected {
+  background-color: rgba(40, 100, 50, 0.45); 
+}
+cg-board square.check {
+  background-image: radial-gradient(
+    ellipse at center,
+    rgba(255, 0, 0, 0.5) 0%, 
+    rgba(231, 0, 0, 0.4) 25%,
+    rgba(169, 0, 0, 0) 89%,
+    rgba(158, 0, 0, 0) 100%
+  );
+  background-color: transparent;
+}
+cg-board square.current-premove {
+  background-color: rgba(30, 60, 120, 0.45);
+}
+
+/**
+ * Coordinate colors
+ */
+.cg-wrap coords:nth-child(odd) coord:nth-child(odd),
+.cg-wrap coords.squares:nth-child(even) coord:nth-child(even),
+.cg-wrap.orientation-black coords.files:nth-child(even) coord:nth-child(even),
+.cg-wrap coords.files:nth-child(even) coord:nth-child(odd) {
+  color: #6a4028; 
+  text-shadow: 0 0 2px #f0e0c0, 0 0 2px #f0e0c0; 
+}
+
+.cg-wrap coords:nth-child(odd) coord:nth-child(even),
+.cg-wrap coords.squares:nth-child(even) coord:nth-child(odd),
+.cg-wrap.orientation-black coords.files:nth-child(even) coord:nth-child(odd),
+.cg-wrap coords.files:nth-child(even) coord:nth-child(even) {
+  color: #f0e0d0; 
+  text-shadow: 0 0 2px #502010, 0 0 2px #502010; 
+}

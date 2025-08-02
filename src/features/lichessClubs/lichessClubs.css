@@ -1,0 +1,223 @@
+/* src/features/lichessClubs/lichessClubs.css */
+
+.lichess-clubs-page {
+  padding: 20px;
+  box-sizing: border-box;
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-default);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 70vw;
+  max-width: 1000px;
+  margin: 20px auto;
+  border-radius: var(--panel-border-radius);
+  border: 1px solid var(--color-border-hover);
+}
+
+/* NEW: Styles for the main banner */
+.lichess-clubs-page__banner {
+  width: 100%;
+  height: auto;
+  max-height: 600px;
+  object-fit: cover;
+  border-radius: var(--panel-border-radius);
+  background-color: var(--color-bg-tertiary);
+  margin-bottom: 10px;
+}
+
+.lichess-clubs-page__error-message,
+.lichess-clubs-page__no-data-message {
+  color: var(--color-text-error);
+  background-color: rgba(229, 57, 53, 0.15);
+  border: 1px solid var(--color-accent-error);
+  padding: 10px 15px;
+  border-radius: var(--panel-border-radius);
+  text-align: center;
+  margin-top: 15px;
+}
+
+/* --- Founder Controls --- */
+.lichess-clubs-page__founder-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 15px;
+  background-color: var(--color-bg-tertiary);
+  border-radius: var(--panel-border-radius);
+  border: 1px solid var(--color-accent-primary);
+}
+
+.lichess-clubs-page__founder-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+}
+
+.lichess-clubs-page__founder-item span {
+  font-size: var(--font-size-base);
+  color: var(--color-text-default);
+}
+
+.lichess-clubs-page__founder-button {
+  padding: 8px 15px;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-bold);
+  border-radius: var(--panel-border-radius);
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  border: 1px solid;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.lichess-clubs-page__founder-button.add-button {
+  background-color: var(--color-accent-success);
+  border-color: var(--color-accent-success);
+  color: var(--color-text-dark);
+}
+.lichess-clubs-page__founder-button.add-button:hover:not(:disabled) {
+  background-color: #A0D003;
+  border-color: #A0D003;
+}
+
+.lichess-clubs-page__founder-button.remove-button {
+  background-color: var(--color-accent-error);
+  border-color: var(--color-accent-error);
+  color: var(--color-text-on-accent);
+}
+.lichess-clubs-page__founder-button.remove-button:hover:not(:disabled) {
+  background-color: #C4312D;
+  border-color: #C4312D;
+}
+
+.lichess-clubs-page__founder-info {
+  font-style: italic;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+  padding: 10px;
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--panel-border-radius);
+  text-align: center;
+  width: 100%;
+  margin: 10px 0;
+  border: 1px solid var(--color-border);
+}
+
+.lichess-clubs-page__founder-item.unregistered {
+  background-color: var(--color-bg-secondary);
+  padding: 5px 10px;
+  border-radius: 4px;
+  width: 100%;
+  justify-content: center;
+  border: 1px solid var(--color-border);
+}
+
+
+/* --- Table Styles --- */
+.lichess-clubs-page__table-container {
+  padding: 0;
+  background-color: var(--color-bg-tertiary);
+  border-radius: var(--panel-border-radius);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+}
+
+.lichess-clubs-page__table-title {
+  font-size: var(--font-size-large);
+  color: var(--color-text-dark);
+  background-color: var(--color-accent-success);
+  padding: 5px 15px;
+  margin: 0;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+  border-bottom: 1px solid var(--color-border-hover);
+  font-weight: var(--font-weight-bold);
+  font-family: var(--font-family-primary);
+}
+
+
+.lichess-clubs-page__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-base);
+}
+
+.lichess-clubs-page__table th,
+.lichess-clubs-page__table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-default);
+  white-space: nowrap;
+  text-align: right; /* Default alignment */
+}
+
+.lichess-clubs-page__table .text-left { text-align: left; }
+.lichess-clubs-page__table .text-center { text-align: center; }
+
+
+.lichess-clubs-page__table thead th {
+  background-color: var(--color-bg-secondary);
+  font-weight: var(--font-weight-bold);
+  border-top: none;
+}
+
+.lichess-clubs-page__table tbody tr:nth-child(odd) {
+  background-color: var(--color-bg-tertiary); /* Light stripe */
+}
+.lichess-clubs-page__table tbody tr:nth-child(even) {
+  background-color: var(--color-bg-secondary); /* Dark stripe */
+}
+
+.lichess-clubs-page__table tbody tr:hover {
+  background-color: var(--color-border-hover);
+}
+
+.lichess-clubs-page__table td a {
+  color: var(--color-text-link);
+  text-decoration: none;
+  font-weight: var(--font-weight-bold);
+}
+
+.lichess-clubs-page__table td a:hover {
+  text-decoration: underline;
+  color: var(--color-text-link-hover);
+}
+
+@media (orientation: portrait) {
+  .lichess-clubs-page {
+    width: 100%;
+    padding: 10px;
+    margin: 0;
+    gap: 15px;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+  .lichess-clubs-page__main-title {
+    font-size: var(--font-size-xlarge);
+  }
+  .lichess-clubs-page__founder-controls {
+    flex-direction: column;
+  }
+  .lichess-clubs-page__founder-item {
+    flex-direction: column;
+    text-align: center;
+  }
+  .lichess-clubs-page__table-title {
+    font-size: var(--font-size-base);
+  }
+  .lichess-clubs-page__table {
+    font-size: var(--font-size-xsmall);
+    white-space: normal;
+  }
+  .lichess-clubs-page__table th,
+  .lichess-clubs-page__table td {
+    padding: 8px 6px;
+    white-space: normal;
+  }
+}

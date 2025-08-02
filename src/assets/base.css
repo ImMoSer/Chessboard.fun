@@ -1,0 +1,206 @@
+/* src/assets/base.css */
+
+:root {
+  --header-height: 5.5vh;
+  --color-bg-primary: #161512;
+  --color-bg-secondary: #262421;
+  --color-bg-tertiary: #33312E;
+  --color-text-default: #A0A0A0;
+  --color-text-muted: #A0A0A0;
+  --color-text-on-accent: #FFFFFF;
+  --color-text-error: #ffcdd2;
+  --color-text-dark: #161512;
+  --color-border: #33312E;
+  --color-border-hover: #4D4A47;
+  --color-accent-primary: #13ADF6;
+  --color-accent-secondary: #FF0496;
+  --color-accent-success: #B8F304;
+  --color-accent-warning: #FC6209;
+  --color-accent-error: #E53935;
+  --color-violett-lichess: #B72FC6;
+  --color-accent-info: var(--color-accent-primary);
+  --color-accent-special: #FF0496;
+  --color-accent-primary-rgb: 19, 173, 246;
+  --color-text-link: var(--color-accent-primary);
+  --color-text-link-hover: #0B8ACB;
+  --panel-width: 20vw;
+  --calculated-board-size-vh: 70vh;
+  --page-vertical-padding: 10px;
+  --panel-gap: 10px;
+  --panel-border-radius: 8px;
+  --font-family-primary: "Neucha", cursive;
+  --font-weight-normal: 400;
+  --font-weight-bold: 600;
+  --font-style-normal: normal;
+  --font-size-hxsmall: 0.5rem;
+  --font-size-xsmall: 0.7rem;
+  --font-size-small: 0.9rem;
+  --font-size-base: 1.1rem;
+  --font-size-large: 1.5rem;
+  --font-size-xlarge: 1.8rem;
+  --font-size-xxlarge: 2.5rem;
+
+  /* Переменные для высоты панелей доски */
+  --top-board-panel-height: 50px;
+  --bottom-board-panel-height: 50px;
+  /* <<< НАЧАЛО ИЗМЕНЕНИЙ: Раздельные переменные для портретного режима */
+  --top-board-panel-height-portrait: 60px;
+  --bottom-board-panel-height-portrait: 50px;
+  /* <<< КОНЕЦ ИЗМЕНЕНИЙ */
+}
+
+/* --- Глобальные стили и сбросы --- */
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family-primary);
+  font-weight: var(--font-weight-normal);
+  font-style: var(--font-style-normal);
+  font-size: var(--font-size-base);
+  line-height: 1.6;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-default);
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+  font-weight: inherit;
+  font-style: inherit;
+  font-size: var(--font-size-small);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* --- Стили для модальных окон --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.modal-content {
+  background-color: var(--color-bg-secondary);
+  padding: 25px 30px;
+  border-radius: var(--panel-border-radius);
+  box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+  text-align: center;
+  max-width: 450px;
+  width: 100%;
+  border: 1px solid var(--color-border-hover);
+}
+
+.modal-message {
+  font-size: var(--font-size-base);
+  color: var(--color-text-default);
+  margin-top: 0;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.modal-ok-button {
+  background-color: var(--color-accent-primary);
+  color: var(--color-text-on-accent);
+  border: none;
+  padding: 10px 25px;
+  border-radius: var(--panel-border-radius);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  min-width: 100px;
+}
+
+.modal-ok-button:hover {
+  background-color: var(--color-text-link-hover);
+}
+
+.modal-button-group {
+  display: flex;
+  justify-content: space-around;
+  gap: 15px;
+  margin-top: 25px;
+}
+
+.modal-button-group .button {
+  flex-grow: 1;
+  padding: 10px 20px;
+  font-weight: var(--font-weight-bold);
+  border: none;
+  border-radius: var(--panel-border-radius);
+  cursor: pointer;
+  transition: background-color 0.2s, opacity 0.2s;
+}
+
+.modal-cancel-button {
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-default);
+  border: 1px solid var(--color-border-hover);
+}
+.modal-cancel-button:hover {
+  background-color: var(--color-border-hover);
+}
+
+.modal-confirm-button {
+  background-color: var(--color-text-link-hover);
+  color: var(--color-text-on-accent);
+}
+.modal-confirm-button:hover {
+  opacity: 0.85;
+}
+
+.sorted-piece-icon {
+  width: auto;
+  height: 1.5rem;
+}
+
+.puzzle-leaderboard-title {
+  margin: 0 0 10px 0;
+  text-align: center;
+  font-size: var(--font-size-base);
+  color: var(--color-accent-warning);
+  font-weight: var(--font-weight-bold);
+  flex-shrink: 0;
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--panel-border-radius);
+}
+
+.control-panel__button img {
+    width: 40px;
+    height: auto;
+}
+
+@media (orientation: portrait) {
+  .modal-content {
+    padding: 20px;
+    max-width: 90%;
+  }
+  .modal-message {
+    font-size: var(--font-size-small);
+  }
+  .modal-ok-button {
+    font-size: var(--font-size-small);
+    padding: 8px 20px;
+  }
+  .sorted-piece-icon {
+  width: auto;
+  height: 1.7rem;
+  }
+  .control-panel__button img {
+    width: 32px;
+    height: auto;
+}
+}

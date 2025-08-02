@@ -1,0 +1,59 @@
+/* src/shared/components/controlPanel.css */
+
+.control-panel-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 10px;
+    gap: 10px;
+}
+
+.control-panel__button {
+    background-color: transparent;
+    border: none;
+    padding: 5px;
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+.control-panel__button:hover:not(:disabled) {
+    background-color: var(--color-border-hover);
+}
+
+.control-panel__button:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+}
+
+
+
+/* <<< НАЧАЛО ИЗМЕНЕНИЙ: Новые стили для выпадающего меню движка */
+.engine-control-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.engine-select-dropdown {
+    position: absolute;
+    bottom: 110%; /* Появляется над кнопкой */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    background-color: var(--color-bg-tertiary);
+    color: var(--color-text-default);
+    border: 1px solid var(--color-border-hover);
+    border-radius: var(--panel-border-radius);
+    padding: 4px 8px;
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-bold);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+/* <<< КОНЕЦ ИЗМЕНЕНИЙ */

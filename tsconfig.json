@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true, // Добавлено для лучшей совместимости
+
+    /* Bundler mode */
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    // "verbatimModuleSyntax": false, // Можно оставить false или убрать для поведения по умолчанию
+    "moduleDetection": "force",
+    "noEmit": true,
+    "isolatedModules": true, // Рекомендуется для Vite
+
+    /* Linting */
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+
+    /* Добавляем типы Vite клиента и Node */
+    "types": ["vite/client", "node"]
+  },
+  "include": ["src"]
+}

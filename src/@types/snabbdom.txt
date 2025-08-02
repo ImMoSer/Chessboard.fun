@@ -1,0 +1,298 @@
+// attachto.d.ts
+import { VNode } from "../vnode.js";
+export interface AttachData {
+    [key: string]: any;
+    [i: number]: any;
+    placeholder?: any;
+    real?: Node;
+}
+export declare function attachTo(target: Element, vnode: VNode): VNode;
+
+
+// attributes.d.ts
+import { Module } from "./module.js";
+export type Attrs = Record<string, string | number | boolean>;
+export declare const attributesModule: Module;
+
+
+// class.d.ts
+import { Module } from "./module.js";
+export type Classes = Record<string, boolean>;
+export declare const classModule: Module;
+
+
+// dataset.d.ts
+import { Module } from "./module.js";
+export type Dataset = Record<string, string>;
+export declare const datasetModule: Module;
+
+
+// eventlisteners.d.ts
+import { VNode } from "../vnode.js";
+import { Module } from "./module.js";
+type Listener<T> = (this: VNode, ev: T, vnode: VNode) => void;
+export type On = {
+    [N in keyof HTMLElementEventMap]?: Listener<HTMLElementEventMap[N]> | Array<Listener<HTMLElementEventMap[N]>>;
+} & {
+    [event: string]: Listener<any> | Array<Listener<any>>;
+};
+export declare const eventListenersModule: Module;
+export {};
+
+
+// h.d.ts
+import { VNode, VNodeData } from "./vnode.js";
+export type VNodes = VNode[];
+export type VNodeChildElement = VNode | string | number | String | Number | undefined | null;
+export type ArrayOrElement<T> = T | T[];
+export type VNodeChildren = ArrayOrElement<VNodeChildElement>;
+export declare function addNS(data: any, children: Array<VNode | string> | undefined, sel: string | undefined): void;
+export declare function h(sel: string): VNode;
+export declare function h(sel: string, data: VNodeData | null): VNode;
+export declare function h(sel: string, children: VNodeChildren): VNode;
+export declare function h(sel: string, data: VNodeData | null, children: VNodeChildren): VNode;
+/**
+ * @experimental
+ */
+export declare function fragment(children: VNodeChildren): VNode;
+
+
+// hooks.d.ts
+import { VNode } from "./vnode.js";
+export type PreHook = () => any;
+export type InitHook = (vNode: VNode) => any;
+export type CreateHook = (emptyVNode: VNode, vNode: VNode) => any;
+export type InsertHook = (vNode: VNode) => any;
+export type PrePatchHook = (oldVNode: VNode, vNode: VNode) => any;
+export type UpdateHook = (oldVNode: VNode, vNode: VNode) => any;
+export type PostPatchHook = (oldVNode: VNode, vNode: VNode) => any;
+export type DestroyHook = (vNode: VNode) => any;
+export type RemoveHook = (vNode: VNode, removeCallback: () => void) => any;
+export type PostHook = () => any;
+export interface Hooks {
+    pre?: PreHook;
+    init?: InitHook;
+    create?: CreateHook;
+    insert?: InsertHook;
+    prepatch?: PrePatchHook;
+    update?: UpdateHook;
+    postpatch?: PostPatchHook;
+    destroy?: DestroyHook;
+    remove?: RemoveHook;
+    post?: PostHook;
+}
+
+
+// htmldomapi.d.ts
+export interface SnabbdomFragment extends DocumentFragment {
+    parent: Node | null;
+    firstChildNode: ChildNode | null;
+    lastChildNode: ChildNode | null;
+}
+export interface DOMAPI {
+    createElement: (tagName: any, options?: ElementCreationOptions) => HTMLElement;
+    createElementNS: (namespaceURI: string, qualifiedName: string, options?: ElementCreationOptions) => Element;
+    /**
+     * @experimental
+     * @todo Make it required when the fragment is considered stable.
+     */
+    createDocumentFragment?: () => SnabbdomFragment;
+    createTextNode: (text: string) => Text;
+    createComment: (text: string) => Comment;
+    insertBefore: (parentNode: Node, newNode: Node, referenceNode: Node | null) => void;
+    removeChild: (node: Node, child: Node) => void;
+    appendChild: (node: Node, child: Node) => void;
+    parentNode: (node: Node) => Node | null;
+    nextSibling: (node: Node) => Node | null;
+    tagName: (elm: Element) => string;
+    setTextContent: (node: Node, text: string | null) => void;
+    getTextContent: (node: Node) => string | null;
+    isElement: (node: Node) => node is Element;
+    isText: (node: Node) => node is Text;
+    isComment: (node: Node) => node is Comment;
+    /**
+     * @experimental
+     * @todo Make it required when the fragment is considered stable.
+     */
+    isDocumentFragment?: (node: Node) => node is DocumentFragment;
+}
+export declare const htmlDomApi: DOMAPI;
+
+
+// index.d.ts
+export { htmlDomApi } from "./htmldomapi.js";
+export { init } from "./init.js";
+export { thunk } from "./thunk.js";
+export { vnode } from "./vnode.js";
+export type { DOMAPI } from "./htmldomapi.js";
+export type { Options } from "./init.js";
+export type { ThunkData, Thunk, ThunkFn } from "./thunk.js";
+export type { Key, VNode, VNodeData } from "./vnode.js";
+export { attachTo } from "./helpers/attachto.js";
+export { array, primitive } from "./is.js";
+export { toVNode } from "./tovnode.js";
+export { h, fragment } from "./h.js";
+export type { AttachData } from "./helpers/attachto.js";
+export type { VNodes, VNodeChildElement, ArrayOrElement, VNodeChildren } from "./h.js";
+export * from "./hooks.js";
+export type { Module } from "./modules/module.js";
+export { attributesModule } from "./modules/attributes.js";
+export { classModule } from "./modules/class.js";
+export { datasetModule } from "./modules/dataset.js";
+export { eventListenersModule } from "./modules/eventlisteners.js";
+export { propsModule } from "./modules/props.js";
+export { styleModule } from "./modules/style.js";
+export type { Attrs } from "./modules/attributes.js";
+export type { Classes } from "./modules/class.js";
+export type { Dataset } from "./modules/dataset.js";
+export type { On } from "./modules/eventlisteners.js";
+export type { Props } from "./modules/props.js";
+export type { VNodeStyle } from "./modules/style.js";
+export { jsx, Fragment } from "./jsx.js";
+export type { JsxVNodeChild, JsxVNodeChildren, FunctionComponent } from "./jsx.js";
+
+
+// init.d.ts
+import { Module } from "./modules/module.js";
+import { VNode } from "./vnode.js";
+import { DOMAPI } from "./htmldomapi.js";
+export type Options = {
+    experimental?: {
+        fragments?: boolean;
+    };
+};
+export declare function init(modules: Array<Partial<Module>>, domApi?: DOMAPI, options?: Options): (oldVnode: VNode | Element | DocumentFragment, vnode: VNode) => VNode;
+
+
+// is.d.ts
+export declare const array: (arg: any) => arg is any[];
+export declare function primitive(s: any): s is string | number;
+
+
+// jsx.d.ts
+import { Key, VNode, VNodeData } from "./vnode.js";
+import { ArrayOrElement } from "./h.js";
+import { Props } from "./modules/props.js";
+export type JsxVNodeChild = VNode | string | number | boolean | undefined | null;
+export type JsxVNodeChildren = ArrayOrElement<JsxVNodeChild>;
+export type FunctionComponent = (props: {
+    [prop: string]: any;
+} | null, children?: VNode[]) => VNode;
+export declare function Fragment(data: {
+    key?: Key;
+} | null, ...children: JsxVNodeChildren[]): VNode;
+/**
+ * jsx/tsx compatible factory function
+ * see: https://www.typescriptlang.org/docs/handbook/jsx.html#factory-functions
+ */
+export declare function jsx(tag: string | FunctionComponent, data: VNodeData | null, ...children: JsxVNodeChildren[]): VNode;
+export declare namespace jsx {
+    type Element = VNode;
+    type IfEquals<X, Y, Output> = (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2 ? Output : never;
+    type WritableKeys<T> = {
+        [P in keyof T]-?: IfEquals<{
+            [Q in P]: T[P];
+        }, {
+            -readonly [Q in P]: T[P];
+        }, P>;
+    }[keyof T];
+    type ElementProperties<T> = {
+        [Property in WritableKeys<T> as T[Property] extends string | number | null | undefined ? Property : never]?: T[Property];
+    };
+    type VNodeProps<T> = ElementProperties<T> & Props;
+    type HtmlElements = {
+        [Property in keyof HTMLElementTagNameMap]: VNodeData<VNodeProps<HTMLElementTagNameMap[Property]>>;
+    };
+    interface IntrinsicElements extends HtmlElements {
+        [elemName: string]: VNodeData;
+    }
+}
+
+
+// module.d.ts
+import { PreHook, CreateHook, UpdateHook, DestroyHook, RemoveHook, PostHook } from "../hooks.js";
+export type Module = Partial<{
+    pre: PreHook;
+    create: CreateHook;
+    update: UpdateHook;
+    destroy: DestroyHook;
+    remove: RemoveHook;
+    post: PostHook;
+}>;
+
+
+// props.d.ts
+import { Module } from "./module.js";
+export type Props = Record<string, any>;
+export declare const propsModule: Module;
+
+
+// style.d.ts
+import { Module } from "./module.js";
+export type ElementStyle = Partial<CSSStyleDeclaration>;
+export type VNodeStyle = ElementStyle & Record<string, string> & {
+    delayed?: ElementStyle & Record<string, string>;
+    remove?: ElementStyle & Record<string, string>;
+};
+export declare const styleModule: Module;
+
+
+// thunk.d.ts
+import { VNode, VNodeData } from "./vnode.js";
+export interface ThunkData extends VNodeData {
+    fn: () => VNode;
+    args: any[];
+}
+export interface Thunk extends VNode {
+    data: ThunkData;
+}
+export interface ThunkFn {
+    (sel: string, fn: (...args: any[]) => any, args: any[]): Thunk;
+    (sel: string, key: any, fn: (...args: any[]) => any, args: any[]): Thunk;
+}
+export declare const thunk: ThunkFn;
+
+
+// tovnode.d.ts
+import { VNode } from "./vnode.js";
+import { DOMAPI } from "./htmldomapi.js";
+export declare function toVNode(node: Node, domApi?: DOMAPI): VNode;
+
+
+// vnode.d.ts
+import { Hooks } from "./hooks.js";
+import { AttachData } from "./helpers/attachto.js";
+import { VNodeStyle } from "./modules/style.js";
+import { On } from "./modules/eventlisteners.js";
+import { Attrs } from "./modules/attributes.js";
+import { Classes } from "./modules/class.js";
+import { Props } from "./modules/props.js";
+import { Dataset } from "./modules/dataset.js";
+export type Key = string | number | symbol;
+export interface VNode {
+    sel: string | undefined;
+    data: VNodeData | undefined;
+    children: Array<VNode | string> | undefined;
+    elm: Node | undefined;
+    text: string | undefined;
+    key: Key | undefined;
+}
+export interface VNodeData<VNodeProps = Props> {
+    props?: VNodeProps;
+    attrs?: Attrs;
+    class?: Classes;
+    style?: VNodeStyle;
+    dataset?: Dataset;
+    on?: On;
+    attachData?: AttachData;
+    hook?: Hooks;
+    key?: Key;
+    ns?: string;
+    fn?: () => VNode;
+    args?: any[];
+    is?: string;
+    [key: string]: any;
+}
+export declare function vnode(sel: string | undefined, data: any | undefined, children: Array<VNode | string> | undefined, text: string | undefined, elm: Element | DocumentFragment | Text | undefined): VNode;
+
+

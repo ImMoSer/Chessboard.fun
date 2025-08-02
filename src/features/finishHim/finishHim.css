@@ -1,0 +1,474 @@
+/* src/features/finishHim/finishHim.css */
+
+/* Стили для левой панели в режиме Finish Him */
+.finish-him-left-panel {
+  padding: 10px;
+  font-size: var(--font-size-small);
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
+  gap: 10px;
+}
+
+/* Блок для фидбека пользователю */
+#finish-him-feedback {
+  text-align: center;
+  font-size: var(--font-size-base);
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-muted);
+  padding: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+#finish-him-feedback p {
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+  padding: 5px 0;
+}
+
+/* ---- Стили для блока информации о пазле ---- */
+.puzzle-info-container {
+  padding: 10px; 
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--panel-border-radius);
+  border: 1px solid var(--color-border-hover);
+  flex-shrink: 0;
+  margin-top: 5px; 
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.puzzle-info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.puzzle-info-title {
+  margin: 0;
+  color: var(--color-text-muted); 
+  font-size: var(--font-size-base); 
+  font-weight: var(--font-weight-bold);
+  text-align: left;
+  flex-grow: 1;
+}
+
+.favorite-puzzle-button {
+    background: none;
+    border: none;
+    font-size: 1.8em;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    padding: 0 5px;
+    line-height: 1;
+    transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.favorite-puzzle-button:hover {
+    transform: scale(1.2);
+}
+
+.favorite-puzzle-button.is-favorite {
+    color: var(--color-accent-warning);
+}
+
+
+.puzzle-info-grid {
+    display: grid;
+    grid-template-columns: 1fr; 
+    gap: 4px; 
+}
+
+.puzzle-info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3px 0; 
+  font-size: var(--font-size-small); 
+  border-bottom: 1px dotted var(--color-border);
+}
+.puzzle-info-item:last-child {
+  border-bottom: none;
+}
+
+.puzzle-info-item .info-label {
+  color: var(--color-text-muted);
+  margin-right: 5px;
+  white-space: nowrap;
+}
+.puzzle-info-item .info-value {
+  color: var(--color-text-default);
+  font-weight: var(--font-weight-bold);
+  text-align: right;
+}
+
+.puzzle-leaderboard-container {
+  background-color: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--panel-border-radius);
+  padding: 10px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+
+.puzzle-leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-small);
+  overflow-y: auto;
+}
+
+.puzzle-leaderboard-table th,
+.puzzle-leaderboard-table td {
+  padding: 6px 8px;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.puzzle-leaderboard-table th {
+  color: var(--color-text-muted);
+  font-weight: bold;
+}
+
+.puzzle-leaderboard-table td.rank,
+.puzzle-leaderboard-table th.rank {
+  text-align: center;
+  width: 1%;
+  padding-right: 10px;
+}
+
+.puzzle-leaderboard-table td.time,
+.puzzle-leaderboard-table th.time {
+  text-align: right;
+  font-weight: bold;
+}
+
+.puzzle-leaderboard-table td.player a {
+  color: var(--color-text-link);
+  text-decoration: none;
+}
+
+.puzzle-leaderboard-table td.player a:hover {
+  text-decoration: underline;
+}
+
+
+/* ---- Стили для блока статистики пользователя ---- */
+.user-stats-container {
+  padding: 10px; 
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--panel-border-radius);
+  border: 1px solid var(--color-border-hover);
+  flex-shrink: 0;
+}
+
+.user-stats-main-title {
+  margin: 0 0 10px 0; 
+  padding: 6px 5px; 
+  color: var(--color-bg-primary);
+  background-color: var(--color-accent-secondary);
+  border-radius: var(--panel-border-radius);
+  font-size: var(--font-size-base); 
+  font-weight: var(--font-weight-bold);
+  border-bottom: 1px solid var(--color-border);
+  text-align: center;
+  display: none;
+}
+
+.user-stats-container p {
+    margin: 5px 0;
+    text-align: center;
+    font-style: italic;
+    color: var(--color-text-muted);
+}
+
+.games-played-info {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-accent-primary);
+  text-align: center;
+  margin-bottom: 10px; 
+  padding: 5px; 
+  background-color: var(--color-bg-tertiary);
+  border-radius: 4px;
+  border: 1px solid var(--color-accent-primary);
+}
+
+.stats-overview-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px; 
+}
+
+@media (min-width: 500px) {
+  .stats-overview-grid {
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); 
+  }
+  .puzzle-info-grid { 
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 4px 8px; 
+  }
+}
+
+
+.stat-block {
+  background-color: var(--color-bg-tertiary);
+  padding: 8px; 
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+}
+
+.stat-block-title {
+  font-size: var(--font-size-small); 
+  font-weight: var(--font-weight-bold);
+  color: var(--color-accent-secondary);
+  margin: 0 0 6px 0; 
+  text-align: center;
+  border-bottom: 1px dashed var(--color-border-hover);
+  padding-bottom: 4px; 
+}
+
+.stat-block-title.fancoins-title { 
+    color: var(--color-accent-secondary); 
+}
+
+.stat-block-values {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  font-size: var(--font-size-base);
+}
+
+.current-value {
+  font-weight: var(--font-weight-bold);
+  color: var(--color-accent-primary);
+  font-size: var(--font-size-base);
+}
+
+.value-delta {
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-large); 
+  margin-left: 6px; 
+}
+
+.positive-delta {
+  color: var(--color-accent-success);
+}
+
+.negative-delta {
+  color: var(--color-accent-error);
+}
+
+/* ---- Стили для правой панели и ее компонентов ---- */
+.finish-him-right-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+  gap: 10px;
+}
+
+.finish-him-game-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px; 
+  padding: 8px; 
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--panel-border-radius);
+  border: 1px solid var(--color-border-hover);
+  flex-shrink: 0;
+}
+
+.finish-him-game-controls .button.game-control-button {
+  width: 100%;
+  padding: 8px 12px; 
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base); 
+  font-weight: var(--font-weight-bold);
+  margin: 0;
+  box-sizing: border-box;
+  min-height: 40px; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1.3;
+  border-radius: var(--panel-border-radius);
+  border: 1px solid;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* <<< НАЧАЛО: Новые стили для цены на кнопке */
+.button-price {
+  margin-left: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.9em;
+  opacity: 0.8;
+  display: none;
+
+}
+
+.coin-icon {
+  font-size: 1.1em;
+  line-height: 1;
+}
+/* <<< КОНЕЦ: Новые стили для цены на кнопке */
+
+.finish-him-game-controls .button.game-control-button:hover:not(:disabled) {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  transform: translateY(-1px);
+}
+.finish-him-game-controls .button.game-control-button:active:not(:disabled) {
+  box-shadow: none;
+  transform: translateY(0);
+}
+
+.finish-him-game-controls .button.game-control-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+  background-color: var(--color-bg-tertiary) ;
+  border-color: var(--color-border) ;
+  color: var(--color-text-muted) ;
+}
+
+.finish-him-game-controls .button.primary-button {
+  background-color: var(--color-accent-success);
+  border-color: var(--color-accent-success);
+  color: var(--color-text-dark);
+}
+.finish-him-game-controls .button.primary-button:hover:not(:disabled) {
+  background-color: #A0D003;
+  border-color: #A0D003;
+}
+
+.finish-him-game-controls .button.restart-button {
+  background-color: var(--color-accent-warning);
+  border-color: var(--color-accent-warning);
+  color: var(--color-text-dark);
+}
+.finish-him-game-controls .button.restart-button:hover:not(:disabled) {
+  background-color: #E05608;
+  border-color: #E05608;
+}
+
+.finish-him-game-controls .button.resign-button {
+  background-color: var(--color-accent-error);
+  border-color: var(--color-accent-error);
+  color: var(--color-text-on-accent);
+}
+.finish-him-game-controls .button.resign-button:hover:not(:disabled) {
+  background-color: #C4312D;
+  border-color: #C4312D;
+}
+
+
+.analysis-panel-wrapper {
+  min-height: 0;
+  display: flex;
+  flex-grow: 1;
+}
+
+.analysis-panel-wrapper #analysis-panel-container {
+  width: 100%;
+  height: 100%;
+}
+
+/* <<< НАЧАЛО ИЗМЕНЕНИЙ */
+.finish-him-timer-container {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-muted);
+  border-radius: var(--panel-border-radius);
+  font-size: var(--font-size-large);
+  font-weight: var(--font-weight-bold);
+  text-align: center;
+  border: 1px solid var(--color-text-muted);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+  padding: 5px 0;
+  flex-shrink: 0; /* Prevent shrinking */
+}
+
+/* Стили для отображения финальной позиции (скопировано из tower.css) */
+.final-position-preview-item {
+  background-color: var(--color-bg-tertiary);
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+}
+
+.final-position-preview-title {
+  margin: 0 0 8px 0;
+  font-size: var(--font-size-small);
+  color: var(--color-text-default);
+  text-align: center;
+}
+
+.sorted-pieces-rows-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pieces-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  min-height: 2rem;
+  padding: 2px;
+  border-radius: 4px;
+  background-color: rgba(0,0,0,0.1);
+}
+
+.pieces-row.player-pieces {
+  border: 1px solid var(--color-accent-primary);
+}
+
+.pieces-row.bot-pieces {
+  border: 1px solid var(--color-accent-error);
+}
+
+
+/* <<< КОНЕЦ ИЗМЕНЕНИЙ */
+
+@media (orientation: portrait) {
+
+    .finish-him-game-controls {
+        padding: 8px;
+        gap: 8px;
+    }
+    .finish-him-game-controls .button.game-control-button {
+        font-size: var(--font-size-base);
+        padding: 8px 12px;
+        min-height: 38px;
+    }
+    .timer-value-overlay {
+        font-size: var(--font-size-large);
+        padding: 3px 0;
+        top: 5px; left: 5px; right: 5px;
+    }
+    .puzzle-info-grid { 
+        grid-template-columns: 1fr;
+    }
+    .stats-overview-grid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,0 +1,631 @@
+{
+  "app": {
+    "title": "Chessboard.fun"
+  },
+  "common": {
+    "loading": "Загрузка...",
+    "error": "Ошибка",
+    "processing": "Обработка...",
+    "ok": "OK",
+    "notAvailable": "Н/Д",
+    "loadingController": "Загрузка...",
+    "cancel": "Отмена",
+    "confirm": "Подтвердить",
+    "closingParenthesis": ")",
+    "period": ".",
+    "periodAndSpace": ". ",
+    "shareTitle": "Шахматная задача на Chessboard.fun",
+    "shareText": "Оцени эту интересную задачу!",
+    "delete": "Удалить",
+    "play": "Играть"
+  },
+  "nav": {
+    "finishHim": "Реализация",
+    "tower": "Спидран",
+    "lichessClubs": "Клубы",
+    "leaderboards": "Рейтинги",
+    "logout": "Выйти",
+    "attack": "Атака",
+    "tacktics": "Тактика",
+    "login": "Войти",
+    "about": "О проекте",
+    "userCabinet": "Кабинет",
+    "loginWithLichess": "Войти через Lichess"
+  },
+  "auth": {
+    "loginRequiredForPage": "Для доступа к этому контенту, пожалуйста, войдите через ваш аккаунт Lichess.",
+    "processingLogin": "Обработка входа...",
+    "requiredForAction": "Для выполнения этого действия необходимо войти."
+  },
+  "errors": {
+    "rateLimit": {
+      "title": "Слишком много запросов",
+      "message": "Слишком много запросов. Пожалуйста, подождите {seconds} секунд.",
+      "ready": "Теперь вы можете продолжить."
+    },
+    "backendConnectionFailed": "Не удалось подключиться к серверу."
+  },
+  "errorPage": {
+    "invalidController": "Ошибка: Неверный контроллер для страницы '{pageName}'.",
+    "unknownPage": "Ошибка: Неизвестная страница '{pageName}'."
+  },
+  "puzzle": {
+    "feedback": {
+      "yourTurn": "Ваш ход!",
+      "correctMove": "Верно!",
+      "invalidMove": "Неверный ход.",
+      "moveProcessingError": "Ошибка при обработке хода.",
+      "stockfishThinking": "Stockfish думает...",
+      "stockfishThinkingWait": "Пожалуйста, подождите, Stockfish думает.",
+      "stockfishError": "Произошла ошибка в работе Stockfish.",
+      "stockfishNoMove": "Stockfish не вернул ход.",
+      "stockfishGetMoveError": "Ошибка при получении хода от Stockfish.",
+      "gameOver": "Игра окончена.",
+      "loadFailed": "Не удалось загрузить задачу.",
+      "puzzleDataError": "Критическая ошибка в данных задачи. Ход не может быть применен.",
+      "selectPromotion": "Выберите фигуру для превращения.",
+      "promotionCancelled": "Превращение отменено.",
+      "analysisMoveMade": "Ход в анализе: {san}. Текущий FEN: {fen}",
+      "illegalMoveAnalysis": "Нелегальный ход в режиме анализа.",
+      "moveErrorAnalysis": "Ошибка обработки хода в режиме анализа.",
+      "gameStopped": "Игра остановлена.",
+      "notYourTurn": "Сейчас не ваш ход.",
+      "systemFirstMove": "Система делает первый ход: {move}",
+      "systemResponse": "Ответ системы: {move}"
+    },
+    "colors": {
+      "white": "Белые",
+      "black": "Черные"
+    },
+    "gameOver": {
+      "checkmateWinner": "Мат! {winner} победили.",
+      "reasons": {
+        "checkmate": "матом",
+        "unknown": "по неизвестной причине"
+      },
+      "stalemate": "Игра окончена: Пат.",
+      "insufficientMaterial": "Игра окончена: Ничья из-за недостатка материала.",
+      "draw": "Игра окончена: Ничья.",
+      "drawReason": "Игра окончена: Ничья по причине {reason}."
+    }
+  },
+  "finishHim": {
+    "feedback": {
+      "getReady": "Приготовьтесь к новому испытанию!",
+      "pressNext": "Нажмите 'Играть', чтобы начать.",
+      "loadedSimple": "Задача #{puzzleId} загружена. Вы играете за {color}.",
+      "alreadySolved": "Уже решена",
+      "tacticalFail": "Неверно! Тактическая фаза провалена.",
+      "tacticalFailDetailed": "Неправильный ход. Вы сыграли {userMove}, а ожидался {expectedMove}.",
+      "yourTurnPlayout": "Ваш ход! Найдите лучшие ходы для победы.",
+      "timeUp": "Время вышло! Эндшпиль проигран.",
+      "resigned": "Вы сдались.",
+      "gameStopped": "Игра остановлена."
+    },
+    "puzzleActions": {
+      "toggleFavorite": "Добавить/Удалить из избранного"
+    },
+    "puzzleInfo": {
+      "title": "Информация о задаче",
+      "tacticalRating": "Тактика",
+      "playoutRating": "Реализация",
+      "solveTime": "Время"
+    },
+    "leaderboard": {
+      "title": "Лучшие результаты",
+      "player": "Игрок",
+      "time": "Время"
+    },
+    "error": {
+      "puzzleNotFound": "Задача с ID {puzzleId} не найдена или недоступна."
+    },
+    "ui": {
+      "shareLinkCopied": "Ссылка скопирована в буфер обмена!"
+    },
+    "finalPositionTitle": "Материал в финальной позиции"
+  },
+  "stats": {
+    "title": "Ваша статистика",
+    "loading": "Загрузка статистики...",
+    "gamesPlayed": "Сыграно игр",
+    "tacticalSectionTitle": "Тактика",
+    "playoutSectionTitle": "Реализация"
+  },
+  "analysis": {
+    "loading": "Загрузка анализа...",
+    "errorStarting": "Ошибка запуска анализа",
+    "mateInShort": "M{value}",
+    "engine": "Анализ",
+    "lines": "Линии",
+    "threads": "Ядра"
+  },
+  "pgn": {
+    "nav": {
+      "start": "В начало",
+      "prev": "Предыдущий ход",
+      "next": "Следующий ход",
+      "end": "В конец"
+    }
+  },
+  "theme": {
+    "selectBoard": "Выбрать доску",
+    "selectPieces": "Выбрать фигуры"
+  },
+      "settings": {
+      "voiceVolume": "Голос"
+  },
+  "tower": {
+    "names": {
+      "CM": "КМС",
+      "FM": "ФМ",
+      "IM": "ММ",
+      "GM": "ГМ"
+    },
+    "themes": {
+      "mix": "Смешанный",
+      "pawn_endgame": "Пешечный эндшпиль",
+      "rook_endgame": "Ладейный эндшпиль",
+      "bishop_endgame": "Слоновый эндшпиль",
+      "knight_endgame": "Коневой эндшпиль",
+      "queen_endgame": "Ферзевый эндшпиль",
+      "queens_vs_rooks": "Ферзи против Ладей",
+      "rooks_vs_minors": "Ладьи против легких фигур",
+      "queens_vs_minors": "Ферзи против легких фигур",
+      "knights_vs_bishops": "Кони против Слонов",
+      "bishops_vs_knights": "Слоны против Коней",
+      "minors_vs_rooks": "Легкие фигуры против Ладей",
+      "opposite_color_bishops": "Разноцветные слоны"
+    },
+    "feedback": {
+      "selectTowerAndStart": "Выберите Спидран, чтобы начать.",
+      "loadingTower": "Загрузка {towerName}...",
+      "positionLoaded": "Позиция {current}/{total} | {towerName}",
+      "yourTurn": "Ваш ход!",
+      "botThinking": "Бот думает...",
+      "illegalMove": "Нелегальный ход.",
+      "positionWon": "Позиция пройдена!",
+      "towerCompleted": "Спидран {towerName} пройден за {time}!",
+      "resigned": "Вы сдались. Анализ теперь доступен.",
+      "positionFailedWithLives": "Попытка не удалась. Осталось {lives} жизней.",
+      "gameOver": "Игра окончена. Жизней не осталось."
+    },
+    "ui": {
+      "position": "Позиция",
+      "upcomingPositionsTitle": "Следующие позиции",
+      "leaderboardTitle": "Таблица лидеров",
+      "tableRank": "#",
+      "tablePlayer": "Игрок",
+      "tableTime": "Рекорд",
+      "themeLabel": "Тема",
+      "livesLabel": "Жизни",
+      "shareLinkCopied": "Ссылка скопирована в буфер обмена!"
+    },
+    "error": {
+      "definitionNotFound": "Не найдено определение для Спидрана с ID: {towerId}",
+      "noPositionsInTower": "В Спидране {towerName} не найдено позиций.",
+      "towerNotFound": "Запрошенный Спидран не найден.",
+      "internalErrorLoadingPosition": "Внутренняя ошибка при загрузке позиции.",
+      "botMoveFailed": "Бот не смог сделать ход.",
+      "botIllegalMove": "Бот попытался сделать нелегальный ход.",
+      "botNoMove": "Бот не вернул ход.",
+      "noTowerToRestart": "Нет активного Спидрана для перезапуска.",
+      "moveFailed": "Не удалось обработать ход.",
+      "copyFailed": "Не удалось скопировать ссылку."
+    }
+  },
+  "clubPage": {
+    "title": {
+      "loading": "Загрузка клуба...",
+      "loaded": "Клуб: {clubName}",
+      "error": "Ошибка загрузки клуба"
+    },
+    "tabs": {
+      "overview": "Обзор",
+      "keyIndicators": "Ключевые показатели",
+      "playStyle": "Стиль игры",
+      "ratings": "Рейтинги",
+      "medals": "Медальный зачет"
+    },
+    "overview": {
+      "title": "Обзор Клуба"
+    },
+    "founder": "Основатель",
+    "members": "Участники",
+    "leadersTitle": "Администрация клуба",
+    "noLeaders": "Лидеры не указаны.",
+    "medalStandings": {
+      "teamTitle": "Медальный зачет (Команда)",
+      "arenaTitle": "Медальный зачет (Арена)"
+    },
+    "mostValuablePlayersTitle": "Самые результативные",
+    "mostActivePlayersTitle": "Самые активные",
+    "mostGamesPlayedTitle": "Трудяги (Игры)",
+    "winStreakMastersTitle": "Мастера серий",
+    "berserkKingsTitle": "Короли Берсерка",
+    "performanceLeadersTitle": "Лидеры по перформансу",
+    "ratingLeadersTitle": "Лидеры по рейтингу",
+    "tournamentHistoryTitle": "Последние 30 турниров",
+    "noPlayersInTournament": "Нет списка игроков для этого турнира.",
+    "tournamentPlayersTitle": "Игроки турнира",
+    "table": {
+      "player": "Игрок",
+      "score": "Счёт",
+      "totalScore": "Общий счёт",
+      "tournaments": "Турниры",
+      "tournamentName": "Турнир",
+      "date": "Дата",
+      "clubRank": "Место",
+      "clubScore": "Счёт клуба",
+      "berserkWins": "Побед (Берсерк)",
+      "avgPerf": "Сред.",
+      "maxPerf": "Макс.",
+      "minPerf": "Мин.",
+      "avgRating": "Сред.",
+      "maxRating": "Макс.",
+      "minRating": "Мин.",
+      "gamesPlayed": "Игры",
+      "performance": "Перф.",
+      "arenaRank": "Место в арене",
+      "maxWinStreak": "Макс. серия побед"
+    },
+    "button": {
+      "follow": "Отслеживать",
+      "unfollow": "Перестать отслеживать",
+      "showMore": "Показать еще"
+    },
+    "follow": {
+      "successAdded": "Теперь вы отслеживаете этот клуб!",
+      "successRemoved": "Вы перестали отслеживать этот клуб."
+    },
+    "error": {
+      "noDataFound": "Нет данных для клуба с ID: {clubId}",
+      "clubNotRegisteredModal": {
+        "message": "Клуб \"{clubId}\" не зарегистрирован. Для регистрации клуба обратитесь к администрации",
+        "contactLink": "https://chessboard.fun"
+      },
+      "unknown": "Произошла неизвестная ошибка.",
+      "dataLoadFailedOrNotRegistered": "Не удалось загрузить данные для клуба {clubId} или клуб не зарегистрирован.",
+      "profileNotFound": "Профиль пользователя не найден. Пожалуйста, попробуйте войти снова.",
+      "followCooldown": "Вы сможете изменить статус отслеживания снова через {minutes} минут.",
+      "clubDataMissing": "Информация о клубе отсутствует. Невозможно обработать запрос на отслеживание.",
+      "followFailed": "Не удалось обновить статус отслеживания. Пожалуйста, попробуйте снова.",
+      "followRequestFailed": "Произошла ошибка во время запроса на отслеживание/отмену."
+    },
+    "bannerAlt": "Баннер клуба"
+  },
+  "records": {
+    "pageTitle": {
+      "loading": "Загрузка рекордов...",
+      "loaded": "Таблицы лидеров",
+      "error": "Ошибка загрузки рекордов"
+    },
+    "bannerAlt": "Баннер таблицы лидеров",
+    "titles": {
+      "activity": "Активность игроков",
+      "topFinishHim": "Мастера Реализации",
+      "topAttack": "Мастера Атаки",
+      "towerLeaderboard": "Мастера Спидрана",
+      "towerCM": "Спидран КМС",
+      "towerFM": "Спидран ФМ",
+      "towerIM": "Спидран ММ",
+      "towerGM": "Спидран ГМ"
+    },
+    "table": {
+      "noEntries": "В этой таблице лидеров пока нет записей.",
+      "rank": "#",
+      "player": "Игрок",
+      "tacticalShort": "Тактика",
+      "playoutShort": "Реализация",
+      "gamesPlayedShort": "Игры",
+      "time": "Рекорд",
+      "attempts": "Попытки",
+      "playButton": "Играть",
+      "challenge": "Вызов",
+      "puzzle": "Задача",
+      "solved": "Решено",
+      "requested": "Запрошено",
+      "successRate": "Успех (%)"
+    },
+    "errors": {
+      "dataLoadFailed": "Не удалось загрузить данные таблицы лидеров.",
+      "unknown": "Произошла неизвестная ошибка.",
+      "noLeaderboards": "На данный момент нет доступных таблиц лидеров."
+    }
+  },
+  "userCabinet": {
+    "pageTitle": {
+      "loading": "Загрузка кабинета...",
+      "loaded": "Кабинет {username}",
+      "error": "Ошибка",
+      "default": "Кабинет пользователя"
+    },
+    "info": {
+      "lichessId": "Lichess ID",
+      "subscriptionTier": "Подписка",
+      "tierExpires": " (до {date})",
+      "tierPermanent": " (навсегда)"
+    },
+    "stats": {
+      "noStats": "Статистика Реализации недоступна.",
+      "finishHimTitle": "Статистика Реализации",
+      "attackTitle": "Статистика режима Атака",
+      "gamesPlayed": "Сыграно игр",
+      "tacticalRating": "Тактика",
+      "tacticalWins": "Тактические победы",
+      "tacticalLosses": "Тактические поражения",
+      "finishHimRating": "Рейтинг EndGame",
+      "playoutWins": "Победы в доигрывании",
+      "playoutDraws": "Ничьи в доигрывании",
+      "playoutLosses": "Поражения в доигрывании",
+      "fancoins": "FanCoins",
+      "towerTitle": "Статистика Спидрана",
+      "towersCompleted": "Пройдено Башен",
+      "totalAttempts": "Всего попыток",
+      "bestTime": "Рекорд",
+      "attempts": "попыток",
+      "puzzle": "Задача",
+      "global": {
+        "title": "Глобальная активность"
+      },
+      "personal": {
+        "title": "Личная активность"
+      },
+      "periods": {
+        "day": "Последние 24 часа",
+        "week": "Последние 7 дней",
+        "month": "Последние 30 дней"
+      },
+      "modes": {
+        "all": "Все режимы",
+        "finishHim": "Реализация",
+        "attack": "Атака",
+        "tower": "Спидран",
+        "tacticalTrainer": "Тактический тренер"
+      },
+      "noData": "Нет данных за выбранный период."
+    },
+    "clubs": {
+      "activityTitle": "Активность в клубах",
+      "followedClubs": "Отслеживаемые клубы",
+      "founderOfClubs": "Основатель клубов",
+      "noClubsInThisRole": "Нет клубов в этой категории.",
+      "noActivity": "Нет клубной активности для отображения."
+    },
+    "favorites": {
+      "title": "Избранные задачи"
+    },
+    "telegram": {
+      "title": "Интеграция с Telegram",
+      "boundStatus": "Аккаунт привязан к Telegram: {username}",
+      "bindButton": "Привязать аккаунт Telegram",
+      "redirectMessage": "Пожалуйста, завершите привязку во вкладке Telegram, которая только что открылась.",
+      "errorMessage": "Не удалось получить ссылку для привязки Telegram. Пожалуйста, попробуйте позже."
+    },
+    "activity": {
+      "title": "Активность на Lichess",
+      "noActivity": "Нет недавней активности на Lichess.",
+      "dateHeader": "Дата",
+      "summaryHeader": "Сводка активности"
+    },
+    "error": {
+      "notAuthenticated": "Пользователь не авторизован.",
+      "noDataFound": "Не найдено данных для личного кабинета."
+    }
+  },
+  "welcome": {
+    "titleV2": "Выберите режим игры",
+    "buttons": {
+      "finishHim": "Реализация",
+      "tower": "Спидран",
+      "attack": "Атака",
+      "tacktics": "Тактика",
+      "clubs": "Клубы Lichess",
+      "leaderboards": "Таблицы лидеров"
+    },
+    "loginPrompt": "Или войдите, чтобы получить доступ ко всем функциям:"
+  },
+  "attack": {
+    "feedback": {
+      "getReady": "Нажмите 'Играть', чтобы начать.",
+      "yourTurn": "Ваш ход.",
+      "botThinking": "MOZER думает...",
+      "illegalMove": "Нелегальный ход.",
+      "botError": "Произошла ошибка с MOZER.",
+      "resigned": "Вы сдались.",
+      "win": "Вы победили! ({reason})",
+      "loss": "Вы проиграли. ({reason})",
+      "draw": "Ничья. ({reason})",
+      "wrongMove": "Неверный ход!",
+      "playoutStarted": "Начинается доигрывание против MOZER!",
+      "findBestMove": "Найдите лучший ход!",
+      "timeUp": "Время вышло!"
+    },
+    "leaderboard": {
+      "title": "Лучшие результаты",
+      "player": "Игрок",
+      "time": "Время"
+    },
+    "error": {
+        "puzzleNotFound": "Не удалось загрузить задачу.",
+        "loadFailed": "Не удалось загрузить задачу."
+    }
+  },
+  "tacktics": {
+    "feedback": {
+      "getReady": "Нажмите 'Играть', чтобы начать.",
+      "findBestMove": "Найдите лучший ход!",
+      "loadFailed": "Не удалось загрузить задачу.",
+      "yourTurn": "Ваш ход.",
+      "wrongMove": "Неверный ход!",
+      "success": "Задача решена!",
+      "failure": "Задача не решена.",
+      "wrongMoveAnalysis": "Неверный ход! Теперь доступен анализ."
+    },
+    "stats": {
+      "title": "Ваша статистика",
+      "globalRating": "Общий рейтинг",
+      "theme": "Тема",
+      "rating": "Рейтинг",
+      "progress": "Прогресс",
+      "rate": "Успех"
+    },
+    "puzzleInfo": {
+      "title": "Инфо о задаче",
+      "rating": "Рейтинг",
+      "themes": "Темы"
+    },
+    "themes": {
+      "fork": "Вилка",
+      "pin": "Связка",
+      "discoveredAttack": "Вскрытое нападение",
+      "doubleCheck": "Двойной шах",
+      "skewer": "Сквозной удар",
+      "sacrifice": "Жертва",
+      "attraction": "Привлечение",
+      "deflection": "Отвлечение",
+      "capturingDefender": "Взятие защитника",
+      "clearance": "Освобождение поля",
+      "interference": "Перекрытие",
+      "intermezzo": "Промежуточный ход",
+      "quietMove": "Тихий ход",
+      "trappedPiece": "Пойманная фигура",
+      "xRayAttack": "Рентген",
+      "zugzwang": "Цугцванг",
+      "advancedPawn": "Проходная пешка",
+      "promotion": "Превращение",
+      "backRankMate": "Мат по последней горизонтали",
+      "mateIn1": "Мат в 1 ход",
+      "mateIn2": "Мат в 2 хода",
+      "mateIn3": "Мат в 3+ хода",
+      "opening": "Дебют",
+      "middlegame": "Миттельшпиль",
+      "endgame": "Эндшпиль"
+    },
+    "error": {
+      "puzzleNotFound": "Не удалось загрузить задачу."
+    }
+  },
+  "about": {
+    "title": "Chessboard.fun",
+    "intro": " — это интерактивная веб-платформа для любителей шахмат, предлагающая уникальные режимы тренировок, подробную статистику и мощные инструменты анализа.",
+    "sections": {
+      "mainModesTitle": "Основные режимы",
+      "keyFeaturesTitle": "Ключевые особенности",
+      "techStackTitle": "Технологический стек",
+      "licensingTitle": "Лицензирование и благодарности",
+      "contributingTitle": "Вклад в проект",
+      "licenseTitle": "Лицензия",
+      "acknowledgementsTitle": "Благодарности"
+    },
+    "modes": {
+      "conversionTitle": "Finish-Him (Реализация): ",
+      "conversion": "Уникальный режим, где вы сначала решаете тактическую задачу, а затем должны доказать свое преимущество в эндшпиле, играя против движка Stockfish.",
+      "speedrunTitle": "Спидран: ",
+      "speedrun": "Проверьте свою скорость и точность, решая серию тактических головоломок на время. Сложность башен варьируется от уровня КМС до Гроссмейстера.",
+      "attackTitle": "Атака: ",
+      "attack": "Режим, где вы сталкиваетесь с позициями, требующими решающей комбинации или мощной атаки для мата боту.",
+      "automaticTacticalTrainerTitle": "Автоматический Тактический Тренер: ",
+      "automaticTacticalTrainer": "В отличие от стандартных тренажеров, наша умная система превращает решение задач в персональный путь к мастерству. Она анализирует ваш профиль по 25 тактическим темам (вилка, связка, вскрытое нападение и т.д.), выявляет ваши слабые места и автоматически подбирает задачу, которая принесет вам наибольшую пользу прямо сейчас. После каждого ответа ваш рейтинг по этой теме мгновенно обновляется, гарантируя, что следующая задача идеально соответствует вашему текущему уровню навыков.",
+      "botSelectionTitle": "Выбор шахматного бота: ",
+      "botSelection": "На нашей платформе вы можете выбирать из нескольких шахматных ботов для тренировок: Stockfish (с рейтингами Elo 1600, 1700, 1900, 2100, 2200) предлагает различные уровни сложности, в то время как Maia (Elo 1900+) разработан для более реалистичного игрового опыта, подобного человеческому.",
+      "lichessClubsTitle": "Статистика клубов: ",
+      "lichessClubs": "Просматривайте подробную статистику и таблицы лидеров для любого шахматного клуба Lichess, отслеживая активность игроков и их достижения. (Отображаются только зарегистрированные в системе клубы).",
+      "userCabinetTitle": "Личный кабинет: ",
+      "userCabinet": "Персональная панель с вашей статистикой по всем игровым режимам, списком избранных задач и вашей активностью на Lichess.",
+      "analysisPanelTitle": "Панель анализа: ",
+      "analysisPanel": "Мощный инструмент для анализа любой позиции с движком Stockfish, просмотра вариантов и PGN."
+    },
+    "features": {
+      "lichessIntegrationTitle": "Интеграция с Lichess: ",
+      "lichessIntegration": "Входите через аккаунт Lichess, используйте свой профиль и получайте данные об активности клуба.",
+      "advancedStatsTitle": "Расширенная статистика: ",
+      "advancedStats": "Отслеживайте свои тактические рейтинги и рейтинги реализации, количество сыгранных игр, FunCoins и многое другое.",
+      "puzzleDatabaseTitle": "База задач Lichess: ",
+      "puzzleDatabase": "Все задачи в приложении основаны на обширной и высококачественной базе задач Lichess: ",
+      "modernUITitle": "Современный интерфейс: ",
+      "modernUI": "Чистый, адаптивный и интуитивно понятный интерфейс, созданный с использованием TypeScript и Snabbdom.",
+      "localizationTitle": "Локализация: ",
+      "localization": "Поддержка английского, немецкого и русского языков."
+    },
+    "techStack": {
+      "frontend": "Фронтенд: ",
+      "frontendStack": "TypeScript, Snabbdom.js",
+      "backend": "Бэкенд: ",
+      "backendStack": "n8n.io (для обработки вебхуков и игровой логики)",
+      "chessLogic": "Шахматная логика: ",
+      "chessLogicStack": "`chessops`",
+      "boardRendering": "Отрисовка доски: ",
+      "boardRenderingStack": "`Chessground`",
+      "chessEngine": "Шахматный движок: ",
+      "chessEngineStack": "`Stockfish.wasm`",
+      "api": "API: ",
+      "apiStack": "Lichess API ("
+    },
+    "licensing": {
+      "stockfishTitle": "Шахматный движок Stockfish",
+      "stockfishIntro1": "Анализ игр и ходов в этом приложении осуществляется с помощью ",
+      "stockfishIntro2": ", открытого шахматного движка, распространяемого под ",
+      "gplNoteTitle": "Важное замечание о лицензии GPLv3: ",
+      "gplNote": "Использование библиотеки под лицензией GPLv3 требует от нас сделать исходный код нашего собственного проекта открытым и доступным под той же или совместимой лицензией.",
+      "projectSourceCode": "Исходный код проекта: Доступен в этом репозитории",
+      "licenseText": "Полный текст лицензии GPLv3 можно прочитать здесь: ",
+      "stockfishGratitude": "Мы выражаем глубокую благодарность команде Stockfish за их невероятную работу.",
+      "chessgroundTitle": "Chessground",
+      "chessgroundIntro1": "Интерактивная шахматная доска отображается с использованием библиотеки ",
+      "chessgroundIntro2": " от команды Lichess, которая распространяется под ",
+      "chessgroundGratitude": "Спасибо Lichess за этот замечательный инструмент."
+    },
+    "contributing": "Мы приветствуем любой вклад в проект! Если у вас есть идеи, предложения или вы нашли ошибку, пожалуйста, создайте `issue` или `pull request`.",
+    "licenseText": "Этот проект лицензирован под GNU General Public License v3.0 - подробности смотрите в файле LICENSE.",
+    "acknowledgements": {
+      "stockfishDesc": " — Мощный шахматный движок",
+      "lichessDesc": " — За потрясающий API и библиотеку Chessground",
+      "n8nDesc": " — За гибкую платформу автоматизации",
+      "community": "Всем участникам и шахматному сообществу"
+    },
+    "author": {
+      "photoAlt": "Фото автора",
+      "title": "Несколько слов от автора",
+      "bioPart1": "Привет! Меня зовут Мозер. Я родился в 1985 году в Казахстане и живу в Германии с 2003 года.",
+      "bioPart2": "По профессии я инженер-механик, но всю жизнь увлекаюсь шахматами. Этот проект — моя давняя мечта о создании удобного инструмента для тренировок, которая стала возможной благодаря современным технологиям, таким как ИИ и платформа n8n.",
+      "bioPart3": "Я свободно говорю по-русски и по-немецки, а также немного знаю английский. Спасибо, что используете Chessboard.fun!"
+    },
+    "supportButtonText": "Купить мне кофе",
+    "contact": {
+      "telegram": "Telegram Канал",
+      "email": "Email",
+      "github": "GitHub",
+      "separator": ": "
+    },
+    "footerNote": "Сделано с ❤️ для любителей шахмат по всему миру"
+  },
+  "lichessClubs": {
+    "pageTitle": {
+      "loading": "Загрузка клубов Lichess...",
+      "loaded": "Клубы Lichess",
+      "error": "Ошибка загрузки клубов Lichess"
+    },
+    "table": {
+      "clubName": "Название клуба",
+      "tournamentsPlayed": "Сыграно турниров",
+      "noClubs": "Зарегистрированные клубы не найдены.",
+      "totalScore": "Общий счет",
+      "bestRank": "Лучшее место",
+      "averageRank": "Сред. место",
+      "averageScore": "Сред. счет"
+    },
+    "bannerAlt": "Баннер клубов Lichess",
+    "founder": {
+        "cooldownMessage": "Следующее действие можно будет совершить через {hours} часов.",
+        "clubIsListed": "Ваш клуб в списке: {clubName}",
+        "removeClub": "Удалить {clubName}",
+        "limitReachedInfo": "Вы можете добавить в список только один свой клуб. Чтобы добавить другой, удалите текущий.",
+        "clubNotListed": "Ваш клуб не в списке: {clubName}",
+        "addClubButton": "Добавить {clubName} в список",
+        "confirmRemove": "Вы уверены, что хотите удалить клуб \"{clubName}\" из списка? Это позволит вам зарегистрировать другой ваш клуб.",
+        "addSuccess": "Клуб успешно добавлен! Страница будет перезагружена.",
+        "removeSuccess": "Клуб успешно удален! Страница будет перезагружена.",
+        "actionFailed": "Запрошенное действие не удалось. Пожалуйста, попробуйте позже."
+    }
+  }
+}

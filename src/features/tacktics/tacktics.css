@@ -1,0 +1,155 @@
+/* src/features/tacktics/tacktics.css */
+
+.tacktics-left-panel,
+.tacktics-right-panel {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+#tacktics-feedback {
+  text-align: center;
+  font-size: var(--font-size-base);
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-muted);
+  border-radius: var(--panel-border-radius);
+  padding: 8px;
+  border: 1px solid var(--color-border-hover);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+#tacktics-feedback p {
+    font-weight: var(--font-weight-bold);
+    margin: 0;
+}
+
+/* --- Стили для правой панели (инфо о пазле) --- */
+.puzzle-info-container {
+  background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--panel-border-radius);
+  padding: 10px;
+  flex-shrink: 0;
+}
+
+.puzzle-info-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.puzzle-info-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: var(--font-size-small);
+}
+
+.info-label {
+    color: var(--color-text-muted);
+    margin-right: 10px;
+}
+
+.info-value {
+    font-weight: var(--font-weight-bold);
+    color: var(--color-text-default);
+}
+
+.analysis-panel-wrapper {
+  min-height: 0;
+  display: flex;
+  flex-grow: 1;
+}
+
+.analysis-panel-wrapper #analysis-panel-container {
+  width: 100%;
+  height: 100%;
+}
+
+/* --- Стили для левой панели (статистика) --- */
+.user-stats-container {
+  background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--panel-border-radius);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.stats-title {
+  margin: 0 0 10px 0;
+  text-align: center;
+  font-size: var(--font-size-large);
+  color: var(--color-accent-success);
+  font-weight: var(--font-weight-bold);
+  border-bottom: 1px solid var(--color-border-hover);
+  padding-bottom: 8px;
+  flex-shrink: 0;
+}
+
+.global-rating-box {
+  background-color: var(--color-bg-tertiary);
+  padding: 8px;
+  border-radius: 6px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.global-rating-label {
+  font-size: var(--font-size-small);
+  color: var(--color-text-muted);
+  display: block;
+}
+
+.global-rating-value {
+  font-size: var(--font-size-xlarge);
+  font-weight: bold;
+  color: var(--color-accent-primary);
+}
+
+.theme-stats-table-wrapper {
+  flex-grow: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.theme-stats-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-small);
+}
+
+.theme-stats-table th,
+.theme-stats-table td {
+  padding: 6px 4px;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.theme-stats-table th {
+  color: var(--color-text-muted);
+  position: sticky;
+  top: 0;
+  background-color: var(--color-bg-secondary);
+}
+
+.theme-stats-table .theme-name {
+  font-weight: bold;
+}
+
+.theme-stats-table .theme-rating,
+.theme-stats-table .theme-progress,
+.theme-stats-table .theme-rate {
+  text-align: right;
+  white-space: nowrap;
+}

@@ -1,0 +1,545 @@
+/* src/features/clubPage/clubPage.css */
+
+.club-page {
+  padding: 20px;
+  box-sizing: border-box;
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-default);
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  width: 80vw;
+  max-width: 1000px;
+  margin: 20px auto;
+  border-radius: var(--panel-border-radius);
+  border: 1px solid var(--color-border-hover);
+}
+
+/* NEW: Styles for the club banner */
+.club-page__banner {
+  width: 100%;
+  height: auto;
+  max-height: 600px; /* Limit banner height */
+  object-fit: cover; /* Crop image nicely */
+  border-radius: var(--panel-border-radius);
+  background-color: var(--color-bg-tertiary); /* Placeholder color */
+  margin-bottom: -10px; /* Reduce gap after banner */
+}
+
+.club-page__error-message,
+.club-page__no-data-message {
+  color: var(--color-text-error);
+  background-color: rgba(229, 57, 53, 0.15);
+  border: 1px solid var(--color-accent-error);
+  padding: 10px 15px;
+  border-radius: var(--panel-border-radius);
+  text-align: center;
+  margin: 15px auto;
+}
+
+.club-page__header {
+  text-align: center;
+  border-bottom: 2px solid var(--color-border-hover);
+  padding-bottom: 15px;
+}
+
+.club-page__header-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.club-page__name {
+  font-size: var(--font-size-xxlarge);
+  color: var(--color-accent-primary);
+  margin: 0;
+}
+
+.club-page__meta {
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.club-page__follow-button {
+  padding: 8px 20px;
+  font-size: var(--font-size-large);
+  font-weight: var(--font-weight-bold);
+  border-radius: var(--panel-border-radius);
+  border: 1px solid;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.club-page__follow-button.following {
+  background-color: var(--color-accent-error);
+  border-color: var(--color-accent-error);
+  color: var(--color-text-on-accent);
+}
+
+.club-page__follow-button.not-following {
+  background-color: var(--color-accent-success);
+  border-color: var(--color-accent-success);
+  color: var(--color-text-dark);
+}
+
+.club-page__section-title,
+.club-page__table-title {
+  font-size: var(--font-size-xlarge);
+  color: var(--color-text-dark);
+  margin-top: 0;
+  margin-bottom: 0;
+  padding: 12px 15px;
+  border-bottom: 1px solid var(--color-border-hover);
+}
+
+.club-page__leaders-section {
+  padding: 0;
+  background-color: var(--color-bg-tertiary);
+  border-radius: var(--panel-border-radius);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+
+.club-page__leaders-section .club-page__section-title {
+  background-color: var(--color-accent-primary);
+  margin-bottom: 0;
+}
+
+.club-page__leaders-list {
+  list-style: none;
+  padding: 15px;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.club-page__leaders-list li a {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-hover);
+  border-radius: var(--panel-border-radius);
+  color: var(--color-text-link);
+  text-decoration: none;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.club-page__leaders-list li a:hover {
+  background-color: var(--color-border-hover);
+  border-color: var(--color-accent-primary);
+  color: var(--color-text-link-hover);
+}
+
+/* --- Стили для вкладок --- */
+.club-page__tabs {
+  display: flex;
+  gap: 10px;
+  border-bottom: 2px solid var(--color-border);
+  padding-bottom: -2px;
+  flex-wrap: wrap;
+}
+
+.club-page__tab-button {
+  padding: 10px 20px;
+  cursor: pointer;
+  background-color: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-size: var(--font-size-large);
+  color: var(--color-text-muted);
+  transition: all 0.2s ease;
+}
+
+.club-page__tab-button:hover {
+  color: var(--color-text-default);
+  background-color: var(--color-bg-tertiary);
+}
+
+.club-page__tab-button.active {
+  color: var(--color-accent-primary);
+  border-bottom-color: var(--color-accent-primary);
+  font-weight: var(--font-weight-bold);
+}
+
+.club-page__tab-content {
+  padding-top: 25px;
+}
+
+/* --- Сетки для таблиц --- */
+.club-page__stats-grid-2-cols,
+.club-page__stats-grid-3-cols {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+@media (min-width: 1024px) {
+    .club-page__stats-grid-2-cols {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 25px;
+    }
+
+    .club-page__stats-grid-3-cols {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 25px;
+    }
+}
+
+.club-page__table-container {
+  padding: 0;
+  background-color: var(--color-bg-tertiary);
+  border-radius: var(--panel-border-radius);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Цвета для заголовков таблиц */
+.club-page__table-container--overview .club-page__table-title { background-color: var(--color-accent-secondary); }
+.club-page__table-container--team-medals .club-page__table-title { background-color: #4CAF50; }
+.club-page__table-container--arena-medals .club-page__table-title { background-color: #FFC107; }
+.club-page__table-container--mvp .club-page__table-title { background-color: #2196F3; }
+.club-page__table-container--active .club-page__table-title { background-color: #9C27B0; }
+.club-page__table-container--games .club-page__table-title { background-color: #3F51B5; }
+.club-page__table-container--win-streaks .club-page__table-title { background-color: #00BCD4; }
+.club-page__table-container--performance .club-page__table-title { background-color: #FF5722; }
+.club-page__table-container--rating .club-page__table-title { background-color: #009688; }
+.club-page__table-container--berserkers .club-page__table-title { background-color: #E91E63; }
+.club-page__table-container--history .club-page__table-title { background-color: var(--color-violett-lichess); }
+
+.club-page__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-base);
+}
+
+.club-page__table th,
+.club-page__table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-text-default);
+  white-space: nowrap;
+}
+
+.club-page__table .bold {
+  font-weight: var(--font-weight-bold);
+}
+
+.club-page__table th,
+.club-page__table td {
+  text-align: right;
+}
+.club-page__table .text-left {
+  text-align: left;
+}
+.club-page__table .text-center {
+  text-align: center;
+}
+
+.club-page__table thead th {
+  background-color: var(--color-bg-secondary);
+  font-weight: var(--font-weight-bold);
+}
+
+.club-page__table > tbody > tr:nth-child(odd) {
+    background-color: var(--color-bg-tertiary);
+}
+.club-page__table > tbody > tr:nth-child(even) {
+    background-color: var(--color-bg-secondary);
+}
+
+.club-page__table tbody tr:hover {
+  background-color: var(--color-border-hover);
+}
+
+.club-page__table td a {
+  color: var(--color-text-link);
+  text-decoration: none;
+}
+
+.club-page__table td a:hover {
+  text-decoration: underline;
+}
+
+.club-page__flair-icon {
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.15em;
+    margin-left: 6px;
+}
+
+.club-page__expandable-row {
+    cursor: pointer;
+}
+.club-page__expandable-row.expanded {
+    background-color: var(--color-border-hover) !important;
+}
+
+.club-page__medal-cell--expandable {
+    cursor: pointer;
+    user-select: none;
+}
+.club-page__medal-cell--expandable .expand-arrow {
+    display: inline-block;
+    transition: transform 0.2s ease;
+    font-size: 0.7em;
+    margin-left: 4px;
+}
+.club-page__medal-cell--expandable.expanded .expand-arrow {
+    transform: rotate(180deg);
+}
+
+.club-page__details-row td,
+.club-page__medal-details-row td {
+    padding: 0;
+    border-bottom: 1px solid var(--color-border-hover);
+    background-color: var(--color-bg-primary);
+    font-size: var(--font-size-small);
+}
+
+.club-page__medal-tournament-list {
+    list-style: none;
+    padding: 10px 20px;
+    margin: 0;
+}
+.club-page__medal-tournament-list li {
+    padding: 4px 0;
+    font-size: var(--font-size-xsmall);
+}
+.club-page__medal-tournament-list .date {
+    color: var(--color-text-muted);
+    margin-left: 8px;
+}
+
+.club-page__sub-table-container {
+    padding: 15px;
+    background-color: var(--color-bg-primary);
+}
+
+.club-page__sub-table-title {
+    margin: 0 0 10px 0;
+    font-size: var(--font-size-large);
+    color: var(--color-text-muted);
+    display: none;
+}
+
+.club-page__table--sub {
+    font-size: var(--font-size-xsmall);
+}
+
+.club-page__table--sub tbody tr:nth-child(odd) {
+  background-color: var(--color-bg-tertiary);
+}
+.club-page__table--sub tbody tr:nth-child(even) {
+  background-color: var(--color-bg-secondary);
+}
+
+.club-page__table--sub tbody tr:hover {
+  background-color: var(--color-border-hover);
+}
+
+.club-page__show-more-container {
+    padding: 10px;
+    text-align: center;
+    background-color: var(--color-bg-secondary);
+    border-top: 1px solid var(--color-border);
+}
+
+.club-page__show-more-button {
+    width: 100%;
+    padding: 10px;
+    background-color: var(--color-accent-primary);
+    color: var(--color-text-on-accent);
+    border: none;
+    border-radius: var(--panel-border-radius);
+    cursor: pointer;
+    font-weight: var(--font-weight-bold);
+    transition: background-color 0.2s ease;
+}
+
+.club-page__show-more-button:hover {
+    background-color: var(--color-accent-primary-hover);
+}
+
+.win-color {
+    color: var(--color-accent-success);
+    font-weight: bold;
+}
+.draw-color {
+    color: var(--color-text-muted);
+}
+.loss-color {
+    color: var(--color-accent-error);
+}
+
+/* NEW: Styles for the follow button container */
+.club-page__follow-button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 15px 0; /* Add some vertical padding */
+  margin-top: 15px; /* Add margin above the container */
+  border-top: 1px solid var(--color-border); /* Optional: add a separator line */
+}
+
+/* --- Адаптивность --- */
+
+/* Для таблицы "Обзор" на мобильных */
+@media (max-width: 850px) {
+  /* Стили для карточек удалены, таблица будет отображаться как обычная */
+}
+
+@media (orientation: portrait) {
+  .club-page {
+    width: 100%;
+    padding: 10px; /* Уменьшаем общий отступ */
+    margin: 0;
+    gap: 10px; /* Уменьшаем зазор между секциями */
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+  .club-page__main-title { /* Assuming this exists, based on other files, or apply to h1 */
+    font-size: var(--font-size-large); /* Уменьшаем размер шрифта */
+  }
+  .club-page__header-info .club-page__name {
+    font-size: var(--font-size-large); /* Уменьшаем размер шрифта */
+  }
+  
+  .club-page__leaders-list li a,
+  .club-page__table,
+  .club-page__table th,
+  .club-page__table td,
+  .club-page__tab-button,
+  .club-page__show-more-button {
+    font-size: var(--font-size-xsmall); /* Общее уменьшение шрифтов */
+  }
+
+.club-page__meta {
+    font-size: var(--font-size-small); /* Общее уменьшение шрифтов */
+  }
+
+  /* Founder Controls - already mostly good, but adjust gap/padding if needed */
+  .lichess-clubs-page__founder-controls {
+    gap: 8px;
+    padding: 10px;
+  }
+  .lichess-clubs-page__founder-item span {
+    font-size: var(--font-size-xsmall);
+  }
+  .lichess-clubs-page__founder-button {
+    padding: 6px 10px;
+    font-size: var(--font-size-xsmall);
+  }
+  .lichess-clubs-page__founder-info {
+    font-size: var(--font-size-xsmall);
+    padding: 8px;
+  }
+
+  /* Table Titles */
+  .club-page__section-title,
+  .club-page__table-title {
+    font-size: var(--font-size-base); /* Уменьшаем размер шрифта заголовков таблиц */
+    padding: 3px 10px;
+  }
+
+  /* Revert overview table from card layout */
+  .club-page__overview-table thead {
+    display: table-header-group; /* Make thead visible again */
+  }
+  .club-page__overview-table tr {
+    display: table-row; /* Revert to table row */
+    margin-bottom: 0;
+    border: none; /* Remove card borders */
+    border-radius: 0;
+    padding: 0;
+  }
+  .club-page__overview-table td {
+    display: table-cell; /* Revert to table cell */
+    width: auto;
+    text-align: right; /* Default alignment, can be overridden by specific classes */
+    position: static; /* Remove relative positioning */
+    padding-left: 12px; /* Restore normal padding */
+    border-bottom: 1px solid var(--color-border); /* Restore cell borders */
+    white-space: nowrap; /* Keep nowrap for table cells */
+  }
+  .club-page__overview-table td:last-child {
+      border-bottom: 1px solid var(--color-border); /* Ensure last cell also has border */
+  }
+  .club-page__overview-table td:before {
+    content: none; /* Remove data-label content */
+  }
+
+  /* Hide berserkers column in overview table */
+  .club-page__overview-table th:nth-child(8), /* Target header for berserkers */
+  .club-page__overview-table td:nth-child(8) { /* Target data cells for berserkers */
+    display: none;
+  }
+
+  /* General table cell padding adjustment */
+  .club-page__table th,
+  .club-page__table td {
+    padding: 6px 8px; /* Уменьшаем отступы в ячейках таблиц */
+  }
+
+  /* Tabs adjustment */
+  .club-page__tabs {
+    gap: 5px;
+    padding-bottom: 0;
+  }
+  .club-page__tab-button {
+    padding: 8px 12px;
+    font-size: var(--font-size-xsmall);
+  }
+
+  /* Grid layouts for stats */
+  .club-page__stats-grid-2-cols,
+  .club-page__stats-grid-3-cols {
+      display: flex; /* Revert to column layout for grids on mobile */
+      flex-direction: column;
+      gap: 15px;
+  }
+
+  /* Sub-table (tournament players list) adjustments */
+  .club-page__sub-table-container {
+    padding: 10px;
+  }
+  .club-page__sub-table-title {
+    font-size: var(--font-size-base);
+    margin-bottom: 8px;
+    display: none;
+  }
+  .club-page__table--sub {
+    font-size: var(--font-size-xsmall);
+  }
+  .club-page__table--sub th,
+  .club-page__table--sub td {
+    padding: 4px 6px;
+  }
+
+
+  /* Show more button adjustments */
+  .club-page__show-more-container {
+    padding: 8px;
+  }
+  .club-page__show-more-button {
+    padding: 8px;
+    font-size: var(--font-size-xsmall);
+  }
+
+  .club-page__follow-button {
+  padding: 8px 10px;
+  font-size: var(--font-size-small);
+  }
+}
+
+

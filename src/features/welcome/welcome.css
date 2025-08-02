@@ -1,0 +1,160 @@
+/* src/features/welcome/welcome.css */
+
+.welcome-page-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  text-align: center;
+  padding: 20px;
+  box-sizing: border-box;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-default);
+}
+
+.language-switcher-container {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+}
+
+.welcome-content {
+  max-width: 800px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 25px;
+}
+
+.welcome-logo {
+  max-width: 50%;
+  height: auto;
+  border-radius: 20px;
+}
+
+.welcome-title {
+  font-size: var(--font-size-xxlarge);
+  color: var(--color-accent-primary);
+  margin: 0;
+}
+
+.mode-selection-container {
+  display: grid; /* ИСМЕНЕНО: Используем Grid для расположения элементов */
+  grid-template-columns: repeat(2, 1fr); /* ИСМЕНЕНО: Две колонки равной ширины */
+  gap: 20px;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.mode-button {
+  background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-hover);
+  border-radius: var(--panel-border-radius);
+  padding: 25px 20px;
+  text-decoration: none;
+  color: var(--color-text-default);
+  font-size: var(--font-size-large);
+  font-weight: var(--font-weight-bold);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.mode-button:hover {
+  transform: translateY(-5px);
+  border-color: var(--color-accent-primary);
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-accent-primary);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+.mode-button-icon {
+  font-size: 2.5em;
+  line-height: 1;
+}
+
+.mode-button-text {
+  line-height: 1.2;
+}
+
+.login-section {
+    margin-top: 30px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.login-prompt {
+    font-size: var(--font-size-base);
+    color: var(--color-text-muted);
+}
+
+.login-button.button-primary {
+  background-color: var(--color-accent-primary);
+  color: var(--color-text-dark);
+  border: 1px solid var(--color-accent-primary);
+  padding: 12px 25px;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  border-radius: var(--panel-border-radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 220px;
+}
+
+.login-button.button-primary:hover:not(:disabled) {
+  background-color: var(--color-text-link-hover);
+  border-color: var(--color-text-link-hover);
+  color: var(--color-text-on-accent);
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.error-message {
+  color: var(--color-text-error);
+  background-color: rgba(229, 57, 53, 0.15);
+  border: 1px solid var(--color-accent-error);
+  padding: 10px 15px;
+  border-radius: var(--panel-border-radius);
+  font-size: var(--font-size-small);
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 10px;
+}
+
+/* Адаптация для мобильных устройств */
+@media (max-width: 768px) {
+  .welcome-content {
+    gap: 20px;
+  }
+  .welcome-title {
+      font-size: var(--font-size-xlarge);
+  }
+  .mode-selection-container {
+    grid-template-columns: 1fr 1fr; /* ИСМЕНЕНО: Две колонки также и на мобильных */
+    gap: 15px;
+  }
+  .mode-button {
+    padding: 20px;
+    font-size: var(--font-size-base);
+  }
+  .language-switcher-container {
+    bottom: 10px;
+    right: 10px;
+  }
+  .language-switcher .lang-button {
+    font-size: var(--font-size-small);
+  }
+  .language-switcher .lang-separator {
+    font-size: var(--font-size-small);
+  }
+}
