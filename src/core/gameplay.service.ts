@@ -25,7 +25,7 @@ interface EngineConfig {
   fallback?: InternalEngineId; // движок на случай отказа сервера
 }
 
-const FALLBACK_TIMEOUT_MS = 1000;
+const FALLBACK_TIMEOUT_MS = 500;
 
 // 2. Обновляем конфигурацию движков
 const engineConfigs: Record<InternalEngineId, EngineConfig> = {
@@ -40,7 +40,7 @@ const engineConfigs: Record<InternalEngineId, EngineConfig> = {
   'MOZER_1900+': { type: 'server', model: 'maia', fallback: FALLBACK_ENGINE_ID },
 
   // 3. Универсальный локальный fallback-движок (не виден пользователю)
-  [FALLBACK_ENGINE_ID]: { type: 'local', depth: 10 },
+  [FALLBACK_ENGINE_ID]: { type: 'local', depth: 5 },
 };
 
 export class GameplayServiceController {
@@ -76,33 +76,47 @@ export class GameplayServiceController {
     return null;
   }
 
-  // 4. Метод getMoveWithFallback теперь универсален для всех серверных движков
+  // ИЗМЕНЕНО: Метод getMoveWithFallback теперь универсален и обрабатывает ошибки сервера
   private async getMoveWithFallback(fen: string, modelId: string, fallbackId?: InternalEngineId): Promise<string | null> {
-    const serverPromise = serverEngineService.getMoveFromServer(fen, modelId);
+    let result: string | null = null;
+    try {
+        const serverPromise = serverEngineService.getMoveFromServer(fen, modelId);
+        
+        const timeoutPromise = new Promise<null>((resolve) => {
+          setTimeout(() => resolve(null), FALLBACK_TIMEOUT_MS);
+        });
     
-    const timeoutPromise = new Promise<null>((resolve) => {
-      setTimeout(() => resolve(null), FALLBACK_TIMEOUT_MS);
-    });
+        // Promise.race завершится либо по таймауту (вернет null), либо когда сервер ответит.
+        // Если сервер ответит ошибкой, промис serverPromise будет отклонен, и мы перейдем в блок catch.
+        result = await Promise.race([serverPromise, timeoutPromise]);
 
-    const result = await Promise.race([serverPromise, timeoutPromise]);
-
-    if (result !== null) {
-      logger.info(`[GameplayService] Server engine responded in time with move: ${result}`);
-      return result;
+        if (result !== null) {
+          logger.info(`[GameplayService] Server engine responded in time with move: ${result}`);
+          return result;
+        }
+    } catch (error) {
+        logger.error(`[GameplayService] Server engine request for model ${modelId} failed:`, error);
+        // Ошибка от сервера перехвачена. result остается null, и мы переходим к логике fallback.
     }
 
-    logger.warn(`[GameplayService] Server engine for model ${modelId} timed out. Using fallback.`);
-    
-    if (fallbackId) {
-      const fallbackConfig = engineConfigs[fallbackId];
-      if (fallbackConfig && fallbackConfig.type === 'local' && fallbackConfig.depth) {
-        logger.info(`[GameplayService] Executing fallback engine ${fallbackId} with depth ${fallbackConfig.depth}`);
-        return this.stockfishService.getBestMoveOnly(fen, { depth: fallbackConfig.depth });
-      }
+    // Этот блок теперь выполняется и при таймауте, и при ошибке сервера.
+    if (result === null) {
+        logger.warn(`[GameplayService] Server engine for model ${modelId} failed or timed out. Using fallback.`);
+        
+        if (fallbackId) {
+          const fallbackConfig = engineConfigs[fallbackId];
+          if (fallbackConfig && fallbackConfig.type === 'local' && fallbackConfig.depth) {
+            logger.info(`[GameplayService] Executing fallback engine ${fallbackId} with depth ${fallbackConfig.depth}`);
+            return this.stockfishService.getBestMoveOnly(fen, { depth: fallbackConfig.depth });
+          }
+        }
+        
+        logger.error(`[GameplayService] Fallback failed: no valid fallbackId or config found for ${modelId}.`);
+        return null;
     }
-    
-    logger.error(`[GameplayService] Fallback failed: no valid fallbackId or config found for ${modelId}.`);
-    return null;
+
+    // Этот код не должен быть достигнут, если result не null, но для безопасности оставляем.
+    return result;
   }
 }
 

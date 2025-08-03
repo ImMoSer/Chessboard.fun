@@ -71,7 +71,9 @@ class ServerEngineServiceController {
       } else {
         logger.error('[ServerEngineService] Failed to fetch move from server:', error);
       }
-      return null;
+      // ИЗМЕНЕНО: Вместо возврата null, пробрасываем ошибку дальше, чтобы промис был отклонен (rejected).
+      // Это позволит вызывающему коду (gameplay.service) перехватить ошибку.
+      throw error;
     } finally {
       this.isThinking = false;
     }
