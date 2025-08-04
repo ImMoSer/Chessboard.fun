@@ -436,10 +436,13 @@ export function renderAppUI(controller: AppController): VNode {
   }, [
     h('header#app-header', { class: { 'menu-open': appState.isNavExpanded && appState.isPortraitMode } }, [
       h('div.nav-header-content', [
-        h('img.app-logo', {
-          props: { src: '/svg/1920_Banner.svg', alt: t('app.title') },
-          on: { click: () => controller.navigateTo('welcome', true, null) }
-        }),
+        h('div.app-logo-container', [
+          h('img.app-logo', {
+            props: { src: '/svg/1920_Banner.svg', alt: t('app.title') },
+            on: { click: () => controller.navigateTo('welcome', true, null) }
+          }),
+          h('span.app-version', controller.getAppVersion()) // Отображаем номер версии
+        ]),
         h('button.nav-toggle-button', {
             on: { click: () => controller.toggleNav() }
         }, appState.isNavExpanded ? '✕' : '☰'),

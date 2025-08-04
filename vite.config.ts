@@ -1,23 +1,27 @@
-// vite.config.js
 import { defineConfig, Plugin } from 'vite';
-// import { viteStaticCopy } from 'vite-plugin-static-copy'; // Эту строку удалить
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
+
+// Получаем версию из package.json
+const packageJson = JSON.parse(readFileSync(resolve(__dirname, 'package.json'), 'utf-8'));
+const appVersion = packageJson.version;
 
 // Определяем наш пользовательский плагин для добавления заголовков
-const crossOriginHeadersPlugin = { //
+const crossOriginHeadersPlugin: Plugin = {
   name: "configure-response-headers",
 
-  configureServer(server) { //
+  configureServer(server) {
     server.middlewares.use((_req, res, next) => {
-      res.setHeader("Cross-Origin-Embedder-Policy", "require-corp"); //
-      res.setHeader("Cross-Origin-Opener-Policy", "same-origin"); //
+      res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
+      res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
       next();
     });
   },
 
-  configurePreviewServer(server) { //
+  configurePreviewServer(server) {
     server.middlewares.use((_req, res, next) => {
-      res.setHeader("Cross-Origin-Embedder-Policy", "require-corp"); //
-      res.setHeader("Cross-Origin-Opener-Policy", "same-origin"); //
+      res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
+      res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
       next();
     });
   }
@@ -34,12 +38,12 @@ export default defineConfig({
     // cors: true, // Возможно, потребуется также включить CORS для preview
   },
   plugins: [
-    crossOriginHeadersPlugin, // Наш плагин для COOP/COEP заголовков остается
-    // УДАЛЕНО ЗДЕСЬ: Плагин viteStaticCopy больше не используется, так как файлы уже в public/
+    crossOriginHeadersPlugin,
   ],
+  define: {
+    'import.meta.env.VITE_APP_VERSION': JSON.stringify(appVersion)
+  },
   optimizeDeps: {
-    // optimizeDeps.exclude предотвращает предварительную сборку Vite для этого модуля,
-    // что важно для правильной работы Emscripten-генерированных JS-файлов.
     exclude: ['@lichess-org/stockfish-web'],
   },
 });

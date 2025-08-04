@@ -17,7 +17,7 @@ export function renderAboutPage(controller: AppController): VNode {
     ]),
     h('h1', [
       t('about.title'),
-      h('span.app-version', ' (v1.0.0)')
+      h('span.app-version', ' (1.0.1)')
     ]),
     h('p', [
       h('strong', 'Chessboard.fun'),

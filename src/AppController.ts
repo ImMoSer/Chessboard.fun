@@ -100,9 +100,12 @@ const BOARD_MIN_VH = 10;
 const DEFAULT_BOARD_VH = 70;
 const DEFAULT_ENGINE_ID: EngineId = 'SF_1900';
 const ENGINE_STORAGE_KEY = 'user_preferred_engine';
+const APP_VERSION_STORAGE_KEY = 'app_version';
 
+// <<< ИСПРАВЛЕНО: Эти константы теперь объявлены в глобальной области видимости файла
 const PRIVATE_PAGES: AppPage[] = ['finishHim', 'tower', 'userCabinet', 'attack', 'clubPage', 'recordsPage', 'lichessClubs', 'tacktics'];
 const PRE_AUTH_REDIRECT_URL_KEY = 'preAuthRedirectUrl';
+const APP_VERSION = import.meta.env.VITE_APP_VERSION || 'v-dev';
 
 export class AppController {
   public state: AppControllerState;
@@ -119,7 +122,7 @@ export class AppController {
   private webhookServiceInstance: WebhookServiceController;
   public pgnServiceInstance: typeof PgnService;
   private themeServiceInstance: typeof ThemeService;
-  private soundServiceInstance: typeof SoundService; // <<< ДОБАВЛЕНО
+  private soundServiceInstance: typeof SoundService;
 
   private unsubscribeFromLangChange: (() => void) | null = null;
   private unsubscribeFromAuthChange: (() => void) | null = null;
@@ -148,7 +151,7 @@ export class AppController {
     this.pgnServiceInstance = pgnServiceInstance;
     this.routingService = new RoutingService();
     this.themeServiceInstance = ThemeService;
-    this.soundServiceInstance = SoundService; // <<< ДОБАВЛЕНО
+    this.soundServiceInstance = SoundService;
 
     this.services = {
       chessboardService: globalServices.chessboardService,
@@ -162,7 +165,7 @@ export class AppController {
       appController: this,
       pgnServiceInstance: this.pgnServiceInstance,
       themeService: this.themeServiceInstance,
-      soundService: this.soundServiceInstance, // <<< ДОБАВЛЕНО
+      soundService: this.soundServiceInstance,
     };
     this.requestGlobalRedraw = requestGlobalRedraw;
 
@@ -197,7 +200,7 @@ export class AppController {
       currentGameControls: null,
       engineSelectorOpen: false,
       toasts: [],
-      voiceVolume: this.soundServiceInstance.getVoiceVolume(), // <<< ДОБАВЛЕНО
+      voiceVolume: this.soundServiceInstance.getVoiceVolume(),
     };
 
     this.unsubscribeFromLangChange = subscribeToLangChange(() => {
@@ -210,12 +213,28 @@ export class AppController {
     logger.info(`[AppController] Initialized. Current lang: ${getCurrentLang()}, Selected Engine: ${this.state.selectedEngine}`);
   }
 
-  // <<< НАЧАЛО ИЗМЕНЕНИЙ: Новый метод для управления громкостью
+  private _checkForAppUpdate(): void {
+    const storedVersion = localStorage.getItem(APP_VERSION_STORAGE_KEY);
+    if (storedVersion && storedVersion !== APP_VERSION) {
+      logger.info(`[AppController] New version detected. Current: ${storedVersion}, New: ${APP_VERSION}. Reloading app...`);
+      localStorage.setItem(APP_VERSION_STORAGE_KEY, APP_VERSION);
+      window.location.reload();
+    } else if (!storedVersion) {
+      localStorage.setItem(APP_VERSION_STORAGE_KEY, APP_VERSION);
+      logger.info(`[AppController] First run, storing app version: ${APP_VERSION}.`);
+    } else {
+      logger.info(`[AppController] App version is up to date: ${APP_VERSION}.`);
+    }
+  }
+
+  public getAppVersion(): string {
+    return APP_VERSION;
+  }
+  
   public handleVolumeChange(volume: number): void {
     this.soundServiceInstance.setVoiceVolume(volume);
     this.setState({ voiceVolume: volume });
   }
-  // <<< КОНЕЦ ИЗМЕНЕНИЙ
 
   public showToast(message: string, type: 'success' | 'error' = 'success', duration: number = 3000): void {
     const id = this.toastIdCounter++;
@@ -345,6 +364,7 @@ export class AppController {
     this.setState({ isLoadingAuth: true });
     
     this.themeServiceInstance.applyTheme();
+    this._checkForAppUpdate();
     
     await this.authServiceInstance.handleAuthentication();
     
@@ -518,6 +538,8 @@ export class AppController {
           this.activePageController = new AboutController();
           break;
         default:
+          const exhaustiveCheck: never = route.page;
+          logger.error(`[AppController] Reached default case in page switch with page: ${exhaustiveCheck}`);
           if (this.state.currentPage !== 'welcome') this.navigateTo('welcome');
           return; 
       }

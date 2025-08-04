@@ -84,15 +84,32 @@
   position: relative;
 }
 
+/* <<< НАЧАЛО ИЗМЕНЕНИЙ: контейнер для лого и версии */
+.app-logo-container {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  margin-right: 20px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
 .app-logo {
   height: calc(var(--header-height) * 0.85);
   width: auto;
   max-width: 250px;
-  margin-right: 20px;
-  cursor: pointer;
   object-fit: contain;
   flex-shrink: 0;
 }
+
+.app-version {
+  font-size: var(--font-size-xsmall);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-normal);
+  line-height: 1;
+  white-space: nowrap;
+}
+/* <<< КОНЕЦ ИЗМЕНЕНИЙ */
 
 .funcoins-balance {
   display: flex;
@@ -575,18 +592,20 @@ body.board-resizing * {
 }
 
 @media (max-width: 768px) {
-  .app-logo {
-    display: block;
-    position: absolute;
-    left: 15%;
+  .app-logo-container {
+    display: flex;
+    position: static;
     margin-right: 0;
+    align-items: flex-end;
+  }
+  .app-logo {
     height: calc(var(--header-height) * 0.70);
   }
 
   .nav-toggle-button {
     display: block;
     order: -1;
-    margin-right: auto;
+    margin-right: 0px;
   }
 
   .nav-header-content {
