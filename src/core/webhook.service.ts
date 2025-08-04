@@ -127,10 +127,10 @@ export interface FinishHimLeaderboardEntry {
 }
 export interface TowerLeaderboardEntry {
   rank: number;
-  versuch: number;
   tower_id: string;
   username: string;
   best_time: number;
+  days_old: number;
   lichess_id: string;
   subscriptionTier?: string;
 }
@@ -138,6 +138,7 @@ export interface AttackLeaderboardEntry {
   rank: number;
   username: string;
   best_time: number;
+  days_old: number;
   puzzle_id: string;
   lichess_id: string;
   subscriptionTier?: string;

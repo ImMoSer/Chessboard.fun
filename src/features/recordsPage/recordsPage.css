@@ -239,7 +239,7 @@
   .records-page__table {
     font-size: var(--font-size-small);
   }
-  .records-page__table .col-attempts {
+  .records-page__table .col-days-old {
     display: none;
   }
 }

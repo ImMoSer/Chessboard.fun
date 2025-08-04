@@ -81,6 +81,7 @@ const ATTACK_LEADERBOARD_CONFIG: LeaderboardTableConfig = {
     { headerKey: 'records.table.rank', defaultHeader: '#', cellValueExtractor: (e: AttackLeaderboardEntry) => e.rank, textAlign: 'center' },
     { headerKey: 'records.table.player', defaultHeader: 'Player', cellValueExtractor: (e: AttackLeaderboardEntry) => e.username, textAlign: 'left' },
     { headerKey: 'records.table.time', defaultHeader: 'Best Time', cellValueExtractor: (e: AttackLeaderboardEntry) => `${e.best_time}s`, textAlign: 'center' },
+    { headerKey: 'records.table.daysOld', defaultHeader: 'Age', cellValueExtractor: (e: AttackLeaderboardEntry) => e.days_old, textAlign: 'center' },
     { headerKey: 'records.table.challenge', defaultHeader: 'Challenge', cellValueExtractor: () => '', textAlign: 'center' },
   ],
 };
@@ -93,8 +94,8 @@ const TOWER_LEADERBOARD_CONFIG: LeaderboardTableConfig = {
         { headerKey: 'records.table.rank', defaultHeader: '#', cellValueExtractor: (e: TowerLeaderboardEntry) => e.rank, textAlign: 'center' },
         { headerKey: 'records.table.player', defaultHeader: 'Player', cellValueExtractor: (e: TowerLeaderboardEntry) => e.username, textAlign: 'left' },
         { headerKey: 'records.table.time', defaultHeader: 'Best Time', cellValueExtractor: (e: TowerLeaderboardEntry) => new Date(e.best_time * 1000).toISOString().substr(14, 5), textAlign: 'center' },
+        { headerKey: 'records.table.daysOld', defaultHeader: 'Age', cellValueExtractor: (e: TowerLeaderboardEntry) => e.days_old, textAlign: 'right' },
         { headerKey: 'records.table.challenge', defaultHeader: 'Challenge', cellValueExtractor: () => '', textAlign: 'center' },
-        { headerKey: 'records.table.attempts', defaultHeader: 'Attempts', cellValueExtractor: (e: TowerLeaderboardEntry) => e.versuch, textAlign: 'right' },
     ]
 };
 

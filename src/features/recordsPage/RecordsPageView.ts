@@ -172,7 +172,7 @@ function renderConsolidatedTowerTable(
                 }
 
                 return h(`td.text-${col.textAlign || 'left'}`, {
-                  class: { 'col-attempts': col.headerKey === 'records.table.attempts' }
+                  class: { 'col-days-old': col.headerKey === 'records.table.daysOld' }
                 }, cellContent.filter(c => c !== null) as (VNode | string)[]);
             }))
         );
@@ -186,7 +186,7 @@ function renderConsolidatedTowerTable(
             h('thead', [
                 h('tr', config.columns.map(col =>
                     h(`th.text-${col.textAlign || 'left'}`, {
-                      class: { 'col-attempts': col.headerKey === 'records.table.attempts' }
+                      class: { 'col-days-old': col.headerKey === 'records.table.daysOld' }
                     }, t(col.headerKey, { defaultValue: col.defaultHeader }))
                 ))
             ]),
