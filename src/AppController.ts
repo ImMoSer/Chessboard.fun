@@ -77,7 +77,7 @@ interface AppControllerState {
   isLoadingAuth: boolean;
   isModalVisible: boolean;
   modalMessage: string | null;
-  isRateLimited: boolean; 
+  isRateLimited: boolean;
   rateLimitCooldownSeconds: number;
   isConfirmationModalVisible: boolean;
   confirmationModalMessage: string | null;
@@ -127,8 +127,11 @@ export class AppController {
   private unsubscribeFromLangChange: (() => void) | null = null;
   private unsubscribeFromAuthChange: (() => void) | null = null;
   private unsubscribeFromRouteChange: (() => void) | null = null;
-  
+
+  // <<< НАЧАЛО ИЗМЕНЕНИЙ
+  // Флаг для предотвращения избыточных вызовов requestGlobalRedraw
   private isRedrawQueued: boolean = false;
+  // >>> КОНЕЦ ИЗМЕНЕНИЙ
 
   constructor(
     globalServices: {
@@ -205,7 +208,8 @@ export class AppController {
 
     this.unsubscribeFromLangChange = subscribeToLangChange(() => {
       logger.info('[AppController] Language changed, requesting global redraw.');
-      this.requestGlobalRedraw();
+      // Изменено: теперь `requestGlobalRedraw` вызывается через `setState({})`
+      this.setState({});
     });
 
     this.unsubscribeFromAuthChange = this.authServiceInstance.subscribe(() => this._onAuthStateChanged());
@@ -230,7 +234,7 @@ export class AppController {
   public getAppVersion(): string {
     return APP_VERSION;
   }
-  
+
   public handleVolumeChange(volume: number): void {
     this.soundServiceInstance.setVoiceVolume(volume);
     this.setState({ voiceVolume: volume });
@@ -239,7 +243,7 @@ export class AppController {
   public showToast(message: string, type: 'success' | 'error' = 'success', duration: number = 3000): void {
     const id = this.toastIdCounter++;
     const newToast: Toast = { id, message, type };
-    
+
     this.setState({ toasts: [...this.state.toasts, newToast] });
 
     setTimeout(() => {
@@ -249,27 +253,27 @@ export class AppController {
 
   public async handleShare(shareData: ShareData): Promise<void> {
     if (navigator.share) {
-        try {
-            await navigator.share({
-                title: shareData.title,
-                text: shareData.text,
-                url: shareData.url,
-            });
-            this.showToast(t('common.shareSuccess', { defaultValue: 'Shared successfully!' }));
-            logger.info('[AppController] Shared via Web Share API.');
-        } catch (error) {
-            logger.error('[AppController] Error using Web Share API:', error);
-            this.showToast(t('common.shareCancelled', { defaultValue: 'Sharing cancelled.' }), 'error');
-        }
+      try {
+        await navigator.share({
+          title: shareData.title,
+          text: shareData.text,
+          url: shareData.url,
+        });
+        this.showToast(t('common.shareSuccess', { defaultValue: 'Shared successfully!' }));
+        logger.info('[AppController] Shared via Web Share API.');
+      } catch (error) {
+        logger.error('[AppController] Error using Web Share API:', error);
+        this.showToast(t('common.shareCancelled', { defaultValue: 'Sharing cancelled.' }), 'error');
+      }
     } else {
-        try {
-            await navigator.clipboard.writeText(shareData.url);
-            this.showToast(t('common.linkCopied', { defaultValue: 'Link copied to clipboard!' }));
-            logger.info('[AppController] Web Share API not available. Copied link to clipboard.');
-        } catch (error) {
-            logger.error('[AppController] Failed to copy link to clipboard:', error);
-            this.showToast(t('common.copyFailed', { defaultValue: 'Could not copy link.' }), 'error');
-        }
+      try {
+        await navigator.clipboard.writeText(shareData.url);
+        this.showToast(t('common.linkCopied', { defaultValue: 'Link copied to clipboard!' }));
+        logger.info('[AppController] Web Share API not available. Copied link to clipboard.');
+      } catch (error) {
+        logger.error('[AppController] Failed to copy link to clipboard:', error);
+        this.showToast(t('common.copyFailed', { defaultValue: 'Could not copy link.' }), 'error');
+      }
     }
   }
 
@@ -279,10 +283,10 @@ export class AppController {
 
   public clearGameControls(): void {
     if (this.state.currentGameControls !== null) {
-        this.setState({ currentGameControls: null });
+      this.setState({ currentGameControls: null });
     }
   }
-  
+
   public async handleLanguageChange(lang: string): Promise<void> {
     await changeLang(lang);
   }
@@ -304,34 +308,34 @@ export class AppController {
       this.setState({ activeDropdown: name, engineSelectorOpen: false });
     }
   }
-  
+
   public toggleEngineSelector(): void {
     const newOpenState = !this.state.engineSelectorOpen;
-    this.setState({ 
-        engineSelectorOpen: newOpenState,
-        ...(newOpenState && { activeDropdown: null }) 
+    this.setState({
+      engineSelectorOpen: newOpenState,
+      ...(newOpenState && { activeDropdown: null })
     });
   }
 
   public setEngine(engineId: EngineId): void {
     if (this.state.selectedEngine !== engineId) {
-        this.setState({ selectedEngine: engineId });
-        localStorage.setItem(ENGINE_STORAGE_KEY, engineId);
-        logger.info(`[AppController] User selected new engine: ${engineId}`);
+      this.setState({ selectedEngine: engineId });
+      localStorage.setItem(ENGINE_STORAGE_KEY, engineId);
+      logger.info(`[AppController] User selected new engine: ${engineId}`);
     }
   }
 
   private _handleRateLimitError(cooldownSeconds: number): void {
     logger.warn(`[AppController] Handling rate limit error. Cooldown: ${cooldownSeconds} seconds.`);
-    
+
     this.setState({
-        isRateLimited: true,
-        isLoadingAuth: false,
-        isModalVisible: true,
-        modalMessage: t('errors.rateLimit.message', { seconds: cooldownSeconds })
+      isRateLimited: true,
+      isLoadingAuth: false,
+      isModalVisible: true,
+      modalMessage: t('errors.rateLimit.message', { seconds: cooldownSeconds })
     });
   }
-  
+
   public handleApiRateLimit(error: unknown): boolean {
     if (error instanceof RateLimitError) {
       logger.warn(`[AppController] Central handler caught a RateLimitError. Cooldown: ${error.cooldownSeconds}s.`);
@@ -340,12 +344,12 @@ export class AppController {
     }
     return false;
   }
-  
+
   public handleRateLimitModalOk(): void {
     logger.info('[AppController] Rate limit modal OK clicked.');
     if (this.rateLimitTimerId) {
-        clearInterval(this.rateLimitTimerId);
-        this.rateLimitTimerId = null;
+      clearInterval(this.rateLimitTimerId);
+      this.rateLimitTimerId = null;
     }
     this.setState({
       isRateLimited: false,
@@ -362,26 +366,26 @@ export class AppController {
     this._isInitializing = true;
     logger.info(`[AppController] Initializing app & authentication...`);
     this.setState({ isLoadingAuth: true });
-    
+
     this.themeServiceInstance.applyTheme();
     this._checkForAppUpdate();
-    
+
     await this.authServiceInstance.handleAuthentication();
-    
-    if (!this.authServiceInstance.getIsProcessing() && this.state.isLoadingAuth && !this.state.isRateLimited){
-        this.setState({ isLoadingAuth: false });
+
+    if (!this.authServiceInstance.getIsProcessing() && this.state.isLoadingAuth && !this.state.isRateLimited) {
+      this.setState({ isLoadingAuth: false });
     }
 
     this.unsubscribeFromRouteChange = this.routingService.listen((route) => this._processRouteChange(route));
 
     const authState = this.authServiceInstance.getState();
     if (authState.isAuthenticated) {
-        const preAuthUrl = localStorage.getItem(PRE_AUTH_REDIRECT_URL_KEY);
-        if (preAuthUrl) {
-            logger.info(`[AppController] Found pre-auth redirect URL: ${preAuthUrl}. Navigating now.`);
-            localStorage.removeItem(PRE_AUTH_REDIRECT_URL_KEY);
-            window.location.hash = preAuthUrl;
-        }
+      const preAuthUrl = localStorage.getItem(PRE_AUTH_REDIRECT_URL_KEY);
+      if (preAuthUrl) {
+        logger.info(`[AppController] Found pre-auth redirect URL: ${preAuthUrl}. Navigating now.`);
+        localStorage.removeItem(PRE_AUTH_REDIRECT_URL_KEY);
+        window.location.hash = preAuthUrl;
+      }
     }
 
     logger.info(`[AppController] App initialization sequence complete.`);
@@ -394,172 +398,172 @@ export class AppController {
     const authState = this.authServiceInstance.getState();
 
     this.setState({
-        currentUser: authState.userProfile,
-        isLoadingAuth: authState.isProcessing
+      currentUser: authState.userProfile,
+      isLoadingAuth: authState.isProcessing
     });
 
     if (authState.error && !this.state.isModalVisible) {
-        this.showModal(authState.error);
+      this.showModal(authState.error);
     }
-    
+
     if (!this._isInitializing && !authState.isAuthenticated && this.state.currentPage !== 'welcome') {
-        logger.info('[AppController Subscriber] User logged out, navigating to welcome.');
-        this.navigateTo('welcome');
+      logger.info('[AppController Subscriber] User logged out, navigating to welcome.');
+      this.navigateTo('welcome');
     }
   }
 
   private _processRouteChange(route: Route): void {
-      const isAuthenticated = this.authServiceInstance.getIsAuthenticated();
-      let targetRoute = route;
+    const isAuthenticated = this.authServiceInstance.getIsAuthenticated();
+    let targetRoute = route;
 
-      if (PRIVATE_PAGES.includes(route.page) && !isAuthenticated) {
-          logger.warn(`[AppController] Access to private page '${route.page}' denied. Prompting for login.`);
-          const redirectUrl = this.routingService.buildHash(route);
-          if (redirectUrl !== '#') {
-              localStorage.setItem(PRE_AUTH_REDIRECT_URL_KEY, redirectUrl);
-          }
-          
-          this.showConfirmationModal(
-              t('auth.loginRequiredForPage',{defaultValue: "To access this content, please log in with your Lichess account."}),
-              () => this.services.authService.login(),
-              () => this.navigateTo('welcome'),
-              t('nav.loginWithLichess', {defaultValue: "Login with Lichess"}),
-              t('common.cancel', {defaultValue: "Cancel"})
-          );
-          
-          return;
-      } 
-
-      const { page: finalPage, clubId: finalClubId, puzzleId: finalPuzzleId, towerId: finalTowerId } = targetRoute;
-
-      if (
-          this.state.currentPage !== finalPage ||
-          this.state.currentClubId !== finalClubId ||
-          this.state.currentPuzzleId !== finalPuzzleId ||
-          this.state.currentTowerId !== finalTowerId ||
-          !this.activePageController
-      ) {
-          this._loadPage(targetRoute);
+    if (PRIVATE_PAGES.includes(route.page) && !isAuthenticated) {
+      logger.warn(`[AppController] Access to private page '${route.page}' denied. Prompting for login.`);
+      const redirectUrl = this.routingService.buildHash(route);
+      if (redirectUrl !== '#') {
+        localStorage.setItem(PRE_AUTH_REDIRECT_URL_KEY, redirectUrl);
       }
+
+      this.showConfirmationModal(
+        t('auth.loginRequiredForPage', { defaultValue: "To access this content, please log in with your Lichess account." }),
+        () => this.services.authService.login(),
+        () => this.navigateTo('welcome'),
+        t('nav.loginWithLichess', { defaultValue: "Login with Lichess" }),
+        t('common.cancel', { defaultValue: "Cancel" })
+      );
+
+      return;
+    }
+
+    const { page: finalPage, clubId: finalClubId, puzzleId: finalPuzzleId, towerId: finalTowerId } = targetRoute;
+
+    if (
+      this.state.currentPage !== finalPage ||
+      this.state.currentClubId !== finalClubId ||
+      this.state.currentPuzzleId !== finalPuzzleId ||
+      this.state.currentTowerId !== finalTowerId ||
+      !this.activePageController
+    ) {
+      this._loadPage(targetRoute);
+    }
   }
 
   private _loadPage(route: Route): void {
-      if (this.activePageController?.destroy) this.activePageController.destroy();
-      this.activePageController = null;
-      if (this.analysisControllerInstance?.destroy) this.analysisControllerInstance.destroy();
-      this.analysisControllerInstance = null;
-      
-      this.clearGameControls();
+    if (this.activePageController?.destroy) this.activePageController.destroy();
+    this.activePageController = null;
+    if (this.analysisControllerInstance?.destroy) this.analysisControllerInstance.destroy();
+    this.analysisControllerInstance = null;
 
-      this.setState({
-          currentPage: route.page,
-          currentClubId: route.clubId,
-          currentPuzzleId: route.puzzleId,
-          currentTowerId: route.towerId,
-      });
-      
-      this._calculateAndSetBoardSize();
+    this.clearGameControls();
 
-      let boardHandlerForPage: BoardHandler | undefined;
-    
-      if (['finishHim', 'tower', 'attack', 'tacktics'].includes(route.page)) {
-          const redrawFn = () => this.setState({});
-          boardHandlerForPage = new BoardHandler(this.services.chessboardService, redrawFn);
-          this.analysisControllerInstance = new AnalysisController(this.services.analysisService, boardHandlerForPage, this.pgnServiceInstance, redrawFn);
-      }
-      
-      switch (route.page) {
-        case 'welcome':
-          this.activePageController = new WelcomeController(this.authServiceInstance, () => this.setState({}));
-          break;
-        case 'finishHim':
-          if (!boardHandlerForPage || !this.analysisControllerInstance) {
-              if (this.state.currentPage !== 'welcome') this.navigateTo('welcome');
-              return;
-          }
-          this.activePageController = new FinishHimController(
-            boardHandlerForPage,
-            this.analysisControllerInstance,
-            this.services,
-            () => this.setState({})
-          );
-          (this.activePageController as FinishHimController).initializeGame(route.puzzleId);
-          break;
-        case 'tower':
-          if (!boardHandlerForPage || !this.analysisControllerInstance) {
-              if (this.state.currentPage !== 'welcome') this.navigateTo('welcome');
-              return;
-          }
-          this.activePageController = new TowerController(
-              boardHandlerForPage, this.analysisControllerInstance, this.services, () => this.setState({})
-          );
-          (this.activePageController as TowerController).initializeGame(route.towerId);
-          break;
-        case 'attack':
-          if (!boardHandlerForPage || !this.analysisControllerInstance) {
-              if (this.state.currentPage !== 'welcome') this.navigateTo('welcome');
-              return;
-          }
-          this.activePageController = new AttackController(
-              boardHandlerForPage, this.analysisControllerInstance, this.services, () => this.setState({})
-          );
-          (this.activePageController as AttackController).initializeGame(route.puzzleId);
-          break;
-        case 'tacktics':
-          if (!boardHandlerForPage || !this.analysisControllerInstance) {
-              if (this.state.currentPage !== 'welcome') this.navigateTo('welcome');
-              return;
-          }
-          this.activePageController = new TackticsController(
-              boardHandlerForPage, this.analysisControllerInstance, this.services, () => this.setState({})
-          );
-          (this.activePageController as TackticsController).initializeGame(route.puzzleId);
-          break;
-        case 'clubPage':
-          if (route.clubId) {
-             this.activePageController = new ClubPageController(route.clubId, this.services, () => this.setState({}));
-             (this.activePageController as ClubPageController).initializePage();
-          } else {
-              if (this.state.currentPage !== 'lichessClubs') this.navigateTo('lichessClubs');
-          }
-          break;
-        case 'lichessClubs':
-          this.activePageController = new LichessClubsController(this.services, () => this.setState({}));
-          (this.activePageController as LichessClubsController).initializePage();
-          break;
-        case 'recordsPage':
-          this.activePageController = new RecordsPageController(this.services, () => this.setState({}));
-          (this.activePageController as RecordsPageController).initializePage();
-          break;
-        case 'userCabinet': 
-          this.activePageController = new UserCabinetController(this.services, () => this.setState({}));
-          (this.activePageController as UserCabinetController).initializePage();
-          break;
-        case 'about':
-          this.activePageController = new AboutController();
-          break;
-        default:
-          const exhaustiveCheck: never = route.page;
-          logger.error(`[AppController] Reached default case in page switch with page: ${exhaustiveCheck}`);
+    this.setState({
+      currentPage: route.page,
+      currentClubId: route.clubId,
+      currentPuzzleId: route.puzzleId,
+      currentTowerId: route.towerId,
+    });
+
+    this._calculateAndSetBoardSize();
+
+    let boardHandlerForPage: BoardHandler | undefined;
+
+    if (['finishHim', 'tower', 'attack', 'tacktics'].includes(route.page)) {
+      const redrawFn = () => this.setState({});
+      boardHandlerForPage = new BoardHandler(this.services.chessboardService, redrawFn);
+      this.analysisControllerInstance = new AnalysisController(this.services.analysisService, boardHandlerForPage, this.pgnServiceInstance, redrawFn);
+    }
+
+    switch (route.page) {
+      case 'welcome':
+        this.activePageController = new WelcomeController(this.authServiceInstance, () => this.setState({}));
+        break;
+      case 'finishHim':
+        if (!boardHandlerForPage || !this.analysisControllerInstance) {
           if (this.state.currentPage !== 'welcome') this.navigateTo('welcome');
-          return; 
-      }
-      logger.info(`[AppController] Loaded controller for page: ${route.page}`, this.activePageController);
-      this.setState({});
+          return;
+        }
+        this.activePageController = new FinishHimController(
+          boardHandlerForPage,
+          this.analysisControllerInstance,
+          this.services,
+          () => this.setState({})
+        );
+        (this.activePageController as FinishHimController).initializeGame(route.puzzleId);
+        break;
+      case 'tower':
+        if (!boardHandlerForPage || !this.analysisControllerInstance) {
+          if (this.state.currentPage !== 'welcome') this.navigateTo('welcome');
+          return;
+        }
+        this.activePageController = new TowerController(
+          boardHandlerForPage, this.analysisControllerInstance, this.services, () => this.setState({})
+        );
+        (this.activePageController as TowerController).initializeGame(route.towerId);
+        break;
+      case 'attack':
+        if (!boardHandlerForPage || !this.analysisControllerInstance) {
+          if (this.state.currentPage !== 'welcome') this.navigateTo('welcome');
+          return;
+        }
+        this.activePageController = new AttackController(
+          boardHandlerForPage, this.analysisControllerInstance, this.services, () => this.setState({})
+        );
+        (this.activePageController as AttackController).initializeGame(route.puzzleId);
+        break;
+      case 'tacktics':
+        if (!boardHandlerForPage || !this.analysisControllerInstance) {
+          if (this.state.currentPage !== 'welcome') this.navigateTo('welcome');
+          return;
+        }
+        this.activePageController = new TackticsController(
+          boardHandlerForPage, this.analysisControllerInstance, this.services, () => this.setState({})
+        );
+        (this.activePageController as TackticsController).initializeGame(route.puzzleId);
+        break;
+      case 'clubPage':
+        if (route.clubId) {
+          this.activePageController = new ClubPageController(route.clubId, this.services, () => this.setState({}));
+          (this.activePageController as ClubPageController).initializePage();
+        } else {
+          if (this.state.currentPage !== 'lichessClubs') this.navigateTo('lichessClubs');
+        }
+        break;
+      case 'lichessClubs':
+        this.activePageController = new LichessClubsController(this.services, () => this.setState({}));
+        (this.activePageController as LichessClubsController).initializePage();
+        break;
+      case 'recordsPage':
+        this.activePageController = new RecordsPageController(this.services, () => this.setState({}));
+        (this.activePageController as RecordsPageController).initializePage();
+        break;
+      case 'userCabinet':
+        this.activePageController = new UserCabinetController(this.services, () => this.setState({}));
+        (this.activePageController as UserCabinetController).initializePage();
+        break;
+      case 'about':
+        this.activePageController = new AboutController();
+        break;
+      default:
+        const exhaustiveCheck: never = route.page;
+        logger.error(`[AppController] Reached default case in page switch with page: ${exhaustiveCheck}`);
+        if (this.state.currentPage !== 'welcome') this.navigateTo('welcome');
+        return;
+    }
+    logger.info(`[AppController] Loaded controller for page: ${route.page}`, this.activePageController);
+    this.setState({});
   }
 
   public navigateTo(page: AppPage, updateHash: boolean = true, clubId: string | null = null, puzzleId: string | null = null, towerId: string | null = null): void {
-      const route: Route = { page, clubId, puzzleId, towerId };
-      const currentHash = window.location.hash;
-      const newHash = this.routingService.buildHash(route);
+    const route: Route = { page, clubId, puzzleId, towerId };
+    const currentHash = window.location.hash;
+    const newHash = this.routingService.buildHash(route);
 
-      if (currentHash !== newHash) {
-          if (updateHash) {
-              window.location.hash = newHash;
-          }
-      } else {
-          this._processRouteChange(route);
+    if (currentHash !== newHash) {
+      if (updateHash) {
+        window.location.hash = newHash;
       }
+    } else {
+      this._processRouteChange(route);
+    }
   }
 
   public updatePuzzleUrl(puzzleId: string): void {
@@ -610,14 +614,14 @@ export class AppController {
 
     if (this.state.isPortraitMode || !['finishHim', 'tower', 'attack', 'tacktics'].includes(this.state.currentPage)) {
       availableWidthForCenterPx = viewportWidthPx - (2 * panelGapPx);
-    } else { 
+    } else {
       const actualLeftPanelWidth = document.getElementById('left-panel')?.offsetParent !== null ? leftPanelWidthPx : 0;
       const actualRightPanelWidth = document.getElementById('right-panel')?.offsetParent !== null ? rightPanelWidthPx : 0;
-      
+
       let numberOfGaps = 0;
       if (actualLeftPanelWidth > 0) numberOfGaps++;
       if (actualRightPanelWidth > 0) numberOfGaps++;
-      
+
       const totalSidePanelsWidth = actualLeftPanelWidth + actualRightPanelWidth;
       const totalGapsWidth = numberOfGaps * panelGapPx;
       const outerPagePadding = 2 * panelGapPx;
@@ -625,7 +629,7 @@ export class AppController {
       availableWidthForCenterPx = viewportWidthPx - totalSidePanelsWidth - totalGapsWidth - outerPagePadding;
     }
 
-    const minPracticalWidthPx = 50; 
+    const minPracticalWidthPx = 50;
     availableWidthForCenterPx = Math.max(availableWidthForCenterPx, minPracticalWidthPx);
 
     let finalBoardSizePx = Math.min(currentBoardTargetSizePx, availableWidthForCenterPx);
@@ -636,30 +640,30 @@ export class AppController {
     document.documentElement.style.setProperty('--calculated-board-size-vh', `${finalBoardSizeVh.toFixed(3)}vh`);
 
     const resizeEvent = new CustomEvent('centerPanelResized', {
-        detail: {
-            widthPx: finalBoardSizePx,
-            heightPx: finalBoardSizePx,
-            widthVh: finalBoardSizeVh,
-            heightVh: finalBoardSizeVh
-        }
+      detail: {
+        widthPx: finalBoardSizePx,
+        heightPx: finalBoardSizePx,
+        widthVh: finalBoardSizeVh,
+        heightVh: finalBoardSizeVh
+      }
     });
     window.dispatchEvent(resizeEvent);
   }
 
   public toggleNav(): void {
-    this.setState({isNavExpanded: !this.state.isNavExpanded});
+    this.setState({ isNavExpanded: !this.state.isNavExpanded });
   }
 
   public handleResize(): void {
     const newIsPortrait = window.matchMedia('(orientation: portrait)').matches;
 
     if (newIsPortrait !== this.state.isPortraitMode) {
-      this.setState({isPortraitMode: newIsPortrait, isNavExpanded: false});
+      this.setState({ isPortraitMode: newIsPortrait, isNavExpanded: false });
     }
 
     this._calculateAndSetBoardSize();
   }
-  
+
   public showModal(message: string): void {
     this.setState({ isModalVisible: true, modalMessage: message });
   }
@@ -673,7 +677,7 @@ export class AppController {
   }
 
   public showConfirmationModal(
-    message: string, 
+    message: string,
     onConfirm: () => void,
     onCancel?: () => void,
     confirmText?: string,
@@ -717,32 +721,44 @@ export class AppController {
     });
   }
 
+  // <<< НАЧАЛО ИЗМЕНЕНИЙ
+  /**
+   * Обновляет состояние контроллера и планирует одну перерисовку VDOM,
+   * если в состояние внесены изменения или если это "пустой" вызов,
+   * инициированный дочерним контроллером.
+   * @param newState Объект с частями нового состояния для объединения.
+   */
   private setState(newState: Partial<AppControllerState>): void {
     const oldState = this.state;
-    let hasDirectStateChange = false;
+    let hasChanged = false;
 
+    // Проверяем, изменилось ли что-то
     for (const key in newState) {
-        if (Object.prototype.hasOwnProperty.call(newState, key)) {
-            const typedKey = key as keyof AppControllerState;
-            if (oldState[typedKey] !== newState[typedKey]) {
-                hasDirectStateChange = true;
-                break;
-            }
+      if (Object.prototype.hasOwnProperty.call(newState, key)) {
+        const typedKey = key as keyof AppControllerState;
+        // Используем глубокое сравнение для объектов, чтобы избежать лишних перерисовок
+        if (JSON.stringify(oldState[typedKey]) !== JSON.stringify(newState[typedKey])) {
+          hasChanged = true;
+          break;
         }
+      }
     }
 
     this.state = { ...this.state, ...newState };
 
     const isChildRedrawRequest = Object.keys(newState).length === 0;
 
-    if ((hasDirectStateChange || isChildRedrawRequest) && !this.isRedrawQueued) {
-        this.isRedrawQueued = true;
-        Promise.resolve().then(() => {
-            this.requestGlobalRedraw();
-            this.isRedrawQueued = false;
-        });
+    // Если есть изменения или это запрос от дочернего контроллера,
+    // и перерисовка еще не запланирована, планируем ее.
+    if ((hasChanged || isChildRedrawRequest) && !this.isRedrawQueued) {
+      this.isRedrawQueued = true;
+      Promise.resolve().then(() => {
+        this.requestGlobalRedraw();
+        this.isRedrawQueued = false;
+      });
     }
   }
+  // >>> КОНЕЦ ИЗМЕНЕНИЙ
 
   public destroy(): void {
     if (this.unsubscribeFromLangChange) this.unsubscribeFromLangChange();

@@ -3,7 +3,7 @@ import { h } from 'snabbdom';
 import type { VNode, Hooks } from 'snabbdom';
 import type { AppController, AppPage, Toast } from './AppController';
 import { FinishHimController } from './features/finishHim/finishHimController';
-import { renderFinishHimUI, type FinishHimPageViewLayout } from './features/finishHim/finishHimView';
+import { renderFinishHimUI } from './features/finishHim/finishHimView';
 import { WelcomeController } from './features/welcome/welcomeController';
 import { renderWelcomePage } from './features/welcome/welcomeView';
 import { ClubPageController } from './features/clubPage/ClubPageController';
@@ -13,11 +13,11 @@ import { renderRecordsPage } from './features/recordsPage/RecordsPageView';
 import { UserCabinetController } from './features/userCabinet/UserCabinetController';
 import { renderUserCabinetPage } from './features/userCabinet/userCabinetView';
 import { TowerController } from './features/tower/TowerController';
-import { renderTowerUI, type TowerPageViewLayout } from './features/tower/towerView';
+import { renderTowerUI } from './features/tower/towerView';
 import { AttackController } from './features/attack/attackController';
-import { renderAttackUI, type AttackPageViewLayout } from './features/attack/attackView';
+import { renderAttackUI } from './features/attack/attackView';
 import { TackticsController } from './features/tacktics/tackticsController';
-import { renderTackticsUI, type TackticsPageViewLayout } from './features/tacktics/tackticsView';
+import { renderTackticsUI } from './features/tacktics/tackticsView';
 import { LichessClubsController } from './features/lichessClubs/LichessClubsController';
 import { renderLichessClubsPage } from './features/lichessClubs/lichessClubsView';
 import { renderAboutPage } from './features/about/aboutView';
@@ -26,6 +26,42 @@ import { getCurrentLang, t } from './core/i18n.service';
 import { initializeResizer } from './features/common/resizer';
 import type { BoardTheme, PieceSet } from './core/theme.service';
 import { renderControlPanel } from './shared/components/controlPanelView';
+import { BoardView } from './shared/components/boardView';
+import type { BoardHandler } from './core/boardHandler';
+import type { ChessboardService } from './core/chessboard.service';
+import type { Key } from 'chessground/types';
+import { renderPromotionDialog } from './features/common/promotion/promotionView';
+import { BaseGameController } from './core/controllers/base-game.controller';
+
+let boardViewInstance: BoardView | null = null;
+
+// <<< ИЗМЕНЕНО: Удалены импорты, которые ссылались на удаленные типы из других файлов
+// и перенесены локальные типы в соответствующие файлы
+export interface FinishHimPageViewLayout {
+  left: VNode | null;
+  center: VNode;
+  right: VNode | null;
+  topPanelContent?: VNode | null;
+}
+export interface TowerPageViewLayout {
+  left: VNode | null;
+  center: VNode;
+  right: VNode | null;
+  topPanelContent?: VNode | null;
+}
+export interface AttackPageViewLayout {
+  left: VNode | null;
+  center: VNode;
+  right: VNode | null;
+  topPanelContent?: VNode | null;
+}
+export interface TackticsPageViewLayout {
+  left: VNode | null;
+  center: VNode;
+  right: VNode | null;
+  topPanelContent?: VNode | null;
+}
+
 
 function renderToasts(controller: AppController): VNode | null {
   const { toasts } = controller.state;
@@ -256,7 +292,7 @@ function renderUserAndAuthSection(controller: AppController): VNode {
                 h('div.dropdown-item', { on: { click: () => controller.toggleDropdown('board') } }, t('theme.selectBoard')),
                 h('div.dropdown-item', { on: { click: () => controller.toggleDropdown('pieces') } }, t('theme.selectPieces')),
                 renderVolumeControl(controller),
-                h('div.dropdown-item.language-switcher-item', [renderLanguageSwitcher(controller)]), 
+                h('div.dropdown-item.language-switcher-item', [renderLanguageSwitcher(controller)]),
                 h('div.dropdown-divider'),
                 h('a.dropdown-item.logout-link', { on: { click: () => controller.services.authService.logout() } }, t('nav.logout')),
             ];
@@ -284,6 +320,81 @@ function renderUserAndAuthSection(controller: AppController): VNode {
     ]);
 }
 
+/**
+ * Новый переиспользуемый компонент-контейнер для доски.
+ * Инкапсулирует логику инициализации Chessground и отображения диалога превращения.
+ * @param boardHandler Экземпляр BoardHandler для управления игровой логикой.
+ * @param chessboardService Экземпляр ChessboardService для прямого взаимодействия с Chessground.
+ * @param onUserMoveCallback Колбэк для обработки хода пользователя.
+ * @param keyPrefix Уникальный префикс для ключей VNode.
+ * @returns VNode для контейнера доски.
+ */
+export function renderBoardContainer(
+    boardHandler: BoardHandler,
+    chessboardService: ChessboardService,
+    onUserMoveCallback: (orig: Key, dest: Key) => Promise<void>,
+    keyPrefix: string
+): VNode {
+  let promotionDialogVNode: VNode | null = null;
+  if (chessboardService.ground) {
+    const groundState = chessboardService.ground.state;
+    const boardOrientation = groundState.orientation;
+    const boardDomBounds = groundState.dom?.bounds();
+    if (boardDomBounds) {
+      promotionDialogVNode = renderPromotionDialog(boardHandler.promotionCtrl, boardOrientation, boardDomBounds);
+    }
+  }
+
+  const boardWrapperHook: Hooks = {
+    insert: (vnode: VNode) => {
+        const wrapperEl = vnode.elm as HTMLElement;
+        const boardContainerEl = wrapperEl.querySelector('#board-container') as HTMLElement | null;
+        if (boardContainerEl) {
+            if (!boardViewInstance || boardViewInstance.container !== boardContainerEl) {
+                if (boardViewInstance) boardViewInstance.destroy();
+                boardViewInstance = new BoardView(
+                    boardContainerEl, boardHandler, chessboardService,
+                    onUserMoveCallback
+                );
+            } else { boardViewInstance.updateView(); }
+        }
+    },
+    update: (_oldVnode: VNode, vnode: VNode) => {
+        const newBoardContainerEl = (vnode.elm as Element)?.querySelector('#board-container') as HTMLElement | null;
+        if (boardViewInstance && newBoardContainerEl) {
+            if (boardViewInstance.container !== newBoardContainerEl) {
+                 boardViewInstance.destroy();
+                 boardViewInstance = new BoardView(
+                    newBoardContainerEl, boardHandler, chessboardService,
+                    onUserMoveCallback
+                 );
+            } else { boardViewInstance.updateView(); }
+        } else if (newBoardContainerEl && !boardViewInstance) {
+            boardViewInstance = new BoardView(
+                newBoardContainerEl, boardHandler, chessboardService,
+                onUserMoveCallback
+            );
+        } else if (!newBoardContainerEl && boardViewInstance) {
+            boardViewInstance.destroy();
+            boardViewInstance = null;
+        }
+    },
+    destroy: () => {
+        if (boardViewInstance) {
+            boardViewInstance.destroy();
+            boardViewInstance = null;
+        }
+    }
+  };
+
+  return h('div#board-wrapper', {
+    key: `board-wrapper-${keyPrefix}`,
+    hook: boardWrapperHook
+  }, [
+    h('div#board-container.cg-wrap', { key: `board-container-${keyPrefix}` }),
+    promotionDialogVNode
+  ]);
+}
 
 export function renderAppUI(controller: AppController): VNode {
   const appState = controller.state;
@@ -409,7 +520,10 @@ export function renderAppUI(controller: AppController): VNode {
                 class: { 'portrait-mode-layout': appState.isPortraitMode }
             }, [
               h('div.top-board-panel', { key: `top-panel-${keyPrefix}` }, [layout.topPanelContent]),
-              h('section#center-panel', [layout.center]),
+              h('section#center-panel', [
+                // <<< ИСПРАВЛЕНО
+                renderBoardContainer((activePageController as BaseGameController<any>).boardHandler, controller.services.chessboardService, (orig, dest) => (activePageController as BaseGameController<any>).handleUserMove(orig, dest), keyPrefix)
+              ]),
               h('div.bottom-board-panel', { key: `bottom-panel-${keyPrefix}` }, [renderControlPanel(controller)]),
               appState.isPortraitMode ? null : h('div.resize-handle-center', { hook: resizeHandleHook, key: `center-resize-handle-${keyPrefix}` })
             ]),
@@ -423,7 +537,7 @@ export function renderAppUI(controller: AppController): VNode {
   }
 
   return h('div#app-layout', {
-      on: { 
+      on: {
           click: () => {
               if (appState.activeDropdown) {
                   controller.toggleDropdown(null);
@@ -441,7 +555,7 @@ export function renderAppUI(controller: AppController): VNode {
             props: { src: '/svg/1920_Banner.svg', alt: t('app.title') },
             on: { click: () => controller.navigateTo('welcome', true, null) }
           }),
-          h('span.app-version', controller.getAppVersion()) // Отображаем номер версии
+          h('span.app-version', controller.getAppVersion())
         ]),
         h('button.nav-toggle-button', {
             on: { click: () => controller.toggleNav() }

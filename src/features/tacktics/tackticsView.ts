@@ -1,22 +1,12 @@
 // src/features/tacktics/tackticsView.ts
 import { h } from 'snabbdom';
-import type { VNode, Hooks } from 'snabbdom';
+import type { VNode } from 'snabbdom';
 import type { Key } from 'chessground/types';
 import { TackticsController } from './tackticsController';
-import { BoardView } from '../../shared/components/boardView';
-import { renderPromotionDialog } from '../common/promotion/promotionView';
 import { t } from '../../core/i18n.service';
 import { renderAnalysisPanel } from '../analysis/analysisPanelView';
 import type { TacticalTrainerStats, TacticalThemeStat } from '../../core/api.types';
-
-let boardViewInstance: BoardView | null = null;
-
-export interface TackticsPageViewLayout {
-  left: VNode | null;
-  center: VNode;
-  right: VNode | null;
-  topPanelContent?: VNode | null;
-}
+import { renderBoardContainer, type TackticsPageViewLayout } from '../../appView';
 
 function renderUserStats(stats: TacticalTrainerStats | null): VNode {
     if (!stats) {
@@ -87,61 +77,14 @@ function renderPuzzleInfo(controller: TackticsController): VNode | null {
 
 export function renderTackticsUI(controller: TackticsController): TackticsPageViewLayout {
   const { boardHandler, state } = controller;
+  const onUserMoveCallback = (orig: Key, dest: Key) => controller.handleUserMove(orig, dest);
 
-  let promotionDialogVNode: VNode | null = null;
-  if (controller.services.chessboardService.ground) {
-    const groundState = controller.services.chessboardService.ground.state;
-    const boardOrientation = groundState.orientation;
-    const boardDomBounds = groundState.dom?.bounds();
-    if (boardDomBounds) {
-      promotionDialogVNode = renderPromotionDialog(boardHandler.promotionCtrl, boardOrientation, boardDomBounds);
-    }
-  }
-
-  const boardWrapperHook: Hooks = {
-    insert: (vnode: VNode) => {
-      const wrapperEl = vnode.elm as HTMLElement;
-      const boardContainerEl = wrapperEl.querySelector('#board-container') as HTMLElement | null;
-      if (boardContainerEl) {
-        boardViewInstance = new BoardView(
-          boardContainerEl,
-          boardHandler,
-          controller.services.chessboardService,
-          (orig: Key, dest: Key) => controller.handleUserMove(orig, dest)
-        );
-      }
-    },
-    update: (_oldVnode: VNode, vnode: VNode) => {
-      if (boardViewInstance) {
-        const newBoardContainerEl = (vnode.elm as Element)?.querySelector('#board-container') as HTMLElement | null;
-        if (boardViewInstance.container !== newBoardContainerEl && newBoardContainerEl) {
-            boardViewInstance.destroy();
-            boardViewInstance = new BoardView(
-              newBoardContainerEl,
-              boardHandler,
-              controller.services.chessboardService,
-              (orig, dest) => controller.handleUserMove(orig, dest)
-            );
-        } else {
-            boardViewInstance.updateView();
-        }
-      }
-    },
-    destroy: () => {
-      if (boardViewInstance) {
-        boardViewInstance.destroy();
-        boardViewInstance = null;
-      }
-    }
-  };
-
-  const centerContent = h('div#board-wrapper', { 
-    key: `tacktics-board-wrapper-${state.activePuzzle?.PuzzleId || 'idle'}`, 
-    hook: boardWrapperHook 
-  }, [
-    h('div#board-container.cg-wrap', { key: 'tacktics-board-container' }),
-    promotionDialogVNode
-  ]);
+  const centerContent = renderBoardContainer(
+    boardHandler,
+    controller.services.chessboardService,
+    onUserMoveCallback,
+    state.activePuzzle?.PuzzleId || 'idle'
+  );
 
   const analysisPanelWrapper = (state.gamePhase === 'GAMEOVER')
     ? h('div.analysis-panel-wrapper', [

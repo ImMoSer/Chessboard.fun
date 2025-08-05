@@ -1,23 +1,14 @@
 // src/features/tower/towerView.ts
 import { h } from 'snabbdom';
-import type { VNode, Hooks, VNodeChildElement } from 'snabbdom';
+import type { VNode, VNodeChildElement } from 'snabbdom';
 import type { TowerController } from './TowerController';
 import { type TowerDefinition } from './tower.types';
 import { type TowerPositionEntry, type TowerResultEntry, type TowerTheme } from '../../core/api.types';
-import { BoardView } from '../../shared/components/boardView';
-import { renderPromotionDialog } from '../common/promotion/promotionView';
 import { renderAnalysisPanel } from '../analysis/analysisPanelView';
 import { t } from '../../core/i18n.service';
 import logger from '../../utils/logger';
-
-let boardViewInstance: BoardView | null = null;
-
-export interface TowerPageViewLayout {
-  left: VNode | null;
-  center: VNode;
-  right: VNode | null;
-  topPanelContent?: VNode | null;
-}
+import { renderBoardContainer, type TowerPageViewLayout } from '../../appView';
+import type { Key } from 'chessground/types';
 
 const pieceFileMap: { [key: string]: string } = {
   'r': 'bR.svg', 'n': 'bN.svg', 'b': 'bB.svg', 'q': 'bQ.svg', 'k': 'bK.svg', 'p': 'bP.svg',
@@ -231,66 +222,17 @@ function renderTimer(controller: TowerController): VNode {
 export function renderTowerUI(controller: TowerController): TowerPageViewLayout {
   const towerState = controller.state;
   const boardHandler = controller.boardHandler;
+  const onUserMoveCallback = (orig: Key, dest: Key) => controller.handleUserMove(orig, dest);
+  
+  // <<< ИСПРАВЛЕНО
   const currentPieceSet = controller.services.themeService.getCurrentTheme().pieces;
 
-  let promotionDialogVNode: VNode | null = null;
-  if (controller.services.chessboardService.ground) {
-    const groundState = controller.services.chessboardService.ground.state;
-    const boardOrientation = groundState.orientation;
-    const boardDomBounds = groundState.dom?.bounds();
-    if (boardDomBounds) {
-      promotionDialogVNode = renderPromotionDialog(boardHandler.promotionCtrl, boardOrientation, boardDomBounds);
-    }
-  }
-
-  const boardWrapperHook: Hooks = {
-    insert: (vnode: VNode) => {
-        const wrapperEl = vnode.elm as HTMLElement;
-        const boardContainerEl = wrapperEl.querySelector('#board-container') as HTMLElement | null;
-        if (boardContainerEl) {
-            if (!boardViewInstance || boardViewInstance.container !== boardContainerEl) {
-                if (boardViewInstance) boardViewInstance.destroy();
-                boardViewInstance = new BoardView(
-                    boardContainerEl, boardHandler, controller.services.chessboardService,
-                    (orig, dest) => controller.handleUserMove(orig, dest)
-                );
-            } else { boardViewInstance.updateView(); }
-        }
-    },
-    update: (_oldVnode: VNode, vnode: VNode) => {
-        const newBoardContainerEl = (vnode.elm as Element)?.querySelector('#board-container') as HTMLElement | null;
-        if (boardViewInstance && newBoardContainerEl) {
-            if (boardViewInstance.container !== newBoardContainerEl) {
-                 boardViewInstance.destroy();
-                 boardViewInstance = new BoardView(
-                    newBoardContainerEl, boardHandler, controller.services.chessboardService,
-                    (orig, dest) => controller.handleUserMove(orig, dest)
-                 );
-            } else { boardViewInstance.updateView(); }
-        } else if (newBoardContainerEl && !boardViewInstance) {
-            boardViewInstance = new BoardView(
-                newBoardContainerEl, boardHandler, controller.services.chessboardService,
-                (orig, dest) => controller.handleUserMove(orig, dest)
-            );
-        } else if (!newBoardContainerEl && boardViewInstance) {
-            boardViewInstance.destroy();
-            boardViewInstance = null;
-        }
-    },
-    destroy: () => {
-        if (boardViewInstance) {
-            boardViewInstance.destroy();
-            boardViewInstance = null;
-        }
-    }
-  };
-
-  const centerContent = h('div#board-wrapper', {
-    key: `tower-board-wrapper-${towerState.activeTowerState?.id || 'idle'}`, hook: boardWrapperHook
-  }, [
-    h('div#board-container.cg-wrap', { key: 'tower-board-container' }),
-    promotionDialogVNode
-  ]);
+  const centerContent = renderBoardContainer(
+    boardHandler,
+    controller.services.chessboardService,
+    onUserMoveCallback,
+    'tower'
+  );
 
   const leftPanelChildren: (VNode | null)[] = [];
   if(towerState.activeTowerState && towerState.activeTowerState.towerResults.length > 0) {

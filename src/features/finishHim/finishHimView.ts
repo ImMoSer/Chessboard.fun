@@ -1,23 +1,12 @@
 // src/features/finishHim/finishHimView.ts
 import { h } from 'snabbdom';
-import type { VNode, Hooks } from 'snabbdom';
+import type { VNode } from 'snabbdom';
 import type { Key } from 'chessground/types';
 import { FinishHimController, formatPlayoutTimer } from './finishHimController';
-import { BoardView } from '../../shared/components/boardView';
-import logger from '../../utils/logger';
-import { renderPromotionDialog } from '../common/promotion/promotionView';
 import { renderAnalysisPanel } from '../analysis/analysisPanelView';
 import { t } from '../../core/i18n.service';
 import type { PuzzleResultEntry, AppPuzzle, FinishHimStats } from '../../core/api.types';
-
-let boardViewInstance: BoardView | null = null;
-
-export interface FinishHimPageViewLayout {
-  left: VNode | null;
-  center: VNode;
-  right: VNode | null;
-  topPanelContent?: VNode | null;
-}
+import { renderBoardContainer, type FinishHimPageViewLayout } from '../../appView';
 
 const pieceFileMap: { [key: string]: string } = {
   'r': 'bR.svg', 'n': 'bN.svg', 'b': 'bB.svg', 'q': 'bQ.svg', 'k': 'bK.svg', 'p': 'bP.svg',
@@ -34,8 +23,8 @@ interface PieceInfo {
 function parseFenForSortedRows(fen_string: string, botColor: 'w' | 'b'): { playerPieces: PieceInfo[], botPieces: PieceInfo[] } {
   const playerPieces: PieceInfo[] = [];
   const botPieces: PieceInfo[] = [];
-  const fenBoard = fen_string.split(' ')[0]; 
-
+  const fenBoard = fen_string.split(' ')[0];
+  
   for (const char of fenBoard) {
     if (pieceFileMap[char]) {
       const pieceColor = char === char.toUpperCase() ? 'w' : 'b';
@@ -169,7 +158,7 @@ function renderPuzzleInfo(controller: FinishHimController): VNode | null {
             renderFavoriteButton(controller)
         ]),
         infoItems.length > 0 ? h('div.puzzle-info-grid', infoItems) : null,
-        finalPositionPreview, // <<< ПЕРЕМЕЩЕНО СЮДА
+        finalPositionPreview,
         renderPuzzleLeaderboard(puzzleResults)
     ].filter(Boolean) as VNode[]);
 }
@@ -227,77 +216,17 @@ function renderTimer(controller: FinishHimController): VNode {
     ]);
 }
 
-
 export function renderFinishHimUI(controller: FinishHimController): FinishHimPageViewLayout {
   const fhState = controller.state;
   const boardHandler = controller.boardHandler;
+  const onUserMoveCallback = (orig: Key, dest: Key) => controller.handleUserMove(orig, dest);
 
-  let promotionDialogVNode: VNode | null = null;
-  if (controller.services.chessboardService.ground) {
-    const groundState = controller.services.chessboardService.ground.state;
-    const boardOrientation = groundState.orientation;
-    const boardDomBounds = groundState.dom?.bounds();
-    if (boardDomBounds) {
-      promotionDialogVNode = renderPromotionDialog(boardHandler.promotionCtrl, boardOrientation, boardDomBounds);
-    } else if (boardHandler.promotionCtrl.isActive()) {
-      logger.warn('[FinishHimView] Promotion active, but board DOM bounds not available.');
-    }
-  }
-
-  const boardWrapperHook: Hooks = {
-    insert: (vnode: VNode) => {
-        const wrapperEl = vnode.elm as HTMLElement;
-        const boardContainerEl = wrapperEl.querySelector('#board-container') as HTMLElement | null;
-        if (boardContainerEl) {
-            if (!boardViewInstance || boardViewInstance.container !== boardContainerEl) {
-                if (boardViewInstance) boardViewInstance.destroy();
-                boardViewInstance = new BoardView(boardContainerEl, boardHandler, controller.services.chessboardService,
-                    (orig: Key, dest: Key) => controller.handleUserMove(orig, dest)
-                );
-            } else {
-                boardViewInstance.updateView();
-            }
-        } else {
-            logger.error('[FinishHimView] #board-container not found within #board-wrapper!');
-        }
-    },
-    update: (_oldvnode: VNode, vnode: VNode) => {
-        const newBoardContainerEl = (vnode.elm as Element)?.querySelector('#board-container') as HTMLElement | null;
-        if (boardViewInstance && newBoardContainerEl) {
-            if (boardViewInstance.container !== newBoardContainerEl) {
-                 boardViewInstance.destroy();
-                 boardViewInstance = new BoardView(newBoardContainerEl, boardHandler, controller.services.chessboardService,
-                    (orig: Key, dest: Key) => controller.handleUserMove(orig, dest));
-            } else {
-                boardViewInstance.updateView();
-            }
-        } else if (newBoardContainerEl && !boardViewInstance) {
-            boardViewInstance = new BoardView(newBoardContainerEl, boardHandler, controller.services.chessboardService,
-                (orig: Key, dest: Key) => controller.handleUserMove(orig, dest));
-        } else if (!newBoardContainerEl && boardViewInstance) {
-            boardViewInstance.destroy();
-            boardViewInstance = null;
-        }
-    },
-    destroy: () => {
-        if (boardViewInstance) {
-            boardViewInstance.destroy();
-            boardViewInstance = null;
-        }
-    }
-  };
-
-  const centerContent = h('div#board-wrapper', {
-    key: 'fh-board-wrapper',
-    style: { position: 'relative', width: '100%', height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center'},
-    hook: boardWrapperHook
-  }, [
-    h('div#board-container.cg-wrap', {
-      key: 'fh-board-container',
-      style: { width: '100%' }}
-    ),
-    promotionDialogVNode
-  ]);
+  const centerContent = renderBoardContainer(
+    boardHandler,
+    controller.services.chessboardService,
+    onUserMoveCallback,
+    'fh'
+  );
 
   const feedbackVNode = h('div#finish-him-feedback', {}, [
     h('p', {
