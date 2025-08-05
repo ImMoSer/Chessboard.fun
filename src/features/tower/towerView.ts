@@ -2,7 +2,8 @@
 import { h } from 'snabbdom';
 import type { VNode, Hooks, VNodeChildElement } from 'snabbdom';
 import type { TowerController } from './TowerController';
-import { type TowerDefinition, type TowerPositionEntry, type TowerResultEntry, type TowerTheme } from './tower.types';
+import { type TowerDefinition } from './tower.types';
+import { type TowerPositionEntry, type TowerResultEntry, type TowerTheme } from '../../core/api.types';
 import { BoardView } from '../../shared/components/boardView';
 import { renderPromotionDialog } from '../common/promotion/promotionView';
 import { renderAnalysisPanel } from '../analysis/analysisPanelView';

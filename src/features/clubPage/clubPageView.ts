@@ -2,7 +2,6 @@
 import { h } from 'snabbdom';
 import type { VNode, VNodeData } from 'snabbdom';
 import type { ClubPageController, ClubPageTableKey, ClubPageTabId } from './ClubPageController';
-// ИЗМЕНЕНО: Импортируем все необходимые типы
 import type {
   TournamentHistoryEntry,
   TournamentPlayer,
@@ -11,7 +10,7 @@ import type {
   MedalDetail,
   PlayersDataMap,
   PlayerData
-} from '../../core/webhook.service';
+} from '../../core/api.types';
 import { t } from '../../core/i18n.service';
 import logger from '../../utils/logger';
 

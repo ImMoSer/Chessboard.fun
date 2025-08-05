@@ -1,14 +1,15 @@
 // src/features/finishHim/finishHimController.ts
 import type { Key, Color as ChessgroundColor, MoveMetadata } from 'chessground/types';
 import type { ChessboardService } from '../../core/chessboard.service';
-import { type WebhookServiceController, UpdateFinishHimStatsDto, AppPuzzle, PuzzleResultEntry, InsufficientFunCoinsError } from '../../core/webhook.service';
+import { type WebhookServiceController, InsufficientFunCoinsError } from '../../core/webhook.service';
+import { type UpdateFinishHimStatsDto, type AppPuzzle, type PuzzleResultEntry, type FinishHimStats } from '../../core/api.types';
 import { BoardHandler } from '../../core/boardHandler';
 import type { GameStatus, GameEndOutcome, AttemptMoveResult } from '../../core/boardHandler';
 import type { AnalysisController } from '../analysis/analysisController';
 import logger from '../../utils/logger';
 import { SoundService } from '../../core/sound.service';
 import { t } from '../../core/i18n.service';
-import { AuthService, type FinishHimStats } from '../../core/auth.service';
+import { AuthService } from '../../core/auth.service';
 import type { AppServices, GameControlsState } from '../../AppController';
 import { PuzzleStorageService } from '../../core/puzzle-storage.service';
 

@@ -3,7 +3,7 @@ import { h, VNode } from 'snabbdom';
 import type { RecordsPageController, RecordsPageControllerState, LeaderboardTableConfig, ProcessedLeaderboardEntry, ProcessedActivityEntry, ActivityPeriod, ActivityMode } from './RecordsPageController';
 import { t } from '../../core/i18n.service';
 import logger from '../../utils/logger';
-import type { TowerLeaderboardEntry, AttackLeaderboardEntry, FinishHimLeaderboardEntry } from '../../core/webhook.service';
+import type { TowerLeaderboardEntry, AttackLeaderboardEntry, FinishHimLeaderboardEntry } from '../../core/api.types';
 
 const tierToPieceMap: { [key: string]: string } = {
   'Pawn': 'wP.svg',

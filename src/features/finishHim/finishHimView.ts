@@ -8,8 +8,7 @@ import logger from '../../utils/logger';
 import { renderPromotionDialog } from '../common/promotion/promotionView';
 import { renderAnalysisPanel } from '../analysis/analysisPanelView';
 import { t } from '../../core/i18n.service';
-import type { FinishHimStats } from '../../core/auth.service';
-import type { PuzzleResultEntry, AppPuzzle } from '../../core/webhook.service';
+import type { PuzzleResultEntry, AppPuzzle, FinishHimStats } from '../../core/api.types';
 
 let boardViewInstance: BoardView | null = null;
 
@@ -262,7 +261,7 @@ export function renderFinishHimUI(controller: FinishHimController): FinishHimPag
             logger.error('[FinishHimView] #board-container not found within #board-wrapper!');
         }
     },
-    update: (_oldVnode: VNode, vnode: VNode) => {
+    update: (_oldvnode: VNode, vnode: VNode) => {
         const newBoardContainerEl = (vnode.elm as Element)?.querySelector('#board-container') as HTMLElement | null;
         if (boardViewInstance && newBoardContainerEl) {
             if (boardViewInstance.container !== newBoardContainerEl) {

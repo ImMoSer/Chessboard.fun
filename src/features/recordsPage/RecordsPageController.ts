@@ -1,9 +1,8 @@
 // src/features/recordsPage/RecordsPageController.ts
 import logger from '../../utils/logger';
 import type { AppServices } from '../../AppController';
-import { LeaderboardApiResponse, FinishHimLeaderboardEntry, TowerLeaderboardEntry, AttackLeaderboardEntry, ActivityStatsEntry } from '../../core/webhook.service';
+import type { LeaderboardApiResponse, FinishHimLeaderboardEntry, TowerLeaderboardEntry, AttackLeaderboardEntry, ActivityStatsEntry, TowerId } from '../../core/api.types';
 import { subscribeToLangChange, t } from '../../core/i18n.service';
-import type { TowerId } from '../tower/tower.types';
 
 export type ActivityPeriod = 'daily' | 'weekly' | 'monthly';
 export type ActivityMode = 'all' | 'tower' | 'attack' | 'finishHim' | 'tacticalTrainer';

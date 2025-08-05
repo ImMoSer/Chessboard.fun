@@ -1,9 +1,8 @@
 // src/features/lichessClubs/LichessClubsController.ts
 import logger from '../../utils/logger';
 import type { AppServices } from '../../AppController';
-import type { LichessClubStat, FounderActionDto } from '../../core/webhook.service';
+import type { LichessClubStat, FounderActionDto, ClubIdNamePair } from '../../core/api.types';
 import { subscribeToLangChange, t } from '../../core/i18n.service';
-import type { ClubIdNamePair } from '../../core/auth.service';
 
 const FOUNDER_ACTION_COOLDOWN_MS =  24 * 60 * 60 * 1000; // 24 * 60 * 60 * 1000
 

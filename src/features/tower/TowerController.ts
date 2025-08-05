@@ -9,14 +9,18 @@ import { t } from '../../core/i18n.service';
 import { PgnService } from '../../core/pgn.service';
 import {
   TOWER_DEFINITIONS,
-  TOWER_THEMES,
-  type TowerId,
-  type TowerTheme,
   type TowerControllerState,
   type ActiveTowerState,
 } from './tower.types';
+import type { 
+    TowerId, 
+    TowerTheme, 
+    TowerData, 
+    GetNewTowerDto, 
+    SaveTowerRecordDto
+} from '../../core/api.types';
 import type { AppServices, GameControlsState } from '../../AppController';
-import { type TowerData, type GetNewTowerDto, type SaveTowerRecordDto, InsufficientFunCoinsError } from '../../core/webhook.service';
+import { InsufficientFunCoinsError } from '../../core/webhook.service';
 
 const BOT_MOVE_DELAY_MS = 100;
 const PREMOVE_EXECUTION_DELAY_MS = 100;
@@ -56,7 +60,7 @@ export class TowerController {
 
     this.state = {
       availableTowers: TOWER_DEFINITIONS,
-      availableThemes: TOWER_THEMES,
+      availableThemes: this.services.themeService.getAvailableThemes(),
       selectedTowerId: null,
       selectedTheme: 'mix',
       activeTowerState: null,

@@ -3,7 +3,8 @@ import type { Key, MoveMetadata, Color as ChessgroundColor } from 'chessground/t
 import { BoardHandler, type GameEndOutcome, type AttemptMoveResult } from '../../core/boardHandler';
 import type { AppServices, GameControlsState } from '../../AppController';
 import type { AnalysisController } from '../analysis/analysisController';
-import { type AppAttackPuzzle, type AttackRecordDto, type PuzzleResultEntry, InsufficientFunCoinsError } from '../../core/webhook.service';
+import { InsufficientFunCoinsError } from '../../core/webhook.service';
+import type { AppAttackPuzzle, AttackRecordDto, PuzzleResultEntry } from '../../core/api.types';
 import logger from '../../utils/logger';
 import { t } from '../../core/i18n.service';
 import { SoundService } from '../../core/sound.service';

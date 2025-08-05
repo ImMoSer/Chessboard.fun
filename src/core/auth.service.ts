@@ -1,78 +1,12 @@
 // src/core/auth.service.ts
 import logger from '../utils/logger';
 import { t } from '../core/i18n.service';
-
-export type SubscriptionTier = 'none' | 'bronze' | 'silver' | 'gold' | 'platinum' | 'administrator';
-
-export interface ClubIdNamePair {
-  club_id: string;
-  club_name: string;
-}
-
-export interface LichessUserProfile {
-  id: string;
-  username: string;
-  email?: string;
-  perfs?: Record<string, { rating: number; prog: number; games: number }>;
-  createdAt?: number;
-  profile?: {
-    firstName?: string;
-    lastName?: string;
-    bio?: string;
-    country?: string;
-    location?: string;
-  };
-}
-
-export interface FinishHimStats {
-  gamesPlayed: number;
-  tacticalRating: number;
-  tacticalWins: number;
-  tacticalLosses: number;
-  finishHimRating: number;
-  playoutWins: number;
-  playoutDraws: number;
-  playoutLosses: number;
-}
-
-export interface TowerAttempt {
-  versuch: number;
-  tower_id: string;
-  best_time: number;
-}
-export type TowerStats = { [key: string]: TowerAttempt[] };
-export interface AttackStat {
-  PuzzleId: string;
-  best_time: number;
-}
-
-export interface TelegramData {
-  id: number;
-  is_bot: boolean;
-  first_name: string;
-  username: string;
-  language_code: string;
-}
-
-export interface UserSessionProfile extends LichessUserProfile {
-  FunCoins: number;
-  subscriptionTier: SubscriptionTier;
-  finishHimStats: FinishHimStats;
-  tower_stats?: TowerStats;
-  attack_stats?: AttackStat[];
-  follow_clubs?: ClubIdNamePair[];
-  club_founder?: ClubIdNamePair[];
-  validatedAt?: number;
-  telegram_jsonb?: TelegramData | null;
-  TierExpire?: string | null;
-}
-
-export interface AuthState {
-  isAuthenticated: boolean;
-  userProfile: UserSessionProfile | null;
-  isProcessing: boolean;
-  error: string | null;
-}
+import type { 
+    UserSessionProfile, 
+    AuthState, 
+    FinishHimStats, 
+    ClubIdNamePair 
+} from './api.types';
 
 const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL as string;
 

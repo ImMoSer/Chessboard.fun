@@ -1,11 +1,10 @@
 // src/features/userCabinet/UserCabinetController.ts
 import type { AppServices } from '../../AppController';
-import type { UserSessionProfile as UserCabinetData } from '../../core/auth.service';
+import type { UserSessionProfile as UserCabinetData, PersonalActivityStatsResponse } from '../../core/api.types';
 import { LichessApiService, type LichessActivityResponse } from '../../core/lichess-api.service';
 import { subscribeToLangChange, t } from '../../core/i18n.service';
 import logger from '../../utils/logger';
 import { PuzzleStorageService, type FavoritePuzzleInfo } from '../../core/puzzle-storage.service';
-import { PersonalActivityStatsResponse } from '../../core/webhook.service';
 
 export interface UserCabinetControllerState {
   isLoading: boolean;
@@ -16,10 +15,8 @@ export interface UserCabinetControllerState {
   lichessActivity: LichessActivityResponse | null;
   isActivityLoading: boolean;
   isBindingUrlLoading: boolean;
-  // <<< НАЧАЛО ИЗМЕНЕНИЙ: Новые состояния для персональной статистики
   personalActivityStats: PersonalActivityStatsResponse | null;
   isPersonalActivityLoading: boolean;
-  // <<< КОНЕЦ ИЗМЕНЕНИЙ
 }
 
 export class UserCabinetController {
@@ -46,10 +43,8 @@ export class UserCabinetController {
       lichessActivity: null,
       isActivityLoading: true,
       isBindingUrlLoading: false,
-      // <<< НАЧАЛО ИЗМЕНЕНИЙ: Инициализация новых состояний
       personalActivityStats: null,
       isPersonalActivityLoading: true,
-      // <<< КОНЕЦ ИЗМЕНЕНИЙ
     };
 
     this.unsubscribeFromLangChange = subscribeToLangChange(() => {

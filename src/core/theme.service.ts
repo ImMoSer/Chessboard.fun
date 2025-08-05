@@ -1,5 +1,6 @@
 // src/core/theme.service.ts
 import logger from '../utils/logger';
+import { TOWER_THEMES, type TowerTheme } from './api.types';
 
 // --- Типы и интерфейсы ---
 
@@ -105,6 +106,10 @@ class ThemeServiceController {
 
   public getAvailablePieceSets(): PieceSet[] {
     return AVAILABLE_PIECE_SETS;
+  }
+
+  public getAvailableThemes(): readonly TowerTheme[] {
+    return TOWER_THEMES;
   }
 
   public getCurrentTheme(): AppTheme {

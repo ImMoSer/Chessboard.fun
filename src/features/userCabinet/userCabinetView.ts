@@ -2,13 +2,11 @@
 import { h } from 'snabbdom';
 import type { VNode } from 'snabbdom';
 import type { UserCabinetController, UserCabinetControllerState } from './UserCabinetController';
-import type { UserSessionProfile as UserCabinetData, ClubIdNamePair, TowerStats, TowerAttempt, AttackStat } from '../../core/auth.service';
+import type { UserSessionProfile as UserCabinetData, ClubIdNamePair, TowerStats, TowerAttempt, AttackStat, PersonalActivityStatsResponse, PersonalActivityModeStats, TowerId } from '../../core/api.types';
 import { t } from '../../core/i18n.service';
 import logger from '../../utils/logger';
-import { TOWER_DEFINITIONS, TowerId } from '../tower/tower.types';
+import { TOWER_DEFINITIONS } from '../tower/tower.types';
 import { LichessActivityEntry } from '../../core/lichess-api.service';
-// <<< ИЗМЕНЕНО: Удален неиспользуемый импорт ActivityModeStats
-import { PersonalActivityStatsResponse, PersonalActivityModeStats } from '../../core/webhook.service';
 
 const pieceFileMap: { [key: string]: string } = {
   'r': 'bR.svg', 'n': 'bN.svg', 'b': 'bB.svg', 'q': 'bQ.svg', 'k': 'bK.svg', 'p': 'bP.svg',

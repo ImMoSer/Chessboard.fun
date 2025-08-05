@@ -2,8 +2,7 @@
 import { h } from 'snabbdom';
 import type { VNode } from 'snabbdom';
 import type { LichessClubsController, LichessClubsControllerState } from './LichessClubsController';
-import type { LichessClubStat } from '../../core/webhook.service';
-import type { ClubIdNamePair } from '../../core/auth.service';
+import type { LichessClubStat, ClubIdNamePair } from '../../core/api.types';
 import { t } from '../../core/i18n.service';
 
 function renderLichessClubsBanner(): VNode {

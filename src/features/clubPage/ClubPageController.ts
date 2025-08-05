@@ -1,9 +1,7 @@
 // src/features/clubPage/ClubPageController.ts
 import logger from '../../utils/logger';
 import type { AppServices } from '../../AppController';
-// ИЗМЕНЕНО: Импортируем DTO для типизации запросов
-import type { ClubApiResponse, FollowClubDto } from '../../core/webhook.service';
-import type { ClubIdNamePair } from '../../core/auth.service';
+import type { ClubApiResponse, FollowClubDto, ClubIdNamePair } from '../../core/api.types';
 import { subscribeToLangChange, t } from '../../core/i18n.service';
 
 const FOLLOW_COOLDOWN_MS = 15 * 60 * 1000;

@@ -7,7 +7,7 @@ import { BoardView } from '../../shared/components/boardView';
 import { renderPromotionDialog } from '../common/promotion/promotionView';
 import { t } from '../../core/i18n.service';
 import { renderAnalysisPanel } from '../analysis/analysisPanelView';
-import type { TacticalTrainerStats, TacticalThemeStat } from '../../core/webhook.service';
+import type { TacticalTrainerStats, TacticalThemeStat } from '../../core/api.types';
 
 let boardViewInstance: BoardView | null = null;
 
