@@ -239,10 +239,20 @@ export class WebhookServiceController {
   public async sendAttackRecord(dto: AttackRecordDto): Promise<boolean> { const r = await this._apiRequest<any>('/n8n-proxy/stats/attack', 'POST', 'sendAttackRecord', dto); return !!r; }
   public async fetchTelegramBindingUrl(): Promise<TelegramBindingUrlResponse | null> { return this._apiRequest<TelegramBindingUrlResponse>('/n8n-proxy/telegram/binding-url', 'GET', 'fetchTelegramBindingUrl'); }
   
-  public async fetchTacticalPuzzle(): Promise<AppTacticalPuzzle | null> { return this._apiRequest<AppTacticalPuzzle>('/n8n-proxy/puzzles/tactical-trainer', 'GET', 'fetchTacticalPuzzle'); }
-  public async fetchTacticalPuzzleById(puzzleId: string): Promise<AppTacticalPuzzle | null> { return this._apiRequest<AppTacticalPuzzle>(`/n8n-proxy/puzzles/tactical-trainer/${puzzleId}`, 'GET', 'fetchTacticalPuzzleById'); }
-  public async submitTacticalResult(dto: SubmitTacticalResultDto): Promise<TacticalTrainerStats | null> { return this._apiRequest<TacticalTrainerStats>('/n8n-proxy/puzzles/tactical-trainer/submit-result', 'POST', 'submitTacticalResult', dto); }
-  public async fetchTacticalStats(): Promise<TacticalTrainerStats | null> { return this._apiRequest<TacticalTrainerStats>('/n8n-proxy/tactical-trainer/stats', 'GET', 'fetchTacticalStats'); }
+  // --- ИЗМЕНЕНЫ ПУТИ ДЛЯ ТАКТИЧЕСКОГО ТРЕНАЖЕРА ---
+  public async fetchTacticalPuzzle(): Promise<AppTacticalPuzzle | null> { 
+    return this._apiRequest<AppTacticalPuzzle>('/tactical-trainer/puzzle', 'GET', 'fetchTacticalPuzzle'); 
+  }
+  public async fetchTacticalPuzzleById(puzzleId: string): Promise<AppTacticalPuzzle | null> { 
+    return this._apiRequest<AppTacticalPuzzle>(`/tactical-trainer/puzzle/${puzzleId}`, 'GET', 'fetchTacticalPuzzleById'); 
+  }
+  public async submitTacticalResult(dto: SubmitTacticalResultDto): Promise<TacticalTrainerStats | null> { 
+    return this._apiRequest<TacticalTrainerStats>('/tactical-trainer/submit-result', 'POST', 'submitTacticalResult', dto); 
+  }
+  public async fetchTacticalStats(): Promise<TacticalTrainerStats | null> { 
+    return this._apiRequest<TacticalTrainerStats>('/tactical-trainer/stats', 'GET', 'fetchTacticalStats'); 
+  }
+  // --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
   public async fetchPersonalActivityStats(): Promise<PersonalActivityStatsResponse | null> {
     return this._apiRequest<PersonalActivityStatsResponse>('/activity/personal', 'GET', 'fetchPersonalActivityStats');
