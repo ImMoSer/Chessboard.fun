@@ -233,8 +233,8 @@ export function renderFinishHimUI(controller: FinishHimController): FinishHimPag
   const boardHandler = controller.boardHandler;
 
   let promotionDialogVNode: VNode | null = null;
-  if (controller.chessboardService.ground) {
-    const groundState = controller.chessboardService.ground.state;
+  if (controller.services.chessboardService.ground) {
+    const groundState = controller.services.chessboardService.ground.state;
     const boardOrientation = groundState.orientation;
     const boardDomBounds = groundState.dom?.bounds();
     if (boardDomBounds) {
@@ -251,7 +251,7 @@ export function renderFinishHimUI(controller: FinishHimController): FinishHimPag
         if (boardContainerEl) {
             if (!boardViewInstance || boardViewInstance.container !== boardContainerEl) {
                 if (boardViewInstance) boardViewInstance.destroy();
-                boardViewInstance = new BoardView(boardContainerEl, boardHandler, controller.chessboardService,
+                boardViewInstance = new BoardView(boardContainerEl, boardHandler, controller.services.chessboardService,
                     (orig: Key, dest: Key) => controller.handleUserMove(orig, dest)
                 );
             } else {
@@ -266,13 +266,13 @@ export function renderFinishHimUI(controller: FinishHimController): FinishHimPag
         if (boardViewInstance && newBoardContainerEl) {
             if (boardViewInstance.container !== newBoardContainerEl) {
                  boardViewInstance.destroy();
-                 boardViewInstance = new BoardView(newBoardContainerEl, boardHandler, controller.chessboardService,
+                 boardViewInstance = new BoardView(newBoardContainerEl, boardHandler, controller.services.chessboardService,
                     (orig: Key, dest: Key) => controller.handleUserMove(orig, dest));
             } else {
                 boardViewInstance.updateView();
             }
         } else if (newBoardContainerEl && !boardViewInstance) {
-            boardViewInstance = new BoardView(newBoardContainerEl, boardHandler, controller.chessboardService,
+            boardViewInstance = new BoardView(newBoardContainerEl, boardHandler, controller.services.chessboardService,
                 (orig: Key, dest: Key) => controller.handleUserMove(orig, dest));
         } else if (!newBoardContainerEl && boardViewInstance) {
             boardViewInstance.destroy();
@@ -312,7 +312,6 @@ export function renderFinishHimUI(controller: FinishHimController): FinishHimPag
 
   const leftPanelContent = h('div.finish-him-left-panel', [
     renderUserStats(controller)
-    // <<< УДАЛЕНО: renderPuzzleInfo(controller)
   ]);
 
   const analysisPanelWrapper = (fhState.gamePhase === 'GAMEOVER')
@@ -321,7 +320,6 @@ export function renderFinishHimUI(controller: FinishHimController): FinishHimPag
       ])
     : null;
 
-  // <<< НАЧАЛО ИЗМЕНЕНИЙ: Обновление логики правой панели
   const rightPanelElements: (VNode | null)[] = [];
 
   if (fhState.gamePhase === 'GAMEOVER') {
@@ -337,7 +335,6 @@ export function renderFinishHimUI(controller: FinishHimController): FinishHimPag
   const rightPanelContent = h('div.finish-him-right-panel', {
     style: { display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }
   }, rightPanelElements.filter(Boolean) as VNode[]);
-  // <<< КОНЕЦ ИЗМЕНЕНИЙ
 
   return {
     left: leftPanelContent,

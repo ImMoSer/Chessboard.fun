@@ -24,7 +24,7 @@ import { AttackController } from './features/attack/attackController';
 import { TackticsController } from './features/tacktics/tackticsController';
 import { RoutingService, type Route } from './core/routing.service';
 import { ThemeService, type AppTheme } from './core/theme.service';
-import { SoundService } from './core/sound.service'; // <<< ДОБАВЛЕНО
+import { SoundService } from './core/sound.service';
 
 export type AppPage = 'welcome' | 'finishHim' | 'clubPage' | 'recordsPage' | 'userCabinet' | 'tower' | 'lichessClubs' | 'about' | 'attack' | 'tacktics';
 
@@ -63,7 +63,7 @@ export interface AppServices {
   appController: AppController;
   pgnServiceInstance: typeof PgnService;
   themeService: typeof ThemeService;
-  soundService: typeof SoundService; // <<< ДОБАВЛЕНО
+  soundService: typeof SoundService;
 }
 
 interface AppControllerState {
@@ -91,7 +91,7 @@ interface AppControllerState {
   currentGameControls: GameControlsState | null;
   engineSelectorOpen: boolean;
   toasts: Toast[];
-  voiceVolume: number; // <<< ДОБАВЛЕНО
+  voiceVolume: number;
 }
 
 type ActivePageController = WelcomeController | FinishHimController | ClubPageController | RecordsPageController | UserCabinetController | TowerController | LichessClubsController | AboutController | AttackController | TackticsController | null;
@@ -103,7 +103,6 @@ const DEFAULT_ENGINE_ID: EngineId = 'SF_1900';
 const ENGINE_STORAGE_KEY = 'user_preferred_engine';
 const APP_VERSION_STORAGE_KEY = 'app_version';
 
-// <<< ИСПРАВЛЕНО: Эти константы теперь объявлены в глобальной области видимости файла
 const PRIVATE_PAGES: AppPage[] = ['finishHim', 'tower', 'userCabinet', 'attack', 'clubPage', 'recordsPage', 'lichessClubs', 'tacktics'];
 const PRE_AUTH_REDIRECT_URL_KEY = 'preAuthRedirectUrl';
 const APP_VERSION = import.meta.env.VITE_APP_VERSION || 'v-dev';
@@ -479,9 +478,10 @@ export class AppController {
               return;
           }
           this.activePageController = new FinishHimController(
-            this.services.chessboardService, boardHandlerForPage, this.authServiceInstance,
-            this.webhookServiceInstance,
-            this.analysisControllerInstance, this.services, () => this.setState({})
+            boardHandlerForPage,
+            this.analysisControllerInstance,
+            this.services,
+            () => this.setState({})
           );
           (this.activePageController as FinishHimController).initializeGame(route.puzzleId);
           break;
@@ -493,7 +493,7 @@ export class AppController {
           this.activePageController = new TowerController(
               boardHandlerForPage, this.analysisControllerInstance, this.services, () => this.setState({})
           );
-          (this.activePageController as TowerController).initialize(route.towerId);
+          (this.activePageController as TowerController).initializeGame(route.towerId);
           break;
         case 'attack':
           if (!boardHandlerForPage || !this.analysisControllerInstance) {

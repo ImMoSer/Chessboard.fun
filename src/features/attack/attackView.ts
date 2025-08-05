@@ -1,7 +1,6 @@
 // src/features/attack/attackView.ts
 import { h } from 'snabbdom';
 import type { VNode, Hooks } from 'snabbdom';
-import type { Key } from 'chessground/types';
 import { AttackController, formatElapsedTime } from './attackController';
 import { BoardView } from '../../shared/components/boardView';
 import { renderPromotionDialog } from '../common/promotion/promotionView';
@@ -77,11 +76,11 @@ export function renderAttackUI(controller: AttackController): AttackPageViewLayo
           boardContainerEl,
           boardHandler,
           controller.services.chessboardService,
-          (orig: Key, dest: Key) => controller.handleUserMove(orig, dest)
+          (orig, dest) => controller.handleUserMove(orig, dest)
         );
       }
     },
-    update: (_oldVnode: VNode, vnode: VNode) => {
+    update: (_oldvnode: VNode, vnode: VNode) => {
       if (boardViewInstance) {
         const newBoardContainerEl = (vnode.elm as Element)?.querySelector('#board-container') as HTMLElement | null;
         if (boardViewInstance.container !== newBoardContainerEl && newBoardContainerEl) {

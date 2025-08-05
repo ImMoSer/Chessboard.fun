@@ -1,10 +1,6 @@
 // src/features/tower/tower.types.ts
 import type { TowerId, TowerTheme, TowerPositionEntry, TowerResultEntry } from '../../core/api.types';
-
-/**
- * Defines the possible phases of the Tower game mode.
- */
-export type TowerGamePhase = 'IDLE' | 'LOADING' | 'PLAYING' | 'LEVEL_FAILED' | 'LEVEL_RESIGNED' | 'TOWER_COMPLETE' | 'GAME_OVER';
+import type { BaseGameState } from '../../core/controllers/base-game.types';
 
 /**
  * Defines the configuration for each tower: its ID, request parameters, and display properties.
@@ -29,7 +25,7 @@ export const TOWER_DEFINITIONS: TowerDefinition[] = [
 ];
 
 /**
- * MODIFIED: State of the currently active tower in the controller.
+ * State of the currently active tower in the controller.
  */
 export interface ActiveTowerState {
   id: string;
@@ -47,15 +43,12 @@ export interface ActiveTowerState {
 }
 
 /**
- * MODIFIED: State of the "Tower" mode controller.
+ * State of the "Tower" mode controller, extending the base game state.
  */
-export interface TowerControllerState {
+export interface TowerControllerState extends BaseGameState {
   availableTowers: TowerDefinition[];
   availableThemes: readonly TowerTheme[];
   selectedTowerId: TowerId | null;
   selectedTheme: TowerTheme;
   activeTowerState: ActiveTowerState | null;
-  feedbackMessage: string;
-  gameOverMessage: string | null;
-  gamePhase: TowerGamePhase;
 }

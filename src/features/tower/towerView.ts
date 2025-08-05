@@ -204,7 +204,7 @@ function renderActiveTowerInfo(controller: TowerController): VNode | null {
         style.backgroundColor = towerColor;
       } else if (index === currentPositionIndex && gamePhase === 'PLAYING') {
         brickClass += '.current';
-      } else if (index === currentPositionIndex && (gamePhase === 'LEVEL_FAILED' || gamePhase === 'GAME_OVER' || gamePhase === 'LEVEL_RESIGNED')) {
+      } else if (index === currentPositionIndex && (gamePhase === 'LEVEL_FAILED' || gamePhase === 'GAMEOVER' || gamePhase === 'LEVEL_RESIGNED')) {
         brickClass += '.failed';
       } else {
         brickClass += '.pending';
@@ -307,7 +307,7 @@ export function renderTowerUI(controller: TowerController): TowerPageViewLayout 
   const leftPanelContent = h('div.tower-left-panel', {}, strictEnsureVNodeChildren(leftPanelChildren));
 
 
-  const analysisPanelWrapper = (towerState.gamePhase === 'LEVEL_FAILED' || towerState.gamePhase === 'GAME_OVER' || towerState.gamePhase === 'LEVEL_RESIGNED') && controller.analysisController
+  const analysisPanelWrapper = (towerState.gamePhase === 'LEVEL_FAILED' || towerState.gamePhase === 'GAMEOVER' || towerState.gamePhase === 'LEVEL_RESIGNED') && controller.analysisController
     ? h('div.analysis-panel-wrapper', [ renderAnalysisPanel(controller.analysisController) ])
     : null;
 
@@ -340,7 +340,7 @@ export function renderTowerUI(controller: TowerController): TowerPageViewLayout 
   ]);
 
   const feedbackVNode = h('div#tower-feedback', {
-      class: { 'game-over-active': towerState.gamePhase === 'LEVEL_FAILED' || towerState.gamePhase === 'TOWER_COMPLETE' || towerState.gamePhase === 'LEVEL_RESIGNED' || towerState.gamePhase === 'GAME_OVER' }
+      class: { 'game-over-active': towerState.gamePhase === 'LEVEL_FAILED' || towerState.gamePhase === 'TOWER_COMPLETE' || towerState.gamePhase === 'LEVEL_RESIGNED' || towerState.gamePhase === 'GAMEOVER' }
   }, [
       h('p', towerState.gameOverMessage || towerState.feedbackMessage)
   ]);

@@ -1,50 +1,30 @@
 // src/features/tower/TowerController.ts
-import type { Key, Color as ChessgroundColor, MoveMetadata } from 'chessground/types';
-import { BoardHandler, type GameEndReason } from '../../core/boardHandler';
-import type { AttemptMoveResult } from '../../core/boardHandler';
-import type { AnalysisController } from '../analysis/analysisController';
+import type { Color as ChessgroundColor } from 'chessground/types';
+import type { GameEndReason, AttemptMoveResult } from '../../core/boardHandler';
 import logger from '../../utils/logger';
 import { SoundService } from '../../core/sound.service';
 import { t } from '../../core/i18n.service';
 import { PgnService } from '../../core/pgn.service';
-import {
-  TOWER_DEFINITIONS,
-  type TowerControllerState,
-  type ActiveTowerState,
-} from './tower.types';
-import type { 
-    TowerId, 
-    TowerTheme, 
-    TowerData, 
-    GetNewTowerDto, 
-    SaveTowerRecordDto
-} from '../../core/api.types';
+import { TOWER_DEFINITIONS, type TowerControllerState, type ActiveTowerState } from './tower.types';
+import type { TowerId, TowerTheme, TowerData, GetNewTowerDto, SaveTowerRecordDto } from '../../core/api.types';
 import type { AppServices, GameControlsState } from '../../AppController';
 import { InsufficientFunCoinsError } from '../../core/webhook.service';
+import { BaseGameController } from '../../core/controllers/base-game.controller';
+import type { BoardHandler } from '../../core/boardHandler';
+import type { AnalysisController } from '../analysis/analysisController';
 
 const BOT_MOVE_DELAY_MS = 100;
 const PREMOVE_EXECUTION_DELAY_MS = 100;
 const TIMER_INTERVAL_MS = 1000;
 const INITIAL_LIVES = 3;
 
-
-export class TowerController {
-  public state: TowerControllerState;
-  public boardHandler: BoardHandler;
-  public analysisController: AnalysisController;
-  public services: AppServices;
-  private requestGlobalRedraw: () => void;
+export class TowerController extends BaseGameController<TowerControllerState> {
   private pgnService: typeof PgnService;
-
   private timerIntervalId: number | null = null;
   private currentLevelStartTimeMs: number | null = null;
-  
   private solutionMovesForCurrentPosition: string[] = [];
   private currentSolutionMoveIndex: number = 0;
   private isScenarioActive: boolean = true;
-
-  private unsubscribeFromMoveMade: (() => void) | null = null;
-  private unsubscribeFromPgnNavigated: (() => void) | null = null;
 
   constructor(
     boardHandler: BoardHandler,
@@ -52,15 +32,9 @@ export class TowerController {
     services: AppServices,
     requestGlobalRedraw: () => void,
   ) {
-    this.boardHandler = boardHandler;
-    this.analysisController = analysisController;
-    this.services = services;
-    this.pgnService = services.pgnServiceInstance;
-    this.requestGlobalRedraw = requestGlobalRedraw;
-
-    this.state = {
+    const initialState: TowerControllerState = {
       availableTowers: TOWER_DEFINITIONS,
-      availableThemes: this.services.themeService.getAvailableThemes(),
+      availableThemes: services.themeService.getAvailableThemes(),
       selectedTowerId: null,
       selectedTheme: 'mix',
       activeTowerState: null,
@@ -69,64 +43,137 @@ export class TowerController {
       gamePhase: 'IDLE',
     };
 
-    this.unsubscribeFromMoveMade = this.boardHandler.onMoveMade(() => this._updateAppControls());
-    this.unsubscribeFromPgnNavigated = this.boardHandler.onPgnNavigated(() => this._updateAppControls());
-    
+    super(initialState, boardHandler, analysisController, services, requestGlobalRedraw);
+    this.pgnService = services.pgnServiceInstance;
+
     this._updateAppControls();
     logger.info('[TowerController] Initialized.');
   }
 
-  private _getControlsState(): GameControlsState {
+  // --- Implementation of abstract methods ---
+
+  public async initializeGame(towerId: string | null = null): Promise<void> {
+    logger.info(`[TowerController] initializeGame called with towerId: ${towerId}`);
+    if (this.analysisController.getPanelState().isAnalysisActive) {
+        this.analysisController.toggleAnalysisEngine();
+    }
+    this.boardHandler.configureBoardForAnalysis(false);
+
+    this._stopTimer();
+    this.currentLevelStartTimeMs = null;
+    
+    this.setState({
+        activeTowerState: null,
+        gameOverMessage: null,
+        gamePhase: 'IDLE',
+    });
+
+    if (towerId) {
+      this.state.selectedTowerId = null; 
+      await this._startTowerById(towerId);
+    } else {
+      this.boardHandler.setupPosition("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+      this.setState({
+          feedbackMessage: t('tower.feedback.selectTowerAndStart', {defaultValue: 'Select a Tower and press Start.'}),
+          selectedTowerId: null,
+      });
+    }
+  }
+
+  protected _getControlsState(): GameControlsState {
     const { gamePhase } = this.state;
     const isTowerActive = gamePhase !== 'IDLE' && gamePhase !== 'LOADING';
 
     return {
       canRequestNew: false,
-      onRequestNew: () => {},
+      onRequestNew: () => this.handleNewGame(),
       canRestart: isTowerActive,
-      onRestart: () => this.handleRestartTower(),
-      canResign: gamePhase === 'PLAYING',
+      onRestart: () => this.handleRestartTask(),
+      canResign: this.state.gamePhase === 'PLAYING',
       onResign: () => this.handleResign(),
       onShare: () => this.handleShareTower(),
       onExit: () => this.handleExitTower(),
     };
   }
 
-  private _updateAppControls(): void {
-    this.services.appController.updateGameControls(this._getControlsState());
-    this.requestGlobalRedraw();
+  protected async _handleUserMoveInGame(moveResult: AttemptMoveResult): Promise<void> {
+    if (!moveResult.success) {
+        this.setState({feedbackMessage: moveResult.isIllegal ? t('tower.feedback.illegalMove') : t('tower.error.moveFailed')});
+        return;
+    }
+
+    if (this.isScenarioActive) {
+      const expectedMove = this.solutionMovesForCurrentPosition[this.currentSolutionMoveIndex];
+      if (moveResult.uciMove === expectedMove) {
+        this.currentSolutionMoveIndex++;
+      } else {
+        this.isScenarioActive = false;
+      }
+    }
+    
+    const gameStatus = this.boardHandler.getGameStatus();
+    if (gameStatus.isGameOver) {
+      const humanColor = this.boardHandler.getHumanPlayerColor();
+      this._handlePositionOutcome(gameStatus.outcome?.winner === humanColor, gameStatus.outcome?.reason);
+    } else {
+      this._triggerBotMove();
+    }
+  }
+  
+  public handleNewGame(): void {
+      logger.warn('[TowerController] handleNewGame called, but this mode requires selection. Resetting to idle.');
+      this.initializeGame(null);
   }
 
-  public initialize(towerId: string | null = null): void {
-    logger.info(`[TowerController] initialize called with towerId: ${towerId}`);
+  public handleRestartTask(): void {
+    if (!this._getControlsState().canRestart) return;
+    
     if (this.analysisController.getPanelState().isAnalysisActive) {
         this.analysisController.toggleAnalysisEngine();
     }
     this.boardHandler.configureBoardForAnalysis(false);
 
-    this.state.activeTowerState = null;
-    this.state.gameOverMessage = null;
-    this._stopTimer();
-    this.currentLevelStartTimeMs = null;
-    this.state.gamePhase = 'IDLE';
-
-    if (towerId) {
-      this.state.selectedTowerId = null; 
-      this._startTowerById(towerId);
-    } else {
-      this.boardHandler.setupPosition("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-      this.state.feedbackMessage = t('tower.feedback.selectTowerAndStart', {defaultValue: 'Select a Tower and press Start.'});
-      this.state.selectedTowerId = null;
-    }
-    this._updateAppControls();
-    this.requestGlobalRedraw();
-  }
-  
-  public async selectTower(towerType: TowerId): Promise<void> {
-    if (this.state.gamePhase !== 'IDLE') {
+    const activeTower = this.state.activeTowerState;
+    if (!activeTower) {
+      this.setState({feedbackMessage: t('tower.error.noTowerToRestart')});
       return;
     }
-    this.state.selectedTowerId = towerType;
+
+    this.boardHandler.clearAllDrawings();
+    activeTower.currentPositionIndex = 0;
+    activeTower.startTimeMs = null;
+    activeTower.elapsedTimeMs = 0;
+    activeTower.levelCompletionTimes.fill(null);
+    activeTower.lives = INITIAL_LIVES;
+    this.currentLevelStartTimeMs = null;
+    
+    this.setState({
+      gameOverMessage: null,
+      gamePhase: 'PLAYING',
+    });
+
+    SoundService.playBackgroundSound('game_entry');
+    this._loadCurrentTowerPosition();
+    this._startTimer();
+  }
+  
+  public handleResign(): void {
+    if (!this._getControlsState().canResign) return;
+
+    this._stopTimer();
+    this.setState({
+      gamePhase: 'LEVEL_RESIGNED',
+      feedbackMessage: t('tower.feedback.resigned', { defaultValue: 'You resigned. Analysis is now available.' }),
+    });
+    
+    this.boardHandler.configureBoardForAnalysis(true);
+  }
+
+  // --- Tower specific methods ---
+
+  public async selectTower(towerType: TowerId): Promise<void> {
+    if (this.state.gamePhase !== 'IDLE') return;
+    this.setState({ selectedTowerId: towerType });
     logger.info(`[TowerController] Tower selected: ${towerType}. Initiating start...`);
     await this._startTowerByType(towerType);
   }
@@ -150,6 +197,10 @@ export class TowerController {
         title: t('common.shareTitle', { defaultValue: 'Chess Puzzle' }),
         text: t('common.shareText', { defaultValue: 'Check out this puzzle!' })
     });
+  }
+  
+  public handleExitTower(): void {
+    this.services.appController.navigateTo('welcome');
   }
 
   private async _startTowerById(towerId: string): Promise<void> {
@@ -259,7 +310,6 @@ export class TowerController {
       }
   }
 
-
   private _loadCurrentTowerPosition(): void {
     const activeTower = this.state.activeTowerState;
     if (!activeTower || (this.state.gamePhase !== 'PLAYING' && this.state.gamePhase !== 'LEVEL_RESIGNED')) {
@@ -308,49 +358,6 @@ export class TowerController {
         setTimeout(() => this._triggerBotMove(), BOT_MOVE_DELAY_MS);
     } else {
         this.setState({feedbackMessage: t('tower.feedback.yourTurn')});
-    }
-  }
-
-  public async handleUserMove(orig: Key, dest: Key, metadata?: MoveMetadata): Promise<void> {
-    if (this.analysisController.getPanelState().isAnalysisActive) {
-        const moveResult: AttemptMoveResult = await this.boardHandler.attemptUserMove(orig, dest);
-        if (moveResult.success && moveResult.sanMove) {
-            this.setState({ feedbackMessage: t('puzzle.feedback.analysisMoveMade', { san: moveResult.sanMove, fen: this.boardHandler.getFen() }) });
-        } else if (moveResult.isIllegal) {
-            this.setState({ feedbackMessage: t('puzzle.feedback.illegalMoveAnalysis') });
-        }
-        return;
-    }
-
-    if (this.state.gamePhase !== 'PLAYING') {
-        return;
-    }
-
-    if (metadata?.premove) {
-      return;
-    }
-    
-    const moveResult: AttemptMoveResult = await this.boardHandler.attemptUserMove(orig, dest);
-    if (!moveResult.success) {
-        this.setState({feedbackMessage: moveResult.isIllegal ? t('tower.feedback.illegalMove') : t('tower.error.moveFailed')});
-        return;
-    }
-
-    if (this.isScenarioActive) {
-      const expectedMove = this.solutionMovesForCurrentPosition[this.currentSolutionMoveIndex];
-      if (moveResult.uciMove === expectedMove) {
-        this.currentSolutionMoveIndex++;
-      } else {
-        this.isScenarioActive = false;
-      }
-    }
-    
-    const gameStatus = this.boardHandler.getGameStatus();
-    if (gameStatus.isGameOver) {
-      const humanColor = this.boardHandler.getHumanPlayerColor();
-      this._handlePositionOutcome(gameStatus.outcome?.winner === humanColor, gameStatus.outcome?.reason);
-    } else {
-      this._triggerBotMove();
     }
   }
 
@@ -450,7 +457,7 @@ export class TowerController {
     if (!activeTower) return;
 
     this.setState({
-      gamePhase: 'GAME_OVER',
+      gamePhase: 'GAMEOVER',
       gameOverMessage: t('tower.feedback.gameOver', {
         defaultValue: 'Game Over. You have no lives left.'
       }),
@@ -507,52 +514,6 @@ export class TowerController {
     }
   }
 
-  public async handleRestartTower(): Promise<void> {
-    if (!this._getControlsState().canRestart) return;
-    
-    if (this.analysisController.getPanelState().isAnalysisActive) {
-        await this.analysisController.toggleAnalysisEngine();
-    }
-    this.boardHandler.configureBoardForAnalysis(false);
-
-    const activeTower = this.state.activeTowerState;
-    if (!activeTower) {
-      this.setState({feedbackMessage: t('tower.error.noTowerToRestart')});
-      return;
-    }
-
-    this.boardHandler.clearAllDrawings();
-    activeTower.currentPositionIndex = 0;
-    activeTower.startTimeMs = null;
-    activeTower.elapsedTimeMs = 0;
-    activeTower.levelCompletionTimes.fill(null);
-    activeTower.lives = INITIAL_LIVES;
-    this.currentLevelStartTimeMs = null;
-    this.setState({
-      gameOverMessage: null,
-      gamePhase: 'PLAYING',
-    });
-    SoundService.playBackgroundSound('game_entry');
-    this._loadCurrentTowerPosition();
-    this._startTimer();
-  }
-
-  public async handleExitTower(): Promise<void> {
-    this.services.appController.navigateTo('welcome');
-  }
-
-  public async handleResign(): Promise<void> {
-    if (!this._getControlsState().canResign) return;
-
-    this._stopTimer();
-    this.setState({
-      gamePhase: 'LEVEL_RESIGNED',
-      feedbackMessage: t('tower.feedback.resigned', { defaultValue: 'You resigned. Analysis is now available.' }),
-    });
-    
-    this.boardHandler.configureBoardForAnalysis(true);
-  }
-
   private _startTimer(): void {
     this._stopTimer();
     const activeTower = this.state.activeTowerState;
@@ -593,28 +554,14 @@ export class TowerController {
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   }
   
-  private setState(newState: Partial<TowerControllerState>): void {
-    Object.assign(this.state, newState);
-    this._updateAppControls();
-  }
-
   public destroy(): void {
     this._stopTimer();
-    this.services.appController.clearGameControls();
     if (this.analysisController?.getPanelState().isAnalysisActive) {
         this.analysisController.toggleAnalysisEngine();
     }
     if (this.boardHandler) {
         this.boardHandler.configureBoardForAnalysis(false);
     }
-    if (this.unsubscribeFromMoveMade) {
-      this.unsubscribeFromMoveMade();
-      this.unsubscribeFromMoveMade = null;
-    }
-    if (this.unsubscribeFromPgnNavigated) {
-      this.unsubscribeFromPgnNavigated();
-      this.unsubscribeFromPgnNavigated = null;
-    }
-    logger.info('[TowerController] Destroyed and cleaned up resources.');
+    super.destroy(); // Call base class destroy
   }
 }

@@ -1,61 +1,63 @@
 // src/features/tacktics/tackticsController.ts
-import type { Key, MoveMetadata, Color as ChessgroundColor } from 'chessground/types';
-import { BoardHandler, type AttemptMoveResult } from '../../core/boardHandler';
-import type { AppServices, GameControlsState } from '../../AppController';
-import type { AnalysisController } from '../analysis/analysisController';
+import type { Color as ChessgroundColor } from 'chessground/types';
+import type { AttemptMoveResult } from '../../core/boardHandler';
 import { InsufficientFunCoinsError } from '../../core/webhook.service';
-import type { AppTacticalPuzzle, SubmitTacticalResultDto, TacticalTrainerStats } from '../../core/api.types';
+import type { AppTacticalPuzzle, SubmitTacticalResultDto } from '../../core/api.types';
 import logger from '../../utils/logger';
 import { t } from '../../core/i18n.service';
 import { SoundService } from '../../core/sound.service';
 import { parseFen } from 'chessops/fen';
+import type { AppServices, GameControlsState } from '../../AppController';
+import { BaseGameController } from '../../core/controllers/base-game.controller';
+import type { BoardHandler } from '../../core/boardHandler';
+import type { AnalysisController } from '../analysis/analysisController';
+import type { TackticsControllerState } from './tacktics.types';
 
 const BOT_MOVE_DELAY_MS = 300;
 const AUTO_NEXT_PUZZLE_DELAY_MS = 300;
 
-type GamePhase = 'IDLE' | 'LOADING' | 'TACTICAL' | 'GAMEOVER';
-
-export interface TackticsControllerState {
-  gamePhase: GamePhase;
-  feedbackMessage: string;
-  gameOverMessage: string | null;
-  activePuzzle: AppTacticalPuzzle | null;
-  solutionMoves: string[];
-  currentSolutionMoveIndex: number;
-  tacticalStats: TacticalTrainerStats | null;
-}
-
-export class TackticsController {
-  public state: TackticsControllerState;
-  public boardHandler: BoardHandler;
-  public services: AppServices;
-  public analysisController: AnalysisController;
-  private requestGlobalRedraw: () => void;
-
-  private unsubscribeFromMoveMade: (() => void) | null = null;
-  private unsubscribeFromPgnNavigated: (() => void) | null = null;
-
+export class TackticsController extends BaseGameController<TackticsControllerState> {
   constructor(
     boardHandler: BoardHandler,
     analysisController: AnalysisController,
     services: AppServices,
     requestGlobalRedraw: () => void,
   ) {
-    this.boardHandler = boardHandler;
-    this.analysisController = analysisController;
-    this.services = services;
-    this.requestGlobalRedraw = requestGlobalRedraw;
-
-    this.state = this._getInitialState();
-
-    this.unsubscribeFromMoveMade = this.boardHandler.onMoveMade(() => this._updateAppControls());
-    this.unsubscribeFromPgnNavigated = this.boardHandler.onPgnNavigated(() => this._updateAppControls());
-
-    this._updateAppControls();
+    const initialState: TackticsControllerState = {
+      gamePhase: 'IDLE',
+      feedbackMessage: t('tacktics.feedback.getReady', { defaultValue: 'Press "New Game" to start.' }),
+      gameOverMessage: null,
+      activePuzzle: null,
+      solutionMoves: [],
+      currentSolutionMoveIndex: 0,
+      tacticalStats: null,
+    };
+    super(initialState, boardHandler, analysisController, services, requestGlobalRedraw);
     logger.info('[TackticsController] Initialized.');
   }
 
-  private _getControlsState(): GameControlsState {
+  // --- Implementation of abstract methods ---
+
+  public async initializeGame(puzzleId?: string | null): Promise<void> {
+    if (this.analysisController.getPanelState().isAnalysisActive) {
+        this.analysisController.toggleAnalysisEngine();
+    }
+    
+    this._resetPuzzleState();
+    this._loadUserStats();
+
+    if (puzzleId) {
+        await this._loadPuzzle(puzzleId);
+    } else {
+        this.boardHandler.setupPosition("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+        this.setState({
+            gamePhase: 'IDLE',
+            feedbackMessage: t('tacktics.feedback.getReady', { defaultValue: 'Press "New Game" to start.' })
+        });
+    }
+  }
+
+  protected _getControlsState(): GameControlsState {
     const { gamePhase, activePuzzle } = this.state;
     return {
       canRequestNew: gamePhase === 'IDLE' || gamePhase === 'GAMEOVER',
@@ -81,22 +83,54 @@ export class TackticsController {
     };
   }
 
-  private _updateAppControls(): void {
-    this.services.appController.updateGameControls(this._getControlsState());
-    this.requestGlobalRedraw();
+  protected async _handleUserMoveInGame(moveResult: AttemptMoveResult): Promise<void> {
+    if (!moveResult.success || !moveResult.uciMove) return;
+
+    const gameStatus = this.boardHandler.getGameStatus();
+    const humanColor = this.boardHandler.getHumanPlayerColor();
+
+    if (gameStatus.isGameOver && gameStatus.outcome?.reason === 'checkmate' && gameStatus.outcome?.winner === humanColor) {
+        logger.info('[TackticsController] User delivered a checkmate. Counting as a win.');
+        this._handleGameOver(true, { playSound: false });
+        return;
+    }
+
+    const expectedMove = this.state.solutionMoves[this.state.currentSolutionMoveIndex];
+    if (moveResult.uciMove === expectedMove) {
+        this.state.currentSolutionMoveIndex++;
+        const isPuzzleComplete = this.state.currentSolutionMoveIndex >= this.state.solutionMoves.length;
+
+        if (isPuzzleComplete) {
+            this._handleGameOver(true);
+        } else {
+            if (this._checkGameOver()) return;
+            this._playNextSolutionMove();
+        }
+    } else {
+        this._handleIncorrectUserMove();
+    }
   }
 
-  private _getInitialState(): TackticsControllerState {
-      return {
-        gamePhase: 'IDLE',
-        feedbackMessage: t('tacktics.feedback.getReady', { defaultValue: 'Press "New Game" to start.' }),
-        gameOverMessage: null,
-        activePuzzle: null,
-        solutionMoves: [],
-        currentSolutionMoveIndex: 0,
-        tacticalStats: null,
-      };
+  public handleNewGame(): void {
+    if (!(this.state.gamePhase === 'IDLE' || this.state.gamePhase === 'GAMEOVER')) return;
+
+    if (this.analysisController.getPanelState().isAnalysisActive) {
+        this.analysisController.toggleAnalysisEngine();
+    }
+
+    this._loadPuzzle(null);
   }
+
+  public handleRestartTask(): void {
+      if (!((this.state.gamePhase === 'GAMEOVER' || this.state.gamePhase === 'IDLE') && !!this.state.activePuzzle)) return;
+      this.initializeGame(this.state.activePuzzle.PuzzleId);
+  }
+  
+  public handleResign(): void {
+      // Resign is not applicable in this mode.
+  }
+
+  // --- Tacktics specific methods ---
 
   private _resetPuzzleState(): void {
       this.setState({
@@ -107,25 +141,6 @@ export class TackticsController {
         solutionMoves: [],
         currentSolutionMoveIndex: 0,
       });
-  }
-
-  public async initializeGame(puzzleId?: string | null): Promise<void> {
-    if (this.analysisController.getPanelState().isAnalysisActive) {
-        this.analysisController.toggleAnalysisEngine();
-    }
-    
-    this._resetPuzzleState();
-    this._loadUserStats();
-
-    if (puzzleId) {
-        await this._loadPuzzle(puzzleId);
-    } else {
-        this.boardHandler.setupPosition("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-        this.setState({
-            gamePhase: 'IDLE',
-            feedbackMessage: t('tacktics.feedback.getReady', { defaultValue: 'Press "New Game" to start.' })
-        });
-    }
   }
 
   private async _loadUserStats(): Promise<void> {
@@ -142,7 +157,7 @@ export class TackticsController {
     }
   }
 
-  private async _loadPuzzle(puzzleId?: string | null): Promise<void> {
+  private async _loadPuzzle(puzzleId: string | null): Promise<void> {
     this.setState({ gamePhase: 'LOADING', feedbackMessage: t('common.loading') });
 
     let puzzleData: AppTacticalPuzzle | null = null;
@@ -169,15 +184,14 @@ export class TackticsController {
             this.services.appController.updatePuzzleUrl(puzzleData.PuzzleId);
         }
 
-        this.state.activePuzzle = puzzleData;
-        this.state.solutionMoves = puzzleData.Moves ? puzzleData.Moves.split(' ') : [];
-        this.state.currentSolutionMoveIndex = 0;
-
         const setup = parseFen(puzzleData.FEN_0).unwrap();
         const humanPlayerColor: ChessgroundColor = setup.turn === 'white' ? 'black' : 'white';
         this.boardHandler.setupPosition(puzzleData.FEN_0, humanPlayerColor, true);
 
         this.setState({
+            activePuzzle: puzzleData,
+            solutionMoves: puzzleData.Moves ? puzzleData.Moves.split(' ') : [],
+            currentSolutionMoveIndex: 0,
             gamePhase: 'TACTICAL',
             feedbackMessage: t('tacktics.feedback.findBestMove', { defaultValue: 'Find the best move!' }),
         });
@@ -219,47 +233,6 @@ export class TackticsController {
               this._handleGameOver(false);
           }
       }, BOT_MOVE_DELAY_MS);
-  }
-
-  public async handleUserMove(orig: Key, dest: Key, metadata?: MoveMetadata): Promise<void> {
-    if (this.analysisController.getPanelState().isAnalysisActive) {
-        const moveResult: AttemptMoveResult = await this.boardHandler.attemptUserMove(orig, dest);
-        if (moveResult.success && moveResult.sanMove) {
-            this.setState({ feedbackMessage: t('puzzle.feedback.analysisMoveMade', { san: moveResult.sanMove, fen: this.boardHandler.getFen() }) });
-        } else if (moveResult.isIllegal) {
-            this.setState({ feedbackMessage: t('puzzle.feedback.illegalMoveAnalysis') });
-        }
-        return;
-    }
-
-    if (this.state.gamePhase !== 'TACTICAL' || (metadata && metadata.premove)) return;
-
-    const moveResult = await this.boardHandler.attemptUserMove(orig, dest);
-    if (!moveResult.success || !moveResult.uciMove) return;
-
-    const gameStatus = this.boardHandler.getGameStatus();
-    const humanColor = this.boardHandler.getHumanPlayerColor();
-
-    if (gameStatus.isGameOver && gameStatus.outcome?.reason === 'checkmate' && gameStatus.outcome?.winner === humanColor) {
-        logger.info('[TackticsController] User delivered a checkmate. Counting as a win.');
-        this._handleGameOver(true, { playSound: false });
-        return;
-    }
-
-    const expectedMove = this.state.solutionMoves[this.state.currentSolutionMoveIndex];
-    if (moveResult.uciMove === expectedMove) {
-        this.state.currentSolutionMoveIndex++;
-        const isPuzzleComplete = this.state.currentSolutionMoveIndex >= this.state.solutionMoves.length;
-
-        if (isPuzzleComplete) {
-            this._handleGameOver(true);
-        } else {
-            if (this._checkGameOver()) return;
-            this._playNextSolutionMove();
-        }
-    } else {
-        this._handleIncorrectUserMove();
-    }
   }
 
   private _handleIncorrectUserMove(): void {
@@ -350,32 +323,5 @@ export class TackticsController {
     } catch (error) {
         logger.error('[TackticsController] Failed to send tactical result:', error);
     }
-  }
-
-  public handleNewGame(): void {
-    if (!(this.state.gamePhase === 'IDLE' || this.state.gamePhase === 'GAMEOVER')) return;
-
-    if (this.analysisController.getPanelState().isAnalysisActive) {
-        this.analysisController.toggleAnalysisEngine();
-    }
-
-    this._loadPuzzle();
-  }
-
-  public handleRestartTask(): void {
-      if (!((this.state.gamePhase === 'GAMEOVER' || this.state.gamePhase === 'IDLE') && !!this.state.activePuzzle)) return;
-      this.initializeGame(this.state.activePuzzle.PuzzleId);
-  }
-
-  private setState(newState: Partial<TackticsControllerState>): void {
-    Object.assign(this.state, newState);
-    this._updateAppControls();
-  }
-
-  public destroy(): void {
-    this.services.appController.clearGameControls();
-    if (this.unsubscribeFromMoveMade) this.unsubscribeFromMoveMade();
-    if (this.unsubscribeFromPgnNavigated) this.unsubscribeFromPgnNavigated();
-    logger.info('[TackticsController] Destroyed.');
   }
 }

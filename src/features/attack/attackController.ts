@@ -1,21 +1,22 @@
 // src/features/attack/attackController.ts
-import type { Key, MoveMetadata, Color as ChessgroundColor } from 'chessground/types';
-import { BoardHandler, type GameEndOutcome, type AttemptMoveResult } from '../../core/boardHandler';
-import type { AppServices, GameControlsState } from '../../AppController';
-import type { AnalysisController } from '../analysis/analysisController';
+import type { Color as ChessgroundColor } from 'chessground/types';
+import type { GameEndOutcome, AttemptMoveResult } from '../../core/boardHandler';
 import { InsufficientFunCoinsError } from '../../core/webhook.service';
-import type { AppAttackPuzzle, AttackRecordDto, PuzzleResultEntry } from '../../core/api.types';
+import type { AppAttackPuzzle, AttackRecordDto } from '../../core/api.types';
 import logger from '../../utils/logger';
 import { t } from '../../core/i18n.service';
 import { SoundService } from '../../core/sound.service';
 import { parseFen } from 'chessops/fen';
+import type { AppServices, GameControlsState } from '../../AppController';
+import { BaseGameController } from '../../core/controllers/base-game.controller';
+import type { BoardHandler } from '../../core/boardHandler';
+import type { AnalysisController } from '../analysis/analysisController';
+import type { AttackControllerState } from './attack.types';
 
 const BOT_MOVE_DELAY_MS = 300;
 const PREMOVE_EXECUTION_DELAY_MS = 100;
 const TIMER_INTERVAL_MS = 1000;
 const PLAYOUT_TIME_LIMIT_MS = 10 * 60 * 1000; // 10 минут
-
-type GamePhase = 'IDLE' | 'LOADING' | 'TACTICAL' | 'PLAYOUT' | 'GAMEOVER';
 
 export function formatElapsedTime(ms: number | null): string {
   if (ms === null || ms < 0) return "00:00:00";
@@ -30,32 +31,8 @@ export function formatElapsedTime(ms: number | null): string {
   return `00:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 }
 
-export interface AttackControllerState {
-  gamePhase: GamePhase;
-  feedbackMessage: string;
-  gameOverMessage: string | null;
-  activePuzzle: AppAttackPuzzle | null;
-  puzzleResults: PuzzleResultEntry[] | null;
-  solutionMoves: string[];
-  currentSolutionMoveIndex: number;
-  isBotThinking: boolean;
-  solveStartTimeMs: number | null;
-  playoutTimerId: number | null;
-  elapsedPlayoutTimeMs: number;
-  tenSecondsWarningPlayed: boolean;
-  sevenSecondsWarningPlayed: boolean;
-}
-
-export class AttackController {
-  public state: AttackControllerState;
-  public boardHandler: BoardHandler;
-  public services: AppServices;
-  public analysisController: AnalysisController;
-  private requestGlobalRedraw: () => void;
+export class AttackController extends BaseGameController<AttackControllerState> {
   private playoutStartTimeMs: number | null = null;
-
-  private unsubscribeFromMoveMade: (() => void) | null = null;
-  private unsubscribeFromPgnNavigated: (() => void) | null = null;
 
   constructor(
     boardHandler: BoardHandler,
@@ -63,21 +40,47 @@ export class AttackController {
     services: AppServices,
     requestGlobalRedraw: () => void,
   ) {
-    this.boardHandler = boardHandler;
-    this.analysisController = analysisController;
-    this.services = services;
-    this.requestGlobalRedraw = requestGlobalRedraw;
+    const initialState: AttackControllerState = {
+      gamePhase: 'IDLE',
+      feedbackMessage: t('attack.feedback.getReady', { defaultValue: 'Press "New Game" to start.' }),
+      gameOverMessage: null,
+      activePuzzle: null,
+      puzzleResults: null,
+      solutionMoves: [],
+      currentSolutionMoveIndex: 0,
+      isBotThinking: false,
+      solveStartTimeMs: null,
+      playoutTimerId: null,
+      elapsedPlayoutTimeMs: 0,
+      tenSecondsWarningPlayed: false,
+      sevenSecondsWarningPlayed: false,
+    };
 
-    this.state = this._getInitialState();
-
-    this.unsubscribeFromMoveMade = this.boardHandler.onMoveMade(() => this._updateAppControls());
-    this.unsubscribeFromPgnNavigated = this.boardHandler.onPgnNavigated(() => this._updateAppControls());
-
-    this._updateAppControls();
+    super(initialState, boardHandler, analysisController, services, requestGlobalRedraw);
     logger.info('[AttackController] Initialized.');
   }
 
-  private _getControlsState(): GameControlsState {
+  // --- Implementation of abstract methods ---
+
+  public async initializeGame(puzzleId?: string | null): Promise<void> {
+    if (this.analysisController.getPanelState().isAnalysisActive) {
+        this.analysisController.toggleAnalysisEngine();
+    }
+    
+    this._resetPuzzleState();
+
+    if (puzzleId) {
+        await this._loadPuzzle(puzzleId);
+    } else {
+        this.boardHandler.setupPosition("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+        this.setState({
+            gamePhase: 'IDLE',
+            feedbackMessage: t('attack.feedback.getReady', { defaultValue: 'Press "New Game" to start.' })
+        });
+    }
+  }
+
+  protected _getControlsState(): GameControlsState {
     const { gamePhase, activePuzzle } = this.state;
     return {
       canRequestNew: gamePhase === 'IDLE' || gamePhase === 'GAMEOVER',
@@ -103,13 +106,55 @@ export class AttackController {
     };
   }
 
-  private _updateAppControls(): void {
-    this.services.appController.updateGameControls(this._getControlsState());
-    this.requestGlobalRedraw();
+  protected async _handleUserMoveInGame(moveResult: AttemptMoveResult): Promise<void> {
+    if (this._checkGameOver()) return;
+
+    if (this.state.gamePhase === 'TACTICAL') {
+        const expectedMove = this.state.solutionMoves[this.state.currentSolutionMoveIndex];
+        if (moveResult.uciMove === expectedMove) {
+            this.state.currentSolutionMoveIndex++;
+            this._playNextSolutionMove();
+        } else {
+            this._handleGameOver({ reason: 'variant_loss', winner: this.boardHandler.getBoardTurnColor() }, t('attack.feedback.wrongMove', {defaultValue: 'Wrong move!'}));
+        }
+    } else if (this.state.gamePhase === 'PLAYOUT') {
+        this._triggerBotMoveIfNeeded();
+    }
   }
 
-  private _getInitialState(): AttackControllerState {
-      return {
+  public handleNewGame(): void {
+    if (!(this.state.gamePhase === 'IDLE' || this.state.gamePhase === 'GAMEOVER')) return;
+
+    if (this.analysisController.getPanelState().isAnalysisActive) {
+        this.analysisController.toggleAnalysisEngine();
+    }
+
+    this._loadPuzzle(null);
+  }
+
+  public handleRestartTask(): void {
+      if (!((this.state.gamePhase === 'GAMEOVER' || this.state.gamePhase === 'IDLE') && !!this.state.activePuzzle)) return;
+      this._loadPuzzle(this.state.activePuzzle.PuzzleId);
+  }
+
+  public handleResign(): void {
+    if (!(this.state.gamePhase === 'TACTICAL' || this.state.gamePhase === 'PLAYOUT')) return;
+    this._handleGameOver({ reason: 'variant_loss', winner: this.boardHandler.getBoardTurnColor() }, t('attack.feedback.resigned', { defaultValue: 'You resigned.' }));
+  }
+
+  // --- Attack specific methods ---
+
+  private _clearPlayoutTimer(): void {
+    if (this.state.playoutTimerId) {
+      clearInterval(this.state.playoutTimerId);
+      this.setState({ playoutTimerId: null });
+    }
+  }
+
+  private _resetPuzzleState(): void {
+      this._clearPlayoutTimer();
+      this.playoutStartTimeMs = null;
+      this.setState({
         gamePhase: 'IDLE',
         feedbackMessage: t('attack.feedback.getReady', { defaultValue: 'Press "New Game" to start.' }),
         gameOverMessage: null,
@@ -123,38 +168,7 @@ export class AttackController {
         elapsedPlayoutTimeMs: 0,
         tenSecondsWarningPlayed: false,
         sevenSecondsWarningPlayed: false,
-      };
-  }
-
-  private _clearPlayoutTimer(): void {
-    if (this.state.playoutTimerId) {
-      clearInterval(this.state.playoutTimerId);
-      this.state.playoutTimerId = null;
-    }
-  }
-
-  private _resetPuzzleState(): void {
-      this._clearPlayoutTimer();
-      this.playoutStartTimeMs = null;
-      this.setState(this._getInitialState());
-  }
-
-  public async initializeGame(puzzleId?: string | null): Promise<void> {
-    if (this.analysisController.getPanelState().isAnalysisActive) {
-        this.analysisController.toggleAnalysisEngine();
-    }
-    
-    this._resetPuzzleState();
-
-    if (puzzleId) {
-        await this._loadPuzzle(puzzleId);
-    } else {
-        this.boardHandler.setupPosition("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-        this.setState({
-            gamePhase: 'IDLE',
-            feedbackMessage: t('attack.feedback.getReady', { defaultValue: 'Press "New Game" to start.' })
-        });
-    }
+      });
   }
 
   private async _loadPuzzle(puzzleSource: string | null): Promise<void> {
@@ -187,16 +201,16 @@ export class AttackController {
         }
 
         SoundService.playBackgroundSound('game_entry');
-        this.state.activePuzzle = puzzleData;
-        this.state.puzzleResults = puzzleData.attack_results || null;
-        this.state.solutionMoves = puzzleData.Moves ? puzzleData.Moves.split(' ') : [];
-        this.state.currentSolutionMoveIndex = 0;
-
+        
         const setup = parseFen(puzzleData.FEN_0).unwrap();
         const humanPlayerColor: ChessgroundColor = setup.turn === 'white' ? 'black' : 'white';
         this.boardHandler.setupPosition(puzzleData.FEN_0, humanPlayerColor, true);
 
         this.setState({
+            activePuzzle: puzzleData,
+            puzzleResults: puzzleData.attack_results || null,
+            solutionMoves: puzzleData.Moves ? puzzleData.Moves.split(' ') : [],
+            currentSolutionMoveIndex: 0,
             gamePhase: 'TACTICAL',
             feedbackMessage: t('attack.feedback.findBestMove', { defaultValue: 'Find the best move!' }),
             solveStartTimeMs: Date.now(),
@@ -255,38 +269,6 @@ export class AttackController {
       });
       this._tickPlayoutTimer();
       this._triggerBotMoveIfNeeded();
-  }
-
-  public async handleUserMove(orig: Key, dest: Key, metadata?: MoveMetadata): Promise<void> {
-    if (this.analysisController.getPanelState().isAnalysisActive) {
-        logger.info(`[AttackController] User interacting with board while analysis is active: ${orig}-${dest}. Forwarding to BoardHandler.`);
-        const moveResult: AttemptMoveResult = await this.boardHandler.attemptUserMove(orig, dest);
-        if (moveResult.success && moveResult.sanMove) {
-            this.setState({ feedbackMessage: t('puzzle.feedback.analysisMoveMade', { san: moveResult.sanMove, fen: this.boardHandler.getFen() }) });
-        } else if (moveResult.isIllegal) {
-            this.setState({ feedbackMessage: t('puzzle.feedback.illegalMoveAnalysis') });
-        }
-        return;
-    }
-
-    if (this.state.gamePhase !== 'TACTICAL' && this.state.gamePhase !== 'PLAYOUT') return;
-    if (this.state.isBotThinking || (metadata && metadata.premove)) return;
-
-    const moveResult = await this.boardHandler.attemptUserMove(orig, dest);
-    if (!moveResult.success || !moveResult.uciMove) return;
-    if (this._checkGameOver()) return;
-
-    if (this.state.gamePhase === 'TACTICAL') {
-        const expectedMove = this.state.solutionMoves[this.state.currentSolutionMoveIndex];
-        if (moveResult.uciMove === expectedMove) {
-            this.state.currentSolutionMoveIndex++;
-            this._playNextSolutionMove();
-        } else {
-            this._handleGameOver({ reason: 'variant_loss', winner: this.boardHandler.getBoardTurnColor() }, t('attack.feedback.wrongMove', {defaultValue: 'Wrong move!'}));
-        }
-    } else if (this.state.gamePhase === 'PLAYOUT') {
-        this._triggerBotMoveIfNeeded();
-    }
   }
 
   private async _triggerBotMoveIfNeeded(): Promise<void> {
@@ -387,27 +369,7 @@ export class AttackController {
         logger.error('[AttackController] Failed to send attack record:', error);
     }
   }
-
-  public handleNewGame(): void {
-    if (!(this.state.gamePhase === 'IDLE' || this.state.gamePhase === 'GAMEOVER')) return;
-
-    if (this.analysisController.getPanelState().isAnalysisActive) {
-        this.analysisController.toggleAnalysisEngine();
-    }
-
-    this._loadPuzzle(null);
-  }
-
-  public handleRestartTask(): void {
-      if (!((this.state.gamePhase === 'GAMEOVER' || this.state.gamePhase === 'IDLE') && !!this.state.activePuzzle)) return;
-      this._loadPuzzle(this.state.activePuzzle.PuzzleId);
-  }
-
-  public handleResign(): void {
-    if (!(this.state.gamePhase === 'TACTICAL' || this.state.gamePhase === 'PLAYOUT')) return;
-    this._handleGameOver({ reason: 'variant_loss', winner: this.boardHandler.getBoardTurnColor() }, t('attack.feedback.resigned', { defaultValue: 'You resigned.' }));
-  }
-
+  
   private _tickPlayoutTimer(): void {
     if (this.state.gamePhase !== 'PLAYOUT' || this.playoutStartTimeMs === null) {
         this._clearPlayoutTimer();
@@ -442,18 +404,5 @@ export class AttackController {
     }
 
     this.state.playoutTimerId = window.setTimeout(() => this._tickPlayoutTimer(), TIMER_INTERVAL_MS);
-  }
-
-  private setState(newState: Partial<AttackControllerState>): void {
-    Object.assign(this.state, newState);
-    this._updateAppControls();
-  }
-
-  public destroy(): void {
-    this._clearPlayoutTimer();
-    this.services.appController.clearGameControls();
-    if (this.unsubscribeFromMoveMade) this.unsubscribeFromMoveMade();
-    if (this.unsubscribeFromPgnNavigated) this.unsubscribeFromPgnNavigated();
-    logger.info('[AttackController] Destroyed.');
   }
 }
