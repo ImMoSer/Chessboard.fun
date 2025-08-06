@@ -397,7 +397,7 @@
     },
     "telegram": {
       "title": "Telegram-Integration",
-      "boundStatus": "Konto mit Telegram verbunden: {username}",
+      "boundStatusSimple": "Konto mit Telegram verbunden",
       "bindButton": "Telegram-Konto verbinden",
       "redirectMessage": "Bitte schließe die Verknüpfung im eben geöffneten Telegram-Tab ab.",
       "errorMessage": "Der Link zur Telegram-Verknüpfung konnte nicht abgerufen werden. Bitte versuche es später erneut."

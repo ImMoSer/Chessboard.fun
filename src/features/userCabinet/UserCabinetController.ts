@@ -14,7 +14,6 @@ export interface UserCabinetControllerState {
   favoritePuzzles: FavoritePuzzleInfo[];
   lichessActivity: LichessActivityResponse | null;
   isActivityLoading: boolean;
-  isBindingUrlLoading: boolean;
   personalActivityStats: PersonalActivityStatsResponse | null;
   isPersonalActivityLoading: boolean;
 }
@@ -42,7 +41,6 @@ export class UserCabinetController {
       favoritePuzzles: [],
       lichessActivity: null,
       isActivityLoading: true,
-      isBindingUrlLoading: false,
       personalActivityStats: null,
       isPersonalActivityLoading: true,
     };
@@ -60,7 +58,7 @@ export class UserCabinetController {
 
   public async initializePage(): Promise<void> {
     logger.info('[UserCabinetController] Initializing/updating page data.');
-    this.setState({ isLoading: true, isActivityLoading: true, isPersonalActivityLoading: true, error: null }); // <<< ИЗМЕНЕНО
+    this.setState({ isLoading: true, isActivityLoading: true, isPersonalActivityLoading: true, error: null });
     this.updateLocalizedTexts();
 
     const currentUserProfile = this.services.authService.getUserProfile();
@@ -77,13 +75,13 @@ export class UserCabinetController {
       logger.info(`[UserCabinetController] Cabinet data populated from AuthService. User: ${currentUserProfile.username}`);
 
       this.fetchLichessActivity(currentUserProfile.username);
-      this.fetchPersonalActivityStats(); // <<< ДОБАВЛЕНО
+      this.fetchPersonalActivityStats();
 
     } else {
       this.setState({
         isLoading: false,
         isActivityLoading: false,
-        isPersonalActivityLoading: false, // <<< ДОБАВЛЕНО
+        isPersonalActivityLoading: false,
         error: t('userCabinet.error.notAuthenticated', { defaultValue: 'User is not authenticated.' }),
         cabinetData: null,
         favoritePuzzles: [],
@@ -106,7 +104,6 @@ export class UserCabinetController {
     }
   }
 
-  // <<< НАЧАЛО ИЗМЕНЕНИЙ: Новый метод для загрузки персональной статистики
   private async fetchPersonalActivityStats(): Promise<void> {
     try {
       const statsData = await this.services.webhookService.fetchPersonalActivityStats();
@@ -122,29 +119,6 @@ export class UserCabinetController {
     } catch (error) {
       logger.error('[UserCabinetController] Failed to fetch personal activity stats:', error);
       this.setState({ isPersonalActivityLoading: false, error: 'Failed to load personal activity stats.' });
-    }
-  }
-  // <<< КОНЕЦ ИЗМЕНЕНИЙ
-
-  public async handleTelegramBinding(): Promise<void> {
-    if (this.state.isBindingUrlLoading) return;
-
-    this.setState({ isBindingUrlLoading: true });
-    
-    try {
-      const response = await this.services.webhookService.fetchTelegramBindingUrl();
-      if (response && response.bindingUrl) {
-        logger.info('[UserCabinetController] Received Telegram binding URL. Opening in a new tab.');
-        window.open(response.bindingUrl, '_blank');
-        this.services.appController.showModal(t('userCabinet.telegram.redirectMessage', {defaultValue: 'Please complete the binding process in Telegram.'}));
-      } else {
-        throw new Error('Binding URL was not returned from the server.');
-      }
-    } catch (error: any) {
-      logger.error('[UserCabinetController] Failed to fetch Telegram binding URL:', error);
-      this.services.appController.showModal(t('userCabinet.telegram.errorMessage', {defaultValue: 'Could not get the Telegram binding link. Please try again later.'}));
-    } finally {
-      this.setState({ isBindingUrlLoading: false });
     }
   }
   

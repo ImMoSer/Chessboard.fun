@@ -397,7 +397,7 @@
     },
     "telegram": {
       "title": "Telegram Integration",
-      "boundStatus": "Account bound to Telegram: {username}",
+      "boundStatusSimple": "Account bound to Telegram",
       "bindButton": "Bind Telegram Account",
       "redirectMessage": "Please complete the binding process in the Telegram tab that just opened.",
       "errorMessage": "Could not get the Telegram binding link. Please try again later."

@@ -41,25 +41,21 @@ function renderStatItem(labelKey: string, defaultValue: string, value: string | 
 }
 
 function renderTelegramSection(controller: UserCabinetController): VNode {
-  const { cabinetData, isBindingUrlLoading } = controller.state;
-  const telegramData = cabinetData?.telegram_jsonb;
+  const { cabinetData } = controller.state;
+  const telegramId = cabinetData?.telegram_id;
+  const miniAppUrl = import.meta.env.VITE_MINIAPP_DIRECT_URL as string;
 
   let content: VNode;
 
-  if (telegramData) {
+  if (telegramId) {
     content = h('div.user-cabinet__telegram-status', [
       h('span.icon', '✅'),
-      t('userCabinet.telegram.boundStatus', { 
-        username: telegramData.username ? `@${telegramData.username}` : telegramData.first_name 
-      })
+      t('userCabinet.telegram.boundStatusSimple', { defaultValue: 'Your Telegram account is successfully linked.' })
     ]);
   } else {
     content = h('button.user-cabinet__telegram-button', {
-      on: { click: () => controller.handleTelegramBinding() },
-      attrs: { disabled: isBindingUrlLoading }
-    }, isBindingUrlLoading 
-        ? t('common.processing', {defaultValue: 'Processing...'}) 
-        : t('userCabinet.telegram.bindButton', {defaultValue: 'Bind Telegram Account'})
+      on: { click: () => { if (miniAppUrl) window.location.href = miniAppUrl; } }
+    }, t('userCabinet.telegram.bindButton', {defaultValue: 'Bind Telegram Account'})
     );
   }
 

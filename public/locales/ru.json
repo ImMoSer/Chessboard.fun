@@ -397,7 +397,7 @@
     },
     "telegram": {
       "title": "Интеграция с Telegram",
-      "boundStatus": "Аккаунт привязан к Telegram: {username}",
+      "boundStatusSimple": "Аккаунт привязан к Telegram",
       "bindButton": "Привязать аккаунт Telegram",
       "redirectMessage": "Пожалуйста, завершите привязку во вкладке Telegram, которая только что открылась.",
       "errorMessage": "Не удалось получить ссылку для привязки Telegram. Пожалуйста, попробуйте позже."

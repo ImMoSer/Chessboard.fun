@@ -57,6 +57,47 @@ class AuthServiceController {
     window.location.href = `${BACKEND_API_URL}/auth/lichess/login`;
   }
 
+  public async loginViaTelegram(): Promise<void> {
+    logger.info('[AuthService] Attempting login via Telegram Mini App...');
+    this._setState({ isProcessing: true, error: null });
+
+    const tg = (window as any).Telegram?.WebApp;
+    if (!tg || !tg.initData) {
+      logger.error('[AuthService] Telegram WebApp script not loaded or initData is missing.');
+      this._setState({ isProcessing: false, error: 'Telegram data not available.' });
+      return;
+    }
+
+    try {
+      const response = await fetch(`${BACKEND_API_URL}/auth/telegram/validate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ initData: tg.initData }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Backend validation failed with status ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      if (result.status === 'linking_required') {
+        logger.info('[AuthService] Telegram user not found. Redirecting to Lichess for linking.');
+        const encodedInitData = encodeURIComponent(tg.initData);
+        window.location.href = `${BACKEND_API_URL}/auth/lichess/login?state=${encodedInitData}`;
+      } else {
+        logger.info('[AuthService] Telegram user validated successfully. Finalizing session.');
+        await this.checkSession();
+      }
+    } catch (error) {
+      logger.error('[AuthService] Error during Telegram login process:', error);
+      this._setState({
+        error: t('errors.telegramAuthFailed', { defaultValue: 'Telegram authentication failed.' }),
+        isProcessing: false,
+      });
+    }
+  }
+
   public async logout(): Promise<void> {
     logger.info('[AuthService] Redirecting to backend for logout...');
     this._setState({ isProcessing: true });
@@ -135,12 +176,6 @@ class AuthServiceController {
     return this.state.userProfile?.club_founder;
   }
   
-  // <<< НАЧАЛО ИЗМЕНЕНИЙ
-  /**
-   * Updates the local user profile state and saves it to localStorage.
-   * This allows for "optimistic updates" of data like FunCoins.
-   * @param updatedData - An object with properties of UserSessionProfile to update.
-   */
   public updateUserProfile(updatedData: Partial<UserSessionProfile>) {
       if (this.state.userProfile) {
           const newProfile = { ...this.state.userProfile, ...updatedData };
@@ -151,7 +186,6 @@ class AuthServiceController {
           logger.warn('[AuthService] updateUserProfile called but no user is logged in.');
       }
   }
-  // <<< КОНЕЦ ИЗМЕНЕНИЙ
 }
 
 export const AuthService = new AuthServiceController();

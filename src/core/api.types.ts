@@ -258,14 +258,6 @@ export interface AttackStat {
   best_time: number;
 }
 
-export interface TelegramData {
-  id: number;
-  is_bot: boolean;
-  first_name: string;
-  username: string;
-  language_code: string;
-}
-
 export interface UserSessionProfile extends LichessUserProfile {
   FunCoins: number;
   subscriptionTier: SubscriptionTier;
@@ -275,7 +267,7 @@ export interface UserSessionProfile extends LichessUserProfile {
   follow_clubs?: ClubIdNamePair[];
   club_founder?: ClubIdNamePair[];
   validatedAt?: number;
-  telegram_jsonb?: TelegramData | null;
+  telegram_id?: string | null;
   TierExpire?: string | null;
 }
 

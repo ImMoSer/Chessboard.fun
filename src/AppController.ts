@@ -128,10 +128,7 @@ export class AppController {
   private unsubscribeFromAuthChange: (() => void) | null = null;
   private unsubscribeFromRouteChange: (() => void) | null = null;
 
-  // <<< НАЧАЛО ИЗМЕНЕНИЙ
-  // Флаг для предотвращения избыточных вызовов requestGlobalRedraw
   private isRedrawQueued: boolean = false;
-  // >>> КОНЕЦ ИЗМЕНЕНИЙ
 
   constructor(
     globalServices: {
@@ -208,7 +205,6 @@ export class AppController {
 
     this.unsubscribeFromLangChange = subscribeToLangChange(() => {
       logger.info('[AppController] Language changed, requesting global redraw.');
-      // Изменено: теперь `requestGlobalRedraw` вызывается через `setState({})`
       this.setState({});
     });
 
@@ -370,7 +366,14 @@ export class AppController {
     this.themeServiceInstance.applyTheme();
     this._checkForAppUpdate();
 
-    await this.authServiceInstance.handleAuthentication();
+    const tg = (window as any).Telegram?.WebApp;
+    if (tg && tg.initData) {
+      logger.info('[AppController] Telegram Mini App detected. Initiating Telegram login flow.');
+      await this.authServiceInstance.loginViaTelegram();
+    } else {
+      logger.info('[AppController] No Telegram Mini App detected. Using standard session check.');
+      await this.authServiceInstance.handleAuthentication();
+    }
 
     if (!this.authServiceInstance.getIsProcessing() && this.state.isLoadingAuth && !this.state.isRateLimited) {
       this.setState({ isLoadingAuth: false });
@@ -721,22 +724,13 @@ export class AppController {
     });
   }
 
-  // <<< НАЧАЛО ИЗМЕНЕНИЙ
-  /**
-   * Обновляет состояние контроллера и планирует одну перерисовку VDOM,
-   * если в состояние внесены изменения или если это "пустой" вызов,
-   * инициированный дочерним контроллером.
-   * @param newState Объект с частями нового состояния для объединения.
-   */
   private setState(newState: Partial<AppControllerState>): void {
     const oldState = this.state;
     let hasChanged = false;
 
-    // Проверяем, изменилось ли что-то
     for (const key in newState) {
       if (Object.prototype.hasOwnProperty.call(newState, key)) {
         const typedKey = key as keyof AppControllerState;
-        // Используем глубокое сравнение для объектов, чтобы избежать лишних перерисовок
         if (JSON.stringify(oldState[typedKey]) !== JSON.stringify(newState[typedKey])) {
           hasChanged = true;
           break;
@@ -748,8 +742,6 @@ export class AppController {
 
     const isChildRedrawRequest = Object.keys(newState).length === 0;
 
-    // Если есть изменения или это запрос от дочернего контроллера,
-    // и перерисовка еще не запланирована, планируем ее.
     if ((hasChanged || isChildRedrawRequest) && !this.isRedrawQueued) {
       this.isRedrawQueued = true;
       Promise.resolve().then(() => {
@@ -758,7 +750,6 @@ export class AppController {
       });
     }
   }
-  // >>> КОНЕЦ ИЗМЕНЕНИЙ
 
   public destroy(): void {
     if (this.unsubscribeFromLangChange) this.unsubscribeFromLangChange();
