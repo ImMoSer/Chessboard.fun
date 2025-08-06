@@ -1,5 +1,5 @@
 import { defineConfig, Plugin } from 'vite';
-import { readFileSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { resolve } from 'path';
 
 // Получаем версию из package.json
@@ -29,6 +29,44 @@ const crossOriginHeadersPlugin: Plugin = {
   }
 };
 
+// ДОБАВЛЕНО: Плагин для генерации .htaccess файла
+const generateHtaccessPlugin = (): Plugin => {
+  return {
+    name: 'vite-plugin-generate-htaccess',
+    // Этот хук вызывается после завершения сборки
+    closeBundle: () => {
+      const htaccessContent = `
+# BEGIN REQUIRED HEADERS FOR SHAREDARRAYBUFFER
+# These headers are necessary for multi-threaded WebAssembly (Stockfish NNUE) to work.
+# They create a cross-origin isolated context.
+<IfModule mod_headers.c>
+  Header set Cross-Origin-Opener-Policy "same-origin"
+  Header set Cross-Origin-Embedder-Policy "credentialless"
+</IfModule>
+# END REQUIRED HEADERS
+
+# Anweisung zum Setzen des korrekten MIME-Typs für .wasm-Dateien
+# Vorgeschlagen vom Hostinger-Support
+<IfModule mod_mime.c>
+  AddType application/wasm .wasm
+</IfModule>
+`.trim();
+
+      try {
+        const distPath = resolve(__dirname, 'dist');
+        if (!existsSync(distPath)) {
+          mkdirSync(distPath, { recursive: true });
+        }
+        writeFileSync(resolve(distPath, '.htaccess'), htaccessContent);
+        console.log('\x1b[32m%s\x1b[0m', '✓ .htaccess file generated successfully!');
+      } catch (e) {
+        console.error('\x1b[31m%s\x1b[0m', `Error generating .htaccess file: ${e}`);
+      }
+    }
+  };
+};
+
+
 export default defineConfig({
   build: {
     sourcemap: true,
@@ -41,6 +79,7 @@ export default defineConfig({
   },
   plugins: [
     crossOriginHeadersPlugin,
+    generateHtaccessPlugin(), // ДОБАВЛЕНО: Вызываем плагин
   ],
   define: {
     'import.meta.env.VITE_APP_VERSION': JSON.stringify(appVersion)

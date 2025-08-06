@@ -86,8 +86,15 @@ class AuthServiceController {
         const encodedInitData = encodeURIComponent(tg.initData);
         window.location.href = `${BACKEND_API_URL}/auth/lichess/login?state=${encodedInitData}`;
       } else {
-        logger.info('[AuthService] Telegram user validated successfully. Finalizing session.');
-        await this.checkSession();
+        // ИЗМЕНЕНО: Используем профиль из ответа напрямую, вместо вызова checkSession()
+        const userProfile: UserSessionProfile = result;
+        logger.info(`[AuthService] Session valid. User "${userProfile.username}" authenticated via Telegram.`);
+        this._setState({
+          isAuthenticated: true,
+          userProfile: userProfile,
+          isProcessing: false,
+        });
+        localStorage.setItem('user_profile', JSON.stringify(userProfile));
       }
     } catch (error) {
       logger.error('[AuthService] Error during Telegram login process:', error);
