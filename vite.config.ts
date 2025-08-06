@@ -12,7 +12,8 @@ const crossOriginHeadersPlugin: Plugin = {
 
   configureServer(server) {
     server.middlewares.use((_req, res, next) => {
-      res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
+      // ИЗМЕНЕНО: 'require-corp' заменено на 'credentialless'
+      res.setHeader("Cross-Origin-Embedder-Policy", "credentialless");
       res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
       next();
     });
@@ -20,7 +21,8 @@ const crossOriginHeadersPlugin: Plugin = {
 
   configurePreviewServer(server) {
     server.middlewares.use((_req, res, next) => {
-      res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
+      // ИЗМЕНЕНО: 'require-corp' заменено на 'credentialless'
+      res.setHeader("Cross-Origin-Embedder-Policy", "credentialless");
       res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
       next();
     });
