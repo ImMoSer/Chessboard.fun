@@ -528,7 +528,7 @@
       "automaticTacticalTrainerTitle": "Automatic Tactical Trainer: ",
       "automaticTacticalTrainer": "Unlike standard trainers, our smart system turns puzzle-solving into a personalized path to mastery. It analyzes your profile across 25 tactical themes (fork, pin, discovered attack, etc.), identifies your weakest areas, and automatically selects the puzzle that will benefit you the most right now. After each answer, your rating for that theme is instantly updated, ensuring the next puzzle perfectly matches your current skill level.",
       "botSelectionTitle": "Chess Bot Selection: ",
-      "botSelection": "On our platform, you can choose from several chess bots for training: Stockfish (with Elo ratings of 1600, 1700, 1900, 2100, 2200) offers various difficulty levels, while Maia (Elo 1900+) is designed for a more realistic, \"human-like\" playing experience.",
+      "botSelection": "On our platform, you can choose from several chess bots for training: 'Rbleipzig 2200+' (Stockfish 11, depth 10, contempt 100), 'Krokodil 2100+' (Stockfish 11, depth 8, contempt 100), 'Karde 2000+' (Stockfish 11, depth 5, contempt 100), 'MoZeR 1900+' (LCZero v0.31 with Maia 1900 — a more realistic, \"human-like\" playing style), 'Dimas 1800+' (Stockfish 11, depth 2, contempt 100), and 'Darko 1700+' (Stockfish 11, depth 1, contempt 100).",
       "lichessClubsTitle": "Club Statistics: ",
       "lichessClubs": "View detailed statistics and leaderboards for any Lichess chess club, tracking player activity and achievements. (Only clubs registered in the system are displayed).",
       "userCabinetTitle": "User Dashboard: ",

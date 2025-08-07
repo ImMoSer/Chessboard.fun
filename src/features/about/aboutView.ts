@@ -1,13 +1,13 @@
 // src/features/about/aboutView.ts
 import { h } from 'snabbdom';
 import type { VNode } from 'snabbdom';
-import { t } from '../../core/i18n.service'; // Импортируем t для использования ключей локализации
+import { t } from '../../core/i18n.service';
 import { type AppController } from '../../AppController';
 import { renderLanguageSwitcher } from '../../appView';
 
 /**
  * Renders the "About" page with detailed information.
- * @param controller Экземпляр AppController для доступа к функциям приложения.
+ * @param controller An instance of AppController to access app-wide functions.
  * @returns A VNode representing the page.
  */
 export function renderAboutPage(controller: AppController): VNode {
@@ -17,7 +17,7 @@ export function renderAboutPage(controller: AppController): VNode {
     ]),
     h('h1', [
       t('about.title'),
-      h('span.app-version', ' (1.0.1)')
+      h('span.app-version', ` (${controller.getAppVersion()})`)
     ]),
     h('p', [
       h('strong', 'Chessboard.fun'),
@@ -43,9 +43,6 @@ export function renderAboutPage(controller: AppController): VNode {
       h('li', [h('strong', t('about.features.modernUITitle')), t('about.features.modernUI')]),
       h('li', [h('strong', t('about.features.localizationTitle')), t('about.features.localization')]),
       h('li', [h('strong', t('about.modes.botSelectionTitle')), t('about.modes.botSelection')]),
-      h('li', [h('strong', t('about.modes.lichessClubsTitle')), t('about.modes.lichessClubs')]),
-      h('li', [h('strong', t('about.modes.userCabinetTitle')), t('about.modes.userCabinet')]),
-      h('li', [h('strong', t('about.modes.analysisPanelTitle')), t('about.modes.analysisPanel')]),
     ]),
 
     h('h2', t('about.sections.techStackTitle')),
@@ -90,7 +87,6 @@ export function renderAboutPage(controller: AppController): VNode {
     
     h('hr'),
 
-    // --- NEW "ABOUT THE AUTHOR" SECTION ---
     h('div.author-section', [
       h('img.author-photo', { props: { src: '/jpg/me.jpg', alt: t('about.author.photoAlt') } }),
       h('div.author-bio', [
@@ -114,7 +110,6 @@ export function renderAboutPage(controller: AppController): VNode {
         ])
       ])
     ]),
-    // --- END AUTHOR SECTION ---
 
     h('hr'),
 
