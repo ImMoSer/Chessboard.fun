@@ -9,9 +9,9 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "@types/node": "^22.15.21",
-    "typescript": "~5.8.3",
-    "vite": "^6.3.5"
+    "@types/node": "^24.2.0",
+    "typescript": "^5.9.2",
+    "vite": "^7.1.1"
   },
   "dependencies": {
     "@bity/oauth2-auth-code-pkce": "^2.13.0",
@@ -19,6 +19,6 @@
     "chessops": "^0.14.2",
     "snabbdom": "^3.6.2",
     "stockfish-nnue.wasm": "^1.0.0-1946a675.smolnet",
-    "vite-plugin-static-copy": "^3.0.0"
+    "vite-plugin-static-copy": "^3.1.1"
   }
 }
