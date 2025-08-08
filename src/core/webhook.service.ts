@@ -1,6 +1,8 @@
 // src/core/webhook.service.ts
 import logger from '../utils/logger';
 import { CacheService } from './cache.service';
+// ИЗМЕНЕНО: Импортируем AuthService для доступа к initData
+import { AuthService } from './auth.service';
 import type { 
     WebhookSuccessResponse,
     UpdateFinishHimStatsDto,
@@ -21,7 +23,6 @@ import type {
     TelegramBindingUrlResponse,
     PersonalActivityStatsResponse,
     LichessClubStat,
-    // <<< ИЗМЕНЕНИЕ: Импорт нового типа
     GetTacticalPuzzleDto
 } from './api.types';
 
@@ -52,10 +53,32 @@ if (!BACKEND_API_URL) { logger.error('[WebhookService] Critical Configuration Er
 
 export class WebhookServiceController {
   constructor() { logger.info(`[WebhookService] Initialized to work with Backend API at: ${BACKEND_API_URL}`); }
+  
+  // ИЗМЕНЕНО: Метод теперь добавляет заголовок для Telegram
   private async _apiRequest<TResponse>(path: string, method: 'GET' | 'POST', context: string, body?: object): Promise<WebhookSuccessResponse<TResponse>> {
     const url = `${BACKEND_API_URL}${path}`;
-    const options: RequestInit = { method, headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, credentials: 'include' };
+    
+    const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    };
+
+    // Получаем initData из AuthService
+    const telegramInitData = AuthService.getTelegramInitData();
+    if (telegramInitData) {
+        // Если данные есть, добавляем их в кастомный заголовок
+        headers['X-Telegram-Init-Data'] = telegramInitData;
+        logger.debug(`[WebhookService ${context}] Attaching Telegram auth header.`);
+    }
+
+    const options: RequestInit = { 
+        method, 
+        headers, 
+        credentials: 'include' // credentials: 'include' важен для веб-сессий с cookie
+    };
+
     if (method === 'POST' && body) { options.body = JSON.stringify(body); }
+    
     try {
       const response = await fetch(url, options);
       if (response.status === 429) { const r = response.headers.get('Retry-After'); throw new RateLimitError(`Rate limit exceeded for ${context}.`, r ? parseInt(r, 10) : 60); }
@@ -88,7 +111,6 @@ export class WebhookServiceController {
   public async sendAttackRecord(dto: AttackRecordDto): Promise<boolean> { const r = await this._apiRequest<any>('/n8n-proxy/stats/attack', 'POST', 'sendAttackRecord', dto); return !!r; }
   public async fetchTelegramBindingUrl(): Promise<TelegramBindingUrlResponse | null> { return this._apiRequest<TelegramBindingUrlResponse>('/n8n-proxy/telegram/binding-url', 'GET', 'fetchTelegramBindingUrl'); }
   
-  // --- ИЗМЕНЕНИЕ: Изменение сигнатуры и вызова для приема уровня сложности ---
   public async fetchTacticalPuzzle(dto: GetTacticalPuzzleDto): Promise<AppTacticalPuzzle | null> { 
     return this._apiRequest<AppTacticalPuzzle>('/tactical-trainer/puzzle', 'POST', 'fetchTacticalPuzzle', dto); 
   }
@@ -101,7 +123,6 @@ export class WebhookServiceController {
   public async fetchTacticalStats(): Promise<TacticalTrainerStats | null> { 
     return this._apiRequest<TacticalTrainerStats>('/tactical-trainer/stats', 'GET', 'fetchTacticalStats'); 
   }
-  // --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
   public async fetchPersonalActivityStats(): Promise<PersonalActivityStatsResponse | null> {
     return this._apiRequest<PersonalActivityStatsResponse>('/activity/personal', 'GET', 'fetchPersonalActivityStats');

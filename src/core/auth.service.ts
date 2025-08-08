@@ -22,10 +22,24 @@ class AuthServiceController {
     error: null,
   };
 
+  // ИЗМЕНЕНО: Добавляем приватное поле для хранения initData
+  private telegramInitData: string | null = null;
+
   private subscribers = new Set<() => void>();
 
   constructor() {
     logger.info(`[AuthService] Initializing with Backend API URL: ${BACKEND_API_URL}`);
+    // ИЗМЕНЕНО: При инициализации сразу пытаемся получить initData
+    const tg = (window as any).Telegram?.WebApp;
+    if (tg && tg.initData) {
+        this.telegramInitData = tg.initData;
+        logger.info('[AuthService] Telegram initData captured on startup.');
+    }
+  }
+
+  // ИЗМЕНЕНО: Геттер для получения initData другими сервисами (например, WebhookService)
+  public getTelegramInitData(): string | null {
+    return this.telegramInitData;
   }
 
   public getState(): Readonly<AuthState> {
@@ -57,13 +71,13 @@ class AuthServiceController {
     window.location.href = `${BACKEND_API_URL}/auth/lichess/login`;
   }
 
+  // ИЗМЕНЕНО: Логика полностью переписана под stateless подход
   public async loginViaTelegram(): Promise<void> {
-    logger.info('[AuthService] Attempting login via Telegram Mini App...');
+    logger.info('[AuthService] Attempting stateless login via Telegram...');
     this._setState({ isProcessing: true, error: null });
 
-    const tg = (window as any).Telegram?.WebApp;
-    if (!tg || !tg.initData) {
-      logger.error('[AuthService] Telegram WebApp script not loaded or initData is missing.');
+    if (!this.telegramInitData) {
+      logger.error('[AuthService] Telegram initData is not available for login.');
       this._setState({ isProcessing: false, error: 'Telegram data not available.' });
       return;
     }
@@ -72,7 +86,7 @@ class AuthServiceController {
       const response = await fetch(`${BACKEND_API_URL}/auth/telegram/validate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ initData: tg.initData }),
+        body: JSON.stringify({ initData: this.telegramInitData }),
       });
 
       if (!response.ok) {
@@ -82,19 +96,20 @@ class AuthServiceController {
       const result = await response.json();
 
       if (result.status === 'linking_required') {
-        logger.info('[AuthService] Telegram user not found. Redirecting to Lichess for linking.');
-        const encodedInitData = encodeURIComponent(tg.initData);
+        logger.info('[AuthService] Telegram user not linked. Redirecting to Lichess.');
+        const encodedInitData = encodeURIComponent(this.telegramInitData);
         window.location.href = `${BACKEND_API_URL}/auth/lichess/login?state=${encodedInitData}`;
-      } else {
-        // ИЗМЕНЕНО: Используем профиль из ответа напрямую, вместо вызова checkSession()
-        const userProfile: UserSessionProfile = result;
-        logger.info(`[AuthService] Session valid. User "${userProfile.username}" authenticated via Telegram.`);
+      } else if (result.status === 'ok' && result.profile) {
+        const userProfile: UserSessionProfile = result.profile;
+        logger.info(`[AuthService] Stateless auth successful. User "${userProfile.username}" authenticated.`);
         this._setState({
           isAuthenticated: true,
           userProfile: userProfile,
           isProcessing: false,
         });
         localStorage.setItem('user_profile', JSON.stringify(userProfile));
+      } else {
+        throw new Error('Invalid response from backend during Telegram validation.');
       }
     } catch (error) {
       logger.error('[AuthService] Error during Telegram login process:', error);
@@ -111,10 +126,19 @@ class AuthServiceController {
     window.location.href = `${BACKEND_API_URL}/auth/lichess/logout`;
   }
 
+  // ИЗМЕНЕНО: Упрощенная логика для handleAuthentication
   public async handleAuthentication(): Promise<boolean> {
-    logger.info('[AuthService] Checking for existing session with backend...');
-    await this.checkSession();
-    return false;
+    logger.info('[AuthService] Handling authentication...');
+    
+    if (this.telegramInitData) {
+        // Если мы в Telegram, используем stateless логин
+        await this.loginViaTelegram();
+    } else {
+        // Если мы в обычном браузере, используем stateful логин с cookie
+        await this.checkSession();
+    }
+    
+    return this.state.isAuthenticated;
   }
 
   public async checkSession(): Promise<void> {
@@ -126,7 +150,7 @@ class AuthServiceController {
 
       if (response.ok) {
         const userProfile: UserSessionProfile = await response.json();
-        logger.info(`[AuthService] Session valid. User "${userProfile.username}" authenticated.`);
+        logger.info(`[AuthService] Web session valid. User "${userProfile.username}" authenticated.`);
         this._setState({
           isAuthenticated: true,
           userProfile: userProfile,
@@ -134,11 +158,11 @@ class AuthServiceController {
         });
         localStorage.setItem('user_profile', JSON.stringify(userProfile));
       } else {
-        logger.info('[AuthService] No active session found or session expired.');
+        logger.info('[AuthService] No active web session found.');
         this.clearAuthDataLocal();
       }
     } catch (error) {
-      logger.error('[AuthService] Error checking session:', error);
+      logger.error('[AuthService] Error checking web session:', error);
       this._setState({
         error: t('errors.backendConnectionFailed', { defaultValue: 'Could not connect to the server.' }),
         isProcessing: false,
@@ -151,10 +175,6 @@ class AuthServiceController {
 
   public clearAuthDataLocal(): void {
     localStorage.removeItem('user_profile');
-    localStorage.removeItem('lichess_token');
-    localStorage.removeItem('app_session_token');
-    localStorage.removeItem('lichess_user_profile');
-
     this._setState({
         userProfile: null,
         isAuthenticated: false,
