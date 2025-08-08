@@ -51,9 +51,9 @@ export class StockfishService {
 
   private pendingAnalysisRequest: PendingAnalysisRequest | null = null;
 
-  // UCI options for gameplay: 1 thread, default aggressive behavior (AnalyseMode is false by default)
-  private readonly UCI_OPTIONS_FOR_GAMEPLAY = [
-    'setoption name Threads value 1',
+  // UCI options for gameplay. Threads will be set conditionally.
+  private readonly UCI_OPTIONS_FOR_GAMEPLAY: string[] = [
+    // 'setoption name Threads value 1' is now handled conditionally in handleEngineMessage
   ];
 
   constructor() {
@@ -134,6 +134,17 @@ export class StockfishService {
 
     if (message === 'uciok') {
       logger.info('[StockfishService gameplay] UCI OK received.');
+      
+      // <<< НАЧАЛО ИЗМЕНЕНИЙ: Условная настройка потоков
+      // Отправляем команду Threads только если среда поддерживает многопоточность.
+      if (window.crossOriginIsolated) {
+        logger.info('[StockfishService gameplay] Environment is cross-origin isolated. Setting threads to 1 for gameplay engine.');
+        this.sendCommand('setoption name Threads value 1');
+      } else {
+        logger.info('[StockfishService gameplay] Environment is NOT cross-origin isolated. Skipping thread configuration for single-threaded engine.');
+      }
+      // <<< КОНЕЦ ИЗМЕНЕНИЙ
+
       this.UCI_OPTIONS_FOR_GAMEPLAY.forEach(optionCmd => this.sendCommand(optionCmd));
       this.sendCommand('isready');
     } else if (message === 'readyok') {
