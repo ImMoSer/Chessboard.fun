@@ -7,6 +7,7 @@ import { t } from '../../core/i18n.service';
 import { renderAnalysisPanel } from '../analysis/analysisPanelView';
 import type { TacticalTrainerStats, TacticalThemeStat } from '../../core/api.types';
 import { renderBoardContainer, type TackticsPageViewLayout } from '../../appView';
+import type { TacticalLevel } from './tacktics.types';
 
 function renderUserStats(stats: TacticalTrainerStats | null): VNode {
     if (!stats) {
@@ -54,11 +55,9 @@ function renderPuzzleInfo(controller: TackticsController): VNode | null {
     const { activePuzzle } = controller.state;
     if (!activePuzzle) return null;
     
-    // <<< НАЧАЛО ИЗМЕНЕНИЙ
     const localizedThemes = activePuzzle.Themes_PG
         .map(theme => t(`tacktics.themes.${theme}`, { defaultValue: theme }))
         .join(', ');
-    // <<< КОНЕЦ ИЗМЕНЕНИЙ
 
     return h('div.puzzle-info-container', [
         h('h4.puzzle-info-title', t('tacktics.puzzleInfo.title', { defaultValue: 'Puzzle Info' })),
@@ -69,8 +68,41 @@ function renderPuzzleInfo(controller: TackticsController): VNode | null {
             ]),
             h('div.puzzle-info-item', [
                 h('span.info-label', t('tacktics.puzzleInfo.themes', { defaultValue: 'Themes' }) + ':'),
-                h('span.info-value', localizedThemes) // <<< ИСПОЛЬЗУЕМ ЛОКАЛИЗОВАННУЮ СТРОКУ
+                h('span.info-value', localizedThemes)
             ]),
+        ])
+    ]);
+}
+
+function renderTackticsControls(controller: TackticsController): VNode {
+    const { selectedLevel, isAutoLoadEnabled } = controller.state;
+    const levels: TacticalLevel[] = ['easy', 'normal', 'hard'];
+
+    return h('div.tacktics-controls-container', [
+        // <<< ИЗМЕНЕНИЕ: Новый контейнер для горизонтального расположения
+        h('div.tacktics-controls-header', [
+            h('div.tacktics-level-selector', [
+                h('h5', t('tacktics.controls.levelTitle', {defaultValue: 'Select Difficulty'})),
+                h('select.level-select', {
+                  on: {
+                    change: (e: Event) => controller.setTacticalLevel((e.target as HTMLSelectElement).value as TacticalLevel)
+                  }
+                }, levels.map(level =>
+                    h('option', {
+                      props: { value: level, selected: selectedLevel === level }
+                    }, t(`tacktics.controls.levels.${level}`, {defaultValue: level}))
+                ))
+            ]),
+            h('div.tacktics-auto-load-toggle', [
+                h('label.toggle-label', t('tacktics.controls.autoLoad', {defaultValue: 'Auto-load Next Puzzle'})),
+                h('label.toggle-switch', [
+                    h('input', {
+                        props: { type: 'checkbox', checked: isAutoLoadEnabled },
+                        on: { change: () => controller.toggleAutoLoad() }
+                    }),
+                    h('span.slider.round')
+                ])
+            ])
         ])
     ]);
 }
@@ -86,16 +118,29 @@ export function renderTackticsUI(controller: TackticsController): TackticsPageVi
     state.activePuzzle?.PuzzleId || 'idle'
   );
 
-  const analysisPanelWrapper = (state.gamePhase === 'GAMEOVER')
+  const analysisPanelWrapper = (state.gamePhase === 'GAMEOVER' && !state.isAutoLoadEnabled)
     ? h('div.analysis-panel-wrapper', [
         renderAnalysisPanel(controller.analysisController)
       ])
     : null;
-
-  const rightPanelContent = h('div.tacktics-right-panel', [
-    renderPuzzleInfo(controller),
-    analysisPanelWrapper,
-  ].filter(Boolean) as VNode[]);
+  
+  // <<< ИЗМЕНЕНИЕ: Изменен порядок отображения элементов на правой панели
+  let rightPanelContentChildren: VNode[] = [];
+  if (state.gamePhase === 'GAMEOVER' && !state.isAutoLoadEnabled) {
+    rightPanelContentChildren = [
+      analysisPanelWrapper,
+      renderTackticsControls(controller),
+      renderPuzzleInfo(controller),
+    ].filter(Boolean) as VNode[];
+  } else {
+    rightPanelContentChildren = [
+      renderTackticsControls(controller),
+      renderPuzzleInfo(controller),
+      analysisPanelWrapper,
+    ].filter(Boolean) as VNode[];
+  }
+  
+  const rightPanelContent = h('div.tacktics-right-panel', rightPanelContentChildren);
 
   const leftPanelContent = h('div.tacktics-left-panel', [
     renderUserStats(state.tacticalStats)

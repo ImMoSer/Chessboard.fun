@@ -504,7 +504,17 @@
     },
     "error": {
       "puzzleNotFound": "Could not load the puzzle."
+    },
+        "controls": {
+      "levelTitle": "Difficulty",
+      "levels": {
+        "easy": "Easy",
+        "normal": "Normal",
+        "hard": "Hard"
+      },
+      "autoLoad": "AutoNext"
     }
+
   },
   "about": {
     "title": "Chessboard.fun",

@@ -76,6 +76,13 @@ export interface SubmitTacticalResultDto {
   success: boolean;
 }
 
+// <<< ИЗМЕНЕНИЕ: Новый тип для уровней сложности
+export type TacticalLevel = 'easy' | 'normal' | 'hard';
+// <<< ИЗМЕНЕНИЕ: Новый DTO для получения тактической задачи
+export interface GetTacticalPuzzleDto {
+  tactical_level: TacticalLevel;
+}
+
 export interface AppPuzzle { 
   PuzzleId: string; 
   FEN_0: string; 

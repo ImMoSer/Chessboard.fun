@@ -20,7 +20,9 @@ import type {
     LeaderboardApiResponse,
     TelegramBindingUrlResponse,
     PersonalActivityStatsResponse,
-    LichessClubStat
+    LichessClubStat,
+    // <<< ИЗМЕНЕНИЕ: Импорт нового типа
+    GetTacticalPuzzleDto
 } from './api.types';
 
 export class RateLimitError extends Error {
@@ -86,9 +88,9 @@ export class WebhookServiceController {
   public async sendAttackRecord(dto: AttackRecordDto): Promise<boolean> { const r = await this._apiRequest<any>('/n8n-proxy/stats/attack', 'POST', 'sendAttackRecord', dto); return !!r; }
   public async fetchTelegramBindingUrl(): Promise<TelegramBindingUrlResponse | null> { return this._apiRequest<TelegramBindingUrlResponse>('/n8n-proxy/telegram/binding-url', 'GET', 'fetchTelegramBindingUrl'); }
   
-  // --- ИЗМЕНЕНЫ ПУТИ ДЛЯ ТАКТИЧЕСКОГО ТРЕНАЖЕРА ---
-  public async fetchTacticalPuzzle(): Promise<AppTacticalPuzzle | null> { 
-    return this._apiRequest<AppTacticalPuzzle>('/tactical-trainer/puzzle', 'GET', 'fetchTacticalPuzzle'); 
+  // --- ИЗМЕНЕНИЕ: Изменение сигнатуры и вызова для приема уровня сложности ---
+  public async fetchTacticalPuzzle(dto: GetTacticalPuzzleDto): Promise<AppTacticalPuzzle | null> { 
+    return this._apiRequest<AppTacticalPuzzle>('/tactical-trainer/puzzle', 'POST', 'fetchTacticalPuzzle', dto); 
   }
   public async fetchTacticalPuzzleById(puzzleId: string): Promise<AppTacticalPuzzle | null> { 
     return this._apiRequest<AppTacticalPuzzle>(`/tactical-trainer/puzzle/${puzzleId}`, 'GET', 'fetchTacticalPuzzleById'); 

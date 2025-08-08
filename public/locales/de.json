@@ -504,7 +504,18 @@
     },
     "error": {
       "puzzleNotFound": "Aufgabe konnte nicht geladen werden."
+    },
+
+      "controls": {
+      "levelTitle": "Schwierigkeit",
+      "levels": {
+        "easy": "Einfach",
+        "normal": "Normal",
+        "hard": "Schwierig"
+      },
+      "autoLoad": "AutoNext"
     }
+    
   },
   "about": {
     "title": "Chessboard.fun",

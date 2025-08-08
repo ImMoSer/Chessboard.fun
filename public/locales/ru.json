@@ -504,7 +504,17 @@
     },
     "error": {
       "puzzleNotFound": "Не удалось загрузить задачу."
+    },
+    "controls": {
+      "levelTitle": "Сложность",
+      "levels": {
+        "easy": "Легко",
+        "normal": "Нормально",
+        "hard": "Сложно"
+      },
+      "autoLoad": "AutoNext"
     }
+
   },
   "about": {
     "title": "Chessboard.fun",

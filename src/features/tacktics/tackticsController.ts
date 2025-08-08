@@ -11,7 +11,7 @@ import type { AppServices, GameControlsState } from '../../AppController';
 import { BaseGameController } from '../../core/controllers/base-game.controller';
 import type { BoardHandler } from '../../core/boardHandler';
 import type { AnalysisController } from '../analysis/analysisController';
-import type { TackticsControllerState } from './tacktics.types';
+import type { TackticsControllerState, TacticalLevel } from './tacktics.types';
 
 const BOT_MOVE_DELAY_MS = 300;
 const AUTO_NEXT_PUZZLE_DELAY_MS = 300;
@@ -31,6 +31,9 @@ export class TackticsController extends BaseGameController<TackticsControllerSta
       solutionMoves: [],
       currentSolutionMoveIndex: 0,
       tacticalStats: null,
+      // <<< ИЗМЕНЕНИЕ: Инициализация новых полей
+      selectedLevel: 'easy',
+      isAutoLoadEnabled: false,
     };
     super(initialState, boardHandler, analysisController, services, requestGlobalRedraw);
     logger.info('[TackticsController] Initialized.');
@@ -132,6 +135,20 @@ export class TackticsController extends BaseGameController<TackticsControllerSta
 
   // --- Tacktics specific methods ---
 
+  // <<< ИЗМЕНЕНИЕ: Новый метод для обновления уровня сложности
+  public setTacticalLevel(level: TacticalLevel): void {
+      if (this.state.selectedLevel !== level) {
+          this.setState({ selectedLevel: level });
+          logger.info(`[TackticsController] Tactical level set to: ${level}`);
+      }
+  }
+  
+  // <<< ИЗМЕНЕНИЕ: Новый метод для переключения автозагрузки
+  public toggleAutoLoad(): void {
+      this.setState({ isAutoLoadEnabled: !this.state.isAutoLoadEnabled });
+      logger.info(`[TackticsController] Auto-load toggled to: ${this.state.isAutoLoadEnabled}`);
+  }
+
   private _resetPuzzleState(): void {
       this.setState({
         gamePhase: 'IDLE',
@@ -166,7 +183,10 @@ export class TackticsController extends BaseGameController<TackticsControllerSta
         if (puzzleId) {
             puzzleData = await this.services.webhookService.fetchTacticalPuzzleById(puzzleId);
         } else {
-            puzzleData = await this.services.webhookService.fetchTacticalPuzzle();
+            // <<< ИЗМЕНЕНИЕ: Теперь передаем DTO с уровнем сложности
+            const dto = { tactical_level: this.state.selectedLevel };
+            puzzleData = await this.services.webhookService.fetchTacticalPuzzle(dto);
+            // <<< КОНЕЦ ИЗМЕНЕНИЯ
             if (puzzleData) {
                 const currentCoins = this.services.authService.getFunCoins();
                 if (currentCoins !== null) {
@@ -277,11 +297,19 @@ export class TackticsController extends BaseGameController<TackticsControllerSta
         if (playSound) {
             SoundService.playSoundEvent({ sequential: ['user_won_playout'] });
         }
-        setTimeout(() => {
-            if (this.state.gamePhase === 'GAMEOVER') {
-                this.handleNewGame();
-            }
-        }, AUTO_NEXT_PUZZLE_DELAY_MS);
+        
+        // <<< ИЗМЕНЕНИЕ: Логика автозагрузки
+        if (this.state.isAutoLoadEnabled) {
+            this.setState({
+                gamePhase: 'GAMEOVER',
+                gameOverMessage: message,
+                feedbackMessage: message,
+            });
+            this._sendResult(success);
+            setTimeout(() => this.handleNewGame(), AUTO_NEXT_PUZZLE_DELAY_MS);
+            return;
+        }
+        // <<< КОНЕЦ ИЗМЕНЕНИЯ
     }
 
     this.setState({
