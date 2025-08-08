@@ -1,5 +1,6 @@
 // src/core/infiniteAnalysisStockfish.service.ts
 import logger from '../utils/logger';
+import { loadEngine, type EngineController } from './engine.loader';
 
 export interface ScoreInfo {
   type: 'cp' | 'mate';
@@ -15,13 +16,11 @@ export interface EvaluatedLine {
 
 export type AnalysisUpdateCallback = (lines: EvaluatedLine[], bestMoveUci?: string | null) => void;
 
-declare const Stockfish: () => Promise<any>;
-
 const THREADS_STORAGE_KEY = 'stockfish_analysis_threads';
 const MAX_ANALYSIS_DEPTH = 30;
 
 export class InfiniteAnalysisStockfishService {
-  private engine: any | null = null;
+  private engine: EngineController | null = null;
   private isReady: boolean = false;
   private isAnalyzing: boolean = false;
   private commandQueue: string[] = [];
@@ -56,24 +55,13 @@ export class InfiniteAnalysisStockfishService {
       await this.terminate();
     }
 
-    if (typeof Stockfish === 'undefined') {
-        const errorMsg = "Stockfish() factory not found. Make sure stockfish.js is loaded globally in index.html.";
-        logger.error(`[InfiniteAnalysisStockfishService] ${errorMsg}`);
-        this.isReady = false;
-        if (this.rejectInitPromise) {
-            try { this.rejectInitPromise(new Error(errorMsg)); } catch(e) {}
-        }
-        return;
-    }
-
     try {
-      logger.info(`[InfiniteAnalysisStockfishService] Calling Stockfish() factory...`);
-      this.engine = await Stockfish();
-      if (!this.engine) {
-          throw new Error("Stockfish() factory resolved with a null or undefined engine instance.");
-      }
+      logger.info(`[InfiniteAnalysisStockfishService] Loading engine via universal loader...`);
+      this.engine = await loadEngine();
+      
       this.engine.addMessageListener((message: string) => this.handleEngineMessage(message));
       this.sendCommand('uci');
+      
       setTimeout(() => {
         if (!this.isReady) {
             const errorMsg = 'UCI handshake timeout for InfiniteAnalysisStockfishService';
@@ -84,7 +72,7 @@ export class InfiniteAnalysisStockfishService {
         }
       }, 15000);
     } catch (error: any) {
-      logger.error('[InfiniteAnalysisStockfishService] Failed to initialize engine (constructor error):', error.message, error);
+      logger.error('[InfiniteAnalysisStockfishService] Failed to initialize engine (loader error):', error.message, error);
       this.isReady = false;
       if (this.rejectInitPromise) {
           try { this.rejectInitPromise(error); } catch(e) {}
@@ -117,9 +105,6 @@ export class InfiniteAnalysisStockfishService {
     }
   }
 
-  /**
-   * MODIFIED: When max depth is reached, it now calls the robust `stopAnalysis` method.
-   */
   private handleEngineMessage(message: string): void {
     const parts = message.split(' ');
 
@@ -141,8 +126,6 @@ export class InfiniteAnalysisStockfishService {
       this.onUpdateCallback(linesArray, this.lastBestMove);
       
       if (depth && depth >= MAX_ANALYSIS_DEPTH) {
-        // Calling stopAnalysis() is more robust than just sending 'stop'.
-        // It correctly sets the isAnalyzing flag to false, preventing the loop.
         this.stopAnalysis().catch(e => logger.error("Error during auto-stop at max depth", e));
       }
 
@@ -265,7 +248,6 @@ export class InfiniteAnalysisStockfishService {
         return;
     }
     
-    // Set isAnalyzing to false immediately to prevent processing more 'info' lines
     this.isAnalyzing = false;
     this.currentAnalyzingFenInternal = null;
 
@@ -291,7 +273,12 @@ export class InfiniteAnalysisStockfishService {
 
   public async terminate(): Promise<void> {
     if (this.engine) {
-      try { this.engine.postMessage('quit'); } catch (e) {}
+      logger.info('[InfiniteAnalysisStockfishService] Terminating engine...');
+      if (this.engine.terminate) {
+        this.engine.terminate();
+      } else {
+        try { this.engine.postMessage('quit'); } catch (e) {}
+      }
       this.engine = null;
     }
     this.isReady = false;
@@ -317,6 +304,12 @@ export class InfiniteAnalysisStockfishService {
   }
   
   private _getAndApplyThreadSetting(): void {
+    // Устанавливаем количество потоков, только если среда поддерживает многопоточность
+    if (!window.crossOriginIsolated) {
+        logger.info('[InfiniteAnalysisStockfishService] Environment is not cross-origin isolated. Skipping thread configuration.');
+        return;
+    }
+
     let threadCount = 2;
     try {
       const savedThreads = localStorage.getItem(THREADS_STORAGE_KEY);
@@ -339,7 +332,7 @@ export class InfiniteAnalysisStockfishService {
     const maxThreads = this.getMaxThreads();
     const threadsToSet = Math.max(1, Math.min(numThreads, maxThreads));
     localStorage.setItem(THREADS_STORAGE_KEY, String(threadsToSet));
-    if (this.isReady) {
+    if (this.isReady && window.crossOriginIsolated) {
       await this.setOption('Threads', threadsToSet);
     }
   }

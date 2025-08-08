@@ -1,0 +1,888 @@
+// src/core/analysis.service.ts
+import logger from '../utils/logger';
+import type { StockfishService as GameplayStockfishService } from './stockfish.service'; 
+import { 
+    InfiniteAnalysisStockfishService, 
+    type EvaluatedLine as ContinuousEvaluatedLine, 
+    type AnalysisUpdateCallback                    
+} from './infiniteAnalysisStockfish.service'; 
+import type { Color as ChessopsColor } from 'chessops/types';
+
+export interface AnalysisOptions {
+  depth?: number;
+  movetime?: number;
+  lines?: number;
+}
+
+export interface ScoreInfo { 
+  type: 'cp' | 'mate';
+  value: number;
+}
+
+export interface EvaluatedLine { 
+  id: number; 
+  depth: number;
+  score: ScoreInfo; 
+  pvUci: string[]; 
+}
+
+export interface EvaluatedLineWithSan extends ContinuousEvaluatedLine { 
+  pvSan: string[];                                                    
+  startingFen: string;
+  initialFullMoveNumber: number;
+  initialTurn: ChessopsColor;
+}
+
+export interface AnalysisStateForUI {
+  isActive: boolean;
+  isLoading: boolean;
+  lines: EvaluatedLineWithSan[] | null;
+  currentFenAnalyzed: string | null;
+}
+
+
+export class AnalysisService {
+  private gameplayStockfishService: GameplayStockfishService;
+  private infiniteAnalysisStockfishService: InfiniteAnalysisStockfishService;
+
+  constructor(
+    gameplayStockfishService: GameplayStockfishService,
+    infiniteAnalysisStockfishService: InfiniteAnalysisStockfishService,
+  ) {
+    this.gameplayStockfishService = gameplayStockfishService;
+    this.infiniteAnalysisStockfishService = infiniteAnalysisStockfishService;
+    logger.info('[AnalysisService] Initialized with both Gameplay and Infinite Analysis Stockfish services.');
+  }
+
+  public async getAnalysis(fen: string, options: AnalysisOptions): Promise<EvaluatedLine[] | null> {
+    logger.debug(`[AnalysisService] Requesting single analysis (gameplay) for FEN: ${fen} with options:`, options);
+    try {
+      const analysisResult = await this.gameplayStockfishService.getAnalysis(fen, options);
+      if (analysisResult && analysisResult.evaluatedLines) {
+        return analysisResult.evaluatedLines.map(line => ({
+          id: line.id,
+          depth: line.depth,
+          score: line.score as ScoreInfo, 
+          pvUci: line.pvUci,
+        }));
+      }
+      logger.warn(`[AnalysisService] GameplayStockfishService returned null or no evaluatedLines for FEN: ${fen}`);
+      return null;
+    } catch (error: any) {
+      logger.error(`[AnalysisService] Error calling GameplayStockfishService.getAnalysis for FEN ${fen}:`, error.message);
+      return null;
+    }
+  }
+
+  public async startContinuousAnalysis(fen: string, linesToAnalyze: number, callback: AnalysisUpdateCallback): Promise<void> {
+    logger.info(`[AnalysisService] Attempting to start continuous analysis. FEN: ${fen}, Lines: ${linesToAnalyze}`);
+    try {
+      logger.debug(`[AnalysisService] Ensuring InfiniteAnalysisStockfishService is ready...`);
+      await this.infiniteAnalysisStockfishService.ensureReady();
+      logger.debug(`[AnalysisService] InfiniteAnalysisStockfishService is ready. Attempting to set MultiPV option to ${linesToAnalyze}...`);
+      
+      await this.infiniteAnalysisStockfishService.setOption('MultiPV', linesToAnalyze); 
+      logger.debug(`[AnalysisService] MultiPV option set (or command sent to be set). Attempting to start analysis in InfiniteAnalysisStockfishService...`);
+
+      await this.infiniteAnalysisStockfishService.startAnalysis(fen, callback); 
+      logger.debug(`[AnalysisService] Call to infiniteAnalysisStockfishService.startAnalysis has been made.`);
+
+    } catch (error: any) {
+        logger.error(`[AnalysisService] Error in startContinuousAnalysis for FEN ${fen}:`, error.message, error);
+        // Уведомляем через callback, что произошла ошибка и линии пусты
+        callback([], null); 
+    }
+  }
+
+  public async stopContinuousAnalysis(): Promise<void> {
+    logger.info('[AnalysisService] Stopping continuous analysis.');
+    await this.infiniteAnalysisStockfishService.stopAnalysis();
+  }
+  
+  public async setInfiniteAnalysisOption(name: string, value: string | number): Promise<void> {
+    logger.debug(`[AnalysisService] Attempting to set infinite analysis option: ${name} = ${value}`);
+    await this.infiniteAnalysisStockfishService.ensureReady();
+    await this.infiniteAnalysisStockfishService.setOption(name, value);
+    logger.info(`[AnalysisService] UCI option set for infinite analysis via setInfiniteAnalysisOption: ${name} = ${value}.`);
+  }
+
+
+  public destroy(): void {
+    logger.info('[AnalysisService] Destroying AnalysisService instance.');
+  }
+}
+
+
+
+// src/core/infiniteAnalysisStockfish.service.ts
+import logger from '../utils/logger';
+import { Chess } from 'chessops/chess'; // Для проверки легальности хода
+import { parseFen } from 'chessops/fen';   // Для парсинга FEN
+import { parseUci } from 'chessops/util'; // Для парсинга UCI
+import type { Move as ChessopsMove } from 'chessops/types';
+
+
+// Интерфейсы, аналогичные тем, что в StockfishService,
+// но здесь они будут использоваться для потоковой передачи данных.
+
+/**
+ * Информация об оценке позиции.
+ */
+export interface ScoreInfo {
+  type: 'cp' | 'mate'; // Тип оценки: сантипешки или мат
+  value: number;       // Значение оценки
+}
+
+/**
+ * Одна проанализированная линия (вариант).
+ */
+export interface EvaluatedLine {
+  id: number;          // Номер линии (из MultiPV, обычно 1 для лучшей)
+  depth: number;       // Глубина, достигнутая для этой линии
+  score: ScoreInfo;    // Оценка линии
+  pvUci: string[];     // Главный вариант (PV) как массив ходов в UCI нотации
+}
+
+/**
+ * Тип callback-функции, вызываемой при обновлении анализа.
+ * @param lines - Массив проанализированных линий.
+ * @param bestMoveUci - Лучший ход, если он уже определен движком (после команды stop или если движок сам его прислал).
+ */
+export type AnalysisUpdateCallback = (lines: EvaluatedLine[], bestMoveUci?: string | null) => void;
+
+export class InfiniteAnalysisStockfishService {
+  private worker: Worker | null = null;
+  private isReady: boolean = false;
+  private isAnalyzing: boolean = false;
+  private commandQueue: string[] = [];
+  private initPromise: Promise<void>;
+  private resolveInitPromise!: () => void;
+  private rejectInitPromise!: (reason?: any) => void;
+
+  private onUpdateCallback: AnalysisUpdateCallback | null = null;
+  private collectedLines: Map<number, EvaluatedLine> = new Map();
+  private lastBestMove: string | null = null;
+  private currentAnalyzingFenInternal: string | null = null; // Хранит FEN текущего анализа
+  private stopPromise: Promise<void> | null = null;
+  private resolveStopPromise: (() => void) | null = null;
+
+
+  private readonly UCI_OPTIONS_FOR_ANALYSIS = [
+    'setoption name UCI_AnalyseMode value true',
+    'setoption name Analysis Contempt value Off',
+  ];
+
+  constructor() {
+    this.initPromise = new Promise<void>((resolve, reject) => {
+      this.resolveInitPromise = resolve;
+      this.rejectInitPromise = reject;
+    });
+    this.initWorker();
+  }
+
+  private initWorker(): void {
+    if (this.worker) {
+      this.terminate();
+    }
+
+    try {
+      const wasmSupported = (() => {
+        try {
+          if (typeof WebAssembly === "object" && typeof WebAssembly.instantiate === "function") {
+            const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+            if (module instanceof WebAssembly.Module)
+              return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+          }
+        } catch (e) { /* WASM not supported */ }
+        return false;
+      })();
+
+      const workerFileName = wasmSupported ? 'stockfish.wasm.js' : 'stockfish.js';
+      const workerPath = `/stockfish/${workerFileName}`;
+      const absoluteWorkerPath = new URL(workerPath, window.location.origin).href;
+
+      logger.info(`[InfiniteAnalysisStockfishService] WASM supported: ${wasmSupported}. Initializing worker with path: ${absoluteWorkerPath}`);
+      this.worker = new Worker(absoluteWorkerPath, { type: 'classic' });
+
+      this.worker.onmessage = (event: MessageEvent) => {
+        this.handleEngineMessage(event.data as string);
+      };
+
+      this.worker.onerror = (errorEvent: Event | ErrorEvent) => {
+        let errorMessage = 'Generic worker error in InfiniteAnalysisStockfishService';
+        if (errorEvent instanceof ErrorEvent) {
+            errorMessage = `Worker ErrorEvent: message='${errorEvent.message}', filename='${errorEvent.filename}', lineno=${errorEvent.lineno}, colno=${errorEvent.colno}`;
+        }
+        logger.error('[InfiniteAnalysisStockfishService] Worker error:', errorMessage, errorEvent);
+        this.isReady = false;
+        this.isAnalyzing = false;
+        if (this.rejectInitPromise && typeof this.rejectInitPromise === 'function') {
+            try { this.rejectInitPromise(new Error(errorMessage)); } catch(e) { /* Promise might already be settled */ }
+        }
+        if (this.resolveStopPromise) {
+            this.resolveStopPromise();
+            this.stopPromise = null;
+            this.resolveStopPromise = null;
+        }
+        if (this.onUpdateCallback) {
+            // this.onUpdateCallback([], null);
+        }
+      };
+
+      this.sendCommand('uci');
+
+      setTimeout(() => {
+        if (!this.isReady) {
+            const errorMsg = 'UCI handshake timeout for InfiniteAnalysisStockfishService';
+            logger.error(`[InfiniteAnalysisStockfishService] ${errorMsg}`);
+            if (this.rejectInitPromise && typeof this.rejectInitPromise === 'function') {
+                try { this.rejectInitPromise(new Error(errorMsg)); } catch(e) { /* Promise might already be settled */ }
+            }
+        }
+      }, 15000);
+
+    } catch (error: any) {
+      logger.error('[InfiniteAnalysisStockfishService] Failed to initialize worker (constructor error):', error.message, error);
+      this.isReady = false;
+      if (this.rejectInitPromise && typeof this.rejectInitPromise === 'function') {
+          try { this.rejectInitPromise(error); } catch(e) { /* Promise might already be settled */ }
+      }
+    }
+  }
+
+  private sendCommand(command: string): void {
+    if (this.worker) {
+      if (command !== 'uci' && command !== 'isready' && !this.isReady) {
+        logger.debug(`[InfiniteAnalysisStockfishService] Engine not ready, queuing command: ${command}`);
+        this.commandQueue.push(command);
+        return;
+      }
+      logger.debug(`[InfiniteAnalysisStockfishService] Sending to Stockfish: ${command}`);
+      this.worker.postMessage(command);
+    } else {
+      logger.warn('[InfiniteAnalysisStockfishService] Worker not initialized, cannot send command:', command);
+    }
+  }
+
+  private processCommandQueue(): void {
+    logger.debug(`[InfiniteAnalysisStockfishService] Processing command queue (${this.commandQueue.length} items)`);
+    while(this.commandQueue.length > 0) {
+        const command = this.commandQueue.shift();
+        if (command) {
+            if (this.isReady) {
+                 this.sendCommand(command);
+            } else {
+                logger.warn(`[InfiniteAnalysisStockfishService] Engine not ready during queue processing, re-queuing: ${command}`);
+                this.commandQueue.unshift(command);
+                break;
+            }
+        }
+    }
+  }
+
+  private handleEngineMessage(message: string): void {
+    const parts = message.split(' ');
+
+    if (message === 'uciok') {
+      logger.info('[InfiniteAnalysisStockfishService] UCI OK received.');
+      this.UCI_OPTIONS_FOR_ANALYSIS.forEach(optionCmd => this.sendCommand(optionCmd));
+      this.sendCommand('isready');
+    } else if (message === 'readyok') {
+      this.isReady = true;
+      logger.info('[InfiniteAnalysisStockfishService] Engine is ready (readyok received).');
+      if (this.resolveInitPromise && typeof this.resolveInitPromise === 'function') {
+        try { this.resolveInitPromise(); } catch(e) { /* Promise might already be settled */ }
+      }
+      this.processCommandQueue();
+    } else if (parts[0] === 'info' && this.isAnalyzing && this.onUpdateCallback) {
+      this.parseInfoLine(message);
+      const linesArray = Array.from(this.collectedLines.values()).sort((a, b) => a.id - b.id);
+      this.onUpdateCallback(linesArray, this.lastBestMove);
+    } else if (parts[0] === 'bestmove') {
+      this.lastBestMove = (parts[1] && parts[1] !== '(none)') ? parts[1] : null;
+      logger.info(`[InfiniteAnalysisStockfishService] Received bestmove: ${this.lastBestMove}.`);
+      if (this.resolveStopPromise) { // Если мы ждали bestmove для завершения stopAnalysis
+          this.resolveStopPromise();
+          this.stopPromise = null;
+          this.resolveStopPromise = null;
+      }
+      // Важно: даже если stopPromise был, isAnalyzing мог уже быть false.
+      // Коллбэк вызываем, только если анализ все еще формально активен (на случай, если stop был вызван почти одновременно с bestmove)
+      if (this.isAnalyzing && this.onUpdateCallback) {
+        const linesArray = Array.from(this.collectedLines.values()).sort((a, b) => a.id - b.id);
+        this.onUpdateCallback(linesArray, this.lastBestMove);
+      }
+    }
+  }
+
+  private parseInfoLine(line: string): void {
+    if (!this.currentAnalyzingFenInternal) {
+        logger.warn(`[InfiniteAnalysisStockfishService parseInfoLine] No FEN currently set for analysis. Discarding line: ${line}`);
+        return;
+    }
+    const fenForValidation = this.currentAnalyzingFenInternal;
+
+    try {
+      let currentLineId = 1;
+      let depth = 0;
+      let score: ScoreInfo | null = null;
+      let pvUci: string[] = [];
+      const parts = line.split(' ');
+      let i = 0;
+      while (i < parts.length) {
+        const token = parts[i];
+        switch (token) {
+          case 'depth': depth = parseInt(parts[++i], 10); break;
+          case 'multipv': currentLineId = parseInt(parts[++i], 10); break;
+          case 'score':
+            const type = parts[++i] as 'cp' | 'mate';
+            const value = parseInt(parts[++i], 10);
+            if ((type === 'cp' || type === 'mate') && !isNaN(value)) {
+              score = { type, value };
+            } else {
+              logger.warn(`[InfiniteAnalysisStockfishService parseInfoLine] Unexpected score type or value: type=${type}, value=${parts[i]} in info line: ${line}`);
+              i--;
+            }
+            break;
+          case 'pv': pvUci = parts.slice(i + 1); i = parts.length; break;
+        }
+        i++;
+      }
+
+      if (score && pvUci.length > 0 && !isNaN(depth) && depth > 0) {
+        const firstMoveUci = pvUci[0];
+        const tempPosForValidation = Chess.fromSetup(parseFen(fenForValidation).unwrap()).unwrap();
+        const moveObjectForValidation: ChessopsMove | undefined = parseUci(firstMoveUci);
+
+        if (!moveObjectForValidation || !tempPosForValidation.isLegal(moveObjectForValidation)) {
+            logger.warn(`[InfiniteAnalysisStockfishService parseInfoLine] Discarding PV starting with illegal/stale move (${firstMoveUci}) for current FEN ${fenForValidation}. Line: ${line}`);
+            return;
+        }
+
+        const existingLine = this.collectedLines.get(currentLineId);
+        if (!existingLine || depth >= existingLine.depth) {
+             this.collectedLines.set(currentLineId, { id: currentLineId, depth, score, pvUci });
+        }
+      }
+    } catch (error) {
+      logger.warn('[InfiniteAnalysisStockfishService] Error parsing info line:', line, error);
+    }
+  }
+
+  public async ensureReady(): Promise<void> {
+    if (this.isReady) return Promise.resolve();
+    if (!this.worker) {
+        this.initWorker();
+    }
+    return this.initPromise;
+  }
+
+  public async setOption(name: string, value: string | number): Promise<void> {
+    logger.debug(`[InfiniteAnalysisStockfishService] setOption called with: name="${name}", value="${value}"`);
+    await this.ensureReady();
+    if (!this.isReady) {
+        logger.error(`[InfiniteAnalysisStockfishService] Cannot set option "${name}", engine not ready (after ensureReady).`);
+        return;
+    }
+    const command = `setoption name ${name} value ${value}`;
+    logger.debug(`[InfiniteAnalysisStockfishService] Sending setOption command: ${command}`);
+    this.sendCommand(command);
+  }
+
+
+  public async startAnalysis(fen: string, callback: AnalysisUpdateCallback): Promise<void> {
+    await this.ensureReady();
+
+    if (!this.worker) {
+        const workerError = new Error('Worker not available for startAnalysis in InfiniteAnalysisStockfishService.');
+        logger.error(`[InfiniteAnalysisStockfishService] ${workerError.message}`);
+        return Promise.reject(workerError);
+    }
+
+    if (this.isAnalyzing) {
+      logger.info('[InfiniteAnalysisStockfishService] Analysis is already running. Stopping previous one before starting new.');
+      await this.stopAnalysis(); // Дожидаемся завершения остановки
+    }
+
+    // Теперь, после await this.stopAnalysis(), isAnalyzing должен быть false.
+    // Очистка и установка новых параметров:
+    this.onUpdateCallback = callback;
+    this.collectedLines.clear();
+    this.lastBestMove = null;
+    this.currentAnalyzingFenInternal = fen;
+    this.isAnalyzing = true;
+
+    logger.info(`[InfiniteAnalysisStockfishService] Starting infinite analysis for FEN: ${fen}`);
+    this.sendCommand('ucinewgame'); // Важно для сброса состояния движка, включая хеш-таблицу
+    this.sendCommand(`position fen ${fen}`);
+    this.sendCommand('go infinite');
+  }
+
+  public async stopAnalysis(): Promise<void> {
+    if (!this.isReady) {
+        logger.debug('[InfiniteAnalysisStockfishService] Engine not ready, cannot send stop. Marking as not analyzing.');
+        this.isAnalyzing = false; // В любом случае сбрасываем флаг
+        this.currentAnalyzingFenInternal = null;
+        if (this.resolveStopPromise) { // Если промис ожидания был, разрешаем его
+            this.resolveStopPromise();
+            this.stopPromise = null;
+            this.resolveStopPromise = null;
+        }
+        return Promise.resolve();
+    }
+    if (!this.isAnalyzing) {
+        logger.info('[InfiniteAnalysisStockfishService] No analysis running to stop.');
+        if (this.resolveStopPromise) { // Если промис ожидания был, разрешаем его
+            this.resolveStopPromise();
+            this.stopPromise = null;
+            this.resolveStopPromise = null;
+        }
+        return Promise.resolve();
+    }
+
+    logger.info('[InfiniteAnalysisStockfishService] Stopping infinite analysis...');
+    this.isAnalyzing = false; // Устанавливаем флаг немедленно
+    this.currentAnalyzingFenInternal = null;
+
+    if (this.stopPromise) {
+        logger.warn('[InfiniteAnalysisStockfishService] stopAnalysis called while a previous stop operation was already in progress. Awaiting previous stop.');
+        return this.stopPromise;
+    }
+
+    this.stopPromise = new Promise<void>((resolve) => {
+        this.resolveStopPromise = resolve;
+        this.sendCommand('stop');
+        const stopTimeoutId = setTimeout(() => {
+            if (this.resolveStopPromise) {
+                logger.warn('[InfiniteAnalysisStockfishService] Timeout waiting for bestmove after stop command. Resolving stop promise.');
+                this.resolveStopPromise();
+                this.stopPromise = null;
+                this.resolveStopPromise = null;
+            }
+        }, 2000);
+
+        // Очищаем таймаут, если промис разрешится раньше
+        // TypeScript error: Object is possibly 'null'. ts(2531)
+        // Added a null check for this.stopPromise before accessing .finally
+        if (this.stopPromise) {
+            this.stopPromise.finally(() => clearTimeout(stopTimeoutId));
+        }
+    });
+    return this.stopPromise;
+  }
+
+  public terminate(): void {
+    if (this.worker) {
+      logger.info('[InfiniteAnalysisStockfishService] Terminating worker...');
+      try { this.worker.postMessage('quit'); } catch (e) { /* Игнорируем ошибку */ }
+      setTimeout(() => {
+        if (this.worker) {
+            this.worker.terminate();
+            this.worker = null;
+            logger.info('[InfiniteAnalysisStockfishService] Worker forcefully terminated.');
+        }
+      }, 500);
+
+      this.isReady = false;
+      this.isAnalyzing = false;
+      this.commandQueue = [];
+      this.onUpdateCallback = null;
+      this.collectedLines.clear();
+      this.lastBestMove = null;
+      this.currentAnalyzingFenInternal = null;
+
+      if (this.rejectInitPromise && typeof this.rejectInitPromise === 'function') {
+        try { this.rejectInitPromise(new Error('Worker terminated.')); } catch (e) { /* Promise мог быть уже урегулирован */ }
+      }
+      if (this.resolveStopPromise) { // Если был активный промис остановки
+          this.resolveStopPromise();
+          this.stopPromise = null;
+          this.resolveStopPromise = null;
+      }
+      this.initPromise = new Promise<void>((resolve, reject) => {
+        this.resolveInitPromise = resolve;
+        this.rejectInitPromise = reject;
+      });
+    }
+  }
+}
+
+
+
+
+
+// src/core/stockfish.service.ts
+import logger from '../utils/logger';
+
+// Интерфейсы остаются, так как getAnalysis все еще возвращает подобную структуру,
+// но MultiPV > 1 больше не поддерживается этим сервисом.
+export interface ScoreInfo {
+  type: 'cp' | 'mate';
+  value: number;
+}
+
+export interface EvaluatedLine {
+  id: number; // Всегда будет 1
+  depth: number;
+  score: ScoreInfo;
+  pvUci: string[];
+}
+
+export interface AnalysisResult {
+  bestMoveUci: string | null;
+  evaluatedLines: EvaluatedLine[]; // Всегда будет содержать максимум одну линию
+}
+
+export interface AnalysisOptions {
+  depth?: number;
+  movetime?: number;
+  // lines?: number; // 'lines' больше не поддерживается этим сервисом, всегда 1
+}
+
+type AnalysisResolve = (value: AnalysisResult | null) => void;
+type AnalysisReject = (reason?: any) => void;
+
+interface PendingAnalysisRequest {
+  resolve: AnalysisResolve;
+  reject: AnalysisReject;
+  timeoutId: number;
+  fen: string;
+  options: AnalysisOptions; // lines не используется
+  collectedLines: Map<number, EvaluatedLine>; // Будет содержать только линию с id=1
+  currentBestMove: string | null;
+  isActive: boolean;
+}
+
+export class StockfishService {
+  private worker: Worker | null = null;
+  private isReady: boolean = false;
+  private commandQueue: string[] = [];
+  private initPromise: Promise<void>;
+  private resolveInitPromise!: () => void;
+  private rejectInitPromise!: (reason?: any) => void;
+
+  private pendingAnalysisRequest: PendingAnalysisRequest | null = null;
+
+  // Опции UCI для игрового режима
+  private readonly UCI_OPTIONS_FOR_GAMEPLAY = [
+    // 'setoption name UCI_AnalyseMode value false', // Обычно false по умолчанию
+    'setoption name Contempt value 20', // Для более "агрессивной" игры, избегающей ничьих
+    // 'setoption name Threads value 2', // Пример
+    // 'setoption name Hash value 128'   // Пример
+  ];
+
+
+  constructor() {
+    this.initPromise = new Promise<void>((resolve, reject) => {
+      this.resolveInitPromise = resolve;
+      this.rejectInitPromise = reject;
+    });
+    this.initWorker();
+  }
+
+  private initWorker(): void {
+    if (this.worker) {
+      this.terminate();
+    }
+
+    try {
+      const wasmSupported = (() => {
+        try {
+          if (typeof WebAssembly === "object" && typeof WebAssembly.instantiate === "function") {
+            const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+            if (module instanceof WebAssembly.Module)
+              return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+          }
+        } catch (e) { /* WASM not supported */ }
+        return false;
+      })();
+
+      const workerFileName = wasmSupported ? 'stockfish.wasm.js' : 'stockfish.js';
+      const workerPath = `/stockfish/${workerFileName}`;
+      const absoluteWorkerPath = new URL(workerPath, window.location.origin).href;
+
+      logger.info(`[StockfishService gameplay] WASM supported: ${wasmSupported}. Initializing worker: ${absoluteWorkerPath}`);
+      this.worker = new Worker(absoluteWorkerPath, { type: 'classic' });
+
+      this.worker.onmessage = (event: MessageEvent) => {
+        this.handleEngineMessage(event.data as string);
+      };
+
+      this.worker.onerror = (errorEvent: Event | ErrorEvent) => {
+        let errorMessage = 'Generic worker error in StockfishService (gameplay)';
+        if (errorEvent instanceof ErrorEvent) {
+            errorMessage = `Worker ErrorEvent: message='${errorEvent.message}', filename='${errorEvent.filename}', lineno=${errorEvent.lineno}, colno=${errorEvent.colno}`;
+        }
+        logger.error('[StockfishService gameplay] Worker error:', errorMessage, errorEvent);
+        this.isReady = false;
+        if (this.rejectInitPromise && typeof this.rejectInitPromise === 'function') {
+            try { this.rejectInitPromise(new Error(errorMessage)); } catch(e) { /* Promise might already be settled */ }
+        }
+        if (this.pendingAnalysisRequest && this.pendingAnalysisRequest.isActive) {
+          clearTimeout(this.pendingAnalysisRequest.timeoutId);
+          try { this.pendingAnalysisRequest.reject(new Error('Worker error occurred during analysis request')); } catch(e) { /* Promise might already be settled */ }
+          this.pendingAnalysisRequest = null;
+        }
+      };
+
+      this.sendCommand('uci');
+
+      setTimeout(() => {
+        if (!this.isReady) {
+            const errorMsg = 'UCI handshake timeout for StockfishService (gameplay)';
+            logger.error(`[StockfishService gameplay] ${errorMsg}`);
+            if (this.rejectInitPromise && typeof this.rejectInitPromise === 'function') {
+                try { this.rejectInitPromise(new Error(errorMsg)); } catch(e) { /* Promise might already be settled */ }
+            }
+        }
+      }, 15000);
+
+    } catch (error: any) {
+      logger.error('[StockfishService gameplay] Failed to initialize worker (constructor error):', error.message, error);
+      this.isReady = false;
+      if (this.rejectInitPromise && typeof this.rejectInitPromise === 'function') {
+          try { this.rejectInitPromise(error); } catch(e) { /* Promise might already be settled */ }
+      }
+    }
+  }
+
+  private sendCommand(command: string): void {
+    if (this.worker) {
+      if (command !== 'uci' && command !== 'isready' && !this.isReady) {
+        logger.debug(`[StockfishService gameplay] Engine not ready, queuing command: ${command}`);
+        this.commandQueue.push(command);
+        return;
+      }
+      logger.debug(`[StockfishService gameplay] Sending to Stockfish: ${command}`);
+      this.worker.postMessage(command);
+    } else {
+      logger.warn('[StockfishService gameplay] Worker not initialized, cannot send command:', command);
+    }
+  }
+
+  private processCommandQueue(): void {
+    logger.debug(`[StockfishService gameplay] Processing command queue (${this.commandQueue.length} items)`);
+    while(this.commandQueue.length > 0) {
+        const command = this.commandQueue.shift();
+        if (command) {
+            if (this.isReady) {
+                 this.sendCommand(command);
+            } else {
+                logger.warn(`[StockfishService gameplay] Engine not ready during queue processing, re-queuing: ${command}`);
+                this.commandQueue.unshift(command);
+                break;
+            }
+        }
+    }
+  }
+
+  private handleEngineMessage(message: string): void {
+    logger.debug(`[StockfishService gameplay] Received from Stockfish: ${message}`);
+    const parts = message.split(' ');
+
+    if (message === 'uciok') {
+      logger.info('[StockfishService gameplay] UCI OK received.');
+      // Устанавливаем опции для ИГРЫ
+      this.UCI_OPTIONS_FOR_GAMEPLAY.forEach(optionCmd => this.sendCommand(optionCmd));
+      this.sendCommand('isready');
+    } else if (message === 'readyok') {
+      this.isReady = true;
+      logger.info('[StockfishService gameplay] Engine is ready (readyok received).');
+      if (this.resolveInitPromise && typeof this.resolveInitPromise === 'function') {
+        try { this.resolveInitPromise(); } catch(e) { /* Promise might already be settled */ }
+      }
+      this.processCommandQueue();
+    } else if (parts[0] === 'info' && this.pendingAnalysisRequest && this.pendingAnalysisRequest.isActive) {
+      // Парсим только одну линию (multipv 1), так как этот сервис для одного хода
+      this.parseInfoLineForGameplay(message, this.pendingAnalysisRequest.collectedLines);
+    } else if (parts[0] === 'bestmove') {
+      if (this.pendingAnalysisRequest && this.pendingAnalysisRequest.isActive) {
+            clearTimeout(this.pendingAnalysisRequest.timeoutId);
+            const bestMoveUci = (parts[1] && parts[1] !== '(none)') ? parts[1] : null;
+            this.pendingAnalysisRequest.currentBestMove = bestMoveUci;
+
+            const result: AnalysisResult = {
+              bestMoveUci: this.pendingAnalysisRequest.currentBestMove,
+              // Возвращаем только первую (и единственную ожидаемую) линию
+              evaluatedLines: this.pendingAnalysisRequest.collectedLines.has(1) ? [this.pendingAnalysisRequest.collectedLines.get(1)!] : []
+            };
+            logger.info('[StockfishService gameplay] Analysis complete. Best move:', bestMoveUci);
+            try { this.pendingAnalysisRequest.resolve(result); } catch(e) { /* Promise might already be settled */ }
+            this.pendingAnalysisRequest = null;
+      } else {
+        logger.warn('[StockfishService gameplay] Received bestmove but no active pending analysis request.');
+      }
+    }
+  }
+
+  // Упрощенный парсер, ожидающий только multipv 1
+  private parseInfoLineForGameplay(line: string, collectedLines: Map<number, EvaluatedLine>): void {
+    try {
+      const parts = line.split(' ');
+      let multipvValue = 1; // По умолчанию, если multipv не указан явно (хотя обычно он есть)
+      let depth = 0;
+      let score: ScoreInfo | null = null;
+      let pvUci: string[] = [];
+      let i = 0;
+
+      // Проверяем, есть ли multipv и равен ли он 1
+      const multipvIndex = parts.indexOf('multipv');
+      if (multipvIndex !== -1 && parts.length > multipvIndex + 1) {
+        multipvValue = parseInt(parts[multipvIndex + 1], 10);
+        if (multipvValue !== 1) {
+          // logger.debug(`[StockfishService gameplay] Skipping info line with multipv ${multipvValue}`);
+          return; // Игнорируем линии, если это не первая
+        }
+      }
+
+
+      while (i < parts.length) {
+        const token = parts[i];
+        switch (token) {
+          case 'depth': depth = parseInt(parts[++i], 10); break;
+          // multipv уже обработан выше
+          case 'score':
+            const type = parts[++i];
+            const value = parseInt(parts[++i], 10);
+            if (type === 'cp' || type === 'mate') score = { type, value };
+            break;
+          case 'pv': pvUci = parts.slice(i + 1); i = parts.length; break;
+        }
+        i++;
+      }
+      if (score && pvUci.length > 0 && !isNaN(depth) && depth > 0) {
+        // Сохраняем только первую линию (id=1)
+        const existingLine = collectedLines.get(1);
+        if (!existingLine || depth >= existingLine.depth) { // Обновляем если глубина больше или равна
+             collectedLines.set(1, { id: 1, depth, score, pvUci });
+        }
+      }
+    } catch (error) {
+      logger.warn('[StockfishService gameplay] Error parsing info line:', line, error);
+    }
+  }
+
+  public async ensureReady(): Promise<void> {
+    if (this.isReady) return Promise.resolve();
+    if (!this.worker) {
+        this.initWorker();
+    }
+    return this.initPromise;
+  }
+
+  public async getAnalysis(fen: string, options: AnalysisOptions = {}): Promise<AnalysisResult | null> {
+    try {
+      await this.ensureReady();
+    } catch (error) {
+      logger.error('[StockfishService gameplay] Engine failed to initialize for getAnalysis:', error);
+      return Promise.reject(error);
+    }
+
+    if (!this.worker) {
+        const workerError = new Error('Worker not available for getAnalysis (gameplay).');
+        logger.error(`[StockfishService gameplay] ${workerError.message}`);
+        return Promise.reject(workerError);
+    }
+
+    if (this.pendingAnalysisRequest && this.pendingAnalysisRequest.isActive) {
+        logger.warn('[StockfishService gameplay] New analysis request received while previous one is pending. Superseding previous request.');
+        this.pendingAnalysisRequest.isActive = false; 
+        clearTimeout(this.pendingAnalysisRequest.timeoutId);
+        try {
+            this.pendingAnalysisRequest.reject(new Error('Analysis request superseded by a new one.'));
+        } catch (e) { /* Старый промис мог уже быть урегулирован */ }
+        this.sendCommand('stop'); 
+    }
+
+    return new Promise<AnalysisResult | null>((resolve, reject) => {
+      const baseTimeout = 5000; 
+      const depthFactor = Math.max(1, (options.depth || 10) / 10);
+      // linesFactor больше не нужен, так как всегда 1 линия
+      const calculationTime = options.movetime || (options.depth || 10) * 1000 * depthFactor;
+      const timeoutDuration = baseTimeout + calculationTime;
+
+      logger.debug(`[StockfishService gameplay] getAnalysis: FEN=${fen}, Options=${JSON.stringify(options)}, Timeout=${timeoutDuration}ms`);
+
+      const currentRequestObject: PendingAnalysisRequest = {
+        resolve,
+        reject,
+        timeoutId: 0, 
+        fen,
+        options,
+        collectedLines: new Map<number, EvaluatedLine>(),
+        currentBestMove: null,
+        isActive: true,
+      };
+
+      currentRequestObject.timeoutId = window.setTimeout(() => {
+        if (this.pendingAnalysisRequest === currentRequestObject && currentRequestObject.isActive) {
+            logger.warn(`[StockfishService gameplay] getAnalysis timeout for FEN: ${fen} after ${timeoutDuration}ms`);
+            this.sendCommand('stop');
+            currentRequestObject.isActive = false; 
+            try {
+                reject(new Error('StockfishService (gameplay) getAnalysis timeout'));
+            } catch(e) { /* Промис мог быть уже урегулирован */ }
+            if (this.pendingAnalysisRequest === currentRequestObject) {
+                this.pendingAnalysisRequest = null;
+            }
+        }
+      }, timeoutDuration);
+
+      this.pendingAnalysisRequest = currentRequestObject;
+
+      this.sendCommand('ucinewgame');
+      // this.sendCommand(`setoption name MultiPV value 1`); // Можно явно установить, или положиться на дефолт
+      this.sendCommand(`position fen ${fen}`);
+
+      let goCommand = 'go';
+      if (options.depth) goCommand += ` depth ${options.depth}`;
+      if (options.movetime) goCommand += ` movetime ${options.movetime}`;
+      if (!options.depth && !options.movetime) goCommand += ` depth 10`; 
+      
+      this.sendCommand(goCommand);
+    });
+  }
+
+  public async getBestMoveOnly(fen: string, options: { depth?: number; movetime?: number } = {}): Promise<string | null> {
+    const analysisOptions: AnalysisOptions = { // lines не передаем
+      ...options,
+    };
+    try {
+        const result = await this.getAnalysis(fen, analysisOptions);
+        return result ? result.bestMoveUci : null;
+    } catch (error) {
+        logger.warn(`[StockfishService gameplay getBestMoveOnly] Underlying getAnalysis failed: ${(error as Error).message}`);
+        return null;
+    }
+  }
+
+  public terminate(): void {
+    if (this.worker) {
+      logger.info('[StockfishService gameplay] Terminating worker...');
+      try { this.worker.postMessage('quit'); } catch (e) { /* ... */ }
+      setTimeout(() => {
+        if (this.worker) {
+            this.worker.terminate();
+            this.worker = null;
+            logger.info('[StockfishService gameplay] Worker forcefully terminated.');
+        }
+      }, 500);
+
+      this.isReady = false;
+      this.commandQueue = [];
+      if (this.rejectInitPromise && typeof this.rejectInitPromise === 'function') {
+        try { this.rejectInitPromise(new Error('Worker terminated during initialization.')); } catch (e) { /* ... */ }
+      }
+      this.initPromise = new Promise<void>((resolve, reject) => {
+        this.resolveInitPromise = resolve;
+        this.rejectInitPromise = reject;
+      });
+
+      if (this.pendingAnalysisRequest && this.pendingAnalysisRequest.isActive) {
+            clearTimeout(this.pendingAnalysisRequest.timeoutId);
+            try { this.pendingAnalysisRequest.reject(new Error('Worker terminated during analysis request')); } catch (e) { /* ... */ }
+            this.pendingAnalysisRequest = null;
+      }
+    }
+  }
+}

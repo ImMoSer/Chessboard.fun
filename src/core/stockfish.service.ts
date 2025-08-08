@@ -1,5 +1,6 @@
-// src/core/stockfish.service.ts_v03
+// src/core/stockfish.service.ts
 import logger from '../utils/logger';
+import { loadEngine, type EngineController } from './engine.loader';
 
 const MOVE_RESPONSE_DELAY_MS = 100;
 
@@ -40,11 +41,8 @@ interface PendingAnalysisRequest {
   isActive: boolean;
 }
 
-// Declaration for the global Stockfish factory function
-declare const Stockfish: () => Promise<any>;
-
 export class StockfishService {
-  private engine: any | null = null;
+  private engine: EngineController | null = null;
   private isReady: boolean = false;
   private commandQueue: string[] = [];
   private initPromise: Promise<void>;
@@ -70,25 +68,11 @@ export class StockfishService {
     if (this.engine) {
       await this.terminate();
     }
-    
-    if (typeof Stockfish === 'undefined') {
-        const errorMsg = "Stockfish() factory not found. Make sure stockfish.js is loaded globally in index.html.";
-        logger.error(`[StockfishService gameplay] ${errorMsg}`);
-        this.isReady = false;
-        if (this.rejectInitPromise) {
-            try { this.rejectInitPromise(new Error(errorMsg)); } catch(e) { /* ignore */ }
-        }
-        return;
-    }
 
     try {
-      logger.info(`[StockfishService gameplay] Calling Stockfish() factory...`);
-      this.engine = await Stockfish();
+      logger.info(`[StockfishService gameplay] Loading engine via universal loader...`);
+      this.engine = await loadEngine();
 
-      if (!this.engine) {
-          throw new Error("Stockfish() factory resolved with a null or undefined engine instance.");
-      }
-      
       this.engine.addMessageListener((message: string) => {
         this.handleEngineMessage(message);
       });
@@ -106,7 +90,7 @@ export class StockfishService {
       }, 15000);
 
     } catch (error: any) {
-      logger.error('[StockfishService gameplay] Failed to initialize engine (constructor error):', error.message, error);
+      logger.error('[StockfishService gameplay] Failed to initialize engine (loader error):', error.message, error);
       this.isReady = false;
       if (this.rejectInitPromise) {
           try { this.rejectInitPromise(error); } catch(e) { /* ignore */ }
@@ -317,7 +301,11 @@ export class StockfishService {
   public async terminate(): Promise<void> {
     if (this.engine) {
       logger.info('[StockfishService gameplay] Terminating engine...');
-      try { this.engine.postMessage('quit'); } catch (e) { /* ignore */ }
+      if (this.engine.terminate) {
+        this.engine.terminate();
+      } else {
+        try { this.engine.postMessage('quit'); } catch (e) { /* ignore */ }
+      }
       this.engine = null;
     }
     this.isReady = false;

@@ -1,7 +1,7 @@
 {
   "name": "chessboard_fun",
   "private": true,
-  "version": "1.0.8",
+  "version": "1.0.9",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -19,6 +19,7 @@
     "chessops": "^0.14.2",
     "snabbdom": "^3.6.2",
     "stockfish-nnue.wasm": "^1.0.0-1946a675.smolnet",
+    "stockfish.js": "^10.0.2",
     "vite-plugin-static-copy": "^3.1.1"
   }
 }
