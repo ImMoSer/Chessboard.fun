@@ -317,15 +317,15 @@
       "tacticalShort": "Tactical",
       "playoutShort": "Playout",
       "gamesPlayedShort": "Games",
-      "time": "Best Time",
+      "time": "Time",
       "attempts": "Attempts",
       "playButton": "Play",
       "challenge": "Challenge",
       "puzzle": "[TBD]",
       "solved": "Solved",
-      "requested": "Requested",
-      "successRate": "Success (%)",
-      "daysOld": "Days Old"
+      "requested": "Of",
+      "successRate": "(%)",
+      "daysOld": "Days"
     },
     "errors": {
       "dataLoadFailed": "Failed to load leaderboard data.",

@@ -320,12 +320,12 @@
       "time": "Bestzeit",
       "attempts": "Versuche",
       "playButton": "Spielen",
-      "challenge": "Herausforderung",
+      "challenge": "Challenge",
       "puzzle": "Aufgabe",
       "solved": "Gelöst",
-      "requested": "Angefordert",
-      "successRate": "Erfolg (%)",
-      "daysOld": "Tage alt"
+      "requested": "Aus",
+      "successRate": "(%)",
+      "daysOld": "Tage"
     },
     "errors": {
       "dataLoadFailed": "Bestenlisten-Daten konnten nicht geladen werden.",

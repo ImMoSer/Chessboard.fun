@@ -323,9 +323,9 @@
       "challenge": "Вызов",
       "puzzle": "Задача",
       "solved": "Решено",
-      "requested": "Запрошено",
-      "successRate": "Успех (%)",
-      "daysOld": "Дней назад"
+      "requested": "Из",
+      "successRate": "(%)",
+      "daysOld": "Дней"
     },
     "errors": {
       "dataLoadFailed": "Не удалось загрузить данные таблицы лидеров.",
