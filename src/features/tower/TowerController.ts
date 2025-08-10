@@ -506,6 +506,8 @@ export class TowerController extends BaseGameController<TowerControllerState> {
         tower_id: activeTower.id,
         tower_type: activeTower.definition.id,
         time_in_seconds: newTime,
+        success: true, // <<< ИЗМЕНЕНО
+        bw_value_total: activeTower.bwValueTotal, // <<< ИЗМЕНЕНО
       };
       await this.services.webhookService.sendTowerRecord(dto);
       logger.info('[TowerController] Tower record sent to backend successfully.');

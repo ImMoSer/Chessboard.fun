@@ -319,8 +319,10 @@ export class AttackController extends BaseGameController<AttackControllerState> 
     this._clearPlayoutTimer();
 
     let message = customMessage || t('attack.feedback.gameOver', { defaultValue: 'Game Over.' });
+    let winnerIsHuman = false;
+
     if (!customMessage && outcome) {
-        const winnerIsHuman = outcome.winner === this.boardHandler.getHumanPlayerColor();
+        winnerIsHuman = outcome.winner === this.boardHandler.getHumanPlayerColor();
         if (outcome.winner) {
             message = winnerIsHuman 
                 ? t('attack.feedback.win', { reason: outcome.reason || 'checkmate' }) 
@@ -328,10 +330,13 @@ export class AttackController extends BaseGameController<AttackControllerState> 
         } else {
             message = t('attack.feedback.draw', { reason: outcome.reason || 'draw' });
         }
-        if (winnerIsHuman) {
-            this._sendAttackWinRecord();
-        }
     }
+    
+    // <<< НАЧАЛО ИЗМЕНЕНИЙ
+    if (this.state.activePuzzle) {
+        this._sendAttackResult(winnerIsHuman);
+    }
+    // <<< КОНЕЦ ИЗМЕНЕНИЙ
 
     this.setState({
         gamePhase: 'GAMEOVER',
@@ -343,13 +348,13 @@ export class AttackController extends BaseGameController<AttackControllerState> 
     this.boardHandler.configureBoardForAnalysis(true);
   }
 
-  private async _sendAttackWinRecord(): Promise<void> {
+  private async _sendAttackResult(success: boolean): Promise<void> {
     const user = this.services.authService.getUserProfile();
     const puzzle = this.state.activePuzzle;
     const startTime = this.state.solveStartTimeMs;
 
     if (!user || !puzzle || startTime === null) {
-        logger.warn('[AttackController] Cannot send win record: missing user, puzzle, or start time.');
+        logger.warn('[AttackController] Cannot send attack result: missing user, puzzle, or start time.');
         return;
     }
 
@@ -359,9 +364,11 @@ export class AttackController extends BaseGameController<AttackControllerState> 
         username: user.username,
         PuzzleId: puzzle.PuzzleId,
         time_in_seconds: timeInSeconds,
+        success: success,
+        bw_value: puzzle.bw_value,
     };
 
-    logger.info('[AttackController] Sending attack win record:', dto);
+    logger.info('[AttackController] Sending attack result:', dto);
     try {
         await this.services.webhookService.sendAttackRecord(dto);
         logger.info('[AttackController] Attack record sent successfully.');

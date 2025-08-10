@@ -57,6 +57,7 @@ export interface UpdateFinishHimStatsDto {
   finishHimStats: FinishHimStats;
   solved_in_seconds?: number; 
   PuzzleId?: string;
+  success: boolean; // <<< ДОБАВЛЕНО
 }
 export interface GetNewTowerDto { tower_type: TowerId; tower_theme: TowerTheme; }
 export interface SaveTowerRecordDto { 
@@ -65,8 +66,16 @@ export interface SaveTowerRecordDto {
   tower_type: TowerId; 
   time_in_seconds: number; 
   isNewRecord?: boolean;
+  success: boolean; // <<< ДОБАВЛЕНО
+  bw_value_total: number; // <<< ДОБАВЛЕНО
 }
-export interface AttackRecordDto { username: string; PuzzleId: string; time_in_seconds: number; }
+export interface AttackRecordDto { 
+  username: string; 
+  PuzzleId: string; 
+  time_in_seconds: number; 
+  success: boolean; // <<< ДОБАВЛЕНО
+  bw_value: number; // <<< ДОБАВЛЕНО
+}
 export interface FollowClubDto { club_id: string; club_name: string; action: 'follow' | 'unfollow'; }
 export interface FounderActionDto { club_id: string; action: 'club_addToList' | 'club_delete'; }
 export interface SubmitTacticalResultDto {
@@ -76,9 +85,7 @@ export interface SubmitTacticalResultDto {
   success: boolean;
 }
 
-// <<< ИЗМЕНЕНИЕ: Новый тип для уровней сложности
 export type TacticalLevel = 'easy' | 'normal' | 'hard';
-// <<< ИЗМЕНЕНИЕ: Новый DTO для получения тактической задачи
 export interface GetTacticalPuzzleDto {
   tactical_level: TacticalLevel;
 }
@@ -102,6 +109,7 @@ export interface AppAttackPuzzle {
   Moves: string; 
   Rating: number; 
   attack_results?: PuzzleResultEntry[];
+  bw_value: number; // <<< ДОБАВЛЕНО
 }
 
 export interface AppTacticalPuzzle {
@@ -276,6 +284,8 @@ export interface UserSessionProfile extends LichessUserProfile {
   validatedAt?: number;
   telegram_id?: string | null;
   TierExpire?: string | null;
+  endgame_skill: number; // <<< ДОБАВЛЕНО
+  attack_skill: number; // <<< ДОБАВЛЕНО
 }
 
 export interface AuthState {

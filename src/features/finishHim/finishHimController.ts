@@ -224,11 +224,12 @@ export class FinishHimController extends BaseGameController<FinishHimControllerS
     });
   }
 
-  private async _sendStatsToBackend(options: { solvedInSeconds?: number } = {}): Promise<void> {
+  private async _sendStatsToBackend(options: { solvedInSeconds?: number, success: boolean }): Promise<void> {
     if (this.authService.getIsAuthenticated() && this.state.userStats && this.state.userFunCoins !== null) {
         const dto: UpdateFinishHimStatsDto = {
             FunCoins: this.state.userFunCoins,
             finishHimStats: { ...this.state.userStats },
+            success: options.success, // <<< ИЗМЕНЕНО
         };
         if (options.solvedInSeconds !== undefined) {
             dto.solved_in_seconds = options.solvedInSeconds;
@@ -413,7 +414,7 @@ export class FinishHimController extends BaseGameController<FinishHimControllerS
         this.state.userStats.tacticalLosses += 1;
         this.setState({ tacticalRatingDelta: this.state.userStats.tacticalRating - oldTacticalRating });
         this._incrementGamesPlayed();
-        this._sendStatsToBackend();
+        this._sendStatsToBackend({ success: false }); // <<< ИЗМЕНЕНО
         this.puzzleStorageService.markPuzzleAsSolved(userId, this.state.activePuzzle.PuzzleId);
     }
   }
@@ -434,10 +435,11 @@ export class FinishHimController extends BaseGameController<FinishHimControllerS
         if (!this.state.isCurrentPuzzleSolved) {
             const oldFinishHimRating = this.state.userStats.finishHimRating;
             let solvedInSeconds: number | undefined = undefined;
+            const success = outcome === 'win'; // <<< ИЗМЕНЕНО
 
             this._incrementGamesPlayed();
 
-            if (outcome === 'win') {
+            if (success) { // <<< ИЗМЕНЕНО
                 this.state.userStats.finishHimRating += 10;
                 this.state.userStats.playoutWins += 1;
                 if (this.state.currentPuzzleSolveTime && remainingTimeMs !== null) {
@@ -451,7 +453,7 @@ export class FinishHimController extends BaseGameController<FinishHimControllerS
             }
             this.setState({ finishHimRatingDelta: this.state.userStats.finishHimRating - oldFinishHimRating });
             
-            this._sendStatsToBackend({ solvedInSeconds });
+            this._sendStatsToBackend({ solvedInSeconds, success }); // <<< ИЗМЕНЕНО
             this.puzzleStorageService.markPuzzleAsSolved(userId, this.state.activePuzzle.PuzzleId);
         }
     }
