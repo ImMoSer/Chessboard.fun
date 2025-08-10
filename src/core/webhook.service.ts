@@ -1,7 +1,6 @@
 // src/core/webhook.service.ts
 import logger from '../utils/logger';
 import { CacheService } from './cache.service';
-// ИЗМЕНЕНО: Импортируем AuthService для доступа к initData
 import { AuthService } from './auth.service';
 import type { 
     WebhookSuccessResponse,
@@ -19,11 +18,14 @@ import type {
     TowerData,
     ClubApiResponse,
     LichessClubsApiResponse,
-    LeaderboardApiResponse,
     TelegramBindingUrlResponse,
-    PersonalActivityStatsResponse,
     LichessClubStat,
-    GetTacticalPuzzleDto
+    GetTacticalPuzzleDto,
+    OverallSkillLeaderboardEntry,
+    PersonalOverallSkillResponse,
+    PersonalSkillStreakResponse,
+    LeaderboardApiResponse,
+    PersonalActivityStatsResponse
 } from './api.types';
 
 export class RateLimitError extends Error {
@@ -46,7 +48,7 @@ const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL as string;
 
 const CACHE_CLUBS_ALL_TTL_MS = parseInt(import.meta.env.VITE_CACHE_CLUBS_ALL_TTL_MS || '86400000', 10);
 const CACHE_CLUB_STATS_TTL_MS = parseInt(import.meta.env.VITE_CACHE_CLUB_STATS_TTL_MS || '86400000', 10);
-const CACHE_LEADERBOARDS_TTL_MS = parseInt(import.meta.env.VITE_CACHE_LEADERBOARDS_TTL_MS || '300000', 10);
+const CACHE_LEADERBOARDS_TTL_MS = parseInt(import.meta.env.VITE_CACHE_SKILL_LEADERBOARDS_TTL_MS || '300000', 10);
 
 
 if (!BACKEND_API_URL) { logger.error('[WebhookService] Critical Configuration Error: VITE_BACKEND_API_URL is not defined.'); }
@@ -54,7 +56,6 @@ if (!BACKEND_API_URL) { logger.error('[WebhookService] Critical Configuration Er
 export class WebhookServiceController {
   constructor() { logger.info(`[WebhookService] Initialized to work with Backend API at: ${BACKEND_API_URL}`); }
   
-  // ИЗМЕНЕНО: Метод теперь добавляет заголовок для Telegram
   private async _apiRequest<TResponse>(path: string, method: 'GET' | 'POST', context: string, body?: object): Promise<WebhookSuccessResponse<TResponse>> {
     const url = `${BACKEND_API_URL}${path}`;
     
@@ -63,10 +64,8 @@ export class WebhookServiceController {
         'Accept': 'application/json'
     };
 
-    // Получаем initData из AuthService
     const telegramInitData = AuthService.getTelegramInitData();
     if (telegramInitData) {
-        // Если данные есть, добавляем их в кастомный заголовок
         headers['X-Telegram-Init-Data'] = telegramInitData;
         logger.debug(`[WebhookService ${context}] Attaching Telegram auth header.`);
     }
@@ -74,7 +73,7 @@ export class WebhookServiceController {
     const options: RequestInit = { 
         method, 
         headers, 
-        credentials: 'include' // credentials: 'include' важен для веб-сессий с cookie
+        credentials: 'include'
     };
 
     if (method === 'POST' && body) { options.body = JSON.stringify(body); }
@@ -123,10 +122,6 @@ export class WebhookServiceController {
   public async fetchTacticalStats(): Promise<TacticalTrainerStats | null> { 
     return this._apiRequest<TacticalTrainerStats>('/tactical-trainer/stats', 'GET', 'fetchTacticalStats'); 
   }
-
-  public async fetchPersonalActivityStats(): Promise<PersonalActivityStatsResponse | null> {
-    return this._apiRequest<PersonalActivityStatsResponse>('/activity/personal', 'GET', 'fetchPersonalActivityStats');
-  }
   
   public async fetchAllClubsStats(): Promise<WebhookSuccessResponse<LichessClubStat[]>> { 
     const k = 'lichess_clubs_all'; 
@@ -149,16 +144,40 @@ export class WebhookServiceController {
   
   public async updateClubFollowStatus(dto: FollowClubDto): Promise<any | null> { return this._apiRequest<any>('/n8n-proxy/clubs/follow', 'POST', 'updateClubFollowStatus', dto); }
   
-  public async fetchLeaderboards(): Promise<WebhookSuccessResponse<LeaderboardApiResponse>> { 
-    const k = 'leaderboards_all_v2'; 
-    const c = CacheService.get<LeaderboardApiResponse>(k, CACHE_LEADERBOARDS_TTL_MS); 
-    if (c) return c; 
-    const d = await this._apiRequest<LeaderboardApiResponse>('/n8n-proxy/leaderboards', 'GET', 'fetchLeaderboards'); 
-    if (d) CacheService.set(k, d); 
-    return d; 
+  public async manageFounderClub(dto: FounderActionDto): Promise<{success: boolean} | null> { return this._apiRequest<{success: boolean}>('/n8n-proxy/clubs/founder-action', 'POST', 'manageFounderClub', dto); }
+
+  public async fetchCombinedLeaderboards(): Promise<LeaderboardApiResponse | null> {
+    const cacheKey = 'leaderboards_combined_v2';
+    const cachedData = CacheService.get<LeaderboardApiResponse>(cacheKey, CACHE_LEADERBOARDS_TTL_MS);
+    if (cachedData) return cachedData;
+
+    const data = await this._apiRequest<LeaderboardApiResponse>(`/n8n-proxy/leaderboards`, 'GET', 'fetchCombinedLeaderboards');
+    if (data) CacheService.set(cacheKey, data);
+    return data;
+  }
+
+  public async fetchOverallSkillLeaderboard(period: '7' | '14' | '21' | '30'): Promise<OverallSkillLeaderboardEntry[] | null> {
+    const cacheKey = `leaderboard_overall_skill_${period}`;
+    const cachedData = CacheService.get<OverallSkillLeaderboardEntry[]>(cacheKey, CACHE_LEADERBOARDS_TTL_MS);
+    if (cachedData) return cachedData;
+
+    // <<< ИЗМЕНЕНИЕ: Убран лишний /api из пути
+    const data = await this._apiRequest<OverallSkillLeaderboardEntry[]>(`/n8n-proxy/leaderboards/overall-skill?period=${period}`, 'GET', 'fetchOverallSkillLeaderboard');
+    if (data) CacheService.set(cacheKey, data);
+    return data;
+  }
+
+  public async fetchPersonalOverallSkill(): Promise<PersonalOverallSkillResponse | null> {
+    return this._apiRequest<PersonalOverallSkillResponse>('/activity/personal/overall-skill', 'GET', 'fetchPersonalOverallSkill');
+  }
+
+  public async fetchPersonalSkillStreak(): Promise<PersonalSkillStreakResponse | null> {
+    return this._apiRequest<PersonalSkillStreakResponse>('/activity/personal/skill-streak', 'GET', 'fetchPersonalSkillStreak');
   }
   
-  public async manageFounderClub(dto: FounderActionDto): Promise<{success: boolean} | null> { return this._apiRequest<{success: boolean}>('/n8n-proxy/clubs/founder-action', 'POST', 'manageFounderClub', dto); }
+  public async fetchPersonalActivityStats(): Promise<PersonalActivityStatsResponse | null> {
+    return this._apiRequest<PersonalActivityStatsResponse>('/activity/personal/activity-stats', 'GET', 'fetchPersonalActivityStats');
+  }
 }
 
 export const WebhookService = new WebhookServiceController();

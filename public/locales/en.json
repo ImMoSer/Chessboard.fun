@@ -308,7 +308,9 @@
       "towerCM": "CM SpeedRun",
       "towerFM": "FM SpeedRun",
       "towerIM": "IM SpeedRun",
-      "towerGM": "GM SpeedRun"
+      "towerGM": "GM SpeedRun",
+      "overallSkill": "Overall Skill",
+      "skillStreak": "Skill Streak"
     },
     "table": {
       "noEntries": "No entries in this leaderboard yet.",
@@ -325,7 +327,10 @@
       "solved": "Solved",
       "requested": "Of",
       "successRate": "(%)",
-      "daysOld": "Days"
+      "daysOld": "Days",
+      "totalSkill": "Total Skill",
+      "streakDays": "Streak (Days)",
+      "action": "Action"
     },
     "errors": {
       "dataLoadFailed": "Failed to load leaderboard data.",
@@ -374,7 +379,9 @@
       "periods": {
         "day": "Last 24 hours",
         "week": "Last 7 days",
-        "month": "Last 30 days"
+        "month": "Last 30 days",
+        "days14": "Last 14 days",
+        "days21": "Last 21 days"
       },
       "modes": {
         "all": "All Modes",

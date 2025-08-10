@@ -1,9 +1,18 @@
 // src/features/recordsPage/RecordsPageView.ts
 import { h, VNode } from 'snabbdom';
-import type { RecordsPageController, RecordsPageControllerState, LeaderboardTableConfig, ProcessedLeaderboardEntry, ProcessedActivityEntry, ActivityPeriod, ActivityMode } from './RecordsPageController';
+import type { RecordsPageController, SkillPeriod } from './RecordsPageController';
 import { t } from '../../core/i18n.service';
 import logger from '../../utils/logger';
-import type { TowerLeaderboardEntry, AttackLeaderboardEntry, FinishHimLeaderboardEntry } from '../../core/api.types';
+import type {
+    OverallSkillLeaderboardEntry,
+    SkillByMode,
+    SkillStreakLeaderboardEntry,
+    FinishHimLeaderboardEntry,
+    TowerLeaderboardEntry,
+    AttackLeaderboardEntry,
+    TowerId
+} from '../../core/api.types';
+import { TOWER_DEFINITIONS } from '../tower/tower.types';
 
 const tierToPieceMap: { [key: string]: string } = {
   'Pawn': 'wP.svg',
@@ -28,169 +37,229 @@ function renderSubscriptionIcon(tier?: string): VNode | null {
   });
 }
 
-// <<< НАЧАЛО ИЗМЕНЕНИЙ: Новая функция для рендеринга таблицы активности
-function renderActivityLeaderboard(controller: RecordsPageController): VNode | null {
-  const { processedActivityData, selectedActivityPeriod, selectedActivityMode } = controller.state;
+function renderSkillProgressBar(skillByMode: SkillByMode, totalSkill: number): VNode {
+    const modes: (keyof SkillByMode)[] = ['finishHim', 'attack', 'tower', 'tacticalTrainer'];
+    const segments = modes.map(mode => {
+        const skillValue = skillByMode[mode] || 0;
+        if (skillValue === 0) return null;
+        const width = totalSkill > 0 ? (skillValue / totalSkill) * 100 : 0;
+        return h(`div.skill-bar-segment.${mode}`, {
+            style: { width: `${width}%` },
+            attrs: { title: `${t(`userCabinet.stats.modes.${mode}`)}: ${skillValue}` }
+        });
+    }).filter(Boolean) as VNode[];
 
-  const periodOptions: { value: ActivityPeriod, textKey: string }[] = [
-    { value: 'daily', textKey: 'userCabinet.stats.periods.day' },
-    { value: 'weekly', textKey: 'userCabinet.stats.periods.week' },
-    { value: 'monthly', textKey: 'userCabinet.stats.periods.month' },
-  ];
+    return h('div.skill-progress-bar', segments);
+}
 
-  const modeOptions: { value: ActivityMode, textKey: string }[] = [
-    { value: 'all', textKey: 'userCabinet.stats.modes.all' },
-    { value: 'finishHim', textKey: 'userCabinet.stats.modes.finishHim' },
-    { value: 'attack', textKey: 'userCabinet.stats.modes.attack' },
-    { value: 'tower', textKey: 'userCabinet.stats.modes.tower' },
-    { value: 'tacticalTrainer', textKey: 'userCabinet.stats.modes.tacticalTrainer' },
-  ];
+function renderSkillLegend(): VNode {
+    const modes: { key: keyof SkillByMode, nameKey: string }[] = [
+        { key: 'finishHim', nameKey: 'userCabinet.stats.modes.finishHim' },
+        { key: 'attack', nameKey: 'userCabinet.stats.modes.attack' },
+        { key: 'tower', nameKey: 'userCabinet.stats.modes.tower' },
+        { key: 'tacticalTrainer', nameKey: 'userCabinet.stats.modes.tacticalTrainer' },
+    ];
 
-  const filters = h('div.stats-filters', [
-    h('select', {
-      on: { change: (e: Event) => controller.handleActivityPeriodChange((e.target as HTMLSelectElement).value as ActivityPeriod) }
-    }, periodOptions.map(opt => h('option', { props: { value: opt.value, selected: selectedActivityPeriod === opt.value } }, t(opt.textKey, {defaultValue: opt.value})))),
-    h('select', {
-      on: { change: (e: Event) => controller.handleActivityModeChange((e.target as HTMLSelectElement).value as ActivityMode) }
-    }, modeOptions.map(opt => h('option', { props: { value: opt.value, selected: selectedActivityMode === opt.value } }, t(opt.textKey, {defaultValue: opt.value}))))
-  ]);
+    return h('div.skill-legend', modes.map(mode =>
+        h('div.legend-item', [
+            h(`span.legend-color-swatch.${mode.key}`),
+            h('span.legend-label', t(mode.nameKey))
+        ])
+    ));
+}
 
-  let tableContent: VNode | VNode[];
-  if (processedActivityData === null) {
-      tableContent = h('p.records-page__no-data-message', t('common.loading'));
-  } else if (processedActivityData.length === 0) {
-      tableContent = h('p.records-page__no-data-message', t('records.table.noEntries'));
-  } else {
-      tableContent = h('table.records-page__table', [
-          h('thead', h('tr', [
-              h('th.text-center', '#'),
-              h('th.text-left', t('records.table.player')),
-              h('th.text-right', t('records.table.solved')),
-              h('th.text-right', t('records.table.requested')),
-              h('th.text-right', t('records.table.successRate')),
-          ])),
-          h('tbody', processedActivityData.map((entry: ProcessedActivityEntry) => 
-              h('tr', { key: entry.lichess_id }, [
-                  h('td.text-center', entry.rank.toString()),
-                  h('td.text-left', [
-                      renderSubscriptionIcon(entry.subscriptionTier),
-                      h('a', { props: { href: `https://lichess.org/@/${entry.lichess_id}`, target: '_blank', rel: 'noopener noreferrer' } }, entry.username)
-                  ]),
-                  h('td.text-right', entry.solved.toString()),
-                  h('td.text-right', entry.requested.toString()),
-                  h('td.text-right', `${entry.successRate.toFixed(0)}%`),
-              ])
-          ))
-      ]);
-  }
+function renderOverallSkillLeaderboard(controller: RecordsPageController): VNode | null {
+    const { overallSkillData, selectedSkillPeriod, isSkillLeaderboardLoading } = controller.state;
 
-  return h('div.records-page__table-container.records-page__table-container--activity', [
-    h('h3.records-page__table-title', t('records.titles.activity', { defaultValue: 'Player Activity' })),
-    filters,
-    tableContent
-  ]);
+    const periodOptions: { value: SkillPeriod, textKey: string, default: string }[] = [
+        { value: '7', textKey: 'userCabinet.stats.periods.week', default: 'Last 7 days' },
+        { value: '14', textKey: 'records.periods.days14', default: 'Last 14 days' },
+        { value: '21', textKey: 'records.periods.days21', default: 'Last 21 days' },
+        { value: '30', textKey: 'userCabinet.stats.periods.month', default: 'Last 30 days' },
+    ];
+
+    const filters = h('div.stats-filters', [
+        h('select', {
+            on: { change: (e: Event) => controller.handleSkillPeriodChange((e.target as HTMLSelectElement).value as SkillPeriod) }
+        }, periodOptions.map(opt => h('option', { props: { value: opt.value, selected: selectedSkillPeriod === opt.value } }, t(opt.textKey, {defaultValue: opt.default }))))
+    ]);
+
+    let tableContent: VNode;
+    if (isSkillLeaderboardLoading) {
+        tableContent = h('p.records-page__no-data-message', t('common.loading'));
+    } else if (!overallSkillData || overallSkillData.length === 0) {
+        tableContent = h('p.records-page__no-data-message', t('records.table.noEntries'));
+    } else {
+        tableContent = h('table.records-page__table', [
+            h('thead', h('tr', [
+                h('th.text-center', t('records.table.rank')),
+                h('th.text-left', t('records.table.player')),
+                h('th.text-right', t('records.table.totalSkill')),
+            ])),
+            h('tbody', overallSkillData.map((entry: OverallSkillLeaderboardEntry, index) =>
+                h('tr', { key: entry.lichess_id }, [
+                    h('td.text-center', (index + 1).toString()),
+                    h('td.text-left', [
+                        renderSubscriptionIcon(entry.subscriptionTier),
+                        h('a', { props: { href: `https://lichess.org/@/${entry.lichess_id}`, target: '_blank', rel: 'noopener noreferrer' } }, entry.username)
+                    ]),
+                    h('td.text-right', [
+                        h('span.total-skill-value', entry.total_skill.toString()),
+                        renderSkillProgressBar(entry.skill_by_mode, entry.total_skill)
+                    ]),
+                ])
+            ))
+        ]);
+    }
+
+    return h('div.records-page__table-container.records-page__table-container--overall-skill', [
+        h('h3.records-page__table-title', t('records.titles.overallSkill', { defaultValue: 'Overall Skill' })),
+        filters,
+        renderSkillLegend(),
+        tableContent
+    ]);
+}
+
+function renderSkillStreakLeaderboard(controller: RecordsPageController): VNode | null {
+    const { skillStreakData } = controller.state;
+    if (!skillStreakData || skillStreakData.length === 0) return null;
+
+    let tableContent: VNode;
+    tableContent = h('table.records-page__table', [
+        h('thead', h('tr', [
+            h('th.text-center', t('records.table.rank')),
+            h('th.text-left', t('records.table.player')),
+            h('th.text-right', t('records.table.streakDays')),
+        ])),
+        h('tbody', skillStreakData.map((entry: SkillStreakLeaderboardEntry, index) =>
+            h('tr', { key: entry.lichess_id }, [
+                h('td.text-center', (index + 1).toString()),
+                h('td.text-left', [
+                    h('a', { props: { href: `https://lichess.org/@/${entry.lichess_id}`, target: '_blank', rel: 'noopener noreferrer' } }, entry.username)
+                ]),
+                h('td.text-right', entry.current_streak.toString()),
+            ])
+        ))
+    ]);
+
+    return h('div.records-page__table-container.records-page__table-container--skill-streak', [
+        h('h3.records-page__table-title', t('records.titles.skillStreak', { defaultValue: 'Skill Streak' })),
+        tableContent
+    ]);
+}
+
+// <<< НАЧАЛО ИЗМЕНЕНИЙ: Адаптация таблицы Finish Him
+function renderFinishHimLeaderboard(data: FinishHimLeaderboardEntry[] | null, controller: RecordsPageController): VNode | null {
+    if (!data || data.length === 0) return null;
+
+    return h('div.records-page__table-container.records-page__table-container--finishHimLeaderboard', [
+        h('h3.records-page__table-title', t('records.titles.topFinishHim')),
+        h('table.records-page__table', [
+            h('thead', h('tr', [
+                h('th.text-center', t('records.table.rank')),
+                h('th.text-left', t('records.table.player')),
+                h('th.text-right', t('records.table.time')),
+                h('th.text-right', t('records.table.daysOld')),
+                h('th.text-center', t('records.table.action')),
+            ])),
+            h('tbody', data.map(entry =>
+                h('tr', { key: entry.puzzle_id + entry.lichess_id }, [
+                    h('td.text-center', entry.rank),
+                    h('td.text-left', [
+                        renderSubscriptionIcon(entry.subscriptionTier),
+                        h('a', { props: { href: `https://lichess.org/@/${entry.lichess_id}`, target: '_blank' } }, entry.username)
+                    ]),
+                    h('td.text-right', `${entry.best_time}s`),
+                    h('td.text-right', `${entry.days_old}d`),
+                    h('td.text-center', [
+                        h('button.records-page__challenge-button', {
+                            on: { click: () => controller.services.appController.navigateTo('finishHim', true, null, entry.puzzle_id) }
+                        }, t('records.table.challenge'))
+                    ]),
+                ])
+            ))
+        ])
+    ]);
 }
 // <<< КОНЕЦ ИЗМЕНЕНИЙ
 
-function renderSingleLeaderboardTable(
-  tableData: { config: LeaderboardTableConfig; entries: ProcessedLeaderboardEntry[] } | null,
-  controller: RecordsPageController
-): VNode | null {
-  if (!tableData) return null;
+function renderTowerLeaderboards(data: { [key in TowerId]?: TowerLeaderboardEntry[] } | null, controller: RecordsPageController): VNode | null {
+    if (!data) return null;
 
-  const { config, entries } = tableData;
-  const containerClass = `div.records-page__table-container.records-page__table-container--${config.id}`;
+    const towerTables = TOWER_DEFINITIONS.map(towerDef => {
+        const leaderboard = data[towerDef.id];
+        if (!leaderboard || leaderboard.length === 0) return null;
 
-  return h(containerClass, { key: config.id }, [
-    h('h3.records-page__table-title', t(config.titleKey, { defaultValue: config.defaultTitle })),
-    entries.length === 0
-      ? h('p.records-page__no-data-message', t('records.table.noEntries'))
-      : h('table.records-page__table', [
-          h('thead', [
-            h('tr', config.columns.map(col =>
-              h(`th.text-${col.textAlign || 'left'}`, t(col.headerKey, { defaultValue: col.defaultHeader }))
-            ))
-          ]),
-          h('tbody', entries.map((entry) =>
-            h('tr', { key: `${config.id}-${entry.lichess_id}-${entry.rank}` }, config.columns.map(col => {
-                let cellContent: (VNode | string | null)[];
-                if (col.headerKey === 'records.table.challenge' && config.id === 'attackLeaderboard') {
-                    cellContent = [h('button.records-page__challenge-button', {
-                        on: { click: (e: Event) => {
-                            e.preventDefault();
-                            const attackEntry = entry as AttackLeaderboardEntry;
-                            controller.services.appController.navigateTo('attack', true, null, attackEntry.puzzle_id);
-                        }}
-                      }, t('records.table.playButton', { defaultValue: 'Play' }))];
-                } else if (col.headerKey === 'records.table.player') {
-                    cellContent = [
-                        renderSubscriptionIcon((entry as FinishHimLeaderboardEntry).subscriptionTier),
-                        h('a', { props: { href: `https://lichess.org/@/${entry.lichess_id}`, target: '_blank', rel: 'noopener noreferrer' } }, String(col.cellValueExtractor(entry)))
-                      ];
-                } else {
-                    cellContent = [String(col.cellValueExtractor(entry))];
-                }
-                return h(`td.text-${col.textAlign || 'left'}`, cellContent.filter(c => c !== null) as (VNode | string)[]);
-              }
-            ))
-          ))
-        ])
-  ]);
-}
-
-function renderConsolidatedTowerTable(
-    towerData: NonNullable<RecordsPageControllerState['consolidatedTowerData']>,
-    controller: RecordsPageController
-): VNode | null {
-    if (!towerData || towerData.sections.length === 0) return null;
-
-    const { config, sections } = towerData;
-    const containerClass = `div.records-page__table-container.records-page__table-container--${config.id}`;
-    
-    const tableBodyContent = sections.flatMap(section => {
-        const sectionHeader = h(`tr.records-page__table-section-header.records-page__table-section-header--${section.id}`, [
-            h('th', { props: { colSpan: config.columns.length } }, t(section.titleKey, { defaultValue: section.defaultTitle }))
+        const headerRow = h('tr.records-page__table-section-header', { class: { [`records-page__table-section-header--${towerDef.id}`]: true } }, [
+            h('th', { props: { colSpan: 5 } }, t(towerDef.nameKey, { defaultValue: towerDef.defaultName }))
         ]);
 
-        const sectionRows = section.entries.map(entry => 
-            h('tr', { key: `${config.id}-${section.id}-${entry.lichess_id}-${entry.rank}` }, config.columns.map(col => {
-                let cellContent: (VNode | string | null)[];
-                if (col.headerKey === 'records.table.challenge') {
-                    cellContent = [h('button.records-page__challenge-button', {
-                        on: { click: (e: Event) => {
-                            e.preventDefault();
-                            controller.services.appController.navigateTo('tower', true, null, null, (entry as TowerLeaderboardEntry).tower_id);
-                        }}
-                      }, t('records.table.playButton', { defaultValue: 'Play' }))];
-                } else if (col.headerKey === 'records.table.player') {
-                    cellContent = [
-                        renderSubscriptionIcon((entry as TowerLeaderboardEntry).subscriptionTier),
-                        h('a', { props: { href: `https://lichess.org/@/${entry.lichess_id}`, target: '_blank', rel: 'noopener noreferrer' } }, String(col.cellValueExtractor(entry)))
-                      ];
-                } else {
-                    cellContent = [String(col.cellValueExtractor(entry))];
-                }
-
-                return h(`td.text-${col.textAlign || 'left'}`, {
-                  class: { 'col-days-old': col.headerKey === 'records.table.daysOld' }
-                }, cellContent.filter(c => c !== null) as (VNode | string)[]);
-            }))
+        const dataRows = leaderboard.map(entry =>
+            h('tr', { key: entry.tower_id + entry.lichess_id }, [
+                h('td.text-center', entry.rank),
+                h('td.text-left', [
+                    renderSubscriptionIcon(entry.subscriptionTier),
+                    h('a', { props: { href: `https://lichess.org/@/${entry.lichess_id}`, target: '_blank' } }, entry.username)
+                ]),
+                h('td.text-right', `${entry.best_time}s`),
+                h('td.text-right', `${entry.days_old}d`),
+                h('td.text-center', [
+                    h('button.records-page__challenge-button', {
+                        on: { click: () => controller.services.appController.navigateTo('tower', true, null, null, entry.tower_id) }
+                    }, t('records.table.challenge'))
+                ]),
+            ])
         );
 
-        return [sectionHeader, ...sectionRows];
-    });
+        return [headerRow, ...dataRows];
+    }).flat().filter(Boolean) as VNode[];
 
-    return h(containerClass, { key: config.id }, [
-        h('h3.records-page__table-title', t(config.titleKey, { defaultValue: config.defaultTitle })),
-        h('table.records-page__table.records-page__table--consolidated-tower', [
-            h('thead', [
-                h('tr', config.columns.map(col =>
-                    h(`th.text-${col.textAlign || 'left'}`, {
-                      class: { 'col-days-old': col.headerKey === 'records.table.daysOld' }
-                    }, t(col.headerKey, { defaultValue: col.defaultHeader }))
-                ))
-            ]),
-            h('tbody', tableBodyContent)
+    if (towerTables.length === 0) return null;
+
+    return h('div.records-page__table-container.records-page__table-container--towerLeaderboard', [
+        h('h3.records-page__table-title', t('records.titles.towerLeaderboard')),
+        h('table.records-page__table', [
+            h('thead', h('tr', [
+                h('th.text-center', t('records.table.rank')),
+                h('th.text-left', t('records.table.player')),
+                h('th.text-right', t('records.table.time')),
+                h('th.text-right', t('records.table.daysOld')),
+                h('th.text-center', t('records.table.action')),
+            ])),
+            h('tbody', towerTables)
+        ])
+    ]);
+}
+
+function renderAttackLeaderboard(data: AttackLeaderboardEntry[] | null, controller: RecordsPageController): VNode | null {
+    if (!data || data.length === 0) return null;
+
+    return h('div.records-page__table-container.records-page__table-container--attackLeaderboard', [
+        h('h3.records-page__table-title', t('records.titles.topAttack')),
+        h('table.records-page__table', [
+            h('thead', h('tr', [
+                h('th.text-center', t('records.table.rank')),
+                h('th.text-left', t('records.table.player')),
+                h('th.text-right', t('records.table.time')),
+                h('th.text-right', t('records.table.daysOld')),
+                h('th.text-center', t('records.table.action')),
+            ])),
+            h('tbody', data.map(entry =>
+                h('tr', { key: entry.puzzle_id + entry.lichess_id }, [
+                    h('td.text-center', entry.rank),
+                    h('td.text-left', [
+                        renderSubscriptionIcon(entry.subscriptionTier),
+                        h('a', { props: { href: `https://lichess.org/@/${entry.lichess_id}`, target: '_blank' } }, entry.username)
+                    ]),
+                    h('td.text-right', `${entry.best_time}s`),
+                    h('td.text-right', `${entry.days_old}d`),
+                    h('td.text-center', [
+                        h('button.records-page__challenge-button', {
+                            on: { click: () => controller.services.appController.navigateTo('attack', true, null, entry.puzzle_id) }
+                        }, t('records.table.challenge'))
+                    ]),
+                ])
+            ))
         ])
     ]);
 }
@@ -198,37 +267,32 @@ function renderConsolidatedTowerTable(
 
 export function renderRecordsPage(controller: RecordsPageController): VNode {
   const { state } = controller;
-  logger.debug('[RecordsPageView] Rendering Records Page with state:', state);
-  
+  logger.debug('[RecordsPageView] Rendering Records Page with combined state:', state);
+
   const pageContainerClass = 'div.records-page';
 
   const pageBanner = h('img.records-page__banner', {
     props: { src: '/svg/ChessBoardLeader.svg', alt: t('records.bannerAlt', { defaultValue: 'Leaderboards Banner' }) }
   });
 
-  let content: VNode[];
+  let content: (VNode | null)[];
   if (state.isLoading) {
     content = [h('p', t('common.loading', { defaultValue: 'Loading data...' }))];
   } else if (state.error) {
     content = [h('p.records-page__error-message', `${t('common.error', { defaultValue: 'Error' })}: ${state.error}`)];
   } else {
-    // <<< НАЧАЛО ИЗМЕНЕНИЙ: Рендерим новую таблицу активности
-    const activityTable = renderActivityLeaderboard(controller);
-    const attackTable = renderSingleLeaderboardTable(state.attackTableData, controller);
-    const finishHimTable = renderSingleLeaderboardTable(state.finishHimTableData, controller);
-    const towerTable = state.consolidatedTowerData 
-        ? renderConsolidatedTowerTable(state.consolidatedTowerData, controller) 
-        : null;
-    content = [activityTable, attackTable, finishHimTable, towerTable].filter(Boolean) as VNode[];
-    // <<< КОНЕЦ ИЗМЕНЕНИЙ
-
-    if (content.length === 0) {
-        content = [h('p.records-page__no-data-message', t('records.errors.noLeaderboards', { defaultValue: 'No leaderboards available at the moment.' }))];
-    }
+    const { worktableLeaderboards } = state;
+    content = [
+        renderSkillStreakLeaderboard(controller),
+        renderTowerLeaderboards(worktableLeaderboards?.towerLeaderboards ?? null, controller),
+        renderFinishHimLeaderboard(worktableLeaderboards?.finishHimLeaderboard ?? null, controller),
+        renderAttackLeaderboard(worktableLeaderboards?.attackLeaderboard ?? null, controller),
+        renderOverallSkillLeaderboard(controller),
+    ];
   }
 
   return h(pageContainerClass, [
     pageBanner,
-    ...content
+    h('div.records-page__grid', content.filter(Boolean) as VNode[])
   ]);
 }

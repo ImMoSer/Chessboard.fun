@@ -52,29 +52,29 @@ export interface PuzzleResultEntry {
   record_timestamp_ms: number;
 }
 
-export interface UpdateFinishHimStatsDto { 
-  FunCoins: number; 
+export interface UpdateFinishHimStatsDto {
+  FunCoins: number;
   finishHimStats: FinishHimStats;
-  solved_in_seconds?: number; 
+  solved_in_seconds?: number;
   PuzzleId?: string;
-  success: boolean; // <<< ДОБАВЛЕНО
+  success: boolean;
 }
 export interface GetNewTowerDto { tower_type: TowerId; tower_theme: TowerTheme; }
-export interface SaveTowerRecordDto { 
-  username: string; 
-  tower_id: string; 
-  tower_type: TowerId; 
-  time_in_seconds: number; 
+export interface SaveTowerRecordDto {
+  username: string;
+  tower_id: string;
+  tower_type: TowerId;
+  time_in_seconds: number;
   isNewRecord?: boolean;
-  success: boolean; // <<< ДОБАВЛЕНО
-  bw_value_total: number; // <<< ДОБАВЛЕНО
+  success: boolean;
+  bw_value_total: number;
 }
-export interface AttackRecordDto { 
-  username: string; 
-  PuzzleId: string; 
-  time_in_seconds: number; 
-  success: boolean; // <<< ДОБАВЛЕНО
-  bw_value: number; // <<< ДОБАВЛЕНО
+export interface AttackRecordDto {
+  username: string;
+  PuzzleId: string;
+  time_in_seconds: number;
+  success: boolean;
+  bw_value: number;
 }
 export interface FollowClubDto { club_id: string; club_name: string; action: 'follow' | 'unfollow'; }
 export interface FounderActionDto { club_id: string; action: 'club_addToList' | 'club_delete'; }
@@ -90,26 +90,26 @@ export interface GetTacticalPuzzleDto {
   tactical_level: TacticalLevel;
 }
 
-export interface AppPuzzle { 
-  PuzzleId: string; 
-  FEN_0: string; 
-  Moves: string; 
-  bot_color: 'w' | 'b'; 
-  solve_time?: number; 
-  fun_value?: number; 
-  Tactical_Rating?: number; 
-  PlayOut_Rating?: number; 
+export interface AppPuzzle {
+  PuzzleId: string;
+  FEN_0: string;
+  Moves: string;
+  bot_color: 'w' | 'b';
+  solve_time?: number;
+  fun_value?: number;
+  Tactical_Rating?: number;
+  PlayOut_Rating?: number;
   endgame_results?: PuzzleResultEntry[];
   fen_final?: string;
 }
 
-export interface AppAttackPuzzle { 
-  PuzzleId: string; 
-  FEN_0: string; 
-  Moves: string; 
-  Rating: number; 
+export interface AppAttackPuzzle {
+  PuzzleId: string;
+  FEN_0: string;
+  Moves: string;
+  Rating: number;
   attack_results?: PuzzleResultEntry[];
-  bw_value: number; // <<< ДОБАВЛЕНО
+  bw_value: number;
 }
 
 export interface AppTacticalPuzzle {
@@ -153,15 +153,19 @@ export interface ClubLeader { id: string; name: string; flair?: string; title?: 
 export interface ClubApiResponse { club_id: string; club_name: string; grunder: string; nb_members: number; jsonb_array_leader: ClubLeader[]; tournament_history: TournamentHistoryEntry[]; players_data: PlayersDataMap; leaderboards: any; }
 export interface LichessClubStat { club_id: string; best_rank: number; club_name: string; total_score: number; average_rank: number; average_score: number; tournaments_played: number; }
 export interface LichessClubsApiResponse { stats: LichessClubStat[]; }
+
+// <<< НАЧАЛО ИЗМЕНЕНИЙ: Обновлен интерфейс для FinishHimLeaderboardEntry
 export interface FinishHimLeaderboardEntry {
   rank: number;
   username: string;
   lichess_id: string;
-  gamesPlayed: number;
-  tacticalRating: number;
-  finishHimRating: number;
+  best_time: number;
+  days_old: number;
+  puzzle_id: string;
   subscriptionTier?: string;
 }
+// <<< КОНЕЦ ИЗМЕНЕНИЙ
+
 export interface TowerLeaderboardEntry {
   rank: number;
   tower_id: string;
@@ -193,22 +197,59 @@ export interface ActivityPeriodStats {
   tacticalTrainer?: ActivityModeStats;
 }
 
-export interface ActivityStatsEntry {
+export interface WorktableLeaderboards {
+  towerLeaderboards: { [key in TowerId]?: TowerLeaderboardEntry[] };
+  finishHimLeaderboard: FinishHimLeaderboardEntry[];
+  attackLeaderboard?: AttackLeaderboardEntry[];
+}
+
+export interface LeaderboardApiResponse extends WorktableLeaderboards {
+  overallSkillLeaderboard: OverallSkillLeaderboardEntry[];
+  skillStreakLeaderboard: SkillStreakLeaderboardEntry[];
+}
+
+export interface SkillByMode {
+  finishHim: number;
+  attack: number;
+  tower: number;
+  tacticalTrainer: number;
+}
+
+export interface OverallSkillLeaderboardEntry {
   lichess_id: string;
   username: string;
   subscriptionTier: string;
-  stats: {
-    daily: ActivityPeriodStats;
-    weekly: ActivityPeriodStats;
-    monthly: ActivityPeriodStats;
-  };
+  total_skill: number;
+  skill_by_mode: SkillByMode;
 }
 
-export interface LeaderboardApiResponse { 
-  towerLeaderboards: { [key in TowerId]?: TowerLeaderboardEntry[] }; 
-  finishHimLeaderboard: FinishHimLeaderboardEntry[]; 
-  attackLeaderboard?: AttackLeaderboardEntry[];
-  activityStats?: ActivityStatsEntry[];
+export interface SkillStreakLeaderboardEntry {
+  lichess_id: string;
+  username: string;
+  current_streak: number;
+}
+
+export interface PersonalOverallSkillPeriod {
+  lichess_id: string;
+  username: string;
+  subscriptionTier: string;
+  total_skill: number;
+  skill_by_mode: SkillByMode;
+}
+
+export type PersonalOverallSkillResponse = Record<'7_days' | '14_days' | '21_days' | '30_days', PersonalOverallSkillPeriod>;
+
+export interface DailySkillSummary {
+  date: string; // "YYYY-MM-DD"
+  total_skill: number;
+  skill_by_mode: SkillByMode;
+}
+
+export interface PersonalSkillStreakResponse {
+  lichess_id: string;
+  username: string;
+  current_streak: number;
+  daily_summary: DailySkillSummary[];
 }
 
 export interface TelegramBindingUrlResponse {
@@ -284,8 +325,8 @@ export interface UserSessionProfile extends LichessUserProfile {
   validatedAt?: number;
   telegram_id?: string | null;
   TierExpire?: string | null;
-  endgame_skill: number; // <<< ДОБАВЛЕНО
-  attack_skill: number; // <<< ДОБАВЛЕНО
+  endgame_skill: number;
+  attack_skill: number;
 }
 
 export interface AuthState {
