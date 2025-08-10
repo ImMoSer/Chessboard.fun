@@ -14,10 +14,14 @@
     "closingParenthesis": ")",
     "period": ".",
     "periodAndSpace": ". ",
-    "shareTitle": "[TBD]",
-    "shareText": "[TBD]",
-    "delete": "[TBD]",
-    "play": "[TBD]"
+    "shareTitle": "Chessboard.fun Puzzle",
+    "shareText": "Check out this puzzle on Chessboard.fun!",
+    "delete": "Delete",
+    "play": "Play",
+    "shareSuccess": "Shared successfully!",
+    "shareCancelled": "Sharing cancelled.",
+    "linkCopied": "Link copied to clipboard!",
+    "copyFailed": "Could not copy link."
   },
   "nav": {
     "finishHim": "Conversion",
@@ -43,7 +47,8 @@
       "message": "Too many requests. Please wait {seconds} seconds.",
       "ready": "You can now proceed."
     },
-    "backendConnectionFailed": "Could not connect to the server."
+    "backendConnectionFailed": "Could not connect to the server.",
+    "telegramAuthFailed": "Telegram authentication failed."
   },
   "errorPage": {
     "invalidController": "Error: Invalid controller for page '{pageName}'.",
@@ -109,7 +114,8 @@
       "title": "Puzzle Info",
       "tacticalRating": "Tactical Rating",
       "playoutRating": "Playout Rating",
-      "solveTime": "Solve Time"
+      "solveTime": "Solve Time",
+      "funValue": "Skill Value"
     },
     "leaderboard": {
       "title": "Best Times",
@@ -126,7 +132,6 @@
   },
   "stats": {
     "title": "User Statistics",
-    "loading": "Loading stats...",
     "gamesPlayed": "Games Played",
     "tacticalSectionTitle": "Tactical",
     "playoutSectionTitle": "Playout"
@@ -198,7 +203,9 @@
       "tableTime": "Best Time",
       "themeLabel": "Theme",
       "livesLabel": "Lives",
-      "shareLinkCopied": "Link copied to clipboard!"
+      "shareLinkCopied": "Link copied to clipboard!",
+      "averageRating": "Average Rating",
+      "skillValue": "Skill Value"
     },
     "error": {
       "definitionNotFound": "Could not find definition for SpeedRun ID: {towerId}",
@@ -211,6 +218,9 @@
       "noTowerToRestart": "No active SpeedRun to restart.",
       "moveFailed": "Failed to process move.",
       "copyFailed": "Could not copy link."
+    },
+    "puzzleInfo": {
+      "title": "Tower Info"
     }
   },
   "clubPage": {
@@ -358,7 +368,7 @@
     "stats": {
       "attackTitle": "Attack Mode Statistics",
       "gamesPlayed": "Games Played",
-      "fancoins": "FanCoins",
+      "fancoins": "FunCoins",
       "towerTitle": "SpeedRun Statistics",
       "towersCompleted": "SpeedRuns Completed",
       "totalAttempts": "Total Attempts",
@@ -369,9 +379,9 @@
         "title": "Activity Statistics"
       },
       "periods": {
-        "day": "Daily",
-        "week": "Weekly",
-        "month": "Monthly"
+        "day": "Day",
+        "week": "Week",
+        "month": "Month"
       },
       "modes": {
         "all": "Mode",
@@ -446,6 +456,10 @@
     "error": {
         "puzzleNotFound": "Could not load the puzzle.",
         "loadFailed": "Failed to load puzzle."
+    },
+      "puzzleInfo": {
+      "title": "Puzzle Info",
+      "rating": "Rating"
     }
   },
   "tacktics": {
@@ -457,7 +471,7 @@
       "wrongMove": "Wrong move!",
       "success": "Puzzle solved!",
       "failure": "Puzzle failed.",
-      "wrongMoveAnalysis": "[TBD]"
+      "wrongMoveAnalysis": "Wrong move! Analysis is now active."
     },
     "stats": {
       "title": "Your Stats",

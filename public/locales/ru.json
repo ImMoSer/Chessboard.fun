@@ -17,7 +17,11 @@
     "shareTitle": "Шахматная задача на Chessboard.fun",
     "shareText": "Оцени эту интересную задачу!",
     "delete": "Удалить",
-    "play": "Играть"
+    "play": "Играть",
+    "shareSuccess": "Успешно поделено!",
+    "shareCancelled": "Отправка отменена.",
+    "linkCopied": "Ссылка скопирована в буфер обмена!",
+    "copyFailed": "Не удалось скопировать ссылку."
   },
   "nav": {
     "finishHim": "Реализация",
@@ -43,7 +47,8 @@
       "message": "Слишком много запросов. Пожалуйста, подождите {seconds} секунд.",
       "ready": "Теперь вы можете продолжить."
     },
-    "backendConnectionFailed": "Не удалось подключиться к серверу."
+    "backendConnectionFailed": "Не удалось подключиться к серверу.",
+    "telegramAuthFailed": "Ошибка аутентификации Telegram."
   },
   "errorPage": {
     "invalidController": "Ошибка: Неверный контроллер для страницы '{pageName}'.",
@@ -109,7 +114,8 @@
       "title": "Информация о задаче",
       "tacticalRating": "Тактика",
       "playoutRating": "Реализация",
-      "solveTime": "Время"
+      "solveTime": "Время",
+      "funValue": "Рейтинг умения"
     },
     "leaderboard": {
       "title": "Лучшие результаты",
@@ -151,8 +157,8 @@
     "selectBoard": "Выбрать доску",
     "selectPieces": "Выбрать фигуры"
   },
-      "settings": {
-      "voiceVolume": "Голос"
+  "settings": {
+    "voiceVolume": "Голос"
   },
   "tower": {
     "names": {
@@ -198,7 +204,9 @@
       "tableTime": "Рекорд",
       "themeLabel": "Тема",
       "livesLabel": "Жизни",
-      "shareLinkCopied": "Ссылка скопирована в буфер обмена!"
+      "shareLinkCopied": "Ссылка скопирована в буфер обмена!",
+      "averageRating": "Средний рейтинг",
+      "skillValue": "Рейтинг умения"
     },
     "error": {
       "definitionNotFound": "Не найдено определение для Спидрана с ID: {towerId}",
@@ -211,6 +219,9 @@
       "noTowerToRestart": "Нет активного Спидрана для перезапуска.",
       "moveFailed": "Не удалось обработать ход.",
       "copyFailed": "Не удалось скопировать ссылку."
+    },
+    "puzzleInfo": {
+      "title": "Информация о Спидране"
     }
   },
   "clubPage": {
@@ -250,17 +261,17 @@
     "table": {
       "player": "Игрок",
       "score": "Счёт",
-      "totalScore": "Общий счёт",
+      "totalScore": "Счёт",
       "tournaments": "Турниры",
       "tournamentName": "Турнир",
       "date": "Дата",
       "clubRank": "Место",
       "clubScore": "Счёт клуба",
       "berserkWins": "Побед (Берсерк)",
-      "avgPerf": "Сред.",
+      "avgPerf": "Перф.",
       "maxPerf": "Макс.",
       "minPerf": "Мин.",
-      "avgRating": "Сред.",
+      "avgRating": "Рейт.",
       "maxRating": "Макс.",
       "minRating": "Мин.",
       "gamesPlayed": "Игры",
@@ -308,7 +319,9 @@
       "towerCM": "Спидран КМС",
       "towerFM": "Спидран ФМ",
       "towerIM": "Спидран ММ",
-      "towerGM": "Спидран ГМ"
+      "towerGM": "Спидран ГМ",
+      "overallSkill": "Общий рейтинг умения",
+      "skillStreak": "Серия умения"
     },
     "table": {
       "noEntries": "В этой таблице лидеров пока нет записей.",
@@ -325,12 +338,19 @@
       "solved": "Решено",
       "requested": "Из",
       "successRate": "(%)",
-      "daysOld": "Дней"
+      "daysOld": "Дней",
+      "totalSkill": "Умение",
+      "streakDays": "Серия (Дни)",
+      "action": "Действие"
     },
     "errors": {
       "dataLoadFailed": "Не удалось загрузить данные таблицы лидеров.",
       "unknown": "Произошла неизвестная ошибка.",
       "noLeaderboards": "На данный момент нет доступных таблиц лидеров."
+    },
+    "periods": {
+      "days14": "Последние 14 дней",
+      "days21": "Последние 21 день"
     }
   },
   "userCabinet": {
@@ -366,18 +386,18 @@
       "attempts": "попыток",
       "puzzle": "Задача",
       "global": {
-        "title": "Глобальная активность"
+        "title": "Статистика активности"
       },
       "personal": {
         "title": "Личная активность"
       },
       "periods": {
-        "day": "Последние 24 часа",
-        "week": "Последние 7 дней",
-        "month": "Последние 30 дней"
+        "day": "День",
+        "week": "Неделя",
+        "month": "Месяц"
       },
       "modes": {
-        "all": "Все режимы",
+        "all": "Модус",
         "finishHim": "Реализация",
         "attack": "Атака",
         "tower": "Спидран",
@@ -449,6 +469,10 @@
     "error": {
         "puzzleNotFound": "Не удалось загрузить задачу.",
         "loadFailed": "Не удалось загрузить задачу."
+    },
+      "puzzleInfo": {
+      "title": "Инфо о задаче",
+      "rating": "Рейтинг"
     }
   },
   "tacktics": {
@@ -514,7 +538,6 @@
       },
       "autoLoad": "AutoNext"
     }
-
   },
   "about": {
     "title": "Chessboard.fun",
@@ -609,8 +632,8 @@
       "separator": ": "
     },
     "footerNote": "Сделано с ❤️ для любителей шахмат по всему миру"
-  },
-  "lichessClubs": {
+    },
+    "lichessClubs": {
     "pageTitle": {
       "loading": "Загрузка клубов Lichess...",
       "loaded": "Клубы Lichess",

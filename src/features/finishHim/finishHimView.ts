@@ -5,7 +5,7 @@ import type { Key } from 'chessground/types';
 import { FinishHimController, formatPlayoutTimer } from './finishHimController';
 import { renderAnalysisPanel } from '../analysis/analysisPanelView';
 import { t } from '../../core/i18n.service';
-import type { PuzzleResultEntry, AppPuzzle, FinishHimStats } from '../../core/api.types';
+import type { PuzzleResultEntry, AppPuzzle } from '../../core/api.types';
 import { renderBoardContainer, type FinishHimPageViewLayout } from '../../appView';
 
 const pieceFileMap: { [key: string]: string } = {
@@ -133,7 +133,7 @@ function renderPuzzleInfo(controller: FinishHimController): VNode | null {
         return null;
     }
 
-    const { Tactical_Rating, PlayOut_Rating } = activePuzzle;
+    const { Tactical_Rating, PlayOut_Rating, fun_value } = activePuzzle;
 
     const infoItems = [
         Tactical_Rating !== undefined ? h('div.puzzle-info-item', [
@@ -148,6 +148,10 @@ function renderPuzzleInfo(controller: FinishHimController): VNode | null {
             h('span.info-label', t('finishHim.puzzleInfo.solveTime') + ': '),
             h('span.info-value', formatTime(currentPuzzleSolveTime))
         ]) : null,
+        fun_value !== undefined ? h('div.puzzle-info-item', [
+            h('span.info-label', t('finishHim.puzzleInfo.funValue', { defaultValue: 'Fun Value' }) + ': '),
+            h('span.info-value', String(fun_value))
+        ]) : null,
     ].filter(Boolean) as VNode[];
 
     const finalPositionPreview = renderFinalPositionPreview(activePuzzle, currentPieceSet);
@@ -161,52 +165,6 @@ function renderPuzzleInfo(controller: FinishHimController): VNode | null {
         finalPositionPreview,
         renderPuzzleLeaderboard(puzzleResults)
     ].filter(Boolean) as VNode[]);
-}
-
-function renderUserStats(controller: FinishHimController): VNode | null {
-  const stats: FinishHimStats | null = controller.state.userStats;
-  const { tacticalRatingDelta, finishHimRatingDelta } = controller.state;
-
-  if (!stats) {
-    return h('div.user-stats-container', [
-        h('h4.user-stats-main-title', t('stats.title')),
-        h('p', t('stats.loading'))
-    ]);
-  }
-
-  const renderDelta = (delta: number | null): VNode | null => {
-    if (delta === null || delta === 0) return null;
-    const sign = delta > 0 ? '+' : '';
-    return h('span.value-delta', {
-      class: {
-        'positive-delta': delta > 0,
-        'negative-delta': delta < 0,
-      }
-    }, `${sign}${delta}`);
-  };
-
-  const statBlocks = [
-    h('div.stat-block', [
-      h('h5.stat-block-title', t('stats.tacticalSectionTitle')),
-      h('div.stat-block-values', [
-        h('span.current-value', String(stats.tacticalRating)),
-        renderDelta(tacticalRatingDelta)
-      ])
-    ]),
-    h('div.stat-block', [
-      h('h5.stat-block-title', t('stats.playoutSectionTitle')),
-      h('div.stat-block-values', [
-        h('span.current-value', String(stats.finishHimRating)),
-        renderDelta(finishHimRatingDelta)
-      ])
-    ]),
-  ];
-
-  return h('div.user-stats-container', [
-    h('h4.user-stats-main-title', t('stats.title')),
-    h('div.games-played-info', `${t('stats.gamesPlayed')}: ${stats.gamesPlayed}`),
-    h('div.stats-overview-grid', statBlocks)
-  ]);
 }
 
 function renderTimer(controller: FinishHimController): VNode {
@@ -239,10 +197,6 @@ export function renderFinishHimUI(controller: FinishHimController): FinishHimPag
     ),
   ]);
 
-  const leftPanelContent = h('div.finish-him-left-panel', [
-    renderUserStats(controller)
-  ]);
-
   const analysisPanelWrapper = (fhState.gamePhase === 'GAMEOVER')
     ? h('div.analysis-panel-wrapper', [
         renderAnalysisPanel(controller.analysisController)
@@ -265,6 +219,13 @@ export function renderFinishHimUI(controller: FinishHimController): FinishHimPag
     style: { display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }
   }, rightPanelElements.filter(Boolean) as VNode[]);
 
+  // <<< НАЧАЛО ИЗМЕНЕНИЙ: Добавляем пустой левый контейнер
+  const leftPanelContent = h('div.finish-him-left-panel', [
+    // Этот контейнер остается пустым, но его наличие необходимо для корректного отображения макета.
+    // Содержимое можно будет добавить позже.
+  ]);
+  // <<< КОНЕЦ ИЗМЕНЕНИЙ
+
   return {
     left: leftPanelContent,
     center: centerContent,
@@ -272,3 +233,4 @@ export function renderFinishHimUI(controller: FinishHimController): FinishHimPag
     topPanelContent: feedbackVNode
   };
 }
+

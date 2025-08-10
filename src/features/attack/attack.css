@@ -117,3 +117,63 @@
   padding: 5px 0;
   flex-shrink: 0; /* Prevent shrinking */
 }
+
+/* ---- Стили для блока информации о пазле ---- */
+.puzzle-info-container {
+  padding: 10px; 
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--panel-border-radius);
+  border: 1px solid var(--color-border-hover);
+  flex-shrink: 0;
+  margin-top: 5px; 
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.puzzle-info-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.puzzle-info-title {
+  margin: 0;
+  color: var(--color-text-muted); 
+  font-size: var(--font-size-base); 
+  font-weight: var(--font-weight-bold);
+  text-align: left;
+  flex-grow: 1;
+}
+
+.puzzle-info-grid {
+    display: grid;
+    grid-template-columns: 1fr; 
+    gap: 4px; 
+}
+
+.puzzle-info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3px 0; 
+  font-size: var(--font-size-small); 
+  border-bottom: 1px dotted var(--color-border);
+}
+.puzzle-info-item:last-child {
+  border-bottom: none;
+}
+
+.puzzle-info-item .info-label {
+  color: var(--color-text-muted);
+  margin-right: 5px;
+  white-space: nowrap;
+}
+.puzzle-info-item .info-value {
+  color: var(--color-text-default);
+  font-weight: var(--font-weight-bold);
+  text-align: right;
+}

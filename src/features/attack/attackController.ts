@@ -192,6 +192,8 @@ export class AttackController extends BaseGameController<AttackControllerState> 
             }
         }
 
+        logger.debug('[AttackController] puzzleData:', puzzleData);
+
         if (!puzzleData) {
             throw new Error(t('attack.error.puzzleNotFound', { defaultValue: 'Could not load the puzzle.' }));
         }

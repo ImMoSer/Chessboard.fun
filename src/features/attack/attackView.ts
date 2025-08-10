@@ -15,6 +15,34 @@ function renderTimer(controller: AttackController): VNode {
     ]);
 }
 
+function renderPuzzleInfo(controller: AttackController): VNode | null {
+    const { activePuzzle } = controller.state;
+    if (!activePuzzle) {
+        return null;
+    }
+
+    const { Rating, bw_value } = activePuzzle;
+
+    const infoItems = [
+        Rating !== undefined ? h('div.puzzle-info-item', [
+            h('span.info-label', t('attack.puzzleInfo.rating', { defaultValue: 'Rating' }) + ': '),
+            h('span.info-value', String(Rating))
+        ]) : null,
+        bw_value !== undefined ? h('div.puzzle-info-item', [
+            h('span.info-label', t('finishHim.puzzleInfo.funValue', { defaultValue: 'Fun Value' }) + ': '),
+            h('span.info-value', String(bw_value))
+        ]) : null,
+    ].filter(Boolean) as VNode[];
+
+    return h('div.puzzle-info-container', [
+        h('div.puzzle-info-header', [
+            h('h4.puzzle-info-title', t('attack.puzzleInfo.title', { defaultValue: 'Puzzle Info' })),
+        ]),
+        infoItems.length > 0 ? h('div.puzzle-info-grid', infoItems) : null,
+    ].filter(Boolean) as VNode[]);
+}
+
+
 function renderPuzzleLeaderboard(results: PuzzleResultEntry[] | null): VNode | null {
     if (!results || results.length === 0) {
         return null;
@@ -64,6 +92,7 @@ export function renderAttackUI(controller: AttackController): AttackPageViewLayo
 
   const rightPanelContent = h('div.attack-right-panel', [
     renderTimer(controller),
+    renderPuzzleInfo(controller),
     analysisPanelWrapper,
   ].filter(Boolean) as VNode[]);
 

@@ -156,7 +156,7 @@ function renderOverviewTable(leaderboardIds: string[], playersData: PlayersDataM
         { label: t('clubPage.table.gamesPlayed'), className: 'text-right' },
         { label: t('clubPage.table.avgPerf'), className: 'text-right' },
         { label: '🚀', className: 'text-center' },
-        { label: 'Σ 🥇', className: 'text-center' },
+        { label: '🥇', className: 'text-center' },
     ];
 
     return h('div.club-page__table-container.club-page__table-container--overview', [
@@ -179,7 +179,7 @@ function renderOverviewTable(leaderboardIds: string[], playersData: PlayersDataM
                         h('td.text-right', { attrs: { 'data-label': t('clubPage.table.gamesPlayed') } }, player.total_games_played.toString()),
                         h('td.text-right', { attrs: { 'data-label': t('clubPage.table.avgPerf') } }, player.performance_stats.avg.toString()),
                         h('td.text-center', { attrs: { 'data-label': '🚀' } }, player.total_berserk_wins.toString()),
-                        h('td.text-center', { attrs: { 'data-label': 'Σ 🥇' } }, (player.team_medal_sum + player.arena_medal_sum).toString()),
+                        h('td.text-center', { attrs: { 'data-label': '🥇' } }, (player.team_medal_sum + player.arena_medal_sum).toString()),
                     ])
                 })),
             ]),

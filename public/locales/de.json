@@ -17,7 +17,11 @@
     "shareTitle": "Schachaufgabe auf Chessboard.fun",
     "shareText": "Schau dir diese interessante Aufgabe an!",
     "delete": "Löschen",
-    "play": "Spielen"
+    "play": "Spielen",
+    "shareSuccess": "Erfolgreich geteilt!",
+    "shareCancelled": "Teilen abgebrochen.",
+    "linkCopied": "Link in die Zwischenablage kopiert!",
+    "copyFailed": "Link konnte nicht kopiert werden."
   },
   "nav": {
     "finishHim": "Konversion",
@@ -43,7 +47,8 @@
       "message": "Zu viele Anfragen. Bitte warte {seconds} Sekunden.",
       "ready": "Du kannst jetzt fortfahren."
     },
-    "backendConnectionFailed": "Verbindung zum Server konnte nicht hergestellt werden."
+    "backendConnectionFailed": "Verbindung zum Server konnte nicht hergestellt werden.",
+    "telegramAuthFailed": "Telegram-Authentifizierung fehlgeschlagen."
   },
   "errorPage": {
     "invalidController": "Fehler: Ungültiger Controller für Seite '{pageName}'.",
@@ -109,7 +114,8 @@
       "title": "Info zur Aufgabe",
       "tacticalRating": "Taktik",
       "playoutRating": "Konversion",
-      "solveTime": "Zeit"
+      "solveTime": "Zeit",
+      "funValue": "Skill-Wert"
     },
     "leaderboard": {
       "title": "Bestzeiten",
@@ -198,7 +204,9 @@
       "tableTime": "Bestzeit",
       "themeLabel": "Thema",
       "livesLabel": "Leben",
-      "shareLinkCopied": "Link in die Zwischenablage kopiert!"
+      "shareLinkCopied": "Link in die Zwischenablage kopiert!",
+      "averageRating": "Durchschnittsrating",
+      "skillValue": "Skill-Wert"
     },
     "error": {
       "definitionNotFound": "Definition für Speedrun-ID nicht gefunden: {towerId}",
@@ -211,6 +219,9 @@
       "noTowerToRestart": "Kein aktiver Speedrun zum Neustarten.",
       "moveFailed": "Zug konnte nicht verarbeitet werden.",
       "copyFailed": "Link konnte nicht kopiert werden."
+    },
+    "puzzleInfo": {
+      "title": "Info zum Speedrun"
     }
   },
   "clubPage": {
@@ -243,10 +254,10 @@
     "winStreakMastersTitle": "Meister der Siegesserien",
     "berserkKingsTitle": "Berserker-Könige",
     "performanceLeadersTitle": "Performance-Spitzenreiter",
-    "ratingLeadersTitle": "Rating-Spitzenreiter",
-    "tournamentHistoryTitle": "Letzte 30 Turniere",
-    "noPlayersInTournament": "Keine Spieler für dieses Turnier aufgeführt.",
-    "tournamentPlayersTitle": "Turnierspieler",
+      "ratingLeadersTitle": "Rating-Spitzenreiter",
+      "tournamentHistoryTitle": "Letzte 30 Turniere",
+      "noPlayersInTournament": "Keine Spieler für dieses Turnier aufgeführt.",
+      "tournamentPlayersTitle": "Turnierspieler",
     "table": {
       "player": "Spieler",
       "score": "Punkte",
@@ -308,7 +319,9 @@
       "towerCM": "Speedrun CM",
       "towerFM": "Speedrun FM",
       "towerIM": "Speedrun IM",
-      "towerGM": "Speedrun GM"
+      "towerGM": "Speedrun GM",
+      "overallSkill": "Gesamter Skill",
+      "skillStreak": "Skill-Serie"
     },
     "table": {
       "noEntries": "Noch keine Einträge in dieser Bestenliste.",
@@ -323,14 +336,21 @@
       "challenge": "Challenge",
       "puzzle": "Aufgabe",
       "solved": "Gelöst",
-      "requested": "Aus",
+      "requested": "Ausgewählt",
       "successRate": "(%)",
-      "daysOld": "Tage"
+      "daysOld": "Tage",
+      "totalSkill": "Skill",
+      "streakDays": "Serie (Tage)",
+      "action": "Aktion"
     },
     "errors": {
       "dataLoadFailed": "Bestenlisten-Daten konnten nicht geladen werden.",
       "unknown": "Ein unbekannter Fehler ist aufgetreten.",
       "noLeaderboards": "Momentan sind keine Bestenlisten verfügbar."
+    },
+    "periods": {
+      "days14": "Letzte 14 Tage",
+      "days21": "Letzte 21 Tage"
     }
   },
   "userCabinet": {
@@ -366,18 +386,18 @@
       "attempts": "Versuche",
       "puzzle": "Aufgabe",
       "global": {
-        "title": "Globale Aktivität"
+        "title": "Aktivitätsstatistiken"
       },
       "personal": {
         "title": "Persönliche Aktivität"
       },
       "periods": {
-        "day": "Letzte 24 Stunden",
-        "week": "Letzte 7 Tage",
-        "month": "Letzte 30 Tage"
+        "day": "Tag",
+        "week": "Woche",
+        "month": "Monat"
       },
       "modes": {
-        "all": "Alle Modi",
+        "all": "Modus",
         "finishHim": "Konversion",
         "attack": "Angriff",
         "tower": "Speedrun",
@@ -449,6 +469,10 @@
     "error": {
         "puzzleNotFound": "Aufgabe konnte nicht geladen werden.",
         "loadFailed": "Aufgabe konnte nicht geladen werden."
+    },
+      "puzzleInfo": {
+      "title": "Info zur Aufgabe",
+      "rating": "Rating"
     }
   },
   "tacktics": {
@@ -505,8 +529,7 @@
     "error": {
       "puzzleNotFound": "Aufgabe konnte nicht geladen werden."
     },
-
-      "controls": {
+        "controls": {
       "levelTitle": "Schwierigkeit",
       "levels": {
         "easy": "Einfach",
@@ -515,7 +538,6 @@
       },
       "autoLoad": "AutoNext"
     }
-    
   },
   "about": {
     "title": "Chessboard.fun",

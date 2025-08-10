@@ -269,7 +269,9 @@ export class TowerController extends BaseGameController<TowerControllerState> {
   }
 
   private _processFetchedTowerData(towerData: TowerData | null): void {
+      // <<< НАЧАЛО ИЗМЕНЕНИЙ: Добавление логирования
       logger.debug('[TowerController] Received tower data from backend:', towerData);
+      // <<< КОНЕЦ ИЗМЕНЕНИЙ
 
       if (towerData && towerData.positions && towerData.positions.length > 0 && towerData.tower_id && towerData.tower_type && towerData.tower_theme) {
         const definition = TOWER_DEFINITIONS.find(def => def.id === towerData.tower_type);

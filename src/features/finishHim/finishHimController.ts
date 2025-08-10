@@ -283,6 +283,10 @@ export class FinishHimController extends BaseGameController<FinishHimControllerS
             }
         }
 
+        // <<< НАЧАЛО ИЗМЕНЕНИЙ
+        logger.debug('[FinishHimController] puzzleDataToProcess:', puzzleDataToProcess);
+        // <<< КОНЕЦ ИЗМЕНЕНИЙ
+
         if (!puzzleDataToProcess) {
             this.services.appController.showModal(t('finishHim.error.puzzleNotFound', { puzzleId: typeof puzzleSource === 'string' ? puzzleSource : '' }));
             this.setState({

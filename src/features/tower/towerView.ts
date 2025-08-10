@@ -211,6 +211,33 @@ function renderActiveTowerInfo(controller: TowerController): VNode | null {
   ]);
 }
 
+function renderTowerPuzzleInfo(controller: TowerController): VNode | null {
+    const { activeTowerState } = controller.state;
+    if (!activeTowerState) return null;
+
+    const { theme, averageRating, bwValueTotal } = activeTowerState;
+
+    const infoItems = [
+        theme ? h('div.puzzle-info-item', [
+            h('span.info-label', t('tower.ui.themeLabel', { defaultValue: 'Theme' }) + ': '),
+            h('span.info-value', t(`tower.themes.${theme}`, { defaultValue: theme }))
+        ]) : null,
+        averageRating !== undefined ? h('div.puzzle-info-item', [
+            h('span.info-label', t('tower.ui.averageRating', { defaultValue: 'Average Rating' }) + ': '),
+            h('span.info-value', String(averageRating))
+        ]) : null,
+        bwValueTotal !== undefined ? h('div.puzzle-info-item', [
+            h('span.info-label', t('finishHim.puzzleInfo.funValue', { defaultValue: 'Skill Value' }) + ': '),
+            h('span.info-value', String(bwValueTotal))
+        ]) : null,
+    ].filter(Boolean) as VNode[];
+
+    return h('div.puzzle-info-container', [
+        h('h4.puzzle-info-title', t('tower.puzzleInfo.title', { defaultValue: 'Tower Info' })),
+        h('div.puzzle-info-grid', infoItems)
+    ]);
+}
+
 function renderTimer(controller: TowerController): VNode {
     const timeString = controller.formatTime(Math.round((controller.state.activeTowerState?.elapsedTimeMs ?? 0) / 1000));
     return h('div.tower-timer-container', [
@@ -270,6 +297,7 @@ export function renderTowerUI(controller: TowerController): TowerPageViewLayout 
   
   if (towerState.activeTowerState && (towerState.gamePhase !== 'IDLE' && towerState.gamePhase !== 'LOADING')) {
       rightPanelDynamicContentElements.push(renderActiveTowerInfo(controller));
+      rightPanelDynamicContentElements.push(renderTowerPuzzleInfo(controller));
   }
   
   if (analysisPanelWrapper) {
@@ -294,3 +322,4 @@ export function renderTowerUI(controller: TowerController): TowerPageViewLayout 
     topPanelContent: feedbackVNode
   };
 }
+
