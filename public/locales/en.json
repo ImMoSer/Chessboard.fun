@@ -299,13 +299,6 @@
       "loaded": "Leaderboards",
       "error": "Error Loading Leaderboards"
     },
-      "periods": {
-        "day": "Last 24 hours",
-        "week": "Last 7 days",
-        "month": "Last 30 days",
-        "days14": "Last 14 days",
-        "days21": "Last 21 days"
-      },
     "bannerAlt": "Leaderboards Banner",
     "titles": {
       "activity": "Player Activity",
@@ -343,6 +336,10 @@
       "dataLoadFailed": "Failed to load leaderboard data.",
       "unknown": "An unknown error occurred.",
       "noLeaderboards": "No leaderboards available at the moment."
+    },
+    "periods": {
+      "days14": "Last 14 days",
+      "days21": "Last 21 days"
     }
   },
   "userCabinet": {
@@ -352,7 +349,6 @@
       "error": "Error",
       "default": "User Cabinet"
     },
-
     "info": {
       "lichessId": "Lichess ID",
       "subscriptionTier": "Subscription",
@@ -381,15 +377,18 @@
       "global": {
         "title": "Global activity"
       },
+      "personal": {
+        "title": "Personal Skill Statistics",
+        "overallSkillTitle": "Overall Skill",
+        "totalSkill30Days": "Total Skill (Last 30 Days)",
+        "skillStreakTitle": "Skill Streak",
+        "currentStreak": "Current Streak"
+      },
       "periods": {
         "day": "Last 24 hours",
         "week": "Last 7 days",
         "month": "Last 30 days"
       },
-      "personal": {
-        "title": "Personal activity"
-      },
-
       "modes": {
         "all": "All Modes",
         "finishHim": "Conversion",
@@ -397,7 +396,8 @@
         "tower": "SpeedRun",
         "tacticalTrainer": "Tactical Trainer"
       },
-      "noData": "No data available for the selected period."
+      "noData": "No data available for the selected period.",
+      "noActivity": "No skill data available."
     },
     "clubs": {
       "activityTitle": "Club Activity",

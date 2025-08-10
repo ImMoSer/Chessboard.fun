@@ -16,9 +16,9 @@
   background-color: var(--color-bg-secondary);
 }
 
-.user-cabinet-page.loading,
-.user-cabinet-page.error,
-.user-cabinet-page.no-data {
+.user-cabinet-container .user-cabinet-page.loading,
+.user-cabinet-container .user-cabinet-page.error,
+.user-cabinet-container .user-cabinet-page.no-data {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -29,7 +29,7 @@
   font-size: var(--font-size-large);
 }
 
-.user-cabinet-page.error .error-message {
+.user-cabinet-container .user-cabinet-page.error .error-message {
   color: var(--color-text-error);
   background-color: rgba(229, 57, 53, 0.15);
   border: 1px solid var(--color-accent-error);
@@ -38,13 +38,13 @@
   margin-top: 15px;
 }
 
-.user-cabinet__header {
+.user-cabinet-container .user-cabinet__header {
   padding-bottom: 15px;
   margin-bottom: 20px;
   text-align: center;
 }
 
-.user-cabinet__page-main-title {
+.user-cabinet-container .user-cabinet__page-main-title {
   font-size: var(--font-size-xxlarge);
   color: var(--color-accent-primary);
   margin-top: 0;
@@ -52,7 +52,7 @@
   font-weight: var(--font-weight-bold);
 }
 
-.user-cabinet__user-info-basic {
+.user-cabinet-container .user-cabinet__user-info-basic {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -61,25 +61,25 @@
   color: var(--color-text-muted);
 }
 
-.user-cabinet__user-info-basic .user-cabinet__stat-item {
+.user-cabinet-container .user-cabinet__user-info-basic .user-cabinet__stat-item {
   background-color: var(--color-bg-tertiary);
   padding: 5px 10px;
   border-radius: 4px;
   border: 1px solid var(--color-border);
 }
 
-.tier-expire-date {
+.user-cabinet-container .tier-expire-date {
   font-style: italic;
   color: var(--color-text-muted);
   font-size: 0.9em;
   margin-left: 8px;
 }
 
-.user-cabinet__stats-section,
-.user-cabinet__club-activity-section,
-.user-cabinet__favorites-section,
-.user-cabinet__telegram-section,
-.user-cabinet__personal-activity-section { /* <<< ДОБАВЛЕНО */
+.user-cabinet-container .user-cabinet__stats-section,
+.user-cabinet-container .user-cabinet__club-activity-section,
+.user-cabinet-container .user-cabinet__favorites-section,
+.user-cabinet-container .user-cabinet__telegram-section,
+.user-cabinet-container .user-cabinet__personal-skill-stats-section {
   background-color: var(--color-bg-tertiary);
   padding: 15px;
   border-radius: var(--panel-border-radius);
@@ -87,7 +87,7 @@
   margin-bottom: 20px;
 }
 
-.user-cabinet__section-title {
+.user-cabinet-container .user-cabinet__section-title {
   font-size: var(--font-size-xlarge);
   color: var(--color-accent-secondary);
   margin-top: 0;
@@ -97,7 +97,7 @@
   text-align: center;
 }
 
-.user-cabinet__stat-item {
+.user-cabinet-container .user-cabinet__stat-item {
   display: flex;
   justify-content: space-between;
   padding: 8px 0;
@@ -105,26 +105,26 @@
   font-size: var(--font-size-base);
 }
 
-.user-cabinet__stat-item:last-child {
+.user-cabinet-container .user-cabinet__stat-item:last-child {
   border-bottom: none;
 }
 
-.user-cabinet__stat-label {
+.user-cabinet-container .user-cabinet__stat-label {
   color: var(--color-text-muted);
   margin-right: 10px;
   font-weight: var(--font-weight-normal);
 }
 
-.user-cabinet__stat-value {
+.user-cabinet-container .user-cabinet__stat-value {
   color: var(--color-accent-error);
   font-weight: var(--font-weight-bold);
 }
 
-.user-cabinet__telegram-section .user-cabinet__section-title {
+.user-cabinet-container .user-cabinet__telegram-section .user-cabinet__section-title {
     color: #2AABEE; /* Telegram blue */
 }
 
-.user-cabinet__telegram-button {
+.user-cabinet-container .user-cabinet__telegram-button {
   display: block;
   width: 100%;
   max-width: 300px;
@@ -140,17 +140,17 @@
   transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
-.user-cabinet__telegram-button:hover:not(:disabled) {
+.user-cabinet-container .user-cabinet__telegram-button:hover:not(:disabled) {
   background-color: #1a94d6;
   transform: translateY(-1px);
 }
 
-.user-cabinet__telegram-button:disabled {
+.user-cabinet-container .user-cabinet__telegram-button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.user-cabinet__telegram-status {
+.user-cabinet-container .user-cabinet__telegram-status {
   text-align: center;
   font-size: var(--font-size-base);
   color: var(--color-text-default);
@@ -160,23 +160,23 @@
   border: 1px solid var(--color-accent-success);
 }
 
-.user-cabinet__telegram-status .icon {
+.user-cabinet-container .user-cabinet__telegram-status .icon {
   margin-right: 8px;
   color: var(--color-accent-success);
 }
 
-/* <<< НАЧАЛО ИЗМЕНЕНИЙ: Стили для персональной статистики */
-.user-cabinet__personal-activity-section .user-cabinet__section-title {
+.user-cabinet-container .user-cabinet__personal-skill-stats-section .user-cabinet__section-title {
   color: var(--color-accent-success);
 }
 
-.personal-activity__grid {
+.user-cabinet-container .skill-stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 15px;
+  margin-bottom: 15px;
 }
 
-.personal-activity__card {
+.user-cabinet-container .skill-stat-card {
   background-color: var(--color-bg-secondary);
   padding: 12px;
   border-radius: 6px;
@@ -186,7 +186,7 @@
   gap: 10px;
 }
 
-.personal-activity__card .card-title {
+.user-cabinet-container .skill-stat-card .card-title {
   margin: 0;
   font-size: var(--font-size-large);
   color: var(--color-text-default);
@@ -196,50 +196,79 @@
   border-bottom: 1px dashed var(--color-border);
 }
 
-.personal-activity__card .card-period-stats {
+.user-cabinet-container .skill-stat-card .card-content {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 12px;
   align-items: center;
 }
 
-.personal-activity__card .period-label {
-  font-size: var(--font-size-small);
-  color: var(--color-text-muted);
+.user-cabinet-container .total-skill-display, .user-cabinet-container .streak-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
 }
 
-.personal-activity__card .stats-row {
+.user-cabinet-container .total-skill-label, .user-cabinet-container .streak-label {
+    font-size: var(--font-size-small);
+    color: var(--color-text-muted);
+}
+
+.user-cabinet-container .total-skill-value, .user-cabinet-container .streak-value {
+    font-size: var(--font-size-xlarge);
+    font-weight: bold;
+    color: var(--color-accent-primary);
+}
+
+.user-cabinet-container .skill-progress-bar {
+    display: flex;
+    width: 100%;
+    max-width: 250px;
+    height: 20px;
+    background-color: var(--color-bg-primary);
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid var(--color-border-hover);
+}
+
+.user-cabinet-container .skill-bar-segment { height: 100%; }
+.user-cabinet-container .skill-bar-segment.finishHim { background-color: var(--color-accent-secondary); }
+.user-cabinet-container .skill-bar-segment.attack { background-color: var(--color-accent-warning); }
+.user-cabinet-container .skill-bar-segment.tower { background-color: var(--color-violett-lichess); }
+.user-cabinet-container .skill-bar-segment.tacticalTrainer { background-color: var(--color-accent-success); }
+
+.user-cabinet-container .skill-legend {
   display: flex;
-  align-items: baseline;
-  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 15px;
+  padding: 10px;
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--panel-border-radius);
+  margin-top: 10px;
 }
 
-.personal-activity__card .stat-value {
-  font-size: var(--font-size-base);
-  font-weight: bold;
-  color: var(--color-accent-primary);
-}
+.user-cabinet-container .legend-item { display: flex; align-items: center; gap: 8px; }
+.user-cabinet-container .legend-color-swatch { width: 16px; height: 16px; border-radius: 4px; border: 1px solid var(--color-border-hover); }
+.user-cabinet-container .legend-color-swatch.finishHim { background-color: var(--color-accent-secondary); }
+.user-cabinet-container .legend-color-swatch.attack { background-color: var(--color-accent-warning); }
+.user-cabinet-container .legend-color-swatch.tower { background-color: var(--color-violett-lichess); }
+.user-cabinet-container .legend-color-swatch.tacticalTrainer { background-color: var(--color-accent-success); }
+.user-cabinet-container .legend-label { font-size: var(--font-size-small); color: var(--color-text-muted); }
 
-.personal-activity__card .stat-rate {
-  font-size: var(--font-size-small);
-  color: var(--color-accent-success);
-  font-weight: bold;
-}
-/* <<< КОНЕЦ ИЗМЕНЕНИЙ */
-
-
-/* Стили для клубной активности */
-.user-cabinet__club-activity-section .user-cabinet__section-title {
+.user-cabinet-container .user-cabinet__club-activity-section .user-cabinet__section-title {
     color: var(--color-accent-success);
 }
 
-.user-cabinet__club-list-section {
+.user-cabinet-container .user-cabinet__club-list-section {
   margin-bottom: 15px;
 }
-.user-cabinet__club-list-section:last-child {
+.user-cabinet-container .user-cabinet__club-list-section:last-child {
   margin-bottom: 0;
 }
 
-.user-cabinet__club-list-title {
+.user-cabinet-container .user-cabinet__club-list-title {
   font-size: var(--font-size-large);
   color: var(--color-text-default);
   margin-top: 0;
@@ -248,7 +277,7 @@
   border-bottom: 1px dashed var(--color-border);
 }
 
-.user-cabinet__club-list {
+.user-cabinet-container .user-cabinet__club-list {
   list-style: none;
   padding: 0;
   margin: 0;
@@ -257,7 +286,7 @@
   gap: 10px;
 }
 
-.user-cabinet__club-list-item {
+.user-cabinet-container .user-cabinet__club-list-item {
   background-color: var(--color-bg-secondary);
   padding: 5px 10px;
   border-radius: var(--panel-border-radius);
@@ -265,35 +294,35 @@
   transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
-.user-cabinet__club-list-item a {
+.user-cabinet-container .user-cabinet__club-list-item a {
   color: var(--color-text-link);
   text-decoration: none;
   font-weight: var(--font-weight-bold);
   font-size: var(--font-size-base);
 }
 
-.user-cabinet__club-list-item a:hover {
+.user-cabinet-container .user-cabinet__club-list-item a:hover {
   color: var(--color-text-link-hover);
   text-decoration: underline;
 }
 
-.user-cabinet__club-list-item:hover {
+.user-cabinet-container .user-cabinet__club-list-item:hover {
     background-color: var(--color-border-hover);
     border-color: var(--color-accent-primary);
 }
 
-.user-cabinet__no-data-message {
+.user-cabinet-container .user-cabinet__no-data-message {
     font-style: italic;
     color: var(--color-text-muted);
     font-size: var(--font-size-small);
     padding-left: 5px;
 }
 
-.user-cabinet__favorites-section .user-cabinet__section-title {
+.user-cabinet-container .user-cabinet__favorites-section .user-cabinet__section-title {
     color: var(--color-accent-warning);
 }
 
-.user-cabinet__puzzle-list {
+.user-cabinet-container .user-cabinet__puzzle-list {
     list-style: none;
     padding: 0;
     margin: 0;
@@ -302,7 +331,7 @@
     gap: 15px;
 }
 
-.user-cabinet__puzzle-list-item {
+.user-cabinet-container .user-cabinet__puzzle-list-item {
     background-color: var(--color-bg-secondary);
     border-radius: var(--panel-border-radius);
     border: 1px solid var(--color-border-hover);
@@ -312,19 +341,19 @@
     padding: 10px;
 }
 
-.user-cabinet__puzzle-list-item:hover {
+.user-cabinet-container .user-cabinet__puzzle-list-item:hover {
     border-color: var(--color-accent-warning);
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
-.puzzle-visual-link {
+.user-cabinet-container .puzzle-visual-link {
     text-decoration: none;
     color: var(--color-text-default);
     flex-grow: 1;
 }
 
-.user-cabinet__puzzle-actions {
+.user-cabinet-container .user-cabinet__puzzle-actions {
   margin-top: 8px;
   padding-top: 8px;
   border-top: 1px solid var(--color-border);
@@ -333,7 +362,7 @@
   align-items: center;
 }
 
-.puzzle-action-button {
+.user-cabinet-container .puzzle-action-button {
   background: none;
   border: 1px solid var(--color-border);
   border-radius: 50%;
@@ -347,74 +376,72 @@
   transition: all 0.2s ease;
 }
 
-.puzzle-action-button.play-button {
+.user-cabinet-container .puzzle-action-button.play-button {
   color: var(--color-accent-primary);
 }
 
-.puzzle-action-button.play-button:hover {
+.user-cabinet-container .puzzle-action-button.play-button:hover {
   background-color: var(--color-accent-primary);
   color: var(--color-text-dark);
   border-color: var(--color-accent-primary);
 }
 
-.puzzle-action-button.delete-button {
+.user-cabinet-container .puzzle-action-button.delete-button {
   color: var(--color-accent-error);
 }
 
-.puzzle-action-button.delete-button:hover {
+.user-cabinet-container .puzzle-action-button.delete-button:hover {
   background-color: var(--color-accent-error);
   color: var(--color-text-on-accent);
   border-color: var(--color-accent-error);
 }
 
-.sorted-pieces-rows-container {
+.user-cabinet-container .sorted-pieces-rows-container {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.pieces-row {
+.user-cabinet-container .pieces-row {
   display: flex;
   flex-wrap: wrap;
   gap: 2px;
-  min-height: calc(1.2rem + 4px);
+  min-height: calc(1.5rem + 4px);
   padding: 2px;
   border-radius: 4px;
   background-color: rgba(0,0,0,0.1);
 }
 
-.pieces-row.player-pieces {
+.user-cabinet-container .pieces-row.player-pieces {
   border: 1px solid var(--color-accent-primary);
 }
 
-.pieces-row.bot-pieces {
+.user-cabinet-container .pieces-row.bot-pieces {
   border: 1px solid var(--color-accent-error);
 }
 
-
-
-.user-cabinet__stats-section--towers .user-cabinet__section-title {
+.user-cabinet-container .user-cabinet__stats-section--towers .user-cabinet__section-title {
   color: var(--color-violett-lichess);
 }
 
-.user-cabinet__stats-summary {
+.user-cabinet-container .user-cabinet__stats-summary {
   margin-bottom: 15px;
 }
 
-.user-cabinet__tower-categories {
+.user-cabinet-container .user-cabinet__tower-categories {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 15px;
 }
 
-.user-cabinet__tower-category {
+.user-cabinet-container .user-cabinet__tower-category {
   background-color: var(--color-bg-secondary);
   padding: 10px;
   border-radius: 6px;
   border: 1px solid var(--color-border-hover);
 }
 
-.user-cabinet__tower-category-title {
+.user-cabinet-container .user-cabinet__tower-category-title {
   font-size: var(--font-size-large);
   color: var(--color-accent-error);
   margin: 0 0 10px 0;
@@ -422,7 +449,7 @@
   font-weight: bold;
 }
 
-.user-cabinet__tower-list {
+.user-cabinet-container .user-cabinet__tower-list {
   list-style: none;
   padding: 0;
   margin: 0;
@@ -431,7 +458,7 @@
   gap: 8px;
 }
 
-.user-cabinet__tower-item a {
+.user-cabinet-container .user-cabinet__tower-item a {
   display: block;
   background-color: var(--color-bg-tertiary);
   padding: 8px;
@@ -443,62 +470,62 @@
   border: 1px solid transparent;
 }
 
-.user-cabinet__tower-item a:hover {
+.user-cabinet-container .user-cabinet__tower-item a:hover {
   border-color: var(--color-accent-primary);
   background-color: var(--color-border-hover);
 }
 
-.user-cabinet__stats-section--lichess-activity .user-cabinet__section-title {
+.user-cabinet-container .user-cabinet__stats-section--lichess-activity .user-cabinet__section-title {
   color: var(--color-accent-info);
 }
 
-.user-cabinet__activity-table {
+.user-cabinet-container .user-cabinet__activity-table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.user-cabinet__activity-table th, 
-.user-cabinet__activity-table td {
+.user-cabinet-container .user-cabinet__activity-table th, 
+.user-cabinet-container .user-cabinet__activity-table td {
   padding: 10px;
   border-bottom: 1px solid var(--color-border);
   text-align: left;
 }
 
-.user-cabinet__activity-table th {
+.user-cabinet-container .user-cabinet__activity-table th {
   font-weight: bold;
   color: var(--color-text-muted);
 }
 
-.user-cabinet__activity-date {
+.user-cabinet-container .user-cabinet__activity-date {
   font-weight: bold;
   white-space: nowrap;
   vertical-align: top;
   width: 1%;
 }
 
-.user-cabinet__activity-details {
+.user-cabinet-container .user-cabinet__activity-details {
   font-size: var(--font-size-small);
 }
 
-.activity-detail-item {
+.user-cabinet-container .activity-detail-item {
   margin-bottom: 8px;
 }
-.activity-detail-item:last-child {
+.user-cabinet-container .activity-detail-item:last-child {
   margin-bottom: 0;
 }
 
-.rating-change .positive {
+.user-cabinet-container .rating-change .positive {
   color: var(--color-accent-success);
 }
-.rating-change .negative {
+.user-cabinet-container .rating-change .negative {
   color: var(--color-accent-error);
 }
 
-.user-cabinet__stats-section--attack .user-cabinet__section-title {
+.user-cabinet-container .user-cabinet__stats-section--attack .user-cabinet__section-title {
   color: var(--color-accent-warning);
 }
 
-.user-cabinet__attack-list {
+.user-cabinet-container .user-cabinet__attack-list {
   list-style: none;
   padding: 0;
   margin: 0;
@@ -507,7 +534,7 @@
   gap: 10px;
 }
 
-.user-cabinet__attack-item a {
+.user-cabinet-container .user-cabinet__attack-item a {
   display: block;
   background-color: var(--color-bg-secondary);
   padding: 10px;
@@ -520,7 +547,7 @@
   text-align: center;
 }
 
-.user-cabinet__attack-item a:hover {
+.user-cabinet-container .user-cabinet__attack-item a:hover {
   border-color: var(--color-accent-warning);
   background-color: var(--color-border-hover);
   color: var(--color-text-link-hover);
@@ -535,27 +562,27 @@
     gap: 15px;
   }
 
-  .user-cabinet__page-main-title {
+  .user-cabinet-container .user-cabinet__page-main-title {
     font-size: var(--font-size-xlarge);
   }
 
-  .user-cabinet__section-title {
+  .user-cabinet-container .user-cabinet__section-title {
     font-size: var(--font-size-large);
   }
 
-  .user-cabinet__stat-item,
-  .user-cabinet__user-info-basic {
+  .user-cabinet-container .user-cabinet__stat-item,
+  .user-cabinet-container .user-cabinet__user-info-basic {
     font-size: var(--font-size-small);
   }
-   .user-cabinet__club-list-title {
+  .user-cabinet-container .user-cabinet__club-list-title {
     font-size: var(--font-size-base);
   }
-  .user-cabinet__club-list-item a {
+  .user-cabinet-container .user-cabinet__club-list-item a {
     font-size: var(--font-size-small);
   }
 
-  .user-cabinet__tower-categories,
-  .user-cabinet__attack-list {
+  .user-cabinet-container .user-cabinet__tower-categories,
+  .user-cabinet-container .user-cabinet__attack-list {
     grid-template-columns: 1fr;
   }
 }

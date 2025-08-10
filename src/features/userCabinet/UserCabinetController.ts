@@ -1,6 +1,6 @@
 // src/features/userCabinet/UserCabinetController.ts
 import type { AppServices } from '../../AppController';
-import type { UserSessionProfile as UserCabinetData, PersonalActivityStatsResponse } from '../../core/api.types';
+import type { UserSessionProfile as UserCabinetData, PersonalOverallSkillResponse, PersonalSkillStreakResponse } from '../../core/api.types';
 import { LichessApiService, type LichessActivityResponse } from '../../core/lichess-api.service';
 import { subscribeToLangChange, t } from '../../core/i18n.service';
 import logger from '../../utils/logger';
@@ -14,8 +14,11 @@ export interface UserCabinetControllerState {
   favoritePuzzles: FavoritePuzzleInfo[];
   lichessActivity: LichessActivityResponse | null;
   isActivityLoading: boolean;
-  personalActivityStats: PersonalActivityStatsResponse | null;
-  isPersonalActivityLoading: boolean;
+  // <<< НАЧАЛО ИЗМЕНЕНИЙ: Обновлены поля для новой персональной статистики
+  personalOverallSkill: PersonalOverallSkillResponse | null;
+  personalSkillStreak: PersonalSkillStreakResponse | null;
+  isPersonalSkillStatsLoading: boolean;
+  // <<< КОНЕЦ ИЗМЕНЕНИЙ
 }
 
 export class UserCabinetController {
@@ -41,8 +44,11 @@ export class UserCabinetController {
       favoritePuzzles: [],
       lichessActivity: null,
       isActivityLoading: true,
-      personalActivityStats: null,
-      isPersonalActivityLoading: true,
+      // <<< НАЧАЛО ИЗМЕНЕНИЙ: Инициализация новых полей
+      personalOverallSkill: null,
+      personalSkillStreak: null,
+      isPersonalSkillStatsLoading: true,
+      // <<< КОНЕЦ ИЗМЕНЕНИЙ
     };
 
     this.unsubscribeFromLangChange = subscribeToLangChange(() => {
@@ -58,7 +64,8 @@ export class UserCabinetController {
 
   public async initializePage(): Promise<void> {
     logger.info('[UserCabinetController] Initializing/updating page data.');
-    this.setState({ isLoading: true, isActivityLoading: true, isPersonalActivityLoading: true, error: null });
+    // <<< ИЗМЕНЕНИЕ: Обновлен вызов setState
+    this.setState({ isLoading: true, isActivityLoading: true, isPersonalSkillStatsLoading: true, error: null });
     this.updateLocalizedTexts();
 
     const currentUserProfile = this.services.authService.getUserProfile();
@@ -75,13 +82,15 @@ export class UserCabinetController {
       logger.info(`[UserCabinetController] Cabinet data populated from AuthService. User: ${currentUserProfile.username}`);
 
       this.fetchLichessActivity(currentUserProfile.username);
-      this.fetchPersonalActivityStats();
+      // <<< ИЗМЕНЕНИЕ: Вызов нового метода
+      this.fetchPersonalSkillStats();
 
     } else {
       this.setState({
         isLoading: false,
         isActivityLoading: false,
-        isPersonalActivityLoading: false,
+        // <<< ИЗМЕНЕНИЕ
+        isPersonalSkillStatsLoading: false,
         error: t('userCabinet.error.notAuthenticated', { defaultValue: 'User is not authenticated.' }),
         cabinetData: null,
         favoritePuzzles: [],
@@ -104,23 +113,31 @@ export class UserCabinetController {
     }
   }
 
-  private async fetchPersonalActivityStats(): Promise<void> {
+  // <<< НАЧАЛО ИЗМЕНЕНИЙ: Новый метод для получения статистики скиллов
+  private async fetchPersonalSkillStats(): Promise<void> {
     try {
-      const statsData = await this.services.webhookService.fetchPersonalActivityStats();
+      const [overallSkill, skillStreak] = await Promise.all([
+        this.services.webhookService.fetchPersonalOverallSkill(),
+        this.services.webhookService.fetchPersonalSkillStreak()
+      ]);
+
       this.setState({
-        personalActivityStats: statsData,
-        isPersonalActivityLoading: false,
+        personalOverallSkill: overallSkill,
+        personalSkillStreak: skillStreak,
+        isPersonalSkillStatsLoading: false,
       });
-      if (statsData) {
-        logger.info(`[UserCabinetController] Personal activity stats loaded successfully.`);
+      
+      if (overallSkill && skillStreak) {
+        logger.info(`[UserCabinetController] Personal skill stats loaded successfully.`);
       } else {
-        logger.warn(`[UserCabinetController] fetchPersonalActivityStats returned null.`);
+        logger.warn(`[UserCabinetController] One or both personal skill stats requests returned null.`);
       }
     } catch (error) {
-      logger.error('[UserCabinetController] Failed to fetch personal activity stats:', error);
-      this.setState({ isPersonalActivityLoading: false, error: 'Failed to load personal activity stats.' });
+      logger.error('[UserCabinetController] Failed to fetch personal skill stats:', error);
+      this.setState({ isPersonalSkillStatsLoading: false, error: 'Failed to load personal skill stats.' });
     }
   }
+  // <<< КОНЕЦ ИЗМЕНЕНИЙ
   
   public handleRemoveFavorite(puzzleIdToRemove: string): void {
     const user = this.services.authService.getUserProfile();

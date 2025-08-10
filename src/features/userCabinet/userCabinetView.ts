@@ -2,7 +2,7 @@
 import { h } from 'snabbdom';
 import type { VNode } from 'snabbdom';
 import type { UserCabinetController, UserCabinetControllerState } from './UserCabinetController';
-import type { UserSessionProfile as UserCabinetData, ClubIdNamePair, TowerStats, TowerAttempt, AttackStat, PersonalActivityStatsResponse, PersonalActivityModeStats, TowerId } from '../../core/api.types';
+import type { UserSessionProfile as UserCabinetData, ClubIdNamePair, TowerStats, TowerAttempt, AttackStat, SkillByMode, TowerId } from '../../core/api.types';
 import { t } from '../../core/i18n.service';
 import logger from '../../utils/logger';
 import { TOWER_DEFINITIONS } from '../tower/tower.types';
@@ -14,6 +14,37 @@ const pieceFileMap: { [key: string]: string } = {
 };
 const pieceOrder: { [key: string]: number } = { 'P': 1, 'N': 2, 'B': 3, 'R': 4, 'Q': 5, 'K': 6 };
 interface PieceInfo { pieceFile: string; pieceType: string; }
+
+function renderSkillProgressBar(skillByMode: SkillByMode, totalSkill: number): VNode {
+    const modes: (keyof SkillByMode)[] = ['finishHim', 'attack', 'tower', 'tacticalTrainer'];
+    const segments = modes.map(mode => {
+        const skillValue = skillByMode[mode] || 0;
+        if (skillValue === 0) return null;
+        const width = totalSkill > 0 ? (skillValue / totalSkill) * 100 : 0;
+        return h(`div.skill-bar-segment.${mode}`, {
+            style: { width: `${width}%` },
+            attrs: { title: `${t(`userCabinet.stats.modes.${mode}`)}: ${skillValue}` }
+        });
+    }).filter(Boolean) as VNode[];
+
+    return h('div.skill-progress-bar', segments);
+}
+
+function renderSkillLegend(): VNode {
+    const modes: { key: keyof SkillByMode, nameKey: string }[] = [
+        { key: 'finishHim', nameKey: 'userCabinet.stats.modes.finishHim' },
+        { key: 'attack', nameKey: 'userCabinet.stats.modes.attack' },
+        { key: 'tower', nameKey: 'userCabinet.stats.modes.tower' },
+        { key: 'tacticalTrainer', nameKey: 'userCabinet.stats.modes.tacticalTrainer' },
+    ];
+
+    return h('div.skill-legend', modes.map(mode =>
+        h('div.legend-item', [
+            h(`span.legend-color-swatch.${mode.key}`),
+            h('span.legend-label', t(mode.nameKey))
+        ])
+    ));
+}
 
 function parseFenForSortedRows(fen_string: string, botColor: 'w' | 'b'): { playerPieces: PieceInfo[], botPieces: PieceInfo[] } {
   const playerPieces: PieceInfo[] = [];
@@ -65,52 +96,47 @@ function renderTelegramSection(controller: UserCabinetController): VNode {
   ]);
 }
 
-function renderPersonalActivityStatsSection(state: UserCabinetControllerState): VNode {
-  const { personalActivityStats, isPersonalActivityLoading } = state;
+function renderPersonalSkillStatsSection(state: UserCabinetControllerState): VNode {
+  const { isPersonalSkillStatsLoading, personalOverallSkill, personalSkillStreak } = state;
 
   let content: VNode | VNode[];
-  if (isPersonalActivityLoading) {
+  if (isPersonalSkillStatsLoading) {
     content = h('p', t('common.loading', { defaultValue: 'Loading...' }));
-  } else if (!personalActivityStats || Object.keys(personalActivityStats).length === 0) {
-    content = h('p', t('userCabinet.stats.noActivity', { defaultValue: 'No activity data available.' }));
+  } else if (!personalOverallSkill || !personalSkillStreak) {
+    content = h('p', t('userCabinet.stats.noActivity', { defaultValue: 'No skill data available.' }));
   } else {
-    const modeOrder: (keyof PersonalActivityStatsResponse)[] = ['finishHim', 'tower', 'attack', 'tacticalTrainer'];
-    
-    content = h('div.personal-activity__grid', modeOrder.map(modeKey => {
-      const modeData = personalActivityStats[modeKey];
-      if (!modeData) return null;
+    const overallSkillData = personalOverallSkill['30_days'];
 
-      const periods: { key: keyof PersonalActivityModeStats, labelKey: string }[] = [
-        { key: 'daily', labelKey: 'userCabinet.stats.periods.day' },
-        { key: 'weekly', labelKey: 'userCabinet.stats.periods.week' },
-        { key: 'monthly', labelKey: 'userCabinet.stats.periods.month' },
-      ];
-
-      return h('div.personal-activity__card', [
-        h('h4.card-title', t(`userCabinet.stats.modes.${modeKey}`, { defaultValue: modeKey })),
-        ...periods.map(period => {
-          const periodData = modeData[period.key];
-          const solved = periodData?.solved ?? 0;
-          const requested = periodData?.requested ?? 0;
-          const successRate = requested > 0 ? ((solved / requested) * 100).toFixed(0) + '%' : '-';
-
-          return h('div.card-period-stats', [
-            h('span.period-label', t(period.labelKey)),
-            h('div.stats-row', [
-              h('span.stat-value', `${solved}`),
-              h('span.stat-rate', successRate)
+    content = h('div.skill-stats-grid', [
+        h('div.skill-stat-card', [
+            h('h4.card-title', t('userCabinet.stats.personal.overallSkillTitle')),
+            h('div.card-content', [
+                h('div.total-skill-display', [
+                    h('span.total-skill-label', t('userCabinet.stats.personal.totalSkill30Days')),
+                    h('span.total-skill-value', overallSkillData.total_skill)
+                ]),
+                renderSkillProgressBar(overallSkillData.skill_by_mode, overallSkillData.total_skill)
             ])
-          ]);
-        })
-      ]);
-    }).filter(Boolean) as VNode[]);
+        ]),
+        h('div.skill-stat-card', [
+            h('h4.card-title', t('userCabinet.stats.personal.skillStreakTitle')),
+            h('div.card-content', [
+                 h('div.streak-display', [
+                    h('span.streak-label', t('userCabinet.stats.personal.currentStreak')),
+                    h('span.streak-value', `${personalSkillStreak.current_streak} 🔥`)
+                ]),
+            ])
+        ])
+    ]);
   }
 
-  return h('div.user-cabinet__personal-activity-section', [
-    h('h3.user-cabinet__section-title', t('userCabinet.stats.personal.title', { defaultValue: 'Personal Activity' })),
-    content
+  return h('div.user-cabinet__personal-skill-stats-section', [
+    h('h3.user-cabinet__section-title', t('userCabinet.stats.personal.title', { defaultValue: 'Personal Skill Statistics' })),
+    content,
+    !isPersonalSkillStatsLoading && personalOverallSkill ? renderSkillLegend() : null
   ]);
 }
+
 
 function renderFinishHimStats(cabinetData: UserCabinetData | null): VNode {
   const stats = cabinetData?.finishHimStats;
@@ -135,7 +161,7 @@ function renderTowerStats(cabinetData: UserCabinetData | null, controller: UserC
   const towerStats: TowerStats | undefined = cabinetData?.tower_stats;
 
   if (!towerStats || Object.keys(towerStats).length === 0) {
-    return null; 
+    return null;
   }
 
   let totalTowersCompleted = 0;
@@ -154,7 +180,7 @@ function renderTowerStats(cabinetData: UserCabinetData | null, controller: UserC
     const sec = seconds % 60;
     return `${min}:${sec.toString().padStart(2, '0')}`;
   };
-  
+
   return h('div.user-cabinet__stats-section.user-cabinet__stats-section--towers', [
     h('h3.user-cabinet__section-title', t('userCabinet.stats.towerTitle', { defaultValue: 'Tower Statistics' })),
     h('div.user-cabinet__stats-summary', [
@@ -168,9 +194,9 @@ function renderTowerStats(cabinetData: UserCabinetData | null, controller: UserC
         }
         return h('div.user-cabinet__tower-category', [
             h('h4.user-cabinet__tower-category-title', t(towerDef.nameKey, {defaultValue: towerDef.defaultName})),
-            h('ul.user-cabinet__tower-list', attemptsForCategory.map((attempt: TowerAttempt) => 
+            h('ul.user-cabinet__tower-list', attemptsForCategory.map((attempt: TowerAttempt) =>
                 h('li.user-cabinet__tower-item', [
-                    h('a', { 
+                    h('a', {
                         props: { href: `/#/tower/${attempt.tower_id}` },
                         on: { click: (e: Event) => {
                             e.preventDefault();
@@ -229,14 +255,14 @@ function renderClubList(
     h('ul.user-cabinet__club-list', clubData.map((club: ClubIdNamePair) =>
       h('li.user-cabinet__club-list-item', [
         h('a', {
-          props: { href: `/#/clubs/${club.club_id}` }, 
+          props: { href: `/#/clubs/${club.club_id}` },
           on: {
             click: (e: Event) => {
               e.preventDefault();
               controller.services.appController.navigateTo('clubPage', true, club.club_id);
             }
           }
-        }, club.club_name) 
+        }, club.club_name)
       ])
     ))
   ]);
@@ -259,7 +285,7 @@ function renderClubActivity(cabinetData: UserCabinetData | null, controller: Use
     h('h3.user-cabinet__section-title', t('userCabinet.clubs.activityTitle', {defaultValue: 'Club Activity'})),
     followedClubsNode,
     founderClubsNode,
-  ].filter(Boolean) as VNode[]); 
+  ].filter(Boolean) as VNode[]);
 }
 
 function renderFavoritePuzzles(state: UserCabinetControllerState, controller: UserCabinetController): VNode | null {
@@ -319,7 +345,7 @@ function renderRatingChange(rp: {before: number, after: number}): VNode {
     const diff = rp.after - rp.before;
     const sign = diff > 0 ? '+' : '';
     const colorClass = diff > 0 ? '.positive' : (diff < 0 ? '.negative' : '');
-    
+
     return h('span.rating-change', [
         `${rp.before} → ${rp.after} (`,
         h(`span${colorClass}`, `${sign}${diff}`),
@@ -355,7 +381,7 @@ function renderActivityEntry(entry: LichessActivityEntry): VNode {
             renderRatingChange(data.rp)
         ]));
     }
-    
+
     return h('tr.user-cabinet__activity-row', { key: entry.interval.start }, [
         h('td.user-cabinet__activity-date', date),
         h('td.user-cabinet__activity-details', details)
@@ -429,7 +455,7 @@ export function renderUserCabinetPage(controller: UserCabinetController): VNode 
       ])
     ]),
     renderTelegramSection(controller),
-    renderPersonalActivityStatsSection(state),
+    renderPersonalSkillStatsSection(state),
     renderLichessActivity(state),
     renderFinishHimStats(cabinetData),
     renderAttackStats(cabinetData, controller),
