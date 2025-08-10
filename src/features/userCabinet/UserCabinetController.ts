@@ -1,10 +1,14 @@
 // src/features/userCabinet/UserCabinetController.ts
 import type { AppServices } from '../../AppController';
-import type { UserSessionProfile as UserCabinetData, PersonalOverallSkillResponse, PersonalSkillStreakResponse } from '../../core/api.types';
+import type { UserSessionProfile as UserCabinetData, PersonalActivityStatsResponse } from '../../core/api.types';
 import { LichessApiService, type LichessActivityResponse } from '../../core/lichess-api.service';
 import { subscribeToLangChange, t } from '../../core/i18n.service';
 import logger from '../../utils/logger';
 import { PuzzleStorageService, type FavoritePuzzleInfo } from '../../core/puzzle-storage.service';
+
+// <<< НАЧАЛО ИЗМЕНЕНИЙ: Добавлен тип для периода статистики
+export type ActivityPeriod = 'daily' | 'weekly' | 'monthly';
+// <<< КОНЕЦ ИЗМЕНЕНИЙ
 
 export interface UserCabinetControllerState {
   isLoading: boolean;
@@ -15,9 +19,9 @@ export interface UserCabinetControllerState {
   lichessActivity: LichessActivityResponse | null;
   isActivityLoading: boolean;
   // <<< НАЧАЛО ИЗМЕНЕНИЙ: Обновлены поля для новой персональной статистики
-  personalOverallSkill: PersonalOverallSkillResponse | null;
-  personalSkillStreak: PersonalSkillStreakResponse | null;
-  isPersonalSkillStatsLoading: boolean;
+  personalActivityStats: PersonalActivityStatsResponse | null;
+  isPersonalActivityStatsLoading: boolean;
+  selectedActivityPeriod: ActivityPeriod;
   // <<< КОНЕЦ ИЗМЕНЕНИЙ
 }
 
@@ -45,9 +49,9 @@ export class UserCabinetController {
       lichessActivity: null,
       isActivityLoading: true,
       // <<< НАЧАЛО ИЗМЕНЕНИЙ: Инициализация новых полей
-      personalOverallSkill: null,
-      personalSkillStreak: null,
-      isPersonalSkillStatsLoading: true,
+      personalActivityStats: null,
+      isPersonalActivityStatsLoading: true,
+      selectedActivityPeriod: 'daily', // Значение по умолчанию
       // <<< КОНЕЦ ИЗМЕНЕНИЙ
     };
 
@@ -65,7 +69,7 @@ export class UserCabinetController {
   public async initializePage(): Promise<void> {
     logger.info('[UserCabinetController] Initializing/updating page data.');
     // <<< ИЗМЕНЕНИЕ: Обновлен вызов setState
-    this.setState({ isLoading: true, isActivityLoading: true, isPersonalSkillStatsLoading: true, error: null });
+    this.setState({ isLoading: true, isActivityLoading: true, isPersonalActivityStatsLoading: true, error: null });
     this.updateLocalizedTexts();
 
     const currentUserProfile = this.services.authService.getUserProfile();
@@ -83,14 +87,14 @@ export class UserCabinetController {
 
       this.fetchLichessActivity(currentUserProfile.username);
       // <<< ИЗМЕНЕНИЕ: Вызов нового метода
-      this.fetchPersonalSkillStats();
+      this.fetchPersonalActivityStats();
 
     } else {
       this.setState({
         isLoading: false,
         isActivityLoading: false,
         // <<< ИЗМЕНЕНИЕ
-        isPersonalSkillStatsLoading: false,
+        isPersonalActivityStatsLoading: false,
         error: t('userCabinet.error.notAuthenticated', { defaultValue: 'User is not authenticated.' }),
         cabinetData: null,
         favoritePuzzles: [],
@@ -113,28 +117,34 @@ export class UserCabinetController {
     }
   }
 
-  // <<< НАЧАЛО ИЗМЕНЕНИЙ: Новый метод для получения статистики скиллов
-  private async fetchPersonalSkillStats(): Promise<void> {
+  // <<< НАЧАЛО ИЗМЕНЕНИЙ: Новый метод для получения статистики активности
+  private async fetchPersonalActivityStats(): Promise<void> {
     try {
-      const [overallSkill, skillStreak] = await Promise.all([
-        this.services.webhookService.fetchPersonalOverallSkill(),
-        this.services.webhookService.fetchPersonalSkillStreak()
-      ]);
+      const activityStats = await this.services.webhookService.fetchPersonalActivityStats();
+      
+      // Логирование полученных данных для дебага
+      logger.debug('[UserCabinetController] Fetched personal activity stats:', activityStats);
 
       this.setState({
-        personalOverallSkill: overallSkill,
-        personalSkillStreak: skillStreak,
-        isPersonalSkillStatsLoading: false,
+        personalActivityStats: activityStats,
+        isPersonalActivityStatsLoading: false,
       });
       
-      if (overallSkill && skillStreak) {
-        logger.info(`[UserCabinetController] Personal skill stats loaded successfully.`);
+      if (activityStats) {
+        logger.info(`[UserCabinetController] Personal activity stats loaded successfully.`);
       } else {
-        logger.warn(`[UserCabinetController] One or both personal skill stats requests returned null.`);
+        logger.warn(`[UserCabinetController] Personal activity stats request returned null.`);
       }
     } catch (error) {
-      logger.error('[UserCabinetController] Failed to fetch personal skill stats:', error);
-      this.setState({ isPersonalSkillStatsLoading: false, error: 'Failed to load personal skill stats.' });
+      logger.error('[UserCabinetController] Failed to fetch personal activity stats:', error);
+      this.setState({ isPersonalActivityStatsLoading: false, error: 'Failed to load personal activity stats.' });
+    }
+  }
+
+  public setSelectedActivityPeriod(period: ActivityPeriod): void {
+    if (this.state.selectedActivityPeriod !== period) {
+      this.setState({ selectedActivityPeriod: period });
+      logger.debug(`[UserCabinetController] Selected activity period changed to: ${period}`);
     }
   }
   // <<< КОНЕЦ ИЗМЕНЕНИЙ

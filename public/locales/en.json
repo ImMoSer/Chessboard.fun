@@ -325,10 +325,10 @@
       "challenge": "Challenge",
       "puzzle": "[TBD]",
       "solved": "Solved",
-      "requested": "Of",
+      "requested": "Requested",
       "successRate": "(%)",
       "daysOld": "Days",
-      "totalSkill": "Total Skill",
+      "totalSkill": "Skill",
       "streakDays": "Streak (Days)",
       "action": "Action"
     },
@@ -356,17 +356,8 @@
       "tierPermanent": " (permanent)"
     },
     "stats": {
-      "noStats": "Conversion statistics are not available.",
-      "finishHimTitle": "Conversion Statistics",
       "attackTitle": "Attack Mode Statistics",
       "gamesPlayed": "Games Played",
-      "tacticalRating": "Tactical Rating",
-      "tacticalWins": "Tactical Wins",
-      "tacticalLosses": "Tactical Losses",
-      "finishHimRating": "Playout Rating",
-      "playoutWins": "Playout Wins",
-      "playoutDraws": "Playout Draws",
-      "playoutLosses": "Playout Losses",
       "fancoins": "FanCoins",
       "towerTitle": "SpeedRun Statistics",
       "towersCompleted": "SpeedRuns Completed",
@@ -375,29 +366,21 @@
       "attempts": "attempts",
       "puzzle": "Puzzle",
       "global": {
-        "title": "Global activity"
-      },
-      "personal": {
-        "title": "Personal Skill Statistics",
-        "overallSkillTitle": "Overall Skill",
-        "totalSkill30Days": "Total Skill (Last 30 Days)",
-        "skillStreakTitle": "Skill Streak",
-        "currentStreak": "Current Streak"
+        "title": "Activity Statistics"
       },
       "periods": {
-        "day": "Last 24 hours",
-        "week": "Last 7 days",
-        "month": "Last 30 days"
+        "day": "Daily",
+        "week": "Weekly",
+        "month": "Monthly"
       },
       "modes": {
-        "all": "All Modes",
+        "all": "Mode",
         "finishHim": "Conversion",
         "attack": "Attack",
         "tower": "SpeedRun",
         "tacticalTrainer": "Tactical Trainer"
       },
-      "noData": "No data available for the selected period.",
-      "noActivity": "No skill data available."
+      "noData": "No data available for the selected period."
     },
     "clubs": {
       "activityTitle": "Club Activity",

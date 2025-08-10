@@ -183,18 +183,6 @@ export interface AttackLeaderboardEntry {
   subscriptionTier?: string;
 }
 
-export interface ActivityModeStats {
-  solved: number;
-  requested: number;
-}
-
-export interface ActivityPeriodStats {
-  finishHim?: ActivityModeStats;
-  tower?: ActivityModeStats;
-  attack?: ActivityModeStats;
-  tacticalTrainer?: ActivityModeStats;
-}
-
 export interface WorktableLeaderboards {
   towerLeaderboards: { [key in TowerId]?: TowerLeaderboardEntry[] };
   finishHimLeaderboard: FinishHimLeaderboardEntry[];
@@ -221,7 +209,6 @@ export interface OverallSkillLeaderboardEntry {
   skill_by_mode: SkillByMode;
 }
 
-// <<< НАЧАЛО ИЗМЕНЕНИЙ: Расширен интерфейс SkillStreakLeaderboardEntry
 export interface SkillStreakLeaderboardEntry {
   lichess_id: string;
   username: string;
@@ -230,7 +217,6 @@ export interface SkillStreakLeaderboardEntry {
   total_skill: number;
   skill_by_mode: SkillByMode;
 }
-// <<< КОНЕЦ ИЗМЕНЕНИЙ
 
 export interface PersonalOverallSkillPeriod {
   lichess_id: string;
@@ -259,17 +245,23 @@ export interface TelegramBindingUrlResponse {
   bindingUrl: string;
 }
 
-export interface PersonalActivityModeStats {
-  daily: ActivityModeStats;
-  weekly: ActivityModeStats;
-  monthly: ActivityModeStats;
+export interface ActivityModeStats {
+  puzzles_requested: number;
+  puzzles_solved: number;
+  skill_value: number;
+}
+
+export interface ActivityPeriodStats {
+  tower: ActivityModeStats;
+  attack: ActivityModeStats;
+  finishHim: ActivityModeStats;
+  tacticalTrainer: ActivityModeStats;
 }
 
 export interface PersonalActivityStatsResponse {
-  finishHim?: PersonalActivityModeStats;
-  tower?: PersonalActivityModeStats;
-  attack?: PersonalActivityModeStats;
-  tacticalTrainer?: PersonalActivityModeStats;
+  daily: ActivityPeriodStats;
+  weekly: ActivityPeriodStats;
+  monthly: ActivityPeriodStats;
 }
 
 // Types from auth.service.ts

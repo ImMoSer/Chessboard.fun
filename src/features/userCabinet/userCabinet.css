@@ -553,6 +553,75 @@
   color: var(--color-text-link-hover);
 }
 
+/* <<< НАЧАЛО ИЗМЕНЕНИЙ: Стили для новой секции статистики */
+.user-cabinet__personal-activity-stats .user-cabinet__section-title {
+  color: var(--color-accent-success);
+}
+
+.stats-filters {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+.filter-button {
+  padding: 8px 16px;
+  border-radius: var(--panel-border-radius);
+  border: 1px solid var(--color-border-hover);
+  background-color: var(--color-bg-secondary);
+  color: var(--color-text-muted);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.filter-button:hover {
+  border-color: var(--color-accent-primary);
+  color: var(--color-text-default);
+}
+
+.filter-button.active {
+  background-color: var(--color-accent-primary);
+  color: var(--color-text-dark);
+  border-color: var(--color-accent-primary);
+  font-weight: bold;
+}
+
+.stats-table-container {
+  overflow-x: auto;
+}
+
+.user-cabinet__stats-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.user-cabinet__stats-table th,
+.user-cabinet__stats-table td {
+  padding: 10px;
+  border: 1px solid var(--color-border);
+  text-align: center;
+}
+
+.user-cabinet__stats-table th {
+  background-color: var(--color-bg-secondary);
+  font-weight: bold;
+}
+
+.user-cabinet__stats-table td:first-child {
+  text-align: left;
+  font-weight: bold;
+}
+
+.user-cabinet__stats-table .skill-value {
+  font-weight: bold;
+  color: var(--color-accent-success);
+}
+/* <<< КОНЕЦ ИЗМЕНЕНИЙ */
+
 
 @media (max-width: 768px) {
   .user-cabinet-container {

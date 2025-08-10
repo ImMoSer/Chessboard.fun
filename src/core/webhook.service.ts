@@ -161,7 +161,6 @@ export class WebhookServiceController {
     const cachedData = CacheService.get<OverallSkillLeaderboardEntry[]>(cacheKey, CACHE_LEADERBOARDS_TTL_MS);
     if (cachedData) return cachedData;
 
-    // <<< ИЗМЕНЕНИЕ: Убран лишний /api из пути
     const data = await this._apiRequest<OverallSkillLeaderboardEntry[]>(`/n8n-proxy/leaderboards/overall-skill?period=${period}`, 'GET', 'fetchOverallSkillLeaderboard');
     if (data) CacheService.set(cacheKey, data);
     return data;
@@ -175,9 +174,23 @@ export class WebhookServiceController {
     return this._apiRequest<PersonalSkillStreakResponse>('/activity/personal/skill-streak', 'GET', 'fetchPersonalSkillStreak');
   }
   
+  // <<< НАЧАЛО ИЗМЕНЕНИЙ: Обновлен метод для получения персональной статистики
   public async fetchPersonalActivityStats(): Promise<PersonalActivityStatsResponse | null> {
-    return this._apiRequest<PersonalActivityStatsResponse>('/activity/personal/activity-stats', 'GET', 'fetchPersonalActivityStats');
+    const cacheKey = 'personal_activity_stats';
+    const cachedData = CacheService.get<PersonalActivityStatsResponse>(cacheKey, 300000); // 5 минут TTL
+    if (cachedData) {
+      logger.info('[WebhookService] Returning cached personal activity stats.');
+      return cachedData;
+    }
+    
+    const data = await this._apiRequest<PersonalActivityStatsResponse>('/activity/personal', 'GET', 'fetchPersonalActivityStats');
+    
+    if (data) {
+      CacheService.set(cacheKey, data);
+    }
+    return data;
   }
+  // <<< КОНЕЦ ИЗМЕНЕНИЙ
 }
 
 export const WebhookService = new WebhookServiceController();
