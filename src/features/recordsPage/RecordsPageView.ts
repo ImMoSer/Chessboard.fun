@@ -120,6 +120,7 @@ function renderOverallSkillLeaderboard(controller: RecordsPageController): VNode
     ]);
 }
 
+// <<< НАЧАЛО ИЗМЕНЕНИЙ: Адаптация таблицы Skill Streak
 function renderSkillStreakLeaderboard(controller: RecordsPageController): VNode | null {
     const { skillStreakData } = controller.state;
     if (!skillStreakData || skillStreakData.length === 0) return null;
@@ -129,26 +130,33 @@ function renderSkillStreakLeaderboard(controller: RecordsPageController): VNode 
         h('thead', h('tr', [
             h('th.text-center', t('records.table.rank')),
             h('th.text-left', t('records.table.player')),
-            h('th.text-right', t('records.table.streakDays')),
+            h('th.text-center', t('records.table.streakDays')),
+            h('th.text-right', t('records.table.totalSkill')),
         ])),
         h('tbody', skillStreakData.map((entry: SkillStreakLeaderboardEntry, index) =>
             h('tr', { key: entry.lichess_id }, [
                 h('td.text-center', (index + 1).toString()),
                 h('td.text-left', [
+                    renderSubscriptionIcon(entry.subscriptionTier),
                     h('a', { props: { href: `https://lichess.org/@/${entry.lichess_id}`, target: '_blank', rel: 'noopener noreferrer' } }, entry.username)
                 ]),
-                h('td.text-right', entry.current_streak.toString()),
+                h('td.text-center', entry.current_streak.toString()),
+                h('td.text-right', [
+                    h('span.total-skill-value', entry.total_skill.toString()),
+                    renderSkillProgressBar(entry.skill_by_mode, entry.total_skill)
+                ]),
             ])
         ))
     ]);
 
     return h('div.records-page__table-container.records-page__table-container--skill-streak', [
         h('h3.records-page__table-title', t('records.titles.skillStreak', { defaultValue: 'Skill Streak' })),
+        renderSkillLegend(),
         tableContent
     ]);
 }
+// <<< КОНЕЦ ИЗМЕНЕНИЙ
 
-// <<< НАЧАЛО ИЗМЕНЕНИЙ: Адаптация таблицы Finish Him
 function renderFinishHimLeaderboard(data: FinishHimLeaderboardEntry[] | null, controller: RecordsPageController): VNode | null {
     if (!data || data.length === 0) return null;
 
@@ -181,7 +189,6 @@ function renderFinishHimLeaderboard(data: FinishHimLeaderboardEntry[] | null, co
         ])
     ]);
 }
-// <<< КОНЕЦ ИЗМЕНЕНИЙ
 
 function renderTowerLeaderboards(data: { [key in TowerId]?: TowerLeaderboardEntry[] } | null, controller: RecordsPageController): VNode | null {
     if (!data) return null;

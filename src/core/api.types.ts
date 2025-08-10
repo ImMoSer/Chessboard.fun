@@ -154,7 +154,6 @@ export interface ClubApiResponse { club_id: string; club_name: string; grunder: 
 export interface LichessClubStat { club_id: string; best_rank: number; club_name: string; total_score: number; average_rank: number; average_score: number; tournaments_played: number; }
 export interface LichessClubsApiResponse { stats: LichessClubStat[]; }
 
-// <<< НАЧАЛО ИЗМЕНЕНИЙ: Обновлен интерфейс для FinishHimLeaderboardEntry
 export interface FinishHimLeaderboardEntry {
   rank: number;
   username: string;
@@ -164,7 +163,6 @@ export interface FinishHimLeaderboardEntry {
   puzzle_id: string;
   subscriptionTier?: string;
 }
-// <<< КОНЕЦ ИЗМЕНЕНИЙ
 
 export interface TowerLeaderboardEntry {
   rank: number;
@@ -223,11 +221,16 @@ export interface OverallSkillLeaderboardEntry {
   skill_by_mode: SkillByMode;
 }
 
+// <<< НАЧАЛО ИЗМЕНЕНИЙ: Расширен интерфейс SkillStreakLeaderboardEntry
 export interface SkillStreakLeaderboardEntry {
   lichess_id: string;
   username: string;
   current_streak: number;
+  subscriptionTier: string;
+  total_skill: number;
+  skill_by_mode: SkillByMode;
 }
+// <<< КОНЕЦ ИЗМЕНЕНИЙ
 
 export interface PersonalOverallSkillPeriod {
   lichess_id: string;
