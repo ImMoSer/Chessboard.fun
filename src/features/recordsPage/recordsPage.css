@@ -122,7 +122,7 @@
 
 .records-page__table th,
 .records-page__table td {
-  padding: 8px 10px;
+  padding: 3px 3px;
   border-bottom: 1px solid var(--color-border);
   color: var(--color-text-default);
   white-space: nowrap;

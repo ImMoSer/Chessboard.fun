@@ -115,7 +115,7 @@
       "tacticalRating": "Тактика",
       "playoutRating": "Реализация",
       "solveTime": "Время",
-      "funValue": "Рейтинг умения"
+      "funValue": "Скилл"
     },
     "leaderboard": {
       "title": "Лучшие результаты",
@@ -206,7 +206,7 @@
       "livesLabel": "Жизни",
       "shareLinkCopied": "Ссылка скопирована в буфер обмена!",
       "averageRating": "Средний рейтинг",
-      "skillValue": "Рейтинг умения"
+      "skillValue": "Скилл"
     },
     "error": {
       "definitionNotFound": "Не найдено определение для Спидрана с ID: {towerId}",
@@ -320,8 +320,8 @@
       "towerFM": "Спидран ФМ",
       "towerIM": "Спидран ММ",
       "towerGM": "Спидран ГМ",
-      "overallSkill": "Общий рейтинг умения",
-      "skillStreak": "Серия умения"
+      "overallSkill": "Общий скилл",
+      "skillStreak": "+100 Каждый день"
     },
     "table": {
       "noEntries": "В этой таблице лидеров пока нет записей.",
@@ -401,7 +401,7 @@
         "finishHim": "Реализация",
         "attack": "Атака",
         "tower": "Спидран",
-        "tacticalTrainer": "Тактический тренер"
+        "tacticalTrainer": "Тактика"
       },
       "noData": "Нет данных за выбранный период."
     },

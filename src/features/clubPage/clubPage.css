@@ -224,7 +224,7 @@
 
 .club-page__table th,
 .club-page__table td {
-  padding: 10px 12px;
+  padding: 5px 5px;
   border-bottom: 1px solid var(--color-border);
   color: var(--color-text-default);
   white-space: nowrap;
@@ -488,7 +488,7 @@
   /* General table cell padding adjustment */
   .club-page__table th,
   .club-page__table td {
-    padding: 6px 8px; /* Уменьшаем отступы в ячейках таблиц */
+    padding: 5px 5px; /* Уменьшаем отступы в ячейках таблиц */
   }
 
   /* Tabs adjustment */
