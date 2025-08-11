@@ -120,7 +120,6 @@ function renderOverallSkillLeaderboard(controller: RecordsPageController): VNode
     ]);
 }
 
-// <<< НАЧАЛО ИЗМЕНЕНИЙ: Адаптация таблицы Skill Streak
 function renderSkillStreakLeaderboard(controller: RecordsPageController): VNode | null {
     const { skillStreakData } = controller.state;
     if (!skillStreakData || skillStreakData.length === 0) return null;
@@ -155,7 +154,14 @@ function renderSkillStreakLeaderboard(controller: RecordsPageController): VNode 
         tableContent
     ]);
 }
-// <<< КОНЕЦ ИЗМЕНЕНИЙ
+
+// Вспомогательная функция для форматирования времени из секунд в MM:SS
+function formatTime(totalSeconds: number): string {
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  const paddedSeconds = seconds < 10 ? `0${seconds}` : seconds;
+  return `${minutes}:${paddedSeconds}`;
+}
 
 function renderFinishHimLeaderboard(data: FinishHimLeaderboardEntry[] | null, controller: RecordsPageController): VNode | null {
     if (!data || data.length === 0) return null;
@@ -177,7 +183,7 @@ function renderFinishHimLeaderboard(data: FinishHimLeaderboardEntry[] | null, co
                         renderSubscriptionIcon(entry.subscriptionTier),
                         h('a', { props: { href: `https://lichess.org/@/${entry.lichess_id}`, target: '_blank' } }, entry.username)
                     ]),
-                    h('td.text-right', `${entry.best_time}s`),
+                    h('td.text-right', formatTime(entry.best_time)),
                     h('td.text-right', `${entry.days_old}d`),
                     h('td.text-center', [
                         h('button.records-page__challenge-button', {
@@ -208,7 +214,7 @@ function renderTowerLeaderboards(data: { [key in TowerId]?: TowerLeaderboardEntr
                     renderSubscriptionIcon(entry.subscriptionTier),
                     h('a', { props: { href: `https://lichess.org/@/${entry.lichess_id}`, target: '_blank' } }, entry.username)
                 ]),
-                h('td.text-right', `${entry.best_time}s`),
+                h('td.text-right', formatTime(entry.best_time)),
                 h('td.text-right', `${entry.days_old}d`),
                 h('td.text-center', [
                     h('button.records-page__challenge-button', {
@@ -258,7 +264,7 @@ function renderAttackLeaderboard(data: AttackLeaderboardEntry[] | null, controll
                         renderSubscriptionIcon(entry.subscriptionTier),
                         h('a', { props: { href: `https://lichess.org/@/${entry.lichess_id}`, target: '_blank' } }, entry.username)
                     ]),
-                    h('td.text-right', `${entry.best_time}s`),
+                    h('td.text-right', formatTime(entry.best_time)),
                     h('td.text-right', `${entry.days_old}d`),
                     h('td.text-center', [
                         h('button.records-page__challenge-button', {

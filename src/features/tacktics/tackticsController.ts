@@ -32,8 +32,8 @@ export class TackticsController extends BaseGameController<TackticsControllerSta
       currentSolutionMoveIndex: 0,
       tacticalStats: null,
       // <<< ИЗМЕНЕНИЕ: Инициализация новых полей
-      selectedLevel: 'easy',
-      isAutoLoadEnabled: false,
+      selectedLevel: 'normal', // Установка уровня по умолчанию на 'normal'
+      isAutoLoadEnabled: true, // Включение автозагрузки по умолчанию
     };
     super(initialState, boardHandler, analysisController, services, requestGlobalRedraw);
     logger.info('[TackticsController] Initialized.');

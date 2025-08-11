@@ -49,6 +49,7 @@ const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL as string;
 const CACHE_CLUBS_ALL_TTL_MS = parseInt(import.meta.env.VITE_CACHE_CLUBS_ALL_TTL_MS || '86400000', 10);
 const CACHE_CLUB_STATS_TTL_MS = parseInt(import.meta.env.VITE_CACHE_CLUB_STATS_TTL_MS || '86400000', 10);
 const CACHE_LEADERBOARDS_TTL_MS = parseInt(import.meta.env.VITE_CACHE_SKILL_LEADERBOARDS_TTL_MS || '300000', 10);
+const CACHE_PERSONAL_ACTIVITY_TTL_MS = parseInt(import.meta.env.VITE_CACHE_PERSONAL_ACTIVITY_TTL_MS || '300000', 10);
 
 
 if (!BACKEND_API_URL) { logger.error('[WebhookService] Critical Configuration Error: VITE_BACKEND_API_URL is not defined.'); }
@@ -174,10 +175,9 @@ export class WebhookServiceController {
     return this._apiRequest<PersonalSkillStreakResponse>('/activity/personal/skill-streak', 'GET', 'fetchPersonalSkillStreak');
   }
   
-  // <<< НАЧАЛО ИЗМЕНЕНИЙ: Обновлен метод для получения персональной статистики
   public async fetchPersonalActivityStats(): Promise<PersonalActivityStatsResponse | null> {
     const cacheKey = 'personal_activity_stats';
-    const cachedData = CacheService.get<PersonalActivityStatsResponse>(cacheKey, 300000); // 5 минут TTL
+    const cachedData = CacheService.get<PersonalActivityStatsResponse>(cacheKey, CACHE_PERSONAL_ACTIVITY_TTL_MS);
     if (cachedData) {
       logger.info('[WebhookService] Returning cached personal activity stats.');
       return cachedData;
@@ -190,7 +190,6 @@ export class WebhookServiceController {
     }
     return data;
   }
-  // <<< КОНЕЦ ИЗМЕНЕНИЙ
 }
 
 export const WebhookService = new WebhookServiceController();
