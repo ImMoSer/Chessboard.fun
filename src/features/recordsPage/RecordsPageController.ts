@@ -39,7 +39,7 @@ export class RecordsPageController {
       worktableLeaderboards: null,
       overallSkillData: null,
       skillStreakData: null,
-      selectedSkillPeriod: '30', // Default to 30 days
+      selectedSkillPeriod: '7', // Default to 7 days
       isSkillLeaderboardLoading: false,
     };
 
