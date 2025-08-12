@@ -8,7 +8,6 @@ import { renderAnalysisPanel } from '../analysis/analysisPanelView';
 import { t } from '../../core/i18n.service';
 import logger from '../../utils/logger';
 import { renderBoardContainer, type TowerPageViewLayout } from '../../shared/components/boardView';
-import type { Key } from 'chessground/types';
 
 const pieceFileMap: { [key: string]: string } = {
   'r': 'bR.svg', 'n': 'bN.svg', 'b': 'bB.svg', 'q': 'bQ.svg', 'k': 'bK.svg', 'p': 'bP.svg',
@@ -248,15 +247,12 @@ function renderTimer(controller: TowerController): VNode {
 
 export function renderTowerUI(controller: TowerController): TowerPageViewLayout {
   const towerState = controller.state;
-  const boardHandler = controller.boardHandler;
-  const onUserMoveCallback = (orig: Key, dest: Key) => controller.handleUserMove(orig, dest);
   
   const currentPieceSet = controller.services.themeService.getCurrentTheme().pieces;
 
+  // <<< MODIFIED: Pass the controller's boardView instance >>>
   const centerContent = renderBoardContainer(
-    boardHandler,
-    controller.services.chessboardService,
-    onUserMoveCallback,
+    controller.boardView,
     'tower'
   );
 

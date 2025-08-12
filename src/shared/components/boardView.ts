@@ -35,28 +35,37 @@ export interface TackticsPageViewLayout {
 }
 
 export class BoardView {
-    public container: HTMLElement;
-    private boardHandler: BoardHandler;
-    private chessboardService: ChessboardService;
+    public container: HTMLElement | null = null;
+    public boardHandler: BoardHandler;
+    public chessboardService: ChessboardService;
     private onUserMoveCallback: (orig: Key, dest: Key, metadata?: MoveMetadata) => Promise<void>;
 
     private boundHandleAppPanelResize: () => void;
 
     constructor(
-        container: HTMLElement,
         boardHandler: BoardHandler,
         chessboardService: ChessboardService,
         onUserMove: (orig: Key, dest: Key, metadata?: MoveMetadata) => Promise<void>
     ) {
-        this.container = container;
         this.boardHandler = boardHandler;
         this.chessboardService = chessboardService;
         this.onUserMoveCallback = onUserMove;
 
         this.boundHandleAppPanelResize = this._handleAppPanelResize.bind(this);
         window.addEventListener('centerPanelResized', this.boundHandleAppPanelResize);
+    }
 
+    public setContainer(containerEl: HTMLElement): void {
+        if (this.container === containerEl) return;
+        if (this.chessboardService.ground) {
+            this.chessboardService.destroy();
+        }
+        this.container = containerEl;
         this.initBoard();
+    }
+
+    public clearContainer(): void {
+        this.container = null;
     }
 
     private _handleAppPanelResize(): void {
@@ -74,18 +83,12 @@ export class BoardView {
     }
 
     private initBoard(): void {
-        const initialConfig = this._getBoardConfig();
-        if (this.chessboardService.ground &&
-            this.chessboardService.ground.state.dom.elements.wrap.parentElement === this.container) {
-             logger.info('[BoardView] Ground already initialized for this container. Applying new config.');
-             this.chessboardService.ground.set(initialConfig);
-        } else if (this.chessboardService.ground) {
-            logger.warn('[BoardView] ChessboardService has ground, but for different container. Destroying and re-initializing.');
-            this.chessboardService.destroy();
-            this.chessboardService.init(this.container, initialConfig);
-        } else {
-             this.chessboardService.init(this.container, initialConfig);
+        if (!this.container) {
+            logger.warn('[BoardView] initBoard called but container is not set.');
+            return;
         }
+        const initialConfig = this._getBoardConfig();
+        this.chessboardService.init(this.container, initialConfig);
         this.updateView();
         logger.info('[BoardView] Board initialized/verified and view updated.');
     }
@@ -232,18 +235,16 @@ export class BoardView {
             this.chessboardService.destroy();
             logger.info('[BoardView] Called chessboardService.destroy().');
         }
+        this.container = null;
         logger.info('[BoardView] Destroyed, removed centerPanelResized listener.');
     }
 }
 
-let boardViewInstance: BoardView | null = null;
-
 export function renderBoardContainer(
-    boardHandler: BoardHandler,
-    chessboardService: ChessboardService,
-    onUserMoveCallback: (orig: Key, dest: Key) => Promise<void>,
+    boardView: BoardView,
     keyPrefix: string
 ): VNode {
+  const { boardHandler, chessboardService } = boardView;
   let promotionDialogVNode: VNode | null = null;
   if (chessboardService.ground) {
     const groundState = chessboardService.ground.state;
@@ -259,40 +260,14 @@ export function renderBoardContainer(
         const wrapperEl = vnode.elm as HTMLElement;
         const boardContainerEl = wrapperEl.querySelector('#board-container') as HTMLElement | null;
         if (boardContainerEl) {
-            if (!boardViewInstance || boardViewInstance.container !== boardContainerEl) {
-                if (boardViewInstance) boardViewInstance.destroy();
-                boardViewInstance = new BoardView(
-                    boardContainerEl, boardHandler, chessboardService,
-                    onUserMoveCallback
-                );
-            } else { boardViewInstance.updateView(); }
+            boardView.setContainer(boardContainerEl);
         }
     },
-    update: (_oldVnode: VNode, vnode: VNode) => {
-        const newBoardContainerEl = (vnode.elm as Element)?.querySelector('#board-container') as HTMLElement | null;
-        if (boardViewInstance && newBoardContainerEl) {
-            if (boardViewInstance.container !== newBoardContainerEl) {
-                 boardViewInstance.destroy();
-                 boardViewInstance = new BoardView(
-                    newBoardContainerEl, boardHandler, chessboardService,
-                    onUserMoveCallback
-                 );
-            } else { boardViewInstance.updateView(); }
-        } else if (newBoardContainerEl && !boardViewInstance) {
-            boardViewInstance = new BoardView(
-                newBoardContainerEl, boardHandler, chessboardService,
-                onUserMoveCallback
-            );
-        } else if (!newBoardContainerEl && boardViewInstance) {
-            boardViewInstance.destroy();
-            boardViewInstance = null;
-        }
+    update: () => {
+        boardView.updateView();
     },
     destroy: () => {
-        if (boardViewInstance) {
-            boardViewInstance.destroy();
-            boardViewInstance = null;
-        }
+        boardView.clearContainer();
     }
   };
 

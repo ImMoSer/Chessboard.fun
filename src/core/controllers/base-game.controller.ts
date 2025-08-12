@@ -8,6 +8,7 @@ import type { BaseGameState } from './base-game.types';
 import logger from '../../utils/logger';
 import { t } from '../i18n.service';
 import { parseFen } from 'chessops/fen';
+import { BoardView } from '../../shared/components/boardView'; // <<< NEW IMPORT
 
 const BOT_MOVE_DELAY_MS = 500;
 const PREMOVE_EXECUTION_DELAY_MS = 100;
@@ -25,6 +26,7 @@ export abstract class BaseGameController<S extends BaseGameState> {
   public analysisController: AnalysisController;
   public services: AppServices;
   protected requestPageRedraw: () => void;
+  public boardView: BoardView; // <<< NEW PROPERTY
 
   protected scenarioMoves: string[] = [];
   protected currentScenarioMoveIndex: number = 0;
@@ -45,6 +47,13 @@ export abstract class BaseGameController<S extends BaseGameState> {
     this.analysisController = analysisController;
     this.services = services;
     this.requestPageRedraw = requestPageRedraw;
+
+    // <<< NEW: Instantiate BoardView here >>>
+    this.boardView = new BoardView(
+      this.boardHandler,
+      this.services.chessboardService,
+      this.handleUserMove.bind(this)
+    );
 
     this.unsubscribeFromMoveMade = this.boardHandler.onMoveMade(() => this._updateAppControls());
     this.unsubscribeFromPgnNavigated = this.boardHandler.onPgnNavigated(() => this._updateAppControls());
@@ -215,6 +224,7 @@ export abstract class BaseGameController<S extends BaseGameState> {
     this.services.appController.clearGameControls();
     if (this.unsubscribeFromMoveMade) this.unsubscribeFromMoveMade();
     if (this.unsubscribeFromPgnNavigated) this.unsubscribeFromPgnNavigated();
+    if (this.boardView) this.boardView.destroy(); // <<< NEW: Clean up BoardView
     logger.info(`[${this.constructor.name}] Destroyed.`);
   }
 }

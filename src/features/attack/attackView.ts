@@ -1,7 +1,6 @@
 // src/features/attack/attackView.ts
 import { h } from 'snabbdom';
 import type { VNode } from 'snabbdom';
-import type { Key } from 'chessground/types';
 import { AttackController, formatElapsedTime } from './attackController';
 import { renderAnalysisPanel } from '../analysis/analysisPanelView';
 import { t } from '../../core/i18n.service';
@@ -74,13 +73,11 @@ function renderPuzzleLeaderboard(results: PuzzleResultEntry[] | null): VNode | n
 }
 
 export function renderAttackUI(controller: AttackController): AttackPageViewLayout {
-  const { boardHandler, state } = controller;
-  const onUserMoveCallback = (orig: Key, dest: Key) => controller.handleUserMove(orig, dest);
+  const { state } = controller;
 
+  // <<< MODIFIED: Pass the controller's boardView instance >>>
   const centerContent = renderBoardContainer(
-    boardHandler,
-    controller.services.chessboardService,
-    onUserMoveCallback,
+    controller.boardView,
     'attack'
   );
 

@@ -1,7 +1,6 @@
 // src/features/finishHim/finishHimView.ts
 import { h } from 'snabbdom';
 import type { VNode } from 'snabbdom';
-import type { Key } from 'chessground/types';
 import { FinishHimController, formatPlayoutTimer } from './finishHimController';
 import { renderAnalysisPanel } from '../analysis/analysisPanelView';
 import { t } from '../../core/i18n.service';
@@ -178,13 +177,10 @@ function renderTimer(controller: FinishHimController): VNode {
 
 export function renderFinishHimUI(controller: FinishHimController): FinishHimPageViewLayout {
   const fhState = controller.state;
-  const boardHandler = controller.boardHandler;
-  const onUserMoveCallback = (orig: Key, dest: Key) => controller.handleUserMove(orig, dest);
 
+  // <<< MODIFIED: Pass the controller's boardView instance >>>
   const centerContent = renderBoardContainer(
-    boardHandler,
-    controller.services.chessboardService,
-    onUserMoveCallback,
+    controller.boardView,
     'fh'
   );
 

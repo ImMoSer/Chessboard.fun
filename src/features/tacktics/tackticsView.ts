@@ -1,7 +1,6 @@
 // src/features/tacktics/tackticsView.ts
 import { h } from 'snabbdom';
 import type { VNode } from 'snabbdom';
-import type { Key } from 'chessground/types';
 import { TackticsController } from './tackticsController';
 import { t } from '../../core/i18n.service';
 import { renderAnalysisPanel } from '../analysis/analysisPanelView';
@@ -108,13 +107,11 @@ function renderTackticsControls(controller: TackticsController): VNode {
 }
 
 export function renderTackticsUI(controller: TackticsController): TackticsPageViewLayout {
-  const { boardHandler, state } = controller;
-  const onUserMoveCallback = (orig: Key, dest: Key) => controller.handleUserMove(orig, dest);
+  const { state } = controller;
 
+  // <<< MODIFIED: Pass the controller's boardView instance >>>
   const centerContent = renderBoardContainer(
-    boardHandler,
-    controller.services.chessboardService,
-    onUserMoveCallback,
+    controller.boardView,
     state.activePuzzle?.PuzzleId || 'idle'
   );
 
