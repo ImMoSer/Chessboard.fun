@@ -1,6 +1,9 @@
 // src/features/welcome/welcomeController.ts
 import { AuthService } from '../../core/auth.service';
 import logger from '../../utils/logger';
+import { renderWelcomePage } from './welcomeView';
+import type { VNode } from 'snabbdom';
+import type { AppController } from '../../AppController';
 
 export interface WelcomeControllerState {
   isAuthProcessing: boolean;
@@ -9,13 +12,19 @@ export interface WelcomeControllerState {
 
 export class WelcomeController {
   public state: WelcomeControllerState;
-  public authService: typeof AuthService; // <<< ИЗМЕНЕНО
+  public authService: typeof AuthService;
+  private appController: AppController;
   private unsubscribeFromAuthChanges: (() => void) | null = null;
-  private requestGlobalRedraw: () => void;
+  private requestPageRedraw: () => void;
 
-  constructor(authService: typeof AuthService, requestGlobalRedraw: () => void) {
+  constructor(
+    authService: typeof AuthService,
+    appController: AppController,
+    requestPageRedraw: () => void
+    ) {
     this.authService = authService;
-    this.requestGlobalRedraw = requestGlobalRedraw;
+    this.appController = appController;
+    this.requestPageRedraw = requestPageRedraw;
 
     const currentAuthState = this.authService.getState();
     this.state = {
@@ -25,6 +34,10 @@ export class WelcomeController {
 
     this.unsubscribeFromAuthChanges = this.authService.subscribe(() => this.onAuthStateChanged());
     logger.info('[WelcomeController] Initialized');
+  }
+
+  public renderPage(): VNode {
+    return renderWelcomePage(this, this.appController);
   }
 
   private onAuthStateChanged(): void {
@@ -42,7 +55,7 @@ export class WelcomeController {
 
     if (needsRedraw) {
       logger.debug('[WelcomeController] Auth state changed, requesting redraw.', this.state);
-      this.requestGlobalRedraw();
+      this.requestPageRedraw();
     }
   }
 

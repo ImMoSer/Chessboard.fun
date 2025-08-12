@@ -7,7 +7,7 @@ import { type TowerPositionEntry, type TowerResultEntry, type TowerTheme } from 
 import { renderAnalysisPanel } from '../analysis/analysisPanelView';
 import { t } from '../../core/i18n.service';
 import logger from '../../utils/logger';
-import { renderBoardContainer, type TowerPageViewLayout } from '../../appView';
+import { renderBoardContainer, type TowerPageViewLayout } from '../../shared/components/boardView';
 import type { Key } from 'chessground/types';
 
 const pieceFileMap: { [key: string]: string } = {
@@ -251,7 +251,6 @@ export function renderTowerUI(controller: TowerController): TowerPageViewLayout 
   const boardHandler = controller.boardHandler;
   const onUserMoveCallback = (orig: Key, dest: Key) => controller.handleUserMove(orig, dest);
   
-  // <<< ИСПРАВЛЕНО
   const currentPieceSet = controller.services.themeService.getCurrentTheme().pieces;
 
   const centerContent = renderBoardContainer(
@@ -322,4 +321,3 @@ export function renderTowerUI(controller: TowerController): TowerPageViewLayout 
     topPanelContent: feedbackVNode
   };
 }
-

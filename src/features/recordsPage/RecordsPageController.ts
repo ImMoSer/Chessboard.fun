@@ -8,6 +8,8 @@ import type {
   SkillStreakLeaderboardEntry
 } from '../../core/api.types';
 import { subscribeToLangChange, t } from '../../core/i18n.service';
+import type { VNode } from 'snabbdom';
+import { renderRecordsPage } from './RecordsPageView';
 
 export type SkillPeriod = '7' | '14' | '21' | '30';
 
@@ -25,12 +27,12 @@ export interface RecordsPageControllerState {
 export class RecordsPageController {
   public state: RecordsPageControllerState;
   public services: AppServices;
-  private requestGlobalRedraw: () => void;
+  private requestPageRedraw: () => void;
   private unsubscribeFromLangChange: (() => void) | null = null;
 
-  constructor(services: AppServices, requestGlobalRedraw: () => void) {
+  constructor(services: AppServices, requestPageRedraw: () => void) {
     this.services = services;
-    this.requestGlobalRedraw = requestGlobalRedraw;
+    this.requestPageRedraw = requestPageRedraw;
 
     this.state = {
       isLoading: true,
@@ -45,10 +47,14 @@ export class RecordsPageController {
 
     this.unsubscribeFromLangChange = subscribeToLangChange(() => {
       this.updateLocalizedTexts();
-      this.requestGlobalRedraw();
+      this.requestPageRedraw();
     });
 
     logger.info('[RecordsPageController] Initialized for combined leaderboards.');
+  }
+
+  public renderPage(): VNode {
+    return renderRecordsPage(this);
   }
 
   public async initializePage(): Promise<void> {
@@ -139,7 +145,7 @@ export class RecordsPageController {
 
   private setState(newState: Partial<RecordsPageControllerState>): void {
     this.state = { ...this.state, ...newState };
-    this.requestGlobalRedraw();
+    this.requestPageRedraw();
   }
 
   public destroy(): void {

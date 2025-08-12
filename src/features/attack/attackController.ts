@@ -1,4 +1,6 @@
 // src/features/attack/attackController.ts
+import type { VNode, Hooks } from 'snabbdom';
+import { h } from 'snabbdom';
 import type { GameEndOutcome } from '../../core/boardHandler';
 import { InsufficientFunCoinsError } from '../../core/webhook.service';
 import type { AppAttackPuzzle, AttackRecordDto} from '../../core/api.types';
@@ -10,6 +12,9 @@ import { BaseGameController } from '../../core/controllers/base-game.controller'
 import type { BoardHandler } from '../../core/boardHandler';
 import type { AnalysisController } from '../analysis/analysisController';
 import type { AttackControllerState } from './attack.types';
+import { renderAttackUI } from './attackView';
+import { renderControlPanel } from '../../shared/components/controlPanelView';
+import { initializeResizer } from '../common/resizer';
 
 const TIMER_INTERVAL_MS = 1000;
 const PLAYOUT_TIME_LIMIT_MS = 10 * 60 * 1000; // 10 minutes
@@ -34,7 +39,7 @@ export class AttackController extends BaseGameController<AttackControllerState> 
     boardHandler: BoardHandler,
     analysisController: AnalysisController,
     services: AppServices,
-    requestGlobalRedraw: () => void,
+    requestPageRedraw: () => void,
   ) {
     const initialState: AttackControllerState = {
       gamePhase: 'IDLE',
@@ -50,8 +55,49 @@ export class AttackController extends BaseGameController<AttackControllerState> 
       sevenSecondsWarningPlayed: false,
     };
 
-    super(initialState, boardHandler, analysisController, services, requestGlobalRedraw);
+    super(initialState, boardHandler, analysisController, services, requestPageRedraw);
     logger.info('[AttackController] Initialized.');
+  }
+
+  public renderPage(): VNode {
+    const layout = renderAttackUI(this);
+    const appState = this.services.appController.state;
+    const keyPrefix = 'attack';
+
+    const resizeHandleHook: Hooks = {
+        insert: (vnode: VNode) => {
+            const handleEl = vnode.elm as HTMLElement;
+            const cleanup = initializeResizer(handleEl, this.services.appController);
+            (vnode.data as any).cleanupResizer = cleanup;
+        },
+        destroy: (vnode: VNode) => {
+            const cleanup = (vnode.data as any)?.cleanupResizer;
+            if (typeof cleanup === 'function') {
+                cleanup();
+            }
+        }
+    };
+
+    return h('div.three-column-layout', {
+        key: `layout-${keyPrefix}`,
+        class: {
+            'portrait-mode-layout': appState.isPortraitMode,
+            'no-left-panel': !layout.left && !appState.isPortraitMode,
+            'no-right-panel': !layout.right && !appState.isPortraitMode,
+        }
+    }, [
+        layout.left ? h('aside#left-panel', { class: { 'portrait-mode-layout': appState.isPortraitMode } }, [layout.left]) : null,
+        h('div#center-panel-resizable-wrapper', {
+            key: `center-wrapper-${keyPrefix}`,
+            class: { 'portrait-mode-layout': appState.isPortraitMode }
+        }, [
+          h('div.top-board-panel', { key: `top-panel-${keyPrefix}` }, [layout.topPanelContent]),
+          h('section#center-panel', [layout.center]),
+          h('div.bottom-board-panel', { key: `bottom-panel-${keyPrefix}` }, [renderControlPanel(this.services.appController)]),
+          appState.isPortraitMode ? null : h('div.resize-handle-center', { hook: resizeHandleHook, key: `center-resize-handle-${keyPrefix}` })
+        ]),
+        layout.right ? h('aside#right-panel', { class: { 'portrait-mode-layout': appState.isPortraitMode } }, [layout.right]) : null,
+    ].filter(Boolean) as VNode[]);
   }
 
   // --- Implementation of abstract methods ---

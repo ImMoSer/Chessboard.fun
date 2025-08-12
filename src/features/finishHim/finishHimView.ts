@@ -6,7 +6,7 @@ import { FinishHimController, formatPlayoutTimer } from './finishHimController';
 import { renderAnalysisPanel } from '../analysis/analysisPanelView';
 import { t } from '../../core/i18n.service';
 import type { PuzzleResultEntry, AppPuzzle } from '../../core/api.types';
-import { renderBoardContainer, type FinishHimPageViewLayout } from '../../appView';
+import { renderBoardContainer, type FinishHimPageViewLayout } from '../../shared/components/boardView';
 
 const pieceFileMap: { [key: string]: string } = {
   'r': 'bR.svg', 'n': 'bN.svg', 'b': 'bB.svg', 'q': 'bQ.svg', 'k': 'bK.svg', 'p': 'bP.svg',

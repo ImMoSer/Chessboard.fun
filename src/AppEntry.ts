@@ -1,5 +1,5 @@
 // src/AppEntry.ts
-import { init, propsModule, eventListenersModule, styleModule, classModule, attributesModule } from 'snabbdom';
+import { init, propsModule, eventListenersModule, styleModule, classModule, attributesModule, h } from 'snabbdom';
 import type { VNode } from 'snabbdom';
 
 // Import base and main application styles
@@ -19,7 +19,7 @@ import './features/userCabinet/userCabinet.css';
 import './features/lichessClubs/lichessClubs.css';
 import './features/about/about.css';
 import './features/attack/attack.css';
-import './features/tacktics/tacktics.css'; // <<< ДОБАВЛЕНО
+import './features/tacktics/tacktics.css';
 
 // Import core services
 import { ChessboardService } from './core/chessboard.service';
@@ -33,7 +33,7 @@ import logger from './utils/logger';
 
 // Import main application controller and view
 import { AppController } from './AppController';
-import { renderAppUI } from './appView';
+import { renderAppShell } from './appView';
 
 // Chessground styles
 import './vendor/chessground/chessground.base.css';
@@ -56,61 +56,33 @@ const infiniteAnalysisStockfishService = new InfiniteAnalysisStockfishService();
 const webhookServiceInstance = WebhookService;
 const pgnServiceInstance = PgnService;
 
-let oldVNode: VNode | Element = document.getElementById('app')!;
-if (!oldVNode) {
+let appRootElement: HTMLElement = document.getElementById('app')!;
+if (!appRootElement) {
   const errorMsg = "[AppEntry] Root element #app not found in index.html. Application cannot start.";
   logger.error(errorMsg);
-  const body = document.body;
-  if (body) {
-      const errorDiv = document.createElement('div');
-      errorDiv.textContent = errorMsg;
-      errorDiv.style.color = 'red';
-      errorDiv.style.padding = '20px';
-      errorDiv.style.fontSize = '18px';
-      body.prepend(errorDiv);
-  }
+  document.body.innerHTML = `<div style="color: red; padding: 20px; font-size: 18px;">${errorMsg}</div>`;
   throw new Error(errorMsg);
 }
 
 let appController: AppController;
-let isRedrawScheduled = false;
-let animationFrameId: number | null = null;
+let appShellVNode: VNode | Element;
+let isShellRedrawScheduled = false;
 
-function requestGlobalRedraw() {
-  if (isRedrawScheduled) {
-    logger.debug("[AppEntry requestGlobalRedraw] Skipped as a redraw is already scheduled.");
-    return;
-  }
-
-  if (!appController) {
-    logger.warn("[AppEntry requestGlobalRedraw] Skipped as appController is not yet initialized.");
-    return;
-  }
-
-  isRedrawScheduled = true;
-  logger.debug("[AppEntry requestGlobalRedraw] Scheduling redraw via requestAnimationFrame.");
-
-  if (animationFrameId !== null) {
-    cancelAnimationFrame(animationFrameId);
-  }
-
-  animationFrameId = requestAnimationFrame(() => {
-    try {
-      const newVNode = renderAppUI(appController);
-      oldVNode = patch(oldVNode, newVNode);
-      logger.debug("[AppEntry requestGlobalRedraw] Main application view re-rendered and patch completed (via rAF).");
-    } catch (error) {
-      logger.error("[AppEntry requestGlobalRedraw] Error during patch (via rAF):", error);
-    } finally {
-      isRedrawScheduled = false;
-      animationFrameId = null;
-    }
-  });
+function requestShellRedraw() {
+    if (isShellRedrawScheduled) return;
+    isShellRedrawScheduled = true;
+    requestAnimationFrame(() => {
+        if (appController) {
+            const newShellVNode = renderAppShell(appController);
+            appShellVNode = patch(appShellVNode, newShellVNode);
+        }
+        isShellRedrawScheduled = false;
+    });
 }
 
 async function initializeApplication() {
   try {
-    await initI18nService(); 
+    await initI18nService();
     logger.info('[AppEntry] i18n service initialized.');
 
     appController = new AppController(
@@ -119,30 +91,31 @@ async function initializeApplication() {
         gameplayStockfishService,
         infiniteAnalysisStockfishService,
         webhookService: webhookServiceInstance,
-        gameplayService: gameplayService, 
+        gameplayService: gameplayService,
         logger,
       },
-      requestGlobalRedraw,
+      patch,
+      requestShellRedraw,
       pgnServiceInstance
     );
 
+    // 1. First, render the basic application shell.
+    // This ensures the #page-content-wrapper exists before any page controller tries to use it.
+    appShellVNode = patch(appRootElement, renderAppShell(appController));
+    logger.info('[AppEntry] Initial application shell rendered.');
+
+    // 2. Now, initialize the AppController. This will trigger routing and load the first page.
     await appController.initializeApp();
     logger.info('[AppEntry] AppController initialization sequence complete.');
-
+    
   } catch (error) {
     logger.error('[AppEntry] Critical error during application initialization:', error);
-    if (oldVNode instanceof Element) {
-        const errorVNode = {
-            sel: 'div',
-            data: { style: { color: 'red', padding: '20px', fontSize: '18px', textAlign: 'center' } },
-            children: [
-                { sel: 'h1', data: {}, text: 'Application Initialization Failed' },
-                { sel: 'p', data: {}, text: 'A critical error occurred. Please try refreshing the page or contact support.' },
-                { sel: 'pre', data: { style: { whiteSpace: 'pre-wrap', fontSize: '12px' } }, text: (error as Error).message }
-            ]
-        };
-        patch(oldVNode, errorVNode as VNode);
-    }
+    const errorVNode = h('div', { style: { color: 'red', padding: '20px' } }, [
+      h('h1', 'Application Initialization Failed'),
+      h('p', 'A critical error occurred. Please try refreshing the page.'),
+      h('pre', (error as Error).message)
+    ]);
+    patch(appRootElement, errorVNode);
   }
 }
 

@@ -1,5 +1,6 @@
 // src/core/controllers/base-game.controller.ts
 import type { Key, MoveMetadata, Color as ChessgroundColor } from 'chessground/types';
+import type { VNode } from 'snabbdom';
 import type { BoardHandler, GameEndOutcome } from '../boardHandler';
 import type { AnalysisController } from '../../features/analysis/analysisController';
 import type { AppServices, GameControlsState } from '../../AppController';
@@ -23,7 +24,7 @@ export abstract class BaseGameController<S extends BaseGameState> {
   public boardHandler: BoardHandler;
   public analysisController: AnalysisController;
   public services: AppServices;
-  protected requestGlobalRedraw: () => void;
+  protected requestPageRedraw: () => void;
 
   protected scenarioMoves: string[] = [];
   protected currentScenarioMoveIndex: number = 0;
@@ -37,13 +38,13 @@ export abstract class BaseGameController<S extends BaseGameState> {
     boardHandler: BoardHandler,
     analysisController: AnalysisController,
     services: AppServices,
-    requestGlobalRedraw: () => void
+    requestPageRedraw: () => void
   ) {
     this.state = initialState;
     this.boardHandler = boardHandler;
     this.analysisController = analysisController;
     this.services = services;
-    this.requestGlobalRedraw = requestGlobalRedraw;
+    this.requestPageRedraw = requestPageRedraw;
 
     this.unsubscribeFromMoveMade = this.boardHandler.onMoveMade(() => this._updateAppControls());
     this.unsubscribeFromPgnNavigated = this.boardHandler.onPgnNavigated(() => this._updateAppControls());
@@ -52,6 +53,7 @@ export abstract class BaseGameController<S extends BaseGameState> {
   // --- Abstract methods to be implemented by child controllers ---
 
   public abstract initializeGame(entityId?: string | null, forceLoadNew?: boolean): Promise<void>;
+  public abstract renderPage(): VNode | null;
   protected abstract _getControlsState(): GameControlsState;
   protected abstract _handleGameOver(isWin: boolean, outcome?: GameEndOutcome): void;
   
@@ -201,7 +203,7 @@ export abstract class BaseGameController<S extends BaseGameState> {
 
   protected _updateAppControls(): void {
     this.services.appController.updateGameControls(this._getControlsState());
-    this.requestGlobalRedraw();
+    this.requestPageRedraw();
   }
 
   protected setState(newState: Partial<S>): void {

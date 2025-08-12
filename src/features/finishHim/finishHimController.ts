@@ -1,4 +1,6 @@
 // src/features/finishHim/finishHimController.ts
+import type { VNode, Hooks } from 'snabbdom';
+import { h } from 'snabbdom';
 import type { GameEndOutcome } from '../../core/boardHandler';
 import { type WebhookServiceController, InsufficientFunCoinsError } from '../../core/webhook.service';
 import { type UpdateFinishHimStatsDto, type AppPuzzle, type PuzzleResultEntry, type FinishHimStats } from '../../core/api.types';
@@ -9,9 +11,12 @@ import { AuthService } from '../../core/auth.service';
 import type { AppServices, GameControlsState } from '../../AppController';
 import { PuzzleStorageService } from '../../core/puzzle-storage.service';
 import { BaseGameController } from '../../core/controllers/base-game.controller';
-import { BaseGameState } from '../../core/controllers/base-game.types';
+import type { BaseGameState } from '../../core/controllers/base-game.types';
 import type { BoardHandler } from '../../core/boardHandler';
 import type { AnalysisController } from '../analysis/analysisController';
+import { renderFinishHimUI } from './finishHimView';
+import { renderControlPanel } from '../../shared/components/controlPanelView';
+import { initializeResizer } from '../common/resizer';
 
 const PLAYOUT_TIMER_INTERVAL_MS = 1000;
 
@@ -23,13 +28,12 @@ export function formatPlayoutTimer(ms: number | null): string {
   return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 }
 
-// REFACTORED: State is simplified. Scenario tracking is moved to BaseGameController.
 export interface FinishHimControllerState extends BaseGameState {
   activePuzzle: AppPuzzle | null;
   puzzleResults: PuzzleResultEntry[] | null;
   userStats: FinishHimStats | null;
   userFunCoins: number | null;
-  isStockfishThinking: boolean; // Kept for UI feedback if needed
+  isStockfishThinking: boolean;
   currentPgnString: string;
   outplayTimerId: number | null;
   outplayTimeRemainingMs: number | null;
@@ -48,7 +52,7 @@ export class FinishHimController extends BaseGameController<FinishHimControllerS
     boardHandler: BoardHandler,
     analysisController: AnalysisController,
     services: AppServices,
-    requestGlobalRedraw: () => void,
+    requestPageRedraw: () => void,
   ) {
     const initialAuthStats = services.authService.getFinishHimStats();
     const initialFunCoins = services.authService.getFunCoins();
@@ -71,13 +75,54 @@ export class FinishHimController extends BaseGameController<FinishHimControllerS
       sevenSecondsWarningPlayed: false,
     };
 
-    super(initialState, boardHandler, analysisController, services, requestGlobalRedraw);
+    super(initialState, boardHandler, analysisController, services, requestPageRedraw);
 
     this.authService = services.authService;
     this.webhookService = services.webhookService;
     this.puzzleStorageService = PuzzleStorageService;
 
     logger.info('[FinishHimController] Initialized.');
+  }
+
+  public renderPage(): VNode {
+    const layout = renderFinishHimUI(this);
+    const appState = this.services.appController.state;
+    const keyPrefix = 'fh';
+
+    const resizeHandleHook: Hooks = {
+        insert: (vnode: VNode) => {
+            const handleEl = vnode.elm as HTMLElement;
+            const cleanup = initializeResizer(handleEl, this.services.appController);
+            (vnode.data as any).cleanupResizer = cleanup;
+        },
+        destroy: (vnode: VNode) => {
+            const cleanup = (vnode.data as any)?.cleanupResizer;
+            if (typeof cleanup === 'function') {
+                cleanup();
+            }
+        }
+    };
+
+    return h('div.three-column-layout', {
+        key: `layout-${keyPrefix}`,
+        class: {
+            'portrait-mode-layout': appState.isPortraitMode,
+            'no-left-panel': !layout.left && !appState.isPortraitMode,
+            'no-right-panel': !layout.right && !appState.isPortraitMode,
+        }
+    }, [
+        layout.left ? h('aside#left-panel', { class: { 'portrait-mode-layout': appState.isPortraitMode } }, [layout.left]) : null,
+        h('div#center-panel-resizable-wrapper', {
+            key: `center-wrapper-${keyPrefix}`,
+            class: { 'portrait-mode-layout': appState.isPortraitMode }
+        }, [
+          h('div.top-board-panel', { key: `top-panel-${keyPrefix}` }, [layout.topPanelContent]),
+          h('section#center-panel', [layout.center]),
+          h('div.bottom-board-panel', { key: `bottom-panel-${keyPrefix}` }, [renderControlPanel(this.services.appController)]),
+          appState.isPortraitMode ? null : h('div.resize-handle-center', { hook: resizeHandleHook, key: `center-resize-handle-${keyPrefix}` })
+        ]),
+        layout.right ? h('aside#right-panel', { class: { 'portrait-mode-layout': appState.isPortraitMode } }, [layout.right]) : null,
+    ].filter(Boolean) as VNode[]);
   }
 
   // --- Implementation of abstract methods ---
@@ -250,7 +295,6 @@ export class FinishHimController extends BaseGameController<FinishHimControllerS
 
             const scenario = puzzleData.Moves ? puzzleData.Moves.split(' ') : [];
             this._setupPuzzlePosition(puzzleData.FEN_0, scenario);
-            // REFACTORED: Timer is no longer started here. It's started by _onPlayoutStart.
         }
 
     } catch (error: any) {
@@ -314,7 +358,6 @@ export class FinishHimController extends BaseGameController<FinishHimControllerS
     const { userStats, userFunCoins, outplayTimeRemainingMs } = this.state;
     if (!userStats || userFunCoins === null) return;
 
-    // Create a mutable copy
     const newStats: FinishHimStats = JSON.parse(JSON.stringify(userStats));
     newStats.gamesPlayed += 1;
 

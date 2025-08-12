@@ -25,6 +25,8 @@ import { TackticsController } from './features/tacktics/tackticsController';
 import { RoutingService, type Route } from './core/routing.service';
 import { ThemeService, type AppTheme } from './core/theme.service';
 import { SoundService } from './core/sound.service';
+import type { VNode } from 'snabbdom';
+import { h } from 'snabbdom';
 
 export type AppPage = 'welcome' | 'finishHim' | 'clubPage' | 'recordsPage' | 'userCabinet' | 'tower' | 'lichessClubs' | 'about' | 'attack' | 'tacktics';
 
@@ -94,7 +96,7 @@ interface AppControllerState {
   voiceVolume: number;
 }
 
-type ActivePageController = WelcomeController | FinishHimController | ClubPageController | RecordsPageController | UserCabinetController | TowerController | LichessClubsController | AboutController | AttackController | TackticsController | null;
+export type ActivePageController = WelcomeController | FinishHimController | ClubPageController | RecordsPageController | UserCabinetController | TowerController | LichessClubsController | AboutController | AttackController | TackticsController | null;
 
 const BOARD_MAX_VH = 94;
 const BOARD_MIN_VH = 10;
@@ -112,7 +114,8 @@ export class AppController {
   public activePageController: ActivePageController | null = null;
   public services: AppServices;
   private routingService: RoutingService;
-  private requestGlobalRedraw: () => void;
+  private patch: (oldVNode: VNode | Element, vnode: VNode) => VNode;
+  private requestShellRedraw: () => void;
   private userPreferredBoardSizeVh: number;
   private rateLimitTimerId: number | null = null;
   private toastIdCounter = 0;
@@ -128,7 +131,7 @@ export class AppController {
   private unsubscribeFromAuthChange: (() => void) | null = null;
   private unsubscribeFromRouteChange: (() => void) | null = null;
 
-  private isRedrawQueued: boolean = false;
+  private pageVNode: VNode | Element | null = null;
 
   constructor(
     globalServices: {
@@ -139,7 +142,8 @@ export class AppController {
       gameplayService: GameplayServiceController;
       logger: typeof logger;
     },
-    requestGlobalRedraw: () => void,
+    patchFn: (oldVNode: VNode | Element, vnode: VNode) => VNode,
+    requestShellRedrawFn: () => void,
     pgnServiceInstance: typeof PgnService
   ) {
     this.authServiceInstance = AuthService;
@@ -152,6 +156,8 @@ export class AppController {
     this.routingService = new RoutingService();
     this.themeServiceInstance = ThemeService;
     this.soundServiceInstance = SoundService;
+    this.patch = patchFn;
+    this.requestShellRedraw = requestShellRedrawFn;
 
     this.services = {
       chessboardService: globalServices.chessboardService,
@@ -167,7 +173,6 @@ export class AppController {
       themeService: this.themeServiceInstance,
       soundService: this.soundServiceInstance,
     };
-    this.requestGlobalRedraw = requestGlobalRedraw;
 
     const savedVhPreference = localStorage.getItem('userPreferredBoardSizeVh');
     this.userPreferredBoardSizeVh = savedVhPreference ? parseFloat(savedVhPreference) : DEFAULT_BOARD_VH;
@@ -204,7 +209,7 @@ export class AppController {
     };
 
     this.unsubscribeFromLangChange = subscribeToLangChange(() => {
-      logger.info('[AppController] Language changed, requesting global redraw.');
+      logger.info('[AppController] Language changed, requesting shell redraw.');
       this.setState({});
     });
 
@@ -468,16 +473,35 @@ export class AppController {
     this._calculateAndSetBoardSize();
 
     let boardHandlerForPage: BoardHandler | undefined;
+    const pageContentContainer = document.getElementById('page-content-wrapper');
+    if (!pageContentContainer) {
+        logger.error("[AppController] #page-content-wrapper not found in DOM. Cannot load page.");
+        return;
+    }
+    
+    // Initialize the VNode for the page content area if it doesn't exist yet.
+    if (!this.pageVNode || !(this.pageVNode as VNode).sel) {
+        const placeholder = h('div');
+        this.pageVNode = this.patch(pageContentContainer, placeholder);
+    }
+
+    const requestPageRedraw = () => {
+        if (this.activePageController && this.pageVNode) {
+            const newPageVNode = this.activePageController.renderPage();
+            if (newPageVNode) {
+                this.pageVNode = this.patch(this.pageVNode, newPageVNode);
+            }
+        }
+    };
 
     if (['finishHim', 'tower', 'attack', 'tacktics'].includes(route.page)) {
-      const redrawFn = () => this.setState({});
-      boardHandlerForPage = new BoardHandler(this.services.chessboardService, redrawFn);
-      this.analysisControllerInstance = new AnalysisController(this.services.analysisService, boardHandlerForPage, this.pgnServiceInstance, redrawFn);
+      boardHandlerForPage = new BoardHandler(this.services.chessboardService, requestPageRedraw);
+      this.analysisControllerInstance = new AnalysisController(this.services.analysisService, boardHandlerForPage, this.pgnServiceInstance, requestPageRedraw);
     }
 
     switch (route.page) {
       case 'welcome':
-        this.activePageController = new WelcomeController(this.authServiceInstance, () => this.setState({}));
+        this.activePageController = new WelcomeController(this.authServiceInstance, this, requestPageRedraw);
         break;
       case 'finishHim':
         if (!boardHandlerForPage || !this.analysisControllerInstance) {
@@ -488,7 +512,7 @@ export class AppController {
           boardHandlerForPage,
           this.analysisControllerInstance,
           this.services,
-          () => this.setState({})
+          requestPageRedraw
         );
         (this.activePageController as FinishHimController).initializeGame(route.puzzleId);
         break;
@@ -498,7 +522,7 @@ export class AppController {
           return;
         }
         this.activePageController = new TowerController(
-          boardHandlerForPage, this.analysisControllerInstance, this.services, () => this.setState({})
+          boardHandlerForPage, this.analysisControllerInstance, this.services, requestPageRedraw
         );
         (this.activePageController as TowerController).initializeGame(route.towerId);
         break;
@@ -508,7 +532,7 @@ export class AppController {
           return;
         }
         this.activePageController = new AttackController(
-          boardHandlerForPage, this.analysisControllerInstance, this.services, () => this.setState({})
+          boardHandlerForPage, this.analysisControllerInstance, this.services, requestPageRedraw
         );
         (this.activePageController as AttackController).initializeGame(route.puzzleId);
         break;
@@ -518,32 +542,32 @@ export class AppController {
           return;
         }
         this.activePageController = new TackticsController(
-          boardHandlerForPage, this.analysisControllerInstance, this.services, () => this.setState({})
+          boardHandlerForPage, this.analysisControllerInstance, this.services, requestPageRedraw
         );
         (this.activePageController as TackticsController).initializeGame(route.puzzleId);
         break;
       case 'clubPage':
         if (route.clubId) {
-          this.activePageController = new ClubPageController(route.clubId, this.services, () => this.setState({}));
+          this.activePageController = new ClubPageController(route.clubId, this.services, requestPageRedraw);
           (this.activePageController as ClubPageController).initializePage();
         } else {
           if (this.state.currentPage !== 'lichessClubs') this.navigateTo('lichessClubs');
         }
         break;
       case 'lichessClubs':
-        this.activePageController = new LichessClubsController(this.services, () => this.setState({}));
+        this.activePageController = new LichessClubsController(this.services, requestPageRedraw);
         (this.activePageController as LichessClubsController).initializePage();
         break;
       case 'recordsPage':
-        this.activePageController = new RecordsPageController(this.services, () => this.setState({}));
+        this.activePageController = new RecordsPageController(this.services, requestPageRedraw);
         (this.activePageController as RecordsPageController).initializePage();
         break;
       case 'userCabinet':
-        this.activePageController = new UserCabinetController(this.services, () => this.setState({}));
+        this.activePageController = new UserCabinetController(this.services, requestPageRedraw);
         (this.activePageController as UserCabinetController).initializePage();
         break;
       case 'about':
-        this.activePageController = new AboutController();
+        this.activePageController = new AboutController(this);
         break;
       default:
         const exhaustiveCheck: never = route.page;
@@ -552,7 +576,7 @@ export class AppController {
         return;
     }
     logger.info(`[AppController] Loaded controller for page: ${route.page}`, this.activePageController);
-    this.setState({});
+    requestPageRedraw(); // Initial render for the new page
   }
 
   public navigateTo(page: AppPage, updateHash: boolean = true, clubId: string | null = null, puzzleId: string | null = null, towerId: string | null = null): void {
@@ -676,7 +700,6 @@ export class AppController {
       return;
     }
     this.setState({ isModalVisible: false, modalMessage: null });
-    window.location.reload();
   }
 
   public showConfirmationModal(
@@ -725,29 +748,27 @@ export class AppController {
   }
 
   private setState(newState: Partial<AppControllerState>): void {
-    const oldState = this.state;
-    let hasChanged = false;
+    const oldState = { ...this.state };
+    this.state = { ...this.state, ...newState };
+    
+    // Compare old and new state to see if a shell redraw is needed
+    let shellStateChanged = false;
+    const shellStateKeys: (keyof AppControllerState)[] = [
+        'isNavExpanded', 'currentUser', 'isLoadingAuth', 'isModalVisible', 
+        'modalMessage', 'isRateLimited', 'rateLimitCooldownSeconds', 
+        'isConfirmationModalVisible', 'confirmationModalMessage', 'activeDropdown', 
+        'engineSelectorOpen', 'toasts', 'voiceVolume', 'currentGameControls'
+    ];
 
-    for (const key in newState) {
-      if (Object.prototype.hasOwnProperty.call(newState, key)) {
-        const typedKey = key as keyof AppControllerState;
-        if (JSON.stringify(oldState[typedKey]) !== JSON.stringify(newState[typedKey])) {
-          hasChanged = true;
-          break;
+    for (const key of shellStateKeys) {
+        if (JSON.stringify(oldState[key]) !== JSON.stringify(this.state[key])) {
+            shellStateChanged = true;
+            break;
         }
-      }
     }
 
-    this.state = { ...this.state, ...newState };
-
-    const isChildRedrawRequest = Object.keys(newState).length === 0;
-
-    if ((hasChanged || isChildRedrawRequest) && !this.isRedrawQueued) {
-      this.isRedrawQueued = true;
-      Promise.resolve().then(() => {
-        this.requestGlobalRedraw();
-        this.isRedrawQueued = false;
-      });
+    if (shellStateChanged) {
+        this.requestShellRedraw();
     }
   }
 

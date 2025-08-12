@@ -3,6 +3,8 @@ import logger from '../../utils/logger';
 import type { AppServices } from '../../AppController';
 import type { LichessClubStat, FounderActionDto, ClubIdNamePair } from '../../core/api.types';
 import { subscribeToLangChange, t } from '../../core/i18n.service';
+import type { VNode } from 'snabbdom';
+import { renderLichessClubsPage } from './lichessClubsView';
 
 const FOUNDER_ACTION_COOLDOWN_MS =  24 * 60 * 60 * 1000; // 24 * 60 * 60 * 1000
 
@@ -21,14 +23,14 @@ export interface LichessClubsControllerState {
 export class LichessClubsController {
   public state: LichessClubsControllerState;
   public services: AppServices;
-  private requestGlobalRedraw: () => void;
+  private requestPageRedraw: () => void;
   private unsubscribeFromLangChange: (() => void) | null = null;
   private unsubscribeFromAuthChange: (() => void) | null = null;
 
 
-  constructor(services: AppServices, requestGlobalRedraw: () => void) {
+  constructor(services: AppServices, requestPageRedraw: () => void) {
     this.services = services;
-    this.requestGlobalRedraw = requestGlobalRedraw;
+    this.requestPageRedraw = requestPageRedraw;
 
     this.state = {
       isLoading: true,
@@ -44,7 +46,7 @@ export class LichessClubsController {
 
     this.unsubscribeFromLangChange = subscribeToLangChange(() => {
         this.updateLocalizedTexts();
-        this.requestGlobalRedraw();
+        this.requestPageRedraw();
     });
 
     this.unsubscribeFromAuthChange = this.services.authService.subscribe(() => {
@@ -52,6 +54,10 @@ export class LichessClubsController {
     });
 
     logger.info('[LichessClubsController] Initialized.');
+  }
+
+  public renderPage(): VNode {
+    return renderLichessClubsPage(this);
   }
 
   public async initializePage(): Promise<void> {
@@ -215,7 +221,7 @@ export class LichessClubsController {
   
     if (JSON.stringify(currentState) !== JSON.stringify(updatedState)) {
         this.state = updatedState;
-        this.requestGlobalRedraw();
+        this.requestPageRedraw();
     }
   }
 

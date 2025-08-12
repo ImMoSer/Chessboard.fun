@@ -1,67 +1,10 @@
 // src/appView.ts
 import { h } from 'snabbdom';
-import type { VNode, Hooks } from 'snabbdom';
+import type { VNode } from 'snabbdom';
 import type { AppController, AppPage, Toast } from './AppController';
-import { FinishHimController } from './features/finishHim/finishHimController';
-import { renderFinishHimUI } from './features/finishHim/finishHimView';
-import { WelcomeController } from './features/welcome/welcomeController';
-import { renderWelcomePage } from './features/welcome/welcomeView';
-import { ClubPageController } from './features/clubPage/ClubPageController';
-import { renderClubPage } from './features/clubPage/clubPageView';
-import { RecordsPageController } from './features/recordsPage/RecordsPageController';
-import { renderRecordsPage } from './features/recordsPage/RecordsPageView';
-import { UserCabinetController } from './features/userCabinet/UserCabinetController';
-import { renderUserCabinetPage } from './features/userCabinet/userCabinetView';
-import { TowerController } from './features/tower/TowerController';
-import { renderTowerUI } from './features/tower/towerView';
-import { AttackController } from './features/attack/attackController';
-import { renderAttackUI } from './features/attack/attackView';
-import { TackticsController } from './features/tacktics/tackticsController';
-import { renderTackticsUI } from './features/tacktics/tackticsView';
-import { LichessClubsController } from './features/lichessClubs/LichessClubsController';
-import { renderLichessClubsPage } from './features/lichessClubs/lichessClubsView';
-import { renderAboutPage } from './features/about/aboutView';
 import logger from './utils/logger';
 import { getCurrentLang, t } from './core/i18n.service';
-import { initializeResizer } from './features/common/resizer';
 import type { BoardTheme, PieceSet } from './core/theme.service';
-import { renderControlPanel } from './shared/components/controlPanelView';
-import { BoardView } from './shared/components/boardView';
-import type { BoardHandler } from './core/boardHandler';
-import type { ChessboardService } from './core/chessboard.service';
-import type { Key } from 'chessground/types';
-import { renderPromotionDialog } from './features/common/promotion/promotionView';
-import { BaseGameController } from './core/controllers/base-game.controller';
-
-let boardViewInstance: BoardView | null = null;
-
-// <<< ИЗМЕНЕНО: Удалены импорты, которые ссылались на удаленные типы из других файлов
-// и перенесены локальные типы в соответствующие файлы
-export interface FinishHimPageViewLayout {
-  left: VNode | null;
-  center: VNode;
-  right: VNode | null;
-  topPanelContent?: VNode | null;
-}
-export interface TowerPageViewLayout {
-  left: VNode | null;
-  center: VNode;
-  right: VNode | null;
-  topPanelContent?: VNode | null;
-}
-export interface AttackPageViewLayout {
-  left: VNode | null;
-  center: VNode;
-  right: VNode | null;
-  topPanelContent?: VNode | null;
-}
-export interface TackticsPageViewLayout {
-  left: VNode | null;
-  center: VNode;
-  right: VNode | null;
-  topPanelContent?: VNode | null;
-}
-
 
 function renderToasts(controller: AppController): VNode | null {
   const { toasts } = controller.state;
@@ -69,7 +12,7 @@ function renderToasts(controller: AppController): VNode | null {
     return null;
   }
 
-  return h('div.toast-container', toasts.map((toast: Toast) => 
+  return h('div.toast-container', toasts.map((toast: Toast) =>
     h('div.toast-message', {
       key: toast.id,
       class: {
@@ -150,7 +93,6 @@ function renderModal(controller: AppController): VNode | null {
   ]);
 }
 
-// Переместил эту функцию сюда, чтобы ее можно было повторно использовать в разных представлениях.
 export function renderLanguageSwitcher(controller: AppController): VNode {
   const currentLanguage = getCurrentLang();
   return h('div.language-switcher', [
@@ -320,85 +262,8 @@ function renderUserAndAuthSection(controller: AppController): VNode {
     ]);
 }
 
-/**
- * Новый переиспользуемый компонент-контейнер для доски.
- * Инкапсулирует логику инициализации Chessground и отображения диалога превращения.
- * @param boardHandler Экземпляр BoardHandler для управления игровой логикой.
- * @param chessboardService Экземпляр ChessboardService для прямого взаимодействия с Chessground.
- * @param onUserMoveCallback Колбэк для обработки хода пользователя.
- * @param keyPrefix Уникальный префикс для ключей VNode.
- * @returns VNode для контейнера доски.
- */
-export function renderBoardContainer(
-    boardHandler: BoardHandler,
-    chessboardService: ChessboardService,
-    onUserMoveCallback: (orig: Key, dest: Key) => Promise<void>,
-    keyPrefix: string
-): VNode {
-  let promotionDialogVNode: VNode | null = null;
-  if (chessboardService.ground) {
-    const groundState = chessboardService.ground.state;
-    const boardOrientation = groundState.orientation;
-    const boardDomBounds = groundState.dom?.bounds();
-    if (boardDomBounds) {
-      promotionDialogVNode = renderPromotionDialog(boardHandler.promotionCtrl, boardOrientation, boardDomBounds);
-    }
-  }
-
-  const boardWrapperHook: Hooks = {
-    insert: (vnode: VNode) => {
-        const wrapperEl = vnode.elm as HTMLElement;
-        const boardContainerEl = wrapperEl.querySelector('#board-container') as HTMLElement | null;
-        if (boardContainerEl) {
-            if (!boardViewInstance || boardViewInstance.container !== boardContainerEl) {
-                if (boardViewInstance) boardViewInstance.destroy();
-                boardViewInstance = new BoardView(
-                    boardContainerEl, boardHandler, chessboardService,
-                    onUserMoveCallback
-                );
-            } else { boardViewInstance.updateView(); }
-        }
-    },
-    update: (_oldVnode: VNode, vnode: VNode) => {
-        const newBoardContainerEl = (vnode.elm as Element)?.querySelector('#board-container') as HTMLElement | null;
-        if (boardViewInstance && newBoardContainerEl) {
-            if (boardViewInstance.container !== newBoardContainerEl) {
-                 boardViewInstance.destroy();
-                 boardViewInstance = new BoardView(
-                    newBoardContainerEl, boardHandler, chessboardService,
-                    onUserMoveCallback
-                 );
-            } else { boardViewInstance.updateView(); }
-        } else if (newBoardContainerEl && !boardViewInstance) {
-            boardViewInstance = new BoardView(
-                newBoardContainerEl, boardHandler, chessboardService,
-                onUserMoveCallback
-            );
-        } else if (!newBoardContainerEl && boardViewInstance) {
-            boardViewInstance.destroy();
-            boardViewInstance = null;
-        }
-    },
-    destroy: () => {
-        if (boardViewInstance) {
-            boardViewInstance.destroy();
-            boardViewInstance = null;
-        }
-    }
-  };
-
-  return h('div#board-wrapper', {
-    key: `board-wrapper-${keyPrefix}`,
-    hook: boardWrapperHook
-  }, [
-    h('div#board-container.cg-wrap', { key: `board-container-${keyPrefix}` }),
-    promotionDialogVNode
-  ]);
-}
-
-export function renderAppUI(controller: AppController): VNode {
+export function renderAppShell(controller: AppController): VNode {
   const appState = controller.state;
-  const activePageController = controller.activePageController;
   const isAuthenticated = controller.services.authService.getIsAuthenticated();
   
   const navLinksConfig: Array<{
@@ -423,119 +288,6 @@ export function renderAppUI(controller: AppController): VNode {
     return true;
   });
 
-  let pageSpecificContentVNode: VNode;
-
-  if (appState.isLoadingAuth && appState.currentPage !== 'welcome') {
-    pageSpecificContentVNode = h('div.global-loader-container', [
-        h('h2', t('auth.processingLogin', {defaultValue: "Processing Login..."})),
-        h('div.loading-spinner')
-    ]);
-  } else if (activePageController) {
-    switch (appState.currentPage) {
-      case 'welcome':
-        pageSpecificContentVNode = renderWelcomePage(activePageController as WelcomeController, controller);
-        break;
-      case 'finishHim':
-        pageSpecificContentVNode = h('div.finish-him-placeholder');
-        break;
-      case 'tower':
-        pageSpecificContentVNode = h('div.tower-placeholder');
-        break;
-      case 'attack':
-        pageSpecificContentVNode = h('div.attack-placeholder');
-        break;
-      case 'tacktics':
-        pageSpecificContentVNode = h('div.tacktics-placeholder');
-        break;
-      case 'clubPage':
-        pageSpecificContentVNode = renderClubPage(activePageController as ClubPageController);
-        break;
-      case 'lichessClubs':
-        pageSpecificContentVNode = renderLichessClubsPage(activePageController as LichessClubsController);
-        break;
-      case 'recordsPage':
-        pageSpecificContentVNode = renderRecordsPage(activePageController as RecordsPageController);
-        break;
-      case 'userCabinet':
-        pageSpecificContentVNode = renderUserCabinetPage(activePageController as UserCabinetController);
-        break;
-      case 'about':
-        pageSpecificContentVNode = renderAboutPage(controller);
-        break;
-      default:
-        const exhaustiveCheck: never = appState.currentPage;
-        pageSpecificContentVNode = h('p', t('errorPage.unknownPage', { pageName: exhaustiveCheck }));
-        logger.error(`[appView] Reached default case in page switch with page: ${exhaustiveCheck}`);
-    }
-  } else {
-    pageSpecificContentVNode = h('p', t('common.loadingController'));
-    logger.debug(`[appView] No active page controller for page: ${appState.currentPage}`);
-  }
-
-  const resizeHandleHook: Hooks = {
-    insert: (vnode: VNode) => {
-        const handleEl = vnode.elm as HTMLElement;
-        const cleanup = initializeResizer(handleEl, controller);
-        (vnode.data as any).cleanupResizer = cleanup;
-    },
-    destroy: (vnode: VNode) => {
-        const cleanup = (vnode.data as any)?.cleanupResizer;
-        if (typeof cleanup === 'function') {
-            cleanup();
-        }
-    }
-  };
-
-  let mainContentStructure: VNode;
-
-  if (['finishHim', 'tower', 'attack', 'tacktics'].includes(appState.currentPage)) {
-    let layout: FinishHimPageViewLayout | TowerPageViewLayout | AttackPageViewLayout | TackticsPageViewLayout | null = null;
-    let keyPrefix = '';
-
-    if (appState.currentPage === 'finishHim' && activePageController instanceof FinishHimController) {
-        layout = renderFinishHimUI(activePageController);
-        keyPrefix = 'fh';
-    } else if (appState.currentPage === 'tower' && activePageController instanceof TowerController) {
-        layout = renderTowerUI(activePageController);
-        keyPrefix = 'tower';
-    } else if (appState.currentPage === 'attack' && activePageController instanceof AttackController) {
-        layout = renderAttackUI(activePageController);
-        keyPrefix = 'attack';
-    } else if (appState.currentPage === 'tacktics' && activePageController instanceof TackticsController) {
-        layout = renderTackticsUI(activePageController);
-        keyPrefix = 'tacktics';
-    }
-
-    if (layout) {
-        mainContentStructure = h('div.three-column-layout', {
-            class: {
-                'portrait-mode-layout': appState.isPortraitMode,
-                'no-left-panel': !layout.left && !appState.isPortraitMode,
-                'no-right-panel': !layout.right && !appState.isPortraitMode,
-            }
-        },[
-            layout.left ? h('aside#left-panel', { class: { 'portrait-mode-layout': appState.isPortraitMode } }, [layout.left]) : null,
-            h('div#center-panel-resizable-wrapper', {
-                key: `center-wrapper-${keyPrefix}`,
-                class: { 'portrait-mode-layout': appState.isPortraitMode }
-            }, [
-              h('div.top-board-panel', { key: `top-panel-${keyPrefix}` }, [layout.topPanelContent]),
-              h('section#center-panel', [
-                // <<< ИСПРАВЛЕНО
-                renderBoardContainer((activePageController as BaseGameController<any>).boardHandler, controller.services.chessboardService, (orig, dest) => (activePageController as BaseGameController<any>).handleUserMove(orig, dest), keyPrefix)
-              ]),
-              h('div.bottom-board-panel', { key: `bottom-panel-${keyPrefix}` }, [renderControlPanel(controller)]),
-              appState.isPortraitMode ? null : h('div.resize-handle-center', { hook: resizeHandleHook, key: `center-resize-handle-${keyPrefix}` })
-            ]),
-            layout.right ? h('aside#right-panel', { class: { 'portrait-mode-layout': appState.isPortraitMode } }, [layout.right]) : null,
-        ].filter(Boolean) as VNode[]);
-    } else {
-        mainContentStructure = pageSpecificContentVNode;
-    }
-  } else {
-    mainContentStructure = pageSpecificContentVNode;
-  }
-
   return h('div#app-layout', {
       on: {
           click: () => {
@@ -550,10 +302,11 @@ export function renderAppUI(controller: AppController): VNode {
   }, [
     h('header#app-header', { class: { 'menu-open': appState.isNavExpanded && appState.isPortraitMode } }, [
       h('div.nav-header-content', [
-        h('div.app-logo-container', [
+        h('div.app-logo-container', {
+          on: { click: () => controller.navigateTo('welcome', true, null) }
+        },[
           h('img.app-logo', {
             props: { src: '/svg/1920_Banner.svg', alt: t('app.title') },
-            on: { click: () => controller.navigateTo('welcome', true, null) }
           }),
           h('span.app-version', controller.getAppVersion())
         ]),
@@ -588,9 +341,8 @@ export function renderAppUI(controller: AppController): VNode {
         renderUserAndAuthSection(controller)
       ])
     ]),
-    h('main#page-content-wrapper', [
-        mainContentStructure
-    ]),
+    // This is the container where the active page controller will render its content.
+    h('main#page-content-wrapper'),
     renderModal(controller),
     renderToasts(controller)
   ]);

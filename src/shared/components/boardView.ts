@@ -4,6 +4,35 @@ import type { ChessboardService, CustomDrawShape } from '../../core/chessboard.s
 import type { Config as ChessgroundConfig } from 'chessground/config';
 import type { Key, Dests, Color as ChessgroundColor, MoveMetadata } from 'chessground/types';
 import logger from '../../utils/logger';
+import { h, VNode } from 'snabbdom';
+import type { Hooks } from 'snabbdom';
+import { renderPromotionDialog } from '../../features/common/promotion/promotionView';
+
+// --- Page Layout Types ---
+export interface FinishHimPageViewLayout {
+  left: VNode | null;
+  center: VNode;
+  right: VNode | null;
+  topPanelContent?: VNode | null;
+}
+export interface TowerPageViewLayout {
+  left: VNode | null;
+  center: VNode;
+  right: VNode | null;
+  topPanelContent?: VNode | null;
+}
+export interface AttackPageViewLayout {
+  left: VNode | null;
+  center: VNode;
+  right: VNode | null;
+  topPanelContent?: VNode | null;
+}
+export interface TackticsPageViewLayout {
+  left: VNode | null;
+  center: VNode;
+  right: VNode | null;
+  topPanelContent?: VNode | null;
+}
 
 export class BoardView {
     public container: HTMLElement;
@@ -205,4 +234,73 @@ export class BoardView {
         }
         logger.info('[BoardView] Destroyed, removed centerPanelResized listener.');
     }
+}
+
+let boardViewInstance: BoardView | null = null;
+
+export function renderBoardContainer(
+    boardHandler: BoardHandler,
+    chessboardService: ChessboardService,
+    onUserMoveCallback: (orig: Key, dest: Key) => Promise<void>,
+    keyPrefix: string
+): VNode {
+  let promotionDialogVNode: VNode | null = null;
+  if (chessboardService.ground) {
+    const groundState = chessboardService.ground.state;
+    const boardOrientation = groundState.orientation;
+    const boardDomBounds = groundState.dom?.bounds();
+    if (boardDomBounds) {
+      promotionDialogVNode = renderPromotionDialog(boardHandler.promotionCtrl, boardOrientation, boardDomBounds);
+    }
+  }
+
+  const boardWrapperHook: Hooks = {
+    insert: (vnode: VNode) => {
+        const wrapperEl = vnode.elm as HTMLElement;
+        const boardContainerEl = wrapperEl.querySelector('#board-container') as HTMLElement | null;
+        if (boardContainerEl) {
+            if (!boardViewInstance || boardViewInstance.container !== boardContainerEl) {
+                if (boardViewInstance) boardViewInstance.destroy();
+                boardViewInstance = new BoardView(
+                    boardContainerEl, boardHandler, chessboardService,
+                    onUserMoveCallback
+                );
+            } else { boardViewInstance.updateView(); }
+        }
+    },
+    update: (_oldVnode: VNode, vnode: VNode) => {
+        const newBoardContainerEl = (vnode.elm as Element)?.querySelector('#board-container') as HTMLElement | null;
+        if (boardViewInstance && newBoardContainerEl) {
+            if (boardViewInstance.container !== newBoardContainerEl) {
+                 boardViewInstance.destroy();
+                 boardViewInstance = new BoardView(
+                    newBoardContainerEl, boardHandler, chessboardService,
+                    onUserMoveCallback
+                 );
+            } else { boardViewInstance.updateView(); }
+        } else if (newBoardContainerEl && !boardViewInstance) {
+            boardViewInstance = new BoardView(
+                newBoardContainerEl, boardHandler, chessboardService,
+                onUserMoveCallback
+            );
+        } else if (!newBoardContainerEl && boardViewInstance) {
+            boardViewInstance.destroy();
+            boardViewInstance = null;
+        }
+    },
+    destroy: () => {
+        if (boardViewInstance) {
+            boardViewInstance.destroy();
+            boardViewInstance = null;
+        }
+    }
+  };
+
+  return h('div#board-wrapper', {
+    key: `board-wrapper-${keyPrefix}`,
+    hook: boardWrapperHook
+  }, [
+    h('div#board-container.cg-wrap', { key: `board-container-${keyPrefix}` }),
+    promotionDialogVNode
+  ]);
 }

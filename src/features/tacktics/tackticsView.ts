@@ -6,7 +6,7 @@ import { TackticsController } from './tackticsController';
 import { t } from '../../core/i18n.service';
 import { renderAnalysisPanel } from '../analysis/analysisPanelView';
 import type { TacticalTrainerStats, TacticalThemeStat } from '../../core/api.types';
-import { renderBoardContainer, type TackticsPageViewLayout } from '../../appView';
+import { renderBoardContainer, type TackticsPageViewLayout } from '../../shared/components/boardView';
 import type { TacticalLevel } from './tacktics.types';
 
 function renderUserStats(stats: TacticalTrainerStats | null): VNode {

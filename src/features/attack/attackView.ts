@@ -6,7 +6,7 @@ import { AttackController, formatElapsedTime } from './attackController';
 import { renderAnalysisPanel } from '../analysis/analysisPanelView';
 import { t } from '../../core/i18n.service';
 import type { PuzzleResultEntry } from '../../core/api.types';
-import { renderBoardContainer, type AttackPageViewLayout } from '../../appView';
+import { renderBoardContainer, type AttackPageViewLayout } from '../../shared/components/boardView';
 
 function renderTimer(controller: AttackController): VNode {
     const timeString = formatElapsedTime(controller.state.elapsedPlayoutTimeMs);

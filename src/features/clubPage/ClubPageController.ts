@@ -3,6 +3,8 @@ import logger from '../../utils/logger';
 import type { AppServices } from '../../AppController';
 import type { ClubApiResponse, FollowClubDto, ClubIdNamePair } from '../../core/api.types';
 import { subscribeToLangChange, t } from '../../core/i18n.service';
+import type { VNode } from 'snabbdom';
+import { renderClubPage } from './clubPageView';
 
 const FOLLOW_COOLDOWN_MS = 15 * 60 * 1000;
 
@@ -36,15 +38,15 @@ export interface ClubPageControllerState {
 export class ClubPageController {
   public state: ClubPageControllerState;
   private services: AppServices;
-  private requestGlobalRedraw: () => void;
+  private requestPageRedraw: () => void;
   private clubId: string;
   private unsubscribeFromLangChange: (() => void) | null = null;
   private unsubscribeFromAuthChange: (() => void) | null = null;
 
-  constructor(clubId: string, services: AppServices, requestGlobalRedraw: () => void) {
+  constructor(clubId: string, services: AppServices, requestPageRedraw: () => void) {
     this.clubId = clubId;
     this.services = services;
-    this.requestGlobalRedraw = requestGlobalRedraw;
+    this.requestPageRedraw = requestPageRedraw;
 
     this.state = {
       isLoading: true,
@@ -71,7 +73,7 @@ export class ClubPageController {
 
     this.unsubscribeFromLangChange = subscribeToLangChange(() => {
         this.updateLocalizedTexts();
-        this.requestGlobalRedraw();
+        this.requestPageRedraw();
     });
 
     this.unsubscribeFromAuthChange = this.services.authService.subscribe(() => {
@@ -79,6 +81,10 @@ export class ClubPageController {
     });
 
     logger.info(`[ClubPageController] Initialized for clubId: ${this.clubId}`);
+  }
+
+  public renderPage(): VNode {
+    return renderClubPage(this);
   }
 
   public getIsUserAuthenticated(): boolean {
@@ -330,7 +336,7 @@ export class ClubPageController {
     this.state = { ...this.state, ...newState };
 
     if (hasChanged) {
-        this.requestGlobalRedraw();
+        this.requestPageRedraw();
     }
   }
 

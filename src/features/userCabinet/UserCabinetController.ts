@@ -5,6 +5,8 @@ import { LichessApiService, type LichessActivityResponse } from '../../core/lich
 import { subscribeToLangChange, t } from '../../core/i18n.service';
 import logger from '../../utils/logger';
 import { PuzzleStorageService, type FavoritePuzzleInfo } from '../../core/puzzle-storage.service';
+import type { VNode } from 'snabbdom';
+import { renderUserCabinetPage } from './userCabinetView';
 
 // <<< НАЧАЛО ИЗМЕНЕНИЙ: Добавлен тип для периода статистики
 export type ActivityPeriod = 'daily' | 'weekly' | 'monthly';
@@ -28,15 +30,15 @@ export interface UserCabinetControllerState {
 export class UserCabinetController {
   public state: UserCabinetControllerState;
   public services: AppServices;
-  private requestGlobalRedraw: () => void;
+  private requestPageRedraw: () => void;
   private unsubscribeFromLangChange: (() => void) | null = null;
   private unsubscribeFromAuthChange: (() => void) | null = null;
   private puzzleStorageService: typeof PuzzleStorageService;
   private lichessApiService: typeof LichessApiService;
 
-  constructor(services: AppServices, requestGlobalRedraw: () => void) {
+  constructor(services: AppServices, requestPageRedraw: () => void) {
     this.services = services;
-    this.requestGlobalRedraw = requestGlobalRedraw;
+    this.requestPageRedraw = requestPageRedraw;
     this.puzzleStorageService = PuzzleStorageService;
     this.lichessApiService = LichessApiService;
 
@@ -64,6 +66,10 @@ export class UserCabinetController {
     });
 
     logger.info('[UserCabinetController] Initialized.');
+  }
+
+  public renderPage(): VNode {
+    return renderUserCabinetPage(this);
   }
 
   public async initializePage(): Promise<void> {
@@ -197,7 +203,7 @@ export class UserCabinetController {
     }
     this.state = { ...this.state, ...newState };
     if (hasChanged) {
-      this.requestGlobalRedraw();
+      this.requestPageRedraw();
     }
   }
 

@@ -1,4 +1,6 @@
 // src/features/tower/TowerController.ts
+import type { VNode, Hooks } from 'snabbdom';
+import { h } from 'snabbdom';
 import type { GameEndOutcome } from '../../core/boardHandler';
 import logger from '../../utils/logger';
 import { SoundService } from '../../core/sound.service';
@@ -10,6 +12,9 @@ import { InsufficientFunCoinsError } from '../../core/webhook.service';
 import { BaseGameController } from '../../core/controllers/base-game.controller';
 import type { BoardHandler } from '../../core/boardHandler';
 import type { AnalysisController } from '../analysis/analysisController';
+import { renderTowerUI } from './towerView';
+import { renderControlPanel } from '../../shared/components/controlPanelView';
+import { initializeResizer } from '../common/resizer';
 
 const TIMER_INTERVAL_MS = 1000;
 const INITIAL_LIVES = 3;
@@ -21,7 +26,7 @@ export class TowerController extends BaseGameController<TowerControllerState> {
     boardHandler: BoardHandler,
     analysisController: AnalysisController,
     services: AppServices,
-    requestGlobalRedraw: () => void,
+    requestPageRedraw: () => void,
   ) {
     const initialState: TowerControllerState = {
       availableTowers: TOWER_DEFINITIONS,
@@ -29,13 +34,54 @@ export class TowerController extends BaseGameController<TowerControllerState> {
       selectedTowerId: null,
       selectedTheme: 'mix',
       activeTowerState: null,
-      feedbackMessage: t('tower.feedback.selectTowerAndStart', {defaultValue: 'Select a Tower and press Start.'}),
+      feedbackMessage: t('tower.feedback.selectTowerAndStart',{defaultValue: 'Select a Tower and press Start.'}),
       gameOverMessage: null,
       gamePhase: 'IDLE',
     };
 
-    super(initialState, boardHandler, analysisController, services, requestGlobalRedraw);
+    super(initialState, boardHandler, analysisController, services, requestPageRedraw);
     logger.info('[TowerController] Initialized.');
+  }
+
+  public renderPage(): VNode {
+    const layout = renderTowerUI(this);
+    const appState = this.services.appController.state;
+    const keyPrefix = 'tower';
+
+    const resizeHandleHook: Hooks = {
+        insert: (vnode: VNode) => {
+            const handleEl = vnode.elm as HTMLElement;
+            const cleanup = initializeResizer(handleEl, this.services.appController);
+            (vnode.data as any).cleanupResizer = cleanup;
+        },
+        destroy: (vnode: VNode) => {
+            const cleanup = (vnode.data as any)?.cleanupResizer;
+            if (typeof cleanup === 'function') {
+                cleanup();
+            }
+        }
+    };
+
+    return h('div.three-column-layout', {
+        key: `layout-${keyPrefix}`,
+        class: {
+            'portrait-mode-layout': appState.isPortraitMode,
+            'no-left-panel': !layout.left && !appState.isPortraitMode,
+            'no-right-panel': !layout.right && !appState.isPortraitMode,
+        }
+    }, [
+        layout.left ? h('aside#left-panel', { class: { 'portrait-mode-layout': appState.isPortraitMode } }, [layout.left]) : null,
+        h('div#center-panel-resizable-wrapper', {
+            key: `center-wrapper-${keyPrefix}`,
+            class: { 'portrait-mode-layout': appState.isPortraitMode }
+        }, [
+          h('div.top-board-panel', { key: `top-panel-${keyPrefix}` }, [layout.topPanelContent]),
+          h('section#center-panel', [layout.center]),
+          h('div.bottom-board-panel', { key: `bottom-panel-${keyPrefix}` }, [renderControlPanel(this.services.appController)]),
+          appState.isPortraitMode ? null : h('div.resize-handle-center', { hook: resizeHandleHook, key: `center-resize-handle-${keyPrefix}` })
+        ]),
+        layout.right ? h('aside#right-panel', { class: { 'portrait-mode-layout': appState.isPortraitMode } }, [layout.right]) : null,
+    ].filter(Boolean) as VNode[]);
   }
 
   // --- Implementation of abstract methods ---
@@ -59,7 +105,7 @@ export class TowerController extends BaseGameController<TowerControllerState> {
     } else {
       this.boardHandler.setupPosition("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
       this.setState({
-          feedbackMessage: t('tower.feedback.selectTowerAndStart', {defaultValue: 'Select a Tower and press Start.'}),
+          feedbackMessage: t('tower.feedback.selectTowerAndStart',{defaultValue: 'Select a Tower and press Start.'}),
           selectedTowerId: null,
       });
     }
@@ -361,7 +407,7 @@ export class TowerController extends BaseGameController<TowerControllerState> {
         const currentActiveTower = this.state.activeTowerState;
         if (currentActiveTower && currentActiveTower.startTimeMs !== null && this.state.gamePhase === 'PLAYING') {
           currentActiveTower.elapsedTimeMs = Date.now() - currentActiveTower.startTimeMs;
-          this.requestGlobalRedraw(); // Request redraw to update timer display
+          this.requestPageRedraw(); // Request redraw to update timer display
         } else {
             this._stopTimer();
         }
@@ -377,7 +423,7 @@ export class TowerController extends BaseGameController<TowerControllerState> {
     const activeTower = this.state.activeTowerState;
     if (activeTower && activeTower.startTimeMs !== null) {
         activeTower.elapsedTimeMs = Date.now() - activeTower.startTimeMs;
-        this.requestGlobalRedraw();
+        this.requestPageRedraw();
     }
   }
 
