@@ -1,3 +1,4 @@
+// src/core/chess-logic.service.ts
 // src/AppController.ts
 import logger from './utils/logger';
 import type { ChessboardService } from './core/chessboard.service';
@@ -131,7 +132,7 @@ export class AppController {
   private unsubscribeFromAuthChange: (() => void) | null = null;
   private unsubscribeFromRouteChange: (() => void) | null = null;
 
-  private pageVNode: VNode | Element | null = null;
+  private pageVNode: VNode | null = null;
 
   constructor(
     globalServices: {
@@ -460,45 +461,55 @@ export class AppController {
     this.activePageController = null;
     if (this.analysisControllerInstance?.destroy) this.analysisControllerInstance.destroy();
     this.analysisControllerInstance = null;
-
+  
     this.clearGameControls();
-
+  
     this.setState({
       currentPage: route.page,
       currentClubId: route.clubId,
       currentPuzzleId: route.puzzleId,
       currentTowerId: route.towerId,
     });
-
+  
     this._calculateAndSetBoardSize();
-
+  
     let boardHandlerForPage: BoardHandler | undefined;
     const pageContentContainer = document.getElementById('page-content-wrapper');
+  
     if (!pageContentContainer) {
         logger.error("[AppController] #page-content-wrapper not found in DOM. Cannot load page.");
         return;
     }
-    
-    // Initialize the VNode for the page content area if it doesn't exist yet.
-    if (!this.pageVNode || !(this.pageVNode as VNode).sel) {
-        const placeholder = h('div');
-        this.pageVNode = this.patch(pageContentContainer, placeholder);
+  
+    // <<< START OF FIX >>>
+    // Adopt the container element if we haven't already.
+    // this.pageVNode will now be the VNode representation of the <main> container.
+    if (!this.pageVNode) {
+        const emptyContainerVNode = h('main#page-content-wrapper');
+        this.pageVNode = this.patch(pageContentContainer, emptyContainerVNode);
     }
-
+    // <<< END OF FIX >>>
+  
     const requestPageRedraw = () => {
         if (this.activePageController && this.pageVNode) {
-            const newPageVNode = this.activePageController.renderPage();
-            if (newPageVNode) {
-                this.pageVNode = this.patch(this.pageVNode, newPageVNode);
-            }
+            // 1. Get the content VNode from the active page controller.
+            const pageContentVNode = this.activePageController.renderPage();
+  
+            // 2. Create a new VNode for the container, with the page content as its child.
+            // The selector 'main#page-content-wrapper' MUST match the one we adopted.
+            const newContainerVNode = h('main#page-content-wrapper', {}, pageContentVNode ? [pageContentVNode] : []);
+  
+            // 3. Patch the old container VNode with the new one.
+            // Since the selectors match, Snabbdom will only update the children.
+            this.pageVNode = this.patch(this.pageVNode, newContainerVNode);
         }
     };
-
+  
     if (['finishHim', 'tower', 'attack', 'tacktics'].includes(route.page)) {
       boardHandlerForPage = new BoardHandler(this.services.chessboardService, requestPageRedraw);
       this.analysisControllerInstance = new AnalysisController(this.services.analysisService, boardHandlerForPage, this.pgnServiceInstance, requestPageRedraw);
     }
-
+  
     switch (route.page) {
       case 'welcome':
         this.activePageController = new WelcomeController(this.authServiceInstance, this, requestPageRedraw);
@@ -576,7 +587,7 @@ export class AppController {
         return;
     }
     logger.info(`[AppController] Loaded controller for page: ${route.page}`, this.activePageController);
-    requestPageRedraw(); // Initial render for the new page
+    requestPageRedraw();
   }
 
   public navigateTo(page: AppPage, updateHash: boolean = true, clubId: string | null = null, puzzleId: string | null = null, towerId: string | null = null): void {
