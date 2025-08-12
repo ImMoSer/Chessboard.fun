@@ -126,14 +126,15 @@ function renderPuzzleLeaderboard(results: PuzzleResultEntry[] | null): VNode | n
 }
 
 function renderPuzzleInfo(controller: FinishHimController): VNode | null {
-    const { activePuzzle, currentPuzzleSolveTime, puzzleResults } = controller.state;
+    const { activePuzzle, puzzleResults } = controller.state;
     const currentPieceSet = controller.services.themeService.getCurrentTheme().pieces;
 
     if (!activePuzzle) {
         return null;
     }
 
-    const { Tactical_Rating, PlayOut_Rating, fun_value } = activePuzzle;
+    // FIXED: Destructure solve_time directly from activePuzzle
+    const { Tactical_Rating, PlayOut_Rating, fun_value, solve_time } = activePuzzle;
 
     const infoItems = [
         Tactical_Rating !== undefined ? h('div.puzzle-info-item', [
@@ -144,9 +145,10 @@ function renderPuzzleInfo(controller: FinishHimController): VNode | null {
             h('span.info-label', t('finishHim.puzzleInfo.playoutRating') + ': '),
             h('span.info-value', String(PlayOut_Rating))
         ]) : null,
-        currentPuzzleSolveTime !== undefined ? h('div.puzzle-info-item', [
+        // FIXED: Use solve_time from puzzle data
+        solve_time !== undefined ? h('div.puzzle-info-item', [
             h('span.info-label', t('finishHim.puzzleInfo.solveTime') + ': '),
-            h('span.info-value', formatTime(currentPuzzleSolveTime))
+            h('span.info-value', formatTime(solve_time))
         ]) : null,
         fun_value !== undefined ? h('div.puzzle-info-item', [
             h('span.info-label', t('finishHim.puzzleInfo.funValue', { defaultValue: 'Fun Value' }) + ': '),
@@ -219,12 +221,9 @@ export function renderFinishHimUI(controller: FinishHimController): FinishHimPag
     style: { display: 'flex', flexDirection: 'column', height: '100%', position: 'relative' }
   }, rightPanelElements.filter(Boolean) as VNode[]);
 
-  // <<< НАЧАЛО ИЗМЕНЕНИЙ: Добавляем пустой левый контейнер
   const leftPanelContent = h('div.finish-him-left-panel', [
-    // Этот контейнер остается пустым, но его наличие необходимо для корректного отображения макета.
-    // Содержимое можно будет добавить позже.
+    // This container remains for layout consistency.
   ]);
-  // <<< КОНЕЦ ИЗМЕНЕНИЙ
 
   return {
     left: leftPanelContent,
@@ -233,4 +232,3 @@ export function renderFinishHimUI(controller: FinishHimController): FinishHimPag
     topPanelContent: feedbackVNode
   };
 }
-

@@ -105,7 +105,9 @@
       "yourTurnPlayout": "Dein Zug! Finde die besten Züge, um zu gewinnen.",
       "timeUp": "Zeit abgelaufen! Endspiel verloren.",
       "resigned": "Du hast aufgegeben.",
-      "gameStopped": "Spiel gestoppt."
+      "gameStopped": "Spiel gestoppt.",
+      "win": "Gewonnen!",
+      "loss": "Verloren!"
     },
     "puzzleActions": {
       "toggleFavorite": "Zu Favoriten hinzufügen/entfernen"

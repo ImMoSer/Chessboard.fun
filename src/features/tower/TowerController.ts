@@ -1,10 +1,8 @@
 // src/features/tower/TowerController.ts
-import type { Color as ChessgroundColor } from 'chessground/types';
-import type { GameEndReason, AttemptMoveResult } from '../../core/boardHandler';
+import type { GameEndOutcome } from '../../core/boardHandler';
 import logger from '../../utils/logger';
 import { SoundService } from '../../core/sound.service';
 import { t } from '../../core/i18n.service';
-import { PgnService } from '../../core/pgn.service';
 import { TOWER_DEFINITIONS, type TowerControllerState, type ActiveTowerState } from './tower.types';
 import type { TowerId, TowerTheme, TowerData, GetNewTowerDto, SaveTowerRecordDto } from '../../core/api.types';
 import type { AppServices, GameControlsState } from '../../AppController';
@@ -13,19 +11,12 @@ import { BaseGameController } from '../../core/controllers/base-game.controller'
 import type { BoardHandler } from '../../core/boardHandler';
 import type { AnalysisController } from '../analysis/analysisController';
 
-const BOT_MOVE_DELAY_MS = 100;
-const PREMOVE_EXECUTION_DELAY_MS = 100;
 const TIMER_INTERVAL_MS = 1000;
 const INITIAL_LIVES = 3;
 
 export class TowerController extends BaseGameController<TowerControllerState> {
-  private pgnService: typeof PgnService;
   private timerIntervalId: number | null = null;
-  private currentLevelStartTimeMs: number | null = null;
-  private solutionMovesForCurrentPosition: string[] = [];
-  private currentSolutionMoveIndex: number = 0;
-  private isScenarioActive: boolean = true;
-
+  
   constructor(
     boardHandler: BoardHandler,
     analysisController: AnalysisController,
@@ -44,23 +35,17 @@ export class TowerController extends BaseGameController<TowerControllerState> {
     };
 
     super(initialState, boardHandler, analysisController, services, requestGlobalRedraw);
-    this.pgnService = services.pgnServiceInstance;
-
-    this._updateAppControls();
     logger.info('[TowerController] Initialized.');
   }
 
   // --- Implementation of abstract methods ---
 
   public async initializeGame(towerId: string | null = null): Promise<void> {
-    logger.info(`[TowerController] initializeGame called with towerId: ${towerId}`);
     if (this.analysisController.getPanelState().isAnalysisActive) {
         this.analysisController.toggleAnalysisEngine();
     }
     this.boardHandler.configureBoardForAnalysis(false);
-
     this._stopTimer();
-    this.currentLevelStartTimeMs = null;
     
     this.setState({
         activeTowerState: null,
@@ -95,30 +80,6 @@ export class TowerController extends BaseGameController<TowerControllerState> {
       onExit: () => this.handleExitTower(),
     };
   }
-
-  protected async _handleUserMoveInGame(moveResult: AttemptMoveResult): Promise<void> {
-    if (!moveResult.success) {
-        this.setState({feedbackMessage: moveResult.isIllegal ? t('tower.feedback.illegalMove') : t('tower.error.moveFailed')});
-        return;
-    }
-
-    if (this.isScenarioActive) {
-      const expectedMove = this.solutionMovesForCurrentPosition[this.currentSolutionMoveIndex];
-      if (moveResult.uciMove === expectedMove) {
-        this.currentSolutionMoveIndex++;
-      } else {
-        this.isScenarioActive = false;
-      }
-    }
-    
-    const gameStatus = this.boardHandler.getGameStatus();
-    if (gameStatus.isGameOver) {
-      const humanColor = this.boardHandler.getHumanPlayerColor();
-      this._handlePositionOutcome(gameStatus.outcome?.winner === humanColor, gameStatus.outcome?.reason);
-    } else {
-      this._triggerBotMove();
-    }
-  }
   
   public handleNewGame(): void {
       logger.warn('[TowerController] handleNewGame called, but this mode requires selection. Resetting to idle.');
@@ -145,7 +106,6 @@ export class TowerController extends BaseGameController<TowerControllerState> {
     activeTower.elapsedTimeMs = 0;
     activeTower.levelCompletionTimes.fill(null);
     activeTower.lives = INITIAL_LIVES;
-    this.currentLevelStartTimeMs = null;
     
     this.setState({
       gameOverMessage: null,
@@ -159,14 +119,40 @@ export class TowerController extends BaseGameController<TowerControllerState> {
   
   public handleResign(): void {
     if (!this._getControlsState().canResign) return;
+    this._handleGameOver(false);
+  }
 
-    this._stopTimer();
-    this.setState({
-      gamePhase: 'LEVEL_RESIGNED',
-      feedbackMessage: t('tower.feedback.resigned', { defaultValue: 'You resigned. Analysis is now available.' }),
-    });
-    
-    this.boardHandler.configureBoardForAnalysis(true);
+  /**
+   * REFACTORED: This method is now the central handler for the outcome of a single position.
+   * It's called by the BaseGameController when a game ends. It manages lives,
+   * advances to the next level, or ends the tower run.
+   */
+  protected _handleGameOver(isWin: boolean, _outcome?: GameEndOutcome): void {
+    const activeTower = this.state.activeTowerState;
+    if (!activeTower || this.state.gamePhase !== 'PLAYING') return;
+
+    if (isWin) {
+      activeTower.currentPositionIndex++;
+      const isLastPosition = activeTower.currentPositionIndex >= activeTower.positions.length;
+      
+      if (isLastPosition) {
+        this._handleTowerCompletion();
+      } else {
+        this.setState({feedbackMessage: t('tower.feedback.positionWon')});
+        this._loadCurrentTowerPosition();
+      }
+    } else {
+      activeTower.lives--;
+
+      if (activeTower.lives > 0) {
+        this.setState({
+          feedbackMessage: t('tower.feedback.positionFailedWithLives', { lives: activeTower.lives })
+        });
+        setTimeout(() => this._loadCurrentTowerPosition(), 1500);
+      } else {
+        this._handleTowerFailure();
+      }
+    }
   }
 
   // --- Tower specific methods ---
@@ -181,7 +167,6 @@ export class TowerController extends BaseGameController<TowerControllerState> {
   public selectTheme(theme: TowerTheme): void {
     if (this.state.gamePhase === 'IDLE') {
       this.setState({ selectedTheme: theme });
-      logger.info(`[TowerController] Theme selected: ${theme}.`);
     }
   }
 
@@ -204,12 +189,7 @@ export class TowerController extends BaseGameController<TowerControllerState> {
   }
 
   private async _startTowerById(towerId: string): Promise<void> {
-    logger.info(`[TowerController] Starting tower by ID: ${towerId}`);
-    this.setState({
-      gamePhase: 'LOADING',
-      feedbackMessage: t('tower.feedback.loadingTower', { towerName: towerId }),
-    });
-    
+    this.setState({ gamePhase: 'LOADING', feedbackMessage: t('tower.feedback.loadingTower', { towerName: towerId }) });
     try {
         const towerData = await this.services.webhookService.fetchTowerById(towerId);
         this._processFetchedTowerData(towerData);
@@ -219,28 +199,17 @@ export class TowerController extends BaseGameController<TowerControllerState> {
   }
 
   private async _startTowerByType(towerType: TowerId): Promise<void> {
-    logger.info(`[TowerController] Starting tower by type: ${towerType}`);
     const selectedDefinition = TOWER_DEFINITIONS.find(def => def.id === towerType);
-    if (!selectedDefinition) {
-      logger.error(`[TowerController] Cannot start tower by type: definition not found for ${towerType}`);
-      return;
-    }
-    this.setState({
-      gamePhase: 'LOADING',
-      feedbackMessage: t('tower.feedback.loadingTower', { towerName: t(selectedDefinition.nameKey) }),
-    });
+    if (!selectedDefinition) return;
+    this.setState({ gamePhase: 'LOADING', feedbackMessage: t('tower.feedback.loadingTower', { towerName: t(selectedDefinition.nameKey) }) });
 
     try {
-        const dto: GetNewTowerDto = { 
-          tower_type: towerType,
-          tower_theme: this.state.selectedTheme
-        };
+        const dto: GetNewTowerDto = { tower_type: towerType, tower_theme: this.state.selectedTheme };
         const towerData = await this.services.webhookService.fetchNewTower(dto);
         if (towerData) {
             const currentCoins = this.services.authService.getFunCoins();
             if (currentCoins !== null) {
-                const newBalance = currentCoins - 10;
-                this.services.authService.updateUserProfile({ FunCoins: newBalance });
+                this.services.authService.updateUserProfile({ FunCoins: currentCoins - 10 });
             }
         }
         this._processFetchedTowerData(towerData);
@@ -259,25 +228,15 @@ export class TowerController extends BaseGameController<TowerControllerState> {
         this.setState({ gamePhase: 'IDLE', selectedTowerId: null });
       } else {
         logger.error('[TowerController] Error fetching tower data:', error.message);
-        this.services.appController.showModal(t('tower.error.towerNotFound', { defaultValue: 'The requested tower could not be found.'}));
-        this.setState({
-          gamePhase: 'IDLE',
-          feedbackMessage: error.message,
-          selectedTowerId: null,
-        });
+        this.services.appController.showModal(t('tower.error.towerNotFound'));
+        this.setState({ gamePhase: 'IDLE', feedbackMessage: error.message, selectedTowerId: null });
       }
   }
 
   private _processFetchedTowerData(towerData: TowerData | null): void {
-      // <<< НАЧАЛО ИЗМЕНЕНИЙ: Добавление логирования
-      logger.debug('[TowerController] Received tower data from backend:', towerData);
-      // <<< КОНЕЦ ИЗМЕНЕНИЙ
-
-      if (towerData && towerData.positions && towerData.positions.length > 0 && towerData.tower_id && towerData.tower_type && towerData.tower_theme) {
+      if (towerData && towerData.positions?.length > 0) {
         const definition = TOWER_DEFINITIONS.find(def => def.id === towerData.tower_type);
-
         if (!definition) {
-            logger.error(`[TowerController] Could not determine tower definition from response. Type received: ${towerData.tower_type}`);
             this._handleFetchError(new Error(t('tower.error.definitionNotFound', {towerId: towerData.tower_id})));
             return;
         }
@@ -300,10 +259,7 @@ export class TowerController extends BaseGameController<TowerControllerState> {
           levelCompletionTimes: new Array(towerData.positions.length).fill(null),
           lives: INITIAL_LIVES,
         };
-        this.setState({ 
-            activeTowerState: newActiveTowerState, 
-            gamePhase: 'PLAYING' 
-        });
+        this.setState({ activeTowerState: newActiveTowerState, gamePhase: 'PLAYING' });
         SoundService.playBackgroundSound('game_entry');
         this._loadCurrentTowerPosition();
         this._startTimer();
@@ -312,9 +268,13 @@ export class TowerController extends BaseGameController<TowerControllerState> {
       }
   }
 
+  /**
+   * REFACTORED: This method now uses the unified _setupPuzzlePosition from the base class
+   * to handle the setup for the current level of the tower.
+   */
   private _loadCurrentTowerPosition(): void {
     const activeTower = this.state.activeTowerState;
-    if (!activeTower || (this.state.gamePhase !== 'PLAYING' && this.state.gamePhase !== 'LEVEL_RESIGNED')) {
+    if (!activeTower || this.state.gamePhase !== 'PLAYING') {
       logger.error(`[TowerController] _loadCurrentTowerPosition: called in invalid state. Phase: ${this.state.gamePhase}`);
       this.setState({ feedbackMessage: t('tower.error.internalErrorLoadingPosition'), gamePhase: 'IDLE' });
       return;
@@ -327,144 +287,26 @@ export class TowerController extends BaseGameController<TowerControllerState> {
     }
     
     const currentPosition = positions[currentPositionIndex];
+    const scenario = currentPosition.solution_moves ? currentPosition.solution_moves.split(' ').filter(m => m) : [];
     
-    this.solutionMovesForCurrentPosition = currentPosition.solution_moves ? currentPosition.solution_moves.split(' ').filter(m => m) : [];
-    this.currentSolutionMoveIndex = 0;
-    this.isScenarioActive = this.solutionMovesForCurrentPosition.length > 0;
-    
-    this.currentLevelStartTimeMs = activeTower.elapsedTimeMs;
-    const humanPlayerColor: ChessgroundColor = currentPosition.bot_color === 'w' ? 'black' : 'white';
-
-    this.pgnService.reset(currentPosition.FEN_0);
-    this.boardHandler.setupPosition(currentPosition.FEN_0, humanPlayerColor, false);
-
-    const towerDisplayName = t(activeTower.definition.nameKey, {defaultValue: activeTower.definition.defaultName});
     this.setState({
         feedbackMessage: t('tower.feedback.positionLoaded', {
             current: currentPositionIndex + 1,
             total: positions.length,
-            towerName: towerDisplayName
+            towerName: t(activeTower.definition.nameKey, {defaultValue: activeTower.definition.defaultName})
         })
     });
 
-    const gameStatus = this.boardHandler.getGameStatus();
-    if (gameStatus.isGameOver) {
-        this._handlePositionOutcome(false, gameStatus.outcome?.reason);
-        return;
-    }
-
-    const boardTurn = this.boardHandler.getBoardTurnColor();
-    const botColorChessground: ChessgroundColor = currentPosition.bot_color === 'w' ? 'white' : 'black';
-
-    if (boardTurn === botColorChessground) {
-        setTimeout(() => this._triggerBotMove(), BOT_MOVE_DELAY_MS);
-    } else {
-        this.setState({feedbackMessage: t('tower.feedback.yourTurn')});
-    }
+    // Delegate the actual board setup and first bot move to the base controller
+    this._setupPuzzlePosition(currentPosition.FEN_0, scenario);
   }
 
-  private async _triggerBotMove(): Promise<void> {
-    if (this.state.gamePhase !== 'PLAYING') return;
-    
-    this.setState({feedbackMessage: t('tower.feedback.botThinking')});
-
-    let botMoveUci: string | null = null;
-    
-    if (this.isScenarioActive && this.currentSolutionMoveIndex < this.solutionMovesForCurrentPosition.length) {
-        botMoveUci = this.solutionMovesForCurrentPosition[this.currentSolutionMoveIndex];
-        this.currentSolutionMoveIndex++;
-        await new Promise(resolve => setTimeout(resolve, BOT_MOVE_DELAY_MS));
-    } else {
-        if (this.isScenarioActive) this.isScenarioActive = false;
-        try {
-            const engineId = this.services.appController.state.selectedEngine;
-            botMoveUci = await this.services.gameplayService.getBestMove(engineId, this.boardHandler.getFen());
-        } catch (error) {
-            this.setState({feedbackMessage: t('tower.error.botMoveFailed')});
-            this._handlePositionOutcome(false);
-            return;
-        }
-    }
-
-    if (this.state.gamePhase !== 'PLAYING') return;
-
-    if (botMoveUci) {
-      const moveResult = this.boardHandler.applySystemMove(botMoveUci);
-      if (moveResult.success) {
-        const gameStatus = this.boardHandler.getGameStatus();
-        if (gameStatus.isGameOver) {
-          const humanColor = this.boardHandler.getHumanPlayerColor();
-          this._handlePositionOutcome(gameStatus.outcome?.winner === humanColor, gameStatus.outcome?.reason);
-        } else {
-          this.setState({feedbackMessage: t('tower.feedback.yourTurn')});
-          setTimeout(() => {
-              if (this.services.chessboardService.playPremove()) {
-                  // Premove played
-              }
-          }, PREMOVE_EXECUTION_DELAY_MS);
-        }
-      } else {
-        this.setState({feedbackMessage: t('tower.error.botIllegalMove')});
-        this._handlePositionOutcome(false);
-      }
-    } else {
-        const gameStatus = this.boardHandler.getGameStatus();
-        if (gameStatus.isGameOver) {
-            const humanColor = this.boardHandler.getHumanPlayerColor();
-            this._handlePositionOutcome(gameStatus.outcome?.winner === humanColor, gameStatus.outcome?.reason);
-        } else {
-            this.setState({feedbackMessage: t('tower.error.botNoMove')});
-            this._handlePositionOutcome(false);
-        }
-    }
-  }
-
-  private _handlePositionOutcome(isWin: boolean, _reason?: GameEndReason): void {
-    const activeTower = this.state.activeTowerState;
-    if (!activeTower) return;
-    
-    if (this.currentLevelStartTimeMs !== null) {
-        const levelTimeMs = activeTower.elapsedTimeMs - this.currentLevelStartTimeMs;
-        activeTower.levelCompletionTimes[activeTower.currentPositionIndex] = levelTimeMs;
-    }
-
-    if (isWin) {
-      activeTower.currentPositionIndex++;
-      const isLastPosition = activeTower.currentPositionIndex >= activeTower.positions.length;
-      
-      if (isLastPosition) {
-        this._handleTowerCompletion();
-      } else {
-        this.setState({feedbackMessage: t('tower.feedback.positionWon')});
-        this._loadCurrentTowerPosition();
-      }
-    } else {
-      activeTower.lives--;
-
-      if (activeTower.lives > 0) {
-        this.setState({
-          feedbackMessage: t('tower.feedback.positionFailedWithLives', {
-            lives: activeTower.lives
-          })
-        });
-        setTimeout(() => this._loadCurrentTowerPosition(), 1500);
-      } else {
-        this._handleGameOver();
-      }
-    }
-  }
-
-  private _handleGameOver(): void {
-    const activeTower = this.state.activeTowerState;
-    if (!activeTower) return;
-
+  private _handleTowerFailure(): void {
+    this._stopTimer();
     this.setState({
       gamePhase: 'GAMEOVER',
-      gameOverMessage: t('tower.feedback.gameOver', {
-        defaultValue: 'Game Over. You have no lives left.'
-      }),
+      gameOverMessage: t('tower.feedback.gameOver', { defaultValue: 'Game Over. You have no lives left.' }),
     });
-    
     this.boardHandler.configureBoardForAnalysis(true);
   }
 
@@ -490,15 +332,7 @@ export class TowerController extends BaseGameController<TowerControllerState> {
     const user = this.services.authService.getUserProfile();
     const activeTower = this.state.activeTowerState;
 
-    if (!user || !user.username) {
-      logger.warn('[TowerController] User profile or username missing, cannot send tower record.');
-      return;
-    }
-
-    if (!activeTower || !activeTower.id || !activeTower.definition) {
-      logger.warn('[TowerController] Active tower state or definition missing, cannot send tower record.');
-      return;
-    }
+    if (!user?.username || !activeTower) return;
 
     const newTime = Math.round(activeTower.elapsedTimeMs / 1000);
     
@@ -508,8 +342,8 @@ export class TowerController extends BaseGameController<TowerControllerState> {
         tower_id: activeTower.id,
         tower_type: activeTower.definition.id,
         time_in_seconds: newTime,
-        success: true, // <<< ИЗМЕНЕНО
-        bw_value_total: activeTower.bwValueTotal, // <<< ИЗМЕНЕНО
+        success: true,
+        bw_value_total: activeTower.bwValueTotal,
       };
       await this.services.webhookService.sendTowerRecord(dto);
       logger.info('[TowerController] Tower record sent to backend successfully.');
@@ -527,12 +361,7 @@ export class TowerController extends BaseGameController<TowerControllerState> {
         const currentActiveTower = this.state.activeTowerState;
         if (currentActiveTower && currentActiveTower.startTimeMs !== null && this.state.gamePhase === 'PLAYING') {
           currentActiveTower.elapsedTimeMs = Date.now() - currentActiveTower.startTimeMs;
-          
-          const timerEl = document.getElementById('tower-timer-display');
-          if (timerEl) {
-              timerEl.textContent = this.formatTime(Math.round(currentActiveTower.elapsedTimeMs / 1000));
-          }
-
+          this.requestGlobalRedraw(); // Request redraw to update timer display
         } else {
             this._stopTimer();
         }
@@ -566,6 +395,6 @@ export class TowerController extends BaseGameController<TowerControllerState> {
     if (this.boardHandler) {
         this.boardHandler.configureBoardForAnalysis(false);
     }
-    super.destroy(); // Call base class destroy
+    super.destroy();
   }
 }

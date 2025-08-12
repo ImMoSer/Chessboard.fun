@@ -2,13 +2,13 @@
 
 /**
  * Defines all possible game phases across different game modes.
+ * TACTICAL phase has been removed as part of the refactoring.
  */
 export type GamePhase =
   | 'IDLE'
   | 'LOADING'
-  | 'TACTICAL'
-  | 'PLAYING' // <<< ДОБАВЛЕНО
-  | 'PLAYOUT'
+  | 'PLAYING' // Main phase for active gameplay
+  | 'PLAYOUT' // Kept for compatibility, but its role is merged into PLAYING
   | 'GAMEOVER'
   | 'LEVEL_FAILED'
   | 'LEVEL_RESIGNED'

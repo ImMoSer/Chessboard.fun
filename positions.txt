@@ -1,0 +1,133 @@
+{
+    "tower_id": "iX4k1ZWU",
+    "tower_type": "CM",
+    "tower_theme": "mix",
+    "bw_value_total": 203,
+    "average_rating": 1178,
+    "positions": [
+        {
+            "FEN_0": "6k1/6p1/7p/1P1R4/8/7P/r2p2P1/7K w - - 0 31",
+            "rating": 904,
+            "bot_color": "w",
+            "fen_final": "6k1/6p1/1P5p/8/8/7P/6PK/3r4 w - - 0 34",
+            "avg_rating": 794,
+            "engm_rating": 683,
+            "puzzle_theme": "advancedPawn crushing endgame long promotion rookEndgame",
+            "solution_moves": "b5b6 a2a1 h1h2 d2d1q d5d1 a1d1"
+        },
+        {
+            "FEN_0": "8/8/R4Npp/1p2p1k1/2p3P1/prP2P2/7P/6K1 b - - 0 45",
+            "rating": 903,
+            "bot_color": "b",
+            "fen_final": "8/8/R5pp/1p2p3/2p3Pk/p1N2P2/7P/6K1 b - - 0 47",
+            "avg_rating": 942,
+            "engm_rating": 980,
+            "puzzle_theme": "crushing endgame fork short",
+            "solution_moves": "b3c3 f6e4 g5h4 e4c3"
+        },
+        {
+            "FEN_0": "8/8/1pb1Q3/8/2k5/3p3P/P4PPK/2q5 b - - 5 52",
+            "rating": 1264,
+            "bot_color": "b",
+            "fen_final": "8/8/1p6/3b4/3k4/3p3P/P4PPK/2Q5 b - - 0 54",
+            "avg_rating": 962,
+            "engm_rating": 659,
+            "puzzle_theme": "crushing endgame short skewer",
+            "solution_moves": "c6d5 e6c8 c4d4 c8c1"
+        },
+        {
+            "FEN_0": "8/R5Pr/8/8/8/1k6/p4P1K/8 w - - 0 44",
+            "rating": 1144,
+            "bot_color": "w",
+            "fen_final": "8/6R1/8/8/8/1k4K1/5P2/q7 w - - 0 46",
+            "avg_rating": 985,
+            "engm_rating": 826,
+            "puzzle_theme": "advancedPawn advantage deflection endgame promotion rookEndgame short",
+            "solution_moves": "h2g3 h7g7 a7g7 a2a1q"
+        },
+        {
+            "FEN_0": "8/8/1R6/6pk/p7/P1K4r/1P6/8 w - - 0 41",
+            "rating": 1491,
+            "bot_color": "w",
+            "fen_final": "8/8/1r6/K5pk/p7/P7/1P6/8 w - - 0 43",
+            "avg_rating": 1028,
+            "engm_rating": 564,
+            "puzzle_theme": "crushing endgame rookEndgame short",
+            "solution_moves": "c3b4 h3b3 b4a5 b3b6"
+        },
+        {
+            "FEN_0": "3k4/R7/1p6/2bNp3/4P2p/1KP4P/PP4q1/8 b - - 1 33",
+            "rating": 1216,
+            "bot_color": "b",
+            "fen_final": "R7/8/1p2k3/2b1p3/4N2p/1KP4P/PP6/8 b - - 0 36",
+            "avg_rating": 1036,
+            "engm_rating": 856,
+            "puzzle_theme": "crushing endgame exposedKing fork long",
+            "solution_moves": "g2e4 a7a8 d8d7 d5f6 d7e6 f6e4"
+        },
+        {
+            "FEN_0": "5k2/5ppp/p1pb4/8/1P1q4/P7/4QPPP/2R3K1 w - - 0 26",
+            "rating": 1209,
+            "bot_color": "w",
+            "fen_final": "5k2/5ppp/p1R5/8/1P6/P7/5PPb/5q1K w - - 0 29",
+            "avg_rating": 1101,
+            "engm_rating": 992,
+            "puzzle_theme": "crushing deflection endgame long pin",
+            "solution_moves": "c1c6 d4a1 e2f1 d6h2 g1h1 a1f1"
+        },
+        {
+            "FEN_0": "2r3k1/4bpp1/3p3p/3r4/3Np3/8/1P2KPP1/1Q3N2 w - - 0 35",
+            "rating": 1282,
+            "bot_color": "w",
+            "fen_final": "2r3k1/4bpp1/3p3p/8/3Nr3/3K4/1P3PP1/5N2 w - - 0 37",
+            "avg_rating": 1118,
+            "engm_rating": 954,
+            "puzzle_theme": "advantage endgame pin short",
+            "solution_moves": "b1e4 d5e5 e2d3 e5e4"
+        },
+        {
+            "FEN_0": "1k1r4/1pp5/p7/5npR/8/2N2PP1/PP2rKP1/8 w - - 0 35",
+            "rating": 1278,
+            "bot_color": "w",
+            "fen_final": "1k1r4/1pp5/p7/6pn/8/2N2P2/PP3KP1/8 w - - 0 37",
+            "avg_rating": 1169,
+            "engm_rating": 1059,
+            "puzzle_theme": "advantage endgame fork short",
+            "solution_moves": "f2e2 f5g3 e2f2 g3h5"
+        },
+        {
+            "FEN_0": "7k/1p3p1p/p2p2p1/3qp3/3n4/1P6/P2Q1PPP/5RK1 w - - 0 24",
+            "rating": 1085,
+            "bot_color": "w",
+            "fen_final": "7k/1p3p1p/p2p2p1/4p3/8/1P3P2/P2q1P1P/2R3K1 w - - 0 26",
+            "avg_rating": 1187,
+            "engm_rating": 1288,
+            "puzzle_theme": "crushing discoveredAttack endgame short",
+            "solution_moves": "f1c1 d4f3 g2f3 d5d2"
+        }
+    ],
+    "tower_results": null
+}
+
+
+{
+    "PuzzleId": "OtefR",
+    "FEN_0": "3r2k1/1p1r1qp1/p6p/3np3/4N3/PQ1R1PP1/1P5P/3R2K1 b - - 1 28",
+    "Moves": "d5f6 e4f6 g7f6 b3f7 d7f7 d3d8",
+    "Rating": 1836,
+    "attack_results": null,
+    "bw_value": 25
+}
+
+{
+    "PuzzleId": "Veilj",
+    "FEN_0": "8/5kpp/ppp1p3/4PP2/PP1K2P1/8/8/8 b - - 2 34",
+    "Moves": "h7h5 f5e6 f7e6 g4h5 a6a5 b4a5",
+    "Tactical_Rating": 1775,
+    "bot_color": "b",
+    "solve_time": 74,
+    "PlayOut_Rating": 1500,
+    "fun_value": 9,
+    "endgame_results": null,
+    "fen_final": "8/6p1/1pp1k3/P3P2P/P2K4/8/8/8 b - - 0 37"
+}

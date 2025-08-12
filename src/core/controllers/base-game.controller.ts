@@ -1,14 +1,18 @@
 // src/core/controllers/base-game.controller.ts
-import type { Key, MoveMetadata } from 'chessground/types';
-import type { BoardHandler, AttemptMoveResult } from '../boardHandler';
+import type { Key, MoveMetadata, Color as ChessgroundColor } from 'chessground/types';
+import type { BoardHandler, GameEndOutcome } from '../boardHandler';
 import type { AnalysisController } from '../../features/analysis/analysisController';
 import type { AppServices, GameControlsState } from '../../AppController';
 import type { BaseGameState } from './base-game.types';
 import logger from '../../utils/logger';
 import { t } from '../i18n.service';
+import { parseFen } from 'chessops/fen';
+
+const BOT_MOVE_DELAY_MS = 500;
+const PREMOVE_EXECUTION_DELAY_MS = 100;
 
 /**
- * An abstract base class for game controllers (FinishHim, Tower, Attack, Tacktics).
+ * An abstract base class for game controllers (FinishHim, Tower, Attack).
  * It encapsulates common logic for handling user moves, managing game state,
  * and interacting with shared services like the board and analysis engine.
  *
@@ -20,6 +24,10 @@ export abstract class BaseGameController<S extends BaseGameState> {
   public analysisController: AnalysisController;
   public services: AppServices;
   protected requestGlobalRedraw: () => void;
+
+  protected scenarioMoves: string[] = [];
+  protected currentScenarioMoveIndex: number = 0;
+  protected isScenarioActive: boolean = false;
 
   private unsubscribeFromMoveMade: (() => void) | null = null;
   private unsubscribeFromPgnNavigated: (() => void) | null = null;
@@ -37,52 +45,120 @@ export abstract class BaseGameController<S extends BaseGameState> {
     this.services = services;
     this.requestGlobalRedraw = requestGlobalRedraw;
 
-    // Subscribe to board events to keep UI controls updated
     this.unsubscribeFromMoveMade = this.boardHandler.onMoveMade(() => this._updateAppControls());
     this.unsubscribeFromPgnNavigated = this.boardHandler.onPgnNavigated(() => this._updateAppControls());
   }
 
   // --- Abstract methods to be implemented by child controllers ---
 
-  /**
-   * Initializes the specific game mode, optionally loading a specific entity (puzzle, tower) by ID.
-   * @param entityId - Optional ID of the puzzle or tower to load.
-   */
-  public abstract initializeGame(entityId?: string | null): Promise<void>;
-
-  /**
-   * Returns the configuration for the main game control buttons (New, Restart, Resign, etc.).
-   */
+  public abstract initializeGame(entityId?: string | null, forceLoadNew?: boolean): Promise<void>;
   protected abstract _getControlsState(): GameControlsState;
-
-  /**
-   * Contains the core game logic for handling a user's move after it has been validated.
-   * @param moveResult - The result of the user's move attempt from the BoardHandler.
-   */
-  protected abstract _handleUserMoveInGame(moveResult: AttemptMoveResult): Promise<void>;
+  protected abstract _handleGameOver(isWin: boolean, outcome?: GameEndOutcome): void;
   
-  /**
-   * Handles the "New Game" button click.
-   */
   public abstract handleNewGame(): void;
-  
-  /**
-   * Handles the "Restart" button click.
-   */
   public abstract handleRestartTask(): void;
-  
-  /**
-   * Handles the "Resign" button click.
-   */
   public abstract handleResign(): void;
 
+  /**
+   * A hook for child controllers to react when the scenario phase ends and free playout begins.
+   * This is where timers should be started, sounds played, etc.
+   */
+  protected _onPlayoutStart(): void {}
 
-  // --- Common methods implemented in the base class ---
+  // --- Unified setup and bot logic ---
+
+  protected _setupPuzzlePosition(fen: string, scenarioMoves: string[]): void {
+    try {
+      const setup = parseFen(fen).unwrap();
+      const botTurnColor = setup.turn;
+      const humanPlayerColor: ChessgroundColor = botTurnColor === 'white' ? 'black' : 'white';
+
+      this.boardHandler.setupPosition(fen, humanPlayerColor, true);
+      
+      this.scenarioMoves = scenarioMoves;
+      this.currentScenarioMoveIndex = 0;
+      this.isScenarioActive = this.scenarioMoves.length > 0;
+
+      this.setState({ gamePhase: 'PLAYING' } as Partial<S>);
+      
+      this._triggerBotMove();
+
+    } catch (e) {
+      logger.error('[BaseGameController] Invalid FEN provided for setup:', fen, e);
+      this.setState({
+        gamePhase: 'GAMEOVER',
+        feedbackMessage: t('puzzle.feedback.loadFailed'),
+        gameOverMessage: 'Invalid FEN data.'
+      } as Partial<S>);
+    }
+  }
 
   /**
-   * Generic handler for user moves from the board view. It manages analysis mode interaction
-   * and delegates game-specific logic to the abstract _handleUserMoveInGame method.
+   * REFACTORED: This method now has a unified delay for both scenario and engine moves.
+   * The delay is applied *after* the move is determined, ensuring a consistent cosmetic effect.
    */
+  protected async _triggerBotMove(): Promise<void> {
+    if (this.state.gamePhase !== 'PLAYING') return;
+
+    const gameStatus = this.boardHandler.getGameStatus();
+    if (gameStatus.isGameOver) {
+      this._handleGameOver(this._checkWinCondition(gameStatus.outcome), gameStatus.outcome);
+      return;
+    }
+
+    this.setState({ feedbackMessage: t('puzzle.feedback.stockfishThinking') } as Partial<S>);
+
+    let botMoveUci: string | null = null;
+
+    if (this.isScenarioActive && this.currentScenarioMoveIndex < this.scenarioMoves.length) {
+      botMoveUci = this.scenarioMoves[this.currentScenarioMoveIndex];
+      this.currentScenarioMoveIndex++;
+    } else {
+      if (this.isScenarioActive) {
+        this.isScenarioActive = false;
+        this._onPlayoutStart();
+      }
+      try {
+        const engineId = this.services.appController.state.selectedEngine;
+        botMoveUci = await this.services.gameplayService.getBestMove(engineId, this.boardHandler.getFen());
+      } catch (error) {
+        logger.error('[BaseGameController] Error getting move from gameplayService:', error);
+        this._handleGameOver(false);
+        return;
+      }
+    }
+
+    // Apply the cosmetic delay AFTER getting the move
+    setTimeout(() => {
+      if (this.state.gamePhase !== 'PLAYING') return;
+
+      if (botMoveUci) {
+        const moveResult = this.boardHandler.applySystemMove(botMoveUci);
+        if (moveResult.success) {
+          const newGameStatus = this.boardHandler.getGameStatus();
+          if (newGameStatus.isGameOver) {
+            this._handleGameOver(this._checkWinCondition(newGameStatus.outcome), newGameStatus.outcome);
+          } else {
+            this.setState({ feedbackMessage: t('puzzle.feedback.yourTurn') } as Partial<S>);
+            setTimeout(() => { this.services.chessboardService.playPremove(); }, PREMOVE_EXECUTION_DELAY_MS);
+          }
+        } else {
+          logger.error(`[BaseGameController] Bot tried to make an illegal move: ${botMoveUci}`);
+          this._handleGameOver(true);
+        }
+      } else {
+        const finalStatus = this.boardHandler.getGameStatus();
+        this._handleGameOver(this._checkWinCondition(finalStatus.outcome), finalStatus.outcome);
+      }
+    }, BOT_MOVE_DELAY_MS);
+  }
+  
+  protected _checkWinCondition(outcome?: GameEndOutcome): boolean {
+    if (!outcome) return false;
+    const humanColor = this.boardHandler.getHumanPlayerColor();
+    return outcome.reason === 'checkmate' && outcome.winner === humanColor;
+  }
+
   public async handleUserMove(orig: Key, dest: Key, metadata?: MoveMetadata): Promise<void> {
     if (this.analysisController.getPanelState().isAnalysisActive) {
       const moveResult = await this.boardHandler.attemptUserMove(orig, dest);
@@ -94,36 +170,45 @@ export abstract class BaseGameController<S extends BaseGameState> {
       return;
     }
 
-    if (this.state.gamePhase === 'IDLE' || this.state.gamePhase === 'GAMEOVER' || (metadata && metadata.premove)) {
+    if (this.state.gamePhase !== 'PLAYING' || (metadata && metadata.premove)) {
       return;
     }
 
     const moveResult = await this.boardHandler.attemptUserMove(orig, dest);
     if (moveResult.success && moveResult.uciMove) {
-      await this._handleUserMoveInGame(moveResult);
+      await this._handleUserMoveInGame(moveResult.uciMove);
     }
   }
 
-  /**
-   * Updates the main application's game control buttons based on the current state.
-   */
+  protected async _handleUserMoveInGame(userUciMove: string): Promise<void> {
+    if (this.isScenarioActive) {
+      const expectedMove = this.scenarioMoves[this.currentScenarioMoveIndex];
+      if (userUciMove === expectedMove) {
+        this.currentScenarioMoveIndex++;
+      } else {
+        this.isScenarioActive = false;
+        this._onPlayoutStart();
+      }
+    }
+
+    const gameStatus = this.boardHandler.getGameStatus();
+    if (gameStatus.isGameOver) {
+      this._handleGameOver(this._checkWinCondition(gameStatus.outcome), gameStatus.outcome);
+    } else {
+      this._triggerBotMove();
+    }
+  }
+
   protected _updateAppControls(): void {
     this.services.appController.updateGameControls(this._getControlsState());
     this.requestGlobalRedraw();
   }
 
-  /**
-   * A simple setState utility to merge new state and trigger a redraw.
-   * @param newState - An object with properties to update in the controller's state.
-   */
   protected setState(newState: Partial<S>): void {
     Object.assign(this.state, newState);
-    this._updateAppControls(); // Ensures controls are always in sync with state changes
+    this._updateAppControls();
   }
 
-  /**
-   * Cleans up subscriptions and resources. Should be called when the controller is destroyed.
-   */
   public destroy(): void {
     this.services.appController.clearGameControls();
     if (this.unsubscribeFromMoveMade) this.unsubscribeFromMoveMade();

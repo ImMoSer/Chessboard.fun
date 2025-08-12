@@ -2,7 +2,8 @@
 import logger from '../utils/logger';
 import { loadEngine, type EngineController } from './engine.loader';
 
-const MOVE_RESPONSE_DELAY_MS = 100;
+// REFACTORED: This delay is no longer needed. The controller will handle the cosmetic delay.
+// const MOVE_RESPONSE_DELAY_MS = 100;
 
 // Interfaces for analysis data
 export interface ScoreInfo {
@@ -135,15 +136,12 @@ export class StockfishService {
     if (message === 'uciok') {
       logger.info('[StockfishService gameplay] UCI OK received.');
       
-      // <<< НАЧАЛО ИЗМЕНЕНИЙ: Условная настройка потоков
-      // Отправляем команду Threads только если среда поддерживает многопоточность.
       if (window.crossOriginIsolated) {
         logger.info('[StockfishService gameplay] Environment is cross-origin isolated. Setting threads to 1 for gameplay engine.');
         this.sendCommand('setoption name Threads value 1');
       } else {
         logger.info('[StockfishService gameplay] Environment is NOT cross-origin isolated. Skipping thread configuration for single-threaded engine.');
       }
-      // <<< КОНЕЦ ИЗМЕНЕНИЙ
 
       this.UCI_OPTIONS_FOR_GAMEPLAY.forEach(optionCmd => this.sendCommand(optionCmd));
       this.sendCommand('isready');
@@ -170,10 +168,10 @@ export class StockfishService {
             const requestObject = this.pendingAnalysisRequest;
             this.pendingAnalysisRequest = null;
 
-            setTimeout(() => {
-                logger.info('[StockfishService gameplay] Analysis complete. Best move:', bestMoveUci);
-                try { requestObject.resolve(result); } catch(e) { /* Promise might already be settled */ }
-            }, MOVE_RESPONSE_DELAY_MS);
+            // REFACTORED: Resolve immediately without the extra delay.
+            logger.info('[StockfishService gameplay] Analysis complete. Best move:', bestMoveUci);
+            try { requestObject.resolve(result); } catch(e) { /* Promise might already be settled */ }
+            
       } else {
         logger.warn('[StockfishService gameplay] Received bestmove but no active pending analysis request.');
       }

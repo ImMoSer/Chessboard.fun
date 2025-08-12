@@ -105,7 +105,9 @@
       "yourTurnPlayout": "Your turn! Find the best moves to win.",
       "timeUp": "Time's up! The playout phase is lost.",
       "resigned": "You have resigned the game.",
-      "gameStopped": "Game stopped."
+      "gameStopped": "Game stopped.",
+      "win": "You won!",
+      "loss": "You lost!"
     },
     "puzzleActions": {
       "toggleFavorite": "Add to/Remove from Favorites"

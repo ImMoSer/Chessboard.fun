@@ -1,8 +1,7 @@
 // src/features/finishHim/finishHimController.ts
-import type { Color as ChessgroundColor } from 'chessground/types';
+import type { GameEndOutcome } from '../../core/boardHandler';
 import { type WebhookServiceController, InsufficientFunCoinsError } from '../../core/webhook.service';
 import { type UpdateFinishHimStatsDto, type AppPuzzle, type PuzzleResultEntry, type FinishHimStats } from '../../core/api.types';
-import type { GameEndOutcome, AttemptMoveResult } from '../../core/boardHandler';
 import logger from '../../utils/logger';
 import { SoundService } from '../../core/sound.service';
 import { t } from '../../core/i18n.service';
@@ -14,8 +13,6 @@ import { BaseGameState } from '../../core/controllers/base-game.types';
 import type { BoardHandler } from '../../core/boardHandler';
 import type { AnalysisController } from '../analysis/analysisController';
 
-const BOT_MOVE_DELAY_MS = 100;
-const PREMOVE_EXECUTION_DELAY_MS = 100;
 const PLAYOUT_TIMER_INTERVAL_MS = 1000;
 
 export function formatPlayoutTimer(ms: number | null): string {
@@ -26,20 +23,16 @@ export function formatPlayoutTimer(ms: number | null): string {
   return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 }
 
+// REFACTORED: State is simplified. Scenario tracking is moved to BaseGameController.
 export interface FinishHimControllerState extends BaseGameState {
   activePuzzle: AppPuzzle | null;
   puzzleResults: PuzzleResultEntry[] | null;
-  interactiveSetupMoves: string[];
-  currentInteractiveSetupMoveIndex: number;
   userStats: FinishHimStats | null;
   userFunCoins: number | null;
-  isStockfishThinking: boolean;
+  isStockfishThinking: boolean; // Kept for UI feedback if needed
   currentPgnString: string;
-  currentPuzzleSolveTime?: number;
   outplayTimerId: number | null;
   outplayTimeRemainingMs: number | null;
-  tacticalRatingDelta: number | null;
-  finishHimRatingDelta: number | null;
   isCurrentPuzzleSolved: boolean;
   isCurrentPuzzleFavorite: boolean;
   tenSecondsWarningPlayed: boolean;
@@ -50,9 +43,6 @@ export class FinishHimController extends BaseGameController<FinishHimControllerS
   private authService: typeof AuthService;
   private webhookService: WebhookServiceController;
   private puzzleStorageService: typeof PuzzleStorageService;
-
-  private readonly defaultUserTacticalRating = 1200;
-  private readonly defaultUserFinishHimRating = 1200;
 
   constructor(
     boardHandler: BoardHandler,
@@ -66,19 +56,14 @@ export class FinishHimController extends BaseGameController<FinishHimControllerS
     const initialState: FinishHimControllerState = {
       activePuzzle: null,
       puzzleResults: null,
-      interactiveSetupMoves: [],
-      currentInteractiveSetupMoveIndex: 0,
       userStats: initialAuthStats,
       userFunCoins: initialFunCoins,
       feedbackMessage: t('finishHim.feedback.getReady'),
       isStockfishThinking: false,
       gameOverMessage: null,
       currentPgnString: "",
-      currentPuzzleSolveTime: undefined,
       outplayTimerId: null,
       outplayTimeRemainingMs: null,
-      tacticalRatingDelta: null,
-      finishHimRatingDelta: null,
       isCurrentPuzzleSolved: false,
       isCurrentPuzzleFavorite: false,
       gamePhase: 'IDLE',
@@ -98,31 +83,14 @@ export class FinishHimController extends BaseGameController<FinishHimControllerS
   // --- Implementation of abstract methods ---
 
   public async initializeGame(puzzleId?: string | null): Promise<void> {
-    const currentAuthStats = this.authService.getFinishHimStats();
-    const currentFunCoins = this.authService.getFunCoins();
-
-    if (currentAuthStats) {
-        if (JSON.stringify(this.state.userStats) !== JSON.stringify(currentAuthStats)) {
-            this.state.userStats = currentAuthStats;
-        }
-    } else if (this.authService.getIsAuthenticated()) {
-        this.state.userStats = {
-            gamesPlayed: 0, tacticalRating: this.defaultUserTacticalRating, tacticalWins: 0, tacticalLosses: 0,
-            finishHimRating: this.defaultUserFinishHimRating, playoutWins: 0, playoutDraws: 0, playoutLosses: 0,
-        };
-    }
-    if (currentFunCoins !== null && this.state.userFunCoins !== currentFunCoins) {
-        this.state.userFunCoins = currentFunCoins;
-    }
-
+    this._updateLocalStats();
     this._resetPuzzleState();
     
     if (puzzleId) {
-        this.loadAndStartFinishHimPuzzle(puzzleId);
+        await this.loadAndStartFinishHimPuzzle(puzzleId);
     } else {
         this.boardHandler.setupPosition("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
         this.setState({ feedbackMessage: t('finishHim.feedback.pressNext') });
-        this._updatePgnDisplay();
     }
   }
 
@@ -133,7 +101,7 @@ export class FinishHimController extends BaseGameController<FinishHimControllerS
       onRequestNew: () => this.handleNewGame(),
       canRestart: (gamePhase === 'GAMEOVER' || gamePhase === 'IDLE') && !!activePuzzle,
       onRestart: () => this.handleRestartTask(),
-      canResign: gamePhase === 'TACTICAL' || gamePhase === 'PLAYOUT',
+      canResign: gamePhase === 'PLAYING',
       onResign: () => this.handleResign(),
       onShare: () => {
         const puzzleId = this.state.activePuzzle?.PuzzleId;
@@ -152,52 +120,71 @@ export class FinishHimController extends BaseGameController<FinishHimControllerS
     };
   }
 
-  protected async _handleUserMoveInGame(moveResult: AttemptMoveResult): Promise<void> {
-    this._updatePgnDisplay();
-    if (this.checkAndSetGameOver()) return;
-
-    switch(this.state.gamePhase) {
-      case 'TACTICAL':
-        this.processUserMoveResultInInteractiveSetup(moveResult.uciMove!);
-        break;
-      case 'PLAYOUT':
-        if (this.state.outplayTimeRemainingMs !== null && this.state.outplayTimerId === null) {
-            this.state.outplayTimerId = window.setTimeout(() => this._tickOutplayTimer(), PLAYOUT_TIMER_INTERVAL_MS);
-        }
-        this.triggerStockfishMoveInPlayoutIfNeeded();
-        break;
-    }
-  }
-
   public handleNewGame(): void {
     if (!this._getControlsState().canRequestNew) return; 
     this.loadAndStartFinishHimPuzzle();
   }
   
   public handleRestartTask(): void {
-    if (!this._getControlsState().canRestart) return; 
-    if (this.analysisController.getPanelState().isAnalysisActive) {
-        this.analysisController.toggleAnalysisEngine();
-    }
-    if (this.state.activePuzzle) {
-      this.loadAndStartFinishHimPuzzle(this.state.activePuzzle);
-    } else {
-      this.loadAndStartFinishHimPuzzle();
-    }
+    if (!this._getControlsState().canRestart || !this.state.activePuzzle) return; 
+    this.loadAndStartFinishHimPuzzle(this.state.activePuzzle.PuzzleId);
   }
 
   public handleResign(): void {
-    if (!this._getControlsState().canResign) { 
-        return;
-    }
-    this._stopCurrentGameActivity(true);
+    if (!this._getControlsState().canResign) return;
+    this._handleGameOver(false); // Resigning is always a loss
+  }
+
+  /**
+   * REFACTORED: This is the central point for handling the end of a game.
+   * It's called by the BaseGameController when a terminal state is reached.
+   */
+  protected _handleGameOver(isWin: boolean, _outcome?: GameEndOutcome): void {
+    if (this.state.gamePhase === 'GAMEOVER') return;
+
+    this._clearOutplayTimer();
+    
+    const message = isWin
+      ? t('finishHim.feedback.win', { defaultValue: 'You won!' })
+      : t('finishHim.feedback.loss', { defaultValue: 'You lost.' });
+
+    this.setState({
+      gamePhase: 'GAMEOVER',
+      gameOverMessage: message,
+      feedbackMessage: message,
+    });
+    
+    this._updateAndSendStats(isWin);
+    this.boardHandler.configureBoardForAnalysis(true);
+  }
+
+  /**
+   * NEW: This method is a hook called by the BaseGameController when the scenario
+   * phase ends and the free playout begins. It's responsible for starting the timer
+   * and playing the transition sound.
+   */
+  protected _onPlayoutStart(): void {
+    SoundService.playSoundEvent({ parallel: ['playout_starts'] });
+    this.setState({ feedbackMessage: t('finishHim.feedback.yourTurnPlayout', {defaultValue: 'Your turn! Find the best moves to win.'}) });
+    this._startTimer();
   }
 
   // --- FinishHim specific methods ---
 
+  private _updateLocalStats(): void {
+    const currentAuthStats = this.authService.getFinishHimStats();
+    const currentFunCoins = this.authService.getFunCoins();
+    if (currentAuthStats && JSON.stringify(this.state.userStats) !== JSON.stringify(currentAuthStats)) {
+        this.setState({ userStats: currentAuthStats });
+    }
+    if (currentFunCoins !== null && this.state.userFunCoins !== currentFunCoins) {
+        this.setState({ userFunCoins: currentFunCoins });
+    }
+  }
+
   private _clearOutplayTimer(): void {
     if (this.state.outplayTimerId) {
-      clearTimeout(this.state.outplayTimerId);
+      clearInterval(this.state.outplayTimerId);
       this.setState({ outplayTimerId: null });
     }
   }
@@ -207,15 +194,10 @@ export class FinishHimController extends BaseGameController<FinishHimControllerS
     this.setState({
       activePuzzle: null,
       puzzleResults: null,
-      interactiveSetupMoves: [],
-      currentInteractiveSetupMoveIndex: 0,
       isStockfishThinking: false,
       gameOverMessage: null,
       currentPgnString: "",
-      currentPuzzleSolveTime: undefined,
       outplayTimeRemainingMs: null,
-      tacticalRatingDelta: null,
-      finishHimRatingDelta: null,
       isCurrentPuzzleSolved: false,
       isCurrentPuzzleFavorite: false,
       gamePhase: 'IDLE',
@@ -224,81 +206,53 @@ export class FinishHimController extends BaseGameController<FinishHimControllerS
     });
   }
 
-  private async _sendStatsToBackend(options: { solvedInSeconds?: number, success: boolean }): Promise<void> {
-    if (this.authService.getIsAuthenticated() && this.state.userStats && this.state.userFunCoins !== null) {
-        const dto: UpdateFinishHimStatsDto = {
-            FunCoins: this.state.userFunCoins,
-            finishHimStats: { ...this.state.userStats },
-            success: options.success, // <<< ИЗМЕНЕНО
-        };
-        if (options.solvedInSeconds !== undefined) {
-            dto.solved_in_seconds = options.solvedInSeconds;
-        }
-        if (this.state.activePuzzle) {
-            dto.PuzzleId = this.state.activePuzzle.PuzzleId;
-        }
-
-        logger.info(`[FinishHimController] Sending updated stats to backend.`, dto);
-        try {
-            const success = await this.webhookService.sendFinishHimStatsUpdate(dto);
-            if (success) {
-                logger.info('[FinishHimController] Stats successfully sent to backend.');
-            } else {
-                logger.warn('[FinishHimController] Failed to send stats to backend (webhookService returned false).');
-            }
-        } catch (error: any) {
-            if (this.services.appController.handleApiRateLimit(error)) return;
-            logger.error('[FinishHimController] Error sending stats to backend:', error);
-        }
-    } else {
-        logger.warn('[FinishHimController _sendStatsToBackend] Cannot send stats: user not authenticated or stats missing.');
-    }
-  }
-
   public async loadAndStartFinishHimPuzzle(puzzleSource?: string | AppPuzzle): Promise<void> {
-    if (this.boardHandler.promotionCtrl.isActive()) this.boardHandler.promotionCtrl.cancel();
     if (this.analysisController.getPanelState().isAnalysisActive) {
         this.analysisController.toggleAnalysisEngine();
     }
     
     this._resetPuzzleState();
-    this.setState({ feedbackMessage: t('common.loading') });
+    this.setState({ gamePhase: 'LOADING', feedbackMessage: t('common.loading') });
 
-    let puzzleDataToProcess: AppPuzzle | null = null;
+    let puzzleData: AppPuzzle | null = null;
     const userId = this.authService.getUserProfile()?.id;
 
     try {
-        if (typeof puzzleSource === 'object' && puzzleSource !== null) {
-            puzzleDataToProcess = puzzleSource;
-        } else if (typeof puzzleSource === 'string') {
-             puzzleDataToProcess = await this.webhookService.fetchPuzzleById(puzzleSource);
+        if (typeof puzzleSource === 'string') {
+             puzzleData = await this.webhookService.fetchPuzzleById(puzzleSource);
         } else {
-            puzzleDataToProcess = await this.webhookService.fetchPuzzle();
-            if (puzzleDataToProcess) {
+            puzzleData = await this.webhookService.fetchPuzzle();
+            if (puzzleData) {
                 const currentCoins = this.authService.getFunCoins();
                 if (currentCoins !== null) {
-                    const newBalance = currentCoins - 5;
-                    this.authService.updateUserProfile({ FunCoins: newBalance });
+                    this.authService.updateUserProfile({ FunCoins: currentCoins - 5 });
                 }
             }
         }
 
-        // <<< НАЧАЛО ИЗМЕНЕНИЙ
-        logger.debug('[FinishHimController] puzzleDataToProcess:', puzzleDataToProcess);
-        // <<< КОНЕЦ ИЗМЕНЕНИЙ
+        if (!puzzleData) {
+            throw new Error(t('finishHim.error.puzzleNotFound'));
+        }
 
-        if (!puzzleDataToProcess) {
-            this.services.appController.showModal(t('finishHim.error.puzzleNotFound', { puzzleId: typeof puzzleSource === 'string' ? puzzleSource : '' }));
+        if (!puzzleSource || typeof puzzleSource !== 'string') {
+            this.services.appController.updatePuzzleUrl(puzzleData.PuzzleId);
+        }
+
+        if (userId) {
+            const isSolved = this.puzzleStorageService.isPuzzleSolved(userId, puzzleData.PuzzleId);
             this.setState({
-                gamePhase: 'IDLE',
-                feedbackMessage: t('finishHim.feedback.pressNext')
+              activePuzzle: puzzleData,
+              puzzleResults: puzzleData.endgame_results || null,
+              isCurrentPuzzleSolved: isSolved,
+              isCurrentPuzzleFavorite: this.puzzleStorageService.isPuzzleFavorite(userId, puzzleData.PuzzleId),
+              outplayTimeRemainingMs: puzzleData.solve_time ? puzzleData.solve_time * 1000 : 60000,
             });
-            return;
+
+            const scenario = puzzleData.Moves ? puzzleData.Moves.split(' ') : [];
+            this._setupPuzzlePosition(puzzleData.FEN_0, scenario);
+            // REFACTORED: Timer is no longer started here. It's started by _onPlayoutStart.
         }
 
-        if (!puzzleSource || typeof puzzleSource !== 'object') {
-            this.services.appController.updatePuzzleUrl(puzzleDataToProcess.PuzzleId);
-        }
     } catch (error: any) {
         if (error instanceof InsufficientFunCoinsError) {
             this.services.appController.showModal(error.message);
@@ -309,346 +263,87 @@ export class FinishHimController extends BaseGameController<FinishHimControllerS
             this.setState({ feedbackMessage: t('puzzle.feedback.loadFailed') });
         }
         this.setState({ gamePhase: 'IDLE' });
-        return;
-    }
-
-    if (puzzleDataToProcess && userId) { 
-      SoundService.playBackgroundSound('game_entry');
-      
-      const humanPlayerActualColor: ChessgroundColor = puzzleDataToProcess.bot_color === 'w' ? 'black' : 'white';
-      this.boardHandler.setupPosition(puzzleDataToProcess.FEN_0, humanPlayerActualColor, true);
-
-      const isSolved = this.puzzleStorageService.isPuzzleSolved(userId, puzzleDataToProcess.PuzzleId);
-      let loadedMessage = t('finishHim.feedback.loadedSimple', { puzzleId: puzzleDataToProcess.PuzzleId, color: t(humanPlayerActualColor) });
-      if (isSolved) {
-        loadedMessage += ` (${t('finishHim.feedback.alreadySolved')})`;
-      }
-
-      this.setState({
-        activePuzzle: puzzleDataToProcess,
-        puzzleResults: puzzleDataToProcess.endgame_results || null,
-        isCurrentPuzzleSolved: isSolved,
-        isCurrentPuzzleFavorite: this.puzzleStorageService.isPuzzleFavorite(userId, puzzleDataToProcess.PuzzleId),
-        interactiveSetupMoves: puzzleDataToProcess.Moves ? puzzleDataToProcess.Moves.split(' ') : [],
-        currentInteractiveSetupMoveIndex: 0,
-        currentPuzzleSolveTime: puzzleDataToProcess.solve_time,
-        feedbackMessage: loadedMessage,
-        gamePhase: 'TACTICAL'
-      });
-
-      if (this.checkAndSetGameOver()) return;
-
-      if (this.state.interactiveSetupMoves.length > 0) {
-        if (this.boardHandler.getBoardTurnColor() !== humanPlayerActualColor) {
-          setTimeout(() => this._playNextInteractiveSetupMoveSystem(false), BOT_MOVE_DELAY_MS);
-        } else {
-          this.setState({ feedbackMessage: t('puzzle.feedback.yourTurn') });
-        }
-      } else {
-        this._handleTacticalSuccess(); 
-        this._enterPlayoutMode();
-      }
-    } else {
-      logger.error("[FinishHimController] Failed to load puzzle or user not authenticated.");
-      this.setState({ feedbackMessage: t('puzzle.feedback.loadFailed'), gamePhase: 'IDLE' });
     }
   }
 
-  private _stopCurrentGameActivity(resign: boolean = false): void {
-    const wasGameActive = this.state.gamePhase === 'TACTICAL' || this.state.gamePhase === 'PLAYOUT';
+  private _startTimer(): void {
     this._clearOutplayTimer();
+    if (this.state.outplayTimeRemainingMs === null) return;
 
-    const newState: Partial<FinishHimControllerState> = {
-        isStockfishThinking: false,
-        outplayTimeRemainingMs: null,
-    };
-
-    if (resign) {
-        newState.gamePhase = 'GAMEOVER';
-        newState.gameOverMessage = t('finishHim.feedback.resigned');
-        newState.feedbackMessage = newState.gameOverMessage;
-        if (this.state.activePuzzle && this.state.userStats && !this.state.isCurrentPuzzleSolved) {
-            this._updatePlayoutResult('loss', null);
-            this.puzzleStorageService.markPuzzleAsSolved(this.authService.getUserProfile()!.id, this.state.activePuzzle.PuzzleId);
-        }
-    } else if (this.state.gameOverMessage === null && wasGameActive) {
-        newState.gamePhase = 'IDLE';
-        newState.feedbackMessage = t('finishHim.feedback.gameStopped');
-    }
-    
-    this.setState(newState);
-  }
-
-  private formatGameEndMessage(outcome: GameEndOutcome | undefined): string | null {
-    if (!outcome) return null;
-    if (outcome.winner) {
-      const winnerColor = t(outcome.winner === 'white' ? 'puzzle.colors.white' : 'puzzle.colors.black');
-      return t('puzzle.gameOver.checkmateWinner', { winner: winnerColor, reason: outcome.reason || t('puzzle.gameOver.reasons.checkmate') });
-    }
-    switch (outcome.reason) {
-      case 'stalemate': return t('puzzle.gameOver.stalemate');
-      case 'insufficient_material': return t('puzzle.gameOver.insufficientMaterial');
-      case 'draw': return t('puzzle.gameOver.draw');
-      default: return t('puzzle.gameOver.drawReason', { reason: outcome.reason || t('puzzle.gameOver.reasons.unknown') });
-    }
-  }
-
-  private _updatePgnDisplay(): void {
-    const showResultInPgn = this.state.gamePhase === 'GAMEOVER' && !this.analysisController.getPanelState().isAnalysisActive;
     this.setState({
-        currentPgnString: this.boardHandler.getPgn({
-            showResult: showResultInPgn,
-            showVariations: this.analysisController.getPanelState().isAnalysisActive
-        })
+      tenSecondsWarningPlayed: false,
+      sevenSecondsWarningPlayed: false,
+      outplayTimerId: window.setInterval(() => this._tickOutplayTimer(), PLAYOUT_TIMER_INTERVAL_MS)
     });
-  }
-
-  private _incrementGamesPlayed(): void {
-    if (this.state.userStats) {
-      this.state.userStats.gamesPlayed += 1;
-    }
-  }
-
-  private _handleTacticalFailure(): void {
-    const userId = this.authService.getUserProfile()?.id;
-    if (!this.state.userStats || !this.state.activePuzzle || !userId) return;
-    if (!this.state.isCurrentPuzzleSolved) {
-        const oldTacticalRating = this.state.userStats.tacticalRating;
-        this.state.userStats.tacticalRating -= 10;
-        this.state.userStats.tacticalLosses += 1;
-        this.setState({ tacticalRatingDelta: this.state.userStats.tacticalRating - oldTacticalRating });
-        this._incrementGamesPlayed();
-        this._sendStatsToBackend({ success: false }); // <<< ИЗМЕНЕНО
-        this.puzzleStorageService.markPuzzleAsSolved(userId, this.state.activePuzzle.PuzzleId);
-    }
-  }
-
-  private _handleTacticalSuccess(): void {
-    if (!this.state.userStats || !this.state.activePuzzle) return;
-    if (!this.state.isCurrentPuzzleSolved) {
-        const oldTacticalRating = this.state.userStats.tacticalRating;
-        this.state.userStats.tacticalRating += 10;
-        this.state.userStats.tacticalWins += 1;
-        this.setState({ tacticalRatingDelta: this.state.userStats.tacticalRating - oldTacticalRating });
-    }
-  }
-
-  private _updatePlayoutResult(outcome: 'win' | 'loss' | 'draw', remainingTimeMs: number | null): void {
-    const userId = this.authService.getUserProfile()?.id;
-    if (this.state.userStats && this.state.userFunCoins !== null && this.state.activePuzzle && userId) {
-        if (!this.state.isCurrentPuzzleSolved) {
-            const oldFinishHimRating = this.state.userStats.finishHimRating;
-            let solvedInSeconds: number | undefined = undefined;
-            const success = outcome === 'win'; // <<< ИЗМЕНЕНО
-
-            this._incrementGamesPlayed();
-
-            if (success) { // <<< ИЗМЕНЕНО
-                this.state.userStats.finishHimRating += 10;
-                this.state.userStats.playoutWins += 1;
-                if (this.state.currentPuzzleSolveTime && remainingTimeMs !== null) {
-                    const timeSpentMs = (this.state.currentPuzzleSolveTime * 1000) - remainingTimeMs;
-                    solvedInSeconds = Math.round(timeSpentMs / 1000);
-                }
-            } else {
-                this.state.userStats.finishHimRating -= 10;
-                if (outcome === 'loss') this.state.userStats.playoutLosses += 1;
-                else this.state.userStats.playoutDraws += 1;
-            }
-            this.setState({ finishHimRatingDelta: this.state.userStats.finishHimRating - oldFinishHimRating });
-            
-            this._sendStatsToBackend({ solvedInSeconds, success }); // <<< ИЗМЕНЕНО
-            this.puzzleStorageService.markPuzzleAsSolved(userId, this.state.activePuzzle.PuzzleId);
-        }
-    }
-  }
-
-  private checkAndSetGameOver(): boolean {
-    const gameStatus = this.boardHandler.getGameStatus();
-    if (gameStatus.isGameOver) {
-      const phaseWhenGameOver = this.state.gamePhase;
-      const finalRemainingTimeMs = this.state.outplayTimeRemainingMs;
-      
-      this._clearOutplayTimer();
-      
-      this.setState({
-          gamePhase: 'GAMEOVER',
-          gameOverMessage: this.formatGameEndMessage(gameStatus.outcome),
-          feedbackMessage: this.formatGameEndMessage(gameStatus.outcome) || t('puzzle.feedback.gameOver'),
-          outplayTimeRemainingMs: null,
-      });
-      
-      if (this.state.activePuzzle) { 
-        if (phaseWhenGameOver === 'PLAYOUT') {
-            const humanColor = this.boardHandler.getHumanPlayerColor();
-            let playoutOutcome: 'win' | 'loss' | 'draw' = 'draw';
-            if (gameStatus.outcome?.winner === humanColor) playoutOutcome = 'win';
-            else if (gameStatus.outcome?.winner) playoutOutcome = 'loss';
-            this._updatePlayoutResult(playoutOutcome, finalRemainingTimeMs); 
-        }
-      }
-      
-      this._updatePgnDisplay();
-      return true;
-    }
-    this.setState({ gameOverMessage: null });
-    return false;
-  }
-
-  private _playNextInteractiveSetupMoveSystem(isContinuation: boolean = false): void {
-    if (this.state.gamePhase !== 'TACTICAL' || this.boardHandler.promotionCtrl.isActive() || this.analysisController.getPanelState().isAnalysisActive) {
-        return;
-    }
-    if (!this.state.activePuzzle || this.state.currentInteractiveSetupMoveIndex >= this.state.interactiveSetupMoves.length) {
-      if (this.state.activePuzzle) {
-        if (this.state.currentInteractiveSetupMoveIndex > 0 && this.state.interactiveSetupMoves.length > 0) {
-            this._handleTacticalSuccess();
-        }
-        this._enterPlayoutMode();
-      }
-      return;
-    }
-    const uciSetupMove = this.state.interactiveSetupMoves[this.state.currentInteractiveSetupMoveIndex];
-    this.setState({ feedbackMessage: isContinuation ? t('puzzle.feedback.systemResponse', { move: uciSetupMove }) : t('puzzle.feedback.systemFirstMove', { move: uciSetupMove }) });
-    const moveResult = this.boardHandler.applySystemMove(uciSetupMove);
-    if (moveResult.success) {
-      this.state.currentInteractiveSetupMoveIndex++;
-      if (this.checkAndSetGameOver()) return;
-      setTimeout(() => { this.services.chessboardService.playPremove(); }, PREMOVE_EXECUTION_DELAY_MS);
-      if (this.state.currentInteractiveSetupMoveIndex >= this.state.interactiveSetupMoves.length) {
-        this._handleTacticalSuccess();
-        this._enterPlayoutMode();
-      } else {
-        this.setState({ feedbackMessage: t('puzzle.feedback.yourTurn') });
-      }
-    } else {
-      this.setState({ feedbackMessage: t('puzzle.feedback.puzzleDataError') });
-    }
   }
 
   private _tickOutplayTimer(): void {
-    if (this.state.gamePhase !== 'PLAYOUT') {
+    if (this.state.gamePhase !== 'PLAYING' || this.state.outplayTimeRemainingMs === null) {
         this._clearOutplayTimer();
-        this.setState({ outplayTimeRemainingMs: null });
         return;
     }
-    if (this.state.outplayTimeRemainingMs !== null) {
-        const newTime = this.state.outplayTimeRemainingMs - PLAYOUT_TIMER_INTERVAL_MS;
-        
-        if (newTime <= 10000 && !this.state.tenSecondsWarningPlayed) {
-            SoundService.playSoundEvent({ parallel: ['timer_10_seconds_left'] });
-            this.setState({ tenSecondsWarningPlayed: true });
-        }
-        if (newTime <= 8000 && !this.state.sevenSecondsWarningPlayed) {
-            SoundService.playSoundEvent({ parallel: ['timer_7_seconds_left'] });
-            this.setState({ sevenSecondsWarningPlayed: true });
-        }
+    
+    const newTime = this.state.outplayTimeRemainingMs - PLAYOUT_TIMER_INTERVAL_MS;
 
-        const timerEl = document.getElementById('finish-him-timer-display');
-        if (timerEl) {
-            timerEl.textContent = formatPlayoutTimer(newTime);
-        }
-
-        if (newTime <= 0) {
-            this._clearOutplayTimer();
-            SoundService.playSoundEvent({ parallel: ['timer_times_up'], sequential: ['user_lost_playout'] });
-            this._updatePlayoutResult('loss', 0); 
-            this.setState({
-                outplayTimeRemainingMs: 0,
-                gamePhase: 'GAMEOVER',
-                gameOverMessage: t('finishHim.feedback.timeUp'),
-                feedbackMessage: t('finishHim.feedback.timeUp'),
-            });
-            this._updatePgnDisplay();
-            return;
-        }
-        this.setState({ outplayTimeRemainingMs: newTime });
+    if (newTime <= 10000 && !this.state.tenSecondsWarningPlayed) {
+        SoundService.playSoundEvent({ parallel: ['timer_10_seconds_left'] });
+        this.setState({ tenSecondsWarningPlayed: true });
     }
-    this.state.outplayTimerId = window.setTimeout(() => this._tickOutplayTimer(), PLAYOUT_TIMER_INTERVAL_MS);
+    if (newTime <= 7000 && !this.state.sevenSecondsWarningPlayed) {
+        SoundService.playSoundEvent({ parallel: ['timer_7_seconds_left'] });
+        this.setState({ sevenSecondsWarningPlayed: true });
+    }
+
+    if (newTime <= 0) {
+        this._clearOutplayTimer();
+        SoundService.playSoundEvent({ parallel: ['timer_times_up'] });
+        this._handleGameOver(false); // Time's up is a loss
+        return;
+    }
+
+    this.setState({ outplayTimeRemainingMs: newTime });
   }
 
-  private _enterPlayoutMode(): void {
-    SoundService.playSoundEvent({ parallel: ['playout_starts'] });
-    this._clearOutplayTimer();
-    const timerDurationMs = this.state.currentPuzzleSolveTime ? this.state.currentPuzzleSolveTime * 1000 : 60000;
-    this.setState({
-        gamePhase: 'PLAYOUT',
-        outplayTimeRemainingMs: timerDurationMs,
-    });
-    this.triggerStockfishMoveInPlayoutIfNeeded();
-  }
-
-  private async triggerStockfishMoveInPlayoutIfNeeded(): Promise<void> {
-    if (this.state.gamePhase !== 'PLAYOUT' || this.boardHandler.promotionCtrl.isActive() || this.analysisController.getPanelState().isAnalysisActive) {
+  private _updateAndSendStats(isWin: boolean): void {
+    const user = this.authService.getUserProfile();
+    const puzzle = this.state.activePuzzle;
+    if (!user || !puzzle || this.state.isCurrentPuzzleSolved) {
       return;
     }
-    const currentBoardTurn = this.boardHandler.getBoardTurnColor();
-    const humanColor = this.boardHandler.getHumanPlayerColor();
-    if (currentBoardTurn !== humanColor && !this.state.isStockfishThinking) {
-      this.setState({ isStockfishThinking: true, feedbackMessage: t('puzzle.feedback.stockfishThinking') });
-      if (this.state.outplayTimeRemainingMs !== null && this.state.outplayTimerId === null) {
-        this.state.outplayTimerId = window.setTimeout(() => this._tickOutplayTimer(), PLAYOUT_TIMER_INTERVAL_MS);
-      }
-      try {
-        const engineId = this.services.appController.state.selectedEngine;
-        const botMoveUci = await this.services.gameplayService.getBestMove(engineId, this.boardHandler.getFen());
-        if (this.state.gamePhase !== 'PLAYOUT' || !this.state.isStockfishThinking) {
-            this.setState({ isStockfishThinking: false });
-            return;
-        }
-        if (botMoveUci) {
-          this.boardHandler.applySystemMove(botMoveUci);
-          if (!this.checkAndSetGameOver()) {
-            this.setState({ feedbackMessage: t('finishHim.feedback.yourTurnPlayout') });
-            setTimeout(() => { this.services.chessboardService.playPremove(); }, PREMOVE_EXECUTION_DELAY_MS); 
-          }
-        } else if (!this.checkAndSetGameOver()) {
-          this.setState({ feedbackMessage: t('puzzle.feedback.stockfishNoMove') });
-        }
-      } catch (error) {
-        if (!this.checkAndSetGameOver()) {
-          this.setState({ feedbackMessage: t('puzzle.feedback.stockfishGetMoveError') });
-        }
-      } finally {
-          this.setState({ isStockfishThinking: false });
-      }
-    } else if (currentBoardTurn === humanColor) {
-        if (!this.state.gameOverMessage) this.setState({ feedbackMessage: t('finishHim.feedback.yourTurnPlayout') });
-    }
-  }
 
-  private processUserMoveResultInInteractiveSetup(uciUserMove: string): void {
-    if (!this.state.activePuzzle) {
-      this._handleTacticalSuccess();
-      this._enterPlayoutMode();
-      return;
-    }
-    const expectedSetupMove = this.state.interactiveSetupMoves[this.state.currentInteractiveSetupMoveIndex];
-    if (uciUserMove === expectedSetupMove) {
-      this.setState({ feedbackMessage: t('puzzle.feedback.correctMove') });
-      this.state.currentInteractiveSetupMoveIndex++;
-      if (this.checkAndSetGameOver()) return;
-      if (this.state.currentInteractiveSetupMoveIndex >= this.state.interactiveSetupMoves.length) {
-        this._handleTacticalSuccess(); 
-        this._enterPlayoutMode();
-      } else {
-        this.setState({ feedbackMessage: t('puzzle.feedback.systemMove') });
-        setTimeout(() => {
-          if (this.state.gamePhase === 'TACTICAL') {
-            this._playNextInteractiveSetupMoveSystem(true);
-          }
-        }, BOT_MOVE_DELAY_MS);
+    const { userStats, userFunCoins, outplayTimeRemainingMs } = this.state;
+    if (!userStats || userFunCoins === null) return;
+
+    // Create a mutable copy
+    const newStats: FinishHimStats = JSON.parse(JSON.stringify(userStats));
+    newStats.gamesPlayed += 1;
+
+    let solvedInSeconds: number | undefined;
+
+    if (isWin) {
+      newStats.playoutWins += 1;
+      if (puzzle.solve_time && outplayTimeRemainingMs !== null) {
+        const timeSpentMs = (puzzle.solve_time * 1000) - outplayTimeRemainingMs;
+        solvedInSeconds = Math.round(timeSpentMs / 1000);
       }
     } else {
-      this.setState({
-          feedbackMessage: t('finishHim.feedback.tacticalFail'),
-          gameOverMessage: t('finishHim.feedback.tacticalFailDetailed', {userMove: uciUserMove, expectedMove: expectedSetupMove}),
-          gamePhase: 'GAMEOVER'
-      });
-      this._handleTacticalFailure();
-      SoundService.playSoundEvent({ sequential: ['user_lost_playout'] });
-      this._updatePgnDisplay();
+      newStats.playoutLosses += 1;
     }
+
+    this.setState({ userStats: newStats });
+    this.puzzleStorageService.markPuzzleAsSolved(user.id, puzzle.PuzzleId);
+
+    const dto: UpdateFinishHimStatsDto = {
+        FunCoins: userFunCoins,
+        finishHimStats: newStats,
+        success: isWin,
+        solved_in_seconds: solvedInSeconds,
+        PuzzleId: puzzle.PuzzleId,
+    };
+
+    this.webhookService.sendFinishHimStatsUpdate(dto).catch(err => {
+      logger.error('[FinishHimController] Failed to send stats update:', err);
+    });
   }
 
   public toggleFavorite(): void {
