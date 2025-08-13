@@ -25,11 +25,15 @@ export class RoutingService {
     const tackticsPuzzleMatch = cleanHash.match(/^tacktics\/PuzzleId\/([a-zA-Z0-9]+)$/);
     const towerMatch = cleanHash.match(/^tower\/([a-zA-Z0-9]+)$/);
 
+    // <<< ИЗМЕНЕНИЕ: Добавлена обработка сокращенных URL
     if (cleanHash === 'cabinet') {
       return { page: 'userCabinet', clubId: null, puzzleId: null, towerId: null };
     }
     if (cleanHash === 'clubs') {
       return { page: 'lichessClubs', clubId: null, puzzleId: null, towerId: null };
+    }
+    if (cleanHash === 'records') {
+        return { page: 'recordsPage', clubId: null, puzzleId: null, towerId: null };
     }
     if (cleanHash === 'about') {
       return { page: 'about', clubId: null, puzzleId: null, towerId: null };
@@ -78,12 +82,18 @@ export class RoutingService {
     if (page === 'tower' && towerId) {
         return `#/tower/${towerId}`;
     }
+    // <<< ИЗМЕНЕНИЕ: Добавлена сборка сокращенных URL
     if (page === 'userCabinet') {
         return '#/cabinet';
     }
+    if (page === 'lichessClubs') {
+        return '#/clubs';
+    }
+    if (page === 'recordsPage') {
+        return '#/records';
+    }
     if (validAppPages.includes(page) && page !== 'welcome') {
-        const pagePath = (page === 'lichessClubs') ? 'clubs' : page;
-        return `#/${pagePath}`;
+        return `#/${page}`;
     }
     return '#';
   }

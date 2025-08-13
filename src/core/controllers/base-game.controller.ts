@@ -1,5 +1,5 @@
 // src/core/controllers/base-game.controller.ts
-import type { Key, MoveMetadata, Color as ChessgroundColor } from 'chessground/types';
+import type { Key, Color as ChessgroundColor } from 'chessground/types';
 import type { VNode } from 'snabbdom';
 import type { BoardHandler, GameEndOutcome } from '../boardHandler';
 import type { AnalysisController } from '../../features/analysis/analysisController';
@@ -170,7 +170,7 @@ export abstract class BaseGameController<S extends BaseGameState> {
     return outcome.reason === 'checkmate' && outcome.winner === humanColor;
   }
 
-  public async handleUserMove(orig: Key, dest: Key, metadata?: MoveMetadata): Promise<void> {
+  public async handleUserMove(orig: Key, dest: Key): Promise<void> {
     if (this.analysisController.getPanelState().isAnalysisActive) {
       const moveResult = await this.boardHandler.attemptUserMove(orig, dest);
       if (moveResult.success && moveResult.sanMove) {

@@ -121,6 +121,7 @@ async function initializeApplication() {
 
 initializeApplication();
 
+// <<< ИЗМЕНЕНИЕ: Добавлен обработчик `beforeunload` для уничтожения Web Workers
 window.addEventListener('beforeunload', () => {
     logger.info('[AppEntry] beforeunload event triggered. Terminating services.');
     gameplayStockfishService.terminate();

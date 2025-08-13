@@ -1,4 +1,3 @@
-// src/core/chess-logic.service.ts
 // src/AppController.ts
 import logger from './utils/logger';
 import type { ChessboardService } from './core/chessboard.service';
@@ -457,6 +456,8 @@ export class AppController {
   }
 
   private _loadPage(route: Route): void {
+    logger.info(`[AppController] Loading page: ${route.page}`, route);
+
     if (this.activePageController?.destroy) this.activePageController.destroy();
     this.activePageController = null;
     if (this.analysisControllerInstance?.destroy) this.analysisControllerInstance.destroy();
@@ -481,26 +482,15 @@ export class AppController {
         return;
     }
   
-    // <<< START OF FIX >>>
-    // Adopt the container element if we haven't already.
-    // this.pageVNode will now be the VNode representation of the <main> container.
     if (!this.pageVNode) {
         const emptyContainerVNode = h('main#page-content-wrapper');
         this.pageVNode = this.patch(pageContentContainer, emptyContainerVNode);
     }
-    // <<< END OF FIX >>>
   
     const requestPageRedraw = () => {
         if (this.activePageController && this.pageVNode) {
-            // 1. Get the content VNode from the active page controller.
             const pageContentVNode = this.activePageController.renderPage();
-  
-            // 2. Create a new VNode for the container, with the page content as its child.
-            // The selector 'main#page-content-wrapper' MUST match the one we adopted.
             const newContainerVNode = h('main#page-content-wrapper', {}, pageContentVNode ? [pageContentVNode] : []);
-  
-            // 3. Patch the old container VNode with the new one.
-            // Since the selectors match, Snabbdom will only update the children.
             this.pageVNode = this.patch(this.pageVNode, newContainerVNode);
         }
     };
@@ -762,10 +752,10 @@ export class AppController {
     const oldState = { ...this.state };
     this.state = { ...this.state, ...newState };
     
-    // Compare old and new state to see if a shell redraw is needed
     let shellStateChanged = false;
+    // <<< ИЗМЕНЕНИЕ: Добавлено `currentPage` в список отслеживаемых ключей
     const shellStateKeys: (keyof AppControllerState)[] = [
-        'isNavExpanded', 'currentUser', 'isLoadingAuth', 'isModalVisible', 
+        'currentPage', 'isNavExpanded', 'currentUser', 'isLoadingAuth', 'isModalVisible', 
         'modalMessage', 'isRateLimited', 'rateLimitCooldownSeconds', 
         'isConfirmationModalVisible', 'confirmationModalMessage', 'activeDropdown', 
         'engineSelectorOpen', 'toasts', 'voiceVolume', 'currentGameControls'
