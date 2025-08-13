@@ -257,7 +257,7 @@
     "berserkKingsTitle": "Berserker-Könige",
     "performanceLeadersTitle": "Performance-Spitzenreiter",
       "ratingLeadersTitle": "Rating-Spitzenreiter",
-      "tournamentHistoryTitle": "Letzte 30 Turniere",
+      "tournamentHistoryTitle": "Letzte 30 Tage",
       "noPlayersInTournament": "Keine Spieler für dieses Turnier aufgeführt.",
       "tournamentPlayersTitle": "Turnierspieler",
     "table": {
@@ -648,7 +648,8 @@
       "totalScore": "Gesamtpunktzahl",
       "bestRank": "Bester Rang",
       "averageRank": "Ø Rang",
-      "averageScore": "Ø Punkte"
+      "averageScore": "Ø Punkte",
+      "activePlayers": "Spieler"
     },
     "bannerAlt": "Banner der Lichess-Vereine",
     "founder": {

@@ -10,7 +10,7 @@ import { t } from '../i18n.service';
 import { parseFen } from 'chessops/fen';
 import { BoardView } from '../../shared/components/boardView'; // <<< NEW IMPORT
 
-const BOT_MOVE_DELAY_MS = 500;
+const BOT_MOVE_DELAY_MS = 1000;
 const PREMOVE_EXECUTION_DELAY_MS = 100;
 
 /**

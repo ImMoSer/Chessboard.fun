@@ -151,7 +151,23 @@ export interface TournamentPlayer { username: string; lichess_id: string; user_s
 export interface TournamentHistoryEntry { arena_id: string; arena_url: string; tournament_name: string; starts_at_date: string; team_rank: number; team_score: number; team_full_stats: any; players: TournamentPlayer[]; }
 export interface ClubLeader { id: string; name: string; flair?: string; title?: string; }
 export interface ClubApiResponse { club_id: string; club_name: string; grunder: string; nb_members: number; jsonb_array_leader: ClubLeader[]; tournament_history: TournamentHistoryEntry[]; players_data: PlayersDataMap; leaderboards: any; }
-export interface LichessClubStat { club_id: string; best_rank: number; club_name: string; total_score: number; average_rank: number; average_score: number; tournaments_played: number; }
+
+// ИЗМЕНЕНО: Интерфейс LichessClubStat обновлен
+export interface LichessClubStat {
+  club_id: string;
+  club_name: string;
+  club_flair: string | null;
+  total_score: number;
+  average_score: number;
+  tournaments_played: number;
+  active_players: number;
+  medals: {
+    gold: number;
+    silver: number;
+    bronze: number;
+  };
+}
+
 export interface LichessClubsApiResponse { stats: LichessClubStat[]; }
 
 export interface FinishHimLeaderboardEntry {

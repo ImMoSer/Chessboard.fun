@@ -257,7 +257,7 @@
     "berserkKingsTitle": "Короли Берсерка",
     "performanceLeadersTitle": "Лидеры по перформансу",
     "ratingLeadersTitle": "Лидеры по рейтингу",
-    "tournamentHistoryTitle": "Последние 30 турниров",
+    "tournamentHistoryTitle": "Последние 30 дней",
     "noPlayersInTournament": "Нет списка игроков для этого турнира.",
     "tournamentPlayersTitle": "Игроки турнира",
     "table": {
@@ -643,12 +643,13 @@
     },
     "table": {
       "clubName": "Название клуба",
-      "tournamentsPlayed": "Сыграно турниров",
+      "tournamentsPlayed": "Туров",
       "noClubs": "Зарегистрированные клубы не найдены.",
-      "totalScore": "Общий счет",
+      "totalScore": "Очки",
       "bestRank": "Лучшее место",
-      "averageRank": "Сред. место",
-      "averageScore": "Сред. счет"
+      "averageRank": "Ø Место",
+      "averageScore": "Ø Очки",
+      "activePlayers": "Игроки"
     },
     "bannerAlt": "Баннер клубов Lichess",
     "founder": {
