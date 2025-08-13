@@ -8,10 +8,9 @@ import type { BaseGameState } from './base-game.types';
 import logger from '../../utils/logger';
 import { t } from '../i18n.service';
 import { parseFen } from 'chessops/fen';
-import { BoardView } from '../../shared/components/boardView'; // <<< NEW IMPORT
+import { BoardView } from '../../shared/components/boardView';
 
-const BOT_MOVE_DELAY_MS = 1000;
-const PREMOVE_EXECUTION_DELAY_MS = 100;
+const BOT_MOVE_DELAY_MS = 5000;
 
 /**
  * An abstract base class for game controllers (FinishHim, Tower, Attack).
@@ -26,7 +25,7 @@ export abstract class BaseGameController<S extends BaseGameState> {
   public analysisController: AnalysisController;
   public services: AppServices;
   protected requestPageRedraw: () => void;
-  public boardView: BoardView; // <<< NEW PROPERTY
+  public boardView: BoardView;
 
   protected scenarioMoves: string[] = [];
   protected currentScenarioMoveIndex: number = 0;
@@ -48,7 +47,6 @@ export abstract class BaseGameController<S extends BaseGameState> {
     this.services = services;
     this.requestPageRedraw = requestPageRedraw;
 
-    // <<< NEW: Instantiate BoardView here >>>
     this.boardView = new BoardView(
       this.boardHandler,
       this.services.chessboardService,
@@ -151,7 +149,9 @@ export abstract class BaseGameController<S extends BaseGameState> {
             this._handleGameOver(this._checkWinCondition(newGameStatus.outcome), newGameStatus.outcome);
           } else {
             this.setState({ feedbackMessage: t('puzzle.feedback.yourTurn') } as Partial<S>);
-            setTimeout(() => { this.services.chessboardService.playPremove(); }, PREMOVE_EXECUTION_DELAY_MS);
+            requestAnimationFrame(() => {
+              this.services.chessboardService.playPremove();
+            });
           }
         } else {
           logger.error(`[BaseGameController] Bot tried to make an illegal move: ${botMoveUci}`);
@@ -181,7 +181,10 @@ export abstract class BaseGameController<S extends BaseGameState> {
       return;
     }
 
-    if (this.state.gamePhase !== 'PLAYING' || (metadata && metadata.premove)) {
+    // <<< ИЗМЕНЕНИЕ: Убрана проверка `metadata && metadata.premove`
+    // Теперь premove обрабатывается как обычный ход, что исправляет рассинхронизацию.
+    if (this.state.gamePhase !== 'PLAYING') {
+      logger.warn(`[BaseGameController] handleUserMove called in non-playing phase: ${this.state.gamePhase}. Ignoring move.`);
       return;
     }
 
@@ -224,7 +227,7 @@ export abstract class BaseGameController<S extends BaseGameState> {
     this.services.appController.clearGameControls();
     if (this.unsubscribeFromMoveMade) this.unsubscribeFromMoveMade();
     if (this.unsubscribeFromPgnNavigated) this.unsubscribeFromPgnNavigated();
-    if (this.boardView) this.boardView.destroy(); // <<< NEW: Clean up BoardView
+    if (this.boardView) this.boardView.destroy();
     logger.info(`[${this.constructor.name}] Destroyed.`);
   }
 }

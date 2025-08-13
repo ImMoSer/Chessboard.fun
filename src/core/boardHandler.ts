@@ -234,7 +234,8 @@ export class BoardHandler {
 
   private _playSoundsForMove(
     move: ChessopsMove,
-    pieceOnDestBefore?: ChessopsPiece
+    pieceOnDestBefore: ChessopsPiece | undefined,
+    wasPlayerTurn: boolean
   ): void {
     if (this.isConfiguredForAnalysis) return;
 
@@ -242,7 +243,6 @@ export class BoardHandler {
     const sequentialSounds: SoundEvent[] = [];
     
     const gameStatus = this.getGameStatus();
-    const wasPlayerTurn = this.chessPosition.turn !== this.humanPlayerColorInternal;
 
     if (gameStatus.isGameOver && gameStatus.outcome) {
       const { winner, reason } = gameStatus.outcome;
@@ -309,6 +309,9 @@ export class BoardHandler {
     const pieceOnDestBefore: ChessopsPiece | undefined = isNormal(chessopsMove)
       ? this.chessPosition.board.get(chessopsMove.to)
       : undefined;
+    
+    // <<< ИЗМЕНЕНИЕ: Определяем, чей ход, ДО выполнения хода
+    const wasPlayerTurn = this.chessPosition.turn === this.humanPlayerColorInternal;
 
     this.chessPosition.play(chessopsMove);
     this._updateBoardStateInternal();
@@ -330,7 +333,8 @@ export class BoardHandler {
         return { success: false, uciMove, sanMove: san, isIllegal: true };
     }
 
-    this._playSoundsForMove(chessopsMove, pieceOnDestBefore);
+    // <<< ИЗМЕНЕНИЕ: Передаем `wasPlayerTurn` в функцию звука
+    this._playSoundsForMove(chessopsMove, pieceOnDestBefore, wasPlayerTurn);
     
     const isVariation = addedPgnNode.parent ? addedPgnNode.parent.children.length > 1 && addedPgnNode.parent.children[0].id !== addedPgnNode.id : false;
     
