@@ -105,9 +105,16 @@ const DEFAULT_ENGINE_ID: EngineId = 'SF_1900';
 const ENGINE_STORAGE_KEY = 'user_preferred_engine';
 const APP_VERSION_STORAGE_KEY = 'app_version';
 
-const PRIVATE_PAGES: AppPage[] = ['finishHim', 'tower', 'userCabinet', 'attack', 'clubPage', 'recordsPage', 'lichessClubs', 'tacktics'];
+const PRIVATE_PAGES: AppPage[] = ['finishHim', 'tower', 'userCabinet', 'attack', 'tacktics'];
 const PRE_AUTH_REDIRECT_URL_KEY = 'preAuthRedirectUrl';
 const APP_VERSION = import.meta.env.VITE_APP_VERSION || 'v-dev';
+
+const SHELL_STATE_KEYS: (keyof AppControllerState)[] = [
+    'isNavExpanded', 'currentUser', 'isLoadingAuth', 'isModalVisible', 
+    'modalMessage', 'isRateLimited', 'rateLimitCooldownSeconds', 
+    'isConfirmationModalVisible', 'confirmationModalMessage', 'activeDropdown', 
+    'engineSelectorOpen', 'toasts', 'voiceVolume', 'currentGameControls'
+];
 
 export class AppController {
   public state: AppControllerState;
@@ -132,6 +139,9 @@ export class AppController {
   private unsubscribeFromRouteChange: (() => void) | null = null;
 
   private pageVNode: VNode | null = null;
+  // <<< НАЧАЛО ИЗМЕНЕНИЙ: Добавляем свойство для хранения функции перерисовки страницы
+  private _currentPageRedrawFn: (() => void) | null = null;
+  // <<< КОНЕЦ ИЗМЕНЕНИЙ
 
   constructor(
     globalServices: {
@@ -208,10 +218,15 @@ export class AppController {
       voiceVolume: this.soundServiceInstance.getVoiceVolume(),
     };
 
+    // <<< НАЧАЛО ИЗМЕНЕНИЙ: Обновляем подписчик на смену языка
     this.unsubscribeFromLangChange = subscribeToLangChange(() => {
-      logger.info('[AppController] Language changed, requesting shell redraw.');
-      this.setState({});
+      logger.info('[AppController] Language changed, forcing redraw of shell and page.');
+      this.requestShellRedraw(); // Принудительно перерисовываем каркас
+      if (this._currentPageRedrawFn) {
+        this._currentPageRedrawFn(); // Принудительно перерисовываем текущую страницу
+      }
     });
+    // <<< КОНЕЦ ИЗМЕНЕНИЙ
 
     this.unsubscribeFromAuthChange = this.authServiceInstance.subscribe(() => this._onAuthStateChanged());
 
@@ -262,7 +277,7 @@ export class AppController {
         });
         this.showToast(t('common.shareSuccess', { defaultValue: 'Shared successfully!' }));
         logger.info('[AppController] Shared via Web Share API.');
-      } catch (error) {
+      } catch (error: any) {
         logger.error('[AppController] Error using Web Share API:', error);
         this.showToast(t('common.shareCancelled', { defaultValue: 'Sharing cancelled.' }), 'error');
       }
@@ -271,7 +286,7 @@ export class AppController {
         await navigator.clipboard.writeText(shareData.url);
         this.showToast(t('common.linkCopied', { defaultValue: 'Link copied to clipboard!' }));
         logger.info('[AppController] Web Share API not available. Copied link to clipboard.');
-      } catch (error) {
+      } catch (error: any) {
         logger.error('[AppController] Failed to copy link to clipboard:', error);
         this.showToast(t('common.copyFailed', { defaultValue: 'Could not copy link.' }), 'error');
       }
@@ -384,7 +399,7 @@ export class AppController {
       this.setState({ isLoadingAuth: false });
     }
 
-    this.unsubscribeFromRouteChange = this.routingService.listen((route) => this._processRouteChange(route));
+    this.unsubscribeFromRouteChange = this.routingService.listen((route: Route) => this._processRouteChange(route));
 
     const authState = this.authServiceInstance.getState();
     if (authState.isAuthenticated) {
@@ -457,7 +472,7 @@ export class AppController {
 
   private _loadPage(route: Route): void {
     logger.info(`[AppController] Loading page: ${route.page}`, route);
-
+  
     if (this.activePageController?.destroy) this.activePageController.destroy();
     this.activePageController = null;
     if (this.analysisControllerInstance?.destroy) this.analysisControllerInstance.destroy();
@@ -494,6 +509,10 @@ export class AppController {
             this.pageVNode = this.patch(this.pageVNode, newContainerVNode);
         }
     };
+    
+    // <<< НАЧАЛО ИЗМЕНЕНИЙ: Сохраняем функцию перерисовки
+    this._currentPageRedrawFn = requestPageRedraw;
+    // <<< КОНЕЦ ИЗМЕНЕНИЙ
   
     if (['finishHim', 'tower', 'attack', 'tacktics'].includes(route.page)) {
       boardHandlerForPage = new BoardHandler(this.services.chessboardService, requestPageRedraw);
@@ -753,15 +772,8 @@ export class AppController {
     this.state = { ...this.state, ...newState };
     
     let shellStateChanged = false;
-    // <<< ИЗМЕНЕНИЕ: Добавлено `currentPage` в список отслеживаемых ключей
-    const shellStateKeys: (keyof AppControllerState)[] = [
-        'currentPage', 'isNavExpanded', 'currentUser', 'isLoadingAuth', 'isModalVisible', 
-        'modalMessage', 'isRateLimited', 'rateLimitCooldownSeconds', 
-        'isConfirmationModalVisible', 'confirmationModalMessage', 'activeDropdown', 
-        'engineSelectorOpen', 'toasts', 'voiceVolume', 'currentGameControls'
-    ];
 
-    for (const key of shellStateKeys) {
+    for (const key of SHELL_STATE_KEYS) {
         if (JSON.stringify(oldState[key]) !== JSON.stringify(this.state[key])) {
             shellStateChanged = true;
             break;

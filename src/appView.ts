@@ -277,8 +277,8 @@ export function renderAppShell(controller: AppController): VNode {
     { page: 'tower', textKey: 'nav.tower', requiresAuth: true },
     { page: 'attack', textKey: 'nav.attack', requiresAuth: true },
     { page: 'tacktics', textKey: 'nav.tacktics', requiresAuth: true },
-    { page: 'lichessClubs', textKey: 'nav.lichessClubs', requiresAuth: true },
-    { page: 'recordsPage', textKey: 'nav.leaderboards', requiresAuth: true },
+    { page: 'lichessClubs', textKey: 'nav.lichessClubs', requiresAuth: false },
+    { page: 'recordsPage', textKey: 'nav.leaderboards', requiresAuth: false },
     { page: 'about', textKey: 'nav.about', requiresAuth: false },
   ];
 
