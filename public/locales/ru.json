@@ -54,6 +54,13 @@
     "invalidController": "Ошибка: Неверный контроллер для страницы '{pageName}'.",
     "unknownPage": "Ошибка: Неизвестная страница '{pageName}'."
   },
+  "gameplay": {
+    "confirmExit": {
+      "message": "Сдаешься?",
+      "confirmButton": "Сдаюсь",
+      "cancelButton": "Никогда!"
+    }
+  },
   "puzzle": {
     "feedback": {
       "yourTurn": "Ваш ход!",

@@ -334,4 +334,14 @@ export class TackticsController extends BaseGameController<TackticsControllerSta
         logger.error('[TackticsController] Failed to send tactical result:', error);
     }
   }
+
+  public destroy(): void {
+    if (this.analysisController.getPanelState().isAnalysisActive) {
+        this.analysisController.toggleAnalysisEngine();
+    }
+    if (this.boardHandler.isBoardConfiguredForAnalysis()){
+        this.boardHandler.configureBoardForAnalysis(false);
+    }
+    super.destroy();
+  }
 }

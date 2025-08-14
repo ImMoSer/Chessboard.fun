@@ -161,7 +161,7 @@ export class FinishHimController extends BaseGameController<FinishHimControllerS
             text: t('common.shareText', { defaultValue: 'Check out this puzzle!' })
         });
       },
-      onExit: () => this.services.appController.navigateTo('welcome'),
+      onExit: () => this.handleExitRequest(),
     };
   }
 
@@ -179,6 +179,25 @@ export class FinishHimController extends BaseGameController<FinishHimControllerS
     if (!this._getControlsState().canResign) return;
     this._handleGameOver(false); // Resigning is always a loss
   }
+
+  // <<< НАЧАЛО ИЗМЕНЕНИЙ: Новый метод для обработки выхода
+  public handleExitRequest(): void {
+    if (this.state.gamePhase === 'PLAYING') {
+      this.services.appController.showConfirmationModal(
+        t('gameplay.confirmExit.message', { defaultValue: 'Are you sure you want to exit? The current game will be counted as a loss.' }),
+        () => {
+          this.handleResign(); // Засчитываем поражение
+          this.services.appController.navigateTo('welcome'); // Переходим на главную
+        },
+        () => {}, // При отмене ничего не делаем
+        t('gameplay.confirmExit.confirmButton', { defaultValue: 'Exit' }),
+        t('gameplay.confirmExit.cancelButton', { defaultValue: 'Stay' })
+      );
+    } else {
+      this.services.appController.navigateTo('welcome');
+    }
+  }
+  // <<< КОНЕЦ ИЗМЕНЕНИЙ
 
   /**
    * REFACTORED: This is the central point for handling the end of a game.
@@ -402,5 +421,16 @@ export class FinishHimController extends BaseGameController<FinishHimControllerS
     } else {
         logger.warn('[FinishHimController] Could not toggle favorite: missing user, puzzle, or fen_final.');
     }
+  }
+
+  public destroy(): void {
+    this._clearOutplayTimer();
+    if (this.analysisController.getPanelState().isAnalysisActive) {
+        this.analysisController.toggleAnalysisEngine();
+    }
+    if (this.boardHandler.isBoardConfiguredForAnalysis()){
+        this.boardHandler.configureBoardForAnalysis(false);
+    }
+    super.destroy();
   }
 }

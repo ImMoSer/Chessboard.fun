@@ -54,6 +54,13 @@
     "invalidController": "Error: Invalid controller for page '{pageName}'.",
     "unknownPage": "Error: Unknown page '{pageName}'."
   },
+  "gameplay": {
+    "confirmExit": {
+      "message": "do you want to resign?",
+      "confirmButton": "resign",
+      "cancelButton": "Continue playing"
+    }
+  },
   "puzzle": {
     "feedback": {
       "yourTurn": "Your turn!",

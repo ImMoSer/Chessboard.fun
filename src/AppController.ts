@@ -27,6 +27,7 @@ import { ThemeService, type AppTheme } from './core/theme.service';
 import { SoundService } from './core/sound.service';
 import type { VNode } from 'snabbdom';
 import { h } from 'snabbdom';
+import { BaseGameController } from './core/controllers/base-game.controller';
 
 export type AppPage = 'welcome' | 'finishHim' | 'clubPage' | 'recordsPage' | 'userCabinet' | 'tower' | 'lichessClubs' | 'about' | 'attack' | 'tacktics';
 
@@ -105,7 +106,7 @@ const DEFAULT_ENGINE_ID: EngineId = 'SF_1900';
 const ENGINE_STORAGE_KEY = 'user_preferred_engine';
 const APP_VERSION_STORAGE_KEY = 'app_version';
 
-const PRIVATE_PAGES: AppPage[] = ['finishHim', 'tower', 'userCabinet', 'attack', 'tacktics'];
+const PRIVATE_PAGES: AppPage[] = ['finishHim', 'tower', 'userCabinet', 'attack', 'clubPage', 'recordsPage', 'lichessClubs', 'tacktics'];
 const PRE_AUTH_REDIRECT_URL_KEY = 'preAuthRedirectUrl';
 const APP_VERSION = import.meta.env.VITE_APP_VERSION || 'v-dev';
 
@@ -115,6 +116,10 @@ const SHELL_STATE_KEYS: (keyof AppControllerState)[] = [
     'isConfirmationModalVisible', 'confirmationModalMessage', 'activeDropdown', 
     'engineSelectorOpen', 'toasts', 'voiceVolume', 'currentGameControls'
 ];
+
+// <<< НАЧАЛО ИЗМЕНЕНИЙ: Список страниц с активной игровой логикой
+const ACTIVE_GAME_PAGES: AppPage[] = ['finishHim', 'tower', 'attack'];
+// <<< КОНЕЦ ИЗМЕНЕНИЙ
 
 export class AppController {
   public state: AppControllerState;
@@ -139,9 +144,7 @@ export class AppController {
   private unsubscribeFromRouteChange: (() => void) | null = null;
 
   private pageVNode: VNode | null = null;
-  // <<< НАЧАЛО ИЗМЕНЕНИЙ: Добавляем свойство для хранения функции перерисовки страницы
   private _currentPageRedrawFn: (() => void) | null = null;
-  // <<< КОНЕЦ ИЗМЕНЕНИЙ
 
   constructor(
     globalServices: {
@@ -218,15 +221,13 @@ export class AppController {
       voiceVolume: this.soundServiceInstance.getVoiceVolume(),
     };
 
-    // <<< НАЧАЛО ИЗМЕНЕНИЙ: Обновляем подписчик на смену языка
     this.unsubscribeFromLangChange = subscribeToLangChange(() => {
       logger.info('[AppController] Language changed, forcing redraw of shell and page.');
-      this.requestShellRedraw(); // Принудительно перерисовываем каркас
+      this.requestShellRedraw();
       if (this._currentPageRedrawFn) {
-        this._currentPageRedrawFn(); // Принудительно перерисовываем текущую страницу
+        this._currentPageRedrawFn();
       }
     });
-    // <<< КОНЕЦ ИЗМЕНЕНИЙ
 
     this.unsubscribeFromAuthChange = this.authServiceInstance.subscribe(() => this._onAuthStateChanged());
 
@@ -510,9 +511,7 @@ export class AppController {
         }
     };
     
-    // <<< НАЧАЛО ИЗМЕНЕНИЙ: Сохраняем функцию перерисовки
     this._currentPageRedrawFn = requestPageRedraw;
-    // <<< КОНЕЦ ИЗМЕНЕНИЙ
   
     if (['finishHim', 'tower', 'attack', 'tacktics'].includes(route.page)) {
       boardHandlerForPage = new BoardHandler(this.services.chessboardService, requestPageRedraw);
@@ -599,7 +598,34 @@ export class AppController {
     requestPageRedraw();
   }
 
+  // <<< НАЧАЛО ИЗМЕНЕНИЙ: Централизованная логика подтверждения выхода
   public navigateTo(page: AppPage, updateHash: boolean = true, clubId: string | null = null, puzzleId: string | null = null, towerId: string | null = null): void {
+    const isCurrentlyInActiveGame = 
+      this.activePageController instanceof BaseGameController &&
+      ACTIVE_GAME_PAGES.includes(this.state.currentPage) &&
+      this.activePageController.state.gamePhase === 'PLAYING';
+
+    const isNavigatingAway = page !== this.state.currentPage;
+
+    if (isCurrentlyInActiveGame && isNavigatingAway) {
+      this.showConfirmationModal(
+        t('gameplay.confirmExit.message', { defaultValue: 'Are you sure you want to exit? The current game will be counted as a loss.' }),
+        () => {
+          // Пользователь подтвердил выход
+          (this.activePageController as BaseGameController<any>).handleResign();
+          this._performNavigation(page, updateHash, clubId, puzzleId, towerId);
+        },
+        () => {}, // При отмене ничего не делаем
+        t('gameplay.confirmExit.confirmButton', { defaultValue: 'Exit' }),
+        t('gameplay.confirmExit.cancelButton', { defaultValue: 'Stay' })
+      );
+    } else {
+      // Обычная навигация
+      this._performNavigation(page, updateHash, clubId, puzzleId, towerId);
+    }
+  }
+
+  private _performNavigation(page: AppPage, updateHash: boolean = true, clubId: string | null = null, puzzleId: string | null = null, towerId: string | null = null): void {
     const route: Route = { page, clubId, puzzleId, towerId };
     const currentHash = window.location.hash;
     const newHash = this.routingService.buildHash(route);
@@ -609,9 +635,11 @@ export class AppController {
         window.location.hash = newHash;
       }
     } else {
+      // Если хеш не меняется, принудительно вызываем обработчик
       this._processRouteChange(route);
     }
   }
+  // <<< КОНЕЦ ИЗМЕНЕНИЙ
 
   public updatePuzzleUrl(puzzleId: string): void {
     if (['finishHim', 'attack', 'tacktics'].includes(this.state.currentPage)) {

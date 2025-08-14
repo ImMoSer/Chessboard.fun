@@ -10,7 +10,7 @@ import { t } from '../i18n.service';
 import { parseFen } from 'chessops/fen';
 import { BoardView } from '../../shared/components/boardView';
 
-const BOT_MOVE_DELAY_MS = 100;
+const BOT_MOVE_DELAY_MS = 50;
 
 /**
  * An abstract base class for game controllers (FinishHim, Tower, Attack).
@@ -225,9 +225,17 @@ export abstract class BaseGameController<S extends BaseGameState> {
 
   public destroy(): void {
     this.services.appController.clearGameControls();
-    if (this.unsubscribeFromMoveMade) this.unsubscribeFromMoveMade();
-    if (this.unsubscribeFromPgnNavigated) this.unsubscribeFromPgnNavigated();
-    if (this.boardView) this.boardView.destroy();
+    if (this.unsubscribeFromMoveMade) {
+        this.unsubscribeFromMoveMade();
+        this.unsubscribeFromMoveMade = null;
+    }
+    if (this.unsubscribeFromPgnNavigated) {
+        this.unsubscribeFromPgnNavigated();
+        this.unsubscribeFromPgnNavigated = null;
+    }
+    if (this.boardView) {
+        this.boardView.destroy();
+    }
     logger.info(`[${this.constructor.name}] Destroyed.`);
   }
 }

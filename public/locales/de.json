@@ -54,6 +54,13 @@
     "invalidController": "Fehler: Ungültiger Controller für Seite '{pageName}'.",
     "unknownPage": "Fehler: Unbekannte Seite '{pageName}'."
   },
+  "gameplay": {
+    "confirmExit": {
+      "message": "Möchtest du aufgeben?",
+      "confirmButton": "Aufgeben",
+      "cancelButton": "Weiter spielen"
+    }
+  },
   "puzzle": {
     "feedback": {
       "yourTurn": "Du bist am Zug!",

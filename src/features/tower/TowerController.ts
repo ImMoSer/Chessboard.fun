@@ -123,7 +123,7 @@ export class TowerController extends BaseGameController<TowerControllerState> {
       canResign: this.state.gamePhase === 'PLAYING',
       onResign: () => this.handleResign(),
       onShare: () => this.handleShareTower(),
-      onExit: () => this.handleExitTower(),
+      onExit: () => this.services.appController.navigateTo('welcome'),
     };
   }
   
@@ -228,10 +228,6 @@ export class TowerController extends BaseGameController<TowerControllerState> {
         title: t('common.shareTitle', { defaultValue: 'Chess Puzzle' }),
         text: t('common.shareText', { defaultValue: 'Check out this puzzle!' })
     });
-  }
-  
-  public handleExitTower(): void {
-    this.services.appController.navigateTo('welcome');
   }
 
   private async _startTowerById(towerId: string): Promise<void> {

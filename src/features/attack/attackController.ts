@@ -329,4 +329,15 @@ export class AttackController extends BaseGameController<AttackControllerState> 
 
     this.setState({ playoutTimerId: window.setTimeout(() => this._tickPlayoutTimer(), TIMER_INTERVAL_MS) });
   }
+
+  public destroy(): void {
+    this._clearPlayoutTimer();
+    if (this.analysisController.getPanelState().isAnalysisActive) {
+        this.analysisController.toggleAnalysisEngine();
+    }
+    if (this.boardHandler.isBoardConfiguredForAnalysis()){
+        this.boardHandler.configureBoardForAnalysis(false);
+    }
+    super.destroy();
+  }
 }
