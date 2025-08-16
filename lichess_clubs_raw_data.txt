@@ -1,0 +1,239 @@
+{
+    "club_id": "0HNGIQ0f",
+    "club_name": "НуРаСа",
+    "club_flair": "smileys.cowboy-hat-face",
+    "active_players": 32,
+    "tournaments_played": 21,
+    "total_score": 1295,
+    "average_score": 61.67,
+    "medals": {
+        "gold": 0,
+        "silver": 1,
+        "bronze": 2
+    },
+    "statistics_payload": {
+        "summary": {
+            "total_score": 1295,
+            "average_score": 61.67,
+            "tournaments_played": 21,
+            "active_players_count": 32
+        },
+        "club_medals": {
+            "bronze": [
+                {
+                    "arena_id": "We9piHqA",
+                    "tournament_url": "https://lichess.org/tournament/We9piHqA",
+                    "tournament_name": "RTW, Calcutta - Hong Kong Team Battle"
+                },
+                {
+                    "arena_id": "QdKOoTz1",
+                    "tournament_url": "https://lichess.org/tournament/QdKOoTz1",
+                    "tournament_name": "7.3 KNOCKOUT - Quarterfinal B Team Battle"
+                }
+            ],
+            "silver": [
+                {
+                    "arena_id": "5FFL9XnT",
+                    "tournament_url": "https://lichess.org/tournament/5FFL9XnT",
+                    "tournament_name": "RTW, Bombay - Calcutta Team Battle"
+                }
+            ]
+        },
+        "top_players_by_score": [
+            {
+                "username": "nyr-75",
+                "lichess_id": "nyr-75",
+                "total_score": 288
+            },
+            {
+                "username": "Rkty",
+                "lichess_id": "rkty",
+                "total_score": 126
+            },
+            {
+                "username": "MagomedLushnikov",
+                "lichess_id": "magomedlushnikov",
+                "total_score": 88
+            },
+            {
+                "username": "VetalPriz1991",
+                "lichess_id": "vetalpriz1991",
+                "total_score": 76
+            },
+            {
+                "username": "Legenda_75",
+                "lichess_id": "legenda_75",
+                "total_score": 75
+            },
+            {
+                "username": "Alexey_Porshakov",
+                "lichess_id": "alexey_porshakov",
+                "total_score": 71
+            },
+            {
+                "username": "Melastry",
+                "lichess_id": "melastry",
+                "total_score": 65
+            },
+            {
+                "username": "Mihasi_md",
+                "lichess_id": "mihasi_md",
+                "total_score": 56
+            },
+            {
+                "username": "Nurali_Kazhibekov",
+                "lichess_id": "nurali_kazhibekov",
+                "total_score": 54
+            },
+            {
+                "username": "VikhrenkoKA",
+                "lichess_id": "vikhrenkoka",
+                "total_score": 52
+            }
+        ],
+        "top_players_by_medals": [
+            {
+                "medals": {
+                    "gold": 10,
+                    "bronze": 3,
+                    "silver": 1
+                },
+                "username": "nyr-75",
+                "lichess_id": "nyr-75"
+            },
+            {
+                "medals": {
+                    "gold": 1,
+                    "bronze": 1,
+                    "silver": 4
+                },
+                "username": "Rkty",
+                "lichess_id": "rkty"
+            },
+            {
+                "medals": {
+                    "gold": 1,
+                    "bronze": 1,
+                    "silver": 2
+                },
+                "username": "Alexey_Porshakov",
+                "lichess_id": "alexey_porshakov"
+            },
+            {
+                "medals": {
+                    "gold": 1,
+                    "bronze": 0,
+                    "silver": 1
+                },
+                "username": "Legenda_75",
+                "lichess_id": "legenda_75"
+            },
+            {
+                "medals": {
+                    "gold": 1,
+                    "bronze": 1,
+                    "silver": 0
+                },
+                "username": "VikhrenkoKA",
+                "lichess_id": "vikhrenkoka"
+            },
+            {
+                "medals": {
+                    "gold": 1,
+                    "bronze": 1,
+                    "silver": 0
+                },
+                "username": "Melastry",
+                "lichess_id": "melastry"
+            },
+            {
+                "medals": {
+                    "gold": 1,
+                    "bronze": 1,
+                    "silver": 0
+                },
+                "username": "VetalPriz1991",
+                "lichess_id": "vetalpriz1991"
+            },
+            {
+                "medals": {
+                    "gold": 1,
+                    "bronze": 0,
+                    "silver": 0
+                },
+                "username": "Mr_SergeyAntonov",
+                "lichess_id": "mr_sergeyantonov"
+            },
+            {
+                "medals": {
+                    "gold": 1,
+                    "bronze": 0,
+                    "silver": 0
+                },
+                "username": "Blunder_Franki",
+                "lichess_id": "blunder_franki"
+            },
+            {
+                "medals": {
+                    "gold": 0,
+                    "bronze": 3,
+                    "silver": 1
+                },
+                "username": "MagomedLushnikov",
+                "lichess_id": "magomedlushnikov"
+            }
+        ],
+        "top_players_by_activity": [
+            {
+                "username": "nyr-75",
+                "lichess_id": "nyr-75",
+                "tournaments_played": 14
+            },
+            {
+                "username": "Berrcules",
+                "lichess_id": "berrcules",
+                "tournaments_played": 9
+            },
+            {
+                "username": "VetalPriz1991",
+                "lichess_id": "vetalpriz1991",
+                "tournaments_played": 8
+            },
+            {
+                "username": "Rkty",
+                "lichess_id": "rkty",
+                "tournaments_played": 8
+            },
+            {
+                "username": "MagomedLushnikov",
+                "lichess_id": "magomedlushnikov",
+                "tournaments_played": 7
+            },
+            {
+                "username": "Alexey_Porshakov",
+                "lichess_id": "alexey_porshakov",
+                "tournaments_played": 6
+            },
+            {
+                "username": "Mihasi_md",
+                "lichess_id": "mihasi_md",
+                "tournaments_played": 6
+            },
+            {
+                "username": "ChessAlex50",
+                "lichess_id": "chessalex50",
+                "tournaments_played": 5
+            },
+            {
+                "username": "Legenda_75",
+                "lichess_id": "legenda_75",
+                "tournaments_played": 5
+            },
+            {
+                "username": "Melastry",
+                "lichess_id": "melastry",
+                "tournaments_played": 5
+            }
+        ]
+    }
+}

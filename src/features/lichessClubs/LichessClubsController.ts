@@ -1,7 +1,7 @@
 // src/features/lichessClubs/LichessClubsController.ts
 import logger from '../../utils/logger';
 import type { AppServices } from '../../AppController';
-import type { LichessClubStat, FounderActionDto, ClubIdNamePair } from '../../core/api.types';
+import type { ListedClub, FounderActionDto, ClubIdNamePair } from '../../core/api.types';
 import { subscribeToLangChange, t } from '../../core/i18n.service';
 import type { VNode } from 'snabbdom';
 import { renderLichessClubsPage } from './lichessClubsView';
@@ -11,13 +11,14 @@ const FOUNDER_ACTION_COOLDOWN_MS =  24 * 60 * 60 * 1000; // 24 * 60 * 60 * 1000
 export interface LichessClubsControllerState {
   isLoading: boolean;
   error: string | null;
-  clubsData: LichessClubStat[] | null;
+  clubsData: ListedClub[] | null;
   pageTitle: string;
   isFounder: boolean;
-  registeredFounderClub: LichessClubStat | null;
+  registeredFounderClub: ListedClub | null;
   unregisteredFounderClubs: ClubIdNamePair[];
   isFounderActionLoading: boolean;
   founderActionCooldownHours: number | null;
+  expandedClubId: string | null;
 }
 
 export class LichessClubsController {
@@ -42,6 +43,7 @@ export class LichessClubsController {
       unregisteredFounderClubs: [],
       isFounderActionLoading: false,
       founderActionCooldownHours: null,
+      expandedClubId: null,
     };
 
     this.unsubscribeFromLangChange = subscribeToLangChange(() => {
@@ -62,14 +64,18 @@ export class LichessClubsController {
 
   public async initializePage(): Promise<void> {
     logger.info('[LichessClubsController] Initializing page data...');
-    this.setState({ isLoading: true, error: null, clubsData: null, isFounderActionLoading: false });
+    this.setState({ isLoading: true, error: null, clubsData: null, isFounderActionLoading: false, expandedClubId: null });
     this.updateLocalizedTexts();
 
     try {
       const allClubsStats = await this.services.webhookService.fetchAllClubsStats();
 
+      logger.debug('[LichessClubsController] Raw data received from backend:', allClubsStats);
+
       if (allClubsStats) {
-        const sortedClubs = allClubsStats.sort((a: LichessClubStat, b: LichessClubStat) => b.total_score - a.total_score);
+        const sortedClubs = allClubsStats.sort((a: ListedClub, b: ListedClub) => 
+            (b.statistics_payload.summary.total_score || 0) - (a.statistics_payload.summary.total_score || 0)
+        );
         
         this.setState({
           clubsData: sortedClubs,
@@ -92,6 +98,15 @@ export class LichessClubsController {
         clubsData: null,
         pageTitle: t('lichessClubs.pageTitle.error', { defaultValue: 'Error Loading Clubs' })
       });
+    }
+  }
+
+  public toggleClubDetails(clubId: string): void {
+    const currentExpandedId = this.state.expandedClubId;
+    if (currentExpandedId === clubId) {
+      this.setState({ expandedClubId: null });
+    } else {
+      this.setState({ expandedClubId: clubId });
     }
   }
 
@@ -178,12 +193,12 @@ export class LichessClubsController {
     const founderClubs = this.services.authService.getFounderClubs();
     const isFounder = !!(founderClubs && founderClubs.length > 0);
     
-    let registeredClub: LichessClubStat | null = null;
+    let registeredClub: ListedClub | null = null;
     let unregisteredClubs: ClubIdNamePair[] = [];
 
     if (isFounder && this.state.clubsData && founderClubs) {
         const founderClubIds = founderClubs.map((c: ClubIdNamePair) => c.club_id);
-        registeredClub = this.state.clubsData.find((c: LichessClubStat) => founderClubIds.includes(c.club_id)) || null;
+        registeredClub = this.state.clubsData.find((c: ListedClub) => founderClubIds.includes(c.club_id)) || null;
 
         if (registeredClub) {
             unregisteredClubs = founderClubs.filter((fc: ClubIdNamePair) => fc.club_id !== registeredClub!.club_id);

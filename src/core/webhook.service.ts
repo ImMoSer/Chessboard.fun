@@ -19,7 +19,7 @@ import type {
     ClubApiResponse,
     LichessClubsApiResponse,
     TelegramBindingUrlResponse,
-    LichessClubStat,
+    ListedClub, // <<< ИЗМЕНЕНО: Используем новый тип
     GetTacticalPuzzleDto,
     OverallSkillLeaderboardEntry,
     PersonalOverallSkillResponse,
@@ -124,15 +124,17 @@ export class WebhookServiceController {
     return this._apiRequest<TacticalTrainerStats>('/tactical-trainer/stats', 'GET', 'fetchTacticalStats'); 
   }
   
-  public async fetchAllClubsStats(): Promise<WebhookSuccessResponse<LichessClubStat[]>> { 
+  // <<< НАЧАЛО ИЗМЕНЕНИЙ: Обновлены типы
+  public async fetchAllClubsStats(): Promise<WebhookSuccessResponse<ListedClub[]>> { 
     const k = 'lichess_clubs_all'; 
-    const c = CacheService.get<LichessClubStat[]>(k, CACHE_CLUBS_ALL_TTL_MS); 
+    const c = CacheService.get<ListedClub[]>(k, CACHE_CLUBS_ALL_TTL_MS); 
     if (c) return c; 
     const d = await this._apiRequest<LichessClubsApiResponse>('/n8n-proxy/clubs', 'GET', 'fetchAllClubsStats'); 
     const s = d?.stats ?? null; 
     if (s) CacheService.set(k, s); 
     return s; 
   }
+  // <<< КОНЕЦ ИЗМЕНЕНИЙ
   
   public async fetchClubStats(clubId: string): Promise<WebhookSuccessResponse<ClubApiResponse>> { 
     const k = `club_stats_v4_${clubId}`; 

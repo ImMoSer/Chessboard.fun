@@ -1,8 +1,8 @@
 // src/features/lichessClubs/lichessClubsView.ts
 import { h } from 'snabbdom';
 import type { VNode } from 'snabbdom';
-import type { LichessClubsController, LichessClubsControllerState } from './LichessClubsController';
-import type { LichessClubStat, ClubIdNamePair } from '../../core/api.types';
+import type { LichessClubsController } from './LichessClubsController';
+import type { ListedClub, ClubIdNamePair, TopPlayerByScore, TopPlayerByMedals, TopPlayerByActivity, ClubMedalTournament } from '../../core/api.types';
 import { t } from '../../core/i18n.service';
 
 function renderLichessClubsBanner(): VNode {
@@ -14,11 +14,9 @@ function renderLichessClubsBanner(): VNode {
   });
 }
 
-// НОВАЯ ФУНКЦИЯ: Рендер иконки-флаера
 function renderFlairIcon(flair?: string | null): VNode | null {
   if (!flair) return null;
   const flairUrl = `https://lichess1.org/assets/flair/img/${flair}.webp`;
-  // Добавлен стиль для вертикального выравнивания
   return h('img.club-flair-icon', { 
     props: { src: flairUrl, alt: 'Flair', title: flair },
     style: { verticalAlign: 'middle', marginRight: '8px', height: '20px' } 
@@ -82,16 +80,103 @@ function renderFounderControls(controller: LichessClubsController): VNode | null
     return h('div.lichess-clubs-page__founder-controls', controls);
 }
 
+function renderHallOfFameWidget(players: TopPlayerByScore[]): VNode {
+    return h('div.widget-container.hall-of-fame-widget', [
+        h('h4.widget-title', t('lichessClubs.widgets.hallOfFameTitle', { defaultValue: 'Тащеры' })),
+        h('table.widget-table', [
+            h('thead', h('tr', [h('th', '#'), h('th', 'Игрок'), h('th', 'Очки')])),
+            h('tbody', players.map((player, index) => 
+                h('tr', { key: player.lichess_id }, [
+                    h('td', `${index + 1}`),
+                    h('td', h('a', { props: { href: `https://lichess.org/@/${player.lichess_id}`, target: '_blank' } }, player.username)),
+                    h('td', String(player.total_score)),
+                ])
+            ))
+        ])
+    ]);
+}
 
-// ИЗМЕНЕНО: Таблица полностью переделана под новые данные
-function renderClubsTable(controller: LichessClubsController): VNode | null {
-    const { clubsData } = controller.state;
+function renderMedalBearersWidget(players: TopPlayerByMedals[]): VNode {
+    return h('div.widget-container.medal-bearers-widget', [
+        h('h4.widget-title', t('lichessClubs.widgets.medalBearersTitle', { defaultValue: 'Медалисты' })),
+        h('table.widget-table', [
+            h('thead', h('tr', [h('th', '#'), h('th', 'Игрок'), h('th', 'Медали')])),
+            h('tbody', players.map((player, index) => 
+                h('tr', { key: player.lichess_id }, [
+                    h('td', `${index + 1}`),
+                    h('td', h('a', { props: { href: `https://lichess.org/@/${player.lichess_id}`, target: '_blank' } }, player.username)),
+                    h('td', `🥇${player.medals.gold} 🥈${player.medals.silver} 🥉${player.medals.bronze}`),
+                ])
+            ))
+        ])
+    ]);
+}
 
-    if (!clubsData) {
-        return null;
+function renderHardWorkersWidget(players: TopPlayerByActivity[]): VNode {
+    return h('div.widget-container.hard-workers-widget', [
+        h('h4.widget-title', t('lichessClubs.widgets.hardWorkersTitle', { defaultValue: 'Рабочие лошадки' })),
+        h('table.widget-table', [
+            h('thead', h('tr', [h('th', '#'), h('th', 'Игрок'), h('th', 'Турниры')])),
+            h('tbody', players.map((player, index) => 
+                h('tr', { key: player.lichess_id }, [
+                    h('td', `${index + 1}`),
+                    h('td', h('a', { props: { href: `https://lichess.org/@/${player.lichess_id}`, target: '_blank' } }, player.username)),
+                    h('td', String(player.tournaments_played)),
+                ])
+            ))
+        ])
+    ]);
+}
+
+// <<< НАЧАЛО ИЗМЕНЕНИЙ: Новый виджет для списка турниров по медалям
+function renderMedalTournamentsWidget(club: ListedClub): VNode {
+    const medals = club.statistics_payload.club_medals;
+    const hasAnyMedals = (medals.gold?.length || 0) > 0 || (medals.silver?.length || 0) > 0 || (medals.bronze?.length || 0) > 0;
+
+    if (!hasAnyMedals) {
+        return h('div.widget-container.medal-tournaments-widget', [
+            h('h4.widget-title', t('lichessClubs.widgets.medalTournamentsTitle', { defaultValue: 'Призовые турниры' })),
+            h('p.no-medals-message', t('lichessClubs.widgets.noMedals', { defaultValue: 'Клуб еще не завоевал медалей.' }))
+        ]);
     }
-    
-    if (clubsData.length === 0) {
+
+    const renderTournamentList = (tournaments: ClubMedalTournament[]) => {
+        if (!tournaments || tournaments.length === 0) return null;
+        return h('ul.tournament-list', tournaments.map(t => 
+            h('li', [
+                h('a', { props: { href: t.tournament_url, target: '_blank', rel: 'noopener noreferrer' } }, t.tournament_name)
+            ])
+        ));
+    };
+
+    return h('div.widget-container.medal-tournaments-widget', [
+        h('h4.widget-title', t('lichessClubs.widgets.medalTournamentsTitle', { defaultValue: 'Призовые турниры' })),
+        h('div.medal-lists-container', [
+            medals.gold?.length > 0 ? h('div.medal-list-section', [h('h5', '🥇 Gold'), renderTournamentList(medals.gold)]) : null,
+            medals.silver?.length > 0 ? h('div.medal-list-section', [h('h5', '🥈 Silver'), renderTournamentList(medals.silver)]) : null,
+            medals.bronze?.length > 0 ? h('div.medal-list-section', [h('h5', '🥉 Bronze'), renderTournamentList(medals.bronze)]) : null,
+        ])
+    ]);
+}
+
+function renderClubDetailsRow(club: ListedClub): VNode {
+    const stats = club.statistics_payload;
+    return h('tr.club-details-row', { key: `details-${club.club_id}` }, [
+        h('td', { props: { colSpan: 8 } }, [
+            h('div.club-details-content', [
+                renderHallOfFameWidget(stats.top_players_by_score),
+                renderMedalBearersWidget(stats.top_players_by_medals),
+                renderHardWorkersWidget(stats.top_players_by_activity),
+                renderMedalTournamentsWidget(club) // Добавляем новый виджет
+            ])
+        ])
+    ]);
+}
+// <<< КОНЕЦ ИЗМЕНЕНИЙ
+
+function renderClubsTable(controller: LichessClubsController): VNode | null {
+    const { clubsData, expandedClubId } = controller.state;
+    if (!clubsData || clubsData.length === 0) {
         return h('p.lichess-clubs-page__no-data-message', t('lichessClubs.table.noClubs', { defaultValue: 'No clubs statistics available.' }));
     }
 
@@ -106,6 +191,36 @@ function renderClubsTable(controller: LichessClubsController): VNode | null {
         { key: 'bronze', label: '🥉', textAlign: 'center' },
     ];
 
+    const tableRows = clubsData.flatMap((club: ListedClub) => {
+        const summary = club.statistics_payload.summary;
+        const medals = club.statistics_payload.club_medals;
+        const isExpanded = expandedClubId === club.club_id;
+
+        const mainRow = h('tr.club-row.expandable', { 
+            key: club.club_id,
+            class: { expanded: isExpanded },
+            on: { click: () => controller.toggleClubDetails(club.club_id) }
+        }, [
+            h('td.text-left', [
+                renderFlairIcon(club.club_flair),
+                h('span.club-name-text', club.club_name)
+            ]),
+            h('td.text-right', String(summary.active_players_count)),
+            h('td.text-right', String(summary.tournaments_played)),
+            h('td.text-right', String(summary.total_score)),
+            h('td.text-right', String(Math.round(summary.average_score))),
+            h('td.text-center', String(medals.gold?.length || 0)),
+            h('td.text-center', String(medals.silver?.length || 0)),
+            h('td.text-center', String(medals.bronze?.length || 0)),
+        ]);
+
+        const rows: (VNode | null)[] = [mainRow];
+        if (isExpanded) {
+            rows.push(renderClubDetailsRow(club));
+        }
+        return rows;
+    });
+
     return h('div.lichess-clubs-page__table-container', [
         h('h3.lichess-clubs-page__table-title', controller.state.pageTitle),
         h('table.lichess-clubs-page__table', [
@@ -114,36 +229,13 @@ function renderClubsTable(controller: LichessClubsController): VNode | null {
                     h(`th.text-${header.textAlign}`, header.labelKey ? t(header.labelKey, { defaultValue: header.default }) : header.label)
                 ))
             ]),
-            h('tbody', clubsData.map((club: LichessClubStat) =>
-                h('tr', { key: club.club_id }, [
-                    h('td.text-left', [
-                        renderFlairIcon(club.club_flair), // Отображаем флаер
-                        h('a', {
-                            props: { href: `/#/clubs/${club.club_id}` },
-                            on: {
-                                click: (e: Event) => {
-                                    e.preventDefault();
-                                    controller.services.appController.navigateTo('clubPage', true, club.club_id);
-                                }
-                            }
-                        }, club.club_name)
-                    ]),
-                    h('td.text-right', String(club.active_players)),
-                    h('td.text-right', String(club.tournaments_played)),
-                    h('td.text-right', String(club.total_score)),
-                    // ИСПРАВЛЕНО: Округление до целого числа
-                    h('td.text-right', String(Math.round(club.average_score))),
-                    h('td.text-center', String(club.medals.gold)),
-                    h('td.text-center', String(club.medals.silver)),
-                    h('td.text-center', String(club.medals.bronze)),
-                ])
-            ))
+            h('tbody', tableRows.filter(Boolean) as VNode[])
         ])
     ]);
 }
 
 export function renderLichessClubsPage(controller: LichessClubsController): VNode {
-  const state: LichessClubsControllerState = controller.state;
+  const { state } = controller;
   const pageContent: VNode[] = [];
   
   const founderControlsVNode = renderFounderControls(controller);

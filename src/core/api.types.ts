@@ -152,15 +152,35 @@ export interface TournamentHistoryEntry { arena_id: string; arena_url: string; t
 export interface ClubLeader { id: string; name: string; flair?: string; title?: string; }
 export interface ClubApiResponse { club_id: string; club_name: string; grunder: string; nb_members: number; jsonb_array_leader: ClubLeader[]; tournament_history: TournamentHistoryEntry[]; players_data: PlayersDataMap; leaderboards: any; }
 
-// ИЗМЕНЕНО: Интерфейс LichessClubStat обновлен
-export interface LichessClubStat {
-  club_id: string;
-  club_name: string;
-  club_flair: string | null;
+// <<< НАЧАЛО ИЗМЕНЕНИЙ: Обновлены интерфейсы для API клубов
+export interface ClubStatsSummary {
   total_score: number;
   average_score: number;
   tournaments_played: number;
-  active_players: number;
+  active_players_count: number;
+}
+
+export interface ClubMedalTournament {
+  arena_id: string;
+  tournament_url: string;
+  tournament_name: string;
+}
+
+export interface ClubMedals {
+  bronze: ClubMedalTournament[];
+  silver: ClubMedalTournament[];
+  gold: ClubMedalTournament[];
+}
+
+export interface TopPlayerByScore {
+  username: string;
+  lichess_id: string;
+  total_score: number;
+}
+
+export interface TopPlayerByMedals {
+  username: string;
+  lichess_id: string;
   medals: {
     gold: number;
     silver: number;
@@ -168,7 +188,34 @@ export interface LichessClubStat {
   };
 }
 
-export interface LichessClubsApiResponse { stats: LichessClubStat[]; }
+export interface TopPlayerByActivity {
+  username: string;
+  lichess_id: string;
+  tournaments_played: number;
+}
+
+export interface ClubStatisticsPayload {
+  summary: ClubStatsSummary;
+  club_medals: ClubMedals;
+  top_players_by_score: TopPlayerByScore[];
+  top_players_by_medals: TopPlayerByMedals[];
+  top_players_by_activity: TopPlayerByActivity[];
+}
+
+export interface ListedClub {
+  club_id: string;
+  club_name: string;
+  club_flair: string | null;
+  grunder?: string;
+  nb_members?: number;
+  jsonb_array_leader?: ClubLeader[];
+  statistics_payload: ClubStatisticsPayload;
+}
+
+export interface LichessClubsApiResponse {
+  stats: ListedClub[];
+}
+// <<< КОНЕЦ ИЗМЕНЕНИЙ
 
 export interface FinishHimLeaderboardEntry {
   rank: number;

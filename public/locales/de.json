@@ -670,6 +670,18 @@
         "addSuccess": "Verein erfolgreich hinzugefügt! Die Seite wird jetzt neu geladen.",
         "removeSuccess": "Verein erfolgreich entfernt! Die Seite wird jetzt neu geladen.",
         "actionFailed": "Die angeforderte Aktion ist fehlgeschlagen. Bitte versuche es später erneut."
-    }
+    },
+      "widgets": {
+        "hallOfFameTitle": "Ruhmeshalle",
+        "medalBearersTitle": "Medaillengewinner",
+        "hardWorkersTitle": "Aktivste",
+        "medalTournamentsTitle": "Preisturniere",
+        "noMedals": "Der Verein hat noch keine Medaillen gewonnen.",
+        "medals": {
+          "gold": "Gold",
+          "silver": "Silber",
+          "bronze": "Bronze"
+        }
+      }
   }
 }

@@ -658,6 +658,19 @@
         "addSuccess": "Club added successfully! The page will now reload.",
         "removeSuccess": "Club removed successfully! The page will now reload.",
         "actionFailed": "The requested action failed. Please try again later."
+    },
+  
+    "widgets": {
+      "hallOfFameTitle": "Hall of Fame",
+      "medalBearersTitle": "Medal Bearers",
+      "hardWorkersTitle": "Hard Workers",
+      "medalTournamentsTitle": "Prize Tournaments",
+      "noMedals": "The club has not won any medals yet."
+    },
+    "medals": {
+      "gold": "Gold",
+      "silver": "Silver",
+      "bronze": "Bronze"
     }
   }
 }
