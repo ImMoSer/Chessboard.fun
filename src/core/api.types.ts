@@ -52,13 +52,14 @@ export interface PuzzleResultEntry {
   record_timestamp_ms: number;
 }
 
+// <<< НАЧАЛО ИЗМЕНЕНИЙ: Обновлен интерфейс UpdateFinishHimStatsDto
 export interface UpdateFinishHimStatsDto {
-  FunCoins: number;
-  finishHimStats: FinishHimStats;
-  solved_in_seconds?: number;
-  PuzzleId?: string;
+  PuzzleId: string;
   success: boolean;
+  solved_in_seconds?: number;
 }
+// <<< КОНЕЦ ИЗМЕНЕНИЙ
+
 export interface GetNewTowerDto { tower_type: TowerId; tower_theme: TowerTheme; }
 export interface SaveTowerRecordDto {
   username: string;
@@ -147,8 +148,6 @@ export interface MedalDetail { count: number; tournaments: TournamentInfo[]; }
 export interface Medals { gold: MedalDetail; silver: MedalDetail; bronze: MedalDetail; }
 
 
-// <<< НАЧАЛО ИЗМЕНЕНИЙ: Обновлены интерфейсы для API клубов
-
 export interface ClubLeader {
     id: string;
     name: string;
@@ -200,7 +199,7 @@ export interface TournamentPlayer {
     user_inTeamRank: number;
     user_inArenaRank: number;
     user_flair?: string;
-    crone?: boolean; // Добавлено новое поле
+    crone?: boolean;
     calculatedStats: CalculatedPlayerStats;
 }
 
@@ -211,7 +210,7 @@ export interface TournamentHistoryEntry {
     starts_at_date: string;
     team_score: number;
     players: TournamentPlayer[];
-    club_in_arena_rank?: number; // Добавлено новое поле
+    club_in_arena_rank?: number;
     team_rank?: number; 
     team_full_stats?: any;
 }
@@ -221,7 +220,6 @@ export interface ClubApiResponse {
     players_data: PlayerData[];
     tournament_history: TournamentHistoryEntry[];
 }
-// <<< КОНЕЦ ИЗМЕНЕНИЙ
 
 
 export interface ClubStatsSummary {

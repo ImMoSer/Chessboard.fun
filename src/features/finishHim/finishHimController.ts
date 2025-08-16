@@ -180,7 +180,6 @@ export class FinishHimController extends BaseGameController<FinishHimControllerS
     this._handleGameOver(false); // Resigning is always a loss
   }
 
-  // <<< НАЧАЛО ИЗМЕНЕНИЙ: Новый метод для обработки выхода
   public handleExitRequest(): void {
     if (this.state.gamePhase === 'PLAYING') {
       this.services.appController.showConfirmationModal(
@@ -197,12 +196,7 @@ export class FinishHimController extends BaseGameController<FinishHimControllerS
       this.services.appController.navigateTo('welcome');
     }
   }
-  // <<< КОНЕЦ ИЗМЕНЕНИЙ
 
-  /**
-   * REFACTORED: This is the central point for handling the end of a game.
-   * It's called by the BaseGameController when a terminal state is reached.
-   */
   protected _handleGameOver(isWin: boolean, _outcome?: GameEndOutcome): void {
     if (this.state.gamePhase === 'GAMEOVER') return;
 
@@ -222,11 +216,6 @@ export class FinishHimController extends BaseGameController<FinishHimControllerS
     this.boardHandler.configureBoardForAnalysis(true);
   }
 
-  /**
-   * NEW: This method is a hook called by the BaseGameController when the scenario
-   * phase ends and the free playout begins. It's responsible for starting the timer
-   * and playing the transition sound.
-   */
   protected _onPlayoutStart(): void {
     SoundService.playSoundEvent({ parallel: ['playout_starts'] });
     this.setState({ feedbackMessage: t('finishHim.feedback.yourTurnPlayout', {defaultValue: 'Your turn! Find the best moves to win.'}) });
@@ -367,46 +356,52 @@ export class FinishHimController extends BaseGameController<FinishHimControllerS
     this.setState({ outplayTimeRemainingMs: newTime });
   }
 
+  // <<< НАЧАЛО ИЗМЕНЕНИЙ: Логика отправки статистики обновлена
   private _updateAndSendStats(isWin: boolean): void {
     const user = this.authService.getUserProfile();
     const puzzle = this.state.activePuzzle;
     if (!user || !puzzle || this.state.isCurrentPuzzleSolved) {
+      if (this.state.isCurrentPuzzleSolved) {
+        logger.info('[FinishHimController] Puzzle already solved. Stats not sent.');
+      }
       return;
     }
 
-    const { userStats, userFunCoins, outplayTimeRemainingMs } = this.state;
-    if (!userStats || userFunCoins === null) return;
-
-    const newStats: FinishHimStats = JSON.parse(JSON.stringify(userStats));
-    newStats.gamesPlayed += 1;
+    this.puzzleStorageService.markPuzzleAsSolved(user.id, puzzle.PuzzleId);
+    this.setState({ isCurrentPuzzleSolved: true });
 
     let solvedInSeconds: number | undefined;
-
     if (isWin) {
-      newStats.playoutWins += 1;
+      const { outplayTimeRemainingMs } = this.state;
       if (puzzle.solve_time && outplayTimeRemainingMs !== null) {
         const timeSpentMs = (puzzle.solve_time * 1000) - outplayTimeRemainingMs;
         solvedInSeconds = Math.round(timeSpentMs / 1000);
       }
-    } else {
-      newStats.playoutLosses += 1;
     }
 
-    this.setState({ userStats: newStats });
-    this.puzzleStorageService.markPuzzleAsSolved(user.id, puzzle.PuzzleId);
-
     const dto: UpdateFinishHimStatsDto = {
-        FunCoins: userFunCoins,
-        finishHimStats: newStats,
+        PuzzleId: puzzle.PuzzleId,
         success: isWin,
         solved_in_seconds: solvedInSeconds,
-        PuzzleId: puzzle.PuzzleId,
     };
 
-    this.webhookService.sendFinishHimStatsUpdate(dto).catch(err => {
-      logger.error('[FinishHimController] Failed to send stats update:', err);
-    });
+    this.webhookService.sendFinishHimStatsUpdate(dto)
+      .then(response => {
+        if (response) {
+          logger.info('[FinishHimController] Finish Him stats sent successfully.', dto);
+          // После успешной отправки обновляем данные пользователя с бэкенда
+          this.services.authService.checkSession();
+        } else {
+          logger.warn('[FinishHimController] Failed to send Finish Him stats, backend returned unsuccessful.', dto);
+        }
+      })
+      .catch(err => {
+        if (this.services.appController.handleApiRateLimit(err)) return;
+        logger.error('[FinishHimController] Error sending Finish Him stats:', err);
+        this.services.appController.showToast(t('errors.statsUpdateFailed'), 'error');
+      });
   }
+  // <<< КОНЕЦ ИЗМЕНЕНИЙ
 
   public toggleFavorite(): void {
     const userId = this.authService.getUserProfile()?.id;
