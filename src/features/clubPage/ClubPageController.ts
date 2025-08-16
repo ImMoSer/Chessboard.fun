@@ -1,7 +1,7 @@
 // src/features/clubPage/ClubPageController.ts
 import logger from '../../utils/logger';
 import type { AppServices } from '../../AppController';
-import type { ClubApiResponse, FollowClubDto, ClubIdNamePair } from '../../core/api.types';
+import type { ClubApiResponse, FollowClubDto, ClubIdNamePair, PlayerData } from '../../core/api.types';
 import { subscribeToLangChange, t } from '../../core/i18n.service';
 import type { VNode } from 'snabbdom';
 import { renderClubPage } from './clubPageView';
@@ -91,10 +91,6 @@ export class ClubPageController {
     return this.services.authService.getIsAuthenticated();
   }
 
-  /**
-   * ИЗМЕНЕНО: Упрощен вызов API.
-   * `lichess_id` больше не передается, бэкенд берет его из сессии.
-   */
   public async initializePage(): Promise<void> {
     logger.info(`[ClubPageController] Initializing page for clubId: ${this.clubId}`);
     this.setState({
@@ -120,15 +116,14 @@ export class ClubPageController {
     this.updateFollowStatusFromAuth();
 
     try {
-      // `lichess_id` больше не нужен в вызове
       const data: ClubApiResponse | null = await this.services.webhookService.fetchClubStats(this.clubId);
 
-      if (data && data.players_data && data.leaderboards) {
+      if (data && data.club_info && data.players_data) {
         this.setState({
           clubData: data,
           isLoading: false,
           error: null,
-          pageTitle: t('clubPage.title.loaded', { clubName: data.club_name || this.clubId }),
+          pageTitle: t('clubPage.title.loaded', { clubName: data.club_info.club_name || this.clubId }),
         });
         logger.info(`[ClubPageController] Club data loaded for ${this.clubId}:`, data);
       } else {
@@ -159,6 +154,36 @@ export class ClubPageController {
     }
   }
 
+  // <<< НАЧАЛО ИЗМЕНЕНИЙ: Метод для сортировки игроков
+  public getSortedPlayers(tableKey: ClubPageTableKey): PlayerData[] {
+    if (!this.state.clubData || !this.state.clubData.players_data) {
+        return [];
+    }
+    const players = [...this.state.clubData.players_data];
+
+    switch (tableKey) {
+        case 'overview':
+            return players.sort((a, b) => b.vector - a.vector);
+        case 'mvp':
+            return players.sort((a, b) => b.total_score - a.total_score);
+        case 'active':
+            return players.sort((a, b) => b.tournaments_played - a.tournaments_played);
+        case 'totalGames':
+            return players.sort((a, b) => b.total_games_played - a.total_games_played);
+        case 'performance':
+            return players.sort((a, b) => b.performance_stats.avg - a.performance_stats.avg);
+        case 'rating':
+            return players.sort((a, b) => b.rating_stats.avg - a.rating_stats.avg);
+        case 'berserkers':
+            return players.sort((a, b) => b.total_berserk_wins - a.total_berserk_wins);
+        case 'winStreaks':
+            return players.sort((a, b) => b.max_longest_win_streak_ever - a.max_longest_win_streak_ever);
+        default:
+            return players;
+    }
+  }
+  // <<< КОНЕЦ ИЗМЕНЕНИЙ
+
   private updateFollowStatusFromAuth(): void {
     const isAuthenticated = this.getIsUserAuthenticated();
     let isFollowing = false;
@@ -181,7 +206,7 @@ export class ClubPageController {
     } else if (this.state.error) {
         newPageTitle = t('clubPage.title.error', { defaultValue: 'Error Loading Club' });
     } else if (this.state.clubData) {
-        newPageTitle = t('clubPage.title.loaded', { clubName: this.state.clubData.club_name || this.clubId });
+        newPageTitle = t('clubPage.title.loaded', { clubName: this.state.clubData.club_info.club_name || this.clubId });
     }
 
     if (this.state.pageTitle !== newPageTitle) {
@@ -221,11 +246,6 @@ export class ClubPageController {
     logger.debug(`[ClubPageController] Show more for ${tableKey}. New count: ${newCount}`);
   }
 
-  /**
-   * ИЗМЕНЕНО: Упрощен вызов API.
-   * Формируется DTO, `lichess_id` больше не передается.
-   * `BackendUserSessionData` больше не используется, так как бэкенд теперь возвращает только статус успеха.
-   */
   public async toggleFollowCurrentClub(): Promise<void> {
     if (!this.getIsUserAuthenticated()) {
       logger.warn('[ClubPageController toggleFollowCurrentClub] User not authenticated. Action aborted.');
@@ -257,7 +277,7 @@ export class ClubPageController {
         }
     }
 
-    if (!this.state.clubData || !this.state.clubData.club_name) {
+    if (!this.state.clubData || !this.state.clubData.club_info.club_name) {
         logger.error('[ClubPageController toggleFollowCurrentClub] Club data or club name is not available in state.');
         this.services.appController.showModal(t('clubPage.error.clubDataMissing',{defaultValue: 'Club information is missing. Cannot process follow request.'}));
         return;
@@ -268,21 +288,18 @@ export class ClubPageController {
     const action: 'follow' | 'unfollow' = this.state.isFollowingCurrentClub ? 'unfollow' : 'follow';
     const dto: FollowClubDto = {
       club_id: this.clubId,
-      club_name: this.state.clubData.club_name,
+      club_name: this.state.clubData.club_info.club_name,
       action: action,
     };
 
-    logger.info(`[ClubPageController toggleFollowCurrentClub] Sending request to ${action} club ${this.clubId} (${this.state.clubData.club_name})`);
+    logger.info(`[ClubPageController toggleFollowCurrentClub] Sending request to ${action} club ${this.clubId} (${this.state.clubData.club_info.club_name})`);
     let modalMessageKey: string = '';
     let showSuccessModal = false;
 
     try {
-      // Бэкенд теперь сам обновит данные пользователя в БД.
-      // Нам нужно будет обновить профиль пользователя на фронтенде вручную после успешного ответа.
       const response = await this.services.webhookService.updateClubFollowStatus(dto);
 
       if (response) {
-        // Обновляем состояние на фронтенде
         const currentFollowed = this.services.authService.getFollowClubs() || [];
         let newFollowed: ClubIdNamePair[];
         if (action === 'follow') {

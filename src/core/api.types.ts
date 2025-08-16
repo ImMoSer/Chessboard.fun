@@ -145,14 +145,85 @@ export interface TowerData {
 export interface TournamentInfo { name: string; url: string; date: string; }
 export interface MedalDetail { count: number; tournaments: TournamentInfo[]; }
 export interface Medals { gold: MedalDetail; silver: MedalDetail; bronze: MedalDetail; }
-export interface PlayerData { lichess_id: string; username: string; flair: string | null; vector: number; tournaments_played: number; total_score: number; total_games_played: number; win_rate: number; total_berserk_wins: number; max_longest_win_streak_ever: number; rating_stats: { avg: number; min: number; max: number; }; performance_stats: { avg: number; min: number; max: number; }; medals_in_team: Medals; medals_in_arena: Medals; team_medal_sum: number; arena_medal_sum: number; }
-export interface PlayersDataMap { [key: string]: PlayerData; }
-export interface TournamentPlayer { username: string; lichess_id: string; user_score: number; user_rating: number; user_performance: number; user_inTeamRank: number; user_inArenaRank: number; user_flair?: string; calculatedStats: { wins: number; draws: number; losses: number; berserkWins: number; gamesPlayed: number; pointsTotal: number; longestWinStreak: number; }; }
-export interface TournamentHistoryEntry { arena_id: string; arena_url: string; tournament_name: string; starts_at_date: string; team_rank: number; team_score: number; team_full_stats: any; players: TournamentPlayer[]; }
-export interface ClubLeader { id: string; name: string; flair?: string; title?: string; }
-export interface ClubApiResponse { club_id: string; club_name: string; grunder: string; nb_members: number; jsonb_array_leader: ClubLeader[]; tournament_history: TournamentHistoryEntry[]; players_data: PlayersDataMap; leaderboards: any; }
+
 
 // <<< НАЧАЛО ИЗМЕНЕНИЙ: Обновлены интерфейсы для API клубов
+
+export interface ClubLeader {
+    id: string;
+    name: string;
+    flair?: string;
+    title?: string;
+}
+
+export interface ClubInfo {
+    club_id: string;
+    club_name: string;
+    grunder: { id: string; name: string; };
+    nb_members: number;
+    leaders: ClubLeader[];
+}
+
+export interface PlayerData {
+    lichess_id: string;
+    username: string;
+    flair: string | null;
+    vector: number;
+    tournaments_played: number;
+    total_score: number;
+    total_games_played: number;
+    win_rate: number;
+    total_berserk_wins: number;
+    max_longest_win_streak_ever: number;
+    rating_stats: { avg: number; min: number; max: number; };
+    performance_stats: { avg: number; min: number; max: number; };
+    medals_in_team: Medals;
+    medals_in_arena: Medals;
+}
+
+export interface CalculatedPlayerStats {
+    gamesPlayed: number;
+    pointsTotal: number;
+    wins: number;
+    losses: number;
+    draws: number;
+    berserkWins: number;
+    longestWinStreak: number;
+}
+
+export interface TournamentPlayer {
+    username: string;
+    lichess_id: string;
+    user_score: number;
+    user_rating: number;
+    user_performance: number;
+    user_inTeamRank: number;
+    user_inArenaRank: number;
+    user_flair?: string;
+    crone?: boolean; // Добавлено новое поле
+    calculatedStats: CalculatedPlayerStats;
+}
+
+export interface TournamentHistoryEntry {
+    arena_id: string;
+    arena_url: string;
+    tournament_name: string;
+    starts_at_date: string;
+    team_score: number;
+    players: TournamentPlayer[];
+    club_in_arena_rank?: number; // Добавлено новое поле
+    team_rank?: number; 
+    team_full_stats?: any;
+}
+
+export interface ClubApiResponse {
+    club_info: ClubInfo;
+    players_data: PlayerData[];
+    tournament_history: TournamentHistoryEntry[];
+}
+// <<< КОНЕЦ ИЗМЕНЕНИЙ
+
+
 export interface ClubStatsSummary {
   total_score: number;
   average_score: number;
@@ -215,7 +286,7 @@ export interface ListedClub {
 export interface LichessClubsApiResponse {
   stats: ListedClub[];
 }
-// <<< КОНЕЦ ИЗМЕНЕНИЙ
+
 
 export interface FinishHimLeaderboardEntry {
   rank: number;

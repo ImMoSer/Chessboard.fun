@@ -1,0 +1,869 @@
+{
+    "club_info": {
+        "club_id": "valid_all",
+        "club_name": "VALiD_ALL",
+        "grunder": {
+            "id": "moserchess",
+            "name": "MoSeRchess"
+        },
+        "nb_members": 105,
+        "leaders": [
+            {
+                "id": "mo3ep",
+                "name": "MO3EP",
+                "flair": "objects.pill"
+            },
+            {
+                "id": "irina_kruti",
+                "name": "Irina_Kruti",
+                "flair": "objects.pill"
+            },
+            {
+                "id": "dimas040681",
+                "name": "Dimas040681",
+                "flair": "objects.pill"
+            }
+        ]
+    },
+    "players_data": [
+        {
+            "lichess_id": "sharifullin-rinat",
+            "username": "Sharifullin-Rinat",
+            "flair": "smileys.angry-face-with-horns",
+            "tournaments_played": 1,
+            "total_score": 49,
+            "total_games_played": 18,
+            "total_wins": 14,
+            "total_losses": 2,
+            "total_draws": 2,
+            "total_berserk_wins": 6,
+            "max_longest_win_streak_ever": 6,
+            "medals_in_team": {
+                "gold": {
+                    "count": 1,
+                    "tournaments": [
+                        {
+                            "name": "Lichess Liga 7B Team Battle",
+                            "url": "https://lichess.org/tournament/ZCjc19Bw",
+                            "date": "2025-08-14T18:01:00.000Z"
+                        }
+                    ]
+                },
+                "silver": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "bronze": {
+                    "count": 0,
+                    "tournaments": []
+                }
+            },
+            "medals_in_arena": {
+                "gold": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "silver": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "bronze": {
+                    "count": 1,
+                    "tournaments": [
+                        {
+                            "name": "Lichess Liga 7B Team Battle",
+                            "url": "https://lichess.org/tournament/ZCjc19Bw",
+                            "date": "2025-08-14T18:01:00.000Z"
+                        }
+                    ]
+                }
+            },
+            "rating_stats": {
+                "avg": 2312,
+                "min": 2312,
+                "max": 2312
+            },
+            "performance_stats": {
+                "avg": 2511,
+                "min": 2511,
+                "max": 2511
+            },
+            "win_rate": 77.78,
+            "vector": 52
+        },
+        {
+            "lichess_id": "karde60",
+            "username": "karde60",
+            "flair": null,
+            "tournaments_played": 1,
+            "total_score": 27,
+            "total_games_played": 18,
+            "total_wins": 10,
+            "total_losses": 8,
+            "total_draws": 0,
+            "total_berserk_wins": 3,
+            "max_longest_win_streak_ever": 4,
+            "medals_in_team": {
+                "gold": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "silver": {
+                    "count": 1,
+                    "tournaments": [
+                        {
+                            "name": "Lichess Liga 7B Team Battle",
+                            "url": "https://lichess.org/tournament/ZCjc19Bw",
+                            "date": "2025-08-14T18:01:00.000Z"
+                        }
+                    ]
+                },
+                "bronze": {
+                    "count": 0,
+                    "tournaments": []
+                }
+            },
+            "medals_in_arena": {
+                "gold": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "silver": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "bronze": {
+                    "count": 0,
+                    "tournaments": []
+                }
+            },
+            "rating_stats": {
+                "avg": 2016,
+                "min": 2016,
+                "max": 2016
+            },
+            "performance_stats": {
+                "avg": 2031,
+                "min": 2031,
+                "max": 2031
+            },
+            "win_rate": 55.56,
+            "vector": 32
+        },
+        {
+            "lichess_id": "dimas040681",
+            "username": "Dimas040681",
+            "flair": "objects.pill",
+            "tournaments_played": 1,
+            "total_score": 18,
+            "total_games_played": 21,
+            "total_wins": 9,
+            "total_losses": 12,
+            "total_draws": 0,
+            "total_berserk_wins": 0,
+            "max_longest_win_streak_ever": 2,
+            "medals_in_team": {
+                "gold": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "silver": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "bronze": {
+                    "count": 1,
+                    "tournaments": [
+                        {
+                            "name": "Lichess Liga 7B Team Battle",
+                            "url": "https://lichess.org/tournament/ZCjc19Bw",
+                            "date": "2025-08-14T18:01:00.000Z"
+                        }
+                    ]
+                }
+            },
+            "medals_in_arena": {
+                "gold": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "silver": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "bronze": {
+                    "count": 0,
+                    "tournaments": []
+                }
+            },
+            "rating_stats": {
+                "avg": 1834,
+                "min": 1834,
+                "max": 1834
+            },
+            "performance_stats": {
+                "avg": 1835,
+                "min": 1835,
+                "max": 1835
+            },
+            "win_rate": 42.86,
+            "vector": 28
+        },
+        {
+            "lichess_id": "den_eroma",
+            "username": "Den_Eroma",
+            "flair": null,
+            "tournaments_played": 1,
+            "total_score": 17,
+            "total_games_played": 17,
+            "total_wins": 7,
+            "total_losses": 9,
+            "total_draws": 1,
+            "total_berserk_wins": 0,
+            "max_longest_win_streak_ever": 3,
+            "medals_in_team": {
+                "gold": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "silver": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "bronze": {
+                    "count": 0,
+                    "tournaments": []
+                }
+            },
+            "medals_in_arena": {
+                "gold": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "silver": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "bronze": {
+                    "count": 0,
+                    "tournaments": []
+                }
+            },
+            "rating_stats": {
+                "avg": 1916,
+                "min": 1916,
+                "max": 1916
+            },
+            "performance_stats": {
+                "avg": 1879,
+                "min": 1879,
+                "max": 1879
+            },
+            "win_rate": 41.18,
+            "vector": 24
+        },
+        {
+            "lichess_id": "igor_s23",
+            "username": "Igor_S23",
+            "flair": null,
+            "tournaments_played": 1,
+            "total_score": 15,
+            "total_games_played": 16,
+            "total_wins": 7,
+            "total_losses": 8,
+            "total_draws": 1,
+            "total_berserk_wins": 0,
+            "max_longest_win_streak_ever": 2,
+            "medals_in_team": {
+                "gold": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "silver": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "bronze": {
+                    "count": 0,
+                    "tournaments": []
+                }
+            },
+            "medals_in_arena": {
+                "gold": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "silver": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "bronze": {
+                    "count": 0,
+                    "tournaments": []
+                }
+            },
+            "rating_stats": {
+                "avg": 1910,
+                "min": 1910,
+                "max": 1910
+            },
+            "performance_stats": {
+                "avg": 1952,
+                "min": 1952,
+                "max": 1952
+            },
+            "win_rate": 43.75,
+            "vector": 22
+        },
+        {
+            "lichess_id": "vaa_aaa",
+            "username": "VAA_aaa",
+            "flair": "nature.waxing-crescent-moon",
+            "tournaments_played": 1,
+            "total_score": 12,
+            "total_games_played": 7,
+            "total_wins": 5,
+            "total_losses": 2,
+            "total_draws": 0,
+            "total_berserk_wins": 0,
+            "max_longest_win_streak_ever": 3,
+            "medals_in_team": {
+                "gold": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "silver": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "bronze": {
+                    "count": 0,
+                    "tournaments": []
+                }
+            },
+            "medals_in_arena": {
+                "gold": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "silver": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "bronze": {
+                    "count": 0,
+                    "tournaments": []
+                }
+            },
+            "rating_stats": {
+                "avg": 1844,
+                "min": 1844,
+                "max": 1844
+            },
+            "performance_stats": {
+                "avg": 1995,
+                "min": 1995,
+                "max": 1995
+            },
+            "win_rate": 71.43,
+            "vector": 14
+        },
+        {
+            "lichess_id": "krokodilru",
+            "username": "KrokodilRU",
+            "flair": null,
+            "tournaments_played": 1,
+            "total_score": 10,
+            "total_games_played": 7,
+            "total_wins": 3,
+            "total_losses": 3,
+            "total_draws": 1,
+            "total_berserk_wins": 1,
+            "max_longest_win_streak_ever": 3,
+            "medals_in_team": {
+                "gold": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "silver": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "bronze": {
+                    "count": 0,
+                    "tournaments": []
+                }
+            },
+            "medals_in_arena": {
+                "gold": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "silver": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "bronze": {
+                    "count": 0,
+                    "tournaments": []
+                }
+            },
+            "rating_stats": {
+                "avg": 2115,
+                "min": 2115,
+                "max": 2115
+            },
+            "performance_stats": {
+                "avg": 1965,
+                "min": 1965,
+                "max": 1965
+            },
+            "win_rate": 42.86,
+            "vector": 12
+        },
+        {
+            "lichess_id": "alex_bit",
+            "username": "Alex_bit",
+            "flair": "objects.pill",
+            "tournaments_played": 1,
+            "total_score": 8,
+            "total_games_played": 6,
+            "total_wins": 3,
+            "total_losses": 2,
+            "total_draws": 1,
+            "total_berserk_wins": 0,
+            "max_longest_win_streak_ever": 2,
+            "medals_in_team": {
+                "gold": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "silver": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "bronze": {
+                    "count": 0,
+                    "tournaments": []
+                }
+            },
+            "medals_in_arena": {
+                "gold": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "silver": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "bronze": {
+                    "count": 0,
+                    "tournaments": []
+                }
+            },
+            "rating_stats": {
+                "avg": 1786,
+                "min": 1786,
+                "max": 1786
+            },
+            "performance_stats": {
+                "avg": 1837,
+                "min": 1837,
+                "max": 1837
+            },
+            "win_rate": 50,
+            "vector": 10
+        },
+        {
+            "lichess_id": "darkocg",
+            "username": "DarkoCG",
+            "flair": null,
+            "tournaments_played": 1,
+            "total_score": 7,
+            "total_games_played": 12,
+            "total_wins": 3,
+            "total_losses": 9,
+            "total_draws": 0,
+            "total_berserk_wins": 1,
+            "max_longest_win_streak_ever": 2,
+            "medals_in_team": {
+                "gold": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "silver": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "bronze": {
+                    "count": 0,
+                    "tournaments": []
+                }
+            },
+            "medals_in_arena": {
+                "gold": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "silver": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "bronze": {
+                    "count": 0,
+                    "tournaments": []
+                }
+            },
+            "rating_stats": {
+                "avg": 1740,
+                "min": 1740,
+                "max": 1740
+            },
+            "performance_stats": {
+                "avg": 1623,
+                "min": 1623,
+                "max": 1623
+            },
+            "win_rate": 25,
+            "vector": 14
+        },
+        {
+            "lichess_id": "davidovich_vitaliy",
+            "username": "davidovich_vitaliy",
+            "flair": null,
+            "tournaments_played": 1,
+            "total_score": 2,
+            "total_games_played": 2,
+            "total_wins": 1,
+            "total_losses": 1,
+            "total_draws": 0,
+            "total_berserk_wins": 0,
+            "max_longest_win_streak_ever": 1,
+            "medals_in_team": {
+                "gold": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "silver": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "bronze": {
+                    "count": 0,
+                    "tournaments": []
+                }
+            },
+            "medals_in_arena": {
+                "gold": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "silver": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "bronze": {
+                    "count": 0,
+                    "tournaments": []
+                }
+            },
+            "rating_stats": {
+                "avg": 1899,
+                "min": 1899,
+                "max": 1899
+            },
+            "performance_stats": {
+                "avg": 1644,
+                "min": 1644,
+                "max": 1644
+            },
+            "win_rate": 50,
+            "vector": 3
+        },
+        {
+            "lichess_id": "nemchiksersh",
+            "username": "NemchikSersh",
+            "flair": "objects.pill",
+            "tournaments_played": 1,
+            "total_score": 2,
+            "total_games_played": 8,
+            "total_wins": 1,
+            "total_losses": 7,
+            "total_draws": 0,
+            "total_berserk_wins": 0,
+            "max_longest_win_streak_ever": 1,
+            "medals_in_team": {
+                "gold": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "silver": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "bronze": {
+                    "count": 0,
+                    "tournaments": []
+                }
+            },
+            "medals_in_arena": {
+                "gold": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "silver": {
+                    "count": 0,
+                    "tournaments": []
+                },
+                "bronze": {
+                    "count": 0,
+                    "tournaments": []
+                }
+            },
+            "rating_stats": {
+                "avg": 1771,
+                "min": 1771,
+                "max": 1771
+            },
+            "performance_stats": {
+                "avg": 1519,
+                "min": 1519,
+                "max": 1519
+            },
+            "win_rate": 12.5,
+            "vector": 8
+        }
+    ],
+    "tournament_history": [
+        {
+            "arena_id": "ZCjc19Bw",
+            "arena_url": "https://lichess.org/tournament/ZCjc19Bw",
+            "tournament_name": "Lichess Liga 7B Team Battle",
+            "starts_at_date": "2025-08-14T18:01:00.000Z",
+            "team_score": 167,
+            "club_in_arena_rank": 3,
+            "players": [
+                {
+                    "username": "Sharifullin-Rinat",
+                    "lichess_id": "sharifullin-rinat",
+                    "user_score": 49,
+                    "user_rating": 2312,
+                    "user_performance": 2511,
+                    "user_inTeamRank": 1,
+                    "user_inArenaRank": 3,
+                    "user_flair": "smileys.angry-face-with-horns",
+                    "crone": true,
+                    "calculatedStats": {
+                        "gamesPlayed": 18,
+                        "pointsTotal": 49,
+                        "wins": 14,
+                        "losses": 2,
+                        "draws": 2,
+                        "berserkWins": 6,
+                        "longestWinStreak": 6
+                    }
+                },
+                {
+                    "username": "karde60",
+                    "lichess_id": "karde60",
+                    "user_score": 27,
+                    "user_rating": 2016,
+                    "user_performance": 2031,
+                    "user_inTeamRank": 2,
+                    "user_inArenaRank": 15,
+                    "user_flair": null,
+                    "crone": true,
+                    "calculatedStats": {
+                        "gamesPlayed": 18,
+                        "pointsTotal": 27,
+                        "wins": 10,
+                        "losses": 8,
+                        "draws": 0,
+                        "berserkWins": 3,
+                        "longestWinStreak": 4
+                    }
+                },
+                {
+                    "username": "Dimas040681",
+                    "lichess_id": "dimas040681",
+                    "user_score": 18,
+                    "user_rating": 1834,
+                    "user_performance": 1835,
+                    "user_inTeamRank": 3,
+                    "user_inArenaRank": 27,
+                    "user_flair": "objects.pill",
+                    "crone": true,
+                    "calculatedStats": {
+                        "gamesPlayed": 21,
+                        "pointsTotal": 18,
+                        "wins": 9,
+                        "losses": 12,
+                        "draws": 0,
+                        "berserkWins": 0,
+                        "longestWinStreak": 2
+                    }
+                },
+                {
+                    "username": "Den_Eroma",
+                    "lichess_id": "den_eroma",
+                    "user_score": 17,
+                    "user_rating": 1916,
+                    "user_performance": 1879,
+                    "user_inTeamRank": 4,
+                    "user_inArenaRank": 28,
+                    "user_flair": null,
+                    "crone": true,
+                    "calculatedStats": {
+                        "gamesPlayed": 17,
+                        "pointsTotal": 17,
+                        "wins": 7,
+                        "losses": 9,
+                        "draws": 1,
+                        "berserkWins": 0,
+                        "longestWinStreak": 3
+                    }
+                },
+                {
+                    "username": "Igor_S23",
+                    "lichess_id": "igor_s23",
+                    "user_score": 15,
+                    "user_rating": 1910,
+                    "user_performance": 1952,
+                    "user_inTeamRank": 5,
+                    "user_inArenaRank": 31,
+                    "user_flair": null,
+                    "crone": true,
+                    "calculatedStats": {
+                        "gamesPlayed": 16,
+                        "pointsTotal": 15,
+                        "wins": 7,
+                        "losses": 8,
+                        "draws": 1,
+                        "berserkWins": 0,
+                        "longestWinStreak": 2
+                    }
+                },
+                {
+                    "username": "VAA_aaa",
+                    "lichess_id": "vaa_aaa",
+                    "user_score": 12,
+                    "user_rating": 1844,
+                    "user_performance": 1995,
+                    "user_inTeamRank": 6,
+                    "user_inArenaRank": 36,
+                    "user_flair": "nature.waxing-crescent-moon",
+                    "crone": true,
+                    "calculatedStats": {
+                        "gamesPlayed": 7,
+                        "pointsTotal": 12,
+                        "wins": 5,
+                        "losses": 2,
+                        "draws": 0,
+                        "berserkWins": 0,
+                        "longestWinStreak": 3
+                    }
+                },
+                {
+                    "username": "KrokodilRU",
+                    "lichess_id": "krokodilru",
+                    "user_score": 10,
+                    "user_rating": 2115,
+                    "user_performance": 1965,
+                    "user_inTeamRank": 7,
+                    "user_inArenaRank": 42,
+                    "user_flair": null,
+                    "crone": true,
+                    "calculatedStats": {
+                        "gamesPlayed": 7,
+                        "pointsTotal": 10,
+                        "wins": 3,
+                        "losses": 3,
+                        "draws": 1,
+                        "berserkWins": 1,
+                        "longestWinStreak": 3
+                    }
+                },
+                {
+                    "username": "Alex_bit",
+                    "lichess_id": "alex_bit",
+                    "user_score": 8,
+                    "user_rating": 1786,
+                    "user_performance": 1837,
+                    "user_inTeamRank": 8,
+                    "user_inArenaRank": 47,
+                    "user_flair": "objects.pill",
+                    "crone": false,
+                    "calculatedStats": {
+                        "gamesPlayed": 6,
+                        "pointsTotal": 8,
+                        "wins": 3,
+                        "losses": 2,
+                        "draws": 1,
+                        "berserkWins": 0,
+                        "longestWinStreak": 2
+                    }
+                },
+                {
+                    "username": "DarkoCG",
+                    "lichess_id": "darkocg",
+                    "user_score": 7,
+                    "user_rating": 1740,
+                    "user_performance": 1623,
+                    "user_inTeamRank": 9,
+                    "user_inArenaRank": 51,
+                    "user_flair": null,
+                    "crone": false,
+                    "calculatedStats": {
+                        "gamesPlayed": 12,
+                        "pointsTotal": 7,
+                        "wins": 3,
+                        "losses": 9,
+                        "draws": 0,
+                        "berserkWins": 1,
+                        "longestWinStreak": 2
+                    }
+                },
+                {
+                    "username": "davidovich_vitaliy",
+                    "lichess_id": "davidovich_vitaliy",
+                    "user_score": 2,
+                    "user_rating": 1899,
+                    "user_performance": 1644,
+                    "user_inTeamRank": 10,
+                    "user_inArenaRank": 66,
+                    "user_flair": null,
+                    "crone": false,
+                    "calculatedStats": {
+                        "gamesPlayed": 2,
+                        "pointsTotal": 2,
+                        "wins": 1,
+                        "losses": 1,
+                        "draws": 0,
+                        "berserkWins": 0,
+                        "longestWinStreak": 1
+                    }
+                },
+                {
+                    "username": "NemchikSersh",
+                    "lichess_id": "nemchiksersh",
+                    "user_score": 2,
+                    "user_rating": 1771,
+                    "user_performance": 1519,
+                    "user_inTeamRank": 11,
+                    "user_inArenaRank": 68,
+                    "user_flair": "objects.pill",
+                    "crone": false,
+                    "calculatedStats": {
+                        "gamesPlayed": 8,
+                        "pointsTotal": 2,
+                        "wins": 1,
+                        "losses": 7,
+                        "draws": 0,
+                        "berserkWins": 0,
+                        "longestWinStreak": 1
+                    }
+                }
+            ]
+        }
+    ]
+}

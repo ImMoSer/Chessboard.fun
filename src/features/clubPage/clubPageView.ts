@@ -8,7 +8,6 @@ import type {
   ClubLeader,
   TournamentInfo,
   MedalDetail,
-  PlayersDataMap,
   PlayerData
 } from '../../core/api.types';
 import { t } from '../../core/i18n.service';
@@ -54,6 +53,16 @@ function renderFlairIcon(flair?: string | null): VNode | null {
     props: { src: flairUrl, alt: 'Flair', title: flair } 
   });
 }
+
+// <<< НАЧАЛО ИЗМЕНЕНИЙ: Функция для рендера иконки короны
+function renderCrownIcon(): VNode {
+    const crownUrl = `/flair/objects.crown.webp`;
+    return h('img.club-page__crown-icon', {
+        props: { src: crownUrl, alt: 'Crown', title: 'Зачетный игрок' },
+        style: { 'vertical-align': 'middle', 'margin-right': '4px', 'height': '1em' }
+    });
+}
+// <<< КОНЕЦ ИЗМЕНЕНИЙ
 
 function renderPlayerCell(player: PlayerData): VNode {
     return h('td.text-left', [
@@ -113,7 +122,6 @@ function renderMedalDetailsRow(tournaments: TournamentInfo[], key: string): VNod
 function formatDateForUser(isoDateString: string): string {
     try {
         const date = new Date(isoDateString);
-        // Форматируем дату в "DD.MM.YY"
         const day = date.getDate().toString().padStart(2, '0');
         const month = (date.getMonth() + 1).toString().padStart(2, '0');
         const year = date.getFullYear().toString().slice(-2);
@@ -142,10 +150,10 @@ function renderShowMoreButton(
     ]);
 }
 
-function renderOverviewTable(leaderboardIds: string[], playersData: PlayersDataMap, controller: ClubPageController): VNode {
+function renderOverviewTable(players: PlayerData[], controller: ClubPageController): VNode {
     const tableKey: ClubPageTableKey = 'overview';
     const visibleCount = controller.state.visiblePlayerCounts[tableKey];
-    const visiblePlayerIds = leaderboardIds.slice(0, visibleCount);
+    const visiblePlayers = players.slice(0, visibleCount);
 
     const headers = [
         { label: '#', className: 'text-center' },
@@ -164,9 +172,9 @@ function renderOverviewTable(leaderboardIds: string[], playersData: PlayersDataM
         h('div.club-page__overview-wrapper', [
             h('table.club-page__table.club-page__overview-table', [
                 h('thead', h('tr', headers.map(header => h('th', {class: {[header.className]: true}}, header.label)))),
-                h('tbody', visiblePlayerIds.map((id, index) => {
-                    const player = playersData[id];
-                    if (!player) return null;
+                h('tbody', visiblePlayers.map((player, index) => {
+                    const teamMedalSum = player.medals_in_team.gold.count + player.medals_in_team.silver.count + player.medals_in_team.bronze.count;
+                    const arenaMedalSum = player.medals_in_arena.gold.count + player.medals_in_arena.silver.count + player.medals_in_arena.bronze.count;
                     return h('tr', { key: player.lichess_id }, [
                         h('td.text-center', { attrs: { 'data-label': '#' } }, (index + 1).toString()),
                         h('td.text-left', { attrs: { 'data-label': t('clubPage.table.player') } }, [
@@ -179,20 +187,20 @@ function renderOverviewTable(leaderboardIds: string[], playersData: PlayersDataM
                         h('td.text-right', { attrs: { 'data-label': t('clubPage.table.gamesPlayed') } }, player.total_games_played.toString()),
                         h('td.text-right', { attrs: { 'data-label': t('clubPage.table.avgPerf') } }, player.performance_stats.avg.toString()),
                         h('td.text-center', { attrs: { 'data-label': '🚀' } }, player.total_berserk_wins.toString()),
-                        h('td.text-center', { attrs: { 'data-label': '🥇' } }, (player.team_medal_sum + player.arena_medal_sum).toString()),
+                        h('td.text-center', { attrs: { 'data-label': '🥇' } }, (teamMedalSum + arenaMedalSum).toString()),
                     ])
                 })),
             ]),
         ]),
-        renderShowMoreButton(leaderboardIds.length, visibleCount, tableKey, controller),
+        renderShowMoreButton(players.length, visibleCount, tableKey, controller),
     ]);
 }
 
 
-function renderMvpTable(leaderboardIds: string[], playersData: PlayersDataMap, controller: ClubPageController): VNode {
+function renderMvpTable(players: PlayerData[], controller: ClubPageController): VNode {
   const tableKey: ClubPageTableKey = 'mvp';
   const visibleCount = controller.state.visiblePlayerCounts[tableKey];
-  const visiblePlayerIds = leaderboardIds.slice(0, visibleCount);
+  const visiblePlayers = players.slice(0, visibleCount);
 
   return h('div.club-page__table-container.club-page__table-container--mvp', [
     h('h3.club-page__table-title', t('clubPage.mostValuablePlayersTitle')),
@@ -200,9 +208,7 @@ function renderMvpTable(leaderboardIds: string[], playersData: PlayersDataMap, c
       h('thead', h('tr', [
           h('th.text-center', '#'), h('th.text-left', t('clubPage.table.player')), h('th.text-right', t('clubPage.table.totalScore')),
       ])),
-      h('tbody', visiblePlayerIds.map((id, index) => {
-          const player = playersData[id];
-          if (!player) return null;
+      h('tbody', visiblePlayers.map((player, index) => {
           return h('tr', { key: player.lichess_id }, [
               h('td.text-center', (index + 1).toString()),
               renderPlayerCell(player),
@@ -210,14 +216,14 @@ function renderMvpTable(leaderboardIds: string[], playersData: PlayersDataMap, c
           ]);
       })),
     ]),
-    renderShowMoreButton(leaderboardIds.length, visibleCount, tableKey, controller),
+    renderShowMoreButton(players.length, visibleCount, tableKey, controller),
   ]);
 }
 
-function renderMostActiveTable(leaderboardIds: string[], playersData: PlayersDataMap, controller: ClubPageController): VNode {
+function renderMostActiveTable(players: PlayerData[], controller: ClubPageController): VNode {
   const tableKey: ClubPageTableKey = 'active';
   const visibleCount = controller.state.visiblePlayerCounts[tableKey];
-  const visiblePlayerIds = leaderboardIds.slice(0, visibleCount);
+  const visiblePlayers = players.slice(0, visibleCount);
 
   return h('div.club-page__table-container.club-page__table-container--active', [
     h('h3.club-page__table-title', t('clubPage.mostActivePlayersTitle')),
@@ -225,9 +231,7 @@ function renderMostActiveTable(leaderboardIds: string[], playersData: PlayersDat
       h('thead', h('tr', [
           h('th.text-center', '#'), h('th.text-left', t('clubPage.table.player')), h('th.text-right', t('clubPage.table.tournaments')),
       ])),
-      h('tbody', visiblePlayerIds.map((id, index) => {
-          const player = playersData[id];
-          if (!player) return null;
+      h('tbody', visiblePlayers.map((player, index) => {
           return h('tr', { key: player.lichess_id }, [
             h('td.text-center', (index + 1).toString()), 
             renderPlayerCell(player), 
@@ -235,14 +239,14 @@ function renderMostActiveTable(leaderboardIds: string[], playersData: PlayersDat
           ]);
       })),
     ]),
-    renderShowMoreButton(leaderboardIds.length, visibleCount, tableKey, controller),
+    renderShowMoreButton(players.length, visibleCount, tableKey, controller),
   ]);
 }
 
-function renderTotalGamesTable(leaderboardIds: string[], playersData: PlayersDataMap, controller: ClubPageController): VNode {
+function renderTotalGamesTable(players: PlayerData[], controller: ClubPageController): VNode {
     const tableKey: ClubPageTableKey = 'totalGames';
     const visibleCount = controller.state.visiblePlayerCounts[tableKey];
-    const visiblePlayerIds = leaderboardIds.slice(0, visibleCount);
+    const visiblePlayers = players.slice(0, visibleCount);
 
     return h('div.club-page__table-container.club-page__table-container--games', [
         h('h3.club-page__table-title', t('clubPage.mostGamesPlayedTitle', { defaultValue: 'Hard Workers (Games)' })),
@@ -250,9 +254,7 @@ function renderTotalGamesTable(leaderboardIds: string[], playersData: PlayersDat
             h('thead', h('tr', [
                 h('th.text-center', '#'), h('th.text-left', t('clubPage.table.player')), h('th.text-right', t('clubPage.table.gamesPlayed')),
             ])),
-            h('tbody', visiblePlayerIds.map((id, index) => {
-                const player = playersData[id];
-                if (!player) return null;
+            h('tbody', visiblePlayers.map((player, index) => {
                 return h('tr', { key: player.lichess_id }, [
                     h('td.text-center', (index + 1).toString()),
                     renderPlayerCell(player),
@@ -260,14 +262,14 @@ function renderTotalGamesTable(leaderboardIds: string[], playersData: PlayersDat
                 ]);
             })),
         ]),
-        renderShowMoreButton(leaderboardIds.length, visibleCount, tableKey, controller),
+        renderShowMoreButton(players.length, visibleCount, tableKey, controller),
     ]);
 }
 
-function renderWinStreaksTable(leaderboardIds: string[], playersData: PlayersDataMap, controller: ClubPageController): VNode {
+function renderWinStreaksTable(players: PlayerData[], controller: ClubPageController): VNode {
     const tableKey: ClubPageTableKey = 'winStreaks';
     const visibleCount = controller.state.visiblePlayerCounts[tableKey];
-    const visiblePlayerIds = leaderboardIds.slice(0, visibleCount);
+    const visiblePlayers = players.slice(0, visibleCount);
 
     return h('div.club-page__table-container.club-page__table-container--win-streaks', [
         h('h3.club-page__table-title', t('clubPage.winStreakMastersTitle', { defaultValue: 'Win Streak Masters' })),
@@ -275,9 +277,7 @@ function renderWinStreaksTable(leaderboardIds: string[], playersData: PlayersDat
             h('thead', h('tr', [
                 h('th.text-center', '#'), h('th.text-left', t('clubPage.table.player')), h('th.text-right', t('clubPage.table.maxWinStreak')),
             ])),
-            h('tbody', visiblePlayerIds.map((id, index) => {
-                const player = playersData[id];
-                if (!player) return null;
+            h('tbody', visiblePlayers.map((player, index) => {
                 return h('tr', { key: player.lichess_id }, [
                     h('td.text-center', (index + 1).toString()),
                     renderPlayerCell(player),
@@ -285,14 +285,14 @@ function renderWinStreaksTable(leaderboardIds: string[], playersData: PlayersDat
                 ]);
             })),
         ]),
-        renderShowMoreButton(leaderboardIds.length, visibleCount, tableKey, controller),
+        renderShowMoreButton(players.length, visibleCount, tableKey, controller),
     ]);
 }
 
-function renderBerserkersTable(leaderboardIds: string[], playersData: PlayersDataMap, controller: ClubPageController): VNode {
+function renderBerserkersTable(players: PlayerData[], controller: ClubPageController): VNode {
   const tableKey: ClubPageTableKey = 'berserkers';
   const visibleCount = controller.state.visiblePlayerCounts[tableKey];
-  const visiblePlayerIds = leaderboardIds.slice(0, visibleCount);
+  const visiblePlayers = players.slice(0, visibleCount);
   
   return h('div.club-page__table-container.club-page__table-container--berserkers', [
     h('h3.club-page__table-title', t('clubPage.berserkKingsTitle')),
@@ -300,9 +300,7 @@ function renderBerserkersTable(leaderboardIds: string[], playersData: PlayersDat
       h('thead', h('tr', [
           h('th.text-center', '#'), h('th.text-left', t('clubPage.table.player')), h('th.text-right', `🚀 ${t('clubPage.table.berserkWins')}`),
       ])),
-      h('tbody', visiblePlayerIds.map((id, index) => {
-          const player = playersData[id];
-          if (!player) return null;
+      h('tbody', visiblePlayers.map((player, index) => {
           return h('tr', { key: player.lichess_id }, [
             h('td.text-center', (index + 1).toString()), 
             renderPlayerCell(player), 
@@ -310,14 +308,14 @@ function renderBerserkersTable(leaderboardIds: string[], playersData: PlayersDat
           ]);
       })),
     ]),
-    renderShowMoreButton(leaderboardIds.length, visibleCount, tableKey, controller),
+    renderShowMoreButton(players.length, visibleCount, tableKey, controller),
   ]);
 }
 
-function renderPerformanceTable(leaderboardIds: string[], playersData: PlayersDataMap, controller: ClubPageController): VNode {
+function renderPerformanceTable(players: PlayerData[], controller: ClubPageController): VNode {
   const tableKey: ClubPageTableKey = 'performance';
   const visibleCount = controller.state.visiblePlayerCounts[tableKey];
-  const visiblePlayerIds = leaderboardIds.slice(0, visibleCount);
+  const visiblePlayers = players.slice(0, visibleCount);
     
   return h('div.club-page__table-container.club-page__table-container--performance', [
     h('h3.club-page__table-title', t('clubPage.performanceLeadersTitle')),
@@ -326,9 +324,7 @@ function renderPerformanceTable(leaderboardIds: string[], playersData: PlayersDa
           h('th.text-center', '#'), h('th.text-left', t('clubPage.table.player')), h('th.text-right', t('clubPage.table.avgPerf')),
           h('th.text-right', t('clubPage.table.maxPerf')), h('th.text-right', t('clubPage.table.minPerf')),
       ])),
-      h('tbody', visiblePlayerIds.map((id, index) => {
-          const player = playersData[id];
-          if (!player) return null;
+      h('tbody', visiblePlayers.map((player, index) => {
           return h('tr', { key: player.lichess_id }, [
             h('td.text-center', (index + 1).toString()), 
             renderPlayerCell(player),
@@ -338,14 +334,14 @@ function renderPerformanceTable(leaderboardIds: string[], playersData: PlayersDa
           ]);
       })),
     ]),
-    renderShowMoreButton(leaderboardIds.length, visibleCount, tableKey, controller),
+    renderShowMoreButton(players.length, visibleCount, tableKey, controller),
   ]);
 }
 
-function renderRatingTable(leaderboardIds: string[], playersData: PlayersDataMap, controller: ClubPageController): VNode {
+function renderRatingTable(players: PlayerData[], controller: ClubPageController): VNode {
   const tableKey: ClubPageTableKey = 'rating';
   const visibleCount = controller.state.visiblePlayerCounts[tableKey];
-  const visiblePlayerIds = leaderboardIds.slice(0, visibleCount);
+  const visiblePlayers = players.slice(0, visibleCount);
 
   return h('div.club-page__table-container.club-page__table-container--rating', [
     h('h3.club-page__table-title', t('clubPage.ratingLeadersTitle')),
@@ -354,9 +350,7 @@ function renderRatingTable(leaderboardIds: string[], playersData: PlayersDataMap
           h('th.text-center', '#'), h('th.text-left', t('clubPage.table.player')), h('th.text-right', t('clubPage.table.avgRating')),
           h('th.text-right', t('clubPage.table.maxRating')), h('th.text-right', t('clubPage.table.minRating')),
       ])),
-      h('tbody', visiblePlayerIds.map((id, index) => {
-          const player = playersData[id];
-          if (!player) return null;
+      h('tbody', visiblePlayers.map((player, index) => {
           return h('tr', { key: player.lichess_id }, [
             h('td.text-center', (index + 1).toString()), 
             renderPlayerCell(player),
@@ -366,16 +360,21 @@ function renderRatingTable(leaderboardIds: string[], playersData: PlayersDataMap
           ]);
       })),
     ]),
-    renderShowMoreButton(leaderboardIds.length, visibleCount, tableKey, controller),
+    renderShowMoreButton(players.length, visibleCount, tableKey, controller),
   ]);
 }
 
-// ИЗМЕНЕНО: Добавлена явная типизация для параметров колбэка sort
-function renderMedalStandings(type: 'team' | 'arena', playersData: PlayersDataMap, controller: ClubPageController): VNode {
+function renderMedalStandings(type: 'team' | 'arena', playersData: PlayerData[], controller: ClubPageController): VNode {
     const isTeam = type === 'team';
-    const sortedPlayers = Object.values(playersData)
-        .filter(p => (isTeam ? p.team_medal_sum : p.arena_medal_sum) > 0)
-        .sort((a: PlayerData, b: PlayerData) => (isTeam ? b.team_medal_sum - a.team_medal_sum : b.arena_medal_sum - a.arena_medal_sum));
+    
+    const getMedalSum = (player: PlayerData) => {
+        const medals = isTeam ? player.medals_in_team : player.medals_in_arena;
+        return (medals.gold?.count || 0) + (medals.silver?.count || 0) + (medals.bronze?.count || 0);
+    };
+
+    const sortedPlayers = [...playersData]
+        .filter(p => getMedalSum(p) > 0)
+        .sort((a, b) => getMedalSum(b) - getMedalSum(a));
 
     return h(`div.club-page__table-container.club-page__table-container--${type}-medals`, [
         h('h3.club-page__table-title', t(isTeam ? 'clubPage.medalStandings.teamTitle' : 'clubPage.medalStandings.arenaTitle')),
@@ -386,7 +385,7 @@ function renderMedalStandings(type: 'team' | 'arena', playersData: PlayersDataMa
                 h('th.text-center', '🥉'), h('th.text-center', 'Σ'),
             ])),
             h('tbody', sortedPlayers.flatMap((player, index) => {
-                const medalSum = isTeam ? player.team_medal_sum : player.arena_medal_sum;
+                const medalSum = getMedalSum(player);
                 const playerRow = h('tr', { key: player.lichess_id }, [
                     h('td.text-center', (index + 1).toString()),
                     renderPlayerCell(player),
@@ -399,11 +398,19 @@ function renderMedalStandings(type: 'team' | 'arena', playersData: PlayersDataMa
                 const expandedKey = controller.state.expandedMedalInfoKey;
                 let detailsRow = null;
                 
-                if (expandedKey && expandedKey.startsWith(`${player.lichess_id}-${type}`)) {
-                    const [, , medal] = expandedKey.split('-') as [string, 'team' | 'arena', 'gold' | 'silver' | 'bronze'];
-                    const medalData = player[`medals_in_${type}`][medal];
-                    if (medalData && medalData.tournaments.length > 0) {
-                        detailsRow = renderMedalDetailsRow(medalData.tournaments, expandedKey);
+                if (expandedKey) {
+                    const parts = expandedKey.split('::');
+                    if (parts.length === 3) {
+                        const encodedId = parts[0];
+                        const keyType = parts[1];
+                        
+                        if (keyType === type && btoa(player.lichess_id) === encodedId) {
+                             const keyMedal = parts[2] as 'gold' | 'silver' | 'bronze';
+                             const medalData = player[`medals_in_${type}`][keyMedal];
+                             if (medalData && medalData.tournaments.length > 0) {
+                                 detailsRow = renderMedalDetailsRow(medalData.tournaments, expandedKey);
+                             }
+                        }
                     }
                 }
                 
@@ -415,8 +422,8 @@ function renderMedalStandings(type: 'team' | 'arena', playersData: PlayersDataMa
 
 function renderMedalCell(player: PlayerData, type: 'team' | 'arena', medal: 'gold' | 'silver' | 'bronze', controller: ClubPageController): VNode {
   const medalData: MedalDetail = player[`medals_in_${type}`][medal];
-  const hasMedals = medalData.count > 0;
-  const key = `${player.lichess_id}-${type}-${medal}`;
+  const hasMedals = medalData && medalData.count > 0;
+  const key = `${btoa(player.lichess_id)}::${type}::${medal}`;
 
   const props: VNodeData = {
     class: { 
@@ -432,12 +439,11 @@ function renderMedalCell(player: PlayerData, type: 'team' | 'arena', medal: 'gol
   }
 
   return h('td.text-center', props, [
-    h('span', medalData.count.toString()),
+    h('span', hasMedals ? medalData.count.toString() : '0'),
     hasMedals ? h('span.expand-arrow', ' ▼') : null
   ]);
 }
 
-// ИЗМЕНЕНО: Добавлена явная типизация для параметров колбэка sort
 function renderTournamentPlayersList(players: TournamentPlayer[]): VNode {
   if (!players || players.length === 0) {
     return h('p.club-page__no-data-message', t('clubPage.noPlayersInTournament'));
@@ -456,10 +462,13 @@ function renderTournamentPlayersList(players: TournamentPlayer[]): VNode {
         h('tbody', sortedPlayers.map((player) =>
             h('tr', {key: player.lichess_id }, [
                 h('td.text-center', player.user_inTeamRank.toString()),
+                // <<< НАЧАЛО ИЗМЕНЕНИЙ: Отображение короны
                 h('td.text-left', [
+                    player.crone ? renderCrownIcon() : null,
                     h('a', { props: { href: `https://lichess.org/@/${player.username}`, target: '_blank'} }, player.username),
                     renderFlairIcon(player.user_flair)
                 ]),
+                // <<< КОНЕЦ ИЗМЕНЕНИЙ
                 h('td.text-right.bold', player.user_score.toString()),
                 h('td.text-center', [
                     h('span.win-color', player.calculatedStats.wins),
@@ -491,7 +500,6 @@ function renderTournamentHistoryTable(
       ])),
       h('tbody', tournaments.flatMap(tournament =>
         {
-          // Удаляем " Team Battle" из названия турнира
           const cleanedTournamentName = tournament.tournament_name.replace(/ Team Battle$/, '');
 
           return [
@@ -502,7 +510,9 @@ function renderTournamentHistoryTable(
             }, [
               h('td.text-left', formatDateForUser(tournament.starts_at_date)),
               h('td.text-left', h('a', { props: { href: tournament.arena_url, target: '_blank' } }, cleanedTournamentName)),
-              h('td.text-right', tournament.team_rank.toString()),
+              // <<< НАЧАЛО ИЗМЕНЕНИЙ: Отображение ранга клуба
+              h('td.text-right', tournament.club_in_arena_rank ? tournament.club_in_arena_rank.toString() : '-'),
+              // <<< КОНЕЦ ИЗМЕНЕНИЙ
               h('td.text-right', tournament.team_score.toString()),
             ]),
             expandedBattleId === tournament.arena_id ?
@@ -553,30 +563,30 @@ export function renderClubPage(controller: ClubPageController): VNode {
   }
 
   const { clubData, expandedBattleId, activeTab } = state;
-  const { leaderboards, players_data, tournament_history, jsonb_array_leader } = clubData;
+  const { club_info, players_data, tournament_history } = clubData;
 
   let tabContent: VNode | null = null;
   switch (activeTab) {
       case 'overview':
-          tabContent = renderOverviewTable(leaderboards.overview, players_data, controller);
+          tabContent = renderOverviewTable(controller.getSortedPlayers('overview'), controller);
           break;
       case 'key_indicators':
           tabContent = h('div.club-page__stats-grid-3-cols', [
-              renderMvpTable(leaderboards.mvp, players_data, controller),
-              renderMostActiveTable(leaderboards.active, players_data, controller),
-              renderTotalGamesTable(leaderboards.totalGames, players_data, controller),
+              renderMvpTable(controller.getSortedPlayers('mvp'), controller),
+              renderMostActiveTable(controller.getSortedPlayers('active'), controller),
+              renderTotalGamesTable(controller.getSortedPlayers('totalGames'), controller),
           ]);
           break;
       case 'play_style':
           tabContent = h('div.club-page__stats-grid-2-cols', [
-              renderBerserkersTable(leaderboards.berserkers, players_data, controller),
-              renderWinStreaksTable(leaderboards.winStreaks, players_data, controller),
+              renderBerserkersTable(controller.getSortedPlayers('berserkers'), controller),
+              renderWinStreaksTable(controller.getSortedPlayers('winStreaks'), controller),
           ]);
           break;
       case 'ratings':
           tabContent = h('div.club-page__stats-grid-2-cols', [
-              renderPerformanceTable(leaderboards.performance, players_data, controller),
-              renderRatingTable(leaderboards.rating, players_data, controller),
+              renderPerformanceTable(controller.getSortedPlayers('performance'), controller),
+              renderRatingTable(controller.getSortedPlayers('rating'), controller),
           ]);
           break;
       case 'medals':
@@ -587,30 +597,28 @@ export function renderClubPage(controller: ClubPageController): VNode {
           break;
   }
 
-  return h(mainContainerClass, { key: `club-page-${clubData.club_id}` }, [
-    renderClubBanner(clubData.club_id), // Display the banner
+  return h(mainContainerClass, { key: `club-page-${club_info.club_id}` }, [
+    renderClubBanner(club_info.club_id),
     h('header.club-page__header', [
       h('div.club-page__header-info', [
-        h('a.club-page__name-link', { props: { href: `https://lichess.org/team/${clubData.club_id}`, target: '_blank' } }, [
-            h('h1.club-page__name', clubData.club_name)
+        h('a.club-page__name-link', { props: { href: `https://lichess.org/team/${club_info.club_id}`, target: '_blank' } }, [
+            h('h1.club-page__name', club_info.club_name)
         ]),
-        // Кнопка follow/unfollow будет перемещена ниже
         h('p.club-page__meta', [
             t('clubPage.founder'),
             ': ',
-            h('a', { props: { href: `https://lichess.org/@/${clubData.grunder}`, target: '_blank' } }, clubData.grunder),
-            ` | ${t('clubPage.members')}: ${clubData.nb_members}`
+            h('a', { props: { href: `https://lichess.org/@/${club_info.grunder.name}`, target: '_blank' } }, club_info.grunder.name),
+            ` | ${t('clubPage.members')}: ${club_info.nb_members}`
         ]),
       ]),
     ]),
-    renderLeaderTable(jsonb_array_leader),
+    renderLeaderTable(club_info.leaders),
 
     renderTabs(controller),
     h('div.club-page__tab-content', [tabContent]),
     
     renderTournamentHistoryTable(tournament_history, expandedBattleId, controller.toggleTournamentDetails.bind(controller)),
 
-    // NEW: Кнопка follow/unfollow перемещена в отдельный контейнер внизу
     h('div.club-page__follow-button-container', [
         renderFollowButton(controller)
     ]),
