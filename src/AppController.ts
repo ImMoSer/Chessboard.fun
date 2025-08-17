@@ -117,9 +117,7 @@ const SHELL_STATE_KEYS: (keyof AppControllerState)[] = [
     'engineSelectorOpen', 'toasts', 'voiceVolume', 'currentGameControls'
 ];
 
-// <<< НАЧАЛО ИЗМЕНЕНИЙ: Список страниц с активной игровой логикой
 const ACTIVE_GAME_PAGES: AppPage[] = ['finishHim', 'tower', 'attack'];
-// <<< КОНЕЦ ИЗМЕНЕНИЙ
 
 export class AppController {
   public state: AppControllerState;
@@ -515,7 +513,8 @@ export class AppController {
   
     if (['finishHim', 'tower', 'attack', 'tacktics'].includes(route.page)) {
       boardHandlerForPage = new BoardHandler(this.services.chessboardService, requestPageRedraw);
-      this.analysisControllerInstance = new AnalysisController(this.services.analysisService, boardHandlerForPage, this.pgnServiceInstance, requestPageRedraw);
+      // --- REFACTORED: Removed the 4th argument ---
+      this.analysisControllerInstance = new AnalysisController(this.services.analysisService, boardHandlerForPage, this.pgnServiceInstance);
     }
   
     switch (route.page) {
@@ -598,7 +597,6 @@ export class AppController {
     requestPageRedraw();
   }
 
-  // <<< НАЧАЛО ИЗМЕНЕНИЙ: Централизованная логика подтверждения выхода
   public navigateTo(page: AppPage, updateHash: boolean = true, clubId: string | null = null, puzzleId: string | null = null, towerId: string | null = null): void {
     const isCurrentlyInActiveGame = 
       this.activePageController instanceof BaseGameController &&
@@ -611,16 +609,14 @@ export class AppController {
       this.showConfirmationModal(
         t('gameplay.confirmExit.message', { defaultValue: 'Are you sure you want to exit? The current game will be counted as a loss.' }),
         () => {
-          // Пользователь подтвердил выход
           (this.activePageController as BaseGameController<any>).handleResign();
           this._performNavigation(page, updateHash, clubId, puzzleId, towerId);
         },
-        () => {}, // При отмене ничего не делаем
+        () => {},
         t('gameplay.confirmExit.confirmButton', { defaultValue: 'Exit' }),
         t('gameplay.confirmExit.cancelButton', { defaultValue: 'Stay' })
       );
     } else {
-      // Обычная навигация
       this._performNavigation(page, updateHash, clubId, puzzleId, towerId);
     }
   }
@@ -635,11 +631,9 @@ export class AppController {
         window.location.hash = newHash;
       }
     } else {
-      // Если хеш не меняется, принудительно вызываем обработчик
       this._processRouteChange(route);
     }
   }
-  // <<< КОНЕЦ ИЗМЕНЕНИЙ
 
   public updatePuzzleUrl(puzzleId: string): void {
     if (['finishHim', 'attack', 'tacktics'].includes(this.state.currentPage)) {
@@ -801,10 +795,15 @@ export class AppController {
     
     let shellStateChanged = false;
 
-    for (const key of SHELL_STATE_KEYS) {
-        if (JSON.stringify(oldState[key]) !== JSON.stringify(this.state[key])) {
-            shellStateChanged = true;
-            break;
+    // FIX: Add currentPage to the check to fix sticky nav links
+    if (oldState.currentPage !== this.state.currentPage) {
+        shellStateChanged = true;
+    } else {
+        for (const key of SHELL_STATE_KEYS) {
+            if (JSON.stringify(oldState[key]) !== JSON.stringify(this.state[key])) {
+                shellStateChanged = true;
+                break;
+            }
         }
     }
 
