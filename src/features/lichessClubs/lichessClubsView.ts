@@ -105,7 +105,7 @@ function renderMedalBearersWidget(players: TopPlayerByMedals[]): VNode {
                 h('tr', { key: player.lichess_id }, [
                     h('td', `${index + 1}`),
                     h('td', h('a', { props: { href: `https://lichess.org/@/${player.lichess_id}`, target: '_blank' } }, player.username)),
-                    h('td', `🥇${player.medals.gold} 🥈${player.medals.silver} 🥉${player.medals.bronze}`),
+                    h('td', `�${player.medals.gold} 🥈${player.medals.silver} 🥉${player.medals.bronze}`),
                 ])
             ))
         ])
@@ -128,20 +128,19 @@ function renderHardWorkersWidget(players: TopPlayerByActivity[]): VNode {
     ]);
 }
 
-// <<< НАЧАЛО ИЗМЕНЕНИЙ: Новый виджет для списка турниров по медалям
-function renderMedalTournamentsWidget(club: ListedClub): VNode {
+// <<< НАЧАЛО ИЗМЕНЕНИЙ: Функция рендерит три независимых блока для медалей
+function renderMedalTournamentsWidget(club: ListedClub): VNode | null {
     const medals = club.statistics_payload.club_medals;
     const hasAnyMedals = (medals.gold?.length || 0) > 0 || (medals.silver?.length || 0) > 0 || (medals.bronze?.length || 0) > 0;
 
     if (!hasAnyMedals) {
-        return h('div.widget-container.medal-tournaments-widget', [
-            h('h4.widget-title', t('lichessClubs.widgets.medalTournamentsTitle', { defaultValue: 'Призовые турниры' })),
-            h('p.no-medals-message', t('lichessClubs.widgets.noMedals', { defaultValue: 'Клуб еще не завоевал медалей.' }))
-        ]);
+        return null; // Не рендерим ничего, если медалей нет
     }
 
     const renderTournamentList = (tournaments: ClubMedalTournament[]) => {
-        if (!tournaments || tournaments.length === 0) return null;
+        if (!tournaments || tournaments.length === 0) {
+            return h('p.no-tournaments-message', t('lichessClubs.widgets.noTournamentsForMedal', { defaultValue: 'No tournaments for this medal.' }));
+        }
         return h('ul.tournament-list', tournaments.map(t => 
             h('li', [
                 h('a', { props: { href: t.tournament_url, target: '_blank', rel: 'noopener noreferrer' } }, t.tournament_name)
@@ -149,14 +148,34 @@ function renderMedalTournamentsWidget(club: ListedClub): VNode {
         ));
     };
 
-    return h('div.widget-container.medal-tournaments-widget', [
-        h('h4.widget-title', t('lichessClubs.widgets.medalTournamentsTitle', { defaultValue: 'Призовые турниры' })),
-        h('div.medal-lists-container', [
-            medals.gold?.length > 0 ? h('div.medal-list-section', [h('h5', '🥇 Gold'), renderTournamentList(medals.gold)]) : null,
-            medals.silver?.length > 0 ? h('div.medal-list-section', [h('h5', '🥈 Silver'), renderTournamentList(medals.silver)]) : null,
-            medals.bronze?.length > 0 ? h('div.medal-list-section', [h('h5', '🥉 Bronze'), renderTournamentList(medals.bronze)]) : null,
-        ])
-    ]);
+    const medalWidgets = [];
+
+    if (medals.gold && medals.gold.length > 0) {
+        medalWidgets.push(
+            h('div.widget-container.medal-widget.gold', [
+                h('h4.widget-title', '🥇 Gold'),
+                renderTournamentList(medals.gold)
+            ])
+        );
+    }
+    if (medals.silver && medals.silver.length > 0) {
+        medalWidgets.push(
+            h('div.widget-container.medal-widget.silver', [
+                h('h4.widget-title', '🥈 Silver'),
+                renderTournamentList(medals.silver)
+            ])
+        );
+    }
+    if (medals.bronze && medals.bronze.length > 0) {
+        medalWidgets.push(
+            h('div.widget-container.medal-widget.bronze', [
+                h('h4.widget-title', '🥉 Bronze'),
+                renderTournamentList(medals.bronze)
+            ])
+        );
+    }
+
+    return h('div.medal-tournaments-wrapper', medalWidgets);
 }
 
 function renderClubDetailsRow(club: ListedClub): VNode {
@@ -167,8 +186,8 @@ function renderClubDetailsRow(club: ListedClub): VNode {
                 renderHallOfFameWidget(stats.top_players_by_score),
                 renderMedalBearersWidget(stats.top_players_by_medals),
                 renderHardWorkersWidget(stats.top_players_by_activity),
-                renderMedalTournamentsWidget(club) // Добавляем новый виджет
-            ])
+                renderMedalTournamentsWidget(club)
+            ].filter(Boolean) as VNode[])
         ])
     ]);
 }

@@ -10,7 +10,7 @@ import { t } from '../i18n.service';
 import { parseFen } from 'chessops/fen';
 import { BoardView } from '../../shared/components/boardView';
 
-const BOT_MOVE_DELAY_MS = 50;
+const BOT_MOVE_DELAY_MS = 100;
 
 /**
  * An abstract base class for game controllers (FinishHim, Tower, Attack).

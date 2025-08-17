@@ -187,7 +187,7 @@
   color: var(--color-text-link-hover);
 }
 
-/* <<< НАЧАЛО ИЗМЕНЕНИЙ: Стили для раскрывающихся строк и виджетов */
+/* --- Стили для раскрывающихся строк и виджетов --- */
 .club-row.expandable {
   cursor: pointer;
 }
@@ -206,7 +206,7 @@
 }
 .club-details-content {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* Три колонки по умолчанию */
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 15px;
   padding: 15px;
   background-color: var(--color-bg-primary);
@@ -222,10 +222,6 @@
   gap: 10px;
 }
 
-.widget-container.medal-tournaments-widget {
-    grid-column: 1 / -1;
-}
-
 .widget-title {
   margin: 0 0 10px 0;
   padding-bottom: 10px;
@@ -233,10 +229,6 @@
   font-size: var(--font-size-large);
   text-align: center;
   color: var(--color-accent-secondary);
-}
-
-.widget-container.medal-tournaments-widget .widget-title {
-    text-align: left;
 }
 
 .widget-table {
@@ -261,44 +253,76 @@
   font-weight: bold;
 }
 
-.medal-lists-container {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
+/* <<< НАЧАЛО ИЗМЕНЕНИЙ: Стили для виджетов с медалями */
+.medal-tournaments-wrapper {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
 }
 
-.medal-list-section h5 {
-    margin: 0 0 8px 0;
-    font-size: var(--font-size-base);
-    text-align: center;
+.medal-widget {
+  /* .widget-container стили уже применены */
+  display: flex;
+  flex-direction: column;
 }
 
-/* Выравнивание заголовков медалей (Gold, Silver, Bronze) по левому краю */
-.widget-container.medal-tournaments-widget .medal-list-section h5 {
-    text-align: left;
+.medal-widget .widget-title {
+  color: var(--color-text-dark);
+  font-weight: bold;
+  text-align: center;
+  border-bottom: 2px solid;
+  margin: -15px -15px 10px -15px; /* Выравниваем заголовок по краям виджета */
+  padding: 10px 15px;
+  border-top-left-radius: var(--panel-border-radius);
+  border-top-right-radius: var(--panel-border-radius);
 }
 
-.tournament-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    max-height: 150px;
-    overflow-y: auto;
+.medal-widget.gold .widget-title {
+  background-color: #FFD700; /* Gold */
+  border-color: #E6C200;
+}
+.medal-widget.silver .widget-title {
+  background-color: #C0C0C0; /* Silver */
+  border-color: #A9A9A9;
+}
+.medal-widget.bronze .widget-title {
+  background-color: #CD7F32; /* Bronze */
+  border-color: #B8732E;
 }
 
-.tournament-list a {
-    font-size: var(--font-size-xsmall);
+.medal-widget .tournament-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  max-height: 200px;
+  flex-grow: 1;
+}
+
+.medal-widget .tournament-list li a {
+  display: block;
+  padding: 6px 10px;
+  background-color: var(--color-bg-secondary);
+  border-radius: 4px;
+  text-decoration: none;
+  color: var(--color-text-link);
+  transition: background-color 0.2s, color 0.2s;
+  font-size: var(--font-size-xsmall);
+  border: 1px solid var(--color-border);
+}
+
+.medal-widget .tournament-list li a:hover {
+  background-color: var(--color-border-hover);
+  color: var(--color-text-link-hover);
 }
 /* <<< КОНЕЦ ИЗМЕНЕНИЙ */
 
 @media (max-width: 1200px) {
   .club-details-content {
-    grid-template-columns: 1fr;
-  }
-  .medal-lists-container {
     grid-template-columns: 1fr;
   }
 }

@@ -50,7 +50,7 @@ export class AnalysisController {
   private requestPageRedraw: () => void;
 
   private isUpdateScheduled = false;
-  private latestAnalysisData: ContinuousEvaluatedLine[] | null = null;
+  private collectedAnalysisLines: Map<number, ContinuousEvaluatedLine> = new Map();
   
   private panelState: AnalysisPanelState;
   private currentFenForAnalysis: string | null = null;
@@ -181,6 +181,7 @@ export class AnalysisController {
     this.panelState.isAnalysisActive = false;
     this.panelState.isAnalysisLoading = false;
     this.isUpdateScheduled = false;
+    this.collectedAnalysisLines.clear();
 
     const groundEl = this.boardHandler.getBoardElement();
     if (groundEl && this.boundBoardWheelHandler) {
@@ -231,6 +232,7 @@ export class AnalysisController {
 
     this.panelState.isAnalysisLoading = true;
     this.panelState.analysisLines = null;
+    this.collectedAnalysisLines.clear();
     this.requestPageRedraw();
 
     this.boardHandler.clearAllDrawings();
@@ -240,7 +242,11 @@ export class AnalysisController {
         if (!this.panelState.isAnalysisActive || this.currentFenForAnalysis !== fenForAnalysis) {
             return;
         }
-        this.latestAnalysisData = updatedLines;
+        if (updatedLines && updatedLines.length > 0) {
+            for (const line of updatedLines) {
+                this.collectedAnalysisLines.set(line.id, line);
+            }
+        }
         this._schedulePanelUpdate();
     };
 
@@ -272,7 +278,7 @@ export class AnalysisController {
   private _processScheduledUpdate(): void {
     this.isUpdateScheduled = false;
 
-    if (!this.panelState.isAnalysisActive || !this.latestAnalysisData) {
+    if (!this.panelState.isAnalysisActive || this.collectedAnalysisLines.size === 0) {
       return;
     }
 
@@ -280,13 +286,13 @@ export class AnalysisController {
       this.panelState.isAnalysisLoading = false;
     }
 
-    const linesWithSan = this._prepareLinesForDisplay(this.latestAnalysisData, this.currentFenForAnalysis!);
+    const allLines = Array.from(this.collectedAnalysisLines.values()).sort((a, b) => a.id - b.id);
+    const linesWithSan = this._prepareLinesForDisplay(allLines, this.currentFenForAnalysis!);
+
     this.panelState.analysisLines = linesWithSan;
     this._drawAnalysisResultOnBoard(linesWithSan);
 
     this.requestPageRedraw();
-
-    this.latestAnalysisData = null;
   }
 
   private _prepareLinesForDisplay(lines: ContinuousEvaluatedLine[], fen: string): EvaluatedLineWithSan[] {
@@ -410,10 +416,18 @@ export class AnalysisController {
   private async _handleSettingChange(): Promise<void> {
     if (this.panelState.isAnalysisActive) {
       logger.info('[AnalysisController] Setting changed during active analysis. Restarting analysis...');
+      // <<< НАЧАЛО ИЗМЕНЕНИЙ: Немедленная очистка перед перезапуском
+      this.isUpdateScheduled = false;
       await this.analysisService.stopContinuousAnalysis();
+      this.collectedAnalysisLines.clear();
+      this.panelState.analysisLines = null;
+      this.boardHandler.clearAllDrawings();
+      this.requestPageRedraw(); // Принудительно обновляем UI, чтобы показать пустую панель
+      // <<< КОНЕЦ ИЗМЕНЕНИЙ
       this._requestAndProcessContinuousAnalysis();
+    } else {
+        this.requestPageRedraw();
     }
-    this.requestPageRedraw();
   }
 
   public setNumLines(lines: number): void {
@@ -424,6 +438,7 @@ export class AnalysisController {
     localStorage.setItem(LINES_STORAGE_KEY, String(num));
     this.analysisService.setInfiniteAnalysisOption('MultiPV', num);
     logger.info(`[AnalysisController] Number of analysis lines set to: ${num}`);
+
     this._handleSettingChange();
   }
 
