@@ -3,7 +3,7 @@ import type { VNode, Hooks } from 'snabbdom';
 import { h } from 'snabbdom';
 import type { GameEndOutcome } from '../../core/boardHandler';
 import { type WebhookServiceController, InsufficientFunCoinsError } from '../../core/webhook.service';
-import { type UpdateFinishHimStatsDto, type AppPuzzle, type PuzzleResultEntry, type FinishHimStats } from '../../core/api.types';
+import { type UpdateFinishHimStatsDto, type AppPuzzle } from '../../core/api.types';
 import logger from '../../utils/logger';
 import { SoundService } from '../../core/sound.service';
 import { t } from '../../core/i18n.service';
@@ -11,12 +11,12 @@ import { AuthService } from '../../core/auth.service';
 import type { AppServices, GameControlsState } from '../../AppController';
 import { PuzzleStorageService } from '../../core/puzzle-storage.service';
 import { BaseGameController } from '../../core/controllers/base-game.controller';
-import type { BaseGameState } from '../../core/controllers/base-game.types';
 import type { BoardHandler } from '../../core/boardHandler';
 import type { AnalysisController } from '../analysis/analysisController';
 import { renderFinishHimUI } from './finishHimView';
 import { renderControlPanel } from '../../shared/components/controlPanelView';
 import { initializeResizer } from '../common/resizer';
+import type { FinishHimControllerState } from './finishHim.types';
 
 const PLAYOUT_TIMER_INTERVAL_MS = 1000;
 
@@ -26,21 +26,6 @@ export function formatPlayoutTimer(ms: number | null): string {
   const minutes = Math.floor(totalSeconds / 60);
   const seconds = totalSeconds % 60;
   return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-}
-
-export interface FinishHimControllerState extends BaseGameState {
-  activePuzzle: AppPuzzle | null;
-  puzzleResults: PuzzleResultEntry[] | null;
-  userStats: FinishHimStats | null;
-  userFunCoins: number | null;
-  isStockfishThinking: boolean;
-  currentPgnString: string;
-  outplayTimerId: number | null;
-  outplayTimeRemainingMs: number | null;
-  isCurrentPuzzleSolved: boolean;
-  isCurrentPuzzleFavorite: boolean;
-  tenSecondsWarningPlayed: boolean;
-  sevenSecondsWarningPlayed: boolean;
 }
 
 export class FinishHimController extends BaseGameController<FinishHimControllerState> {
@@ -63,7 +48,6 @@ export class FinishHimController extends BaseGameController<FinishHimControllerS
       userStats: initialAuthStats,
       userFunCoins: initialFunCoins,
       feedbackMessage: t('finishHim.feedback.getReady'),
-      isStockfishThinking: false,
       gameOverMessage: null,
       currentPgnString: "",
       outplayTimerId: null,
@@ -247,7 +231,6 @@ export class FinishHimController extends BaseGameController<FinishHimControllerS
     this.setState({
       activePuzzle: null,
       puzzleResults: null,
-      isStockfishThinking: false,
       gameOverMessage: null,
       currentPgnString: "",
       outplayTimeRemainingMs: null,
@@ -356,7 +339,6 @@ export class FinishHimController extends BaseGameController<FinishHimControllerS
     this.setState({ outplayTimeRemainingMs: newTime });
   }
 
-  // <<< НАЧАЛО ИЗМЕНЕНИЙ: Логика отправки статистики обновлена
   private _updateAndSendStats(isWin: boolean): void {
     const user = this.authService.getUserProfile();
     const puzzle = this.state.activePuzzle;
@@ -401,7 +383,6 @@ export class FinishHimController extends BaseGameController<FinishHimControllerS
         this.services.appController.showToast(t('errors.statsUpdateFailed'), 'error');
       });
   }
-  // <<< КОНЕЦ ИЗМЕНЕНИЙ
 
   public toggleFavorite(): void {
     const userId = this.authService.getUserProfile()?.id;

@@ -3,13 +3,12 @@ import type { AppAttackPuzzle, PuzzleResultEntry } from '../../core/api.types';
 import type { BaseGameState } from '../../core/controllers/base-game.types';
 
 /**
- * REFACTORED: Defines the state for the Attack mode controller.
- * Scenario-tracking properties have been removed as they are now handled by the BaseGameController.
+ * Defines the state for the Attack mode controller.
+ * Inherits the `gamePhase` state machine from BaseGameState.
  */
 export interface AttackControllerState extends BaseGameState {
   activePuzzle: AppAttackPuzzle | null;
   puzzleResults: PuzzleResultEntry[] | null;
-  isBotThinking: boolean;
   solveStartTimeMs: number | null;
   playoutTimerId: number | null;
   elapsedPlayoutTimeMs: number;

@@ -20,8 +20,6 @@ import { initializeResizer } from '../common/resizer';
 const AUTO_NEXT_PUZZLE_DELAY_MS = 300;
 
 export class TackticsController extends BaseGameController<TackticsControllerState> {
-  // This property stores the user's actual preference for auto-loading,
-  // separate from the state property which might be temporarily changed.
   private userAutoLoadPreference: boolean = true;
 
   constructor(
@@ -88,11 +86,8 @@ export class TackticsController extends BaseGameController<TackticsControllerSta
   // --- Implementation and Overrides of abstract methods ---
 
   public async initializeGame(puzzleId?: string | null, forceLoadNew: boolean = false): Promise<void> {
-    // Restore the user's actual auto-load preference before starting a new puzzle.
-    // This reverts the temporary change made in _handleGameOver on loss.
-    this.state.isAutoLoadEnabled = this.userAutoLoadPreference;
+    this.setState({ isAutoLoadEnabled: this.userAutoLoadPreference });
 
-    // Ensure analysis panel is deactivated before starting a new puzzle
     if (this.analysisController.getPanelState().isAnalysisActive) {
         this.analysisController.toggleAnalysisEngine();
     }
@@ -140,11 +135,6 @@ export class TackticsController extends BaseGameController<TackticsControllerSta
     };
   }
 
-  /**
-   * OVERRIDE: This method implements the specific logic for Tacktics mode.
-   * A user's move is strictly checked against the puzzle's solution.
-   * Any deviation results in a loss. There is no playout phase.
-   */
   protected async _handleUserMoveInGame(userUciMove: string): Promise<void> {
     const gameStatus = this.boardHandler.getGameStatus();
     const humanColor = this.boardHandler.getHumanPlayerColor();
@@ -170,40 +160,38 @@ export class TackticsController extends BaseGameController<TackticsControllerSta
     }
   }
 
-  /**
-   * REFACTORED: Handles all game-ending scenarios with the new logic.
-   */
-  protected _handleGameOver(isWin: boolean, _outcome?: GameEndOutcome): void {
+  protected _handleGameOver(isWin: boolean, outcome?: GameEndOutcome): void {
     if (this.state.gamePhase === 'GAMEOVER') return;
 
     this._sendResult(isWin);
+    this.setState({ gamePhase: 'GAMEOVER' });
 
     if (isWin) {
-        // REFACTORED: Sound is now handled by BoardHandler on checkmate.
-        // SoundService.playSoundEvent({ sequential: ['user_won_playout'] });
+        // <<< НАЧАЛО ИЗМЕНЕНИЙ: Воспроизводим звук успеха, если это не мат (мат обработает boardHandler)
+        if (outcome?.reason !== 'checkmate') {
+            SoundService.playSoundEvent({ sequential: ['user_won_playout'] });
+        }
+        // <<< КОНЕЦ ИЗМЕНЕНИЙ
+        
         const message = t('tacktics.feedback.success', { defaultValue: 'Puzzle solved!' });
-        this.setState({ gamePhase: 'GAMEOVER', gameOverMessage: message, feedbackMessage: message });
+        this.setState({ gameOverMessage: message, feedbackMessage: message });
 
         if (this.state.isAutoLoadEnabled) {
             setTimeout(() => this.handleNewGame(), AUTO_NEXT_PUZZLE_DELAY_MS);
         } else {
             this.boardHandler.configureBoardForAnalysis(true);
-            if (this.analysisController.getPanelState().isAnalysisActive) {
-                this.analysisController.toggleAnalysisEngine();
-            }
         }
     } else {
         SoundService.playSoundEvent({ parallel: ['tacktics_puzzle_loss'] });
         const message = t('tacktics.feedback.failure', { defaultValue: 'Puzzle failed.' });
         
         this.setState({ 
-            gamePhase: 'GAMEOVER', 
             gameOverMessage: message, 
             feedbackMessage: message,
-            isAutoLoadEnabled: false 
         });
         
         this.boardHandler.configureBoardForAnalysis(true);
+        
         if (!this.analysisController.getPanelState().isAnalysisActive) {
             this.analysisController.toggleAnalysisEngine();
         }
@@ -221,7 +209,7 @@ export class TackticsController extends BaseGameController<TackticsControllerSta
   }
   
   public handleResign(): void {
-      // Not applicable
+      // Not applicable in this mode
   }
 
   // --- Tacktics specific methods ---

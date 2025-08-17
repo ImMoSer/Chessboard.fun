@@ -112,14 +112,14 @@ export function renderTackticsUI(controller: TackticsController): TackticsPageVi
     state.activePuzzle?.PuzzleId || 'idle'
   );
 
-  const analysisPanelWrapper = (state.gamePhase === 'GAMEOVER' && !state.isAutoLoadEnabled)
+  const analysisPanelWrapper = (state.gamePhase === 'GAMEOVER')
     ? h('div.analysis-panel-wrapper', [
         controller.analysisController.renderPanel()
       ])
     : null;
   
   let rightPanelContentChildren: VNode[] = [];
-  if (state.gamePhase === 'GAMEOVER' && !state.isAutoLoadEnabled) {
+  if (state.gamePhase === 'GAMEOVER') {
     rightPanelContentChildren = [
       analysisPanelWrapper,
       renderTackticsControls(controller),

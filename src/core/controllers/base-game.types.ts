@@ -2,21 +2,20 @@
 
 /**
  * Defines all possible game phases across different game modes.
- * TACTICAL phase has been removed as part of the refactoring.
+ * This creates a finite state machine, preventing impossible state combinations.
  */
 export type GamePhase =
-  | 'IDLE'
-  | 'LOADING'
-  | 'PLAYING' // Main phase for active gameplay
-  | 'PLAYOUT' // Kept for compatibility, but its role is merged into PLAYING
-  | 'GAMEOVER'
-  | 'LEVEL_FAILED'
-  | 'LEVEL_RESIGNED'
-  | 'TOWER_COMPLETE';
+  | 'IDLE'          // Waiting for user to start a game
+  | 'LOADING'       // Loading puzzle data from the server
+  | 'PLAYING'       // User is actively solving the puzzle (scenario or playout)
+  | 'GAMEOVER'      // The puzzle/game has ended (win, loss, resign)
+  | 'TOWER_COMPLETE' // Special state for successfully completing a tower
+  | 'LEVEL_FAILED'  // Specific to Tower: user failed a level but has lives left
+  | 'LEVEL_RESIGNED'; // Specific to Tower: user resigned a level
 
 /**
  * Defines the base structure for the state of any game controller.
- * Each specific game controller's state should extend this interface.
+ * Each specific game controller's state (FinishHim, Tower, etc.) must extend this interface.
  */
 export interface BaseGameState {
   gamePhase: GamePhase;

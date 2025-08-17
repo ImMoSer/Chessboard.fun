@@ -1,3 +1,4 @@
+// src/features/attack/attackController.ts
 import type { VNode, Hooks } from 'snabbdom';
 import { h } from 'snabbdom';
 import type { GameEndOutcome } from '../../core/boardHandler';
@@ -46,7 +47,6 @@ export class AttackController extends BaseGameController<AttackControllerState> 
       gameOverMessage: null,
       activePuzzle: null,
       puzzleResults: null,
-      isBotThinking: false,
       solveStartTimeMs: null,
       playoutTimerId: null,
       elapsedPlayoutTimeMs: 0,
@@ -180,7 +180,6 @@ export class AttackController extends BaseGameController<AttackControllerState> 
         gamePhase: 'GAMEOVER',
         gameOverMessage: message,
         feedbackMessage: message,
-        isBotThinking: false,
     });
     
     this.boardHandler.configureBoardForAnalysis(true);
@@ -211,7 +210,6 @@ export class AttackController extends BaseGameController<AttackControllerState> 
         gameOverMessage: null,
         activePuzzle: null,
         puzzleResults: null,
-        isBotThinking: false,
         solveStartTimeMs: null,
         playoutTimerId: null,
         elapsedPlayoutTimeMs: 0,

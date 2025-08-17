@@ -165,17 +165,13 @@ export class TowerController extends BaseGameController<TowerControllerState> {
   
   public handleResign(): void {
     if (!this._getControlsState().canResign) return;
+    this.setState({ gamePhase: 'LEVEL_RESIGNED' });
     this._handleGameOver(false);
   }
 
-  /**
-   * REFACTORED: This method is now the central handler for the outcome of a single position.
-   * It's called by the BaseGameController when a game ends. It manages lives,
-   * advances to the next level, or ends the tower run.
-   */
   protected _handleGameOver(isWin: boolean, _outcome?: GameEndOutcome): void {
     const activeTower = this.state.activeTowerState;
-    if (!activeTower || this.state.gamePhase !== 'PLAYING') return;
+    if (!activeTower || this.state.gamePhase === 'GAMEOVER' || this.state.gamePhase === 'TOWER_COMPLETE') return;
 
     if (isWin) {
       activeTower.currentPositionIndex++;
@@ -192,6 +188,7 @@ export class TowerController extends BaseGameController<TowerControllerState> {
 
       if (activeTower.lives > 0) {
         this.setState({
+          gamePhase: 'LEVEL_FAILED',
           feedbackMessage: t('tower.feedback.positionFailedWithLives', { lives: activeTower.lives })
         });
         setTimeout(() => this._loadCurrentTowerPosition(), 1500);
@@ -310,16 +307,16 @@ export class TowerController extends BaseGameController<TowerControllerState> {
       }
   }
 
-  /**
-   * REFACTORED: This method now uses the unified _setupPuzzlePosition from the base class
-   * to handle the setup for the current level of the tower.
-   */
   private _loadCurrentTowerPosition(): void {
     const activeTower = this.state.activeTowerState;
-    if (!activeTower || this.state.gamePhase !== 'PLAYING') {
+    if (!activeTower || !(this.state.gamePhase === 'PLAYING' || this.state.gamePhase === 'LEVEL_FAILED')) {
       logger.error(`[TowerController] _loadCurrentTowerPosition: called in invalid state. Phase: ${this.state.gamePhase}`);
       this.setState({ feedbackMessage: t('tower.error.internalErrorLoadingPosition'), gamePhase: 'IDLE' });
       return;
+    }
+
+    if (this.state.gamePhase === 'LEVEL_FAILED') {
+        this.setState({ gamePhase: 'PLAYING' });
     }
 
     const { currentPositionIndex, positions } = activeTower;
@@ -339,7 +336,6 @@ export class TowerController extends BaseGameController<TowerControllerState> {
         })
     });
 
-    // Delegate the actual board setup and first bot move to the base controller
     this._setupPuzzlePosition(currentPosition.FEN_0, scenario);
   }
 

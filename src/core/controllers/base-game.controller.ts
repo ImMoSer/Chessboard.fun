@@ -17,6 +17,8 @@ const BOT_MOVE_DELAY_MS = 50;
  * It encapsulates common logic for handling user moves, managing game state,
  * and interacting with shared services like the board and analysis engine.
  *
+ * REFACTORED: Now uses a state machine (`gamePhase`) instead of multiple boolean flags.
+ *
  * @template S The specific state interface for the extending controller, which must extend BaseGameState.
  */
 export abstract class BaseGameController<S extends BaseGameState> {
@@ -29,7 +31,7 @@ export abstract class BaseGameController<S extends BaseGameState> {
 
   protected scenarioMoves: string[] = [];
   protected currentScenarioMoveIndex: number = 0;
-  protected isScenarioActive: boolean = false;
+  // REMOVED: private isScenarioActive: boolean = false;
 
   private unsubscribeFromMoveMade: (() => void) | null = null;
   private unsubscribeFromPgnNavigated: (() => void) | null = null;
@@ -39,7 +41,7 @@ export abstract class BaseGameController<S extends BaseGameState> {
     boardHandler: BoardHandler,
     analysisController: AnalysisController,
     services: AppServices,
-    requestPageRedraw: () => void
+    requestPageRedraw: () => void,
   ) {
     this.state = initialState;
     this.boardHandler = boardHandler;
@@ -86,7 +88,6 @@ export abstract class BaseGameController<S extends BaseGameState> {
       
       this.scenarioMoves = scenarioMoves;
       this.currentScenarioMoveIndex = 0;
-      this.isScenarioActive = this.scenarioMoves.length > 0;
 
       this.setState({ gamePhase: 'PLAYING' } as Partial<S>);
       
@@ -118,14 +119,17 @@ export abstract class BaseGameController<S extends BaseGameState> {
     this.setState({ feedbackMessage: t('puzzle.feedback.stockfishThinking') } as Partial<S>);
 
     let botMoveUci: string | null = null;
+    const isScenarioActive = this.currentScenarioMoveIndex < this.scenarioMoves.length;
 
-    if (this.isScenarioActive && this.currentScenarioMoveIndex < this.scenarioMoves.length) {
+    if (isScenarioActive) {
       botMoveUci = this.scenarioMoves[this.currentScenarioMoveIndex];
       this.currentScenarioMoveIndex++;
     } else {
-      if (this.isScenarioActive) {
-        this.isScenarioActive = false;
+      // If this was the last scenario move, trigger the playout start hook.
+      if (this.currentScenarioMoveIndex === this.scenarioMoves.length && this.scenarioMoves.length > 0) {
         this._onPlayoutStart();
+        // To prevent this from firing again, we can increment the index one last time.
+        this.currentScenarioMoveIndex++;
       }
       try {
         const engineId = this.services.appController.state.selectedEngine;
@@ -181,8 +185,6 @@ export abstract class BaseGameController<S extends BaseGameState> {
       return;
     }
 
-    // <<< ИЗМЕНЕНИЕ: Убрана проверка `metadata && metadata.premove`
-    // Теперь premove обрабатывается как обычный ход, что исправляет рассинхронизацию.
     if (this.state.gamePhase !== 'PLAYING') {
       logger.warn(`[BaseGameController] handleUserMove called in non-playing phase: ${this.state.gamePhase}. Ignoring move.`);
       return;
@@ -195,12 +197,16 @@ export abstract class BaseGameController<S extends BaseGameState> {
   }
 
   protected async _handleUserMoveInGame(userUciMove: string): Promise<void> {
-    if (this.isScenarioActive) {
+    const isScenarioActive = this.currentScenarioMoveIndex < this.scenarioMoves.length;
+
+    if (isScenarioActive) {
       const expectedMove = this.scenarioMoves[this.currentScenarioMoveIndex];
       if (userUciMove === expectedMove) {
         this.currentScenarioMoveIndex++;
       } else {
-        this.isScenarioActive = false;
+        // If user deviates, the scenario ends.
+        // We mark it as "finished" by setting index beyond the end.
+        this.currentScenarioMoveIndex = this.scenarioMoves.length + 1;
         this._onPlayoutStart();
       }
     }
