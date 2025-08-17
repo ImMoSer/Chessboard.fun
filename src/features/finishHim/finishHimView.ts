@@ -2,7 +2,6 @@
 import { h } from 'snabbdom';
 import type { VNode } from 'snabbdom';
 import { FinishHimController, formatPlayoutTimer } from './finishHimController';
-import { renderAnalysisPanel } from '../analysis/analysisPanelView';
 import { t } from '../../core/i18n.service';
 import type { PuzzleResultEntry, AppPuzzle } from '../../core/api.types';
 import { renderBoardContainer, type FinishHimPageViewLayout } from '../../shared/components/boardView';
@@ -132,7 +131,6 @@ function renderPuzzleInfo(controller: FinishHimController): VNode | null {
         return null;
     }
 
-    // FIXED: Destructure solve_time directly from activePuzzle
     const { Tactical_Rating, PlayOut_Rating, fun_value, solve_time } = activePuzzle;
 
     const infoItems = [
@@ -144,7 +142,6 @@ function renderPuzzleInfo(controller: FinishHimController): VNode | null {
             h('span.info-label', t('finishHim.puzzleInfo.playoutRating') + ': '),
             h('span.info-value', String(PlayOut_Rating))
         ]) : null,
-        // FIXED: Use solve_time from puzzle data
         solve_time !== undefined ? h('div.puzzle-info-item', [
             h('span.info-label', t('finishHim.puzzleInfo.solveTime') + ': '),
             h('span.info-value', formatTime(solve_time))
@@ -178,7 +175,6 @@ function renderTimer(controller: FinishHimController): VNode {
 export function renderFinishHimUI(controller: FinishHimController): FinishHimPageViewLayout {
   const fhState = controller.state;
 
-  // <<< MODIFIED: Pass the controller's boardView instance >>>
   const centerContent = renderBoardContainer(
     controller.boardView,
     'fh'
@@ -195,10 +191,19 @@ export function renderFinishHimUI(controller: FinishHimController): FinishHimPag
     ),
   ]);
 
+  // --- REFACTORED: The view now renders a placeholder div for the analysis panel. ---
+  // The AnalysisController will take over rendering into this div.
   const analysisPanelWrapper = (fhState.gamePhase === 'GAMEOVER')
-    ? h('div.analysis-panel-wrapper', [
-        renderAnalysisPanel(controller.analysisController)
-      ])
+    ? h('div.analysis-panel-wrapper', {
+        hook: {
+          insert: (vnode: VNode) => {
+            controller.analysisController.setContainer(vnode.elm as HTMLElement);
+          },
+          destroy: () => {
+            // The controller's main destroy method will handle cleanup
+          }
+        }
+      })
     : null;
 
   const rightPanelElements: (VNode | null)[] = [];

@@ -3,7 +3,6 @@ import { h } from 'snabbdom';
 import type { VNode } from 'snabbdom';
 import { TackticsController } from './tackticsController';
 import { t } from '../../core/i18n.service';
-import { renderAnalysisPanel } from '../analysis/analysisPanelView';
 import type { TacticalTrainerStats, TacticalThemeStat } from '../../core/api.types';
 import { renderBoardContainer, type TackticsPageViewLayout } from '../../shared/components/boardView';
 import type { TacticalLevel } from './tacktics.types';
@@ -78,7 +77,6 @@ function renderTackticsControls(controller: TackticsController): VNode {
     const levels: TacticalLevel[] = ['easy', 'normal', 'hard'];
 
     return h('div.tacktics-controls-container', [
-        // <<< ИЗМЕНЕНИЕ: Новый контейнер для горизонтального расположения
         h('div.tacktics-controls-header', [
             h('div.tacktics-level-selector', [
                 h('h5', t('tacktics.controls.levelTitle', {defaultValue: 'Select Difficulty'})),
@@ -109,19 +107,24 @@ function renderTackticsControls(controller: TackticsController): VNode {
 export function renderTackticsUI(controller: TackticsController): TackticsPageViewLayout {
   const { state } = controller;
 
-  // <<< MODIFIED: Pass the controller's boardView instance >>>
   const centerContent = renderBoardContainer(
     controller.boardView,
     state.activePuzzle?.PuzzleId || 'idle'
   );
 
   const analysisPanelWrapper = (state.gamePhase === 'GAMEOVER' && !state.isAutoLoadEnabled)
-    ? h('div.analysis-panel-wrapper', [
-        renderAnalysisPanel(controller.analysisController)
-      ])
+    ? h('div.analysis-panel-wrapper', {
+        hook: {
+          insert: (vnode: VNode) => {
+            controller.analysisController.setContainer(vnode.elm as HTMLElement);
+          },
+          destroy: () => {
+            // The controller's main destroy method will handle cleanup
+          }
+        }
+      })
     : null;
   
-  // <<< ИЗМЕНЕНИЕ: Изменен порядок отображения элементов на правой панели
   let rightPanelContentChildren: VNode[] = [];
   if (state.gamePhase === 'GAMEOVER' && !state.isAutoLoadEnabled) {
     rightPanelContentChildren = [

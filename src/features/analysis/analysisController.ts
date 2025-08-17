@@ -1,4 +1,6 @@
 // src/features/analysis/analysisController.ts
+import { init, propsModule, eventListenersModule, styleModule, classModule, attributesModule } from 'snabbdom';
+import type { VNode } from 'snabbdom';
 import logger from '../../utils/logger';
 import type {
   AnalysisService,
@@ -16,6 +18,7 @@ import type { Key } from 'chessground/types';
 import type { CustomDrawShape } from '../../core/chessboard.service';
 import { t } from '../../core/i18n.service';
 import type { AnalysisUpdateCallback } from '../../core/infiniteAnalysisStockfish.service';
+import { renderAnalysisPanel } from './analysisPanelView';
 
 const ARROW_STYLES = [
   { brush: 'blue', lineWidth: 15 }, 
@@ -24,8 +27,7 @@ const ARROW_STYLES = [
 ];
 const LINES_STORAGE_KEY = 'stockfish_analysis_lines';
 const THREADS_STORAGE_KEY = 'stockfish_analysis_threads';
-const MAX_THREADS_LIMIT = 8; // Hard limit for threads in UI
-
+const MAX_THREADS_LIMIT = 8;
 
 export interface AnalysisPanelState {
   isAnalysisActive: boolean;
@@ -46,8 +48,13 @@ export class AnalysisController {
   private analysisService: AnalysisService;
   private boardHandler: BoardHandler;
   private pgnServiceInstance: typeof PgnService;
-  private requestGlobalRedraw: () => void;
 
+  // --- REFACTORED: Local rendering properties ---
+  private patch = init([propsModule, eventListenersModule, styleModule, classModule, attributesModule]);
+  private panelVNode: VNode | Element | null = null;
+  private isUpdateScheduled = false;
+  private latestAnalysisData: ContinuousEvaluatedLine[] | null = null;
+  
   private panelState: AnalysisPanelState;
   private currentFenForAnalysis: string | null = null;
   private currentAnalysisNodePath: string | null = null;
@@ -59,20 +66,14 @@ export class AnalysisController {
   private unsubscribeFromMoveMade: (() => void) | null = null;
   private unsubscribeFromPgnNavigated: (() => void) | null = null;
 
-  // ИЗМЕНЕНО: Свойства для оптимизации рендеринга удалены, так как переходим на декларативный подход
-  // private latestAnalysisData: ContinuousEvaluatedLine[] | null = null;
-  // private isUpdateScheduled = false;
-
   constructor(
     analysisService: AnalysisService,
     boardHandler: BoardHandler,
     pgnServiceInstance: typeof PgnService,
-    requestGlobalRedraw: () => void,
   ) {
     this.analysisService = analysisService;
     this.boardHandler = boardHandler;
     this.pgnServiceInstance = pgnServiceInstance;
-    this.requestGlobalRedraw = requestGlobalRedraw;
 
     const savedLines = localStorage.getItem(LINES_STORAGE_KEY);
     const savedThreads = localStorage.getItem(THREADS_STORAGE_KEY);
@@ -97,7 +98,28 @@ export class AnalysisController {
     this.unsubscribeFromMoveMade = this.boardHandler.onMoveMade(this._handleBoardOrPgnChange.bind(this));
     this.unsubscribeFromPgnNavigated = this.boardHandler.onPgnNavigated(this._handleBoardOrPgnChange.bind(this));
 
-    logger.info('[AnalysisController] Initialized.');
+    logger.info('[AnalysisController] Initialized with local rendering.');
+  }
+
+  /**
+   * REFACTORED: Sets the container element for the analysis panel and performs the initial render.
+   */
+  public setContainer(element: HTMLElement): void {
+      if (this.panelVNode) {
+          logger.warn('[AnalysisController] Container is already set.');
+          return;
+      }
+      this.panelVNode = element;
+      this.redraw();
+  }
+
+  /**
+   * REFACTORED: Local redraw function for the analysis panel.
+   */
+  private redraw(): void {
+      if (!this.panelVNode) return;
+      const newVNode = renderAnalysisPanel(this);
+      this.panelVNode = this.patch(this.panelVNode, newVNode);
   }
 
   public isPromotionActive(): boolean {
@@ -137,7 +159,7 @@ export class AnalysisController {
     } else {
       this._internalStartAnalysis();
     }
-    this.requestGlobalRedraw();
+    this.redraw();
   }
 
   private _internalStartAnalysis(nodePath?: string): void {
@@ -176,7 +198,7 @@ export class AnalysisController {
     logger.info('[AnalysisController] Stopping analysis internally.');
     this.panelState.isAnalysisActive = false;
     this.panelState.isAnalysisLoading = false;
-    // this.isUpdateScheduled = false; // ИЗМЕНЕНО: Удалено
+    this.isUpdateScheduled = false;
 
     const groundEl = this.boardHandler.getBoardElement();
     if (groundEl && this.boundBoardWheelHandler) {
@@ -198,7 +220,7 @@ export class AnalysisController {
 
   private _handleBoardOrPgnChange(data: { currentNodePath?: string; currentFen?: string; newNodePath?: string; newFen?: string }): void {
     if (!this.panelState.isAnalysisActive) {
-      this.requestGlobalRedraw();
+      this.redraw();
       return;
     }
 
@@ -207,7 +229,7 @@ export class AnalysisController {
 
     if (path === undefined || fen === undefined) {
         logger.warn('[AnalysisController _handleBoardOrPgnChange] Path or FEN missing in event data.');
-        this.requestGlobalRedraw();
+        this.redraw();
         return;
     }
 
@@ -216,7 +238,7 @@ export class AnalysisController {
       this.currentFenForAnalysis = fen;
       this._requestAndProcessContinuousAnalysis();
     } else {
-      this.requestGlobalRedraw();
+      this.redraw();
     }
   }
 
@@ -227,26 +249,17 @@ export class AnalysisController {
 
     this.panelState.isAnalysisLoading = true;
     this.panelState.analysisLines = null;
-    this.requestGlobalRedraw();
+    this.redraw();
 
     this.boardHandler.clearAllDrawings();
     const fenForAnalysis = this.currentFenForAnalysis;
 
-    // ИЗМЕНЕНО: Логика колбэка упрощена
     const analysisUpdateCallback: AnalysisUpdateCallback = (updatedLines, _bestMoveUci) => {
         if (!this.panelState.isAnalysisActive || this.currentFenForAnalysis !== fenForAnalysis) {
             return;
         }
-
-        if (this.panelState.isAnalysisLoading) {
-            this.panelState.isAnalysisLoading = false;
-        }
-        
-        const linesWithSan = this._prepareLinesForDisplay(updatedLines, fenForAnalysis);
-        this.panelState.analysisLines = linesWithSan;
-        this._drawAnalysisResultOnBoard(linesWithSan);
-        
-        this.requestGlobalRedraw();
+        this.latestAnalysisData = updatedLines;
+        this._schedulePanelUpdate();
     };
 
     try {
@@ -261,12 +274,39 @@ export class AnalysisController {
                 startingFen: fenForAnalysis,
                 initialFullMoveNumber: 1, initialTurn: 'white' as ChessopsColor
             }];
-            this.requestGlobalRedraw();
+            this.redraw();
         }
     }
   }
 
-  // ИЗМЕНЕНО: Метод _processScheduledUpdate удален
+  private _schedulePanelUpdate(): void {
+    if (this.isUpdateScheduled) {
+      return;
+    }
+    this.isUpdateScheduled = true;
+    requestAnimationFrame(() => this._processScheduledUpdate());
+  }
+
+  private _processScheduledUpdate(): void {
+    this.isUpdateScheduled = false;
+
+    if (!this.panelState.isAnalysisActive || !this.latestAnalysisData) {
+      return;
+    }
+
+    if (this.panelState.isAnalysisLoading) {
+      this.panelState.isAnalysisLoading = false;
+    }
+
+    const linesWithSan = this._prepareLinesForDisplay(this.latestAnalysisData, this.currentFenForAnalysis!);
+    this.panelState.analysisLines = linesWithSan;
+    this._drawAnalysisResultOnBoard(linesWithSan);
+
+    // --- REFACTORED: Call local redraw instead of global ---
+    this.redraw();
+
+    this.latestAnalysisData = null;
+  }
 
   private _prepareLinesForDisplay(lines: ContinuousEvaluatedLine[], fen: string): EvaluatedLineWithSan[] {
     const turn = parseFen(fen).unwrap().turn;
@@ -392,7 +432,7 @@ export class AnalysisController {
       await this.analysisService.stopContinuousAnalysis();
       this._requestAndProcessContinuousAnalysis();
     }
-    this.requestGlobalRedraw();
+    this.redraw();
   }
 
   public setNumLines(lines: number): void {

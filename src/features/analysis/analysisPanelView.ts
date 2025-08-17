@@ -60,13 +60,13 @@ function renderPgnDisplay(controller: AnalysisController, panelState: AnalysisPa
 
 // --- Analysis Lines Rendering ---
 /**
- * ИЗМЕНЕНО: Функция теперь рендерит линии анализа декларативно на основе состояния
+ * REFACTORED: This function now declaratively renders analysis lines based on the state.
  */
 function renderAnalysisLinesContainer(controller: AnalysisController, panelState: AnalysisPanelState): VNode {
     const { analysisLines } = panelState;
 
     if (!analysisLines || analysisLines.length === 0) {
-        // Возвращаем пустой контейнер, если нет линий для отображения
+        // Return an empty container if there are no lines to display
         return h('div.analysis-lines-section', [
             h('div#analysis-lines-section-content')
         ]);
@@ -170,6 +170,10 @@ function renderAnalysisControls(controller: AnalysisController, panelState: Anal
   ]);
 }
 
+/**
+ * REFACTORED: The main render function for the analysis panel.
+ * It is now called by the AnalysisController itself.
+ */
 export function renderAnalysisPanel(controller: AnalysisController): VNode {
   const panelState = controller.getPanelState();
   logger.debug('[AnalysisPanelView] Rendering with state:', panelState);
@@ -189,7 +193,6 @@ export function renderAnalysisPanel(controller: AnalysisController): VNode {
       } else {
           content = [
               renderPgnControls(controller, panelState),
-              // ИЗМЕНЕНО: Передаем panelState в функцию рендеринга
               renderAnalysisLinesContainer(controller, panelState),
               pgnDisplaySection,
               renderAnalysisControls(controller, panelState),

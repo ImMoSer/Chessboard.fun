@@ -2,7 +2,6 @@
 import { h } from 'snabbdom';
 import type { VNode } from 'snabbdom';
 import { AttackController, formatElapsedTime } from './attackController';
-import { renderAnalysisPanel } from '../analysis/analysisPanelView';
 import { t } from '../../core/i18n.service';
 import type { PuzzleResultEntry } from '../../core/api.types';
 import { renderBoardContainer, type AttackPageViewLayout } from '../../shared/components/boardView';
@@ -75,16 +74,22 @@ function renderPuzzleLeaderboard(results: PuzzleResultEntry[] | null): VNode | n
 export function renderAttackUI(controller: AttackController): AttackPageViewLayout {
   const { state } = controller;
 
-  // <<< MODIFIED: Pass the controller's boardView instance >>>
   const centerContent = renderBoardContainer(
     controller.boardView,
     'attack'
   );
 
   const analysisPanelWrapper = (state.gamePhase === 'GAMEOVER')
-    ? h('div.analysis-panel-wrapper', [
-        renderAnalysisPanel(controller.analysisController)
-      ])
+    ? h('div.analysis-panel-wrapper', {
+        hook: {
+          insert: (vnode: VNode) => {
+            controller.analysisController.setContainer(vnode.elm as HTMLElement);
+          },
+          destroy: () => {
+            // The controller's main destroy method will handle cleanup
+          }
+        }
+      })
     : null;
 
   const rightPanelContent = h('div.attack-right-panel', [

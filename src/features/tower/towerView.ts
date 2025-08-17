@@ -4,7 +4,6 @@ import type { VNode, VNodeChildElement } from 'snabbdom';
 import type { TowerController } from './TowerController';
 import { type TowerDefinition } from './tower.types';
 import { type TowerPositionEntry, type TowerResultEntry, type TowerTheme } from '../../core/api.types';
-import { renderAnalysisPanel } from '../analysis/analysisPanelView';
 import { t } from '../../core/i18n.service';
 import logger from '../../utils/logger';
 import { renderBoardContainer, type TowerPageViewLayout } from '../../shared/components/boardView';
@@ -250,7 +249,6 @@ export function renderTowerUI(controller: TowerController): TowerPageViewLayout 
   
   const currentPieceSet = controller.services.themeService.getCurrentTheme().pieces;
 
-  // <<< MODIFIED: Pass the controller's boardView instance >>>
   const centerContent = renderBoardContainer(
     controller.boardView,
     'tower'
@@ -270,9 +268,15 @@ export function renderTowerUI(controller: TowerController): TowerPageViewLayout 
 
   const leftPanelContent = h('div.tower-left-panel', {}, strictEnsureVNodeChildren(leftPanelChildren));
 
-
   const analysisPanelWrapper = (towerState.gamePhase === 'LEVEL_FAILED' || towerState.gamePhase === 'GAMEOVER' || towerState.gamePhase === 'LEVEL_RESIGNED') && controller.analysisController
-    ? h('div.analysis-panel-wrapper', [ renderAnalysisPanel(controller.analysisController) ])
+    ? h('div.analysis-panel-wrapper', {
+        hook: {
+          insert: (vnode: VNode) => {
+            controller.analysisController.setContainer(vnode.elm as HTMLElement);
+          },
+          destroy: () => { /* Cleanup handled by controller */ }
+        }
+      })
     : null;
 
   let rightPanelDynamicContentElements: VNodeChildElement[] = [];
