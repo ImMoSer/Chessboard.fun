@@ -1,9 +1,8 @@
 // src/core/gameplay.service.ts
 import logger from '../utils/logger';
-import { StockfishService } from './stockfish.service';
+import { StockfishManager } from './stockfish-manager.service';
 import { serverEngineService } from './serverEngine.service';
 
-// 1. Обновляем EngineId в соответствии с новыми серверными движками
 export type EngineId =
   | 'SF_1600'
   | 'SF_1700'
@@ -12,7 +11,6 @@ export type EngineId =
   | 'SF_2200'
   | 'MOZER_1900+';
 
-// 3. Добавляем внутренний ID для универсального fallback-движка
 const FALLBACK_ENGINE_ID = 'FALLBACK_LOCAL_SF_10';
 type InternalEngineId = EngineId | typeof FALLBACK_ENGINE_ID;
 
@@ -20,36 +18,27 @@ type EngineType = 'local' | 'server';
 
 interface EngineConfig {
   type: EngineType;
-  depth?: number; // для локального Stockfish
-  model?: string; // для серверных движков
-  fallback?: InternalEngineId; // движок на случай отказа сервера
+  depth?: number;
+  model?: string;
+  fallback?: InternalEngineId;
 }
 
 const FALLBACK_TIMEOUT_MS = 500;
 
-// 2. Обновляем конфигурацию движков
 const engineConfigs: Record<InternalEngineId, EngineConfig> = {
-  // Новые серверные движки Stockfish
   'SF_1600': { type: 'server', model: 'sf1600', fallback: FALLBACK_ENGINE_ID },
   'SF_1700': { type: 'server', model: 'sf1700', fallback: FALLBACK_ENGINE_ID },
   'SF_1900': { type: 'server', model: 'sf1900', fallback: FALLBACK_ENGINE_ID },
   'SF_2100': { type: 'server', model: 'sf2100', fallback: FALLBACK_ENGINE_ID },
   'SF_2200': { type: 'server', model: 'sf2200', fallback: FALLBACK_ENGINE_ID },
-  
-  // ИЗМЕНЕНО: Модель для MOZER_1900+ теперь 'maia' в соответствии с документацией
   'MOZER_1900+': { type: 'server', model: 'maia', fallback: FALLBACK_ENGINE_ID },
-
-  // 3. Универсальный локальный fallback-движок (не виден пользователю)
   [FALLBACK_ENGINE_ID]: { type: 'local', depth: 5 },
 };
 
 export class GameplayServiceController {
-  private stockfishService: StockfishService;
 
   constructor() {
-    // GameplayService использует существующий синглтон StockfishService для fallback'а
-    this.stockfishService = new StockfishService();
-    logger.info('[GameplayService] Initialized.');
+    logger.info('[GameplayService] Initialized. Now using StockfishManager for local fallback.');
   }
 
   public async getBestMove(engineId: EngineId, fen: string): Promise<string | null> {
@@ -59,24 +48,20 @@ export class GameplayServiceController {
       return null;
     }
 
-    // 4. Логика теперь едина для всех серверных движков
     if (config.type === 'server' && config.model) {
       logger.info(`[GameplayService] Using server engine ${engineId} (model: ${config.model})`);
       return this.getMoveWithFallback(fen, config.model, config.fallback);
     }
     
-    // Этот код больше не должен вызываться для движков, выбираемых пользователем,
-    // а только для внутреннего fallback-механизма.
     if (config.type === 'local' && config.depth) {
       logger.warn(`[GameplayService] Directly calling local engine ${engineId} with depth ${config.depth}. Should only happen for fallback.`);
-      return this.stockfishService.getBestMoveOnly(fen, { depth: config.depth });
+      return StockfishManager.getBestMoveOnly(fen, { depth: config.depth });
     }
 
     logger.error(`[GameplayService] Invalid configuration for engineId: ${engineId}`);
     return null;
   }
 
-  // ИЗМЕНЕНО: Метод getMoveWithFallback теперь универсален и обрабатывает ошибки сервера
   private async getMoveWithFallback(fen: string, modelId: string, fallbackId?: InternalEngineId): Promise<string | null> {
     let result: string | null = null;
     try {
@@ -86,8 +71,6 @@ export class GameplayServiceController {
           setTimeout(() => resolve(null), FALLBACK_TIMEOUT_MS);
         });
     
-        // Promise.race завершится либо по таймауту (вернет null), либо когда сервер ответит.
-        // Если сервер ответит ошибкой, промис serverPromise будет отклонен, и мы перейдем в блок catch.
         result = await Promise.race([serverPromise, timeoutPromise]);
 
         if (result !== null) {
@@ -96,10 +79,8 @@ export class GameplayServiceController {
         }
     } catch (error) {
         logger.error(`[GameplayService] Server engine request for model ${modelId} failed:`, error);
-        // Ошибка от сервера перехвачена. result остается null, и мы переходим к логике fallback.
     }
 
-    // Этот блок теперь выполняется и при таймауте, и при ошибке сервера.
     if (result === null) {
         logger.warn(`[GameplayService] Server engine for model ${modelId} failed or timed out. Using fallback.`);
         
@@ -107,7 +88,7 @@ export class GameplayServiceController {
           const fallbackConfig = engineConfigs[fallbackId];
           if (fallbackConfig && fallbackConfig.type === 'local' && fallbackConfig.depth) {
             logger.info(`[GameplayService] Executing fallback engine ${fallbackId} with depth ${fallbackConfig.depth}`);
-            return this.stockfishService.getBestMoveOnly(fen, { depth: fallbackConfig.depth });
+            return StockfishManager.getBestMoveOnly(fen, { depth: fallbackConfig.depth });
           }
         }
         
@@ -115,7 +96,6 @@ export class GameplayServiceController {
         return null;
     }
 
-    // Этот код не должен быть достигнут, если result не null, но для безопасности оставляем.
     return result;
   }
 }

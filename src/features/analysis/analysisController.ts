@@ -2,11 +2,8 @@
 import { init, propsModule, eventListenersModule, styleModule, classModule, attributesModule } from 'snabbdom';
 import type { VNode } from 'snabbdom';
 import logger from '../../utils/logger';
-import type {
-  AnalysisService,
-  EvaluatedLine as ContinuousEvaluatedLine,
-  EvaluatedLineWithSan,
-} from '../../core/analysis.service';
+import type { AnalysisService, EvaluatedLineWithSan } from '../../core/analysis.service';
+import type { EvaluatedLine as ContinuousEvaluatedLine } from '../../core/stockfish-manager.service';
 import type { BoardHandler } from '../../core/boardHandler';
 import { PgnService, type PgnNode } from '../../core/pgn.service';
 import type { Color as ChessopsColor } from 'chessops/types';
@@ -17,7 +14,7 @@ import { makeSan } from 'chessops/san';
 import type { Key } from 'chessground/types';
 import type { CustomDrawShape } from '../../core/chessboard.service';
 import { t } from '../../core/i18n.service';
-import type { AnalysisUpdateCallback } from '../../core/infiniteAnalysisStockfish.service';
+import type { AnalysisUpdateCallback } from '../../core/stockfish-manager.service';
 import { renderAnalysisPanel } from './analysisPanelView';
 
 const ARROW_STYLES = [
@@ -49,7 +46,6 @@ export class AnalysisController {
   private boardHandler: BoardHandler;
   private pgnServiceInstance: typeof PgnService;
 
-  // --- REFACTORED: Local rendering properties ---
   private patch = init([propsModule, eventListenersModule, styleModule, classModule, attributesModule]);
   private panelVNode: VNode | Element | null = null;
   private isUpdateScheduled = false;
@@ -101,9 +97,6 @@ export class AnalysisController {
     logger.info('[AnalysisController] Initialized with local rendering.');
   }
 
-  /**
-   * REFACTORED: Sets the container element for the analysis panel and performs the initial render.
-   */
   public setContainer(element: HTMLElement): void {
       if (this.panelVNode) {
           logger.warn('[AnalysisController] Container is already set.');
@@ -113,9 +106,6 @@ export class AnalysisController {
       this.redraw();
   }
 
-  /**
-   * REFACTORED: Local redraw function for the analysis panel.
-   */
   private redraw(): void {
       if (!this.panelVNode) return;
       const newVNode = renderAnalysisPanel(this);
@@ -302,7 +292,6 @@ export class AnalysisController {
     this.panelState.analysisLines = linesWithSan;
     this._drawAnalysisResultOnBoard(linesWithSan);
 
-    // --- REFACTORED: Call local redraw instead of global ---
     this.redraw();
 
     this.latestAnalysisData = null;

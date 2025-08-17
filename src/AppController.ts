@@ -1,8 +1,6 @@
 // src/AppController.ts
 import logger from './utils/logger';
 import type { ChessboardService } from './core/chessboard.service';
-import type { StockfishService as GameplayStockfishService } from './core/stockfish.service';
-import { InfiniteAnalysisStockfishService } from './core/infiniteAnalysisStockfish.service';
 import { type WebhookServiceController, RateLimitError } from './core/webhook.service';
 import type { GameplayServiceController, EngineId } from './core/gameplay.service';
 import { BoardHandler } from './core/boardHandler';
@@ -57,8 +55,6 @@ export interface GameControlsState {
 export interface AppServices {
   authService: typeof AuthService;
   chessboardService: ChessboardService;
-  gameplayStockfishService: GameplayStockfishService;
-  infiniteAnalysisStockfishService: InfiniteAnalysisStockfishService;
   gameplayService: GameplayServiceController;
   webhookService: WebhookServiceController;
   analysisService: AnalysisService;
@@ -147,8 +143,6 @@ export class AppController {
   constructor(
     globalServices: {
       chessboardService: ChessboardService;
-      gameplayStockfishService: GameplayStockfishService;
-      infiniteAnalysisStockfishService: InfiniteAnalysisStockfishService;
       webhookService: WebhookServiceController;
       gameplayService: GameplayServiceController;
       logger: typeof logger;
@@ -159,10 +153,7 @@ export class AppController {
   ) {
     this.authServiceInstance = AuthService;
     this.webhookServiceInstance = globalServices.webhookService;
-    const analysisServiceInstance = new AnalysisService(
-        globalServices.gameplayStockfishService,
-        globalServices.infiniteAnalysisStockfishService
-    );
+    const analysisServiceInstance = new AnalysisService();
     this.pgnServiceInstance = pgnServiceInstance;
     this.routingService = new RoutingService();
     this.themeServiceInstance = ThemeService;
@@ -172,8 +163,6 @@ export class AppController {
 
     this.services = {
       chessboardService: globalServices.chessboardService,
-      gameplayStockfishService: globalServices.gameplayStockfishService,
-      infiniteAnalysisStockfishService: globalServices.infiniteAnalysisStockfishService,
       webhookService: this.webhookServiceInstance,
       gameplayService: globalServices.gameplayService,
       logger: globalServices.logger,
@@ -513,7 +502,6 @@ export class AppController {
   
     if (['finishHim', 'tower', 'attack', 'tacktics'].includes(route.page)) {
       boardHandlerForPage = new BoardHandler(this.services.chessboardService, requestPageRedraw);
-      // --- REFACTORED: Removed the 4th argument ---
       this.analysisControllerInstance = new AnalysisController(this.services.analysisService, boardHandlerForPage, this.pgnServiceInstance);
     }
   

@@ -23,13 +23,12 @@ import './features/tacktics/tacktics.css';
 
 // Import core services
 import { ChessboardService } from './core/chessboard.service';
-import { StockfishService as GameplayStockfishService } from './core/stockfish.service';
-import { InfiniteAnalysisStockfishService } from './core/infiniteAnalysisStockfish.service';
 import { WebhookService } from './core/webhook.service';
 import { initI18nService } from './core/i18n.service';
 import { PgnService } from './core/pgn.service';
 import { gameplayService } from './core/gameplay.service';
 import logger from './utils/logger';
+import { StockfishManager } from './core/stockfish-manager.service';
 
 // Import main application controller and view
 import { AppController } from './AppController';
@@ -51,8 +50,6 @@ const patch = init([
 ]);
 
 const chessboardService = new ChessboardService();
-const gameplayStockfishService = new GameplayStockfishService();
-const infiniteAnalysisStockfishService = new InfiniteAnalysisStockfishService();
 const webhookServiceInstance = WebhookService;
 const pgnServiceInstance = PgnService;
 
@@ -88,8 +85,6 @@ async function initializeApplication() {
     appController = new AppController(
       {
         chessboardService,
-        gameplayStockfishService,
-        infiniteAnalysisStockfishService,
         webhookService: webhookServiceInstance,
         gameplayService: gameplayService,
         logger,
@@ -121,11 +116,9 @@ async function initializeApplication() {
 
 initializeApplication();
 
-// <<< ИЗМЕНЕНИЕ: Добавлен обработчик `beforeunload` для уничтожения Web Workers
 window.addEventListener('beforeunload', () => {
     logger.info('[AppEntry] beforeunload event triggered. Terminating services.');
-    gameplayStockfishService.terminate();
-    infiniteAnalysisStockfishService.terminate();
+    StockfishManager.terminate();
 });
 
 window.addEventListener('resize', () => {
