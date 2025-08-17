@@ -48,6 +48,8 @@ class StockfishManagerController {
   private isReady: boolean = false;
   private isInitializing: boolean = false;
   private initPromise: Promise<void> | null = null;
+  private resolveInitPromise!: () => void;
+  private rejectInitPromise!: (reason?: any) => void;
   private commandQueue: string[] = [];
   
   private currentFen: string | null = null;
@@ -64,18 +66,16 @@ class StockfishManagerController {
     logger.info('[StockfishManager] Service created. Engine will be loaded on demand.');
   }
 
-  /**
-   * Ensures the engine is loaded and ready. This is the main entry point for lazy loading.
-   */
   public async ensureReady(): Promise<void> {
-    if (this.isReady) {
-      return;
-    }
-    if (this.isInitializing && this.initPromise) {
-      return this.initPromise;
-    }
+    if (this.isReady) return;
+    if (this.isInitializing && this.initPromise) return this.initPromise;
+    
     this.isInitializing = true;
-    this.initPromise = this._initEngine();
+    this.initPromise = new Promise<void>((resolve, reject) => {
+      this.resolveInitPromise = resolve;
+      this.rejectInitPromise = reject;
+      this._initEngine().catch(reject);
+    });
     return this.initPromise;
   }
 
@@ -84,30 +84,24 @@ class StockfishManagerController {
       logger.info(`[StockfishManager] Lazy loading engine...`);
       this.engine = await loadEngine();
       this.engine.addMessageListener((message: string) => this.handleEngineMessage(message));
+      
+      const timeoutId = setTimeout(() => {
+        if (!this.isReady) {
+            const errorMsg = 'UCI handshake timeout for StockfishManager';
+            logger.error(`[StockfishManager] ${errorMsg}`);
+            this.rejectInitPromise(new Error(errorMsg));
+        }
+      }, 15000);
+
+      // We need a way to clear the timeout once the engine is ready
+      this.initPromise?.then(() => clearTimeout(timeoutId)).catch(() => clearTimeout(timeoutId));
+
       this.sendCommand('uci');
-
-      // UCI handshake timeout
-      await new Promise<void>((resolve, reject) => {
-        const timeout = setTimeout(() => {
-          reject(new Error('UCI handshake timeout for StockfishManager'));
-        }, 15000);
-        
-        const checkReady = () => {
-          if (this.isReady) {
-            clearTimeout(timeout);
-            resolve();
-          } else {
-            setTimeout(checkReady, 100);
-          }
-        };
-        checkReady();
-      });
-
     } catch (error: any) {
       logger.error('[StockfishManager] Failed to initialize engine:', error.message, error);
       this.isInitializing = false;
       this.initPromise = null;
-      throw error; // Re-throw to let consumers know it failed
+      if(this.rejectInitPromise) this.rejectInitPromise(error);
     }
   }
 
@@ -116,7 +110,7 @@ class StockfishManagerController {
         logger.warn('[StockfishManager] Engine not loaded, cannot send command:', command);
         return;
     }
-    if (!this.isReady && command !== 'uci') {
+    if (!this.isReady && !['uci', 'isready'].includes(command) && !command.startsWith('setoption')) {
       this.commandQueue.push(command);
       return;
     }
@@ -138,12 +132,17 @@ class StockfishManagerController {
     const parts = message.split(' ');
 
     if (message === 'uciok') {
-      logger.info('[StockfishManager] UCI OK received.');
+      logger.info('[StockfishManager] UCI OK received. Setting options...');
+      // Set common options here
+      if (window.crossOriginIsolated) {
+        this.sendCommand('setoption name Threads value 1');
+      }
       this.sendCommand('isready');
     } else if (message === 'readyok') {
       this.isReady = true;
       this.isInitializing = false;
       logger.info('[StockfishManager] Engine is ready.');
+      if(this.resolveInitPromise) this.resolveInitPromise();
       this.processCommandQueue();
     } else if (parts[0] === 'info') {
       this.parseInfoLine(message);
@@ -184,10 +183,8 @@ class StockfishManagerController {
         const newLine: EvaluatedLine = { id: currentLineId, depth, score, pvUci };
         
         if (this.isInfiniteAnalyzing && this.infiniteAnalysisCallback) {
-            // In infinite mode, we don't collect, we just callback
             this.infiniteAnalysisCallback([newLine], null);
         } else if (this.pendingRequest) {
-            // In gameplay mode, we collect the best line
             const existingLine = this.pendingRequest.collectedLines.get(currentLineId);
             if (!existingLine || depth >= existingLine.depth) {
                 this.pendingRequest.collectedLines.set(currentLineId, newLine);
@@ -212,7 +209,6 @@ class StockfishManagerController {
     }
     if (this.isInfiniteAnalyzing && this.infiniteAnalysisCallback) {
         this.infiniteAnalysisCallback([], bestMoveUci);
-        // Note: isInfiniteAnalyzing is reset by stopAnalysis()
     }
   }
 
@@ -251,7 +247,7 @@ class StockfishManagerController {
   }
 
   public async getBestMoveOnly(fen: string, options: { depth?: number; movetime?: number } = {}): Promise<string | null> {
-    const result = await this.getAnalysis(fen, options);
+    const result = await this.getAnalysis(fen, { ...options, lines: 1 });
     return result?.bestMoveUci || null;
   }
 
@@ -292,7 +288,11 @@ class StockfishManagerController {
   public async terminate(): Promise<void> {
     if (this.engine) {
       logger.info('[StockfishManager] Terminating engine...');
-      this.engine.postMessage('quit');
+      if (this.engine.terminate) {
+        this.engine.terminate();
+      } else {
+        this.engine.postMessage('quit');
+      }
       this.engine = null;
     }
     this.isReady = false;

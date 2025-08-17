@@ -1,8 +1,11 @@
 // src/features/analysis/analysisController.ts
-import { init, propsModule, eventListenersModule, styleModule, classModule, attributesModule } from 'snabbdom';
+import { init, propsModule, eventListenersModule, styleModule, classModule, attributesModule, h } from 'snabbdom';
 import type { VNode } from 'snabbdom';
 import logger from '../../utils/logger';
-import type { AnalysisService, EvaluatedLineWithSan } from '../../core/analysis.service';
+import type {
+  AnalysisService,
+  EvaluatedLineWithSan,
+} from '../../core/analysis.service';
 import type { EvaluatedLine as ContinuousEvaluatedLine } from '../../core/stockfish-manager.service';
 import type { BoardHandler } from '../../core/boardHandler';
 import { PgnService, type PgnNode } from '../../core/pgn.service';
@@ -97,12 +100,20 @@ export class AnalysisController {
     logger.info('[AnalysisController] Initialized with local rendering.');
   }
 
+  /**
+   * REFACTORED: Sets the container and immediately "claims" it with an empty VNode patch
+   * to synchronize the snabbdom instance before rendering content.
+   */
   public setContainer(element: HTMLElement): void {
-      if (this.panelVNode) {
-          logger.warn('[AnalysisController] Container is already set.');
+      // FIX: Check if the element is already the one we are managing.
+      if (this.panelVNode && 'elm' in this.panelVNode && this.panelVNode.elm === element) {
           return;
       }
-      this.panelVNode = element;
+      // "Claim" the element by patching it with an empty VNode of the same type.
+      // This synchronizes our patch instance with the DOM provided by the parent.
+      const emptyVNode = h(element.tagName, { key: 'analysis-panel' });
+      this.panelVNode = this.patch(element, emptyVNode);
+      
       this.redraw();
   }
 

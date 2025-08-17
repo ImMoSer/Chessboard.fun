@@ -94,12 +94,9 @@ async function initializeApplication() {
       pgnServiceInstance
     );
 
-    // 1. First, render the basic application shell.
-    // This ensures the #page-content-wrapper exists before any page controller tries to use it.
     appShellVNode = patch(appRootElement, renderAppShell(appController));
     logger.info('[AppEntry] Initial application shell rendered.');
 
-    // 2. Now, initialize the AppController. This will trigger routing and load the first page.
     await appController.initializeApp();
     logger.info('[AppEntry] AppController initialization sequence complete.');
     
