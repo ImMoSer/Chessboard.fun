@@ -502,7 +502,7 @@ export class AppController {
   
     if (['finishHim', 'tower', 'attack', 'tacktics'].includes(route.page)) {
       boardHandlerForPage = new BoardHandler(this.services.chessboardService, requestPageRedraw);
-      this.analysisControllerInstance = new AnalysisController(this.services.analysisService, boardHandlerForPage, this.pgnServiceInstance);
+      this.analysisControllerInstance = new AnalysisController(this.services.analysisService, boardHandlerForPage, this.pgnServiceInstance, requestPageRedraw);
     }
   
     switch (route.page) {

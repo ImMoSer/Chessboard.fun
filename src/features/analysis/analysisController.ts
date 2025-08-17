@@ -1,5 +1,4 @@
 // src/features/analysis/analysisController.ts
-import { init, propsModule, eventListenersModule, styleModule, classModule, attributesModule, h } from 'snabbdom';
 import type { VNode } from 'snabbdom';
 import logger from '../../utils/logger';
 import type {
@@ -48,9 +47,8 @@ export class AnalysisController {
   private analysisService: AnalysisService;
   private boardHandler: BoardHandler;
   private pgnServiceInstance: typeof PgnService;
+  private requestPageRedraw: () => void;
 
-  private patch = init([propsModule, eventListenersModule, styleModule, classModule, attributesModule]);
-  private panelVNode: VNode | Element | null = null;
   private isUpdateScheduled = false;
   private latestAnalysisData: ContinuousEvaluatedLine[] | null = null;
   
@@ -69,10 +67,12 @@ export class AnalysisController {
     analysisService: AnalysisService,
     boardHandler: BoardHandler,
     pgnServiceInstance: typeof PgnService,
+    requestPageRedraw: () => void,
   ) {
     this.analysisService = analysisService;
     this.boardHandler = boardHandler;
     this.pgnServiceInstance = pgnServiceInstance;
+    this.requestPageRedraw = requestPageRedraw;
 
     const savedLines = localStorage.getItem(LINES_STORAGE_KEY);
     const savedThreads = localStorage.getItem(THREADS_STORAGE_KEY);
@@ -97,30 +97,11 @@ export class AnalysisController {
     this.unsubscribeFromMoveMade = this.boardHandler.onMoveMade(this._handleBoardOrPgnChange.bind(this));
     this.unsubscribeFromPgnNavigated = this.boardHandler.onPgnNavigated(this._handleBoardOrPgnChange.bind(this));
 
-    logger.info('[AnalysisController] Initialized with local rendering.');
+    logger.info('[AnalysisController] Initialized with centralized rendering.');
   }
 
-  /**
-   * REFACTORED: Sets the container and immediately "claims" it with an empty VNode patch
-   * to synchronize the snabbdom instance before rendering content.
-   */
-  public setContainer(element: HTMLElement): void {
-      // FIX: Check if the element is already the one we are managing.
-      if (this.panelVNode && 'elm' in this.panelVNode && this.panelVNode.elm === element) {
-          return;
-      }
-      // "Claim" the element by patching it with an empty VNode of the same type.
-      // This synchronizes our patch instance with the DOM provided by the parent.
-      const emptyVNode = h(element.tagName, { key: 'analysis-panel' });
-      this.panelVNode = this.patch(element, emptyVNode);
-      
-      this.redraw();
-  }
-
-  private redraw(): void {
-      if (!this.panelVNode) return;
-      const newVNode = renderAnalysisPanel(this);
-      this.panelVNode = this.patch(this.panelVNode, newVNode);
+  public renderPanel(): VNode {
+    return renderAnalysisPanel(this);
   }
 
   public isPromotionActive(): boolean {
@@ -160,7 +141,7 @@ export class AnalysisController {
     } else {
       this._internalStartAnalysis();
     }
-    this.redraw();
+    this.requestPageRedraw();
   }
 
   private _internalStartAnalysis(nodePath?: string): void {
@@ -221,7 +202,7 @@ export class AnalysisController {
 
   private _handleBoardOrPgnChange(data: { currentNodePath?: string; currentFen?: string; newNodePath?: string; newFen?: string }): void {
     if (!this.panelState.isAnalysisActive) {
-      this.redraw();
+      this.requestPageRedraw();
       return;
     }
 
@@ -230,7 +211,7 @@ export class AnalysisController {
 
     if (path === undefined || fen === undefined) {
         logger.warn('[AnalysisController _handleBoardOrPgnChange] Path or FEN missing in event data.');
-        this.redraw();
+        this.requestPageRedraw();
         return;
     }
 
@@ -239,7 +220,7 @@ export class AnalysisController {
       this.currentFenForAnalysis = fen;
       this._requestAndProcessContinuousAnalysis();
     } else {
-      this.redraw();
+      this.requestPageRedraw();
     }
   }
 
@@ -250,7 +231,7 @@ export class AnalysisController {
 
     this.panelState.isAnalysisLoading = true;
     this.panelState.analysisLines = null;
-    this.redraw();
+    this.requestPageRedraw();
 
     this.boardHandler.clearAllDrawings();
     const fenForAnalysis = this.currentFenForAnalysis;
@@ -275,7 +256,7 @@ export class AnalysisController {
                 startingFen: fenForAnalysis,
                 initialFullMoveNumber: 1, initialTurn: 'white' as ChessopsColor
             }];
-            this.redraw();
+            this.requestPageRedraw();
         }
     }
   }
@@ -303,7 +284,7 @@ export class AnalysisController {
     this.panelState.analysisLines = linesWithSan;
     this._drawAnalysisResultOnBoard(linesWithSan);
 
-    this.redraw();
+    this.requestPageRedraw();
 
     this.latestAnalysisData = null;
   }
@@ -432,7 +413,7 @@ export class AnalysisController {
       await this.analysisService.stopContinuousAnalysis();
       this._requestAndProcessContinuousAnalysis();
     }
-    this.redraw();
+    this.requestPageRedraw();
   }
 
   public setNumLines(lines: number): void {

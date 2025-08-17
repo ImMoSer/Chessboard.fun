@@ -80,16 +80,9 @@ export function renderAttackUI(controller: AttackController): AttackPageViewLayo
   );
 
   const analysisPanelWrapper = (state.gamePhase === 'GAMEOVER')
-    ? h('div.analysis-panel-wrapper', {
-        hook: {
-          insert: (vnode: VNode) => {
-            controller.analysisController.setContainer(vnode.elm as HTMLElement);
-          },
-          destroy: () => {
-            // The controller's main destroy method will handle cleanup
-          }
-        }
-      })
+    ? h('div.analysis-panel-wrapper', [
+        controller.analysisController.renderPanel()
+      ])
     : null;
 
   const rightPanelContent = h('div.attack-right-panel', [

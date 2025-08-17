@@ -113,16 +113,9 @@ export function renderTackticsUI(controller: TackticsController): TackticsPageVi
   );
 
   const analysisPanelWrapper = (state.gamePhase === 'GAMEOVER' && !state.isAutoLoadEnabled)
-    ? h('div.analysis-panel-wrapper', {
-        hook: {
-          insert: (vnode: VNode) => {
-            controller.analysisController.setContainer(vnode.elm as HTMLElement);
-          },
-          destroy: () => {
-            // The controller's main destroy method will handle cleanup
-          }
-        }
-      })
+    ? h('div.analysis-panel-wrapper', [
+        controller.analysisController.renderPanel()
+      ])
     : null;
   
   let rightPanelContentChildren: VNode[] = [];

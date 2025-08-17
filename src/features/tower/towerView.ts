@@ -269,14 +269,9 @@ export function renderTowerUI(controller: TowerController): TowerPageViewLayout 
   const leftPanelContent = h('div.tower-left-panel', {}, strictEnsureVNodeChildren(leftPanelChildren));
 
   const analysisPanelWrapper = (towerState.gamePhase === 'LEVEL_FAILED' || towerState.gamePhase === 'GAMEOVER' || towerState.gamePhase === 'LEVEL_RESIGNED') && controller.analysisController
-    ? h('div.analysis-panel-wrapper', {
-        hook: {
-          insert: (vnode: VNode) => {
-            controller.analysisController.setContainer(vnode.elm as HTMLElement);
-          },
-          destroy: () => { /* Cleanup handled by controller */ }
-        }
-      })
+    ? h('div.analysis-panel-wrapper', [
+        controller.analysisController.renderPanel()
+      ])
     : null;
 
   let rightPanelDynamicContentElements: VNodeChildElement[] = [];

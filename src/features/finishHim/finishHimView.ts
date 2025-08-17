@@ -194,16 +194,9 @@ export function renderFinishHimUI(controller: FinishHimController): FinishHimPag
   // --- REFACTORED: The view now renders a placeholder div for the analysis panel. ---
   // The AnalysisController will take over rendering into this div.
   const analysisPanelWrapper = (fhState.gamePhase === 'GAMEOVER')
-    ? h('div.analysis-panel-wrapper', {
-        hook: {
-          insert: (vnode: VNode) => {
-            controller.analysisController.setContainer(vnode.elm as HTMLElement);
-          },
-          destroy: () => {
-            // The controller's main destroy method will handle cleanup
-          }
-        }
-      })
+    ? h('div.analysis-panel-wrapper', [
+        controller.analysisController.renderPanel()
+      ])
     : null;
 
   const rightPanelElements: (VNode | null)[] = [];
