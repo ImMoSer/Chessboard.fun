@@ -1,4 +1,3 @@
-// src/features/attack/attackController.ts
 import type { VNode, Hooks } from 'snabbdom';
 import { h } from 'snabbdom';
 import type { GameEndOutcome } from '../../core/boardHandler';
@@ -102,15 +101,18 @@ export class AttackController extends BaseGameController<AttackControllerState> 
 
   // --- Implementation of abstract methods ---
 
-  public async initializeGame(puzzleId?: string | null): Promise<void> {
+  public async initializeGame(puzzleId?: string | null, forceLoadNew: boolean = false): Promise<void> {
     if (this.analysisController.getPanelState().isAnalysisActive) {
         this.analysisController.toggleAnalysisEngine();
     }
-    
+    this.boardHandler.configureBoardForAnalysis(false);
+
     this._resetPuzzleState();
 
     if (puzzleId) {
         await this._loadPuzzle(puzzleId);
+    } else if (forceLoadNew) {
+        await this._loadPuzzle(null);
     } else {
         this.boardHandler.setupPosition("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
         this.setState({
@@ -148,12 +150,12 @@ export class AttackController extends BaseGameController<AttackControllerState> 
 
   public handleNewGame(): void {
     if (!(this.state.gamePhase === 'IDLE' || this.state.gamePhase === 'GAMEOVER')) return;
-    this._loadPuzzle(null);
+    this.initializeGame(null, true);
   }
 
   public handleRestartTask(): void {
       if (!((this.state.gamePhase === 'GAMEOVER' || this.state.gamePhase === 'IDLE') && !!this.state.activePuzzle)) return;
-      this._loadPuzzle(this.state.activePuzzle.PuzzleId);
+      this.initializeGame(this.state.activePuzzle.PuzzleId);
   }
 
   public handleResign(): void {
