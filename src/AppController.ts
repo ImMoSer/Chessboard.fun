@@ -106,12 +106,14 @@ const PRIVATE_PAGES: AppPage[] = ['finishHim', 'tower', 'userCabinet', 'attack',
 const PRE_AUTH_REDIRECT_URL_KEY = 'preAuthRedirectUrl';
 const APP_VERSION = import.meta.env.VITE_APP_VERSION || 'v-dev';
 
+// <<< НАЧАЛО ИЗМЕНЕНИЙ: `engineSelectorOpen` удален из ключей оболочки, так как он влияет на содержимое страницы
 const SHELL_STATE_KEYS: (keyof AppControllerState)[] = [
     'isNavExpanded', 'currentUser', 'isLoadingAuth', 'isModalVisible', 
     'modalMessage', 'isRateLimited', 'rateLimitCooldownSeconds', 
     'isConfirmationModalVisible', 'confirmationModalMessage', 'activeDropdown', 
-    'engineSelectorOpen', 'toasts', 'voiceVolume', 'currentGameControls'
+    'toasts', 'voiceVolume', 'currentGameControls'
 ];
+// <<< КОНЕЦ ИЗМЕНЕНИЙ
 
 const ACTIVE_GAME_PAGES: AppPage[] = ['finishHim', 'tower', 'attack'];
 
@@ -777,13 +779,16 @@ export class AppController {
     });
   }
 
+  // <<< НАЧАЛО ИЗМЕНЕНИЙ: Логика перерисовки исправлена
   private setState(newState: Partial<AppControllerState>): void {
     const oldState = { ...this.state };
     this.state = { ...this.state, ...newState };
     
     let shellStateChanged = false;
+    // Проверяем, изменилось ли состояние, влияющее на страницу (например, открытие меню выбора движка)
+    const pageStateChanged = oldState.engineSelectorOpen !== this.state.engineSelectorOpen;
 
-    // FIX: Add currentPage to the check to fix sticky nav links
+    // Проверяем, изменилось ли состояние "оболочки"
     if (oldState.currentPage !== this.state.currentPage) {
         shellStateChanged = true;
     } else {
@@ -795,10 +800,17 @@ export class AppController {
         }
     }
 
+    // Если изменилось состояние оболочки, перерисовываем ее
     if (shellStateChanged) {
         this.requestShellRedraw();
     }
+
+    // Если изменилось состояние страницы, и функция перерисовки страницы существует, вызываем ее
+    if (pageStateChanged && this._currentPageRedrawFn) {
+        this._currentPageRedrawFn();
+    }
   }
+  // <<< КОНЕЦ ИЗМЕНЕНИЙ
 
   public destroy(): void {
     if (this.unsubscribeFromLangChange) this.unsubscribeFromLangChange();

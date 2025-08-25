@@ -48,7 +48,7 @@ function renderEngineControl(controller: AppController): VNode {
 
     return h('div.engine-control-container', [
         renderControlButton('robot', 'Select Engine', false, (e: Event) => {
-            e.stopPropagation(); // Останавливаем событие, чтобы не закрыть меню сразу
+            e.stopPropagation(); // <<< ИЗМЕНЕНИЕ: Останавливаем событие, чтобы не закрыть меню сразу
             controller.toggleEngineSelector();
         }),
         selectDropdown

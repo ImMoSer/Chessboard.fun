@@ -105,7 +105,7 @@ function renderMedalBearersWidget(players: TopPlayerByMedals[]): VNode {
                 h('tr', { key: player.lichess_id }, [
                     h('td', `${index + 1}`),
                     h('td', h('a', { props: { href: `https://lichess.org/@/${player.lichess_id}`, target: '_blank' } }, player.username)),
-                    h('td', `�${player.medals.gold} 🥈${player.medals.silver} 🥉${player.medals.bronze}`),
+                    h('td', `🥇${player.medals.gold} 🥈${player.medals.silver} 🥉${player.medals.bronze}`),
                 ])
             ))
         ])
