@@ -94,17 +94,18 @@ router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
   const t = i18n.global.t
 
-  // --- НАЧАЛО ИЗМЕНЕНИЙ: Ожидаем завершения инициализации authStore ---
-  // Добавляем небольшой таймаут, чтобы не блокировать UI намертво
   while (authStore.isLoading) {
     await new Promise((resolve) => setTimeout(resolve, 50))
   }
-  // --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
   const requiresAuth = to.meta.requiresAuth
   const isAuthenticated = authStore.isAuthenticated
 
   if (requiresAuth && !isAuthenticated) {
+    // --- НАЧАЛО ИЗМЕНЕНИЙ: Сохраняем целевой URL перед редиректом ---
+    localStorage.setItem('redirect_after_login', to.fullPath)
+    // --- КОНЕЦ ИЗМЕНЕНИЙ ---
+
     const userConfirmedLogin = await uiStore.showConfirmation(
       t('auth.requiredForAction'),
       t('userCabinet.loginPrompt'),

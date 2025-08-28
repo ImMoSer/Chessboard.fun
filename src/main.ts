@@ -7,7 +7,6 @@ import App from './App.vue'
 import router from './router'
 import i18n from './services/i18n'
 
-// Импортируем наши сторы и сервисы
 import { useAuthStore } from './stores/auth.store'
 import { useThemeStore } from './stores/theme.store'
 import { analysisService } from './services/AnalysisService'
@@ -20,18 +19,23 @@ async function initializeApp() {
   app.use(router)
   app.use(i18n)
 
-  // --- Инициализация сторов и сервисов ---
-  // Сначала инициализируем аутентификацию
   const authStore = useAuthStore()
   await authStore.initialize()
 
-  // Сразу после этого инициализируем тему
   const themeStore = useThemeStore()
 
-  // Инициализируем сервис анализа (движок) при старте приложения
   await analysisService.initialize()
 
-  // Только теперь монтируем приложение
+  // --- НАЧАЛО ИЗМЕНЕНИЙ: Логика редиректа после входа ---
+  if (authStore.isAuthenticated) {
+    const redirectPath = localStorage.getItem('redirect_after_login')
+    if (redirectPath) {
+      localStorage.removeItem('redirect_after_login') // Очищаем, чтобы не было повторных редиректов
+      router.push(redirectPath)
+    }
+  }
+  // --- КОНЕЦ ИЗМЕНЕНИЙ ---
+
   app.mount('#app')
 }
 
