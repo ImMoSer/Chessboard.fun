@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Chessboard_vue
 
 This template should help get you started developing with Vue 3 in Vite.
@@ -43,3 +44,7 @@ pnpm test:unit
 ```sh
 pnpm lint
 ```
+=======
+# Chessboard.fun
+Chessboard.fun is an interactive web platform for chess enthusiasts, offering unique training modes, detailed statistics, and powerful analysis tools.
+>>>>>>> 99aebdbff096f02b464384b77cdc0bf2c26262f9
