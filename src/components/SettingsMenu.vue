@@ -1,0 +1,465 @@
+<!-- src/components/SettingsMenu.vue -->
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { useThemeStore } from '@/stores/theme.store'
+import { useAuthStore } from '@/stores/auth.store'
+import { useI18n } from 'vue-i18n'
+import { changeLang } from '@/services/i18n'
+import { storeToRefs } from 'pinia'
+import { soundService } from '@/services/sound.service'
+
+const themeStore = useThemeStore()
+const authStore = useAuthStore()
+const { isAuthenticated } = storeToRefs(authStore)
+const { t, locale } = useI18n()
+
+const isOpen = ref(false)
+const activePanel = ref<'main' | 'board' | 'pieces' | 'language' | 'sounds' | 'animation'>('main')
+
+const voiceVolume = ref(soundService.getVoiceVolume())
+const boardVolume = ref(soundService.getBoardVolume())
+
+const animationDuration = computed({
+  get: () => themeStore.currentTheme.animationDuration,
+  set: (value) => themeStore.setAnimationDuration(value),
+})
+
+const toggleMenu = (event: MouseEvent) => {
+  event.stopPropagation()
+  isOpen.value = !isOpen.value
+  if (!isOpen.value) {
+    activePanel.value = 'main'
+  }
+}
+
+const handleBoardChange = (boardName: string) => {
+  themeStore.setBoard(boardName)
+}
+
+const handlePieceSetChange = (pieceSetName: string) => {
+  themeStore.setPieceSet(pieceSetName)
+}
+
+const handleLanguageChange = (lang: 'en' | 'ru' | 'de') => {
+  changeLang(lang)
+}
+
+const handleVoiceVolumeChange = (event: Event) => {
+  const value = parseFloat((event.target as HTMLInputElement).value)
+  voiceVolume.value = value
+  soundService.setVoiceVolume(value)
+}
+
+const handleBoardVolumeChange = (event: Event) => {
+  const value = parseFloat((event.target as HTMLInputElement).value)
+  boardVolume.value = value
+  soundService.setBoardVolume(value)
+}
+
+const handleAnimationDurationChange = (event: Event) => {
+  const value = parseInt((event.target as HTMLInputElement).value, 10)
+  animationDuration.value = value
+}
+
+const handleAuthAction = () => {
+  if (isAuthenticated.value) {
+    authStore.logout()
+  } else {
+    authStore.login()
+  }
+  closeMenu()
+}
+
+const closeMenu = () => {
+  isOpen.value = false
+  activePanel.value = 'main'
+}
+
+onMounted(() => {
+  window.addEventListener('click', closeMenu)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('click', closeMenu)
+})
+</script>
+
+<template>
+  <div class="settings-menu-container" @click.stop>
+    <button class="settings-toggle-button" @click="toggleMenu" :title="t('settings.title')">
+      ⚙️
+    </button>
+
+    <div v-if="isOpen" class="dropdown-menu">
+      <!-- Главная панель -->
+      <div v-if="activePanel === 'main'" class="panel main-panel">
+        <button class="panel-button" @click="activePanel = 'board'">
+          {{ t('settings.selectBoard') }}
+        </button>
+        <button class="panel-button" @click="activePanel = 'pieces'">
+          {{ t('settings.selectPieces') }}
+        </button>
+        <button class="panel-button" @click="activePanel = 'animation'">
+          {{ t('settings.animation.title') }}
+        </button>
+        <button class="panel-button" @click="activePanel = 'language'">
+          {{ t('settings.selectLanguage') }}
+        </button>
+        <button class="panel-button" @click="activePanel = 'sounds'">
+          {{ t('settings.sounds.title') }}
+        </button>
+        <button class="panel-button auth-button" @click="handleAuthAction">
+          {{ isAuthenticated ? t('nav.logout') : t('nav.login') }}
+        </button>
+      </div>
+
+      <!-- Панель выбора доски -->
+      <div v-if="activePanel === 'board'" class="panel">
+        <div class="panel-header">
+          <button class="back-button" @click="activePanel = 'main'">
+            &lt; {{ t('settings.back') }}
+          </button>
+          <h4>{{ t('settings.selectBoard') }}</h4>
+        </div>
+        <div class="board-selector-grid">
+          <div
+            v-for="board in themeStore.availableBoards"
+            :key="board.name"
+            class="selector-item board-item"
+            :class="{ selected: board.name === themeStore.currentTheme.board }"
+            @click="handleBoardChange(board.name)"
+          >
+            <img :src="`/board/jpg_png/${board.thumbnailFile}`" :alt="board.name" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Панель выбора фигур -->
+      <div v-if="activePanel === 'pieces'" class="panel">
+        <div class="panel-header">
+          <button class="back-button" @click="activePanel = 'main'">
+            &lt; {{ t('settings.back') }}
+          </button>
+          <h4>{{ t('settings.selectPieces') }}</h4>
+        </div>
+        <div class="piece-selector-list">
+          <div
+            v-for="pieceSet in themeStore.availablePieceSets"
+            :key="pieceSet.name"
+            class="selector-item piece-item"
+            :class="{ selected: pieceSet.name === themeStore.currentTheme.pieces }"
+            @click="handlePieceSetChange(pieceSet.name)"
+          >
+            <img :src="pieceSet.previewPieceFile" :alt="pieceSet.name" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Панель настроек анимации -->
+      <div v-if="activePanel === 'animation'" class="panel">
+        <div class="panel-header">
+          <button class="back-button" @click="activePanel = 'main'">
+            &lt; {{ t('settings.back') }}
+          </button>
+          <h4>{{ t('settings.animation.title') }}</h4>
+        </div>
+        <div class="animation-settings">
+          <div class="setting-item">
+            <label for="animation-duration">{{ t('settings.animation.duration') }}</label>
+            <input
+              id="animation-duration"
+              type="range"
+              min="0"
+              max="500"
+              step="100"
+              :value="animationDuration"
+              @input="handleAnimationDurationChange"
+              class="volume-slider"
+            />
+            <span class="duration-value">{{ animationDuration }}ms</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Панель выбора языка -->
+      <div v-if="activePanel === 'language'" class="panel">
+        <div class="panel-header">
+          <button class="back-button" @click="activePanel = 'main'">
+            &lt; {{ t('settings.back') }}
+          </button>
+          <h4>{{ t('settings.selectLanguage') }}</h4>
+        </div>
+        <div class="language-selector">
+          <button
+            class="panel-button lang-button"
+            :class="{ selected: locale === 'en' }"
+            @click="handleLanguageChange('en')"
+          >
+            English
+          </button>
+          <button
+            class="panel-button lang-button"
+            :class="{ selected: locale === 'ru' }"
+            @click="handleLanguageChange('ru')"
+          >
+            Русский
+          </button>
+          <button
+            class="panel-button lang-button"
+            :class="{ selected: locale === 'de' }"
+            @click="handleLanguageChange('de')"
+          >
+            Deutsch
+          </button>
+        </div>
+      </div>
+
+      <!-- Панель настроек звука -->
+      <div v-if="activePanel === 'sounds'" class="panel">
+        <div class="panel-header">
+          <button class="back-button" @click="activePanel = 'main'">
+            &lt; {{ t('settings.back') }}
+          </button>
+          <h4>{{ t('settings.sounds.title') }}</h4>
+        </div>
+        <div class="sound-settings">
+          <div class="volume-slider-container">
+            <label for="voice-volume">{{ t('settings.sounds.voice') }}</label>
+            <input
+              id="voice-volume"
+              type="range"
+              min="0"
+              max="1"
+              step="0.1"
+              :value="voiceVolume"
+              @input="handleVoiceVolumeChange"
+              class="volume-slider"
+            />
+          </div>
+          <div class="volume-slider-container">
+            <label for="board-volume">{{ t('settings.sounds.board') }}</label>
+            <input
+              id="board-volume"
+              type="range"
+              min="0"
+              max="1"
+              step="0.1"
+              :value="boardVolume"
+              @input="handleBoardVolumeChange"
+              class="volume-slider"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.settings-menu-container {
+  position: relative;
+  display: inline-block;
+}
+
+.settings-toggle-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+.settings-toggle-button:hover {
+  color: var(--color-text-default);
+  transform: rotate(30deg);
+}
+
+.dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 10px;
+  background-color: var(--color-bg-secondary);
+  border: 1px solid var(--color-border-hover);
+  border-radius: var(--panel-border-radius);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  z-index: 1001;
+  width: 250px;
+  padding: 10px;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--color-border);
+}
+.panel-header h4 {
+  margin: 0;
+  flex-grow: 1;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+.back-button {
+  background: none;
+  border: none;
+  color: var(--color-text-link);
+  cursor: pointer;
+  font-size: var(--font-size-small);
+}
+
+.main-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.panel-button {
+  background-color: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-default);
+  padding: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  width: 100%;
+  text-align: left;
+}
+.panel-button:hover {
+  background-color: var(--color-border-hover);
+}
+
+.board-selector-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 10px;
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+.piece-selector-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+  gap: 10px;
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+.selector-item {
+  cursor: pointer;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  transition: all 0.2s ease-in-out;
+  padding: 4px;
+  background-color: var(--color-bg-tertiary);
+}
+.selector-item:hover {
+  transform: scale(1.05);
+}
+.selector-item.selected {
+  border-color: var(--color-accent-success);
+}
+.selector-item img {
+  width: 100%;
+  display: block;
+  border-radius: 4px;
+}
+.piece-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1 / 1;
+}
+.piece-item img {
+  max-width: 80%;
+  max-height: 80%;
+}
+
+.auth-button {
+  margin-top: 10px;
+  border-top: 1px solid var(--color-border);
+  padding-top: 10px;
+}
+
+.language-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lang-button.selected {
+  border-color: var(--color-accent-success);
+  background-color: var(--color-border-hover);
+}
+
+.sound-settings,
+.animation-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 10px 0;
+}
+
+.volume-slider-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.volume-slider-container label,
+.setting-item label {
+  font-size: var(--font-size-small);
+  color: var(--color-text-muted);
+}
+
+.volume-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  background: var(--color-bg-tertiary);
+  border-radius: 5px;
+  outline: none;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.volume-slider:hover {
+  opacity: 1;
+}
+
+.volume-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  background: var(--color-accent-primary);
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.volume-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  background: var(--color-accent-primary);
+  cursor: pointer;
+  border-radius: 50%;
+  border: none;
+}
+
+.setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.duration-value {
+  font-size: var(--font-size-small);
+  color: var(--color-text-default);
+  min-width: 50px;
+  text-align: right;
+}
+</style>

@@ -1,0 +1,14 @@
+# BEGIN REQUIRED HEADERS FOR SHAREDARRAYBUFFER
+# These headers are necessary for multi-threaded WebAssembly (Stockfish NNUE) to work.
+# They create a cross-origin isolated context.
+<IfModule mod_headers.c>
+  Header set Cross-Origin-Opener-Policy "same-origin"
+  Header set Cross-Origin-Embedder-Policy "credentialless"
+</IfModule>
+# END REQUIRED HEADERS
+
+# Anweisung zum Setzen des korrekten MIME-Typs für .wasm-Dateien
+# Vorgeschlagen vom Hostinger-Support
+<IfModule mod_mime.c>
+  AddType application/wasm .wasm
+</IfModule>

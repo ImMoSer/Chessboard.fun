@@ -1,0 +1,571 @@
+{
+  "app": {
+    "title": "Chessboard.fun"
+  },
+  "common": {
+    "loading": "Загрузка...",
+    "error": "Ошибка",
+    "processing": "Обработка...",
+    "ok": "OK",
+    "cancel": "Отмена",
+    "confirm": "Подтвердить",
+    "delete": "Удалить",
+    "play": "Играть",
+    "notAvailable": "Н/Д",
+    "linkCopied": "Ссылка скопирована!",
+    "copyFailed": "Не удалось скопировать ссылку.",
+    "closingParenthesis": ")",
+    "period": ".",
+    "periodAndSpace": ". "
+  },
+  "nav": {
+    "home": "Главная",
+    "finishHim": "Добивание",
+    "attack": "Атака",
+    "tower": "Спидран",
+    "tacktics": "Тактика",
+    "leaderboards": "Рейтинги",
+    "userCabinet": "Профиль",
+    "lichessClubs": "Клубы",
+    "pricing": "Тарифы",
+    "about": "О нас",
+    "login": "Войти",
+    "logout": "Выйти",
+    "loginWithLichess": "Войти через Lichess"
+  },
+  "auth": {
+    "requiredForAction": "Для этого действия необходимо войти в систему."
+  },
+  "errors": {
+    "backendConnectionFailed": "Не удалось подключиться к серверу.",
+    "telegramAuthFailed": "Ошибка аутентификации Telegram.",
+    "rateLimit": {
+      "title": "Слишком много запросов",
+      "message": "Слишком много запросов. Подождите {seconds} секунд."
+    },
+    "unknown": "Произошла неизвестная ошибка."
+  },
+  "settings": {
+    "title": "Настройки",
+    "selectBoard": "Выбрать доску",
+    "selectPieces": "Выбрать фигуры",
+    "selectLanguage": "Выбрать язык",
+    "back": "Назад",
+    "sounds": {
+      "title": "Настройки звука",
+      "voice": "Голос",
+      "board": "Доска"
+    },
+    "animation": {
+      "title": "Настройки анимации",
+      "duration": "Длительность"
+    }
+  },
+  "gameplay": {
+    "confirmExit": {
+      "title": "Вы хотите сдаться?",
+      "message": "Вы уверены, что хотите сдаться в текущей партии?",
+      "browserMessage": "Вы уверены, что хотите уйти? Текущая партия будет засчитана как поражение."
+    },
+    "gameOver": {
+      "stalemate": "Партия завершена: Пат."
+    }
+  },
+  "analysis": {
+    "engine": "Анализ",
+    "threads": "Ядра",
+    "loading": "Загрузка анализа...",
+    "mateInShort": "M{value}",
+    "makeMove": "Сделайте ход для анализа."
+  },
+  "puzzleInfo": {
+    "title": "О задаче",
+    "tacticalRating": "Рейтинг тактики",
+    "solveTime": "Время решения",
+    "funValue": "Очки навыка",
+    "finalPositionTitle": "Материал в финале",
+    "leaderboardTitle": "Лучшее время",
+    "tableRank": "№",
+    "tablePlayer": "Игрок",
+    "tableTime": "Время"
+  },
+  "welcome": {
+    "titleV2": "Выберите режим игры",
+    "buttons": {
+      "finishHim": "Добивание",
+      "tower": "Спидран",
+      "attack": "Атака",
+      "tacktics": "Тактика",
+      "clubs": "Клубы Lichess",
+      "leaderboards": "Рейтинги"
+    },
+    "loginPrompt": "Или войдите, чтобы получить доступ ко всем функциям:"
+  },
+  "finishHim": {
+    "feedback": {
+      "getReady": "Приготовьтесь к следующей задаче!",
+      "pressNext": "Нажмите 'Играть', чтобы начать.",
+      "yourTurn": "Ваш ход! Найдите правильное продолжение.",
+      "yourTurnPlayout": "Ваш ход! Найдите лучшие ходы для победы.",
+      "timeUp": "Время вышло! Фаза розыгрыша проиграна.",
+      "resigned": "Вы сдались.",
+      "win": "Вы победили!",
+      "loss": "Вы проиграли!",
+      "loadFailed": "Не удалось загрузить задачу."
+    },
+    "error": {
+      "puzzleNotFound": "Задача с ID {puzzleId} не найдена или недоступна."
+    }
+  },
+  "attack": {
+    "feedback": {
+      "getReady": "Нажмите 'Играть', чтобы начать.",
+      "yourTurn": "Ваш ход.",
+      "resigned": "Вы сдались.",
+      "win": "Вы победили! ({reason})",
+      "loss": "Вы проиграли. ({reason})",
+      "timeUp": "Время вышло!",
+      "loadFailed": "Не удалось загрузить задачу."
+    }
+  },
+  "tower": {
+    "names": {
+      "CM": "КМС",
+      "FM": "МФ",
+      "IM": "ММ",
+      "GM": "ГМ"
+    },
+    "themes": {
+      "mix": "Смешанный",
+      "pawn_endgame": "Пешечный эндшпиль",
+      "rook_endgame": "Ладейный эндшпиль",
+      "bishop_endgame": "Слоновый эндшпиль",
+      "knight_endgame": "Коневой эндшпиль",
+      "queen_endgame": "Ферзевый эндшпиль",
+      "queens_vs_rooks": "Ферзи против Ладей",
+      "rooks_vs_minors": "Ладьи против легких фигур",
+      "queens_vs_minors": "Ферзи против легких фигур",
+      "knights_vs_bishops": "Кони против Слонов",
+      "bishops_vs_knights": "Слоны против Коней",
+      "minors_vs_rooks": "Легкие фигуры против Ладей",
+      "opposite_color_bishops": "Разноцветные слоны",
+      "rook_and_minor_vs_rook": "Ладья и легкая фигура против Ладьи",
+      "two_rooks_endgame": "Двухладейный эндшпиль",
+      "vs_queen_disadvantage": "Против Ферзя"
+    },
+    "feedback": {
+      "selectTowerAndStart": "Выберите 'Спидран' для начала.",
+      "loadingTower": "Загрузка {towerName}...",
+      "positionLoaded": "Позиция {current}/{total} | {towerName}",
+      "positionWon": "Позиция пройдена!",
+      "towerCompleted": "Спидран {towerName} завершен за {time}!",
+      "positionFailedWithLives": "Попытка не удалась. Осталось жизней: {lives}.",
+      "gameOver": "Игра окончена. У вас не осталось жизней."
+    },
+    "ui": {
+      "upcomingPositionsTitle": "Следующие позиции",
+      "leaderboardTitle": "Рейтинг",
+      "themeLabel": "Тема",
+      "livesLabel": "Жизни",
+      "averageRating": "Средний рейтинг",
+      "skillValue": "Очки навыка",
+      "tableRank": "№",
+      "tablePlayer": "Игрок",
+      "tableTime": "Лучшее время"
+    },
+    "confirm": {
+      "restartWithPenalty": "Вы уверены, что хотите перезапустить текущую позицию? Это будет стоить одну жизнь."
+    },
+    "error": {
+      "towerNotFound": "Запрошенный 'Спидран' не найден.",
+      "noPositionsInTower": "Позиции для 'Спидрана' не найдены."
+    }
+  },
+  "tacktics": {
+    "feedback": {
+      "getReady": "Нажмите 'Играть', чтобы начать.",
+      "loadFailed": "Не удалось загрузить задачу.",
+      "yourTurn": "Ваш ход.",
+      "wrongMove": "Неверный ход!",
+      "success": "Задача решена!",
+      "wrongMoveAnalysis": "Неверный ход! Анализ активирован."
+    },
+    "stats": {
+      "title": "Ваши рейтинги",
+      "globalRating": "Общий рейтинг",
+      "theme": "Тема",
+      "rating": "Рейтинг",
+      "progress": "Прогресс",
+      "rate": "Успех"
+    },
+    "themes": {
+      "fork": "Вилка",
+      "pin": "Связка",
+      "discoveredAttack": "Вскрытое нападение",
+      "doubleCheck": "Двойной шах",
+      "skewer": "Сквозной удар",
+      "sacrifice": "Жертва",
+      "attraction": "Завлечение",
+      "deflection": "Отвлечение",
+      "capturingDefender": "Взятие защитника",
+      "clearance": "Освобождение поля",
+      "interference": "Перекрытие",
+      "intermezzo": "Промежуточный ход",
+      "quietMove": "Тихий ход",
+      "trappedPiece": "Пойманная фигура",
+      "xRayAttack": "Рентген",
+      "zugzwang": "Цугцванг",
+      "advancedPawn": "Проходная пешка",
+      "promotion": "Превращение",
+      "backRankMate": "Мат по последней горизонтали",
+      "mateIn1": "Мат в 1 ход",
+      "mateIn2": "Мат в 2 хода",
+      "mateIn3": "Мат в 3+ хода",
+      "opening": "Дебют",
+      "middlegame": "Миттельшпиль",
+      "endgame": "Эндшпиль"
+    },
+    "controls": {
+      "levelTitle": "Сложность",
+      "levels": {
+        "easy": "Легко",
+        "normal": "Нормально",
+        "hard": "Сложно"
+      },
+      "autoLoad": "Авто-старт"
+    }
+  },
+  "records": {
+    "bannerAlt": "Баннер рейтингов",
+    "titles": {
+      "topFinishHim": "Мастера Добивания",
+      "topAttack": "Мастера Атаки",
+      "towerLeaderboard": "Мастера Спидрана",
+      "overallSkill": "Общий навык",
+      "skillStreak": "+100 каждый день"
+    },
+    "table": {
+      "rank": "№",
+      "player": "Игрок",
+      "time": "Время",
+      "challenge": "Задача",
+      "daysOld": "Дней",
+      "totalSkill": "Навык",
+      "streakDays": "Стрик (дней)",
+      "action": "Действие",
+      "requested": "Запрошено",
+      "solved": "Решено"
+    },
+    "errors": {
+      "dataLoadFailed": "Не удалось загрузить данные рейтинга.",
+      "unknown": "Произошла неизвестная ошибка."
+    },
+    "periods": {
+      "days14": "За 14 дней",
+      "days21": "За 21 день"
+    }
+  },
+  "lichessClubs": {
+    "pageTitle": {
+      "loading": "Загрузка клубов Lichess...",
+      "loaded": "Клубы Lichess",
+      "error": "Ошибка загрузки клубов Lichess"
+    },
+    "table": {
+      "clubName": "Клуб",
+      "tournamentsPlayed": "Турниры",
+      "totalScore": "Очки",
+      "averageScore": "Ø Очки",
+      "activePlayers": "Игроки",
+      "noClubs": "Зарегистрированных клубов не найдено."
+    },
+    "bannerAlt": "Баннер клубов Lichess",
+    "founder": {
+      "cooldownMessage": "Следующее действие можно будет выполнить через {hours} ч.",
+      "clubIsListed": "Ваш клуб в списке: {clubName}",
+      "removeClub": "Удалить {clubName}",
+      "clubNotListed": "Вашего клуба нет в списке: {clubName}",
+      "addClubButton": "Добавить {clubName} в список",
+      "confirmRemove": "Удалить клуб \"{clubName}\" из списка? Это позволит вам зарегистрировать другой ваш клуб."
+    },
+    "widgets": {
+      "hallOfFameTitle": "Зал славы",
+      "medalBearersTitle": "Медалисты",
+      "hardWorkersTitle": "Трудяги"
+    },
+    "medals": {
+      "gold": "Золото",
+      "silver": "Серебро",
+      "bronze": "Бронза"
+    },
+    "errors": {
+      "dataLoadFailed": "Не удалось загрузить данные клубов.",
+      "unknown": "Произошла неизвестная ошибка."
+    }
+  },
+  "clubPage": {
+    "bannerAlt": "Баннер клуба",
+    "founder": "Основатель",
+    "members": "Участники",
+    "leadersTitle": "Лидеры клуба",
+    "button": {
+      "follow": "Следить",
+      "unfollow": "Отписаться",
+      "showMore": "Показать еще"
+    },
+    "tabs": {
+      "overview": "Обзор",
+      "keyIndicators": "Показатели",
+      "playStyle": "Стиль игры",
+      "ratings": "Рейтинги",
+      "medals": "Медали"
+    },
+    "overview": {
+      "title": "Обзор клуба"
+    },
+    "mostValuablePlayersTitle": "Самые ценные игроки",
+    "mostActivePlayersTitle": "Самые активные игроки",
+    "mostGamesPlayedTitle": "Трудяги (партии)",
+    "berserkKingsTitle": "Короли берсерка",
+    "winStreakMastersTitle": "Мастера винстрика",
+    "performanceLeadersTitle": "Лидеры по перфомансу",
+    "ratingLeadersTitle": "Лидеры по рейтингу",
+    "medalStandings": {
+      "teamTitle": "Медальный зачет (Команда)",
+      "arenaTitle": "Медальный зачет (Арена)"
+    },
+    "tournamentHistoryTitle": "30 дней",
+    "table": {
+      "player": "Игрок",
+      "totalScore": "Очки",
+      "tournaments": "Туры",
+      "gamesPlayed": "Партии",
+      "avgPerf": "Перф.",
+      "berserkWins": "Берсерк-победы",
+      "maxWinStreak": "Макс. стрик",
+      "avgRating": "Ср. рейт.",
+      "medals": "Медали",
+      "date": "Дата",
+      "tournamentName": "Турнир",
+      "clubRank": "Место",
+      "clubScore": "Очки",
+      "score": "Очки",
+      "performance": "Перф.",
+      "arenaRank": "Место в арене",
+      "cronePlayer": "Внес вклад в зачет турнира"
+    },
+    "follow": {
+      "successAdded": "Вы подписались на этот клуб!",
+      "successRemoved": "Вы отписались от этого клуба."
+    },
+    "error": {
+      "dataLoadFailedOrNotRegistered": "Не удалось загрузить данные для клуба {clubId} или клуб не зарегистрирован.",
+      "unknown": "Произошла неизвестная ошибка.",
+      "noDataFound": "Данные для клуба с ID {clubId} не найдены.",
+      "clubNotRegisteredModal": {
+        "message": "Клуб \"{clubId}\" не зарегистрирован. Для регистрации обратитесь к администрации: https://chessboard.fun"
+      },
+      "profileNotFound": "Профиль пользователя не найден. Пожалуйста, войдите снова.",
+      "followCooldown": "Вы сможете изменить статус подписки через {minutes} мин.",
+      "followFailed": "Не удалось обновить статус подписки. Попробуйте снова.",
+      "followRequestFailed": "Произошла ошибка при запросе на подписку/отписку."
+    }
+  },
+  "userCabinet": {
+    "title": "Профиль",
+    "loginPrompt": "Войдите, чтобы просмотреть свою статистику и активность.",
+    "info": {
+      "lichessId": "Lichess ID",
+      "subscriptionTier": "Подписка",
+      "tierExpires": " (до {date})",
+      "tierPermanent": " (навсегда)"
+    },
+    "stats": {
+      "funcoinsLabel": "FunCoins",
+      "endgameSkillLabel": "Навык в эндшпиле",
+      "attackSkillLabel": "Навык в атаке",
+      "puzzlesSolved": "Решено задач",
+      "skillEarned": "Навык сегодня",
+      "global": {
+        "title": "Статистика активности"
+      },
+      "activity": {
+        "titleWithTime": "Активность сегодня (сброс в {time})"
+      },
+      "periods": {
+        "day": "День",
+        "week": "Неделя",
+        "month": "Месяц"
+      },
+      "modes": {
+        "all": "Режим",
+        "finishHim": "Добивание",
+        "attack": "Атака",
+        "tower": "Спидран",
+        "tacticalTrainer": "Тактика"
+      },
+      "noData": "Нет данных за выбранный период.",
+      "towerTitle": "Статистика 'Спидрана'",
+      "attackTitle": "Статистика 'Атаки'",
+      "bestTime": "Лучшее время",
+      "attempts": "попытки",
+      "puzzle": "Задача"
+    },
+    "clubs": {
+      "activityTitle": "Активность в клубах",
+      "followedClubs": "Отслеживаемые клубы",
+      "founderOfClubs": "Основатель"
+    },
+    "telegram": {
+      "title": "Интеграция с Telegram",
+      "boundStatusSimple": "Аккаунт привязан к Telegram",
+      "bindButton": "Привязать Telegram"
+    },
+    "activity": {
+      "title": "Активность на Lichess",
+      "noActivity": "Нет недавней активности на Lichess.",
+      "dateHeader": "Дата",
+      "summaryHeader": "Сводка активности"
+    }
+  },
+  "pricing": {
+    "title": "Подписки и цены",
+    "intro": {
+      "p1": "Добро пожаловать на страницу информации о нашей будущей системе подписок. В настоящее время приложение находится в режиме открытого тестирования.",
+      "p2": "Во время тестирования ваш счет пополняется каждый час, чтобы вы могли бесплатно изучить все функции. После этого этапа будет введена система ежедневного пополнения счета в зависимости от вашей подписки."
+    },
+    "tiers": {
+      "title": "Уровни подписки",
+      "pawn": {
+        "name": "Пешка",
+        "description": "Ежедневное пополнение до 100 FunCoins",
+        "price": "Бесплатно навсегда"
+      },
+      "knight": {
+        "name": "Конь",
+        "description": "Ежедневное пополнение до 200 FunCoins"
+      },
+      "bishop": {
+        "name": "Слон",
+        "description": "Ежедневное пополнение до 300 FunCoins"
+      },
+      "rook": {
+        "name": "Ладья",
+        "description": "Ежедневное пополнение до 500 FunCoins"
+      },
+      "queen": {
+        "name": "Ферзь",
+        "description": "Ежедневное пополнение до 1000 FunCoins"
+      },
+      "price": {
+        "soon": "Цена будет объявлена"
+      }
+    },
+    "costs": {
+      "title": "Стоимость режимов игры",
+      "funcoinLabel": "FunCoins"
+    }
+  },
+  "about": {
+    "title": "Chessboard.fun",
+    "intro": " — это интерактивная веб-платформа для любителей шахмат, предлагающая уникальные режимы тренировок, подробную статистику и мощные инструменты анализа.",
+    "sections": {
+      "mainModesTitle": "Основные режимы",
+      "keyFeaturesTitle": "Ключевые особенности",
+      "techStackTitle": "Технологии",
+      "licensingTitle": "Лицензирование",
+      "contributingTitle": "Участие в проекте",
+      "licenseTitle": "Лицензия",
+      "acknowledgementsTitle": "Благодарности"
+    },
+    "modes": {
+      "conversionTitle": "Добивание (Finish-Him): ",
+      "conversion": "Уникальный режим, в котором вы сначала решаете тактическую задачу, а затем должны доказать свое преимущество в эндшпиле, играя против движка Stockfish.",
+      "speedrunTitle": "Спидран (Speedrun): ",
+      "speedrun": "Проверьте свою скорость и точность, решая серию тактических задач на время. Сложность башен варьируется от уровня кандидата в мастера до гроссмейстера.",
+      "attackTitle": "Атака (Attack): ",
+      "attack": "Режим, в котором вам предстоит решать позиции, требующие решающей комбинации или мощной атаки, чтобы поставить мат боту.",
+      "automaticTacticalTrainerTitle": "Автоматический тренер по тактике: ",
+      "automaticTacticalTrainer": "В отличие от стандартных тренеров, наша умная система превращает решение задач в персонализированный путь к мастерству. Она анализирует ваш профиль по 25 тактическим темам (вилка, связка, вскрытое нападение и т.д.), определяет ваши слабые места и автоматически подбирает задачу, которая принесет вам наибольшую пользу прямо сейчас. После каждого ответа ваш рейтинг по этой теме мгновенно обновляется, гарантируя, что следующая задача идеально соответствует вашему текущему уровню мастерства.",
+      "botSelectionTitle": "Выбор шахматного бота: ",
+      "botSelectionIntro": "На нашей платформе вы можете выбрать одного из нескольких шахматных ботов для тренировки:",
+      "bots": {
+        "rbleipzig": " (Stockfish.js - локально: глубина 12, contempt 100)",
+        "krokodil": " (Stockfish.js - локально: глубина 10, contempt 100)",
+        "karde": " (Stockfish.js - локально: глубина 8, contempt 100)",
+        "mozer": " (LCZero+Maia1900 — человекоподобный движок на СЕРВЕРЕ)",
+        "dimas": " (Stockfish.js - локально: глубина 6, contempt 100)",
+        "darko": " (Stockfish.js - локально: глубина 4, contempt 100)"
+      },
+      "lichessClubsTitle": "Статистика клубов: ",
+      "lichessClubs": "Просматривайте подробную статистику и рейтинги для любого шахматного клуба Lichess, отслеживая активность и достижения игроков. (Отображаются только зарегистрированные в системе клубы).",
+      "userCabinetTitle": "Личный кабинет: ",
+      "userCabinet": "Ваша личная панель со статистикой по всем режимам игры, списком ваших любимых задач и вашей активностью на Lichess.",
+      "analysisPanelTitle": "Панель анализа: ",
+      "analysisPanel": "Мощный инструмент для анализа любой позиции с помощью движка Stockfish, просмотра вариантов и PGN."
+    },
+    "features": {
+      "lichessIntegrationTitle": "Интеграция с Lichess: ",
+      "lichessIntegration": "Входите через свою учетную запись Lichess, используйте свой профиль и получайте данные об активности клубов.",
+      "advancedStatsTitle": "Расширенная статистика: ",
+      "advancedStats": "Отслеживайте свои тактические рейтинги и рейтинги реализации, количество сыгранных партий, FunCoins и многое другое.",
+      "puzzleDatabaseTitle": "База данных задач Lichess: ",
+      "puzzleDatabase": "Все задачи в приложении основаны на обширной и высококачественной базе данных задач Lichess: ",
+      "modernUITitle": "Современный интерфейс: ",
+      "modernUI": "Чистый, адаптивный и интуитивно понятный интерфейс, созданный с использованием TypeScript и Vue.js.",
+      "localizationTitle": "Локализация: ",
+      "localization": "Поддержка английского, немецкого и русского языков."
+    },
+    "techStack": {
+      "frontend": "Фронтенд: ",
+      "frontendStack": "TypeScript, Vue.js",
+      "backend": "Бэкенд: ",
+      "backendStack": "n8n.io + Nest.js (для обработки веб-хуков и API)",
+      "chessLogic": "Шахматная логика: ",
+      "chessLogicStack": "`chessops`",
+      "boardRendering": "Отрисовка доски: ",
+      "boardRenderingStack": "`Chessground`",
+      "chessEngine": "Шахматный движок: ",
+      "chessEngineStack": "`локально: Stockfish.js + Stockfish.wasm, Сервер: LCZero + Maia 1900`",
+      "api": "API: ",
+      "apiStack": "Lichess API ("
+    },
+    "licensing": {
+      "stockfishTitle": "Шахматный движок Stockfish",
+      "stockfishIntro1": "Анализ партий и ходов в этом приложении осуществляется с помощью ",
+      "stockfishIntro2": ", шахматного движка с открытым исходным кодом, распространяемого по лицензии ",
+      "gplNoteTitle": "Важное примечание о лицензии GPLv3: ",
+      "gplNote": "Использование библиотеки под лицензией GPLv3 требует от нас сделать исходный код нашего собственного проекта открытым и доступным под той же или совместимой лицензией.",
+      "projectSourceCode": "Исходный код проекта: Доступен в этом репозитории",
+      "licenseText": "Вы можете прочитать полный текст лицензии GPLv3 здесь: ",
+      "stockfishGratitude": "Мы выражаем глубочайшую благодарность команде Stockfish за их невероятную работу.",
+      "chessgroundTitle": "Chessground",
+      "chessgroundIntro1": "Интерактивная шахматная доска отображается с помощью библиотеки ",
+      "chessgroundIntro2": " от команды Lichess, которая распространяется по лицензии ",
+      "chessgroundGratitude": "Спасибо Lichess за этот замечательный инструмент."
+    },
+    "contributing": "Мы приветствуем любой вклад в проект! Если у вас есть идеи, предложения или вы нашли ошибку, пожалуйста, создайте `issue` или `pull request`.",
+    "licenseTitle": "Лицензия",
+    "acknowledgements": {
+      "stockfishDesc": " - Мощный шахматный движок",
+      "lichessDesc": " - За потрясающий API и библиотеку Chessground",
+      "n8nDesc": " - За гибкую платформу автоматизации",
+      "community": "Всем участникам и шахматному сообществу"
+    },
+    "author": {
+      "photoAlt": "Фото автора",
+      "title": "Пару слов от автора",
+      "bioPart1": "Привет! Меня зовут Мозер. Я родился в 1985 году в Казахстане и с 2003 года живу в Германии.",
+      "bioPart2": "По профессии я инженер-механик, но всю жизнь увлекаюсь шахматами. Этот проект - моя давняя мечта о создании удобного инструмента для тренировок, которая стала возможной благодаря современным технологиям, таким как ИИ и платформа n8n.",
+      "bioPart3": "Я свободно говорю на русском и немецком, а также немного знаю английский. Спасибо, что используете Chessboard.fun!",
+      "supportButtonText": "Угостить меня кофе"
+    },
+    "contact": {
+      "telegram": "Telegram-канал",
+      "email": "Email",
+      "github": "GitHub",
+      "separator": ": "
+    },
+    "footerNote": "Сделано с ❤️ для любителей шахмат"
+  }
+}

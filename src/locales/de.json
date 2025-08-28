@@ -1,0 +1,571 @@
+{
+  "app": {
+    "title": "Chessboard.fun"
+  },
+  "common": {
+    "loading": "Lädt...",
+    "error": "Fehler",
+    "processing": "Verarbeite...",
+    "ok": "OK",
+    "cancel": "Abbrechen",
+    "confirm": "Bestätigen",
+    "delete": "Löschen",
+    "play": "Spielen",
+    "notAvailable": "N/A",
+    "linkCopied": "Link in die Zwischenablage kopiert!",
+    "copyFailed": "Link konnte nicht kopiert werden.",
+    "closingParenthesis": ")",
+    "period": ".",
+    "periodAndSpace": ". "
+  },
+  "nav": {
+    "home": "Start",
+    "finishHim": "Verwertung",
+    "attack": "Angriff",
+    "tower": "Speedrun",
+    "tacktics": "Taktik",
+    "leaderboards": "Bestenlisten",
+    "userCabinet": "Profil",
+    "lichessClubs": "Clubs",
+    "pricing": "Preise",
+    "about": "Über uns",
+    "login": "Anmelden",
+    "logout": "Abmelden",
+    "loginWithLichess": "Mit Lichess anmelden"
+  },
+  "auth": {
+    "requiredForAction": "Sie müssen angemeldet sein, um diese Aktion durchzuführen."
+  },
+  "errors": {
+    "backendConnectionFailed": "Verbindung zum Server fehlgeschlagen.",
+    "telegramAuthFailed": "Telegram-Authentifizierung fehlgeschlagen.",
+    "rateLimit": {
+      "title": "Zu viele Anfragen",
+      "message": "Zu viele Anfragen. Bitte warten Sie {seconds} Sekunden."
+    },
+    "unknown": "Ein unbekannter Fehler ist aufgetreten."
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "selectBoard": "Brett auswählen",
+    "selectPieces": "Figuren auswählen",
+    "selectLanguage": "Sprache auswählen",
+    "back": "Zurück",
+    "sounds": {
+      "title": "Sound-Einstellungen",
+      "voice": "Stimme",
+      "board": "Brett"
+    },
+    "animation": {
+      "title": "Animationseinstellungen",
+      "duration": "Dauer"
+    }
+  },
+  "gameplay": {
+    "confirmExit": {
+      "title": "Möchten Sie aufgeben?",
+      "message": "Sind Sie sicher, dass Sie die aktuelle Partie aufgeben möchten?",
+      "browserMessage": "Sind Sie sicher, dass Sie die Seite verlassen möchten? Ihre aktuelle Partie wird als Verlust gewertet."
+    },
+    "gameOver": {
+      "stalemate": "Partie beendet: Patt."
+    }
+  },
+  "analysis": {
+    "engine": "Analyse",
+    "threads": "Threads",
+    "loading": "Analyse wird geladen...",
+    "mateInShort": "M{value}",
+    "makeMove": "Machen Sie einen Zug, um die Analyse zu sehen."
+  },
+  "puzzleInfo": {
+    "title": "Info zur Aufgabe",
+    "tacticalRating": "Taktik-Wertung",
+    "solveTime": "Lösungszeit",
+    "funValue": "Skill-Punkte",
+    "finalPositionTitle": "Material in der Endstellung",
+    "leaderboardTitle": "Bestzeiten",
+    "tableRank": "#",
+    "tablePlayer": "Spieler",
+    "tableTime": "Zeit"
+  },
+  "welcome": {
+    "titleV2": "Wählen Sie einen Spielmodus",
+    "buttons": {
+      "finishHim": "Verwertung",
+      "tower": "Speedrun",
+      "attack": "Angriff",
+      "tacktics": "Taktik",
+      "clubs": "Lichess Clubs",
+      "leaderboards": "Bestenlisten"
+    },
+    "loginPrompt": "Oder melden Sie sich an, um alle Funktionen zu nutzen:"
+  },
+  "finishHim": {
+    "feedback": {
+      "getReady": "Machen Sie sich bereit für die nächste Herausforderung!",
+      "pressNext": "Drücken Sie 'Spielen', um zu beginnen.",
+      "yourTurn": "Sie sind am Zug! Finden Sie die richtige Fortsetzung.",
+      "yourTurnPlayout": "Sie sind am Zug! Finden Sie die besten Züge, um zu gewinnen.",
+      "timeUp": "Die Zeit ist um! Die Ausspielphase ist verloren.",
+      "resigned": "Sie haben aufgegeben.",
+      "win": "Sie haben gewonnen!",
+      "loss": "Sie haben verloren!",
+      "loadFailed": "Aufgabe konnte nicht geladen werden."
+    },
+    "error": {
+      "puzzleNotFound": "Aufgabe mit der ID {puzzleId} wurde nicht gefunden oder ist nicht verfügbar."
+    }
+  },
+  "attack": {
+    "feedback": {
+      "getReady": "Drücken Sie 'Spielen', um zu starten.",
+      "yourTurn": "Sie sind am Zug.",
+      "resigned": "Sie haben aufgegeben.",
+      "win": "Sie haben gewonnen! ({reason})",
+      "loss": "Sie haben verloren. ({reason})",
+      "timeUp": "Die Zeit ist um!",
+      "loadFailed": "Aufgabe konnte nicht geladen werden."
+    }
+  },
+  "tower": {
+    "names": {
+      "CM": "CM",
+      "FM": "FM",
+      "IM": "IM",
+      "GM": "GM"
+    },
+    "themes": {
+      "mix": "Gemischt",
+      "pawn_endgame": "Bauernendspiel",
+      "rook_endgame": "Turmendspiel",
+      "bishop_endgame": "Läuferendspiel",
+      "knight_endgame": "Springerendspiel",
+      "queen_endgame": "Damenendspiel",
+      "queens_vs_rooks": "Damen gegen Türme",
+      "rooks_vs_minors": "Türme gegen Leichtfiguren",
+      "queens_vs_minors": "Damen gegen Leichtfiguren",
+      "knights_vs_bishops": "Springer gegen Läufer",
+      "bishops_vs_knights": "Läufer gegen Springer",
+      "minors_vs_rooks": "Leichtfiguren gegen Türme",
+      "opposite_color_bishops": "Ungleichfarbige Läufer",
+      "rook_and_minor_vs_rook": "Turm & Leichtfigur gg. Turm",
+      "two_rooks_endgame": "Zwei-Türme-Endspiel",
+      "vs_queen_disadvantage": "Gegen Dame"
+    },
+    "feedback": {
+      "selectTowerAndStart": "Wählen Sie einen Speedrun, um zu beginnen.",
+      "loadingTower": "Lade {towerName}...",
+      "positionLoaded": "Stellung {current}/{total} | {towerName}",
+      "positionWon": "Stellung geschafft!",
+      "towerCompleted": "Speedrun {towerName} in {time} abgeschlossen!",
+      "positionFailedWithLives": "Versuch fehlgeschlagen. Sie haben noch {lives} Leben.",
+      "gameOver": "Game Over. Sie haben keine Leben mehr."
+    },
+    "ui": {
+      "upcomingPositionsTitle": "Nächste Stellungen",
+      "leaderboardTitle": "Bestenliste",
+      "themeLabel": "Thema",
+      "livesLabel": "Leben",
+      "averageRating": "Durchschnitts-Wertung",
+      "skillValue": "Skill-Punkte",
+      "tableRank": "#",
+      "tablePlayer": "Spieler",
+      "tableTime": "Bestzeit"
+    },
+    "confirm": {
+      "restartWithPenalty": "Sind Sie sicher, dass Sie die aktuelle Position neu starten möchten? Dies kostet ein Leben."
+    },
+    "error": {
+      "towerNotFound": "Der angeforderte Speedrun konnte nicht gefunden werden.",
+      "noPositionsInTower": "Keine Stellungen für den angeforderten Turm gefunden."
+    }
+  },
+  "tacktics": {
+    "feedback": {
+      "getReady": "Drücken Sie 'Spielen', um zu starten.",
+      "loadFailed": "Aufgabe konnte nicht geladen werden.",
+      "yourTurn": "Sie sind am Zug.",
+      "wrongMove": "Falscher Zug!",
+      "success": "Aufgabe gelöst!",
+      "wrongMoveAnalysis": "Falscher Zug! Die Analyse ist jetzt aktiv."
+    },
+    "stats": {
+      "title": "Ihre Wertungen",
+      "globalRating": "Gesamtwertung",
+      "theme": "Thema",
+      "rating": "Wertung",
+      "progress": "Fortschritt",
+      "rate": "Erfolg"
+    },
+    "themes": {
+      "fork": "Gabel",
+      "pin": "Fesselung",
+      "discoveredAttack": "Abzugsangriff",
+      "doubleCheck": "Doppelschach",
+      "skewer": "Spieß",
+      "sacrifice": "Opfer",
+      "attraction": "Hinlenkung",
+      "deflection": "Ablenkung",
+      "capturingDefender": "Beseitigung der Verteidigung",
+      "clearance": "Feldräumung",
+      "interference": "Sperrung",
+      "intermezzo": "Zwischenzug",
+      "quietMove": "Stiller Zug",
+      "trappedPiece": "Gefangene Figur",
+      "xRayAttack": "Röntgenangriff",
+      "zugzwang": "Zugzwang",
+      "advancedPawn": "Freibauer",
+      "promotion": "Umwandlung",
+      "backRankMate": "Grundreihenmatt",
+      "mateIn1": "Matt in 1",
+      "mateIn2": "Matt in 2",
+      "mateIn3": "Matt in 3+",
+      "opening": "Eröffnung",
+      "middlegame": "Mittelspiel",
+      "endgame": "Endspiel"
+    },
+    "controls": {
+      "levelTitle": "Schwierigkeit",
+      "levels": {
+        "easy": "Leicht",
+        "normal": "Normal",
+        "hard": "Schwer"
+      },
+      "autoLoad": "Auto-Start"
+    }
+  },
+  "records": {
+    "bannerAlt": "Bestenlisten-Banner",
+    "titles": {
+      "topFinishHim": "Meister der Verwertung",
+      "topAttack": "Meister des Angriffs",
+      "towerLeaderboard": "Speedrun-Meister",
+      "overallSkill": "Gesamter Skill",
+      "skillStreak": "+100 jeden Tag"
+    },
+    "table": {
+      "rank": "#",
+      "player": "Spieler",
+      "time": "Zeit",
+      "challenge": "Aufgabe",
+      "daysOld": "Tage",
+      "totalSkill": "Skill",
+      "streakDays": "Streak (Tage)",
+      "action": "Aktion",
+      "requested": "Angefordert",
+      "solved": "Gelöst"
+    },
+    "errors": {
+      "dataLoadFailed": "Bestenlisten-Daten konnten nicht geladen werden.",
+      "unknown": "Ein unbekannter Fehler ist aufgetreten."
+    },
+    "periods": {
+      "days14": "Letzte 14 Tage",
+      "days21": "Letzte 21 Tage"
+    }
+  },
+  "lichessClubs": {
+    "pageTitle": {
+      "loading": "Lade Lichess Clubs...",
+      "loaded": "Lichess Clubs",
+      "error": "Fehler beim Laden der Lichess Clubs"
+    },
+    "table": {
+      "clubName": "Club-Name",
+      "tournamentsPlayed": "Gespielte Turniere",
+      "totalScore": "Gesamtpunktzahl",
+      "averageScore": "Ø Punktzahl",
+      "activePlayers": "Spieler",
+      "noClubs": "Keine registrierten Clubs gefunden."
+    },
+    "bannerAlt": "Lichess Clubs Banner",
+    "founder": {
+      "cooldownMessage": "Sie können die nächste Aktion in {hours} Stunden durchführen.",
+      "clubIsListed": "Ihr Club ist gelistet: {clubName}",
+      "removeClub": "{clubName} entfernen",
+      "clubNotListed": "Ihr Club ist nicht gelistet: {clubName}",
+      "addClubButton": "{clubName} zur Liste hinzufügen",
+      "confirmRemove": "Sind Sie sicher, dass Sie den Club \"{clubName}\" aus der Liste entfernen möchten? Dies ermöglicht es Ihnen, einen anderen Ihrer Clubs zu registrieren."
+    },
+    "widgets": {
+      "hallOfFameTitle": "Ruhmeshalle",
+      "medalBearersTitle": "Medaillengewinner",
+      "hardWorkersTitle": "Fleißige Arbeiter"
+    },
+    "medals": {
+      "gold": "Gold",
+      "silver": "Silber",
+      "bronze": "Bronze"
+    },
+    "errors": {
+      "dataLoadFailed": "Club-Daten konnten nicht geladen werden.",
+      "unknown": "Ein unbekannter Fehler ist aufgetreten."
+    }
+  },
+  "clubPage": {
+    "bannerAlt": "Club-Banner",
+    "founder": "Gründer",
+    "members": "Mitglieder",
+    "leadersTitle": "Club-Leiter",
+    "button": {
+      "follow": "Folgen",
+      "unfollow": "Nicht mehr folgen",
+      "showMore": "Mehr anzeigen"
+    },
+    "tabs": {
+      "overview": "Übersicht",
+      "keyIndicators": "Kennzahlen",
+      "playStyle": "Spielstil",
+      "ratings": "Wertungen",
+      "medals": "Medaillen"
+    },
+    "overview": {
+      "title": "Club-Übersicht"
+    },
+    "mostValuablePlayersTitle": "Wertvollste Spieler",
+    "mostActivePlayersTitle": "Aktivste Spieler",
+    "mostGamesPlayedTitle": "Fleißige Arbeiter (Partien)",
+    "berserkKingsTitle": "Berserker-Könige",
+    "winStreakMastersTitle": "Siegesserien-Meister",
+    "performanceLeadersTitle": "Performance-Führer",
+    "ratingLeadersTitle": "Wertungs-Führer",
+    "medalStandings": {
+      "teamTitle": "Medaillenspiegel (Team)",
+      "arenaTitle": "Medaillenspiegel (Arena)"
+    },
+    "tournamentHistoryTitle": "Letzte 30 Tage",
+    "table": {
+      "player": "Spieler",
+      "totalScore": "Punkte",
+      "tournaments": "Turniere",
+      "gamesPlayed": "Partien",
+      "avgPerf": "Perf.",
+      "berserkWins": "Berserk-Siege",
+      "maxWinStreak": "Max. Serie",
+      "avgRating": "Ø Wertung",
+      "medals": "Medaillen",
+      "date": "Datum",
+      "tournamentName": "Turnier",
+      "clubRank": "Rang",
+      "clubScore": "Punkte",
+      "score": "Punkte",
+      "performance": "Perf.",
+      "arenaRank": "Arena-Rang",
+      "cronePlayer": "Hat zum Turnierergebnis beigetragen"
+    },
+    "follow": {
+      "successAdded": "Sie folgen diesem Club jetzt!",
+      "successRemoved": "Sie folgen diesem Club nicht mehr."
+    },
+    "error": {
+      "dataLoadFailedOrNotRegistered": "Daten für Club {clubId} konnten nicht geladen werden oder der Club ist nicht registriert.",
+      "unknown": "Ein unbekannter Fehler ist aufgetreten.",
+      "noDataFound": "Keine Daten für Club-ID gefunden: {clubId}",
+      "clubNotRegisteredModal": {
+        "message": "Club \"{clubId}\" ist nicht registriert. Um den Club zu registrieren, kontaktieren Sie bitte die Administration unter: https://chessboard.fun"
+      },
+      "profileNotFound": "Benutzerprofil nicht gefunden. Bitte versuchen Sie erneut, sich anzumelden.",
+      "followCooldown": "Sie können Ihren Follow-Status in {minutes} Minuten wieder ändern.",
+      "followFailed": "Follow-Status konnte nicht aktualisiert werden. Bitte versuchen Sie es erneut.",
+      "followRequestFailed": "Bei der Follow/Unfollow-Anfrage ist ein Fehler aufgetreten."
+    }
+  },
+  "userCabinet": {
+    "title": "Profil",
+    "loginPrompt": "Melden Sie sich an, um Ihre Statistiken und Aktivitäten anzuzeigen.",
+    "info": {
+      "lichessId": "Lichess ID",
+      "subscriptionTier": "Abonnement",
+      "tierExpires": " (bis {date})",
+      "tierPermanent": " (dauerhaft)"
+    },
+    "stats": {
+      "funcoinsLabel": "FunCoins",
+      "endgameSkillLabel": "Endspiel-Skill",
+      "attackSkillLabel": "Angriffs-Skill",
+      "puzzlesSolved": "Gelöste Aufgaben",
+      "skillEarned": "Skill heute",
+      "global": {
+        "title": "Aktivitätsstatistik"
+      },
+      "activity": {
+        "titleWithTime": "Heutige Aktivität (zurückgesetzt um {time})"
+      },
+      "periods": {
+        "day": "Tag",
+        "week": "Woche",
+        "month": "Monat"
+      },
+      "modes": {
+        "all": "Modus",
+        "finishHim": "Verwertung",
+        "attack": "Angriff",
+        "tower": "Speedrun",
+        "tacticalTrainer": "Taktik"
+      },
+      "noData": "Keine Daten für den ausgewählten Zeitraum verfügbar.",
+      "towerTitle": "Speedrun-Statistik",
+      "attackTitle": "Angriffsmodus-Statistik",
+      "bestTime": "Bestzeit",
+      "attempts": "Versuche",
+      "puzzle": "Aufgabe"
+    },
+    "clubs": {
+      "activityTitle": "Club-Aktivität",
+      "followedClubs": "Gefolgte Clubs",
+      "founderOfClubs": "Gründer von"
+    },
+    "telegram": {
+      "title": "Telegram-Integration",
+      "boundStatusSimple": "Konto mit Telegram verknüpft",
+      "bindButton": "Telegram-Konto verknüpfen"
+    },
+    "activity": {
+      "title": "Lichess-Aktivität",
+      "noActivity": "Keine kürzliche Lichess-Aktivität gefunden.",
+      "dateHeader": "Datum",
+      "summaryHeader": "Aktivitätsübersicht"
+    }
+  },
+  "pricing": {
+    "title": "Abonnements und Preise",
+    "intro": {
+      "p1": "Willkommen auf der Informationsseite über unser zukünftiges Abonnementsystem. Die Anwendung befindet sich derzeit im offenen Testmodus.",
+      "p2": "Während des Tests wird Ihr Konto stündlich aufgefüllt, damit Sie alle Funktionen kostenlos erkunden können. Nach dieser Phase wird ein tägliches Kontenauffüllungssystem basierend auf Ihrem Abonnement eingeführt."
+    },
+    "tiers": {
+      "title": "Abonnementstufen",
+      "pawn": {
+        "name": "Bauer",
+        "description": "Tägliche Auffüllung bis zu 100 FunCoins",
+        "price": "Für immer kostenlos"
+      },
+      "knight": {
+        "name": "Springer",
+        "description": "Tägliche Auffüllung bis zu 200 FunCoins"
+      },
+      "bishop": {
+        "name": "Läufer",
+        "description": "Tägliche Auffüllung bis zu 300 FunCoins"
+      },
+      "rook": {
+        "name": "Turm",
+        "description": "Tägliche Auffüllung bis zu 500 FunCoins"
+      },
+      "queen": {
+        "name": "Dame",
+        "description": "Tägliche Auffüllung bis zu 1000 FunCoins"
+      },
+      "price": {
+        "soon": "Preis wird bekannt gegeben"
+      }
+    },
+    "costs": {
+      "title": "Kosten der Spielmodi",
+      "funcoinLabel": "FunCoins"
+    }
+  },
+  "about": {
+    "title": "Chessboard.fun",
+    "intro": " ist eine interaktive Webplattform für Schachbegeisterte, die einzigartige Trainingsmodi, detaillierte Statistiken und leistungsstarke Analysewerkzeuge bietet.",
+    "sections": {
+      "mainModesTitle": "Hauptmodi",
+      "keyFeaturesTitle": "Hauptmerkmale",
+      "techStackTitle": "Technologie-Stack",
+      "licensingTitle": "Lizenzierung und Danksagung",
+      "contributingTitle": "Mitwirken",
+      "licenseTitle": "Lizenz",
+      "acknowledgementsTitle": "Danksagung"
+    },
+    "modes": {
+      "conversionTitle": "Verwertung (Finish-Him): ",
+      "conversion": "Ein einzigartiger Modus, in dem Sie zuerst eine taktische Aufgabe lösen und dann Ihren Vorteil im Endspiel gegen die Stockfish-Engine beweisen müssen.",
+      "speedrunTitle": "Speedrun: ",
+      "speedrun": "Testen Sie Ihre Geschwindigkeit und Genauigkeit, indem Sie eine Reihe von zeitgesteuerten taktischen Aufgaben lösen. Die Schwierigkeit der Türme reicht vom Kandidatenmeister- bis zum Großmeisterniveau.",
+      "attackTitle": "Angriff (Attack): ",
+      "attack": "Ein Modus, in dem Sie mit Stellungen konfrontiert werden, die eine entscheidende Kombination oder einen starken Angriff erfordern, um den Bot mattzusetzen.",
+      "automaticTacticalTrainerTitle": "Automatischer Taktiktrainer: ",
+      "automaticTacticalTrainer": "Im Gegensatz zu Standardtrainern verwandelt unser intelligentes System das Lösen von Aufgaben in einen personalisierten Weg zur Meisterschaft. Es analysiert Ihr Profil anhand von 25 taktischen Themen (Gabel, Fesselung, Abzugsangriff usw.), identifiziert Ihre schwächsten Bereiche und wählt automatisch die Aufgabe aus, die Ihnen im Moment am meisten nützt. Nach jeder Antwort wird Ihre Bewertung für dieses Thema sofort aktualisiert, um sicherzustellen, dass die nächste Aufgabe perfekt zu Ihrem aktuellen Fähigkeitsniveau passt.",
+      "botSelectionTitle": "Auswahl des Schach-Bots: ",
+      "botSelectionIntro": "Auf unserer Plattform können Sie aus mehreren Schach-Bots für das Training wählen:",
+      "bots": {
+        "rbleipzig": " (Stockfish.js - lokal: Tiefe 12, Contempt 100)",
+        "krokodil": " (Stockfish.js - lokal: Tiefe 10, Contempt 100)",
+        "karde": " (Stockfish.js - lokal: Tiefe 8, Contempt 100)",
+        "mozer": " (LCZero+Maia1900 — eine menschenähnliche Engine auf dem SERVER)",
+        "dimas": " (Stockfish.js - lokal: Tiefe 6, Contempt 100)",
+        "darko": " (Stockfish.js - lokal: Tiefe 4, Contempt 100)"
+      },
+      "lichessClubsTitle": "Club-Statistiken: ",
+      "lichessClubs": "Sehen Sie detaillierte Statistiken und Bestenlisten für jeden Lichess-Schachclub und verfolgen Sie die Aktivitäten und Erfolge der Spieler. (Es werden nur im System registrierte Clubs angezeigt).",
+      "userCabinetTitle": "Benutzer-Dashboard: ",
+      "userCabinet": "Ihr persönliches Dashboard mit Statistiken für alle Spielmodi, einer Liste Ihrer Lieblingsaufgaben und Ihrer Lichess-Aktivität.",
+      "analysisPanelTitle": "Analyse-Panel: ",
+      "analysisPanel": "Ein leistungsstarkes Werkzeug zur Analyse jeder Stellung mit der Stockfish-Engine, zur Anzeige von Varianten und PGN."
+    },
+    "features": {
+      "lichessIntegrationTitle": "Lichess-Integration: ",
+      "lichessIntegration": "Melden Sie sich über Ihr Lichess-Konto an, nutzen Sie Ihr Profil und rufen Sie Daten zur Clubaktivität ab.",
+      "advancedStatsTitle": "Erweiterte Statistiken: ",
+      "advancedStats": "Verfolgen Sie Ihre Taktik- und Verwertungswertungen, die Anzahl der gespielten Partien, FunCoins und mehr.",
+      "puzzleDatabaseTitle": "Lichess-Aufgabendatenbank: ",
+      "puzzleDatabase": "Alle Aufgaben in der Anwendung basieren auf der riesigen und hochwertigen Lichess-Aufgabendatenbank: ",
+      "modernUITitle": "Moderne Benutzeroberfläche: ",
+      "modernUI": "Eine saubere, reaktionsschnelle und intuitive Benutzeroberfläche, die mit TypeScript und Vue.js erstellt wurde.",
+      "localizationTitle": "Lokalisierung: ",
+      "localization": "Unterstützung für Englisch, Deutsch und Russisch."
+    },
+    "techStack": {
+      "frontend": "Frontend: ",
+      "frontendStack": "TypeScript, Vue.js",
+      "backend": "Backend: ",
+      "backendStack": "n8n.io + Nest.js (für Webhook-Verarbeitung und API)",
+      "chessLogic": "Schachlogik: ",
+      "chessLogicStack": "`chessops`",
+      "boardRendering": "Brett-Darstellung: ",
+      "boardRenderingStack": "`Chessground`",
+      "chessEngine": "Schach-Engine: ",
+      "chessEngineStack": "`lokal: Stockfish.js + Stockfish.wasm, Server: LCZero + Maia 1900`",
+      "api": "API: ",
+      "apiStack": "Lichess API ("
+    },
+    "licensing": {
+      "stockfishTitle": "Stockfish Schach-Engine",
+      "stockfishIntro1": "Die Spiel- und Zuganalyse in dieser Anwendung wird von ",
+      "stockfishIntro2": " unterstützt, einer Open-Source-Schach-Engine, die unter der ",
+      "gplNoteTitle": "Wichtiger Hinweis zur GPLv3-Lizenz: ",
+      "gplNote": "Die Verwendung einer Bibliothek unter der GPLv3-Lizenz erfordert, dass wir den Quellcode unseres eigenen Projekts offen und unter derselben oder einer kompatiblen Lizenz verfügbar machen.",
+      "projectSourceCode": "Projekt-Quellcode: Verfügbar in diesem Repository",
+      "licenseText": "Den vollständigen Text der GPLv3-Lizenz können Sie hier lesen: ",
+      "stockfishGratitude": "Wir danken dem Stockfish-Team herzlich für ihre unglaubliche Arbeit.",
+      "chessgroundTitle": "Chessground",
+      "chessgroundIntro1": "Das interaktive Schachbrett wird mit der ",
+      "chessgroundIntro2": " Bibliothek vom Lichess-Team gerendert, die unter der ",
+      "chessgroundGratitude": "Vielen Dank an Lichess für dieses wunderbare Werkzeug."
+    },
+    "contributing": "Wir freuen uns über alle Beiträge zum Projekt! Wenn Sie Ideen, Vorschläge haben oder einen Fehler gefunden haben, erstellen Sie bitte ein `Issue` oder einen `Pull Request`.",
+    "licenseText": "Dieses Projekt ist unter der GNU General Public License v3.0 lizenziert - siehe die LICENSE-Datei für Details.",
+    "acknowledgements": {
+      "stockfishDesc": " - Die leistungsstarke Schach-Engine",
+      "lichessDesc": " - Für die erstaunliche API und die Chessground-Bibliothek",
+      "n8nDesc": " - Für die flexible Automatisierungsplattform",
+      "community": "Alle Mitwirkenden und die Schachgemeinschaft"
+    },
+    "author": {
+      "photoAlt": "Autorenfoto",
+      "title": "Ein paar Worte vom Autor",
+      "bioPart1": "Hallo! Mein Name ist Moser. Ich wurde 1985 in Kasachstan geboren und lebe seit 2003 in Deutschland.",
+      "bioPart2": "Von Beruf bin ich Maschinenbauingenieur, aber meine Leidenschaft gilt seit jeher dem Schach. Dieses Projekt ist ein lang gehegter Traum von mir, ein bequemes Trainingswerkzeug zu schaffen, was dank moderner Technologien wie KI und der n8n-Plattform möglich wurde.",
+      "bioPart3": "Ich spreche fließend Russisch und Deutsch sowie etwas Englisch. Vielen Dank, dass Sie Chessboard.fun nutzen!",
+      "supportButtonText": "Kauf mir einen Kaffee"
+    },
+    "contact": {
+      "telegram": "Telegram-Kanal",
+      "email": "E-Mail",
+      "github": "GitHub",
+      "separator": ": "
+    },
+    "footerNote": "Mit ❤️ für Schachbegeisterte überall gemacht"
+  }
+}

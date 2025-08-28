@@ -1,0 +1,110 @@
+/* src/assets/main.css */
+
+/* --- НАЧАЛО ИЗМЕНЕНИЙ: Локальный импорт стилей Chessground --- */
+@import 'chessground/assets/chessground.base.css';
+@import 'chessground/assets/chessground.brown.css';
+/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
+
+body {
+  font-family: var(--font-family-primary);
+}
+
+:root {
+  /* Layout */
+  --header-height: 60px;
+  --panel-width: 20vw;
+  --panel-gap: 10px;
+  --panel-border-radius: 8px;
+  --page-vertical-padding: 10px;
+  --top-board-panel-height: 50px;
+  --bottom-board-panel-height: 50px;
+
+  /* Backgrounds */
+  --color-bg-primary: #161512;
+  /* Основной фон */
+  --color-bg-secondary: #262421;
+  /* Второй уровень */
+  --color-bg-tertiary: #33312E;
+  /* Третий уровень */
+  --color-bg-overlay: rgba(0, 0, 0, 0.4);
+  /* для модалок */
+
+  /* Borders */
+  --color-border: #33312E;
+  --color-border-hover: #4D4A47;
+
+  /* Text */
+  --color-text-default: #B5B5B5;
+  /* основной */
+  --color-text-muted: #7A7A7A;
+  /* приглушённый */
+  --color-text-on-accent: #FFFFFF;
+  --color-text-error: #FF6B6B;
+  /* ярче для ошибок */
+  --color-text-dark: #161512;
+  --color-text-link: #13ADF6;
+  --color-text-link-hover: #0B8ACB;
+
+  /* Accents */
+  --color-accent-primary: #13ADF6;
+  /* голубой */
+  --color-accent-primary-hover: #0B8ACB;
+  --color-accent-secondary: #FF0496;
+  /* розовый */
+  --color-accent-secondary-hover: #D1047F;
+  --color-accent-success: #9DD600;
+  /* смягчённый лайм */
+  --color-accent-success-hover: #85B800;
+  --color-accent-warning: #FFB300;
+  /* ближе к жёлтому */
+  --color-accent-warning-hover: #E69A00;
+  --color-accent-error: #E53935;
+  --color-accent-error-hover: #C62828;
+  --color-accent-info: var(--color-accent-primary);
+  --color-accent-special: #FF0496;
+  /* alias secondary */
+  --color-violett-lichess: #B72FC6;
+
+  /* Medal colors */
+  --color-gold: #ffd700;
+  --color-gold-border: #e6c200;
+  --color-silver: #c0c0c0;
+  --color-silver-border: #a9a9a9;
+  --color-bronze: #cd7f32;
+  --color-bronze-border: #b8732e;
+
+  /* Helpers */
+  --color-accent-primary-rgb: 19, 173, 246;
+
+  /* Typography */
+  --font-family-primary: "Neucha", cursive;
+  --font-weight-normal: 400;
+  --font-weight-bold: 600;
+  --font-style-normal: normal;
+
+  /* Font sizes */
+  --font-size-hxsmall: 0.5rem;
+  --font-size-xsmall: 0.7rem;
+  --font-size-small: 0.9rem;
+  --font-size-base: 1.1rem;
+  --font-size-large: 1.5rem;
+  --font-size-xlarge: 1.8rem;
+  --font-size-xxlarge: 2.5rem;
+}
+
+/* --- Глобальные стили и сбросы --- */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family-primary);
+  font-weight: var(--font-weight-normal);
+  font-style: var(--font-style-normal);
+  font-size: var(--font-size-base);
+  line-height: 1.6;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-default);
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}

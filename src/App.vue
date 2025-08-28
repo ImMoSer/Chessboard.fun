@@ -1,0 +1,96 @@
+<!-- src/App.vue -->
+<script setup lang="ts">
+import { onMounted, onUnmounted } from 'vue'
+import { RouterView } from 'vue-router'
+import { useI18n } from 'vue-i18n'
+import NavMenu from './components/NavMenu.vue'
+import SettingsMenu from './components/SettingsMenu.vue'
+import ConfirmationModal from './components/ConfirmationModal.vue'
+import { useGameStore } from './stores/game.store'
+
+const gameStore = useGameStore()
+const { t } = useI18n()
+
+// Обработчик для перезагрузки/закрытия страницы
+const beforeUnloadHandler = (event: BeforeUnloadEvent) => {
+  if (gameStore.isGameActive) {
+    // Стандартный способ показать браузерное окно подтверждения
+    event.preventDefault()
+    // Chrome требует установки returnValue
+    event.returnValue = t('gameplay.confirmExit.browserMessage')
+
+    // Синхронно засчитываем поражение. API вызов может не успеть,
+    // но состояние в браузере (localStorage) обновится.
+    gameStore.handleGameResignation()
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('beforeunload', beforeUnloadHandler)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('beforeunload', beforeUnloadHandler)
+})
+</script>
+
+<template>
+  <header class="app-header">
+    <div class="header-content">
+      <div class="logo">
+        <RouterLink to="/">
+          <img src="/png/1920_Banner.png" alt="Logo" class="logo-image" />
+        </RouterLink>
+      </div>
+
+      <div class="navigation-wrapper">
+        <NavMenu />
+        <SettingsMenu />
+      </div>
+    </div>
+  </header>
+
+  <main id="page-content-wrapper">
+    <RouterView />
+  </main>
+
+  <ConfirmationModal />
+</template>
+
+<style scoped>
+.app-header {
+  background-color: var(--color-bg-secondary);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  padding: 0 10px;
+}
+
+.header-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  height: var(--header-height, 50px);
+}
+
+.logo-image {
+  height: calc(var(--header-height, 50px) - 20px);
+  width: auto;
+  padding-top: 8px;
+}
+
+.navigation-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem; /* Расстояние между меню и шестеренкой */
+}
+
+/* --- НАЧАЛО ИЗМЕНЕНИЙ --- */
+@media (orientation: portrait) {
+  .header-content {
+    justify-content: space-between;
+  }
+}
+/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
+</style>

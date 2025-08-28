@@ -1,0 +1,571 @@
+{
+  "app": {
+    "title": "Chessboard.fun"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "processing": "Processing...",
+    "ok": "OK",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "play": "Play",
+    "notAvailable": "N/A",
+    "linkCopied": "Link copied to clipboard!",
+    "copyFailed": "Could not copy link.",
+    "closingParenthesis": ")",
+    "period": ".",
+    "periodAndSpace": ". "
+  },
+  "nav": {
+    "home": "Home",
+    "finishHim": "Conversion",
+    "attack": "Attack",
+    "tower": "SpeedRun",
+    "tacktics": "Tacktics",
+    "leaderboards": "LeaderBoards",
+    "userCabinet": "Cabinet",
+    "lichessClubs": "Clubs",
+    "pricing": "Pricing",
+    "about": "About",
+    "login": "Login",
+    "logout": "Logout",
+    "loginWithLichess": "Login with Lichess"
+  },
+  "auth": {
+    "requiredForAction": "You must be logged in to perform this action."
+  },
+  "errors": {
+    "backendConnectionFailed": "Could not connect to the server.",
+    "telegramAuthFailed": "Telegram authentication failed.",
+    "rateLimit": {
+      "title": "Too Many Requests",
+      "message": "Too many requests. Please wait {seconds} seconds."
+    },
+    "unknown": "An unknown error occurred."
+  },
+  "settings": {
+    "title": "Settings",
+    "selectBoard": "Select Board",
+    "selectPieces": "Select Pieces",
+    "selectLanguage": "Select Language",
+    "back": "Back",
+    "sounds": {
+      "title": "Sound Settings",
+      "voice": "Voice",
+      "board": "Board"
+    },
+    "animation": {
+      "title": "Animation Settings",
+      "duration": "Duration"
+    }
+  },
+  "gameplay": {
+    "confirmExit": {
+      "title": "Do you want to resign?",
+      "message": "Are you sure you want to resign the current game?",
+      "browserMessage": "Are you sure you want to leave? Your current game will be counted as a loss."
+    },
+    "gameOver": {
+      "stalemate": "Game over: Stalemate."
+    }
+  },
+  "analysis": {
+    "engine": "Analysis",
+    "threads": "Threads",
+    "loading": "Loading analysis...",
+    "mateInShort": "M{value}",
+    "makeMove": "Make a move to see analysis."
+  },
+  "puzzleInfo": {
+    "title": "Puzzle Info",
+    "tacticalRating": "Tactical Rating",
+    "solveTime": "Solve Time",
+    "funValue": "Skill Value",
+    "finalPositionTitle": "Material in final position",
+    "leaderboardTitle": "Best Times",
+    "tableRank": "#",
+    "tablePlayer": "Player",
+    "tableTime": "Time"
+  },
+  "welcome": {
+    "titleV2": "Select a Game Mode",
+    "buttons": {
+      "finishHim": "Finish Him",
+      "tower": "Speedrun",
+      "attack": "Attack",
+      "tacktics": "Tacktics",
+      "clubs": "Lichess Clubs",
+      "leaderboards": "Leaderboards"
+    },
+    "loginPrompt": "Or log in to access all features:"
+  },
+  "finishHim": {
+    "feedback": {
+      "getReady": "Get ready for the next challenge!",
+      "pressNext": "Press 'Play Button' to begin.",
+      "yourTurn": "Your turn! Find the correct continuation.",
+      "yourTurnPlayout": "Your turn! Find the best moves to win.",
+      "timeUp": "Time's up! The playout phase is lost.",
+      "resigned": "You have resigned the game.",
+      "win": "You won!",
+      "loss": "You lost!",
+      "loadFailed": "Failed to load puzzle."
+    },
+    "error": {
+      "puzzleNotFound": "Puzzle with ID {puzzleId} was not found or is unavailable."
+    }
+  },
+  "attack": {
+    "feedback": {
+      "getReady": "Press 'Play Button' to start.",
+      "yourTurn": "Your turn.",
+      "resigned": "You resigned.",
+      "win": "You won! ({reason})",
+      "loss": "You lost. ({reason})",
+      "timeUp": "Time is up!",
+      "loadFailed": "Failed to load puzzle."
+    }
+  },
+  "tower": {
+    "names": {
+      "CM": "CM",
+      "FM": "FM",
+      "IM": "IM",
+      "GM": "GM"
+    },
+    "themes": {
+      "mix": "Mixed",
+      "pawn_endgame": "Pawn Endgame",
+      "rook_endgame": "Rook Endgame",
+      "bishop_endgame": "Bishop Endgame",
+      "knight_endgame": "Knight Endgame",
+      "queen_endgame": "Queen Endgame",
+      "queens_vs_rooks": "Queens vs Rooks",
+      "rooks_vs_minors": "Rooks vs Minor Pieces",
+      "queens_vs_minors": "Queens vs Minor Pieces",
+      "knights_vs_bishops": "Knights vs Bishops",
+      "bishops_vs_knights": "Bishops vs Knights",
+      "minors_vs_rooks": "Minor Pieces vs Rooks",
+      "opposite_color_bishops": "Opposite Color Bishops",
+      "rook_and_minor_vs_rook": "Rook & Minor vs Rook",
+      "two_rooks_endgame": "Two Rooks Endgame",
+      "vs_queen_disadvantage": "vs Queen"
+    },
+    "feedback": {
+      "selectTowerAndStart": "Select a Speedrun to begin.",
+      "loadingTower": "Loading {towerName}...",
+      "positionLoaded": "Position {current}/{total} | {towerName}",
+      "positionWon": "Position cleared!",
+      "towerCompleted": "SpeedRun {towerName} completed in {time}!",
+      "positionFailedWithLives": "Attempt failed. You have {lives} lives left.",
+      "gameOver": "Game Over. You have no lives left."
+    },
+    "ui": {
+      "upcomingPositionsTitle": "Upcoming Positions",
+      "leaderboardTitle": "Leaderboard",
+      "themeLabel": "Theme",
+      "livesLabel": "Lives",
+      "averageRating": "Average Rating",
+      "skillValue": "Skill Value",
+      "tableRank": "#",
+      "tablePlayer": "Player",
+      "tableTime": "Best Time"
+    },
+    "confirm": {
+      "restartWithPenalty": "Are you sure you want to restart the current position? This will cost one life."
+    },
+    "error": {
+      "towerNotFound": "The requested SpeedRun could not be found.",
+      "noPositionsInTower": "No positions found for the requested tower."
+    }
+  },
+  "tacktics": {
+    "feedback": {
+      "getReady": "Press 'Play Button' to start.",
+      "loadFailed": "Failed to load puzzle.",
+      "yourTurn": "Your turn.",
+      "wrongMove": "Wrong move!",
+      "success": "Puzzle solved!",
+      "wrongMoveAnalysis": "Wrong move! Analysis is now active."
+    },
+    "stats": {
+      "title": "Your Ratings",
+      "globalRating": "Global Rating",
+      "theme": "Theme",
+      "rating": "Rating",
+      "progress": "Progress",
+      "rate": "Success"
+    },
+    "themes": {
+      "fork": "Fork",
+      "pin": "Pin",
+      "discoveredAttack": "Discovered Attack",
+      "doubleCheck": "Double Check",
+      "skewer": "Skewer",
+      "sacrifice": "Sacrifice",
+      "attraction": "Attraction",
+      "deflection": "Deflection",
+      "capturingDefender": "Capturing Defender",
+      "clearance": "Clearance",
+      "interference": "Interference",
+      "intermezzo": "Intermezzo",
+      "quietMove": "Quiet Move",
+      "trappedPiece": "Trapped Piece",
+      "xRayAttack": "X-Ray Attack",
+      "zugzwang": "Zugzwang",
+      "advancedPawn": "Advanced Pawn",
+      "promotion": "Promotion",
+      "backRankMate": "Back-Rank Mate",
+      "mateIn1": "Mate in 1",
+      "mateIn2": "Mate in 2",
+      "mateIn3": "Mate in 3+",
+      "opening": "Opening",
+      "middlegame": "Middlegame",
+      "endgame": "Endgame"
+    },
+    "controls": {
+      "levelTitle": "Difficulty",
+      "levels": {
+        "easy": "Easy",
+        "normal": "Normal",
+        "hard": "Hard"
+      },
+      "autoLoad": "AutoNext"
+    }
+  },
+  "records": {
+    "bannerAlt": "Leaderboards Banner",
+    "titles": {
+      "topFinishHim": "Finish Him Masters",
+      "topAttack": "Attack Masters",
+      "towerLeaderboard": "Tower Masters",
+      "overallSkill": "Overall Skill",
+      "skillStreak": "+100 everyday"
+    },
+    "table": {
+      "rank": "#",
+      "player": "Player",
+      "time": "Time",
+      "challenge": "Challenge",
+      "daysOld": "Days",
+      "totalSkill": "Skill",
+      "streakDays": "Streak (Days)",
+      "action": "Action",
+      "requested": "Requested",
+      "solved": "Solved"
+    },
+    "errors": {
+      "dataLoadFailed": "Failed to load leaderboard data.",
+      "unknown": "An unknown error occurred."
+    },
+    "periods": {
+      "days14": "Last 14 days",
+      "days21": "Last 21 days"
+    }
+  },
+  "lichessClubs": {
+    "pageTitle": {
+      "loading": "Loading Lichess Clubs...",
+      "loaded": "Lichess Clubs",
+      "error": "Error Loading Lichess Clubs"
+    },
+    "table": {
+      "clubName": "Club Name",
+      "tournamentsPlayed": "Tournaments Played",
+      "totalScore": "Total Score",
+      "averageScore": "Ø Score",
+      "activePlayers": "Players",
+      "noClubs": "No registered clubs found."
+    },
+    "bannerAlt": "Lichess Clubs Banner",
+    "founder": {
+      "cooldownMessage": "You can perform the next action in {hours} hours.",
+      "clubIsListed": "Your club is listed: {clubName}",
+      "removeClub": "Remove {clubName}",
+      "clubNotListed": "Your club is not listed: {clubName}",
+      "addClubButton": "Add {clubName} to List",
+      "confirmRemove": "Are you sure you want to remove the club \"{clubName}\" from the list? This will allow you to register another one of your clubs."
+    },
+    "widgets": {
+      "hallOfFameTitle": "Hall of Fame",
+      "medalBearersTitle": "Medal Bearers",
+      "hardWorkersTitle": "Hard Workers"
+    },
+    "medals": {
+      "gold": "Gold",
+      "silver": "Silver",
+      "bronze": "Bronze"
+    },
+    "errors": {
+      "dataLoadFailed": "Failed to load clubs data.",
+      "unknown": "An unknown error occurred."
+    }
+  },
+  "clubPage": {
+    "bannerAlt": "Club Banner",
+    "founder": "Founder",
+    "members": "Members",
+    "leadersTitle": "Club Leaders",
+    "button": {
+      "follow": "Follow",
+      "unfollow": "Unfollow",
+      "showMore": "Show more"
+    },
+    "tabs": {
+      "overview": "Overview",
+      "keyIndicators": "Key Indicators",
+      "playStyle": "Play Style",
+      "ratings": "Ratings",
+      "medals": "Medals"
+    },
+    "overview": {
+      "title": "Club Overview"
+    },
+    "mostValuablePlayersTitle": "Most Valuable Players",
+    "mostActivePlayersTitle": "Most Active Players",
+    "mostGamesPlayedTitle": "Hard Workers (Games)",
+    "berserkKingsTitle": "Berserk Kings",
+    "winStreakMastersTitle": "Win Streak Masters",
+    "performanceLeadersTitle": "Performance Leaders",
+    "ratingLeadersTitle": "Rating Leaders",
+    "medalStandings": {
+      "teamTitle": "Medal Standings (Team)",
+      "arenaTitle": "Medal Standings (Arena)"
+    },
+    "tournamentHistoryTitle": "Last 30 Days",
+    "table": {
+      "player": "Player",
+      "totalScore": "Score",
+      "tournaments": "Tours",
+      "gamesPlayed": "Games",
+      "avgPerf": "Perf",
+      "berserkWins": "Berserk Wins",
+      "maxWinStreak": "Max Streak",
+      "avgRating": "Avg.",
+      "medals": "Member Medals",
+      "date": "Date",
+      "tournamentName": "Tournament",
+      "clubRank": "Rank",
+      "clubScore": "Score",
+      "score": "Score",
+      "performance": "Perf.",
+      "arenaRank": "Arena Rank",
+      "cronePlayer": "Contributed to the tournament standings"
+    },
+    "follow": {
+      "successAdded": "You are now following this club!",
+      "successRemoved": "You have unfollowed this club."
+    },
+    "error": {
+      "dataLoadFailedOrNotRegistered": "Failed to load data for club {clubId} or club is not registered.",
+      "unknown": "An unknown error occurred.",
+      "noDataFound": "No data found for club ID: {clubId}",
+      "clubNotRegisteredModal": {
+        "message": "Club \"{clubId}\" is not registered. To register the club, please contact the administration at: https://chessboard.fun"
+      },
+      "profileNotFound": "User profile not found. Please try logging in again.",
+      "followCooldown": "You can change your follow status again in {minutes} minutes.",
+      "followFailed": "Failed to update follow status. Please try again.",
+      "followRequestFailed": "An error occurred during the follow/unfollow request."
+    }
+  },
+  "userCabinet": {
+    "title": "User Cabinet",
+    "loginPrompt": "Log in to view your statistics and activity.",
+    "info": {
+      "lichessId": "Lichess ID",
+      "subscriptionTier": "Subscription",
+      "tierExpires": " (until {date})",
+      "tierPermanent": " (permanent)"
+    },
+    "stats": {
+      "funcoinsLabel": "FunCoins",
+      "endgameSkillLabel": "Endgame Skill",
+      "attackSkillLabel": "Attack Skill",
+      "puzzlesSolved": "Puzzles Solved",
+      "skillEarned": "Skill Today",
+      "global": {
+        "title": "Activity Statistics"
+      },
+      "activity": {
+        "titleWithTime": "Today's activity (resets at {time})"
+      },
+      "periods": {
+        "day": "Day",
+        "week": "Week",
+        "month": "Month"
+      },
+      "modes": {
+        "all": "Mode",
+        "finishHim": "Conversion",
+        "attack": "Attack",
+        "tower": "SpeedRun",
+        "tacticalTrainer": "Tactics"
+      },
+      "noData": "No data available for the selected period.",
+      "towerTitle": "SpeedRun Statistics",
+      "attackTitle": "Attack Mode Statistics",
+      "bestTime": "Best Time",
+      "attempts": "attempts",
+      "puzzle": "Puzzle"
+    },
+    "clubs": {
+      "activityTitle": "Club Activity",
+      "followedClubs": "Followed Clubs",
+      "founderOfClubs": "Founder Of"
+    },
+    "telegram": {
+      "title": "Telegram Integration",
+      "boundStatusSimple": "Account bound to Telegram",
+      "bindButton": "Bind Telegram Account"
+    },
+    "activity": {
+      "title": "Lichess Activity",
+      "noActivity": "No recent Lichess activity found.",
+      "dateHeader": "Date",
+      "summaryHeader": "Activity Summary"
+    }
+  },
+  "pricing": {
+    "title": "Subscriptions and Prices",
+    "intro": {
+      "p1": "Welcome to the information page about our future subscription system. The application is currently in open testing mode.",
+      "p2": "During testing, your account is replenished every hour so you can explore all features for free. After this phase, a daily account replenishment system will be introduced based on your subscription."
+    },
+    "tiers": {
+      "title": "Subscription Tiers",
+      "pawn": {
+        "name": "Pawn",
+        "description": "Daily replenishment up to 100 FunCoins",
+        "price": "Free forever"
+      },
+      "knight": {
+        "name": "Knight",
+        "description": "Daily replenishment up to 200 FunCoins"
+      },
+      "bishop": {
+        "name": "Bishop",
+        "description": "Daily replenishment up to 300 FunCoins"
+      },
+      "rook": {
+        "name": "Rook",
+        "description": "Daily replenishment up to 500 FunCoins"
+      },
+      "queen": {
+        "name": "Queen",
+        "description": "Daily replenishment up to 1000 FunCoins"
+      },
+      "price": {
+        "soon": "Price will be announced"
+      }
+    },
+    "costs": {
+      "title": "Game Mode Costs",
+      "funcoinLabel": "FunCoins"
+    }
+  },
+  "about": {
+    "title": "Chessboard.fun",
+    "intro": " is an interactive web platform for chess enthusiasts, offering unique training modes, detailed statistics, and powerful analysis tools.",
+    "sections": {
+      "mainModesTitle": "Main Modes",
+      "keyFeaturesTitle": "Key Features",
+      "techStackTitle": "Tech Stack",
+      "licensingTitle": "Licensing and Acknowledgements",
+      "contributingTitle": "Contributing",
+      "licenseTitle": "License",
+      "acknowledgementsTitle": "Acknowledgements"
+    },
+    "modes": {
+      "conversionTitle": "Finish-Him (Conversion): ",
+      "conversion": "A unique mode where you first solve a tactical puzzle and then must prove your advantage in the endgame by playing against the Stockfish engine.",
+      "speedrunTitle": "Speedrun: ",
+      "speedrun": "Test your speed and accuracy by solving a series of timed tactical puzzles. The difficulty of the towers ranges from Candidate Master to Grandmaster level.",
+      "attackTitle": "Attack: ",
+      "attack": "A mode where you face positions requiring a decisive combination or a powerful attack to checkmate the bot.",
+      "automaticTacticalTrainerTitle": "Automatic Tactical Trainer: ",
+      "automaticTacticalTrainer": "Unlike standard trainers, our smart system turns puzzle-solving into a personalized path to mastery. It analyzes your profile across 25 tactical themes (fork, pin, discovered attack, etc.), identifies your weakest areas, and automatically selects the puzzle that will benefit you the most right now. After each answer, your rating for that theme is instantly updated, ensuring the next puzzle perfectly matches your current skill level.",
+      "botSelectionTitle": "Chess Bot Selection: ",
+      "botSelectionIntro": "On our platform, you can choose from several chess bots for training:",
+      "bots": {
+        "rbleipzig": " (Stockfish.js - local: depth 12, contempt 100)",
+        "krokodil": " (Stockfish.js - local: depth 10, contempt 100)",
+        "karde": " (Stockfish.js - local: depth 8, contempt 100)",
+        "mozer": " (LCZero+Maia1900 — a human-like engine on SERVER)",
+        "dimas": " (Stockfish.js - local: depth 6, contempt 100)",
+        "darko": " (Stockfish.js - local: depth 4, contempt 100)"
+      },
+      "lichessClubsTitle": "Club Statistics: ",
+      "lichessClubs": "View detailed statistics and leaderboards for any Lichess chess club, tracking player activity and achievements. (Only clubs registered in the system are displayed).",
+      "userCabinetTitle": "User Dashboard: ",
+      "userCabinet": "Your personal dashboard with statistics for all game modes, a list of your favorite puzzles, and your Lichess activity.",
+      "analysisPanelTitle": "Analysis Panel: ",
+      "analysisPanel": "A powerful tool for analyzing any position with the Stockfish engine, viewing variations, and PGN."
+    },
+    "features": {
+      "lichessIntegrationTitle": "Lichess Integration: ",
+      "lichessIntegration": "Log in via your Lichess account, use your profile, and fetch club activity data.",
+      "advancedStatsTitle": "Advanced Statistics: ",
+      "advancedStats": "Track your tactical and conversion ratings, number of games played, FunCoins, and more.",
+      "puzzleDatabaseTitle": "Lichess Puzzle Database: ",
+      "puzzleDatabase": "All puzzles in the application are based on the vast and high-quality Lichess puzzle database: ",
+      "modernUITitle": "Modern UI: ",
+      "modernUI": "A clean, responsive, and intuitive interface built with TypeScript and Vue.js.",
+      "localizationTitle": "Localization: ",
+      "localization": "Support for English, German and Russian languages."
+    },
+    "techStack": {
+      "frontend": "Frontend: ",
+      "frontendStack": "TypeScript, Vue.js",
+      "backend": "Backend: ",
+      "backendStack": "n8n.io + Nest.js (for webhook processing and API)",
+      "chessLogic": "Chess Logic: ",
+      "chessLogicStack": "`chessops`",
+      "boardRendering": "Board Rendering: ",
+      "boardRenderingStack": "`Chessground`",
+      "chessEngine": "Chess Engine: ",
+      "chessEngineStack": "`local: Stockfish.js + Stockfish.wasm, Server: LCZero + Maia 1900`",
+      "api": "API: ",
+      "apiStack": "Lichess API ("
+    },
+    "licensing": {
+      "stockfishTitle": "Stockfish Chess Engine",
+      "stockfishIntro1": "Game and move analysis in this application is powered by ",
+      "stockfishIntro2": ", an open-source chess engine distributed under the ",
+      "gplNoteTitle": "Important Note on the GPLv3 License: ",
+      "gplNote": "The use of a library under the GPLv3 license requires us to make the source code of our own project open and available under the same or a compatible license.",
+      "projectSourceCode": "Project Source Code: Available in this repository",
+      "licenseText": "You can read the full text of the GPLv3 license here: ",
+      "stockfishGratitude": "We extend our deepest gratitude to the Stockfish team for their incredible work.",
+      "chessgroundTitle": "Chessground",
+      "chessgroundIntro1": "The interactive chessboard is rendered using the ",
+      "chessgroundIntro2": " library from the Lichess team, which is distributed under the ",
+      "chessgroundGratitude": "Thank you to Lichess for this wonderful tool."
+    },
+    "contributing": "We welcome all contributions to the project! If you have ideas, suggestions, or have found a bug, please create an `issue` or a `pull request`.",
+    "licenseText": "This project is licensed under the GNU General Public License v3.0 - see the LICENSE file for details.",
+    "acknowledgements": {
+      "stockfishDesc": " - The powerful chess engine",
+      "lichessDesc": " - For the amazing API and Chessground library",
+      "n8nDesc": " - For the flexible automation platform",
+      "community": "All contributors and the chess community"
+    },
+    "author": {
+      "photoAlt": "Author Photo",
+      "title": "A few words from the author",
+      "bioPart1": "Hello! My name is Moser. I was born in 1985 in Kazakhstan and have been living in Germany since 2003.",
+      "bioPart2": "By trade, I'm a mechanical engineer, but I've been passionate about chess my whole life. This project is a long-held dream of mine to create a convenient training tool, which became possible thanks to modern technologies like AI and the n8n platform.",
+      "bioPart3": "I am fluent in Russian and German, and also know some English. Thank you for using Chessboard.fun!",
+      "supportButtonText": "Buy me a coffee"
+    },
+    "contact": {
+      "telegram": "Telegram Channel",
+      "email": "Email",
+      "github": "GitHub",
+      "separator": ": "
+    },
+    "footerNote": "Made with ❤️ for chess enthusiasts everywhere"
+  }
+}
