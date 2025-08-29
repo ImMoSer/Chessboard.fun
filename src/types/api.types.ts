@@ -75,7 +75,6 @@ export type LichessActivityResponse = LichessActivityEntry[];
 export const TOWER_IDS = ["CM", "FM", "IM", "GM"] as const;
 export type TowerId = typeof TOWER_IDS[number];
 
-// --- НАЧАЛО ИЗМЕНЕНИЙ ---
 export const TOWER_THEMES = [
   "mix",
   "rook_and_minor_vs_rook",
@@ -94,7 +93,6 @@ export const TOWER_THEMES = [
   "minors_vs_rooks",
   "vs_queen_disadvantage"
 ] as const;
-// --- КОНЕЦ ИЗМЕНЕНИЙ ---
 export type TowerTheme = typeof TOWER_THEMES[number];
 
 export interface TowerPositionEntry {
@@ -125,6 +123,12 @@ export interface PuzzleResultEntry {
   time_in_seconds: number;
   record_timestamp_ms: number;
 }
+
+// --- НАЧАЛО ИЗМЕНЕНИЙ ---
+export interface GetFinishHimPuzzleDto {
+  engm_type?: TowerTheme;
+}
+// --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
 export interface UpdateFinishHimStatsDto {
   PuzzleId: string;
@@ -175,6 +179,10 @@ export interface GamePuzzle {
   endgame_results?: PuzzleResultEntry[];
   attack_results?: PuzzleResultEntry[];
   Themes_PG?: string[];
+  // --- НАЧАЛО ИЗМЕНЕНИЙ ---
+  engm_type?: TowerTheme | null;
+  difficulty_level?: string | null;
+  // --- КОНЕЦ ИЗМЕНЕНИЙ ---
 }
 
 export interface TacticalThemeStat {

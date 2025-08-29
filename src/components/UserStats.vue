@@ -44,8 +44,6 @@ const activityModes: {
 <template>
   <div class="user-stats-container">
     <div v-if="isAuthenticated && userProfile" class="stats-view">
-      <h4 class="username">{{ userProfile.username }}</h4>
-
       <div class="stats-grid">
         <div class="stat-item">
           <!-- Новый ключ: userCabinet.stats.funcoinsLabel -->
@@ -123,7 +121,7 @@ const activityModes: {
 /* Стили без изменений */
 .user-stats-container {
   color: var(--color-text-default);
-  padding: 10px;
+  padding: 5px;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -133,7 +131,7 @@ const activityModes: {
 .login-view {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 5px;
 }
 
 .username {
@@ -176,16 +174,16 @@ const activityModes: {
 }
 
 .today-activity {
-  margin-top: 10px;
+  margin-top: 0px;
   border-top: 1px dashed var(--color-border-hover);
-  padding-top: 10px;
+  padding-top: 5px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 5px;
 }
 
 .activity-title {
-  margin: 0 0 5px 0;
+  margin: 0;
   text-align: center;
   font-size: var(--font-size-small);
   color: var(--color-text-muted);
@@ -203,7 +201,7 @@ const activityModes: {
   align-items: center;
   font-size: var(--font-size-small);
   padding-bottom: 5px;
-  margin-bottom: 5px;
+  margin-bottom: 0;
   border-bottom: 1px solid var(--color-border);
 }
 
@@ -214,7 +212,7 @@ const activityModes: {
 .details-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 4px 8px;
+  gap: 5px 20px;
 }
 
 .detail-item {

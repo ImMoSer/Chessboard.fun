@@ -129,7 +129,6 @@ const sortedResults = computed(() => {
 <template>
   <div class="puzzle-info-container">
     <div v-if="activePuzzle">
-      <h4>{{ t('puzzleInfo.title') }}</h4>
       <div class="info-grid">
         <div class="info-item">
           <span class="label">{{ t('puzzleInfo.tacticalRating') }}:</span>
@@ -204,7 +203,6 @@ const sortedResults = computed(() => {
     </div>
 
     <div v-if="activeTowerInfo">
-      <h4>{{ t('puzzleInfo.title') }}</h4>
       <div class="info-grid">
         <div class="info-item">
           <span class="label">{{ t('tower.ui.themeLabel') }}:</span>

@@ -25,6 +25,7 @@ import type {
   LeaderboardApiResponse,
   PersonalActivityStatsResponse,
   GameResultResponse,
+  GetFinishHimPuzzleDto, // --- НАЧАЛО ИЗМЕНЕНИЙ ---
 } from '../types/api.types'
 
 export class RateLimitError extends Error {
@@ -45,7 +46,6 @@ export class InsufficientFunCoinsError extends Error {
 
 const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL as string
 
-// --- НАЧАЛО ИЗМЕНЕНИЙ ---
 const CACHE_CLUBS_ALL_TTL_MS = parseInt(import.meta.env.VITE_CACHE_CLUBS_ALL_TTL_MS || '1000', 10)
 const CACHE_CLUB_STATS_TTL_MS = parseInt(import.meta.env.VITE_CACHE_CLUB_STATS_TTL_MS || '1000', 10)
 const CACHE_LEADERBOARDS_TTL_MS = parseInt(
@@ -56,7 +56,6 @@ const CACHE_PERSONAL_ACTIVITY_TTL_MS = parseInt(
   import.meta.env.VITE_CACHE_PERSONAL_ACTIVITY_TTL_MS || '1000',
   10,
 )
-// --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
 if (!BACKEND_API_URL) {
   logger.error(
@@ -137,9 +136,11 @@ class WebhookServiceController {
     }
   }
 
-  public async fetchPuzzle(): Promise<GamePuzzle | null> {
-    return this._apiRequest<GamePuzzle>('/n8n-proxy/puzzles/finish-him', 'GET', 'fetchPuzzle')
+  // --- НАЧАЛО ИЗМЕНЕНИЙ ---
+  public async fetchPuzzle(dto?: GetFinishHimPuzzleDto): Promise<GamePuzzle | null> {
+    return this._apiRequest<GamePuzzle>('/n8n-proxy/puzzles/finish-him', 'POST', 'fetchPuzzle', dto)
   }
+  // --- КОНЕЦ ИЗМЕНЕНИЙ ---
   public async fetchPuzzleById(puzzleId: string): Promise<GamePuzzle | null> {
     return this._apiRequest<GamePuzzle>(
       `/n8n-proxy/puzzles/finish-him/${puzzleId}`,

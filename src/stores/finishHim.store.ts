@@ -4,7 +4,9 @@ import { defineStore } from 'pinia'
 import { useGameStore } from './game.store'
 import { useBoardStore, type GameEndOutcome } from './board.store'
 import { webhookService } from '../services/WebhookService'
-import type { GamePuzzle, UpdateFinishHimStatsDto } from '../types/api.types'
+// --- НАЧАЛО ИЗМЕНЕНИЙ ---
+import type { GamePuzzle, UpdateFinishHimStatsDto, TowerTheme } from '../types/api.types'
+// --- КОНЕЦ ИЗМЕНЕНИЙ ---
 import logger from '../utils/logger'
 import { soundService } from '../services/sound.service'
 import { useAuthStore } from './auth.store'
@@ -28,6 +30,10 @@ export const useFinishHimStore = defineStore('finishHim', () => {
   const timerId = ref<number | null>(null)
   const feedbackMessage = ref(t('finishHim.feedback.pressNext'))
 
+  // --- НАЧАЛО ИЗМЕНЕНИЙ ---
+  const selectedTheme = ref<TowerTheme>('mix')
+  // --- КОНЕЦ ИЗМЕНЕНИЙ ---
+
   const isProcessingGameOver = ref(false)
 
   const tenSecondsWarningPlayed = ref(false)
@@ -41,6 +47,9 @@ export const useFinishHimStore = defineStore('finishHim', () => {
     isProcessingGameOver.value = false
     tenSecondsWarningPlayed.value = false
     eightSecondsWarningPlayed.value = false
+    // --- НАЧАЛО ИЗМЕНЕНИЙ ---
+    selectedTheme.value = 'mix'
+    // --- КОНЕЦ ИЗМЕНЕНИЙ ---
     logger.info('[FinishHimStore] Local state has been reset.')
   }
 
@@ -137,13 +146,11 @@ export const useFinishHimStore = defineStore('finishHim', () => {
       return
     }
 
-    // --- НАЧАЛО ИЗМЕНЕНИЙ ---
     const dto: UpdateFinishHimStatsDto = {
       PuzzleId: puzzle.PuzzleId,
       success: isWin,
       bw_value: puzzle.bw_value || 0,
     }
-    // --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
     if (isWin && outplayTimeRemainingMs.value !== null) {
       const initialSolveTimeSeconds = puzzle.solve_time ?? 300
@@ -184,9 +191,11 @@ export const useFinishHimStore = defineStore('finishHim', () => {
     _clearTimer()
 
     try {
+      // --- НАЧАЛО ИЗМЕНЕНИЙ ---
       const puzzle = puzzleId
         ? await webhookService.fetchPuzzleById(puzzleId)
-        : await webhookService.fetchPuzzle()
+        : await webhookService.fetchPuzzle({ engm_type: selectedTheme.value })
+      // --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
       if (!puzzle) throw new Error('Puzzle data is null')
 
@@ -211,6 +220,14 @@ export const useFinishHimStore = defineStore('finishHim', () => {
       gameStore.setGamePhase('IDLE')
     }
   }
+
+  // --- НАЧАЛО ИЗМЕНЕНИЙ ---
+  async function setThemeAndLoadPuzzle(theme: TowerTheme) {
+    if (selectedTheme.value === theme) return
+    selectedTheme.value = theme
+    await loadNewPuzzle()
+  }
+  // --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
   async function handleResign() {
     if (gameStore.isGameActive) {
@@ -262,11 +279,17 @@ export const useFinishHimStore = defineStore('finishHim', () => {
     outplayTimeRemainingMs,
     formattedTimer,
     feedbackMessage,
+    // --- НАЧАЛО ИЗМЕНЕНИЙ ---
+    selectedTheme,
+    // --- КОНЕЦ ИЗМЕНЕНИЙ ---
     initialize,
     loadNewPuzzle,
     handleResign,
     handleRestart,
     handleExit,
     reset,
+    // --- НАЧАЛО ИЗМЕНЕНИЙ ---
+    setThemeAndLoadPuzzle,
+    // --- КОНЕЦ ИЗМЕНЕНИЙ ---
   }
 })

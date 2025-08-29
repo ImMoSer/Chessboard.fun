@@ -82,7 +82,7 @@
     "title": "О задаче",
     "tacticalRating": "Рейтинг тактики",
     "solveTime": "Время решения",
-    "funValue": "Очки навыка",
+    "funValue": "Очки Скилла",
     "finalPositionTitle": "Материал в финале",
     "leaderboardTitle": "Лучшее время",
     "tableRank": "№",
@@ -149,7 +149,7 @@
       "bishops_vs_knights": "Слоны против Коней",
       "minors_vs_rooks": "Легкие фигуры против Ладей",
       "opposite_color_bishops": "Разноцветные слоны",
-      "rook_and_minor_vs_rook": "Ладья и легкая фигура против Ладьи",
+      "rook_and_minor_vs_rook": "Ладья и фигура против Ладьи",
       "two_rooks_endgame": "Двухладейный эндшпиль",
       "vs_queen_disadvantage": "Против Ферзя"
     },
@@ -168,7 +168,7 @@
       "themeLabel": "Тема",
       "livesLabel": "Жизни",
       "averageRating": "Средний рейтинг",
-      "skillValue": "Очки навыка",
+      "skillValue": "Очки Скилла",
       "tableRank": "№",
       "tablePlayer": "Игрок",
       "tableTime": "Лучшее время"
@@ -241,7 +241,7 @@
       "topFinishHim": "Мастера Добивания",
       "topAttack": "Мастера Атаки",
       "towerLeaderboard": "Мастера Спидрана",
-      "overallSkill": "Общий навык",
+      "overallSkill": "Общий Скилл",
       "skillStreak": "+100 каждый день"
     },
     "table": {
@@ -250,7 +250,7 @@
       "time": "Время",
       "challenge": "Задача",
       "daysOld": "Дней",
-      "totalSkill": "Навык",
+      "totalSkill": "Скилл",
       "streakDays": "Стрик (дней)",
       "action": "Действие",
       "requested": "Запрошено",
@@ -382,10 +382,10 @@
     },
     "stats": {
       "funcoinsLabel": "FunCoins",
-      "endgameSkillLabel": "Навык в эндшпиле",
-      "attackSkillLabel": "Навык в атаке",
+      "endgameSkillLabel": "Скилл в эндшпиле",
+      "attackSkillLabel": "Скилл в атаке",
       "puzzlesSolved": "Решено задач",
-      "skillEarned": "Навык сегодня",
+      "skillEarned": "Скилл сегодня",
       "global": {
         "title": "Статистика активности"
       },

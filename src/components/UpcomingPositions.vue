@@ -123,6 +123,7 @@ const upcomingPositions = computed(() => {
   overflow: hidden;
 }
 .table-title {
+  margin: 5px; /* убираем стандартные margin h4 */
   font-size: var(--font-size-large);
   font-weight: bold;
   padding: 5px;
@@ -130,6 +131,7 @@ const upcomingPositions = computed(() => {
   text-align: center;
   flex-shrink: 0;
 }
+
 .positions-list-scrollable {
   overflow-y: auto;
   padding: 0 10px 10px;

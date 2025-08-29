@@ -104,7 +104,7 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
 .game-layout {
   /* CSS переменные для управления сеткой из JS */
   --side-panel-width: 20vw;
-  --center-column-width: 80vh; /* Квадратная ячейка = высота средней строки */
+  --center-column-width: 78vh; /* Квадратная ячейка = высота средней строки */
   --top-bottom-height: 5vh;
   --middle-height: var(--center-column-width);
 
@@ -121,7 +121,7 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
     'left-panel center-column right-panel'
     'bottom-left bottom-info bottom-right';
 
-  gap: 10px;
+  gap: 1vh;
   padding: 10px;
   box-sizing: border-box;
   overflow: hidden;
@@ -146,10 +146,6 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
 /* Вторая строка (основная) */
 .left-panel {
   grid-area: left-panel;
-}
-
-.center-column {
-  grid-area: center-column;
 }
 
 .right-panel {
@@ -192,21 +188,19 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
 
 /* Центральная колонка - квадратная */
 .center-column {
+  grid-area: center-column;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-width: 0;
   position: relative;
-  height: 100%;
-  width: 100%;
 }
 
 .board-aspect-wrapper {
   width: 100%;
   aspect-ratio: 1 / 1;
-  position: relative;
-  max-width: 100%;
-  max-height: 100%;
+  position: sticky;
+  border-radius: 20px;
+  overflow: hidden;
 }
 
 /* Стили для верхней и нижней строк */
@@ -306,7 +300,6 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
     /* Предотвращаем переполнение */
     max-width: 100%;
     box-sizing: border-box;
-    overflow: hidden;
   }
 
   .center-column {
@@ -323,9 +316,8 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
 
   .board-aspect-wrapper {
     width: 100%;
-    max-width: 100%;
-    aspect-ratio: 1 / 1;
     box-sizing: border-box;
+    border-radius: 10px;
   }
 
   .right-panel,

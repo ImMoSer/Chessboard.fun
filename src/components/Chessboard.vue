@@ -154,17 +154,14 @@ watch(
 </template>
 
 <style>
-/* --- НАЧАЛО ИЗМЕНЕНИЙ: Импорты стилей удалены отсюда и перенесены в main.css --- */
 .board-wrapper {
-  width: 100%;
-  height: 100%;
+  width: 101%;
+  height: 101%;
   position: relative;
 }
+
 .chessboard {
   width: 100%;
   height: 100%;
-  border-radius: 10px;
-  overflow: hidden;
 }
-/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
 </style>
