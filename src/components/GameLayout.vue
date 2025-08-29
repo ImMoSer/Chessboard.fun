@@ -1,6 +1,6 @@
 <!-- src/components/GameLayout.vue -->
 <script setup lang="ts">
-import { computed } from 'vue' // --- НАЧАЛО ИЗМЕНЕНИЙ: Импортируем computed ---
+import { computed } from 'vue'
 import { useBoardStore } from '@/stores/board.store'
 import { useGameStore } from '@/stores/game.store'
 import { useAnalysisStore } from '@/stores/analysis.store'
@@ -13,9 +13,7 @@ const gameStore = useGameStore()
 const analysisStore = useAnalysisStore()
 const themeStore = useThemeStore()
 
-// --- НАЧАЛО ИЗМЕНЕНИЙ: Создаем вычисляемое свойство для animationEnabled ---
 const isAnimationEnabled = computed(() => themeStore.currentTheme.animationDuration > 0)
-// --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
 const handleUserMove = ({ orig, dest }: { orig: Key; dest: Key }) => {
   if (boardStore.isAnalysisModeActive) {
@@ -58,7 +56,6 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
 
     <div class="center-column">
       <div class="board-aspect-wrapper">
-        <!-- --- НАЧАЛО ИЗМЕНЕНИЙ: Используем новое вычисляемое свойство --- -->
         <Chessboard
           :fen="boardStore.fen"
           :orientation="boardStore.orientation"
@@ -76,7 +73,6 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
           @cancel-promotion="boardStore.cancelPromotion"
           @wheel-navigate="handleBoardWheel"
         />
-        <!-- --- КОНЕЦ ИЗМЕНЕНИЙ --- -->
         <slot name="center-column"></slot>
       </div>
     </div>
@@ -85,41 +81,31 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
       <slot name="right-panel"></slot>
     </aside>
 
-    <!-- Нижняя строка сетки -->
-    <div class="bottom-left">
-      <slot name="bottom-left"></slot>
-    </div>
-
-    <div class="bottom-info">
-      <slot name="bottom-info"></slot>
-    </div>
-
-    <div class="bottom-right">
-      <slot name="bottom-right"></slot>
-    </div>
+    <!-- --- НАЧАЛО ИЗМЕНЕНИЙ: Нижняя строка сетки удалена --- -->
+    <!-- --- КОНЕЦ ИЗМЕНЕНИЙ --- -->
   </div>
 </template>
 
 <style scoped>
 .game-layout {
-  /* CSS переменные для управления сеткой из JS */
+  /* CSS переменные для управления сеткой */
   --side-panel-width: 20vw;
-  --center-column-width: 78vh; /* Квадратная ячейка = высота средней строки */
+  --board-side: 80vh;
   --top-bottom-height: 5vh;
-  --middle-height: var(--center-column-width);
 
   display: grid;
   width: 100%;
   max-width: 100vw;
 
-  /* Сетка: 3 строки, 3 колонки */
-  grid-template-rows: var(--top-bottom-height) var(--middle-height) var(--top-bottom-height);
-  grid-template-columns: var(--side-panel-width) var(--center-column-width) var(--side-panel-width);
+  /* --- НАЧАЛО ИЗМЕНЕНИЙ: Обновлена структура сетки --- */
+  /* Сетка: 2 строки, 3 колонки */
+  grid-template-rows: var(--top-bottom-height) var(--board-side);
+  grid-template-columns: var(--side-panel-width) var(--board-side) var(--side-panel-width);
 
   grid-template-areas:
     'top-left top-info top-right'
-    'left-panel center-column right-panel'
-    'bottom-left bottom-info bottom-right';
+    'left-panel center-column right-panel';
+  /* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
 
   gap: 1vh;
   padding: 10px;
@@ -152,18 +138,8 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
   grid-area: right-panel;
 }
 
-/* Третья строка */
-.bottom-left {
-  grid-area: bottom-left;
-}
-
-.bottom-info {
-  grid-area: bottom-info;
-}
-
-.bottom-right {
-  grid-area: bottom-right;
-}
+/* --- НАЧАЛО ИЗМЕНЕНИЙ: Стили для удаленной третьей строки убраны --- */
+/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
 
 /* Стили для боковых панелей */
 .left-panel,
@@ -173,20 +149,20 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
   border: 1px solid var(--color-border-hover);
   padding: 10px;
   overflow-y: auto;
-  min-width: 0; /* Убираем min-width: 200px для гибкости */
+  min-width: 0;
 
   /* Скрываем полосу прокрутки */
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
 }
 
-/* Скрываем полосу прокрутки для WebKit браузеров (Chrome, Safari) */
+/* Скрываем полосу прокрутки для WebKit браузеров */
 .left-panel::-webkit-scrollbar,
 .right-panel::-webkit-scrollbar {
   display: none;
 }
 
-/* Центральная колонка - квадратная */
+/* Центральная колонка */
 .center-column {
   grid-area: center-column;
   display: flex;
@@ -199,23 +175,19 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
   width: 100%;
   aspect-ratio: 1 / 1;
   position: sticky;
-  border-radius: 20px;
-  overflow: hidden;
 }
 
-/* Стили для верхней и нижней строк */
+/* --- НАЧАЛО ИЗМЕНЕНИЙ: Обновлены стили для строк --- */
+/* Стили для верхней строки */
 .top-left,
-.top-right,
-.bottom-left,
-.bottom-right {
+.top-right {
   background-color: var(--color-bg-secondary);
   border-radius: var(--panel-border-radius);
   border: 1px solid var(--color-border-hover);
   padding: 5px;
 }
 
-.top-info-container,
-.bottom-info {
+.top-info-container {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -224,6 +196,7 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
   border: 1px solid var(--color-border-hover);
   padding: 0px;
 }
+/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
 
 /* Мобильная версия с Flexbox */
 @media (orientation: portrait) {
@@ -232,7 +205,7 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
   }
 
   .center-column {
-    order: 1; /* будет выше top-info */
+    order: 1;
   }
 
   .right-panel {
@@ -243,40 +216,25 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
     order: 3;
   }
   .game-layout {
-    /* Отключаем Grid и включаем Flexbox */
     display: flex;
     flex-direction: column;
-
-    /* Размеры и позиционирование */
     width: 97vw;
-
     height: auto;
     min-height: 100vh;
-    margin: 0 auto; /* Центрируем по горизонтали */
-
-    /* Отступы и промежутки */
+    margin: 0 auto;
     padding: 10px 0;
     gap: 5px;
-
-    /* Убираем ограничения Grid */
     grid-template-areas: none;
     grid-template-rows: none;
     grid-template-columns: none;
-
-    /* Прокрутка */
     overflow-x: hidden;
     overflow-y: hidden;
-
-    /* Скрываем полосу прокрутки, но оставляем функциональность */
     -ms-overflow-style: none;
     scrollbar-width: none;
     box-sizing: border-box;
-
-    /* Строгий контроль границ контейнера */
     contain: layout style;
   }
 
-  /* Скрываем полосу прокрутки для WebKit */
   .game-layout::-webkit-scrollbar {
     display: none;
   }
@@ -284,7 +242,7 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
   /* Скрываем ненужные элементы */
   .top-left,
   .top-right,
-  .bottom-left,
+  .bottom-left, /* Оставляем на случай, если где-то используется */
   .bottom-right,
   .bottom-info {
     display: none;
@@ -296,8 +254,6 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
     min-height: 60px;
     margin: 0;
     flex-shrink: 0;
-
-    /* Предотвращаем переполнение */
     max-width: 100%;
     box-sizing: border-box;
   }
@@ -307,8 +263,6 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
     padding: 0;
     margin: 0;
     flex-shrink: 0;
-
-    /* Предотвращаем переполнение */
     max-width: 100%;
     box-sizing: border-box;
     overflow: hidden;
@@ -327,13 +281,9 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
     min-height: 150px;
     max-height: 1000px;
     flex-shrink: 0;
-
-    /* Обеспечиваем правильную прокрутку для панелей */
     overflow-y: auto;
     -ms-overflow-style: none;
     scrollbar-width: none;
-
-    /* Предотвращаем переполнение */
     max-width: 100%;
     box-sizing: border-box;
     overflow-x: hidden;

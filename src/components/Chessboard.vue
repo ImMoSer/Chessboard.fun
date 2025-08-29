@@ -155,8 +155,8 @@ watch(
 
 <style>
 .board-wrapper {
-  width: 101%;
-  height: 101%;
+  width: 100%;
+  height: 100%;
   position: relative;
 }
 

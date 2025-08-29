@@ -106,19 +106,16 @@ const handleEngineChange = (event: Event) => {
 }
 
 .top-info-panel-container.mode-finish-him {
-  /* --- НАЧАЛО ИЗМЕНЕНИЙ --- */
-  grid-template-columns: 1fr auto 1fr; /* Centered middle column */
-  /* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
+  grid-template-columns: 1fr 1fr 1fr; /* Centered middle column */
 }
 
 /* --- НАЧАЛО ИЗМЕНЕНИЙ --- */
 .top-info-panel-container.mode-finish-him .timer-container {
-  justify-content: flex-start;
+  justify-content: center;
 }
 .top-info-panel-container.mode-finish-him .engine-selector-container {
-  justify-content: flex-end;
+  justify-content: center;
 }
-/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
 
 .top-info-panel-container.mode-tacktics {
   grid-template-columns: 1fr;
@@ -132,15 +129,11 @@ const handleEngineChange = (event: Event) => {
 }
 
 .timer-container {
-  font-size: var(--font-size-large);
+  font-size: var(--font-size-xlarge);
   font-weight: bold;
   color: var(--color-accent-warning);
-  justify-content: flex-start;
-}
-
-.timer-container.tacktics-timer {
   justify-content: center;
-  font-size: var(--font-size-xlarge);
+  align-items: center;
 }
 
 .engine-selector-container {

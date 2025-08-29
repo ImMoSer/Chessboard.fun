@@ -149,7 +149,7 @@ onUnmounted(() => {
   z-index: 1010; /* Increased z-index */
   width: 100%;
   min-width: 280px;
-  max-height: 60vh;
+  max-height: 70vh;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
