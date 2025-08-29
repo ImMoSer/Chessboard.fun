@@ -2,20 +2,20 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { useFinishHimStore } from '../stores/finishHim.store'
-import { useAttackStore } from '../stores/attack.store'
-import { useTowerStore } from '../stores/tower.store'
-import { useTackticsStore } from '../stores/tacktics.store'
-import { useControlsStore } from '../stores/controls.store'
-import type { EngineId } from '../types/api.types'
-import FinishHimSelection from '../components/FinishHimSelection.vue'
+import { useFinishHimStore } from '@/stores/finishHim.store'
+import { useAttackStore } from '@/stores/attack.store'
+import { useTowerStore } from '@/stores/tower.store'
+import { useTackticsStore } from '@/stores/tacktics.store'
+import { useControlsStore } from '@/stores/controls.store'
+import FinishHimSelection from '@/components/FinishHimSelection.vue'
+import EngineSelector from '@/components/EngineSelector.vue' // 🔥 новый компонент
 
 const route = useRoute()
 const finishHimStore = useFinishHimStore()
 const attackStore = useAttackStore()
 const towerStore = useTowerStore()
 const tackticsStore = useTackticsStore()
-const controlsStore = useControlsStore()
+useControlsStore() // только инициализация, сама логика в EngineSelector.vue
 
 const formattedTimer = computed(() => {
   if (route.name === 'attack') {
@@ -38,20 +38,6 @@ const containerClass = computed(() => {
       return 'mode-default'
   }
 })
-
-const engineNames: Record<EngineId, string> = {
-  SF_2200: 'Rbleipzig 2200+',
-  SF_2100: 'Krokodil 2100+',
-  SF_1900: 'Karde 2000+',
-  'MOZER_1900+': 'MoZeR 1900+',
-  SF_1700: 'Dimas 1800+',
-  SF_1600: 'Darko 1700+',
-}
-
-const handleEngineChange = (event: Event) => {
-  const target = event.target as HTMLSelectElement
-  controlsStore.setEngine(target.value as EngineId)
-}
 </script>
 
 <template>
@@ -69,22 +55,10 @@ const handleEngineChange = (event: Event) => {
       {{ tackticsStore.formattedTimer }}
     </div>
 
-    <!-- Селектор движка для всех режимов, кроме Тактики -->
+    <!-- Новый кастомный EngineSelector для всех режимов, кроме Тактики -->
     <div v-if="route.name !== 'tacktics'" class="engine-selector-container">
       <img src="/buttons/robot.svg" alt="Select Engine" class="robot-icon" />
-      <select
-        class="engine-select"
-        :value="controlsStore.selectedEngine"
-        @change="handleEngineChange"
-      >
-        <option
-          v-for="engineId in controlsStore.availableEngines"
-          :key="engineId"
-          :value="engineId"
-        >
-          {{ engineNames[engineId] }}
-        </option>
-      </select>
+      <EngineSelector />
     </div>
   </div>
 </template>
@@ -100,21 +74,13 @@ const handleEngineChange = (event: Event) => {
   box-sizing: border-box;
 }
 
+/* Макеты под разные режимы */
 .top-info-panel-container.mode-default {
-  /* attack, tower */
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr; /* attack, tower */
 }
 
 .top-info-panel-container.mode-finish-him {
-  grid-template-columns: 1fr 1fr 1fr; /* Centered middle column */
-}
-
-/* --- НАЧАЛО ИЗМЕНЕНИЙ --- */
-.top-info-panel-container.mode-finish-him .timer-container {
-  justify-content: center;
-}
-.top-info-panel-container.mode-finish-him .engine-selector-container {
-  justify-content: center;
+  grid-template-columns: 1fr 2fr 2fr; /* Centered middle column */
 }
 
 .top-info-panel-container.mode-tacktics {
@@ -122,38 +88,32 @@ const handleEngineChange = (event: Event) => {
   justify-content: center;
 }
 
-.timer-container,
-.engine-selector-container {
-  display: flex;
-  align-items: center;
-}
-
+/* Таймер */
 .timer-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   font-size: var(--font-size-xlarge);
   font-weight: bold;
   color: var(--color-accent-warning);
-  justify-content: center;
-  align-items: center;
 }
 
+/* Контейнер под селектор движка */
 .engine-selector-container {
+  display: flex;
   justify-content: flex-end;
+  align-items: center;
   gap: 5px;
 }
 
 .robot-icon {
-  width: 35px;
+  width: 30px;
   height: auto;
 }
 
-.engine-select {
-  background-color: var(--color-bg-tertiary);
-  color: var(--color-text-default);
-  border: 1px solid var(--color-border);
-  border-radius: var(--panel-border-radius);
-  padding: 8px 4px;
-  font-size: var(--font-size-small);
-  font-weight: var(--font-weight-bold);
-  cursor: pointer;
+@media (orientation: portrait) {
+  .top-info-panel-container.mode-finish-him {
+    grid-template-columns: 1fr 2fr 2fr; /* Centered middle column */
+  }
 }
 </style>

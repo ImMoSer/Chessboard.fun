@@ -204,5 +204,8 @@ onUnmounted(() => {
   .selector-text-mobile {
     display: block;
   }
+  .theme-item {
+    font-size: var(--font-size-xsmall);
+  }
 }
 </style>

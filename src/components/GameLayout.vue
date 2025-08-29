@@ -91,7 +91,7 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
   /* CSS переменные для управления сеткой */
   --side-panel-width: 20vw;
   --board-side: 80vh;
-  --top-bottom-height: 5vh;
+  --top-bottom-height: 60px;
 
   display: grid;
   width: 100%;
