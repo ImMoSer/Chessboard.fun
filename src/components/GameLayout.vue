@@ -1,17 +1,47 @@
 <!-- src/components/GameLayout.vue -->
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue' // --- ИЗМЕНЕНИЕ: Добавлен watch
 import { useBoardStore } from '@/stores/board.store'
 import { useGameStore } from '@/stores/game.store'
 import { useAnalysisStore } from '@/stores/analysis.store'
 import { useThemeStore } from '@/stores/theme.store'
 import Chessboard from './Chessboard.vue'
 import type { Key } from 'chessground/types'
+import { useBoardResizer } from '../composables/useBoardResizer'
+
+const centerColumnRef = ref<HTMLElement | null>(null)
+
+// --- НАЧАЛО ИЗМЕНЕНИЙ: Интеграция с themeStore ---
+const themeStore = useThemeStore()
+
+// Инициализируем наш composable, передавая начальный размер из themeStore
+// и функцию для сохранения нового размера
+const { size: boardSize, startResize } = useBoardResizer(
+  centerColumnRef,
+  themeStore.currentTheme.boardSize,
+  (newSize) => themeStore.setBoardSize(newSize), // Колбэк для сохранения
+  400,
+  1200,
+)
+
+// Наблюдаем за изменениями в store (например, из другого компонента или настроек)
+// и синхронизируем локальный размер
+watch(
+  () => themeStore.currentTheme.boardSize,
+  (newSize) => {
+    boardSize.value = newSize
+  },
+)
+
+// Создаем вычисляемое свойство для динамического обновления CSS переменной
+const layoutStyle = computed(() => ({
+  '--board-side': `${boardSize.value}px`,
+}))
+// --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
 const boardStore = useBoardStore()
 const gameStore = useGameStore()
 const analysisStore = useAnalysisStore()
-const themeStore = useThemeStore()
 
 const isAnimationEnabled = computed(() => themeStore.currentTheme.animationDuration > 0)
 
@@ -35,7 +65,7 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
 </script>
 
 <template>
-  <div class="game-layout">
+  <div class="game-layout" :style="layoutStyle">
     <!-- Верхняя строка сетки -->
     <div class="top-left">
       <slot name="top-left"></slot>
@@ -54,7 +84,7 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
       <slot name="left-panel"></slot>
     </aside>
 
-    <div class="center-column">
+    <div class="center-column" ref="centerColumnRef">
       <div class="board-aspect-wrapper">
         <Chessboard
           :fen="boardStore.fen"
@@ -75,46 +105,38 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
         />
         <slot name="center-column"></slot>
       </div>
+      <div class="board-resizer" @mousedown="startResize"></div>
     </div>
 
     <aside class="right-panel">
       <slot name="right-panel"></slot>
     </aside>
-
-    <!-- --- НАЧАЛО ИЗМЕНЕНИЙ: Нижняя строка сетки удалена --- -->
-    <!-- --- КОНЕЦ ИЗМЕНЕНИЙ --- -->
   </div>
 </template>
 
 <style scoped>
 .game-layout {
-  /* CSS переменные для управления сеткой */
   --side-panel-width: 20vw;
-  --board-side: 80vh;
   --top-bottom-height: 60px;
 
   display: grid;
   width: 100%;
   max-width: 100vw;
 
-  /* --- НАЧАЛО ИЗМЕНЕНИЙ: Обновлена структура сетки --- */
-  /* Сетка: 2 строки, 3 колонки */
   grid-template-rows: var(--top-bottom-height) var(--board-side);
   grid-template-columns: var(--side-panel-width) var(--board-side) var(--side-panel-width);
 
   grid-template-areas:
     'top-left top-info top-right'
     'left-panel center-column right-panel';
-  /* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
 
   gap: 1vh;
   padding: 10px;
   box-sizing: border-box;
   overflow: hidden;
-  justify-content: center; /* Центрируем всю сетку горизонтально */
+  justify-content: center;
 }
 
-/* Первая строка */
 .top-left {
   grid-area: top-left;
 }
@@ -129,7 +151,6 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
   grid-area: top-right;
 }
 
-/* Вторая строка (основная) */
 .left-panel {
   grid-area: left-panel;
 }
@@ -138,10 +159,6 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
   grid-area: right-panel;
 }
 
-/* --- НАЧАЛО ИЗМЕНЕНИЙ: Стили для удаленной третьей строки убраны --- */
-/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
-
-/* Стили для боковых панелей */
 .left-panel,
 .right-panel {
   background-color: var(--color-bg-secondary);
@@ -150,19 +167,15 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
   padding: 10px;
   overflow-y: auto;
   min-width: 0;
-
-  /* Скрываем полосу прокрутки */
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-/* Скрываем полосу прокрутки для WebKit браузеров */
 .left-panel::-webkit-scrollbar,
 .right-panel::-webkit-scrollbar {
   display: none;
 }
 
-/* Центральная колонка */
 .center-column {
   grid-area: center-column;
   display: flex;
@@ -174,11 +187,24 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
 .board-aspect-wrapper {
   width: 100%;
   aspect-ratio: 1 / 1;
-  position: sticky;
+  position: relative;
 }
 
-/* --- НАЧАЛО ИЗМЕНЕНИЙ: Обновлены стили для строк --- */
-/* Стили для верхней строки */
+.board-resizer {
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  width: 20px;
+  height: 20px;
+  cursor: se-resize;
+  z-index: 100;
+}
+
+@media (orientation: portrait) {
+  .board-resizer {
+    display: none;
+  }
+}
 .top-left,
 .top-right {
   background-color: var(--color-bg-secondary);
@@ -196,9 +222,7 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
   border: 1px solid var(--color-border-hover);
   padding: 0px;
 }
-/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
 
-/* Мобильная версия с Flexbox */
 @media (orientation: portrait) {
   .top-info-container {
     order: 0;
@@ -239,16 +263,14 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
     display: none;
   }
 
-  /* Скрываем ненужные элементы */
   .top-left,
   .top-right,
-  .bottom-left, /* Оставляем на случай, если где-то используется */
+  .bottom-left,
   .bottom-right,
   .bottom-info {
     display: none;
   }
 
-  /* Стили для отображаемых элементов */
   .top-info-container {
     width: 100%;
     min-height: 60px;
@@ -294,7 +316,6 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
     display: none;
   }
 
-  /* Убираем grid-area для мобильных */
   .top-info-container,
   .center-column,
   .right-panel,

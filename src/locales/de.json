@@ -473,10 +473,8 @@
       "mainModesTitle": "Hauptmodi",
       "keyFeaturesTitle": "Hauptmerkmale",
       "techStackTitle": "Technologie-Stack",
-      "licensingTitle": "Lizenzierung und Danksagung",
       "contributingTitle": "Mitwirken",
-      "licenseTitle": "Lizenz",
-      "acknowledgementsTitle": "Danksagung"
+      "licenseAndAcknowledgementsTitle": "Lizenzierung und Danksagung"
     },
     "modes": {
       "conversionTitle": "Verwertung (Finish-Him): ",
@@ -530,27 +528,53 @@
       "api": "API: ",
       "apiStack": "Lichess API ("
     },
-    "licensing": {
-      "stockfishTitle": "Stockfish Schach-Engine",
-      "stockfishIntro1": "Die Spiel- und Zuganalyse in dieser Anwendung wird von ",
-      "stockfishIntro2": " unterstützt, einer Open-Source-Schach-Engine, die unter der ",
-      "gplNoteTitle": "Wichtiger Hinweis zur GPLv3-Lizenz: ",
-      "gplNote": "Die Verwendung einer Bibliothek unter der GPLv3-Lizenz erfordert, dass wir den Quellcode unseres eigenen Projekts offen und unter derselben oder einer kompatiblen Lizenz verfügbar machen.",
-      "projectSourceCode": "Projekt-Quellcode: Verfügbar in diesem Repository",
-      "licenseText": "Den vollständigen Text der GPLv3-Lizenz können Sie hier lesen: ",
-      "stockfishGratitude": "Wir danken dem Stockfish-Team herzlich für ihre unglaubliche Arbeit.",
-      "chessgroundTitle": "Chessground",
-      "chessgroundIntro1": "Das interaktive Schachbrett wird mit der ",
-      "chessgroundIntro2": " Bibliothek vom Lichess-Team gerendert, die unter der ",
-      "chessgroundGratitude": "Vielen Dank an Lichess für dieses wunderbare Werkzeug."
-    },
     "contributing": "Wir freuen uns über alle Beiträge zum Projekt! Wenn Sie Ideen, Vorschläge haben oder einen Fehler gefunden haben, erstellen Sie bitte ein `Issue` oder einen `Pull Request`.",
-    "licenseText": "Dieses Projekt ist unter der GNU General Public License v3.0 lizenziert - siehe die LICENSE-Datei für Details.",
-    "acknowledgements": {
-      "stockfishDesc": " - Die leistungsstarke Schach-Engine",
-      "lichessDesc": " - Für die erstaunliche API und die Chessground-Bibliothek",
-      "n8nDesc": " - Für die flexible Automatisierungsplattform",
-      "community": "Alle Mitwirkenden und die Schachgemeinschaft"
+    "licenseAndAcknowledgements": {
+      "gplIntro": "Dieses Projekt ist unter der GNU General Public License v3.0 lizenziert.",
+      "stockfish": {
+        "title": "Stockfish Schach-Engine",
+        "text1": "Die Spiel- und Zuganalyse in dieser Anwendung wird von ",
+        "text2": " unterstützt, einer Open-Source-Schach-Engine, die unter der ",
+        "gplNoteTitle": "Wichtiger Hinweis zur GPLv3-Lizenz: ",
+        "gplNote": "Die Verwendung einer Bibliothek unter der GPLv3-Lizenz erfordert, dass wir den Quellcode unseres eigenen Projekts offen und unter derselben oder einer kompatiblen Lizenz verfügbar machen.",
+        "projectSourceCode": "Projekt-Quellcode: Verfügbar in diesem Repository",
+        "licenseText": "Den vollständigen Text der GPLv3-Lizenz können Sie hier lesen: ",
+        "gratitude": "Wir danken dem Stockfish-Team herzlich für ihre unglaubliche Arbeit."
+      },
+      "maia": {
+        "title": "Maia Schach-Engine",
+        "text": "Menschenähnliche Züge auf dem Server werden von **Maia Chess** bereitgestellt, einem Projekt, das entwickelt wurde, um Schach wie ein Mensch zu spielen. Maia verwendet neuronale Netze, die auf Millionen von menschlichen Partien trainiert wurden, um die Züge vorherzusagen, die ein Spieler auf einem bestimmten Rating-Niveau machen würde. Wir sind dem Maia-Team für ihren innovativen Ansatz bei der Entwicklung von Schach-Engines dankbar.",
+        "links": {
+          "website": "Webseite",
+          "github": "GitHub",
+          "lichessBot": "Lichess-Bot"
+        }
+      },
+      "lcZero": {
+        "title": "Leela Chess Zero (LCZero)",
+        "text": "Um die Maia-Chess-Gewichte auszuführen, verwendet der Server die Engine **Leela Chess Zero**, eine weitere leistungsstarke Open-Source-Schachengine auf Basis neuronaler Netze. Vielen Dank an die Leela-Chess-Zero-Community für dieses unglaubliche Projekt.",
+        "links": {
+          "website": "Webseite",
+          "github": "GitHub"
+        }
+      },
+      "chessground": {
+        "title": "Chessground",
+        "text1": "Das interaktive Schachbrett wird mit der ",
+        "text2": " Bibliothek vom Lichess-Team gerendert, die unter der **MIT-Lizenz** vertrieben wird. ",
+        "gratitude": "Vielen Dank an Lichess für dieses wunderbare Werkzeug."
+      },
+      "chessops": {
+        "title": "Chessops",
+        "text": "Die gesamte grundlegende Schachlogik wie Zuggenerierung, Legalitätsprüfungen und die Verarbeitung von FEN/PGN-Formaten wird mit der **Chessops**-Bibliothek implementiert. Es ist eine moderne, modulare und effiziente Bibliothek, die vom Lichess-Team erstellt wurde.",
+        "gratitude": "Vielen Dank an das Lichess-Team für diese zuverlässige Bibliothek."
+      },
+      "otherCreditsTitle": "Besonderer Dank",
+      "credits": {
+        "lichess": "Lichess - für die erstaunliche API und die offene Aufgabendatenbank.",
+        "n8n": "n8n.io - für die flexible Automatisierungsplattform, die den Kern des Backends bildet.",
+        "community": "Allen Mitwirkenden und der Schachgemeinschaft für ihre Unterstützung und ihr Feedback."
+      }
     },
     "author": {
       "photoAlt": "Autorenfoto",

@@ -13,7 +13,9 @@ import TopInfoPanel from '../components/TopInfoPanel.vue'
 import PuzzleInfo from '../components/PuzzleInfo.vue'
 import UserStats from '../components/UserStats.vue'
 import AnalysisPanel from '../components/AnalysisPanel.vue'
-import logger from '../utils/logger'
+// --- НАЧАЛО ИЗМЕНЕНИЙ ---
+import { shareService } from '../services/share.service'
+// --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
 const attackStore = useAttackStore()
 const gameStore = useGameStore()
@@ -23,27 +25,10 @@ const route = useRoute()
 const router = useRouter()
 
 onMounted(() => {
-  // --- <<< НАЧАЛО ИЗМЕНЕНИЙ: Вызываем инициализацию для проигрывания звука входа >>> ---
   attackStore.initialize()
-  // --- <<< КОНЕЦ ИЗМЕНЕНИЙ >>> ---
   const puzzleId = route.params.puzzleId as string | undefined
   attackStore.loadNewPuzzle(puzzleId)
 })
-
-const copyToClipboard = (text: string) => {
-  const textArea = document.createElement('textarea')
-  textArea.value = text
-  document.body.appendChild(textArea)
-  textArea.focus()
-  textArea.select()
-  try {
-    document.execCommand('copy')
-    logger.info('[Share] Ссылка скопирована в буфер обмена:', text)
-  } catch (err) {
-    logger.error('[Share] Не удалось скопировать ссылку:', err)
-  }
-  document.body.removeChild(textArea)
-}
 
 watch(
   () => attackStore.activePuzzle,
@@ -69,12 +54,13 @@ watch(
       onRequestNew: () => attackStore.loadNewPuzzle(),
       onRestart: attackStore.handleRestart,
       onResign: attackStore.handleResign,
+      // --- НАЧАЛО ИЗМЕНЕНИЙ: Используем новый сервис ---
       onShare: () => {
         if (attackStore.activePuzzle?.PuzzleId) {
-          const shareUrl = `${window.location.origin}/attack/${attackStore.activePuzzle.PuzzleId}`
-          copyToClipboard(shareUrl)
+          shareService.share('attack', attackStore.activePuzzle.PuzzleId)
         }
       },
+      // --- КОНЕЦ ИЗМЕНЕНИЙ ---
       onExit: attackStore.handleExit,
     })
   },

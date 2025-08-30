@@ -15,14 +15,18 @@ export interface PieceSet {
   previewPieceFile: string
 }
 
+// --- НАЧАЛО ИЗМЕНЕНИЙ: Добавлено свойство boardSize ---
 export interface AppTheme {
   board: string
   pieces: string
   animationDuration: number
+  boardSize: number
 }
+// --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
 // --- Константы ---
-const THEME_STORAGE_KEY = 'user_app_theme_v3' // Обновляем ключ для новой структуры
+// --- ИЗМЕНЕНИЕ: Обновлен ключ хранилища для новой структуры ---
+const THEME_STORAGE_KEY = 'user_app_theme_v4'
 const DYNAMIC_STYLE_ELEMENT_ID = 'dynamic-chessboard-styles'
 
 const AVAILABLE_BOARDS: BoardTheme[] = [
@@ -104,16 +108,20 @@ export const useThemeStore = defineStore('theme', () => {
   const availablePieceSets = ref<PieceSet[]>(AVAILABLE_PIECE_SETS)
 
   function loadTheme(): AppTheme {
+    // --- НАЧАЛО ИЗМЕНЕНИЙ: Добавлен boardSize в значения по умолчанию ---
     const defaults: AppTheme = {
       board: 'wood4',
       pieces: 'alpha',
       animationDuration: 200,
+      boardSize: 600,
     }
+    // --- КОНЕЦ ИЗМЕНЕНИЙ ---
     try {
       const savedTheme = localStorage.getItem(THEME_STORAGE_KEY)
       if (savedTheme) {
         const parsed = JSON.parse(savedTheme)
-        if (parsed.board && parsed.pieces && 'animationDuration' in parsed) {
+        // --- ИЗМЕНЕНИЕ: Проверяем наличие всех свойств, включая boardSize ---
+        if (parsed.board && parsed.pieces && 'animationDuration' in parsed && 'boardSize' in parsed) {
           return { ...defaults, ...parsed }
         }
       }
@@ -184,12 +192,22 @@ export const useThemeStore = defineStore('theme', () => {
   }
 
   function setAnimationDuration(duration: number) {
-    const newDuration = Math.max(0, Math.min(500, duration)) // Ограничиваем от 0 до 500 мс
+    const newDuration = Math.max(0, Math.min(500, duration))
     if (currentTheme.animationDuration !== newDuration) {
       currentTheme.animationDuration = newDuration
       saveTheme()
     }
   }
+
+  // --- НАЧАЛО ИЗМЕНЕНИЙ: Новый метод для сохранения размера доски ---
+  function setBoardSize(size: number) {
+    if (currentTheme.boardSize !== size) {
+      currentTheme.boardSize = size
+      saveTheme()
+      logger.info(`[ThemeStore] Board size saved: ${size}px`)
+    }
+  }
+  // --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
   applyTheme()
 
@@ -201,5 +219,6 @@ export const useThemeStore = defineStore('theme', () => {
     setPieceSet,
     applyTheme,
     setAnimationDuration,
+    setBoardSize, // --- ИЗМЕНЕНИЕ: Экспортируем новый метод ---
   }
 })

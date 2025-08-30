@@ -14,10 +14,10 @@ import TackticsStats from '../components/TackticsStats.vue'
 import TackticsControls from '../components/TackticsControls.vue'
 import PuzzleInfo from '../components/PuzzleInfo.vue'
 import TopInfoPanel from '../components/TopInfoPanel.vue'
-// --- НАЧАЛО ИЗМЕНЕНИЙ: Импортируем UserStats ---
 import UserStats from '../components/UserStats.vue'
+// --- НАЧАЛО ИЗМЕНЕНИЙ ---
+import { shareService } from '../services/share.service'
 // --- КОНЕЦ ИЗМЕНЕНИЙ ---
-import logger from '../utils/logger'
 
 const tackticsStore = useTackticsStore()
 const gameStore = useGameStore()
@@ -31,21 +31,6 @@ onMounted(() => {
   const puzzleId = route.params.puzzleId as string | undefined
   tackticsStore.loadNewPuzzle(puzzleId)
 })
-
-const copyToClipboard = (text: string) => {
-  const textArea = document.createElement('textarea')
-  textArea.value = text
-  document.body.appendChild(textArea)
-  textArea.focus()
-  textArea.select()
-  try {
-    document.execCommand('copy')
-    logger.info('[Share] Link copied to clipboard:', text)
-  } catch (err) {
-    logger.error('[Share] Could not copy link:', err)
-  }
-  document.body.removeChild(textArea)
-}
 
 watch(
   () => tackticsStore.activePuzzle,
@@ -65,17 +50,18 @@ watch(
     controlsStore.setControls({
       canRequestNew: isGameOver || isIdle,
       canRestart: (isGameOver || isIdle) && !!tackticsStore.activePuzzle,
-      canResign: false, // No resign in tacktics
+      canResign: false,
       canShare: !!tackticsStore.activePuzzle,
       onRequestNew: () => tackticsStore.loadNewPuzzle(),
       onRestart: tackticsStore.handleRestart,
       onResign: () => {},
+      // --- НАЧАЛО ИЗМЕНЕНИЙ: Используем новый сервис ---
       onShare: () => {
         if (tackticsStore.activePuzzle?.PuzzleId) {
-          const shareUrl = `${window.location.origin}/#/tacktics/${tackticsStore.activePuzzle.PuzzleId}`
-          copyToClipboard(shareUrl)
+          shareService.share('tacktics', tackticsStore.activePuzzle.PuzzleId)
         }
       },
+      // --- КОНЕЦ ИЗМЕНЕНИЙ ---
       onExit: tackticsStore.handleExit,
     })
   },
@@ -86,12 +72,10 @@ watch(
 <template>
   <GameLayout>
     <template #left-panel>
-      <!-- --- НАЧАЛО ИЗМЕНЕНИЙ: Добавляем обертку и UserStats --- -->
       <div class="left-panel-content-wrapper">
         <UserStats />
         <TackticsStats />
       </div>
-      <!-- --- КОНЕЦ ИЗМЕНЕНИЙ --- -->
     </template>
 
     <template #top-info>
@@ -110,9 +94,7 @@ watch(
 </template>
 
 <style scoped>
-/* --- НАЧАЛО ИЗМЕНЕНИЙ: Добавляем стили для обертки --- */
 .left-panel-content-wrapper,
-/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
 .right-panel-content-wrapper {
   display: flex;
   flex-direction: column;

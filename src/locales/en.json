@@ -473,10 +473,8 @@
       "mainModesTitle": "Main Modes",
       "keyFeaturesTitle": "Key Features",
       "techStackTitle": "Tech Stack",
-      "licensingTitle": "Licensing and Acknowledgements",
       "contributingTitle": "Contributing",
-      "licenseTitle": "License",
-      "acknowledgementsTitle": "Acknowledgements"
+      "licenseAndAcknowledgementsTitle": "Licensing and Acknowledgements"
     },
     "modes": {
       "conversionTitle": "Finish-Him (Conversion): ",
@@ -493,7 +491,7 @@
         "rbleipzig": " (Stockfish.js - local: depth 12, contempt 100)",
         "krokodil": " (Stockfish.js - local: depth 10, contempt 100)",
         "karde": " (Stockfish.js - local: depth 8, contempt 100)",
-        "mozer": " (LCZero+Maia1900 — a human-like engine on SERVER)",
+        "mozer": " (LCZero+Maia1900 — a human-like engine server-side)",
         "dimas": " (Stockfish.js - local: depth 6, contempt 100)",
         "darko": " (Stockfish.js - local: depth 4, contempt 100)"
       },
@@ -530,27 +528,54 @@
       "api": "API: ",
       "apiStack": "Lichess API ("
     },
-    "licensing": {
-      "stockfishTitle": "Stockfish Chess Engine",
-      "stockfishIntro1": "Game and move analysis in this application is powered by ",
-      "stockfishIntro2": ", an open-source chess engine distributed under the ",
-      "gplNoteTitle": "Important Note on the GPLv3 License: ",
-      "gplNote": "The use of a library under the GPLv3 license requires us to make the source code of our own project open and available under the same or a compatible license.",
-      "projectSourceCode": "Project Source Code: Available in this repository",
-      "licenseText": "You can read the full text of the GPLv3 license here: ",
-      "stockfishGratitude": "We extend our deepest gratitude to the Stockfish team for their incredible work.",
-      "chessgroundTitle": "Chessground",
-      "chessgroundIntro1": "The interactive chessboard is rendered using the ",
-      "chessgroundIntro2": " library from the Lichess team, which is distributed under the ",
-      "chessgroundGratitude": "Thank you to Lichess for this wonderful tool."
-    },
     "contributing": "We welcome all contributions to the project! If you have ideas, suggestions, or have found a bug, please create an `issue` or a `pull request`.",
-    "licenseText": "This project is licensed under the GNU General Public License v3.0 - see the LICENSE file for details.",
-    "acknowledgements": {
-      "stockfishDesc": " - The powerful chess engine",
-      "lichessDesc": " - For the amazing API and Chessground library",
-      "n8nDesc": " - For the flexible automation platform",
-      "community": "All contributors and the chess community"
+    "licenseAndAcknowledgements": {
+      "gplIntro": "This project is licensed under the GNU General Public License v3.0.",
+      "stockfish": {
+        "title": "Stockfish Chess Engine",
+        "text1": "Game and move analysis in this application is powered by ",
+        "text2": ", an open-source chess engine distributed under the ",
+        "gplNoteTitle": "Important Note on the GPLv3 License: ",
+        "gplNote": "The use of a library under the GPLv3 license requires us to make the source code of our own project open and available under the same or a compatible license.",
+        "projectSourceCode": "Project Source Code: Available in this repository",
+        "licenseText": "You can read the full text of the GPLv3 license here: ",
+        "gratitude": "We extend our deepest gratitude to the Stockfish team for their incredible work."
+      },
+      "maia": {
+        "title": "Maia Chess Engine",
+        "text": "Human-like moves on the server are provided by **Maia Chess**, a project designed to play chess like a human. Maia uses neural networks trained on millions of human games to predict the moves a player at a specific rating level would make. We are grateful to the Maia team for their innovative approach to creating chess engines.",
+        "links": {
+          "website": "Website",
+          "github": "GitHub",
+          "lichessBot": "Lichess Bot"
+        }
+      },
+      "lcZero": {
+        "title": "Leela Chess Zero (LCZero)",
+        "text": "To run Maia Chess neural network weights, the server uses the **Leela Chess Zero** engine, another powerful open-source neural network chess engine. Many thanks to the Leela Chess Zero community for this incredible project.",
+
+        "links": {
+          "website": "Website",
+          "github": "GitHub"
+        }
+      },
+      "chessground": {
+        "title": "Chessground",
+        "text1": "The interactive chessboard is rendered using the ",
+        "text2": " library from the Lichess team, which is distributed under the **MIT License**. ",
+        "gratitude": "Thank you to Lichess for this wonderful tool."
+      },
+      "chessops": {
+        "title": "Chessops",
+        "text": "All core chess logic, such as move generation, legality checks, and handling of FEN/PGN formats, is implemented using the **Chessops** library. It is a modern, modular, and efficient library created by the Lichess team.",
+        "gratitude": "Thank you to the Lichess team for this reliable library."
+      },
+      "otherCreditsTitle": "Special Thanks",
+      "credits": {
+        "lichess": "Lichess - for the amazing API and open puzzle database.",
+        "n8n": "n8n.io - for the flexible automation platform that forms the core of the backend.",
+        "community": "All contributors and the chess community for their support and feedback."
+      }
     },
     "author": {
       "photoAlt": "Author Photo",

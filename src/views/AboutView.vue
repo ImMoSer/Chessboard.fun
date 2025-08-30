@@ -1,3 +1,4 @@
+<!-- src/views/AboutView.vue -->
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 
@@ -115,21 +116,29 @@ const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
       </li>
     </ul>
 
-    <h2>{{ t('about.sections.licensingTitle') }}</h2>
-    <h3>{{ t('about.licensing.stockfishTitle') }}</h3>
+    <h2>{{ t('about.sections.contributingTitle') }}</h2>
+    <p>{{ t('about.contributing') }}</p>
+
+    <!-- --- НАЧАЛО ИЗМЕНЕНИЙ: Обновленный раздел лицензий и благодарностей --- -->
+    <h2>{{ t('about.sections.licenseAndAcknowledgementsTitle') }}</h2>
+    <p>{{ t('about.licenseAndAcknowledgements.gplIntro') }}</p>
+
+    <!-- Stockfish -->
+    <h3>{{ t('about.licenseAndAcknowledgements.stockfish.title') }}</h3>
     <p>
-      {{ t('about.licensing.stockfishIntro1') }}<strong>Stockfish</strong
-      >{{ t('about.licensing.stockfishIntro2') }}<strong>GPLv3</strong>{{ t('common.period') }}
+      {{ t('about.licenseAndAcknowledgements.stockfish.text1') }}
+      <strong>Stockfish</strong>{{ t('about.licenseAndAcknowledgements.stockfish.text2') }}
+      <strong>GPLv3</strong>{{ t('common.period') }}
     </p>
     <p class="licensing-note">
-      <strong>{{ t('about.licensing.gplNoteTitle') }}</strong
-      >{{ t('about.licensing.gplNote') }}
+      <strong>{{ t('about.licenseAndAcknowledgements.stockfish.gplNoteTitle') }}</strong>
+      {{ t('about.licenseAndAcknowledgements.stockfish.gplNote') }}
     </p>
     <ul class="licensing-links">
-      <li>{{ t('about.licensing.projectSourceCode') }}</li>
+      <li>{{ t('about.licenseAndAcknowledgements.stockfish.projectSourceCode') }}</li>
       <li>
-        {{ t('about.licensing.licenseText')
-        }}<a
+        {{ t('about.licenseAndAcknowledgements.stockfish.licenseText') }}
+        <a
           href="https://www.gnu.org/licenses/gpl-3.0.html"
           target="_blank"
           rel="noopener noreferrer"
@@ -137,37 +146,69 @@ const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
         >{{ t('common.period') }}
       </li>
     </ul>
-    <p>{{ t('about.licensing.stockfishGratitude') }}</p>
+    <p>{{ t('about.licenseAndAcknowledgements.stockfish.gratitude') }}</p>
 
-    <h3>{{ t('about.licensing.chessgroundTitle') }}</h3>
+    <!-- Maia Chess -->
+    <h3>{{ t('about.licenseAndAcknowledgements.maia.title') }}</h3>
+    <p v-html="t('about.licenseAndAcknowledgements.maia.text')"></p>
+    <ul class="licensing-links">
+      <li>
+        <a href="https://www.maiachess.com/" target="_blank" rel="noopener noreferrer">{{
+          t('about.licenseAndAcknowledgements.maia.links.website')
+        }}</a>
+      </li>
+      <li>
+        <a href="https://github.com/CSSLab/maia-chess" target="_blank" rel="noopener noreferrer">{{
+          t('about.licenseAndAcknowledgements.maia.links.github')
+        }}</a>
+      </li>
+      <li>
+        <a href="https://lichess.org/@/maia9" target="_blank" rel="noopener noreferrer">{{
+          t('about.licenseAndAcknowledgements.maia.links.lichessBot')
+        }}</a>
+      </li>
+    </ul>
+
+    <!-- LCZero -->
+    <h3>{{ t('about.licenseAndAcknowledgements.lcZero.title') }}</h3>
+    <p v-html="t('about.licenseAndAcknowledgements.lcZero.text')"></p>
+    <ul class="licensing-links">
+      <li>
+        <a href="https://lczero.org/" target="_blank" rel="noopener noreferrer">{{
+          t('about.licenseAndAcknowledgements.lcZero.links.website')
+        }}</a>
+      </li>
+      <li>
+        <a href="https://github.com/LeelaChessZero/lc0" target="_blank" rel="noopener noreferrer">{{
+          t('about.licenseAndAcknowledgements.lcZero.links.github')
+        }}</a>
+      </li>
+    </ul>
+
+    <!-- Chessground -->
+    <h3>{{ t('about.licenseAndAcknowledgements.chessground.title') }}</h3>
     <p>
-      {{ t('about.licensing.chessgroundIntro1') }}<strong>Chessground</strong
-      >{{ t('about.licensing.chessgroundIntro2') }}<strong>MIT License</strong
-      >{{ t('common.periodAndSpace') }}{{ t('about.licensing.chessgroundGratitude') }}
+      {{ t('about.licenseAndAcknowledgements.chessground.text1') }}
+      <strong>Chessground</strong>
+      {{ t('about.licenseAndAcknowledgements.chessground.text2') }}
+      {{ t('about.licenseAndAcknowledgements.chessground.gratitude') }}
     </p>
 
-    <h2>{{ t('about.sections.contributingTitle') }}</h2>
-    <p>{{ t('about.contributing') }}</p>
+    <!-- Chessops -->
+    <h3>{{ t('about.licenseAndAcknowledgements.chessops.title') }}</h3>
+    <p>
+      <span v-html="t('about.licenseAndAcknowledgements.chessops.text')"></span>
+      {{ t('about.licenseAndAcknowledgements.chessops.gratitude') }}
+    </p>
 
-    <h2>{{ t('about.sections.licenseTitle') }}</h2>
-    <p>{{ t('about.licenseText') }}</p>
-
-    <h2>{{ t('about.sections.acknowledgementsTitle') }}</h2>
+    <!-- Other Credits -->
+    <h3>{{ t('about.licenseAndAcknowledgements.otherCreditsTitle') }}</h3>
     <ul>
-      <li>
-        <a href="https://stockfishchess.org/" target="_blank" rel="noopener noreferrer">Stockfish</a
-        >{{ t('about.acknowledgements.stockfishDesc') }}
-      </li>
-      <li>
-        <a href="https://lichess.org/" target="_blank" rel="noopener noreferrer">Lichess</a
-        >{{ t('about.acknowledgements.lichessDesc') }}
-      </li>
-      <li>
-        <a href="https://n8n.io/" target="_blank" rel="noopener noreferrer">n8n</a
-        >{{ t('about.acknowledgements.n8nDesc') }}
-      </li>
-      <li>{{ t('about.acknowledgements.community') }}</li>
+      <li>{{ t('about.licenseAndAcknowledgements.credits.lichess') }}</li>
+      <li>{{ t('about.licenseAndAcknowledgements.credits.n8n') }}</li>
+      <li>{{ t('about.licenseAndAcknowledgements.credits.community') }}</li>
     </ul>
+    <!-- --- КОНЕЦ ИЗМЕНЕНИЙ --- -->
 
     <hr />
 
@@ -290,7 +331,7 @@ const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
 }
 
 .about-page-container ul {
-  list-style-type: '–  '; /* Custom bullet point */
+  list-style-type: '–  ';
   padding-left: 20px;
   margin-top: 0;
 }
@@ -299,8 +340,6 @@ const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
   margin-bottom: 8px;
   padding-left: 10px;
 }
-
-/* <<< НАЧАЛО ИЗМЕНЕНИЙ: Стили для списка ботов */
 .bot-list {
   margin-top: 10px;
   padding-left: 25px;
@@ -309,10 +348,9 @@ const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
 .bot-list li {
   margin-bottom: 5px;
 }
-/* <<< КОНЕЦ ИЗМЕНЕНИЙ */
 
 .about-page-container .licensing-note {
-  background-color: rgba(252, 98, 9, 0.1); /* var(--color-accent-warning) with alpha */
+  background-color: rgba(252, 98, 9, 0.1);
   border-left: 4px solid var(--color-accent-warning);
   padding: 15px;
   margin: 15px 0;
@@ -330,7 +368,7 @@ const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
   justify-content: center;
   gap: 12px;
   padding: 12px 28px;
-  background-color: #ffdd00; /* Bright yellow, similar to Buy Me a Coffee */
+  background-color: #ffdd00;
   color: #000000;
   text-decoration: none;
   font-size: var(--font-size-large);

@@ -134,16 +134,6 @@ const activityModes: {
   gap: 5px;
 }
 
-.username {
-  margin: 0;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--color-border);
-  text-align: center;
-  color: var(--color-accent-success);
-  font-size: var(--font-size-large);
-  word-break: break-all;
-}
-
 .stats-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -154,7 +144,7 @@ const activityModes: {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: var(--font-size-small);
+  font-size: var(--font-size-base);
   background-color: var(--color-bg-tertiary);
   padding: 5px 8px;
   border-radius: 4px;
@@ -199,7 +189,7 @@ const activityModes: {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: var(--font-size-small);
+  font-size: var(--font-size-base);
   padding-bottom: 5px;
   margin-bottom: 0;
   border-bottom: 1px solid var(--color-border);
@@ -218,7 +208,7 @@ const activityModes: {
 .detail-item {
   display: flex;
   justify-content: space-between;
-  font-size: var(--font-size-small);
+  font-size: var(--font-size-base);
 }
 
 .detail-label {
@@ -257,5 +247,11 @@ const activityModes: {
 
 .login-button:hover {
   background-color: var(--color-accent-primary-hover);
+}
+
+@media (orientation: portrait) {
+  .board-resizer {
+    display: none;
+  }
 }
 </style>

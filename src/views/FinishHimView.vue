@@ -13,7 +13,9 @@ import TopInfoPanel from '../components/TopInfoPanel.vue'
 import PuzzleInfo from '../components/PuzzleInfo.vue'
 import UserStats from '../components/UserStats.vue'
 import AnalysisPanel from '../components/AnalysisPanel.vue'
-import logger from '../utils/logger'
+// --- НАЧАЛО ИЗМЕНЕНИЙ ---
+import { shareService } from '../services/share.service'
+// --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
 const finishHimStore = useFinishHimStore()
 const gameStore = useGameStore()
@@ -23,27 +25,10 @@ const route = useRoute()
 const router = useRouter()
 
 onMounted(() => {
-  // --- <<< НАЧАЛО ИЗМЕНЕНИЙ: Вызываем инициализацию для проигрывания звука входа >>> ---
   finishHimStore.initialize()
-  // --- <<< КОНЕЦ ИЗМЕНЕНИЙ >>> ---
   const puzzleId = route.params.puzzleId as string | undefined
   finishHimStore.loadNewPuzzle(puzzleId)
 })
-
-const copyToClipboard = (text: string) => {
-  const textArea = document.createElement('textarea')
-  textArea.value = text
-  document.body.appendChild(textArea)
-  textArea.focus()
-  textArea.select()
-  try {
-    document.execCommand('copy')
-    logger.info('[Share] Ссылка скопирована в буфер обмена:', text)
-  } catch (err) {
-    logger.error('[Share] Не удалось скопировать ссылку:', err)
-  }
-  document.body.removeChild(textArea)
-}
 
 watch(
   () => finishHimStore.activePuzzle,
@@ -70,12 +55,13 @@ watch(
       onRequestNew: () => finishHimStore.loadNewPuzzle(),
       onRestart: finishHimStore.handleRestart,
       onResign: finishHimStore.handleResign,
+      // --- НАЧАЛО ИЗМЕНЕНИЙ: Используем новый сервис ---
       onShare: () => {
         if (finishHimStore.activePuzzle?.PuzzleId) {
-          const shareUrl = `${window.location.origin}/finish-him/${finishHimStore.activePuzzle.PuzzleId}`
-          copyToClipboard(shareUrl)
+          shareService.share('finish-him', finishHimStore.activePuzzle.PuzzleId)
         }
       },
+      // --- КОНЕЦ ИЗМЕНЕНИЙ ---
       onExit: finishHimStore.handleExit,
     })
   },
@@ -95,7 +81,6 @@ watch(
 
     <template #center-column> </template>
 
-    <!-- <<< НАЧАЛО ИЗМЕНЕНИЙ: ControlPanel теперь всегда вверху, а PuzzleInfo не скрывается -->
     <template #right-panel>
       <div class="right-panel-content-wrapper">
         <ControlPanel />
@@ -103,7 +88,6 @@ watch(
         <PuzzleInfo />
       </div>
     </template>
-    <!-- <<< КОНЕЦ ИЗМЕНЕНИЙ -->
   </GameLayout>
 </template>
 

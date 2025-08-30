@@ -19,7 +19,9 @@ import TowerProgress from '../components/TowerProgress.vue'
 import UpcomingPositions from '../components/UpcomingPositions.vue'
 import PuzzleInfo from '../components/PuzzleInfo.vue'
 import UserStats from '../components/UserStats.vue'
-import logger from '../utils/logger'
+// --- НАЧАЛО ИЗМЕНЕНИЙ ---
+import { shareService } from '../services/share.service'
+// --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
 const towerStore = useTowerStore()
 const gameStore = useGameStore()
@@ -35,21 +37,6 @@ onMounted(() => {
     towerStore.loadTowerById(towerId)
   }
 })
-
-const copyToClipboard = (text: string) => {
-  const textArea = document.createElement('textarea')
-  textArea.value = text
-  document.body.appendChild(textArea)
-  textArea.focus()
-  textArea.select()
-  try {
-    document.execCommand('copy')
-    logger.info('[Share] Link copied to clipboard:', text)
-  } catch (err) {
-    logger.error('[Share] Could not copy link:', err)
-  }
-  document.body.removeChild(textArea)
-}
 
 watch(
   () => towerStore.activeTower?.tower_id,
@@ -76,12 +63,13 @@ watch(
       onRequestNew: towerStore.reset,
       onRestart: towerStore.handleRestart,
       onResign: towerStore.handleResign,
+      // --- НАЧАЛО ИЗМЕНЕНИЙ: Используем новый сервис ---
       onShare: () => {
         if (towerStore.activeTower?.tower_id) {
-          const shareUrl = `${window.location.origin}/#/tower/${towerStore.activeTower.tower_id}`
-          copyToClipboard(shareUrl)
+          shareService.share('tower', towerStore.activeTower.tower_id)
         }
       },
+      // --- КОНЕЦ ИЗМЕНЕНИЙ ---
       onExit: towerStore.handleExit,
     })
   },
