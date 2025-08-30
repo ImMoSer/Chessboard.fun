@@ -21,19 +21,19 @@ An interactive web platform for chess enthusiasts, offering unique training mode
 
 Choose from several training bots with different skill levels:
 
-| Bot       | Rating | Engine          | Configuration              |
-| --------- | ------ | --------------- | -------------------------- |
-| Rbleipzig | 2200+  | Stockfish.js    | depth 12, contempt 100     |
-| Krokodil  | 2100+  | Stockfish.js    | depth 10, contempt 100     |
-| Karde     | 2000+  | Stockfish.js    | depth 8, contempt 100      |
-| MoZeR     | 1900+  | LCZero+Maia1900 | Human-like engine (server) |
-| Dimas     | 1800+  | Stockfish.js    | depth 6, contempt 100      |
-| Darko     | 1700+  | Stockfish.js    | depth 4, contempt 100      |
+| Bot       | Rating | Engine          | Configuration                   |
+| --------- | ------ | --------------- | ------------------------------- |
+| Rbleipzig | 2200+  | Stockfish.js    | depth 12, contempt 100          |
+| Krokodil  | 2100+  | Stockfish.js    | depth 10, contempt 100          |
+| Karde     | 2000+  | Stockfish.js    | depth 8, contempt 100           |
+| MoZeR     | 1900+  | LCZero+Maia1900 | Human-like engine (server-side) |
+| Dimas     | 1800+  | Stockfish.js    | depth 6, contempt 100           |
+| Darko     | 1700+  | Stockfish.js    | depth 4, contempt 100           |
 
 ## 🛠️ Tech Stack
 
 - **Frontend**: TypeScript, Vue.js
-- **Backend**: n8n.io + Nest.js
+- **Backend**: n8n.io + Nest.js (for webhook processing and API)
 - **Chess Logic**: `chessops`
 - **Board Rendering**: `Chessground`
 - **Chess Engines**:
@@ -49,29 +49,6 @@ Choose from several training bots with different skill levels:
 - **🎨 Modern UI** - Clean, responsive interface built with TypeScript and Vue.js
 - **🌍 Localization** - Available in English, German, and Russian
 
-## 📄 License & Acknowledgements
-
-This project is licensed under the **GNU General Public License v3.0** - see the [LICENSE](LICENSE) file for details.
-
-### Third-Party Components
-
-#### Stockfish Chess Engine
-
-Game and move analysis powered by [Stockfish](https://stockfishchess.org/), an open-source chess engine distributed under GPLv3.
-
-> **Important**: Due to GPLv3 requirements, our source code is available under the same license.
-
-#### Chessground
-
-Interactive chessboard rendered using [Chessground](https://github.com/lichess-org/chessground) from the Lichess team (MIT License).
-
-### Special Thanks
-
-- **Stockfish Team** - For the incredible chess engine
-- **Lichess** - For the amazing API and Chessground library
-- **n8n** - For the flexible automation platform
-- **Chess Community** - For continuous support and feedback
-
 ## 🤝 Contributing
 
 We welcome all contributions! If you have ideas, suggestions, or found a bug:
@@ -81,6 +58,59 @@ We welcome all contributions! If you have ideas, suggestions, or found a bug:
 3. Create your feature branch
 4. Submit a [pull request](../../pulls)
 
+## 📄 License & Acknowledgements
+
+This project is licensed under the **GNU General Public License v3.0**.
+
+### Chess Engines
+
+#### Stockfish Chess Engine
+
+Game and move analysis powered by [Stockfish](https://stockfishchess.org/), an open-source chess engine distributed under GPLv3.
+
+> **Important**: Due to GPLv3 requirements, our source code is available under the same license. You can read the full text [here](https://www.gnu.org/licenses/gpl-3.0.html).
+
+#### Maia Chess Engine
+
+Human-like moves on the server are provided by **Maia Chess**, a project designed to play chess like a human. Maia uses neural networks trained on millions of human games to predict moves a player at a specific rating level would make.
+
+- [Website](https://maiachess.com/)
+- [GitHub](https://github.com/CSSLab/maia-chess)
+- [Lichess Bot](https://lichess.org/@/maia1)
+
+#### Leela Chess Zero (LCZero)
+
+To run Maia Chess neural network weights, the server uses **Leela Chess Zero**, another powerful open-source neural network chess engine.
+
+- [Website](https://lczero.org/)
+- [GitHub](https://github.com/LeelaChessZero/lc0)
+
+### Libraries & Tools
+
+#### Chessground
+
+Interactive chessboard rendered using [Chessground](https://github.com/lichess-org/chessground) from the Lichess team (MIT License).
+
+#### Chessops
+
+Core chess logic implemented using [Chessops](https://github.com/niklasf/chessops), a modern, modular library for move generation, legality checks, and FEN/PGN handling.
+
+### Special Thanks
+
+- **Lichess** - For the amazing API and open puzzle database
+- **n8n.io** - For the flexible automation platform that forms the core of the backend
+- **All contributors** and the chess community for their support and feedback
+
+## 👨‍💻 About the Author
+
+Hello! My name is **Moser**. I was born in 1985 in Kazakhstan and have been living in Germany since 2003.
+
+By trade, I'm a mechanical engineer, but I've been passionate about chess my whole life. This project is a long-held dream of mine to create a convenient training tool, which became possible thanks to modern technologies like AI and the n8n platform.
+
+I am fluent in Russian and German, and also know some English.
+
+Thank you for using Chessboard.fun!
+
 ---
 
-**Ready to improve your chess skills?** Visit [Chessboard.fun](https://chessboard.fun) and start training!
+_Made with ❤️ for chess enthusiasts everywhere_
