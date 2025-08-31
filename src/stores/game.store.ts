@@ -13,7 +13,7 @@ import { soundService } from '../services/sound.service'
 export type GamePhase = 'IDLE' | 'LOADING' | 'PLAYING' | 'GAMEOVER'
 export type GameMode = 'finish-him' | 'attack' | 'tacktics' | 'tower' | null
 
-const BOT_MOVE_DELAY_MS = 100
+const BOT_MOVE_DELAY_MS = 50
 const FIRST_BOT_MOVE_DELAY_MS = 500
 const noop = () => { }
 

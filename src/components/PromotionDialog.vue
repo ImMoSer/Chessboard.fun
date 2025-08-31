@@ -57,7 +57,9 @@ const promotionStyle = computed(() => {
 </script>
 
 <template>
-  <div class="promotion-dialog-overlay" @click="emit('close')">
+  <!-- --- НАЧАЛО ИЗМЕНЕНИЙ: Удален обработчик @click --- -->
+  <div class="promotion-dialog-overlay">
+    <!-- --- КОНЕЦ ИЗМЕНЕНИЙ --- -->
     <div
       v-for="role in promotionRoles"
       :key="role"
