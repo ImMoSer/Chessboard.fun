@@ -242,7 +242,8 @@
       "topAttack": "Мастера Атаки",
       "towerLeaderboard": "Мастера Спидрана",
       "overallSkill": "Общий Скилл",
-      "skillStreak": "+100 каждый день"
+      "skillStreak": "+100 каждый день",
+      "topToday": "Топ Дня"
     },
     "table": {
       "rank": "№",

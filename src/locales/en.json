@@ -242,7 +242,8 @@
       "topAttack": "Attack Masters",
       "towerLeaderboard": "Tower Masters",
       "overallSkill": "Overall Skill",
-      "skillStreak": "+100 everyday"
+      "skillStreak": "+100 everyday",
+      "topToday": "Top Today"
     },
     "table": {
       "rank": "#",

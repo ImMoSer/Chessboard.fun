@@ -242,7 +242,8 @@
       "topAttack": "Meister des Angriffs",
       "towerLeaderboard": "Speedrun-Meister",
       "overallSkill": "Gesamter Skill",
-      "skillStreak": "+100 jeden Tag"
+      "skillStreak": "+100 jeden Tag",
+      "topToday": "Top des Tages"
     },
     "table": {
       "rank": "#",

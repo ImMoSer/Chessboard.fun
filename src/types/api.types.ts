@@ -124,11 +124,9 @@ export interface PuzzleResultEntry {
   record_timestamp_ms: number;
 }
 
-// --- НАЧАЛО ИЗМЕНЕНИЙ ---
 export interface GetFinishHimPuzzleDto {
   engm_type?: TowerTheme;
 }
-// --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
 export interface UpdateFinishHimStatsDto {
   PuzzleId: string;
@@ -179,10 +177,8 @@ export interface GamePuzzle {
   endgame_results?: PuzzleResultEntry[];
   attack_results?: PuzzleResultEntry[];
   Themes_PG?: string[];
-  // --- НАЧАЛО ИЗМЕНЕНИЙ ---
   engm_type?: TowerTheme | null;
   difficulty_level?: string | null;
-  // --- КОНЕЦ ИЗМЕНЕНИЙ ---
 }
 
 export interface TacticalThemeStat {
@@ -397,6 +393,9 @@ export type SkillPeriod = '7' | '14' | '21' | '30';
 export interface LeaderboardApiResponse extends WorktableLeaderboards {
   overallSkillLeaderboard: OverallSkillLeaderboardEntry[];
   skillStreakLeaderboard: SkillStreakLeaderboardEntry[];
+  // --- НАЧАЛО ИЗМЕНЕНИЙ ---
+  topTodayLeaderboard: OverallSkillLeaderboardEntry[];
+  // --- КОНЕЦ ИЗМЕНЕНИЙ ---
 }
 
 export interface SkillByMode {
