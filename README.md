@@ -89,7 +89,7 @@ To run Maia Chess neural network weights, the server uses **Leela Chess Zero**, 
 
 #### Chessground
 
-Interactive chessboard rendered using [Chessground](https://github.com/lichess-org/chessground) from the Lichess team (MIT License).
+Interactive chessboard rendered using [Chessground](https://github.com/lichess-org/chessground) from the Lichess team ([GPLv3](https://www.gnu.org/licenses/gpl-3.0.html) License).
 
 #### Chessops
 
