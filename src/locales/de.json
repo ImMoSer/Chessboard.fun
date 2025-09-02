@@ -252,7 +252,7 @@
       "challenge": "Aufgabe",
       "daysOld": "Tage",
       "totalSkill": "Skill",
-      "streakDays": "Streak (Tage)",
+      "streakDays": "Tage",
       "action": "Aktion",
       "requested": "Angefordert",
       "solved": "Gelöst"
@@ -562,7 +562,7 @@
       "chessground": {
         "title": "Chessground",
         "text1": "Das interaktive Schachbrett wird mit der ",
-        "text2": " Bibliothek vom Lichess-Team gerendert, die unter der **MIT-Lizenz** vertrieben wird. ",
+        "text2": " Bibliothek vom Lichess-Team gerendert, die unter der **GPLv3-Lizenz** vertrieben wird. ",
         "gratitude": "Vielen Dank an Lichess für dieses wunderbare Werkzeug."
       },
       "chessops": {

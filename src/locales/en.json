@@ -252,7 +252,7 @@
       "challenge": "Challenge",
       "daysOld": "Days",
       "totalSkill": "Skill",
-      "streakDays": "Streak (Days)",
+      "streakDays": "Days",
       "action": "Action",
       "requested": "Requested",
       "solved": "Solved"
@@ -563,7 +563,7 @@
       "chessground": {
         "title": "Chessground",
         "text1": "The interactive chessboard is rendered using the ",
-        "text2": " library from the Lichess team, which is distributed under the **MIT License**. ",
+        "text2": " library from the Lichess team, which is distributed under the **GPLv3 License**. ",
         "gratitude": "Thank you to Lichess for this wonderful tool."
       },
       "chessops": {

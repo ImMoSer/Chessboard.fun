@@ -274,8 +274,8 @@ const handlePeriodChange = (event: Event) => {
 }
 .skill-progress-bar {
   display: inline-flex;
-  width: 150px;
-  height: 16px;
+  width: 300px;
+  height: 20px;
   background-color: var(--color-bg-primary);
   border-radius: 4px;
   overflow: hidden;
@@ -305,5 +305,11 @@ const handlePeriodChange = (event: Event) => {
 }
 .text-right {
   text-align: right;
+}
+
+@media (max-width: 768px) {
+  .skill-progress-bar {
+    width: 100px; /* Например, делаем балку короче на узких экранах */
+  }
 }
 </style>
