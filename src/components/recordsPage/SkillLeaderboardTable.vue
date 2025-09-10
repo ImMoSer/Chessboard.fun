@@ -37,12 +37,14 @@ const tierToPieceMap: { [key: string]: string } = {
   King: 'wK.svg',
 }
 
+// --- НАЧАЛО ИЗМЕНЕНИЙ ---
 const skillModes: { key: keyof SkillByMode; nameKey: string }[] = [
   { key: 'finishHim', nameKey: 'userCabinet.stats.modes.finishHim' },
   { key: 'attack', nameKey: 'userCabinet.stats.modes.attack' },
   { key: 'tower', nameKey: 'userCabinet.stats.modes.tower' },
-  { key: 'tacticalTrainer', nameKey: 'userCabinet.stats.modes.tacticalTrainer' },
+  { key: 'tornado', nameKey: 'nav.tornado' },
 ]
+// --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
 const getSubscriptionIcon = (tier?: string) => {
   if (!tier || !tierToPieceMap[tier]) return null
@@ -216,8 +218,9 @@ const handlePeriodChange = (event: Event) => {
   border-radius: 4px;
   border: 1px solid var(--color-border-hover);
 }
+/* --- НАЧАЛО ИЗМЕНЕНИЙ --- */
 .legend-color-swatch.finishHim {
-  background-color: var(--color-accent-secondary);
+  background-color: var(--color-accent-primary);
 }
 .legend-color-swatch.attack {
   background-color: var(--color-accent-warning);
@@ -225,9 +228,10 @@ const handlePeriodChange = (event: Event) => {
 .legend-color-swatch.tower {
   background-color: var(--color-violett-lichess);
 }
-.legend-color-swatch.tacticalTrainer {
-  background-color: var(--color-accent-success);
+.legend-color-swatch.tornado {
+  background-color: var(--color-accent-secondary);
 }
+/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
 .legend-label {
   font-size: var(--font-size-small);
   color: var(--color-text-muted);
@@ -285,8 +289,9 @@ const handlePeriodChange = (event: Event) => {
 .skill-bar-segment {
   height: 100%;
 }
+/* --- НАЧАЛО ИЗМЕНЕНИЙ --- */
 .skill-bar-segment.finishHim {
-  background-color: var(--color-accent-secondary);
+  background-color: var(--color-accent-primary);
 }
 .skill-bar-segment.attack {
   background-color: var(--color-accent-warning);
@@ -294,9 +299,10 @@ const handlePeriodChange = (event: Event) => {
 .skill-bar-segment.tower {
   background-color: var(--color-violett-lichess);
 }
-.skill-bar-segment.tacticalTrainer {
-  background-color: var(--color-accent-success);
+.skill-bar-segment.tornado {
+  background-color: var(--color-accent-secondary);
 }
+/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
 .text-left {
   text-align: left;
 }

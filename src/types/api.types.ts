@@ -104,8 +104,9 @@ export interface ThemeRating {
   volatility: number;
 }
 
+// --- НАЧАЛО ИЗМЕНЕНИЙ ---
 export interface TornadoNextPuzzleDto {
-  sessionRating: number;
+  sessionId: string;
   lastPuzzleId: string;
   lastPuzzleRating: number;
   lastPuzzleThemes: string[];
@@ -113,17 +114,23 @@ export interface TornadoNextPuzzleDto {
 }
 
 export interface TornadoEndSessionDto {
+  sessionId: string;
   finalScore: number;
 }
 
 export interface TornadoStartResponse {
   puzzle: GamePuzzle;
+  sessionId: string;
+  sessionRating: number;
 }
+// --- КОНЕЦ ИЗМЕНЕНИЙ ---
+
 
 export interface TornadoNextResponse {
   newSessionRating: number;
   nextPuzzle: GamePuzzle;
   updatedThemeRatings: Record<string, ThemeRating>;
+  userStatsUpdate?: UserStatsUpdate;
 }
 
 export interface TornadoEndResponse {
@@ -424,6 +431,15 @@ export interface AttackLeaderboardEntry {
   subscriptionTier?: string;
 }
 
+export interface TornadoLeaderboardEntry {
+  rank: number;
+  username: string;
+  lichess_id: string;
+  highScore: number;
+  days_old: number;
+  subscriptionTier?: string;
+}
+
 export interface WorktableLeaderboards {
   towerLeaderboards: { [key in TowerId]?: TowerLeaderboardEntry[] };
   finishHimLeaderboard: FinishHimLeaderboardEntry[];
@@ -435,9 +451,8 @@ export type SkillPeriod = '7' | '14' | '21' | '30';
 export interface LeaderboardApiResponse extends WorktableLeaderboards {
   overallSkillLeaderboard: OverallSkillLeaderboardEntry[];
   skillStreakLeaderboard: SkillStreakLeaderboardEntry[];
-  // --- НАЧАЛО ИЗМЕНЕНИЙ ---
   topTodayLeaderboard: OverallSkillLeaderboardEntry[];
-  // --- КОНЕЦ ИЗМЕНЕНИЙ ---
+  tornadoLeaderboard?: { [key in TornadoMode]?: TornadoLeaderboardEntry[] };
 }
 
 export interface SkillByMode {
@@ -445,6 +460,7 @@ export interface SkillByMode {
   attack: number;
   tower: number;
   tacticalTrainer: number;
+  tornado: number;
 }
 
 export interface OverallSkillLeaderboardEntry {
@@ -559,6 +575,7 @@ export interface PuzzlesSolvedToday {
   attack: number;
   finishHim: number;
   tacticalTrainer: number;
+  tornado: number;
   total: number;
 }
 
@@ -567,6 +584,7 @@ export interface SkillEarnedToday {
   attack: number;
   finishHim: number;
   tacticalTrainer: number;
+  tornado: number;
   total: number;
 }
 
@@ -613,3 +631,4 @@ export interface AuthState {
   isProcessing: boolean;
   error: string | null;
 }
+

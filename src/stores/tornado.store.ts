@@ -9,6 +9,8 @@ import { webhookService } from '../services/WebhookService'
 import type { GamePuzzle, ThemeRating, TornadoNextPuzzleDto } from '../types/api.types'
 import { type TornadoMode } from '../types/api.types' // Импортируем тип
 import logger from '../utils/logger'
+import { useAuthStore } from './auth.store'
+import { soundService } from '@/services/sound.service'
 
 const MISTAKES_STORAGE_KEY = 'tornado_mistakes'
 
@@ -31,12 +33,14 @@ export const useTornadoStore = defineStore('tornado', () => {
   const boardStore = useBoardStore()
   const router = useRouter()
   const uiStore = useUiStore()
+  const authStore = useAuthStore()
 
   const mode = ref<TornadoMode | null>(null)
   const sessionRating = ref(600)
   const themeRatings = ref<Record<string, ThemeRating> | null>(null)
   const activePuzzle = ref<GamePuzzle | null>(null)
   const mistakenPuzzles = ref<string[]>([])
+  const sessionId = ref<string | null>(null)
 
   const timerValueMs = ref(0)
   const timeIncrementMs = ref(0)
@@ -44,6 +48,11 @@ export const useTornadoStore = defineStore('tornado', () => {
   const isSessionActive = ref(false)
   const feedbackMessage = ref('Выберите режим для начала')
   const isProcessingMove = ref(false)
+
+  // --- НАЧАЛО ИЗМЕНЕНИЙ ---
+  const tenSecondsWarningPlayed = ref(false)
+  const eightSecondsWarningPlayed = ref(false)
+  // --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
   const formattedTimer = computed(() => {
     const totalSeconds = Math.ceil(timerValueMs.value / 1000)
@@ -59,11 +68,16 @@ export const useTornadoStore = defineStore('tornado', () => {
     themeRatings.value = null
     activePuzzle.value = null
     mistakenPuzzles.value = []
+    sessionId.value = null
     timerValueMs.value = 0
     timeIncrementMs.value = 0
     isSessionActive.value = false
     feedbackMessage.value = 'Выберите режим для начала'
     isProcessingMove.value = false
+    // --- НАЧАЛО ИЗМЕНЕНИЙ ---
+    tenSecondsWarningPlayed.value = false
+    eightSecondsWarningPlayed.value = false
+    // --- КОНЕЦ ИЗМЕНЕНИЙ ---
     localStorage.removeItem(MISTAKES_STORAGE_KEY)
     logger.info('[TornadoStore] State has been reset.')
   }
@@ -74,8 +88,21 @@ export const useTornadoStore = defineStore('tornado', () => {
 
     timerId.value = window.setInterval(() => {
       timerValueMs.value -= 1000
+
+      // --- НАЧАЛО ИЗМЕНЕНИЙ ---
+      if (timerValueMs.value <= 10000 && !tenSecondsWarningPlayed.value) {
+        soundService.playSound('board_timer_10s')
+        tenSecondsWarningPlayed.value = true
+      }
+      if (timerValueMs.value <= 8000 && !eightSecondsWarningPlayed.value) {
+        soundService.playSound('board_timer_8s')
+        eightSecondsWarningPlayed.value = true
+      }
+      // --- КОНЕЦ ИЗМЕНЕНИЙ ---
+
       if (timerValueMs.value <= 0) {
         timerValueMs.value = 0;
+        soundService.playSound('board_timer_times_up') // --- ИЗМЕНЕНИЕ ---
         _handleSessionEnd()
       }
     }, 1000)
@@ -89,13 +116,16 @@ export const useTornadoStore = defineStore('tornado', () => {
   }
 
   async function _handleSessionEnd() {
-    if (!mode.value) return;
+    if (!mode.value || !sessionId.value) return;
     _stopTimer()
     isSessionActive.value = false
     gameStore.setGamePhase('GAMEOVER')
     feedbackMessage.value = `Сессия завершена! Ваш результат: ${sessionRating.value}`
 
-    await webhookService.endTornadoSession(mode.value, { finalScore: sessionRating.value });
+    await webhookService.endTornadoSession(mode.value, {
+      sessionId: sessionId.value,
+      finalScore: sessionRating.value
+    });
 
     const userResponse = await uiStore.showConfirmation(
       'Сессия окончена',
@@ -125,9 +155,11 @@ export const useTornadoStore = defineStore('tornado', () => {
 
     try {
       const response = await webhookService.startTornadoSession(selectedMode);
-      if (response && response.puzzle) {
+      logger.info('[TornadoStore] Start session response:', response);
+      if (response && response.puzzle && response.sessionId) {
         isSessionActive.value = true;
-        sessionRating.value = 600;
+        sessionId.value = response.sessionId;
+        sessionRating.value = response.sessionRating;
         activePuzzle.value = response.puzzle;
         setupPuzzle(response.puzzle);
         feedbackMessage.value = "Ваш ход! Найдите лучший ход."
@@ -148,7 +180,7 @@ export const useTornadoStore = defineStore('tornado', () => {
       (isCorrect) => handlePuzzleResult(isCorrect),
       () => true,
       () => { },
-      'tornado', // Устанавливаем правильный режим
+      'tornado',
       () => {
         if (isSessionActive.value && timerId.value === null) {
           _startTimer()
@@ -158,21 +190,26 @@ export const useTornadoStore = defineStore('tornado', () => {
   }
 
   async function handlePuzzleResult(isCorrect: boolean) {
-    if (!activePuzzle.value || !isSessionActive.value || isProcessingMove.value || !mode.value) return
+    if (!activePuzzle.value || !isSessionActive.value || isProcessingMove.value || !mode.value || !sessionId.value) return
     isProcessingMove.value = true;
 
     timerValueMs.value += timeIncrementMs.value
 
-    if (!isCorrect) {
+    // --- НАЧАЛО ИЗМЕНЕНИЙ ---
+    if (isCorrect) {
+      soundService.playSound('game_tacktics_success')
+    } else {
+      soundService.playSound('game_tacktics_error')
       const currentFen = boardStore.fen
       mistakenPuzzles.value.push(currentFen)
       localStorage.setItem(MISTAKES_STORAGE_KEY, JSON.stringify(mistakenPuzzles.value))
     }
+    // --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
     const lastPuzzleThemes = (activePuzzle.value.Themes_PG || []).filter(theme => officialThemes.has(theme));
 
     const dto: TornadoNextPuzzleDto = {
-      sessionRating: sessionRating.value,
+      sessionId: sessionId.value,
       lastPuzzleId: activePuzzle.value.PuzzleId,
       lastPuzzleRating: activePuzzle.value.Rating,
       lastPuzzleThemes: lastPuzzleThemes,
@@ -185,6 +222,9 @@ export const useTornadoStore = defineStore('tornado', () => {
         sessionRating.value = response.newSessionRating;
         themeRatings.value = response.updatedThemeRatings;
         activePuzzle.value = response.nextPuzzle;
+        if (response.userStatsUpdate) {
+          authStore.updateUserStats(response.userStatsUpdate)
+        }
         setupPuzzle(response.nextPuzzle);
       } else {
         throw new Error("Не удалось получить следующую задачу");

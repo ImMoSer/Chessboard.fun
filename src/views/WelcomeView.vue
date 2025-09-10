@@ -46,9 +46,9 @@ const handleChangeLang = (lang: 'en' | 'ru' | 'de') => {
           <span class="mode-button-icon">⚔️</span>
           <span class="mode-button-text">{{ t('welcome.buttons.attack') }}</span>
         </router-link>
-        <router-link class="mode-button" to="/tacktics">
-          <span class="mode-button-icon">🧩</span>
-          <span class="mode-button-text">{{ t('welcome.buttons.tacktics') }}</span>
+        <router-link class="mode-button" to="/tornado">
+          <span class="mode-button-icon">🌪️</span>
+          <span class="mode-button-text">{{ t('nav.tornado') }}</span>
         </router-link>
         <router-link class="mode-button" to="/lichess-clubs">
           <span class="mode-button-icon">🏰</span>

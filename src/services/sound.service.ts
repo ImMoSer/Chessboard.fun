@@ -34,7 +34,9 @@ export type SoundEvent =
   | 'game_user_won'
   | 'game_user_lost'
   | 'game_tacktics_error'
+  | 'game_tacktics_success' // --- НАЧАЛО ИЗМЕНЕНИЙ ---
   | 'game_tower_win_series'
+// --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
 // --- ДИНАМИЧЕСКАЯ ЗАГРУЗКА ЗВУКОВЫХ ПУЛОВ ---
 const soundModules = import.meta.glob('/public/sounds/**/*.mp3')
@@ -87,6 +89,9 @@ const soundDefinitions: Record<SoundEvent, { track: SoundTrack; path: string | s
   game_user_won: { track: 'voice', path: createPool('/sounds/gameStore/after_game/if_user_won') },
   game_user_lost: { track: 'voice', path: createPool('/sounds/gameStore/after_game/if_user_lost') },
   game_tacktics_error: { track: 'background', path: '/sounds/gameStore/TacticksError.mp3' },
+  // --- НАЧАЛО ИЗМЕНЕНИЙ ---
+  game_tacktics_success: { track: 'background', path: '/sounds/gameStore/TacticksSuccess.mp3' },
+  // --- КОНЕЦ ИЗМЕНЕНИЙ ---
   game_tower_win_series: {
     track: 'background',
     path: createPool('/sounds/gameStore/applaus_backround'),

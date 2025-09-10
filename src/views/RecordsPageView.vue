@@ -6,10 +6,13 @@ import { useRecordsStore } from '../stores/records.store'
 import { storeToRefs } from 'pinia'
 import type { SkillPeriod } from '../types/api.types'
 
-// Импорт новых дочерних компонентов
+// Импорт дочерних компонентов
 import SkillLeaderboardTable from '../components/recordsPage/SkillLeaderboardTable.vue'
 import SimpleLeaderboardTable from '../components/recordsPage/SimpleLeaderboardTable.vue'
 import TowerLeaderboardTable from '../components/recordsPage/TowerLeaderboardTable.vue'
+// --- НАЧАЛО ИЗМЕНЕНИЙ ---
+import TornadoLeaderboardTable from '../components/recordsPage/TornadoLeaderboardTable.vue'
+// --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
 const recordsStore = useRecordsStore()
 const { t } = useI18n()
@@ -51,7 +54,7 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
         :show-streak="true"
       />
 
-      <!-- NEW: Top Today Leaderboard -->
+      <!-- Top Today Leaderboard -->
       <SkillLeaderboardTable
         v-if="leaderboards.topTodayLeaderboard && leaderboards.topTodayLeaderboard.length > 0"
         :title="t('records.titles.topToday')"
@@ -67,6 +70,16 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
         :tower-data="leaderboards.towerLeaderboards"
         color-class="towerLeaderboard"
       />
+
+      <!-- --- НАЧАЛО ИЗМЕНЕНИЙ --- -->
+      <!-- Tornado Leaderboard -->
+      <TornadoLeaderboardTable
+        v-if="leaderboards.tornadoLeaderboard"
+        :title="t('nav.tornado')"
+        :tornado-data="leaderboards.tornadoLeaderboard"
+        color-class="tornadoLeaderboard"
+      />
+      <!-- --- КОНЕЦ ИЗМЕНЕНИЙ --- -->
 
       <!-- Finish Him Leaderboard -->
       <SimpleLeaderboardTable

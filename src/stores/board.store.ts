@@ -105,7 +105,7 @@ export const useBoardStore = defineStore('board', () => {
       soundService.playSound('board_move')
     }
 
-    if (gameStore.currentGameMode !== 'tacktics') {
+    if (gameStore.currentGameMode !== 'tornado') {
       if (gameStatus.isGameOver && gameStatus.outcome) {
         switch (gameStatus.outcome.reason) {
           case 'checkmate':
@@ -290,7 +290,7 @@ export const useBoardStore = defineStore('board', () => {
     if (!isGameOver) {
       const fenHistory = pgnService.getFenHistoryForRepetition()
       const currentRepetitionFen = _getRepetitionFen(fen.value)
-      let repetitionCount = fenHistory.filter(
+      const repetitionCount = fenHistory.filter(
         (historicFen) => _getRepetitionFen(historicFen) === currentRepetitionFen,
       ).length
       if (repetitionCount >= 3) {

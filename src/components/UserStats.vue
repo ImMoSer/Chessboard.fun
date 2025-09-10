@@ -37,7 +37,7 @@ const activityModes: {
   { key: 'finishHim', label: t('nav.finishHim'), icon: '🎯' },
   { key: 'tower', label: t('nav.tower'), icon: '🏁' },
   { key: 'attack', label: t('nav.attack'), icon: '⚔️' },
-  { key: 'tacticalTrainer', label: t('nav.tacktics'), icon: '🧩' },
+  { key: 'tornado', label: t('nav.tornado'), icon: '🌪️' },
 ]
 </script>
 
