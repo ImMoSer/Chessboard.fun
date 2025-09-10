@@ -5,17 +5,17 @@ import { useRoute } from 'vue-router'
 import { useFinishHimStore } from '@/stores/finishHim.store'
 import { useAttackStore } from '@/stores/attack.store'
 import { useTowerStore } from '@/stores/tower.store'
-import { useTackticsStore } from '@/stores/tacktics.store'
+import { useTornadoStore } from '@/stores/tornado.store'
 import { useControlsStore } from '@/stores/controls.store'
 import FinishHimSelection from '@/components/FinishHimSelection.vue'
-import EngineSelector from '@/components/EngineSelector.vue' // 🔥 новый компонент
+import EngineSelector from '@/components/EngineSelector.vue'
 
 const route = useRoute()
 const finishHimStore = useFinishHimStore()
 const attackStore = useAttackStore()
 const towerStore = useTowerStore()
-const tackticsStore = useTackticsStore()
-useControlsStore() // только инициализация, сама логика в EngineSelector.vue
+const tornadoStore = useTornadoStore()
+useControlsStore()
 
 const formattedTimer = computed(() => {
   if (route.name === 'attack') {
@@ -24,7 +24,9 @@ const formattedTimer = computed(() => {
   if (route.name === 'tower') {
     return towerStore.formattedTimer
   }
-  // По умолчанию для Finish Him
+  if (route.name === 'tornado') {
+    return tornadoStore.formattedTimer
+  }
   return finishHimStore.formattedTimer
 })
 
@@ -32,8 +34,8 @@ const containerClass = computed(() => {
   switch (route.name) {
     case 'finish-him':
       return 'mode-finish-him'
-    case 'tacktics':
-      return 'mode-tacktics'
+    case 'tornado':
+      return 'mode-tornado'
     default:
       return 'mode-default'
   }
@@ -42,21 +44,19 @@ const containerClass = computed(() => {
 
 <template>
   <div class="top-info-panel-container" :class="containerClass">
-    <!-- Таймер для всех режимов, кроме Тактики -->
-    <div v-if="route.name !== 'tacktics'" class="timer-container">
+    <!-- Таймер для всех режимов, кроме выбора Торнадо -->
+    <div v-if="route.name !== 'tornado-selection'" class="timer-container">
+      <span v-if="route.name === 'tornado'" class="session-rating-label">
+        Рейтинг: {{ tornadoStore.sessionRating }}
+      </span>
       {{ formattedTimer }}
     </div>
 
     <!-- Селектор тем для FinishHim -->
     <FinishHimSelection v-if="route.name === 'finish-him'" />
 
-    <!-- Таймер только для Тактики -->
-    <div v-if="route.name === 'tacktics'" class="timer-container tacktics-timer">
-      {{ tackticsStore.formattedTimer }}
-    </div>
-
-    <!-- Новый кастомный EngineSelector для всех режимов, кроме Тактики -->
-    <div v-if="route.name !== 'tacktics'" class="engine-selector-container">
+    <!-- Селектор движка для режимов с ботом -->
+    <div v-if="['finish-him', 'attack', 'tower'].includes(route.name as string)" class="engine-selector-container">
       <img src="/buttons/robot.svg" alt="Select Engine" class="robot-icon" />
       <EngineSelector />
     </div>
@@ -83,7 +83,7 @@ const containerClass = computed(() => {
   grid-template-columns: 1fr 2fr 2fr; /* Centered middle column */
 }
 
-.top-info-panel-container.mode-tacktics {
+.top-info-panel-container.mode-tornado {
   grid-template-columns: 1fr;
   justify-content: center;
 }
@@ -93,9 +93,15 @@ const containerClass = computed(() => {
   display: flex;
   justify-content: center;
   align-items: center;
+  gap: 20px;
   font-size: var(--font-size-xlarge);
   font-weight: bold;
   color: var(--color-accent-warning);
+}
+
+.session-rating-label {
+  font-size: var(--font-size-large);
+  color: var(--color-accent-success);
 }
 
 /* Контейнер под селектор движка */
@@ -115,5 +121,14 @@ const containerClass = computed(() => {
   .top-info-panel-container.mode-finish-him {
     grid-template-columns: 1fr 2fr 2fr; /* Centered middle column */
   }
+  .timer-container {
+    flex-direction: column;
+    gap: 5px;
+    font-size: var(--font-size-large);
+  }
+  .session-rating-label {
+    font-size: var(--font-size-base);
+  }
 }
 </style>
+

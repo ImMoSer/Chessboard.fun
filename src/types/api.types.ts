@@ -95,6 +95,48 @@ export const TOWER_THEMES = [
 ] as const;
 export type TowerTheme = typeof TOWER_THEMES[number];
 
+// --- TORNADO MODE ---
+export type TornadoMode = 'bullet' | 'blitz' | 'rapid' | 'classic';
+
+export interface ThemeRating {
+  rating: number;
+  rating_deviation: number;
+  volatility: number;
+}
+
+export interface TornadoNextPuzzleDto {
+  sessionRating: number;
+  lastPuzzleId: string;
+  lastPuzzleRating: number;
+  lastPuzzleThemes: string[];
+  wasCorrect: boolean;
+}
+
+export interface TornadoEndSessionDto {
+  finalScore: number;
+}
+
+export interface TornadoStartResponse {
+  puzzle: GamePuzzle;
+}
+
+export interface TornadoNextResponse {
+  newSessionRating: number;
+  nextPuzzle: GamePuzzle;
+  updatedThemeRatings: Record<string, ThemeRating>;
+}
+
+export interface TornadoEndResponse {
+  id: string;
+  userId: string;
+  username: string;
+  mode: TornadoMode;
+  highScore: number;
+  achievedAt: string;
+}
+// --- END TORNADO ---
+
+
 export interface TowerPositionEntry {
   FEN_0: string;
   rating: number;

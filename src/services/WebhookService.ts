@@ -25,7 +25,13 @@ import type {
   LeaderboardApiResponse,
   PersonalActivityStatsResponse,
   GameResultResponse,
-  GetFinishHimPuzzleDto, // --- НАЧАЛО ИЗМЕНЕНИЙ ---
+  GetFinishHimPuzzleDto,
+  TornadoMode,
+  TornadoNextPuzzleDto,
+  TornadoEndSessionDto,
+  TornadoStartResponse,
+  TornadoNextResponse,
+  TornadoEndResponse,
 } from '../types/api.types'
 
 export class RateLimitError extends Error {
@@ -136,11 +142,43 @@ class WebhookServiceController {
     }
   }
 
-  // --- НАЧАЛО ИЗМЕНЕНИЙ ---
+  // --- TORNADO API ---
+  public async startTornadoSession(mode: TornadoMode): Promise<TornadoStartResponse | null> {
+    return this._apiRequest<TornadoStartResponse>(
+      `/tornado/start/${mode}`,
+      'GET',
+      'startTornadoSession',
+    )
+  }
+
+  public async getNextTornadoPuzzle(
+    mode: TornadoMode,
+    dto: TornadoNextPuzzleDto,
+  ): Promise<TornadoNextResponse | null> {
+    return this._apiRequest<TornadoNextResponse>(
+      `/tornado/next/${mode}`,
+      'POST',
+      'getNextTornadoPuzzle',
+      dto,
+    )
+  }
+
+  public async endTornadoSession(
+    mode: TornadoMode,
+    dto: TornadoEndSessionDto,
+  ): Promise<TornadoEndResponse | null> {
+    return this._apiRequest<TornadoEndResponse>(
+      `/tornado/end-session/${mode}`,
+      'POST',
+      'endTornadoSession',
+      dto,
+    )
+  }
+  // --- END TORNADO API ---
+
   public async fetchPuzzle(dto?: GetFinishHimPuzzleDto): Promise<GamePuzzle | null> {
     return this._apiRequest<GamePuzzle>('/n8n-proxy/puzzles/finish-him', 'POST', 'fetchPuzzle', dto)
   }
-  // --- КОНЕЦ ИЗМЕНЕНИЙ ---
   public async fetchPuzzleById(puzzleId: string): Promise<GamePuzzle | null> {
     return this._apiRequest<GamePuzzle>(
       `/n8n-proxy/puzzles/finish-him/${puzzleId}`,

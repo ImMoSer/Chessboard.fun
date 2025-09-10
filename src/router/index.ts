@@ -6,9 +6,9 @@ import i18n from '../services/i18n'
 import { useAnalysisStore } from '../stores/analysis.store'
 import { useAttackStore } from '../stores/attack.store'
 import { useFinishHimStore } from '../stores/finishHim.store'
-import { useTackticsStore } from '../stores/tacktics.store'
 import { useTowerStore } from '../stores/tower.store'
 import { useAuthStore } from '../stores/auth.store'
+import { useTornadoStore } from '../stores/tornado.store'
 
 import FinishHimView from '../views/FinishHimView.vue'
 import WelcomeView from '../views/WelcomeView.vue'
@@ -18,9 +18,11 @@ import AttackView from '../views/AttackView.vue'
 import ClubPageView from '../views/ClubPageView.vue'
 import LichessClubsView from '../views/LichessClubsView.vue'
 import RecordsPageView from '../views/RecordsPageView.vue'
-import TackticsView from '../views/TackticsView.vue'
 import TowerView from '../views/TowerView.vue'
 import UserCabinetView from '../views/UserCabinetView.vue'
+import TornadoSelectionView from '../views/TornadoSelectionView.vue'
+import TornadoView from '../views/TornadoView.vue'
+import TornadoMistakesView from '../views/TornadoMistakesView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -43,16 +45,28 @@ const router = createRouter({
       meta: { isGame: true, requiresAuth: true },
     },
     {
-      path: '/tacktics/:puzzleId?',
-      name: 'tacktics',
-      component: TackticsView,
-      meta: { isGame: true, requiresAuth: true },
-    },
-    {
       path: '/tower/:towerId?',
       name: 'tower',
       component: TowerView,
       meta: { isGame: true, requiresAuth: true },
+    },
+    {
+      path: '/tornado',
+      name: 'tornado-selection',
+      component: TornadoSelectionView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/tornado/:mode',
+      name: 'tornado',
+      component: TornadoView,
+      meta: { isGame: true, requiresAuth: true },
+    },
+    {
+      path: '/tornado/mistakes',
+      name: 'tornado-mistakes',
+      component: TornadoMistakesView,
+      meta: { requiresAuth: true },
     },
     {
       path: '/user-cabinet',
@@ -102,9 +116,7 @@ router.beforeEach(async (to, from, next) => {
   const isAuthenticated = authStore.isAuthenticated
 
   if (requiresAuth && !isAuthenticated) {
-    // --- НАЧАЛО ИЗМЕНЕНИЙ: Сохраняем целевой URL перед редиректом ---
     localStorage.setItem('redirect_after_login', to.fullPath)
-    // --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
     const userConfirmedLogin = await uiStore.showConfirmation(
       t('auth.requiredForAction'),
@@ -158,9 +170,10 @@ router.afterEach(async (to, from) => {
     useAttackStore().reset()
   } else if (fromBaseRoute === 'finish-him' && toBaseRoute !== 'finish-him') {
     useFinishHimStore().reset()
-  } else if (fromBaseRoute === 'tacktics' && toBaseRoute !== 'tacktics') {
-    useTackticsStore().reset()
+  } else if (fromBaseRoute === 'tornado' && toBaseRoute !== 'tornado') {
+    useTornadoStore().reset()
   }
 })
 
 export default router
+

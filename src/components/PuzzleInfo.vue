@@ -5,23 +5,23 @@ import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import { useFinishHimStore } from '../stores/finishHim.store'
 import { useAttackStore } from '../stores/attack.store'
-import { useTackticsStore } from '../stores/tacktics.store'
 import { useTowerStore } from '../stores/tower.store'
+import { useTornadoStore } from '../stores/tornado.store'
 import { useThemeStore } from '../stores/theme.store'
 import type { GamePuzzle } from '../types/api.types'
 
 const route = useRoute()
 const finishHimStore = useFinishHimStore()
 const attackStore = useAttackStore()
-const tackticsStore = useTackticsStore()
 const towerStore = useTowerStore()
+const tornadoStore = useTornadoStore()
 const themeStore = useThemeStore()
 const { t } = useI18n()
 
 const activeStore = computed(() => {
   if (route.name === 'attack') return attackStore
-  if (route.name === 'tacktics') return tackticsStore
   if (route.name === 'tower') return towerStore
+  if (route.name === 'tornado') return tornadoStore
   return finishHimStore
 })
 
@@ -142,7 +142,7 @@ const sortedResults = computed(() => {
           <span class="label">{{ t('puzzleInfo.funValue') }}:</span>
           <span class="value">{{ activePuzzle.bw_value }}</span>
         </div>
-        <div v-if="route.name === 'tacktics' && localizedThemes" class="info-item">
+        <div v-if="route.name === 'tornado' && localizedThemes" class="info-item">
           <span class="label">{{ t('tacktics.stats.theme') }}:</span>
           <span class="value">{{ localizedThemes }}</span>
         </div>

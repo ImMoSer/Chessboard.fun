@@ -11,7 +11,7 @@ import { useControlsStore } from './controls.store'
 import { soundService } from '../services/sound.service'
 
 export type GamePhase = 'IDLE' | 'LOADING' | 'PLAYING' | 'GAMEOVER'
-export type GameMode = 'finish-him' | 'attack' | 'tacktics' | 'tower' | null
+export type GameMode = 'finish-him' | 'attack' | 'tacktics' | 'tower' | 'tornado' | null
 
 const BOT_MOVE_DELAY_MS = 50
 const FIRST_BOT_MOVE_DELAY_MS = 500
@@ -65,7 +65,7 @@ export const useGameStore = defineStore('game', () => {
     } else {
       try {
         if (currentScenarioMoveIndex.value === scenarioMoves.value.length) {
-          if (currentGameMode.value !== 'tacktics') {
+          if (currentGameMode.value !== 'tacktics' && currentGameMode.value !== 'tornado') {
             soundService.playSound('game_play_out_start')
             onPlayoutStartCallback()
           }
@@ -153,18 +153,18 @@ export const useGameStore = defineStore('game', () => {
     if (isScenarioActive) {
       const expectedMove = scenarioMoves.value[currentScenarioMoveIndex.value]
       if (uciMove === expectedMove) {
-        if (userMovesCount.value === 1 && currentGameMode.value === 'tacktics') {
+        if (userMovesCount.value === 1 && (currentGameMode.value === 'tacktics' || currentGameMode.value === 'tornado')) {
           onCorrectFirstMoveCallback()
         }
         currentScenarioMoveIndex.value++
         const isPuzzleComplete = currentScenarioMoveIndex.value >= scenarioMoves.value.length
-        if (isPuzzleComplete && currentGameMode.value === 'tacktics') {
+        if (isPuzzleComplete && (currentGameMode.value === 'tacktics' || currentGameMode.value === 'tornado')) {
           onGameOverCallback(true)
           return
         }
       } else {
         currentScenarioMoveIndex.value = scenarioMoves.value.length
-        if (currentGameMode.value === 'tacktics') {
+        if (currentGameMode.value === 'tacktics' || currentGameMode.value === 'tornado') {
           onGameOverCallback(false, { winner: undefined, reason: 'wrong_move' })
           return
         }

@@ -8,11 +8,9 @@ const { t } = useI18n()
 const isMenuOpen = ref(false)
 const router = useRouter()
 
-// --- НАЧАЛО ИЗМЕНЕНИЙ ---
-// Обновляем массив, чтобы исправить иконку и изменить порядок
 const menuItems = [
   { path: '/', labelKey: 'nav.home', icon: '🏠' },
-  { path: '/tacktics', labelKey: 'nav.tacktics', icon: '🧩', group: 'games' },
+  { path: '/tornado', labelKey: 'nav.tornado', icon: '🌪️', group: 'games' },
   { path: '/finish-him', labelKey: 'nav.finishHim', icon: '🎯', group: 'games' },
   { path: '/attack', labelKey: 'nav.attack', icon: '⚔️', group: 'games' },
   { path: '/tower', labelKey: 'nav.tower', icon: '🏁', group: 'games' },
@@ -22,7 +20,6 @@ const menuItems = [
   { path: '/pricing', labelKey: 'nav.pricing', icon: '💰' },
   { path: '/about', labelKey: 'nav.about', icon: 'ℹ️' },
 ]
-// --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value
@@ -45,7 +42,6 @@ const navigateAndClose = (path: string) => {
       <path d="M3 18H21V16H3V18ZM3 13H21V11H3V13ZM3 6V8H21V6H3Z" />
     </svg>
   </button>
-  <!-- --- НАЧАЛО ИЗМЕНЕНИЙ: Убираем группировку, оставляя единый список --- -->
   <div class="desktop-menu-wrapper">
     <nav>
       <template v-for="item in menuItems" :key="item.path">
@@ -56,19 +52,16 @@ const navigateAndClose = (path: string) => {
       </template>
     </nav>
   </div>
-  <!-- --- КОНЕЦ ИЗМЕНЕНИЙ --- -->
 
   <div v-if="isMenuOpen" class="mobile-menu-overlay" @click="toggleMenu">
     <div class="mobile-menu-wrapper" @click.stop>
       <nav>
-        <!-- --- НАЧАЛО ИЗМЕНЕНИЙ: Убираем группировку и разделители --- -->
         <template v-for="item in menuItems" :key="item.path">
           <a @click="navigateAndClose(item.path)" class="nav-item-link">
             <span class="nav-item-icon">{{ item.icon }}</span>
             <span class="nav-item-text">{{ t(item.labelKey) }}</span>
           </a>
         </template>
-        <!-- --- КОНЕЦ ИЗМЕНЕНИЙ --- -->
       </nav>
     </div>
   </div>
