@@ -14,6 +14,7 @@
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
     "lint": "eslint . --fix",
+    "type-check:watch": "vue-tsc --watch",
     "format": "prettier --write src/"
   },
   "dependencies": {

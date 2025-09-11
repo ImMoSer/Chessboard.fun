@@ -7,10 +7,12 @@ import { useRouter } from 'vue-router'
 import { useUiStore } from './ui.store'
 import { webhookService } from '../services/WebhookService'
 import type { GamePuzzle, ThemeRating, TornadoNextPuzzleDto } from '../types/api.types'
-import { type TornadoMode } from '../types/api.types' // Импортируем тип
+import { type TornadoMode } from '../types/api.types'
 import logger from '../utils/logger'
 import { useAuthStore } from './auth.store'
 import { soundService } from '@/services/sound.service'
+
+export type { TornadoMode } from '../types/api.types'
 
 const MISTAKES_STORAGE_KEY = 'tornado_mistakes'
 
@@ -49,10 +51,8 @@ export const useTornadoStore = defineStore('tornado', () => {
   const feedbackMessage = ref('Выберите режим для начала')
   const isProcessingMove = ref(false)
 
-  // --- НАЧАЛО ИЗМЕНЕНИЙ ---
   const tenSecondsWarningPlayed = ref(false)
   const eightSecondsWarningPlayed = ref(false)
-  // --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
   const formattedTimer = computed(() => {
     const totalSeconds = Math.ceil(timerValueMs.value / 1000)
@@ -74,10 +74,8 @@ export const useTornadoStore = defineStore('tornado', () => {
     isSessionActive.value = false
     feedbackMessage.value = 'Выберите режим для начала'
     isProcessingMove.value = false
-    // --- НАЧАЛО ИЗМЕНЕНИЙ ---
     tenSecondsWarningPlayed.value = false
     eightSecondsWarningPlayed.value = false
-    // --- КОНЕЦ ИЗМЕНЕНИЙ ---
     localStorage.removeItem(MISTAKES_STORAGE_KEY)
     logger.info('[TornadoStore] State has been reset.')
   }
@@ -89,7 +87,6 @@ export const useTornadoStore = defineStore('tornado', () => {
     timerId.value = window.setInterval(() => {
       timerValueMs.value -= 1000
 
-      // --- НАЧАЛО ИЗМЕНЕНИЙ ---
       if (timerValueMs.value <= 10000 && !tenSecondsWarningPlayed.value) {
         soundService.playSound('board_timer_10s')
         tenSecondsWarningPlayed.value = true
@@ -98,11 +95,10 @@ export const useTornadoStore = defineStore('tornado', () => {
         soundService.playSound('board_timer_8s')
         eightSecondsWarningPlayed.value = true
       }
-      // --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
       if (timerValueMs.value <= 0) {
         timerValueMs.value = 0;
-        soundService.playSound('board_timer_times_up') // --- ИЗМЕНЕНИЕ ---
+        soundService.playSound('board_timer_times_up')
         _handleSessionEnd()
       }
     }, 1000)
@@ -195,7 +191,6 @@ export const useTornadoStore = defineStore('tornado', () => {
 
     timerValueMs.value += timeIncrementMs.value
 
-    // --- НАЧАЛО ИЗМЕНЕНИЙ ---
     if (isCorrect) {
       soundService.playSound('game_tacktics_success')
     } else {
@@ -204,7 +199,6 @@ export const useTornadoStore = defineStore('tornado', () => {
       mistakenPuzzles.value.push(currentFen)
       localStorage.setItem(MISTAKES_STORAGE_KEY, JSON.stringify(mistakenPuzzles.value))
     }
-    // --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
     const lastPuzzleThemes = (activePuzzle.value.Themes_PG || []).filter(theme => officialThemes.has(theme));
 
@@ -250,4 +244,3 @@ export const useTornadoStore = defineStore('tornado', () => {
     reset,
   }
 })
-
