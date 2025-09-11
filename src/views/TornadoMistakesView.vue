@@ -7,7 +7,9 @@ import { useAnalysisStore } from '@/stores/analysis.store'
 import { useUiStore } from '@/stores/ui.store'
 import GameLayout from '@/components/GameLayout.vue'
 import AnalysisPanel from '@/components/AnalysisPanel.vue'
+import ChessboardPreview from '@/components/ChessboardPreview.vue'
 import type { GamePuzzle } from '@/types/api.types'
+import { soundService } from '@/services/sound.service'
 
 // --- CONSTANTS ---
 const MISTAKES_STORAGE_KEY = 'tornado_mistakes'
@@ -30,9 +32,9 @@ const selectedPuzzle = computed(() => {
   return mistakes.value.find((p) => p.PuzzleId === selectedPuzzleId.value) || null
 })
 
-const puzzleImageUrl = (puzzleId: string) => {
-  return `https://lichess.org/api/puzzle/${puzzleId}/image.png?theme=blue-marble&piece=alpha`
-}
+const unsolvedMistakes = computed(() => {
+  return mistakes.value.filter(p => !solvedStatus.value[p.PuzzleId]);
+})
 
 const allMistakesSolved = computed(() => {
   if (mistakes.value.length === 0) return false
@@ -64,8 +66,10 @@ function handlePuzzleResult(isCorrect: boolean) {
   if (isCorrect) {
     solvedStatus.value[selectedPuzzle.value.PuzzleId] = true
     feedbackMessage.value = 'Отлично! Задача решена верно.'
+    soundService.playSound('game_tacktics_success');
   } else {
     feedbackMessage.value = 'Неверно. Попробуйте проанализировать позицию.'
+    soundService.playSound('game_tacktics_error');
   }
 }
 
@@ -138,13 +142,13 @@ async function handleExit() {
       <div class="mistakes-list-container">
         <h4>Работа над ошибками</h4>
         <div class="mistakes-list-scrollable">
-          <div v-for="(puzzle, index) in mistakes" :key="puzzle.PuzzleId" class="mistake-item" :class="{
+          <div v-for="(puzzle) in unsolvedMistakes" :key="puzzle.PuzzleId" class="mistake-item" :class="{
             active: puzzle.PuzzleId === selectedPuzzleId,
             solved: solvedStatus[puzzle.PuzzleId],
             unsolved: !solvedStatus[puzzle.PuzzleId],
           }" @click="selectPuzzle(puzzle)">
-            <img :src="puzzleImageUrl(puzzle.PuzzleId)" :alt="`Ошибка #${index + 1}`" class="puzzle-preview" />
-            <span class="puzzle-label">Ошибка #{{ index + 1 }}</span>
+            <ChessboardPreview :fen="puzzle.FEN_0" orientation="white" />
+
           </div>
           <div v-if="mistakes.length === 0" class="no-mistakes">
             В последней сессии не было ошибок!
@@ -163,7 +167,8 @@ async function handleExit() {
           <button @click="showAnalysis" :disabled="!isAttemptMade" class="action-btn analysis-btn">
             Анализ
           </button>
-          <button @click="selectNextUnsolvedPuzzle" :disabled="allMistakesSolved" class="action-btn next-btn">
+          <button @click="selectNextUnsolvedPuzzle" :disabled="unsolvedMistakes.length <= 1 || allMistakesSolved"
+            class="action-btn next-btn">
             Следующая
           </button>
           <button @click="handleExit" class="action-btn exit-btn">
@@ -197,22 +202,23 @@ h4 {
   flex-grow: 1;
   overflow-y: auto;
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: 15px;
   padding-right: 5px;
+  align-content: flex-start;
 }
 
 .mistake-item {
-  cursor: pointer;
-  border: 3px solid var(--color-border);
-  border-radius: var(--panel-border-radius);
-  transition: all 0.2s ease;
-  overflow: hidden;
-  position: relative;
+  /* ...остальные стили... */
+  width: calc((100% - 15px) / 2);
+  /* Ширина под два столбца с учетом gap */
+  aspect-ratio: 1 / 1;
+  flex-shrink: 0;
 }
 
+
 .mistake-item:hover {
-  transform: scale(1.03);
+  transform: scale(1.01);
   border-color: var(--color-accent-primary);
 }
 

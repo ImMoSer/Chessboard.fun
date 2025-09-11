@@ -134,7 +134,9 @@ router.beforeEach(async (to, from, next) => {
   }
 
   if (from.meta.isGame && from.name !== to.name) {
-    if (gameStore.isGameActive) {
+    const isTornadoToMistakes = from.name === 'tornado' && to.name === 'tornado-mistakes'
+
+    if (gameStore.isGameActive && !isTornadoToMistakes) {
       const userConfirmed = await uiStore.showConfirmation(
         t('gameplay.confirmExit.title'),
         t('gameplay.confirmExit.message'),
@@ -164,16 +166,18 @@ router.afterEach(async (to, from) => {
   const fromBaseRoute = String(from.name)
   const toBaseRoute = String(to.name)
 
+  // Исключение для перехода из режима "Торнадо" на страницу ошибок "Торнадо"
+  const isTornadoToMistakes = fromBaseRoute === 'tornado' && toBaseRoute === 'tornado-mistakes'
+
   if (fromBaseRoute === 'tower' && toBaseRoute !== 'tower') {
     useTowerStore().reset()
   } else if (fromBaseRoute === 'attack' && toBaseRoute !== 'attack') {
     useAttackStore().reset()
   } else if (fromBaseRoute === 'finish-him' && toBaseRoute !== 'finish-him') {
     useFinishHimStore().reset()
-  } else if (fromBaseRoute === 'tornado' && toBaseRoute !== 'tornado') {
+  } else if (fromBaseRoute === 'tornado' && toBaseRoute !== 'tornado' && !isTornadoToMistakes) {
     useTornadoStore().reset()
   }
 })
 
 export default router
-
