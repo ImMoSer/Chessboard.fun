@@ -10,8 +10,11 @@ import { type TornadoMode } from '../types/api.types'
 import logger from '../utils/logger'
 import { useAuthStore } from './auth.store'
 import { soundService } from '@/services/sound.service'
+import i18n from '../services/i18n'
 
 export type { TornadoMode } from '../types/api.types'
+
+const t = i18n.global.t
 
 const MISTAKES_STORAGE_KEY = 'tornado_mistakes'
 
@@ -46,7 +49,7 @@ export const useTornadoStore = defineStore('tornado', () => {
   const timeIncrementMs = ref(0)
   const timerId = ref<number | null>(null)
   const isSessionActive = ref(false)
-  const feedbackMessage = ref('Выберите режим для начала')
+  const feedbackMessage = ref(t('tornado.feedback.selectMode'))
   const isProcessingMove = ref(false)
 
   const tenSecondsWarningPlayed = ref(false)
@@ -70,7 +73,7 @@ export const useTornadoStore = defineStore('tornado', () => {
     timerValueMs.value = 0
     timeIncrementMs.value = 0
     isSessionActive.value = false
-    feedbackMessage.value = 'Выберите режим для начала'
+    feedbackMessage.value = t('tornado.feedback.selectMode')
     isProcessingMove.value = false
     tenSecondsWarningPlayed.value = false
     eightSecondsWarningPlayed.value = false
@@ -114,7 +117,7 @@ export const useTornadoStore = defineStore('tornado', () => {
     _stopTimer()
     isSessionActive.value = false
     gameStore.setGamePhase('GAMEOVER')
-    feedbackMessage.value = `Сессия завершена! Ваш результат: ${sessionRating.value}`
+    feedbackMessage.value = t('tornado.feedback.sessionEnded', { rating: sessionRating.value })
 
     await webhookService.endTornadoSession(mode.value, {
       sessionId: sessionId.value,
@@ -124,12 +127,12 @@ export const useTornadoStore = defineStore('tornado', () => {
     const hasMistakes = mistakenPuzzles.value.length > 0;
 
     const userResponse = await uiStore.showConfirmation(
-      'Сессия окончена',
-      `Ваш финальный рейтинг: ${sessionRating.value}`,
+      t('tornado.sessionEnd.title'),
+      t('tornado.sessionEnd.message', { rating: sessionRating.value }),
       {
-        confirmText: 'Заново',
-        cancelText: 'Выйти',
-        extraText: 'Ошибки',
+        confirmText: t('tornado.sessionEnd.newSession'),
+        cancelText: t('tornado.sessionEnd.exit'),
+        extraText: t('tornado.sessionEnd.mistakes'),
         showExtra: hasMistakes,
       },
     )
@@ -157,7 +160,7 @@ export const useTornadoStore = defineStore('tornado', () => {
     const controls = timeControls[selectedMode]
     timerValueMs.value = controls.initial
     timeIncrementMs.value = controls.increment
-    feedbackMessage.value = 'Загрузка первой задачи...'
+    feedbackMessage.value = t('tornado.feedback.loadingFirstPuzzle')
 
     try {
       const response = await webhookService.startTornadoSession(selectedMode);
@@ -168,13 +171,13 @@ export const useTornadoStore = defineStore('tornado', () => {
         sessionRating.value = response.sessionRating;
         activePuzzle.value = response.puzzle;
         setupPuzzle(response.puzzle);
-        feedbackMessage.value = "Ваш ход! Найдите лучший ход."
+        feedbackMessage.value = t('tornado.feedback.yourTurn')
       } else {
-        throw new Error("Не удалось получить первую задачу");
+        throw new Error(t('tornado.feedback.loadingFailed'));
       }
     } catch (error) {
       logger.error('[TornadoStore] Failed to start session:', error);
-      feedbackMessage.value = "Ошибка при запуске сессии."
+      feedbackMessage.value = t('tornado.feedback.startFailed')
       isSessionActive.value = false;
     }
   }
@@ -230,7 +233,7 @@ export const useTornadoStore = defineStore('tornado', () => {
         }
         setupPuzzle(response.nextPuzzle);
       } else {
-        throw new Error("Не удалось получить следующую задачу");
+        throw new Error(t('tornado.feedback.loadingFailed'));
       }
     } catch (error) {
       logger.error('[TornadoStore] Failed to get next puzzle:', error);
@@ -253,4 +256,3 @@ export const useTornadoStore = defineStore('tornado', () => {
     reset,
   }
 })
-

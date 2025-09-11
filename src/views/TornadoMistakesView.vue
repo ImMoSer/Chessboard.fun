@@ -5,6 +5,7 @@ import { onBeforeRouteLeave, useRouter } from 'vue-router'
 import { useGameStore } from '@/stores/game.store'
 import { useAnalysisStore } from '@/stores/analysis.store'
 import { useUiStore } from '@/stores/ui.store'
+import { useI18n } from 'vue-i18n'
 import GameLayout from '@/components/GameLayout.vue'
 import AnalysisPanel from '@/components/AnalysisPanel.vue'
 import ChessboardPreview from '@/components/ChessboardPreview.vue'
@@ -19,12 +20,13 @@ const gameStore = useGameStore()
 const analysisStore = useAnalysisStore()
 const uiStore = useUiStore()
 const router = useRouter()
+const { t } = useI18n()
 
 // --- STATE ---
 const mistakes = ref<GamePuzzle[]>([])
 const solvedStatus = ref<Record<string, boolean>>({})
 const selectedPuzzleId = ref<string | null>(null)
-const feedbackMessage = ref('Выберите задачу для начала.')
+const feedbackMessage = ref(t('tornado.mistakes.feedback.selectPuzzle'))
 const isAttemptMade = ref(false)
 
 // --- COMPUTED ---
@@ -48,7 +50,7 @@ function selectPuzzle(puzzle: GamePuzzle) {
   }
   isAttemptMade.value = false
   selectedPuzzleId.value = puzzle.PuzzleId
-  feedbackMessage.value = 'Ваш ход. Попробуйте снова!'
+  feedbackMessage.value = t('tornado.mistakes.feedback.yourTurn')
 
   gameStore.setupPuzzle(
     puzzle.FEN_0,
@@ -65,10 +67,10 @@ function handlePuzzleResult(isCorrect: boolean) {
   isAttemptMade.value = true
   if (isCorrect) {
     solvedStatus.value[selectedPuzzle.value.PuzzleId] = true
-    feedbackMessage.value = 'Отлично! Задача решена верно.'
+    feedbackMessage.value = t('tornado.mistakes.feedback.solved')
     soundService.playSound('game_tacktics_success');
   } else {
-    feedbackMessage.value = 'Неверно. Попробуйте проанализировать позицию.'
+    feedbackMessage.value = t('tornado.mistakes.feedback.wrongMove')
     soundService.playSound('game_tacktics_error');
   }
 }
@@ -82,7 +84,7 @@ function selectNextUnsolvedPuzzle() {
   if (nextUnsolved) {
     selectPuzzle(nextUnsolved)
   } else if (allMistakesSolved.value) {
-    feedbackMessage.value = 'Поздравляем! Все ошибки исправлены.'
+    feedbackMessage.value = t('tornado.mistakes.feedback.allSolved')
   }
 }
 
@@ -108,19 +110,19 @@ onMounted(() => {
           selectPuzzle(firstMistake)
         }
       } else {
-        feedbackMessage.value = 'В последней сессии не было ошибок!'
+        feedbackMessage.value = t('tornado.mistakes.feedback.noMistakes')
       }
     } catch (e) {
       console.error('Error parsing mistakes from localStorage', e)
-      feedbackMessage.value = 'Не удалось загрузить ошибки.'
+      feedbackMessage.value = t('tornado.mistakes.feedback.loadFailed')
     }
   }
 })
 
 onBeforeRouteLeave(async (to, from, next) => {
   const userResponse = await uiStore.showConfirmation(
-    'Выход из режима',
-    'Вы уверены, что хотите выйти? Список нерешенных задач будет очищен.',
+    t('tornado.mistakes.exit.title'),
+    t('tornado.mistakes.exit.message'),
   )
   if (userResponse === 'confirm') {
     localStorage.removeItem(MISTAKES_STORAGE_KEY)
@@ -140,7 +142,7 @@ async function handleExit() {
   <GameLayout>
     <template #left-panel>
       <div class="mistakes-list-container">
-        <h4>Работа над ошибками</h4>
+        <h4>{{ t('tornado.mistakes.title') }}</h4>
         <div class="mistakes-list-scrollable">
           <div v-for="(puzzle) in unsolvedMistakes" :key="puzzle.PuzzleId" class="mistake-item" :class="{
             active: puzzle.PuzzleId === selectedPuzzleId,
@@ -151,7 +153,7 @@ async function handleExit() {
 
           </div>
           <div v-if="mistakes.length === 0" class="no-mistakes">
-            В последней сессии не было ошибок!
+            {{ t('tornado.mistakes.feedback.noMistakes') }}
           </div>
         </div>
       </div>
@@ -165,14 +167,14 @@ async function handleExit() {
 
         <div class="action-buttons">
           <button @click="showAnalysis" :disabled="!isAttemptMade" class="action-btn analysis-btn">
-            Анализ
+            {{ t('tornado.mistakes.ui.analysisButton') }}
           </button>
           <button @click="selectNextUnsolvedPuzzle" :disabled="unsolvedMistakes.length <= 1 || allMistakesSolved"
             class="action-btn next-btn">
-            Следующая
+            {{ t('tornado.mistakes.ui.nextButton') }}
           </button>
           <button @click="handleExit" class="action-btn exit-btn">
-            Выйти
+            {{ t('tornado.mistakes.ui.exitButton') }}
           </button>
         </div>
 

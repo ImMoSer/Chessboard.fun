@@ -219,12 +219,7 @@
       "advancedPawn": "Advanced Pawn",
       "promotion": "Promotion",
       "backRankMate": "Back-Rank Mate",
-      "mateIn1": "Mate in 1",
-      "mateIn2": "Mate in 2",
-      "mateIn3": "Mate in 3+",
-      "opening": "Opening",
-      "middlegame": "Middlegame",
-      "endgame": "Endgame"
+      "mate": "Mate"
     },
     "controls": {
       "levelTitle": "Difficulty",
@@ -555,7 +550,6 @@
       "lcZero": {
         "title": "Leela Chess Zero (LCZero)",
         "text": "To run Maia Chess neural network weights, the server uses the **Leela Chess Zero** engine, another powerful open-source neural network chess engine. Many thanks to the Leela Chess Zero community for this incredible project.",
-
         "links": {
           "website": "Website",
           "github": "GitHub"
@@ -594,5 +588,56 @@
       "separator": ": "
     },
     "footerNote": "Made with ❤️ for chess enthusiasts everywhere"
+  },
+  "tornado": {
+    "selection": {
+      "title": "Select a game mode"
+    },
+    "feedback": {
+      "selectMode": "Select a mode to begin.",
+      "loadingFirstPuzzle": "Loading the first puzzle...",
+      "yourTurn": "Your turn! Find the best move.",
+      "loadingFailed": "Failed to get the next puzzle.",
+      "startFailed": "Failed to start the session.",
+      "sessionEnded": "Session ended. Your final rating: {rating}"
+    },
+    "sessionEnd": {
+      "title": "Session ended",
+      "message": "Your final rating: {rating}",
+      "newSession": "New session",
+      "exit": "Exit",
+      "mistakes": "Mistakes"
+    },
+    "mistakes": {
+      "title": "Work on mistakes",
+      "feedback": {
+        "selectPuzzle": "Select a puzzle to start.",
+        "yourTurn": "Your turn. Try again!",
+        "solved": "Great! The puzzle is solved correctly.",
+        "wrongMove": "Incorrect. Try to analyze the position.",
+        "allSolved": "Congratulations! All mistakes are corrected.",
+        "noMistakes": "No mistakes in the last session!"
+      },
+      "ui": {
+      "analysisButton": "Analysis",
+      "nextButton": "Next",
+      "exitButton": "Exit"
+      },
+      "exit": {
+        "title": "Exit mode",
+        "message": "Are you sure you want to exit? The list of unsolved puzzles will be cleared."
+      }
+    },
+    "leaderboard": {
+      "highScore": "High Score"
+    },
+    "stats": {
+      "title": "Your Statistics",
+      "rating": "Rating",
+      "theme": "Theme"
+    },
+    "ui": {
+      "ratingLabel": "Rating"
+    }
   }
 }

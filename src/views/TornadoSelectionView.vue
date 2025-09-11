@@ -1,9 +1,11 @@
 <!-- src/views/TornadoSelectionView.vue -->
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { type TornadoMode } from '@/types/api.types'
 
 const router = useRouter()
+const { t } = useI18n()
 
 interface Mode {
   id: TornadoMode
@@ -26,7 +28,7 @@ const selectMode = (modeId: TornadoMode) => {
 <template>
   <div class="selection-wrapper">
     <div class="title-container">
-      <h2 class="title">Выберите режим игры</h2>
+      <h2 class="title">{{ t('tornado.selection.title') }}</h2>
     </div>
 
     <div class="modes-container">

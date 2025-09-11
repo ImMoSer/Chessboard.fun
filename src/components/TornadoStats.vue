@@ -3,9 +3,11 @@
 import { useTornadoStore } from '@/stores/tornado.store'
 import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const tornadoStore = useTornadoStore()
 const { themeRatings } = storeToRefs(tornadoStore)
+const { t } = useI18n()
 
 const tacticalThemes = [
   'mate',
@@ -46,13 +48,13 @@ const sortedThemeStats = computed(() => {
 
 <template>
   <div class="stats-container">
-    <h4 class="stats-title">Тематические рейтинги</h4>
+    <h4 class="stats-title">{{ t('tornado.stats.title') }}</h4>
     <div class="theme-stats-table-wrapper">
       <table class="theme-stats-table">
         <thead>
           <tr>
-            <th>Тема</th>
-            <th>Рейтинг</th>
+            <th>{{ t('tornado.stats.theme') }}</th>
+            <th>{{ t('tornado.stats.rating') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -78,6 +80,7 @@ const sortedThemeStats = computed(() => {
   height: 100%;
   box-sizing: border-box;
 }
+
 .stats-title {
   margin: 0 0 10px 0;
   text-align: center;
@@ -87,31 +90,37 @@ const sortedThemeStats = computed(() => {
   border-bottom: 1px solid var(--color-border-hover);
   padding-bottom: 8px;
 }
+
 .theme-stats-table-wrapper {
   flex-grow: 1;
   overflow-y: auto;
   min-height: 0;
 }
+
 .theme-stats-table {
   width: 100%;
   border-collapse: collapse;
   font-size: var(--font-size-small);
 }
+
 .theme-stats-table th,
 .theme-stats-table td {
   padding: 6px 4px;
   text-align: left;
   border-bottom: 1px solid var(--color-border);
 }
+
 .theme-stats-table th {
   color: var(--color-text-muted);
   position: sticky;
   top: 0;
   background-color: var(--color-bg-secondary);
 }
+
 .theme-name {
   font-weight: bold;
 }
+
 .theme-rating {
   text-align: right;
   white-space: nowrap;

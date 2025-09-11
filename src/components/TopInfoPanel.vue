@@ -9,6 +9,9 @@ import { useTornadoStore } from '@/stores/tornado.store'
 import { useControlsStore } from '@/stores/controls.store'
 import FinishHimSelection from '@/components/FinishHimSelection.vue'
 import EngineSelector from '@/components/EngineSelector.vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const route = useRoute()
 const finishHimStore = useFinishHimStore()
@@ -47,7 +50,7 @@ const containerClass = computed(() => {
     <!-- Таймер для всех режимов, кроме выбора Торнадо -->
     <div v-if="route.name !== 'tornado-selection'" class="timer-container">
       <span v-if="route.name === 'tornado'" class="session-rating-label">
-        Рейтинг: {{ tornadoStore.sessionRating }}
+        {{ t('tornado.ui.ratingLabel') }}: {{ tornadoStore.sessionRating }}
       </span>
       {{ formattedTimer }}
     </div>
@@ -76,11 +79,13 @@ const containerClass = computed(() => {
 
 /* Макеты под разные режимы */
 .top-info-panel-container.mode-default {
-  grid-template-columns: 1fr 1fr; /* attack, tower */
+  grid-template-columns: 1fr 1fr;
+  /* attack, tower */
 }
 
 .top-info-panel-container.mode-finish-him {
-  grid-template-columns: 1fr 2fr 2fr; /* Centered middle column */
+  grid-template-columns: 1fr 2fr 2fr;
+  /* Centered middle column */
 }
 
 .top-info-panel-container.mode-tornado {
@@ -119,16 +124,18 @@ const containerClass = computed(() => {
 
 @media (orientation: portrait) {
   .top-info-panel-container.mode-finish-him {
-    grid-template-columns: 1fr 2fr 2fr; /* Centered middle column */
+    grid-template-columns: 1fr 2fr 2fr;
+    /* Centered middle column */
   }
+
   .timer-container {
     flex-direction: column;
     gap: 5px;
     font-size: var(--font-size-large);
   }
+
   .session-rating-label {
     font-size: var(--font-size-base);
   }
 }
 </style>
-

@@ -219,12 +219,7 @@
       "advancedPawn": "Freibauer",
       "promotion": "Umwandlung",
       "backRankMate": "Grundreihenmatt",
-      "mateIn1": "Matt in 1",
-      "mateIn2": "Matt in 2",
-      "mateIn3": "Matt in 3+",
-      "opening": "Eröffnung",
-      "middlegame": "Mittelspiel",
-      "endgame": "Endspiel"
+      "mate": "Matt"
     },
     "controls": {
       "levelTitle": "Schwierigkeit",
@@ -362,16 +357,16 @@
     },
     "error": {
       "dataLoadFailedOrNotRegistered": "Daten für Club {clubId} konnten nicht geladen werden oder der Club ist nicht registriert.",
-      "unknown": "Ein unbekannter Fehler ist aufgetreten.",
-      "noDataFound": "Keine Daten für Club-ID gefunden: {clubId}",
-      "clubNotRegisteredModal": {
-        "message": "Club \"{clubId}\" ist nicht registriert. Um den Club zu registrieren, kontaktieren Sie bitte die Administration unter: https://chessboard.fun"
-      },
-      "profileNotFound": "Benutzerprofil nicht gefunden. Bitte versuchen Sie erneut, sich anzumelden.",
-      "followCooldown": "Sie können Ihren Follow-Status in {minutes} Minuten wieder ändern.",
-      "followFailed": "Follow-Status konnte nicht aktualisiert werden. Bitte versuchen Sie es erneut.",
-      "followRequestFailed": "Bei der Follow/Unfollow-Anfrage ist ein Fehler aufgetreten."
-    }
+      "unknown": "Ein unbekannter Fehler ist aufgetreten."
+    },
+    "noDataFound": "Keine Daten für Club-ID gefunden: {clubId}",
+    "clubNotRegisteredModal": {
+      "message": "Club \"{clubId}\" ist nicht registriert. Um den Club zu registrieren, kontaktieren Sie bitte die Administration unter: https://chessboard.fun"
+    },
+    "profileNotFound": "Benutzerprofil nicht gefunden. Bitte versuchen Sie erneut, sich anzumelden.",
+    "followCooldown": "Sie können Ihren Follow-Status in {minutes} Minuten wieder ändern.",
+    "followFailed": "Follow-Status konnte nicht aktualisiert werden. Bitte versuchen Sie es erneut.",
+    "followRequestFailed": "Bei der Follow/Unfollow-Anfrage ist ein Fehler aufgetreten."
   },
   "userCabinet": {
     "title": "Profil",
@@ -582,7 +577,7 @@
       "photoAlt": "Autorenfoto",
       "title": "Ein paar Worte vom Autor",
       "bioPart1": "Hallo! Mein Name ist Moser. Ich wurde 1985 in Kasachstan geboren und lebe seit 2003 in Deutschland.",
-      "bioPart2": "Von Beruf bin ich Maschinenbauingenieur, aber meine Leidenschaft gilt seit jeher dem Schach. Dieses Projekt ist ein lang gehegter Traum von mir, ein bequemes Trainingswerkzeug zu schaffen, was dank moderner Technologien wie KI und der n8n-Plattform möglich wurde.",
+      "bioPart2": "Von Beruf bin ich Maschinenbauingenieur, aber meine Leidenschaft gilt seit jeher dem Schach. Dieses Projekt - meine lang gehegte Traum, eine bequeme Trainingswerkzeug zu schaffen, welche modern Technologien wie AI und n8n-Plattform möglich gemacht haben.",
       "bioPart3": "Ich spreche fließend Russisch und Deutsch sowie etwas Englisch. Vielen Dank, dass Sie Chessboard.fun nutzen!",
       "supportButtonText": "Kauf mir einen Kaffee"
     },
@@ -593,5 +588,57 @@
       "separator": ": "
     },
     "footerNote": "Mit ❤️ für Schachbegeisterte überall gemacht"
+  },
+  "tornado": {
+    "selection": {
+      "title": "Wählen Sie einen Spielmodus"
+    },
+    "feedback": {
+      "selectMode": "Wählen Sie einen Modus, um zu beginnen.",
+      "loadingFirstPuzzle": "Lade die erste Aufgabe...",
+      "yourTurn": "Sie sind am Zug! Finden Sie den besten Zug.",
+      "loadingFailed": "Fehler beim Abrufen der nächsten Aufgabe.",
+      "startFailed": "Fehler beim Starten der Sitzung.",
+      "sessionEnded": "Sitzung beendet. Ihre endgültige Wertung: {rating}"
+    },
+    "sessionEnd": {
+      "title": "Sitzung beendet",
+      "message": "Ihre endgültige Wertung: {rating}",
+      "newSession": "Neue Sitzung",
+      "exit": "Verlassen",
+      "mistakes": "Fehler Analysieren"
+    },
+    "mistakes": {
+      "title": "Fehleranalyse",
+      "feedback": {
+        "selectPuzzle": "Wählen Sie eine Aufgabe zum Starten.",
+        "yourTurn": "Sie sind am Zug. Versuchen Sie es erneut!",
+        "solved": "Großartig! Die Aufgabe wurde korrekt gelöst.",
+        "wrongMove": "Falsch. Versuchen Sie, die Stellung zu analysieren.",
+        "allSolved": "Herzlichen Glückwunsch! Alle Fehler sind korrigiert.",
+        "noMistakes": "Keine Fehler in der letzten Sitzung!"
+      },
+      "ui": {
+      "analysisButton": "Analyse",
+      "nextButton": "Nächste",
+      "exitButton": "Verlassen",
+      "ratingLabel": "Rating"
+      },
+      "exit": {
+        "title": "Modus verlassen",
+        "message": "Sind Sie sicher, dass Sie den Modus verlassen möchten? Die Liste der ungelösten Aufgaben wird gelöscht."
+      }
+    },
+    "leaderboard": {
+      "highScore": "Höchstpunktzahl"
+    },
+    "stats": {
+      "title": "Ihre Statistiken",
+      "rating": "Bewertung",
+      "theme": "Thema"
+    },
+    "ui": {
+      "ratingLabel": "Rating"
+    }
   }
 }

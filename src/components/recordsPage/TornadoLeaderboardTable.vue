@@ -28,11 +28,11 @@ const TORNADO_DEFINITIONS: {
   name: string
   icon: string
 }[] = [
-  { id: 'bullet', name: 'Bullet', icon: 'bullet.svg' },
-  { id: 'blitz', name: 'Blitz', icon: 'blitz.svg' },
-  { id: 'rapid', name: 'Rapid', icon: 'rapid.svg' },
-  { id: 'classic', name: 'Classic', icon: 'classical.svg' },
-]
+    { id: 'bullet', name: 'Bullet', icon: 'bullet.svg' },
+    { id: 'blitz', name: 'Blitz', icon: 'blitz.svg' },
+    { id: 'rapid', name: 'Rapid', icon: 'rapid.svg' },
+    { id: 'classic', name: 'Classic', icon: 'classical.svg' },
+  ]
 
 const tierToPieceMap: { [key: string]: string } = {
   Pawn: 'wP.svg',
@@ -59,14 +59,12 @@ const getSubscriptionIcon = (tier?: string) => {
         <tr>
           <th class="text-center">{{ t('records.table.rank') }}</th>
           <th class="text-left">{{ t('records.table.player') }}</th>
-          <th class="text-right">HighScore</th>
+          <th class="text-right">{{ t('tornado.leaderboard.highScore') }}</th>
           <th class="text-right">{{ t('records.table.daysOld') }}</th>
         </tr>
       </thead>
       <tbody v-for="modeDef in TORNADO_DEFINITIONS" :key="modeDef.id">
-        <template
-          v-if="tornadoData && tornadoData[modeDef.id] && tornadoData[modeDef.id]!.length > 0"
-        >
+        <template v-if="tornadoData && tornadoData[modeDef.id] && tornadoData[modeDef.id]!.length > 0">
           <tr class="records-page__table-section-header" :class="`header--${modeDef.id}`">
             <th colspan="4">
               <img :src="`/timeControls/${modeDef.icon}`" class="mode-icon" />
@@ -76,12 +74,9 @@ const getSubscriptionIcon = (tier?: string) => {
           <tr v-for="entry in tornadoData[modeDef.id]" :key="entry.lichess_id">
             <td class="text-center">{{ entry.rank }}</td>
             <td class="text-left">
-              <img
-                v-if="getSubscriptionIcon(entry.subscriptionTier)"
-                :src="getSubscriptionIcon(entry.subscriptionTier)!"
-                class="records-page__sub-icon"
-                :alt="entry.subscriptionTier || 'N/A'"
-              />
+              <img v-if="getSubscriptionIcon(entry.subscriptionTier)"
+                :src="getSubscriptionIcon(entry.subscriptionTier)!" class="records-page__sub-icon"
+                :alt="entry.subscriptionTier || 'N/A'" />
               <a :href="`https://lichess.org/@/${entry.lichess_id}`" target="_blank">{{
                 entry.username
               }}</a>
@@ -105,6 +100,7 @@ const getSubscriptionIcon = (tier?: string) => {
   display: flex;
   flex-direction: column;
 }
+
 .records-page__table-title {
   color: var(--color-bg-primary);
   font-size: var(--font-size-large);
@@ -114,45 +110,55 @@ const getSubscriptionIcon = (tier?: string) => {
   border-bottom: 1px solid var(--color-border-hover);
   font-weight: var(--font-weight-bold);
 }
+
 .tornadoLeaderboard .records-page__table-title {
   background-color: var(--color-accent-secondary);
 }
+
 .records-page__table {
   width: 100%;
   border-collapse: collapse;
   font-size: var(--font-size-base);
 }
+
 .records-page__table th,
 .records-page__table td {
   padding: 3px 3px;
   border-bottom: 1px solid var(--color-border);
   white-space: nowrap;
 }
+
 .records-page__table th {
   background-color: var(--color-bg-tertiary);
   color: var(--color-text-muted);
   font-weight: var(--font-weight-bold);
 }
+
 .records-page__table tbody tr:nth-child(even) {
   background-color: var(--color-bg-tertiary);
 }
+
 .records-page__table tbody tr:hover {
   background-color: var(--color-border-hover);
 }
+
 .records-page__table td a {
   color: var(--color-text-link);
   text-decoration: none;
   font-weight: var(--font-weight-bold);
 }
+
 .records-page__table td a:hover {
   text-decoration: underline;
 }
+
 .records-page__sub-icon {
   width: auto;
   height: 1.7em;
   vertical-align: -0.4em;
   margin-right: 6px;
 }
+
 .records-page__table-section-header th {
   font-size: var(--font-size-base);
   color: var(--color-text-default);
@@ -167,16 +173,20 @@ const getSubscriptionIcon = (tier?: string) => {
   justify-content: center;
   gap: 10px;
 }
+
 .mode-icon {
   height: 20px;
   width: auto;
 }
+
 .text-left {
   text-align: left;
 }
+
 .text-center {
   text-align: center;
 }
+
 .text-right {
   text-align: right;
 }
