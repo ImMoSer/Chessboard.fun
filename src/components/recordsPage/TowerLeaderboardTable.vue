@@ -7,7 +7,7 @@ import type { TowerLeaderboardEntry, TowerId } from '@/types/api.types'
 
 type TowerLeaderboards = { [key in TowerId]?: TowerLeaderboardEntry[] }
 
-const props = defineProps({
+defineProps({
   title: {
     type: String,
     required: true,
@@ -29,11 +29,11 @@ const TOWER_DEFINITIONS: {
   id: TowerId
   nameKey: string
 }[] = [
-  { id: 'CM', nameKey: 'tower.names.CM' },
-  { id: 'FM', nameKey: 'tower.names.FM' },
-  { id: 'IM', nameKey: 'tower.names.IM' },
-  { id: 'GM', nameKey: 'tower.names.GM' },
-]
+    { id: 'CM', nameKey: 'tower.names.CM' },
+    { id: 'FM', nameKey: 'tower.names.FM' },
+    { id: 'IM', nameKey: 'tower.names.IM' },
+    { id: 'GM', nameKey: 'tower.names.GM' },
+  ]
 
 const tierToPieceMap: { [key: string]: string } = {
   Pawn: 'wP.svg',
@@ -88,12 +88,9 @@ const handleChallengeClick = (towerId?: string) => {
           <tr v-for="entry in towerData[towerDef.id]" :key="entry.tower_id + entry.lichess_id">
             <td class="text-center">{{ entry.rank }}</td>
             <td class="text-left">
-              <img
-                v-if="getSubscriptionIcon(entry.subscriptionTier)"
-                :src="getSubscriptionIcon(entry.subscriptionTier)!"
-                class="records-page__sub-icon"
-                :alt="entry.subscriptionTier || 'N/A'"
-              />
+              <img v-if="getSubscriptionIcon(entry.subscriptionTier)"
+                :src="getSubscriptionIcon(entry.subscriptionTier)!" class="records-page__sub-icon"
+                :alt="entry.subscriptionTier || 'N/A'" />
               <a :href="`https://lichess.org/@/${entry.lichess_id}`" target="_blank">{{
                 entry.username
               }}</a>
@@ -101,10 +98,7 @@ const handleChallengeClick = (towerId?: string) => {
             <td class="text-right">{{ formatTime(entry.best_time) }}</td>
             <td class="text-right">{{ entry.days_old }}d</td>
             <td class="text-center">
-              <button
-                class="records-page__challenge-button"
-                @click="handleChallengeClick(entry.tower_id)"
-              >
+              <button class="records-page__challenge-button" @click="handleChallengeClick(entry.tower_id)">
                 {{ t('records.table.challenge') }}
               </button>
             </td>
@@ -126,6 +120,7 @@ const handleChallengeClick = (towerId?: string) => {
   display: flex;
   flex-direction: column;
 }
+
 .records-page__table-title {
   color: var(--color-bg-primary);
   font-size: var(--font-size-large);
@@ -135,45 +130,55 @@ const handleChallengeClick = (towerId?: string) => {
   border-bottom: 1px solid var(--color-border-hover);
   font-weight: var(--font-weight-bold);
 }
+
 .towerLeaderboard .records-page__table-title {
   background-color: var(--color-violett-lichess);
 }
+
 .records-page__table {
   width: 100%;
   border-collapse: collapse;
   font-size: var(--font-size-base);
 }
+
 .records-page__table th,
 .records-page__table td {
   padding: 3px 3px;
   border-bottom: 1px solid var(--color-border);
   white-space: nowrap;
 }
+
 .records-page__table th {
   background-color: var(--color-bg-tertiary);
   color: var(--color-text-muted);
   font-weight: var(--font-weight-bold);
 }
+
 .records-page__table tbody tr:nth-child(even) {
   background-color: var(--color-bg-tertiary);
 }
+
 .records-page__table tbody tr:hover {
   background-color: var(--color-border-hover);
 }
+
 .records-page__table td a {
   color: var(--color-text-link);
   text-decoration: none;
   font-weight: var(--font-weight-bold);
 }
+
 .records-page__table td a:hover {
   text-decoration: underline;
 }
+
 .records-page__sub-icon {
   width: auto;
   height: 1.7em;
   vertical-align: -0.4em;
   margin-right: 6px;
 }
+
 .records-page__table-section-header th {
   font-size: var(--font-size-base);
   color: var(--color-bg-primary);
@@ -183,18 +188,23 @@ const handleChallengeClick = (towerId?: string) => {
   border-bottom: 2px solid var(--color-bg-secondary);
   border-top: 2px solid var(--color-bg-secondary);
 }
+
 .header--CM th {
   background-color: var(--color-accent-primary);
 }
+
 .header--FM th {
   background-color: var(--color-accent-success);
 }
+
 .header--IM th {
   background-color: var(--color-accent-warning);
 }
+
 .header--GM th {
   background-color: var(--color-accent-error);
 }
+
 .records-page__challenge-button {
   background-color: var(--color-accent-success);
   color: var(--color-text-dark);
@@ -206,16 +216,20 @@ const handleChallengeClick = (towerId?: string) => {
   cursor: pointer;
   transition: all 0.2s ease;
 }
+
 .records-page__challenge-button:hover:not(:disabled) {
   background-color: var(--color-accent-success-hover);
   transform: translateY(-1px);
 }
+
 .text-left {
   text-align: left;
 }
+
 .text-center {
   text-align: center;
 }
+
 .text-right {
   text-align: right;
 }

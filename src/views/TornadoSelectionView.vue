@@ -48,7 +48,6 @@ const selectMode = (modeId: TornadoMode) => {
   align-items: center;
   justify-content: center;
   padding: 20px;
-  min-height: 100vh;
   width: 100%;
 }
 
@@ -61,7 +60,7 @@ const selectMode = (modeId: TornadoMode) => {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   border: 1px solid var(--color-accent-warning);
   width: 100%;
-  max-width: 820px;
+  max-width: 700px;
 }
 
 .title {
@@ -81,7 +80,7 @@ const selectMode = (modeId: TornadoMode) => {
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
   border: 1px solid var(--color-accent-warning);
   width: 100%;
-  max-width: 820px;
+  max-width: 700px;
 }
 
 .modes-grid {

@@ -104,7 +104,6 @@ export interface ThemeRating {
   volatility: number;
 }
 
-// --- НАЧАЛО ИЗМЕНЕНИЙ ---
 export interface TornadoNextPuzzleDto {
   sessionId: string;
   lastPuzzleId: string;
@@ -123,7 +122,6 @@ export interface TornadoStartResponse {
   sessionId: string;
   sessionRating: number;
 }
-// --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
 
 export interface TornadoNextResponse {
@@ -133,7 +131,8 @@ export interface TornadoNextResponse {
   userStatsUpdate?: UserStatsUpdate;
 }
 
-export interface TornadoEndResponse {
+// --- ИЗМЕНЕНИЕ: Переименовано в TornadoRecord ---
+export interface TornadoRecord {
   id: string;
   userId: string;
   username: string;
@@ -141,6 +140,13 @@ export interface TornadoEndResponse {
   highScore: number;
   achievedAt: string;
 }
+
+// --- ИЗМЕНЕНИЕ: Новый тип для ответа API ---
+export interface TornadoEndResponse {
+  record: TornadoRecord;
+  userStatsUpdate?: UserStatsUpdate;
+}
+
 // --- END TORNADO ---
 
 
@@ -517,7 +523,7 @@ export interface ActivityPeriodStats {
   tower: ActivityModeStats;
   attack: ActivityModeStats;
   finishHim: ActivityModeStats;
-  tacticalTrainer: ActivityModeStats;
+  tornado: ActivityModeStats;
 }
 
 export interface PersonalActivityStatsResponse {
@@ -548,16 +554,7 @@ export interface LichessUserProfile {
   };
 }
 
-export interface FinishHimStats {
-  gamesPlayed: number;
-  tacticalRating: number;
-  tacticalWins: number;
-  tacticalLosses: number;
-  finishHimRating: number;
-  playoutWins: number;
-  playoutDraws: number;
-  playoutLosses: number;
-}
+// --- ИЗМЕНЕНИЕ: Тип FinishHimStats удален ---
 
 export interface TowerAttempt {
   versuch: number;
@@ -600,6 +597,15 @@ export interface UserStatsUpdate {
   endgame_skill: number;
   attack_skill: number;
   today_activity: TodayActivity;
+  // --- ИЗМЕНЕНИЕ: Добавлены новые опциональные поля ---
+  attackRating?: { rating: number };
+  finishHimRating?: { rating: number };
+  tornadoHighScores?: {
+    blitz?: number;
+    rapid?: number;
+    bullet?: number;
+    classic?: number;
+  };
 }
 
 export interface GameResultResponse {
@@ -612,9 +618,7 @@ export interface GameResultResponse {
 export interface UserSessionProfile extends LichessUserProfile {
   FunCoins: number;
   subscriptionTier: SubscriptionTier;
-  finishHimStats: FinishHimStats;
-  tower_stats?: TowerStats;
-  attack_stats?: AttackStat[];
+  // --- ИЗМЕНЕНИЕ: Удалены старые поля статистики ---
   follow_clubs?: ClubIdNamePair[];
   club_founder?: ClubIdNamePair[];
   validatedAt?: number;
@@ -623,6 +627,15 @@ export interface UserSessionProfile extends LichessUserProfile {
   endgame_skill: number;
   attack_skill: number;
   today_activity?: TodayActivity;
+  // --- ИЗМЕНЕНИЕ: Добавлены новые поля рейтинга и рекордов ---
+  attackRating?: { rating: number };
+  finishHimRating?: { rating: number };
+  tornadoHighScores?: {
+    blitz?: number;
+    rapid?: number;
+    bullet?: number;
+    classic?: number;
+  };
 }
 
 export interface AuthState {

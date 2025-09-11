@@ -86,23 +86,13 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
 
     <div class="center-column" ref="centerColumnRef">
       <div class="board-aspect-wrapper">
-        <Chessboard
-          :fen="boardStore.fen"
-          :orientation="boardStore.orientation"
-          :turn-color="boardStore.turn"
-          :dests="boardStore.dests"
-          :last-move="boardStore.lastMove"
-          :check="boardStore.isCheck"
-          :promotion-state="boardStore.promotionState"
-          :drawable-shapes="boardStore.drawableShapes"
-          :is-analysis-mode="boardStore.isAnalysisModeActive"
-          :animation-enabled="isAnimationEnabled"
-          :animation-duration="themeStore.currentTheme.animationDuration"
-          @user-move="handleUserMove"
-          @complete-promotion="boardStore.completePromotion"
-          @cancel-promotion="boardStore.cancelPromotion"
-          @wheel-navigate="handleBoardWheel"
-        />
+        <Chessboard :fen="boardStore.fen" :orientation="boardStore.orientation" :turn-color="boardStore.turn"
+          :dests="boardStore.dests" :last-move="boardStore.lastMove" :check="boardStore.isCheck"
+          :promotion-state="boardStore.promotionState" :drawable-shapes="boardStore.drawableShapes"
+          :is-analysis-mode="boardStore.isAnalysisModeActive" :animation-enabled="isAnimationEnabled"
+          :animation-duration="themeStore.currentTheme.animationDuration" @user-move="handleUserMove"
+          @complete-promotion="boardStore.completePromotion" @cancel-promotion="boardStore.cancelPromotion"
+          @wheel-navigate="handleBoardWheel" />
         <slot name="center-column"></slot>
       </div>
       <div class="board-resizer" @mousedown="startResize"></div>
@@ -205,6 +195,7 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
     display: none;
   }
 }
+
 .top-left,
 .top-right {
   background-color: var(--color-bg-secondary);
@@ -239,6 +230,7 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
   .left-panel {
     order: 3;
   }
+
   .game-layout {
     display: flex;
     flex-direction: column;
@@ -300,7 +292,7 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
   .left-panel {
     width: 100%;
     margin: 0;
-    min-height: 150px;
+    min-height: 50px;
     max-height: 1000px;
     flex-shrink: 0;
     overflow-y: auto;

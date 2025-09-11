@@ -35,7 +35,7 @@ const selectedPuzzle = computed(() => {
 })
 
 const unsolvedMistakes = computed(() => {
-  return mistakes.value.filter(p => !solvedStatus.value[p.PuzzleId]);
+  return mistakes.value.filter((p) => !solvedStatus.value[p.PuzzleId])
 })
 
 const allMistakesSolved = computed(() => {
@@ -68,18 +68,21 @@ function handlePuzzleResult(isCorrect: boolean) {
   if (isCorrect) {
     solvedStatus.value[selectedPuzzle.value.PuzzleId] = true
     feedbackMessage.value = t('tornado.mistakes.feedback.solved')
-    soundService.playSound('game_tacktics_success');
+    soundService.playSound('game_tacktics_success')
   } else {
     feedbackMessage.value = t('tornado.mistakes.feedback.wrongMove')
-    soundService.playSound('game_tacktics_error');
+    soundService.playSound('game_tacktics_error')
   }
 }
 
 function selectNextUnsolvedPuzzle() {
   const currentIndex = mistakes.value.findIndex((p) => p.PuzzleId === selectedPuzzleId.value)
-  const nextPuzzles = [...mistakes.value.slice(currentIndex + 1), ...mistakes.value.slice(0, currentIndex + 1)]
+  const nextPuzzles = [
+    ...mistakes.value.slice(currentIndex + 1),
+    ...mistakes.value.slice(0, currentIndex + 1),
+  ]
 
-  const nextUnsolved = nextPuzzles.find(p => !solvedStatus.value[p.PuzzleId])
+  const nextUnsolved = nextPuzzles.find((p) => !solvedStatus.value[p.PuzzleId])
 
   if (nextUnsolved) {
     selectPuzzle(nextUnsolved)
@@ -144,13 +147,12 @@ async function handleExit() {
       <div class="mistakes-list-container">
         <h4>{{ t('tornado.mistakes.title') }}</h4>
         <div class="mistakes-list-scrollable">
-          <div v-for="(puzzle) in unsolvedMistakes" :key="puzzle.PuzzleId" class="mistake-item" :class="{
+          <div v-for="puzzle in unsolvedMistakes" :key="puzzle.PuzzleId" class="mistake-item" :class="{
             active: puzzle.PuzzleId === selectedPuzzleId,
             solved: solvedStatus[puzzle.PuzzleId],
             unsolved: !solvedStatus[puzzle.PuzzleId],
           }" @click="selectPuzzle(puzzle)">
             <ChessboardPreview :fen="puzzle.FEN_0" orientation="white" />
-
           </div>
           <div v-if="mistakes.length === 0" class="no-mistakes">
             {{ t('tornado.mistakes.feedback.noMistakes') }}
@@ -159,12 +161,14 @@ async function handleExit() {
       </div>
     </template>
 
+    <template #top-info>
+      <div class="top-feedback-panel">
+        {{ feedbackMessage }}
+      </div>
+    </template>
+
     <template #right-panel>
       <div class="controls-container">
-        <div class="feedback-panel">
-          {{ feedbackMessage }}
-        </div>
-
         <div class="action-buttons">
           <button @click="showAnalysis" :disabled="!isAttemptMade" class="action-btn analysis-btn">
             {{ t('tornado.mistakes.ui.analysisButton') }}
@@ -211,13 +215,14 @@ h4 {
 }
 
 .mistake-item {
-  /* ...остальные стили... */
-  width: calc((100% - 15px) / 2);
-  /* Ширина под два столбца с учетом gap */
+  width: calc((100% - 30px) / 2);
   aspect-ratio: 1 / 1;
   flex-shrink: 0;
+  cursor: pointer;
+  border-radius: var(--panel-border-radius);
+  transition: all 0.2s ease-in-out;
+  border: 2px solid var(--color-border);
 }
-
 
 .mistake-item:hover {
   transform: scale(1.01);
@@ -237,24 +242,6 @@ h4 {
   border-color: var(--color-accent-primary);
 }
 
-.puzzle-preview {
-  width: 100%;
-  display: block;
-}
-
-.puzzle-label {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: rgba(0, 0, 0, 0.7);
-  color: white;
-  padding: 5px;
-  text-align: center;
-  font-size: var(--font-size-small);
-  font-weight: bold;
-}
-
 .no-mistakes {
   text-align: center;
   color: var(--color-text-muted);
@@ -268,13 +255,16 @@ h4 {
   height: 100%;
 }
 
-.feedback-panel {
-  padding: 15px;
-  background-color: var(--color-bg-tertiary);
-  border-radius: var(--panel-border-radius);
-  text-align: center;
+.top-feedback-panel {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: var(--font-size-large);
   font-weight: bold;
-  min-height: 50px;
+  color: var(--color-accent-warning);
+  text-align: center;
 }
 
 .action-buttons {

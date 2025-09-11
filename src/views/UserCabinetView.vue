@@ -6,13 +6,7 @@ import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { useUserCabinetStore, type ActivityPeriod } from '@/stores/userCabinet.store'
-import type {
-  ClubIdNamePair,
-  TowerAttempt,
-  AttackStat,
-  TowerId,
-  LichessActivityEntry,
-} from '@/types/api.types'
+import type { TornadoMode } from '@/types/api.types'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -45,40 +39,8 @@ const formatTierExpireDate = (isoDate: string | null | undefined) => {
   return t('userCabinet.info.tierExpires', { date: date.toLocaleDateString() })
 }
 
-const sortedTowerStats = computed(() => {
-  if (!userProfile.value?.tower_stats) return []
-  const stats: { def: any; attempts: TowerAttempt[] }[] = []
-  const towerDefs: { id: TowerId; nameKey: string }[] = [
-    { id: 'CM', nameKey: 'tower.names.CM' },
-    { id: 'FM', nameKey: 'tower.names.FM' },
-    { id: 'IM', nameKey: 'tower.names.IM' },
-    { id: 'GM', nameKey: 'tower.names.GM' },
-  ]
-
-  towerDefs.forEach((def) => {
-    const attempts = userProfile.value?.tower_stats?.[def.id]
-    if (attempts) {
-      stats.push({ def, attempts })
-    }
-  })
-  return stats
-})
-
-const sortedAttackStats = computed(() => {
-  if (!userProfile.value?.attack_stats) return []
-  return [...userProfile.value.attack_stats].sort((a, b) => a.best_time - b.best_time)
-})
-
 const handleClubClick = (clubId: string) => {
   router.push({ name: 'clubs', params: { clubId } })
-}
-
-const handleTowerClick = (towerId: string) => {
-  router.push({ name: 'tower', params: { towerId } })
-}
-
-const handleAttackClick = (puzzleId: string) => {
-  router.push({ name: 'attack', params: { puzzleId } })
 }
 
 const formatLichessActivityDate = (timestamp: number) => {
@@ -94,6 +56,17 @@ const getRatingChange = (rp: { before: number; after: number }) => {
   const sign = diff > 0 ? '+' : ''
   return `${rp.before} → ${rp.after} (${sign}${diff})`
 }
+
+const sortedTornadoScores = computed(() => {
+  if (!userProfile.value?.tornadoHighScores) return []
+  const modes: TornadoMode[] = ['bullet', 'blitz', 'rapid', 'classic']
+  return modes
+    .map((mode) => ({
+      mode,
+      score: userProfile.value?.tornadoHighScores?.[mode],
+    }))
+    .filter((item): item is { mode: TornadoMode; score: number } => !!item.score && item.score > 0)
+})
 </script>
 
 <template>
@@ -122,15 +95,36 @@ const getRatingChange = (rp: { before: number; after: number }) => {
             <span class="user-cabinet__stat-value">{{ userProfile.id }}</span>
           </div>
           <div class="user-cabinet__stat-item">
-            <span class="user-cabinet__stat-label"
-              >{{ t('userCabinet.info.subscriptionTier') }}:</span
-            >
-            <span class="user-cabinet__stat-value"
-              >{{ userProfile.subscriptionTier }}
+            <span class="user-cabinet__stat-label">{{ t('userCabinet.info.subscriptionTier') }}:</span>
+            <span class="user-cabinet__stat-value">{{ userProfile.subscriptionTier }}
               <span class="tier-expire-date">{{
                 formatTierExpireDate(userProfile.TierExpire)
-              }}</span></span
-            >
+              }}</span></span>
+          </div>
+          <!-- Обновленные и новые поля -->
+          <div class="user-cabinet__stat-item">
+            <span class="user-cabinet__stat-label">{{
+              t('userCabinet.stats.endgameSkillLabel')
+            }}</span>
+            <span class="user-cabinet__stat-value">{{ userProfile.endgame_skill }}</span>
+          </div>
+          <div v-if="userProfile.finishHimRating" class="user-cabinet__stat-item">
+            <span class="user-cabinet__stat-label">{{
+              t('userCabinet.stats.finishHimRatingLabel')
+            }}</span>
+            <span class="user-cabinet__stat-value">{{ userProfile.finishHimRating.rating }}</span>
+          </div>
+          <div class="user-cabinet__stat-item">
+            <span class="user-cabinet__stat-label">{{
+              t('userCabinet.stats.attackSkillLabel')
+            }}</span>
+            <span class="user-cabinet__stat-value">{{ userProfile.attack_skill }}</span>
+          </div>
+          <div v-if="userProfile.attackRating" class="user-cabinet__stat-item">
+            <span class="user-cabinet__stat-label">{{
+              t('userCabinet.stats.attackRatingLabel')
+            }}</span>
+            <span class="user-cabinet__stat-value">{{ userProfile.attackRating.rating }}</span>
           </div>
         </div>
       </header>
@@ -141,11 +135,7 @@ const getRatingChange = (rp: { before: number; after: number }) => {
         <div v-if="userProfile.telegram_id" class="user-cabinet__telegram-status">
           ✅ {{ t('userCabinet.telegram.boundStatusSimple') }}
         </div>
-        <button
-          v-else
-          @click="userCabinetStore.handleTelegramBind"
-          class="user-cabinet__telegram-button"
-        >
+        <button v-else @click="userCabinetStore.handleTelegramBind" class="user-cabinet__telegram-button">
           {{ t('userCabinet.telegram.bindButton') }}
         </button>
       </section>
@@ -158,25 +148,16 @@ const getRatingChange = (rp: { before: number; after: number }) => {
         </div>
         <div v-else-if="personalActivityStats">
           <div class="stats-filters">
-            <button
-              class="filter-button"
-              :class="{ active: selectedActivityPeriod === 'daily' }"
-              @click="handlePeriodChange('daily')"
-            >
+            <button class="filter-button" :class="{ active: selectedActivityPeriod === 'daily' }"
+              @click="handlePeriodChange('daily')">
               {{ t('userCabinet.stats.periods.day') }}
             </button>
-            <button
-              class="filter-button"
-              :class="{ active: selectedActivityPeriod === 'weekly' }"
-              @click="handlePeriodChange('weekly')"
-            >
+            <button class="filter-button" :class="{ active: selectedActivityPeriod === 'weekly' }"
+              @click="handlePeriodChange('weekly')">
               {{ t('userCabinet.stats.periods.week') }}
             </button>
-            <button
-              class="filter-button"
-              :class="{ active: selectedActivityPeriod === 'monthly' }"
-              @click="handlePeriodChange('monthly')"
-            >
+            <button class="filter-button" :class="{ active: selectedActivityPeriod === 'monthly' }"
+              @click="handlePeriodChange('monthly')">
               {{ t('userCabinet.stats.periods.month') }}
             </button>
           </div>
@@ -191,11 +172,10 @@ const getRatingChange = (rp: { before: number; after: number }) => {
                 </tr>
               </thead>
               <tbody>
-                <tr
-                  v-for="mode in ['finishHim', 'attack', 'tower', 'tacticalTrainer'] as const"
-                  :key="mode"
-                >
-                  <td>{{ t(`userCabinet.stats.modes.${mode}`) }}</td>
+                <tr v-for="mode in ['finishHim', 'attack', 'tower', 'tornado'] as const" :key="mode">
+                  <td>
+                    {{ t(mode === 'tornado' ? 'nav.tornado' : `userCabinet.stats.modes.${mode}`) }}
+                  </td>
                   <td>
                     {{ personalActivityStats[selectedActivityPeriod][mode].puzzles_requested }}
                   </td>
@@ -231,11 +211,7 @@ const getRatingChange = (rp: { before: number; after: number }) => {
               </td>
               <td class="user-cabinet__activity-details">
                 <div v-if="entry.games">
-                  <div
-                    v-for="(stats, gameType) in entry.games"
-                    :key="gameType"
-                    class="activity-detail-item"
-                  >
+                  <div v-for="(stats, gameType) in entry.games" :key="gameType" class="activity-detail-item">
                     <strong>{{ gameType }}:</strong> {{ stats.win }}W / {{ stats.loss }}L /
                     {{ stats.draw }}D
                     <br />
@@ -255,90 +231,37 @@ const getRatingChange = (rp: { before: number; after: number }) => {
       </section>
 
       <!-- Club Activity Section -->
-      <section
-        v-if="userProfile.follow_clubs?.length || userProfile.club_founder?.length"
-        class="user-cabinet__club-activity-section"
-      >
+      <section v-if="userProfile.follow_clubs?.length || userProfile.club_founder?.length"
+        class="user-cabinet__club-activity-section">
         <h3 class="user-cabinet__section-title">{{ t('userCabinet.clubs.activityTitle') }}</h3>
-        <div
-          v-if="userProfile.follow_clubs && userProfile.follow_clubs.length > 0"
-          class="user-cabinet__club-list-section"
-        >
+        <div v-if="userProfile.follow_clubs && userProfile.follow_clubs.length > 0"
+          class="user-cabinet__club-list-section">
           <h4 class="user-cabinet__club-list-title">{{ t('userCabinet.clubs.followedClubs') }}</h4>
           <ul class="user-cabinet__club-list">
-            <li
-              v-for="club in userProfile.follow_clubs"
-              :key="club.club_id"
-              class="user-cabinet__club-list-item"
-            >
+            <li v-for="club in userProfile.follow_clubs" :key="club.club_id" class="user-cabinet__club-list-item">
               <a @click="handleClubClick(club.club_id)">{{ club.club_name }}</a>
             </li>
           </ul>
         </div>
-        <div
-          v-if="userProfile.club_founder && userProfile.club_founder.length > 0"
-          class="user-cabinet__club-list-section"
-        >
+        <div v-if="userProfile.club_founder && userProfile.club_founder.length > 0"
+          class="user-cabinet__club-list-section">
           <h4 class="user-cabinet__club-list-title">{{ t('userCabinet.clubs.founderOfClubs') }}</h4>
           <ul class="user-cabinet__club-list">
-            <li
-              v-for="club in userProfile.club_founder"
-              :key="club.club_id"
-              class="user-cabinet__club-list-item"
-            >
+            <li v-for="club in userProfile.club_founder" :key="club.club_id" class="user-cabinet__club-list-item">
               <a @click="handleClubClick(club.club_id)">{{ club.club_name }}</a>
             </li>
           </ul>
         </div>
       </section>
 
-      <!-- Tower Stats -->
-      <section
-        v-if="sortedTowerStats.length > 0"
-        class="user-cabinet__stats-section user-cabinet__stats-section--towers"
-      >
-        <h3 class="user-cabinet__section-title">{{ t('userCabinet.stats.towerTitle') }}</h3>
-        <div class="user-cabinet__tower-categories">
-          <div
-            v-for="cat in sortedTowerStats"
-            :key="cat.def.id"
-            class="user-cabinet__tower-category"
-          >
-            <h4 class="user-cabinet__tower-category-title">{{ t(cat.def.nameKey) }}</h4>
-            <ul class="user-cabinet__tower-list">
-              <li
-                v-for="attempt in cat.attempts"
-                :key="attempt.tower_id"
-                class="user-cabinet__tower-item"
-              >
-                <a @click="handleTowerClick(attempt.tower_id)">
-                  {{ t('userCabinet.stats.bestTime') }}: {{ attempt.best_time }}s ({{
-                    attempt.versuch
-                  }}
-                  {{ t('userCabinet.stats.attempts') }})
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      <!-- Attack Stats -->
-      <section
-        v-if="sortedAttackStats.length > 0"
-        class="user-cabinet__stats-section user-cabinet__stats-section--attack"
-      >
-        <h3 class="user-cabinet__section-title">{{ t('userCabinet.stats.attackTitle') }}</h3>
-        <ul class="user-cabinet__attack-list">
-          <li
-            v-for="stat in sortedAttackStats"
-            :key="stat.PuzzleId"
-            class="user-cabinet__attack-item"
-          >
-            <a @click="handleAttackClick(stat.PuzzleId)">
-              {{ t('userCabinet.stats.puzzle') }}: {{ stat.PuzzleId }} |
-              {{ t('userCabinet.stats.bestTime') }}: {{ stat.best_time }}s
-            </a>
+      <!-- Tornado Stats -->
+      <section v-if="sortedTornadoScores.length > 0"
+        class="user-cabinet__stats-section user-cabinet__stats-section--tornado">
+        <h3 class="user-cabinet__section-title">{{ t('userCabinet.stats.tornadoTitle') }}</h3>
+        <ul class="user-cabinet__tornado-list">
+          <li v-for="stat in sortedTornadoScores" :key="stat.mode" class="user-cabinet__tornado-item">
+            <span class="mode">{{ stat.mode }}</span>
+            <span class="score">{{ stat.score }}</span>
           </li>
         </ul>
       </section>
@@ -350,14 +273,14 @@ const getRatingChange = (rp: { before: number; after: number }) => {
 /* src/features/userCabinet/userCabinet.css */
 
 .user-cabinet-container {
-  padding: 20px;
+  padding: 5px;
   box-sizing: border-box;
   background-color: var(--color-bg-secondary);
   color: var(--color-text-default);
   display: flex;
   flex-direction: column;
-  gap: 25px;
-  width: 70vw;
+  gap: 15px;
+  max-width: 70vw;
   max-width: 1200px;
   margin: 20px auto;
   border-radius: var(--panel-border-radius);
@@ -464,7 +387,8 @@ const getRatingChange = (rp: { before: number; after: number }) => {
 }
 
 .user-cabinet__telegram-section .user-cabinet__section-title {
-  color: #2aabee; /* Telegram blue */
+  color: #2aabee;
+  /* Telegram blue */
 }
 
 .user-cabinet__telegram-button {
@@ -574,6 +498,7 @@ const getRatingChange = (rp: { before: number; after: number }) => {
 .user-cabinet__club-list-section {
   margin-bottom: 15px;
 }
+
 .user-cabinet__club-list-section:last-child {
   margin-bottom: 0;
 }
@@ -617,88 +542,38 @@ const getRatingChange = (rp: { before: number; after: number }) => {
   border-color: var(--color-accent-primary);
 }
 
-.user-cabinet__stats-section--towers .user-cabinet__section-title {
-  color: var(--color-violett-lichess);
+.user-cabinet__stats-section--tornado .user-cabinet__section-title {
+  color: var(--color-accent-secondary);
 }
 
-.user-cabinet__tower-categories {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 15px;
-}
-
-.user-cabinet__tower-category {
-  background-color: var(--color-bg-secondary);
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid var(--color-border-hover);
-}
-
-.user-cabinet__tower-category-title {
-  font-size: var(--font-size-large);
-  color: var(--color-accent-primary);
-  margin: 0 0 10px 0;
-  text-align: center;
-  font-weight: bold;
-}
-
-.user-cabinet__tower-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.user-cabinet__tower-item a {
-  display: block;
-  background-color: var(--color-bg-tertiary);
-  padding: 8px;
-  border-radius: 4px;
-  color: var(--color-text-link);
-  text-decoration: none;
-  font-size: var(--font-size-small);
-  transition: all 0.2s ease;
-  border: 1px solid transparent;
-  cursor: pointer;
-}
-
-.user-cabinet__tower-item a:hover {
-  border-color: var(--color-accent-primary);
-  background-color: var(--color-border-hover);
-}
-
-.user-cabinet__stats-section--attack .user-cabinet__section-title {
-  color: var(--color-accent-warning);
-}
-
-.user-cabinet__attack-list {
+.user-cabinet__tornado-list {
   list-style: none;
   padding: 0;
   margin: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 10px;
 }
 
-.user-cabinet__attack-item a {
-  display: block;
+.user-cabinet__tornado-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   background-color: var(--color-bg-secondary);
-  padding: 10px;
+  padding: 10px 15px;
   border-radius: 6px;
-  color: var(--color-text-link);
-  text-decoration: none;
-  font-size: var(--font-size-small);
-  transition: all 0.2s ease;
   border: 1px solid var(--color-border-hover);
-  text-align: center;
-  cursor: pointer;
+  font-size: var(--font-size-base);
 }
 
-.user-cabinet__attack-item a:hover {
-  border-color: var(--color-accent-warning);
-  background-color: var(--color-border-hover);
+.user-cabinet__tornado-item .mode {
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+.user-cabinet__tornado-item .score {
+  font-weight: bold;
+  color: var(--color-accent-warning);
 }
 
 .user-cabinet__stats-section--lichess-activity .user-cabinet__section-title {
@@ -737,6 +612,7 @@ const getRatingChange = (rp: { before: number; after: number }) => {
 .user-cabinet__activity-details .rating-change .positive {
   color: var(--color-accent-success);
 }
+
 .user-cabinet__activity-details .rating-change .negative {
   color: var(--color-accent-error);
 }

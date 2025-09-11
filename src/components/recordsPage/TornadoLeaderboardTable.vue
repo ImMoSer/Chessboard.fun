@@ -26,12 +26,11 @@ const { t } = useI18n()
 const TORNADO_DEFINITIONS: {
   id: TornadoMode
   name: string
-  icon: string
 }[] = [
-    { id: 'bullet', name: 'Bullet', icon: 'bullet.svg' },
-    { id: 'blitz', name: 'Blitz', icon: 'blitz.svg' },
-    { id: 'rapid', name: 'Rapid', icon: 'rapid.svg' },
-    { id: 'classic', name: 'Classic', icon: 'classical.svg' },
+    { id: 'bullet', name: 'Bullet' },
+    { id: 'blitz', name: 'Blitz' },
+    { id: 'rapid', name: 'Rapid' },
+    { id: 'classic', name: 'Classic' },
   ]
 
 const tierToPieceMap: { [key: string]: string } = {
@@ -67,7 +66,6 @@ const getSubscriptionIcon = (tier?: string) => {
         <template v-if="tornadoData && tornadoData[modeDef.id] && tornadoData[modeDef.id]!.length > 0">
           <tr class="records-page__table-section-header" :class="`header--${modeDef.id}`">
             <th colspan="4">
-              <img :src="`/timeControls/${modeDef.icon}`" class="mode-icon" />
               {{ modeDef.name }}
             </th>
           </tr>
@@ -112,7 +110,7 @@ const getSubscriptionIcon = (tier?: string) => {
 }
 
 .tornadoLeaderboard .records-page__table-title {
-  background-color: var(--color-accent-secondary);
+  background-color: var(--color-accent-error-hover);
 }
 
 .records-page__table {
@@ -161,22 +159,28 @@ const getSubscriptionIcon = (tier?: string) => {
 
 .records-page__table-section-header th {
   font-size: var(--font-size-base);
-  color: var(--color-text-default);
+  color: var(--color-bg-primary);
   padding: 8px 10px;
   text-align: center;
   font-weight: var(--font-weight-bold);
   border-bottom: 2px solid var(--color-bg-secondary);
   border-top: 2px solid var(--color-bg-secondary);
-  background-color: var(--color-bg-tertiary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
 }
 
-.mode-icon {
-  height: 20px;
-  width: auto;
+.header--bullet th {
+  background-color: var(--color-accent-primary);
+}
+
+.header--blitz th {
+  background-color: var(--color-accent-success);
+}
+
+.header--rapid th {
+  background-color: var(--color-accent-warning);
+}
+
+.header--classic th {
+  background-color: var(--color-accent-error);
 }
 
 .text-left {

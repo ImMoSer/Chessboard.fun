@@ -26,11 +26,27 @@ const timeControls: Record<TornadoMode, { initial: number; increment: number }> 
 }
 
 const officialThemes = new Set([
-  "mate", "fork", "sacrifice", "pin", "attraction", "discoveredAttack",
-  "advancedPawn", "deflection", "skewer", "promotion", "quietMove",
-  "trappedPiece", "clearance", "intermezzo", "capturingDefender",
-  "backRankMate", "doubleCheck", "interference", "xRayAttack", "zugzwang"
-]);
+  'mate',
+  'fork',
+  'sacrifice',
+  'pin',
+  'attraction',
+  'discoveredAttack',
+  'advancedPawn',
+  'deflection',
+  'skewer',
+  'promotion',
+  'quietMove',
+  'trappedPiece',
+  'clearance',
+  'intermezzo',
+  'capturingDefender',
+  'backRankMate',
+  'doubleCheck',
+  'interference',
+  'xRayAttack',
+  'zugzwang',
+])
 
 export const useTornadoStore = defineStore('tornado', () => {
   const gameStore = useGameStore()
@@ -92,13 +108,14 @@ export const useTornadoStore = defineStore('tornado', () => {
         soundService.playSound('board_timer_10s')
         tenSecondsWarningPlayed.value = true
       }
+
       if (timerValueMs.value <= 8000 && !eightSecondsWarningPlayed.value) {
         soundService.playSound('board_timer_8s')
         eightSecondsWarningPlayed.value = true
       }
 
       if (timerValueMs.value <= 0) {
-        timerValueMs.value = 0;
+        timerValueMs.value = 0
         soundService.playSound('board_timer_times_up')
         _handleSessionEnd()
       }
@@ -113,7 +130,7 @@ export const useTornadoStore = defineStore('tornado', () => {
   }
 
   async function _handleSessionEnd() {
-    if (!mode.value || !sessionId.value) return;
+    if (!mode.value || !sessionId.value) return
     _stopTimer()
     isSessionActive.value = false
     gameStore.setGamePhase('GAMEOVER')
@@ -121,10 +138,10 @@ export const useTornadoStore = defineStore('tornado', () => {
 
     await webhookService.endTornadoSession(mode.value, {
       sessionId: sessionId.value,
-      finalScore: sessionRating.value
-    });
+      finalScore: sessionRating.value,
+    })
 
-    const hasMistakes = mistakenPuzzles.value.length > 0;
+    const hasMistakes = mistakenPuzzles.value.length > 0
 
     const userResponse = await uiStore.showConfirmation(
       t('tornado.sessionEnd.title'),
@@ -139,18 +156,18 @@ export const useTornadoStore = defineStore('tornado', () => {
 
     switch (userResponse) {
       case 'extra':
-        router.push('/tornado/mistakes');
-        break;
+        router.push('/tornado/mistakes')
+        break
       case 'confirm':
         if (mode.value) {
-          startSession(mode.value); // reset() is called inside startSession
+          startSession(mode.value) // reset() is called inside startSession
         }
-        break;
+        break
       case 'cancel':
       default:
-        localStorage.removeItem(MISTAKES_STORAGE_KEY);
-        router.push('/');
-        break;
+        localStorage.removeItem(MISTAKES_STORAGE_KEY)
+        router.push('/')
+        break
     }
   }
 
@@ -163,22 +180,22 @@ export const useTornadoStore = defineStore('tornado', () => {
     feedbackMessage.value = t('tornado.feedback.loadingFirstPuzzle')
 
     try {
-      const response = await webhookService.startTornadoSession(selectedMode);
-      logger.info('[TornadoStore] Start session response:', response);
+      const response = await webhookService.startTornadoSession(selectedMode)
+      logger.info('[TornadoStore] Start session response:', response)
       if (response && response.puzzle && response.sessionId) {
-        isSessionActive.value = true;
-        sessionId.value = response.sessionId;
-        sessionRating.value = response.sessionRating;
-        activePuzzle.value = response.puzzle;
-        setupPuzzle(response.puzzle);
+        isSessionActive.value = true
+        sessionId.value = response.sessionId
+        sessionRating.value = response.sessionRating
+        activePuzzle.value = response.puzzle
+        setupPuzzle(response.puzzle)
         feedbackMessage.value = t('tornado.feedback.yourTurn')
       } else {
-        throw new Error(t('tornado.feedback.loadingFailed'));
+        throw new Error(t('tornado.feedback.loadingFailed'))
       }
     } catch (error) {
-      logger.error('[TornadoStore] Failed to start session:', error);
+      logger.error('[TornadoStore] Failed to start session:', error)
       feedbackMessage.value = t('tornado.feedback.startFailed')
-      isSessionActive.value = false;
+      isSessionActive.value = false
     }
   }
 
@@ -199,10 +216,19 @@ export const useTornadoStore = defineStore('tornado', () => {
   }
 
   async function handlePuzzleResult(isCorrect: boolean) {
-    if (!activePuzzle.value || !isSessionActive.value || isProcessingMove.value || !mode.value || !sessionId.value) return
-    isProcessingMove.value = true;
+    if (
+      !activePuzzle.value ||
+      !isSessionActive.value ||
+      isProcessingMove.value ||
+      !mode.value ||
+      !sessionId.value
+    )
+      return
+    isProcessingMove.value = true
 
-    timerValueMs.value += timeIncrementMs.value
+    if (timerValueMs.value > 10000) {
+      timerValueMs.value += timeIncrementMs.value
+    }
 
     if (isCorrect) {
       soundService.playSound('game_tacktics_success')
@@ -212,7 +238,9 @@ export const useTornadoStore = defineStore('tornado', () => {
       localStorage.setItem(MISTAKES_STORAGE_KEY, JSON.stringify(mistakenPuzzles.value))
     }
 
-    const lastPuzzleThemes = (activePuzzle.value.Themes_PG || []).filter(theme => officialThemes.has(theme));
+    const lastPuzzleThemes = (activePuzzle.value.Themes_PG || []).filter((theme) =>
+      officialThemes.has(theme),
+    )
 
     const dto: TornadoNextPuzzleDto = {
       sessionId: sessionId.value,
@@ -223,23 +251,23 @@ export const useTornadoStore = defineStore('tornado', () => {
     }
 
     try {
-      const response = await webhookService.getNextTornadoPuzzle(mode.value, dto);
+      const response = await webhookService.getNextTornadoPuzzle(mode.value, dto)
       if (response) {
-        sessionRating.value = response.newSessionRating;
-        themeRatings.value = response.updatedThemeRatings;
-        activePuzzle.value = response.nextPuzzle;
+        sessionRating.value = response.newSessionRating
+        themeRatings.value = response.updatedThemeRatings
+        activePuzzle.value = response.nextPuzzle
         if (response.userStatsUpdate) {
           authStore.updateUserStats(response.userStatsUpdate)
         }
-        setupPuzzle(response.nextPuzzle);
+        setupPuzzle(response.nextPuzzle)
       } else {
-        throw new Error(t('tornado.feedback.loadingFailed'));
+        throw new Error(t('tornado.feedback.loadingFailed'))
       }
     } catch (error) {
-      logger.error('[TornadoStore] Failed to get next puzzle:', error);
-      await _handleSessionEnd();
+      logger.error('[TornadoStore] Failed to get next puzzle:', error)
+      await _handleSessionEnd()
     } finally {
-      isProcessingMove.value = false;
+      isProcessingMove.value = false
     }
   }
 
@@ -256,3 +284,4 @@ export const useTornadoStore = defineStore('tornado', () => {
     reset,
   }
 })
+

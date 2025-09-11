@@ -4,17 +4,18 @@ import { useAuthStore } from '@/stores/auth.store'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
-import type { PuzzlesSolvedToday } from '@/types/api.types'
+import { useRoute } from 'vue-router'
+import type { PuzzlesSolvedToday, TornadoMode } from '@/types/api.types'
 
 const authStore = useAuthStore()
 const { userProfile, isAuthenticated } = storeToRefs(authStore)
 const { t } = useI18n()
+const route = useRoute()
 
 const handleLogin = () => {
   authStore.login()
 }
 
-// Вычисляемое свойство для отображения времени сброса в локальной зоне пользователя
 const localResetTimeMessage = computed(() => {
   const now = new Date()
   const tomorrowUTC = new Date(
@@ -24,51 +25,82 @@ const localResetTimeMessage = computed(() => {
     hour: '2-digit',
     minute: '2-digit',
   })
-  // Новый ключ: userCabinet.stats.activity.titleWithTime
   return t('userCabinet.stats.activity.titleWithTime', { time: localTime })
 })
 
-// Хелпер для итерации и отображения детальной статистики
 const activityModes: {
   key: keyof Omit<PuzzlesSolvedToday, 'total'>
   label: string
   icon: string
 }[] = [
-  { key: 'finishHim', label: t('nav.finishHim'), icon: '🎯' },
-  { key: 'tower', label: t('nav.tower'), icon: '🏁' },
-  { key: 'attack', label: t('nav.attack'), icon: '⚔️' },
-  { key: 'tornado', label: t('nav.tornado'), icon: '🌪️' },
-]
+    { key: 'finishHim', label: t('nav.finishHim'), icon: '🎯' },
+    { key: 'tower', label: t('nav.tower'), icon: '🏁' },
+    { key: 'attack', label: t('nav.attack'), icon: '⚔️' },
+    { key: 'tornado', label: t('nav.tornado'), icon: '🌪️' },
+  ]
+
+const tornadoMode = computed(() => {
+  if (route.name === 'tornado' && route.params.mode) {
+    return route.params.mode as TornadoMode
+  }
+  return null
+})
+
+const tornadoHighScore = computed(() => {
+  if (userProfile.value?.tornadoHighScores && tornadoMode.value) {
+    return userProfile.value.tornadoHighScores[tornadoMode.value]
+  }
+  return null
+})
 </script>
 
 <template>
   <div class="user-stats-container">
     <div v-if="isAuthenticated && userProfile" class="stats-view">
+      <!-- Базовая статистика, отображаемая всегда -->
       <div class="stats-grid">
         <div class="stat-item">
-          <!-- Новый ключ: userCabinet.stats.funcoinsLabel -->
           <span class="stat-label">{{ t('userCabinet.stats.funcoinsLabel') }}</span>
           <span class="stat-value funcoins">{{ userProfile.FunCoins }}</span>
         </div>
-        <div class="stat-item">
-          <!-- Новый ключ: userCabinet.stats.endgameSkillLabel -->
-          <span class="stat-label">{{ t('userCabinet.stats.endgameSkillLabel') }}</span>
-          <span class="stat-value">{{ userProfile.endgame_skill }}</span>
-        </div>
-        <div class="stat-item">
-          <!-- Новый ключ: userCabinet.stats.attackSkillLabel -->
-          <span class="stat-label">{{ t('userCabinet.stats.attackSkillLabel') }}</span>
-          <span class="stat-value">{{ userProfile.attack_skill }}</span>
-        </div>
+
+        <!-- Динамическая статистика в зависимости от режима -->
+        <template v-if="route.name === 'finish-him'">
+          <div class="stat-item">
+            <span class="stat-label">{{ t('userCabinet.stats.endgameSkillLabel') }}</span>
+            <span class="stat-value">{{ userProfile.endgame_skill }}</span>
+          </div>
+          <div v-if="userProfile.finishHimRating" class="stat-item">
+            <span class="stat-label">{{ t('userCabinet.stats.finishHimRatingLabel') }}</span>
+            <span class="stat-value">{{ userProfile.finishHimRating.rating }}</span>
+          </div>
+        </template>
+
+        <template v-if="route.name === 'attack'">
+          <div class="stat-item">
+            <span class="stat-label">{{ t('userCabinet.stats.attackSkillLabel') }}</span>
+            <span class="stat-value">{{ userProfile.attack_skill }}</span>
+          </div>
+          <div v-if="userProfile.attackRating" class="stat-item">
+            <span class="stat-label">{{ t('userCabinet.stats.attackRatingLabel') }}</span>
+            <span class="stat-value">{{ userProfile.attackRating.rating }}</span>
+          </div>
+        </template>
+
+        <template v-if="tornadoMode && tornadoHighScore !== null">
+          <div class="stat-item">
+            <span class="stat-label">{{ t('tornado.leaderboard.highScore') }} ({{ tornadoMode }})</span>
+            <span class="stat-value">{{ tornadoHighScore }}</span>
+          </div>
+        </template>
       </div>
 
+      <!-- Статистика за сегодня, отображаемая всегда -->
       <div v-if="userProfile.today_activity" class="today-activity">
         <h5 class="activity-title">{{ localResetTimeMessage }}</h5>
 
-        <!-- Детальная статистика по решенным задачам -->
         <div class="activity-section">
           <div class="total-stat-item">
-            <!-- Новый ключ: userCabinet.stats.puzzlesSolved -->
             <span class="stat-label">{{ t('userCabinet.stats.puzzlesSolved') }}</span>
             <span class="stat-value highlight total">
               {{ userProfile.today_activity.puzzles_solved_today.total }}
@@ -84,10 +116,8 @@ const activityModes: {
           </div>
         </div>
 
-        <!-- Детальная статистика по полученному скиллу -->
         <div class="activity-section">
           <div class="total-stat-item">
-            <!-- Новый ключ: userCabinet.stats.skillEarned -->
             <span class="stat-label">{{ t('userCabinet.stats.skillEarned') }}</span>
             <span class="stat-value highlight total">
               {{ userProfile.today_activity.skill_earned_today.total }}

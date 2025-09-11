@@ -383,6 +383,9 @@
       "attackSkillLabel": "Attack Skill",
       "puzzlesSolved": "Puzzles Solved",
       "skillEarned": "Skill Today",
+      "finishHimRatingLabel": "Conversion Rating",
+      "attackRatingLabel": "Attack Rating",
+      "tornadoTitle": "Tornado High Scores",
       "global": {
         "title": "Activity Statistics"
       },

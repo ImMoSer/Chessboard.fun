@@ -33,7 +33,6 @@ export const useAuthStore = defineStore('auth', () => {
     logger.info('[AuthStore] Initializing...');
     authService.subscribe(_syncState);
     await authService.handleAuthentication();
-    // _syncState(); // --- ИЗМЕНЕНИЕ: Этот вызов удален, так как он избыточен
   }
 
   async function login() {

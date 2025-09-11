@@ -1,10 +1,9 @@
 // src/services/AuthService.ts
 import logger from '../utils/logger'
-import i18n from './i18n' // <<< ИМПОРТ: Новый i18n сервис
+import i18n from './i18n'
 import type {
   UserSessionProfile,
   AuthState,
-  FinishHimStats,
   ClubIdNamePair,
   UserStatsUpdate,
 } from '../types/api.types'
@@ -17,7 +16,6 @@ if (!BACKEND_API_URL) {
   )
 }
 
-// <<< ИЗМЕНЕНИЕ: Получаем функцию t из глобального экземпляра
 const t = i18n.global.t
 
 class AuthServiceController {
@@ -122,7 +120,7 @@ class AuthServiceController {
     } catch (error) {
       logger.error('[AuthService] Error during Telegram login process:', error)
       this._setState({
-        error: t('errors.telegramAuthFailed'), // <<< ИЗМЕНЕНИЕ
+        error: t('errors.telegramAuthFailed'),
         isProcessing: false,
       })
     }
@@ -171,7 +169,7 @@ class AuthServiceController {
     } catch (error) {
       logger.error('[AuthService] Error checking web session:', error)
       this._setState({
-        error: t('errors.backendConnectionFailed'), // <<< ИЗМЕНЕНИЕ
+        error: t('errors.backendConnectionFailed'),
         isProcessing: false,
         isAuthenticated: false,
         userProfile: null,
@@ -204,9 +202,6 @@ class AuthServiceController {
     return this.state.error
   }
 
-  public getFinishHimStats(): FinishHimStats | null {
-    return this.state.userProfile?.finishHimStats || null
-  }
   public getFunCoins(): number | null {
     return this.state.userProfile?.FunCoins ?? null
   }
@@ -233,10 +228,7 @@ class AuthServiceController {
     if (this.state.userProfile && this.state.userProfile.id === statsUpdate.id) {
       const newProfile = {
         ...this.state.userProfile,
-        FunCoins: statsUpdate.FunCoins,
-        endgame_skill: statsUpdate.endgame_skill,
-        attack_skill: statsUpdate.attack_skill,
-        today_activity: statsUpdate.today_activity,
+        ...statsUpdate,
       }
       this._setState({ userProfile: newProfile })
       localStorage.setItem('user_profile', JSON.stringify(newProfile))

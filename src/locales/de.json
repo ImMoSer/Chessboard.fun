@@ -383,6 +383,9 @@
       "attackSkillLabel": "Angriffs-Skill",
       "puzzlesSolved": "Gelöste Aufgaben",
       "skillEarned": "Skill heute",
+      "finishHimRatingLabel": "Verwertungs-Wertung",
+      "attackRatingLabel": "Angriffs-Wertung",
+      "tornadoTitle": "Tornado-Höchstwerte",
       "global": {
         "title": "Aktivitätsstatistik"
       },

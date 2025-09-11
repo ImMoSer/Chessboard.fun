@@ -383,6 +383,9 @@
       "attackSkillLabel": "Скилл в атаке",
       "puzzlesSolved": "Решено задач",
       "skillEarned": "Скилл сегодня",
+      "finishHimRatingLabel": "Рейтинг добивания",
+      "attackRatingLabel": "Рейтинг атаки",
+      "tornadoTitle": "Рекорды Торнадо",
       "global": {
         "title": "Статистика активности"
       },
