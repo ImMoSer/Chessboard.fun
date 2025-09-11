@@ -5,12 +5,14 @@ import i18n from '../services/i18n'
 
 const t = i18n.global.t
 
-type ResolveFunction = (value: boolean) => void
+type ResolveFunction = (value: 'confirm' | 'cancel' | 'extra' | null) => void
 
 interface ConfirmationOptions {
   confirmText?: string
   cancelText?: string
+  extraText?: string
   showCancel?: boolean
+  showExtra?: boolean
 }
 
 export const useUiStore = defineStore('ui', () => {
@@ -19,7 +21,9 @@ export const useUiStore = defineStore('ui', () => {
   const modalMessage = ref('')
   const modalConfirmText = ref(t('common.confirm'))
   const modalCancelText = ref(t('common.cancel'))
+  const modalExtraText = ref('')
   const isCancelButtonVisible = ref(true)
+  const isExtraButtonVisible = ref(false)
 
   let resolvePromise: ResolveFunction | null = null
 
@@ -27,22 +31,24 @@ export const useUiStore = defineStore('ui', () => {
     title: string,
     message: string,
     options: ConfirmationOptions = {},
-  ): Promise<boolean> {
+  ): Promise<'confirm' | 'cancel' | 'extra' | null> {
     modalTitle.value = title
     modalMessage.value = message
     modalConfirmText.value = options.confirmText || t('common.confirm')
     modalCancelText.value = options.cancelText || t('common.cancel')
+    modalExtraText.value = options.extraText || ''
     isCancelButtonVisible.value = options.showCancel ?? true
+    isExtraButtonVisible.value = options.showExtra ?? false
     isModalVisible.value = true
 
-    return new Promise<boolean>((resolve) => {
+    return new Promise<'confirm' | 'cancel' | 'extra' | null>((resolve) => {
       resolvePromise = resolve
     })
   }
 
   function handleConfirm() {
     if (resolvePromise) {
-      resolvePromise(true)
+      resolvePromise('confirm')
     }
     isModalVisible.value = false
     reset()
@@ -50,7 +56,15 @@ export const useUiStore = defineStore('ui', () => {
 
   function handleCancel() {
     if (resolvePromise) {
-      resolvePromise(false)
+      resolvePromise('cancel')
+    }
+    isModalVisible.value = false
+    reset()
+  }
+
+  function handleExtra() {
+    if (resolvePromise) {
+      resolvePromise('extra')
     }
     isModalVisible.value = false
     reset()
@@ -62,7 +76,9 @@ export const useUiStore = defineStore('ui', () => {
     resolvePromise = null
     modalConfirmText.value = t('common.confirm')
     modalCancelText.value = t('common.cancel')
+    modalExtraText.value = ''
     isCancelButtonVisible.value = true
+    isExtraButtonVisible.value = false
   }
 
   return {
@@ -71,9 +87,12 @@ export const useUiStore = defineStore('ui', () => {
     modalMessage,
     modalConfirmText,
     modalCancelText,
+    modalExtraText,
     isCancelButtonVisible,
+    isExtraButtonVisible,
     showConfirmation,
     handleConfirm,
     handleCancel,
+    handleExtra,
   }
 })

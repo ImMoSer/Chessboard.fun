@@ -2,7 +2,6 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { useGameStore } from './game.store'
-import { useBoardStore } from './board.store'
 import { useRouter } from 'vue-router'
 import { useUiStore } from './ui.store'
 import { webhookService } from '../services/WebhookService'
@@ -32,7 +31,6 @@ const officialThemes = new Set([
 
 export const useTornadoStore = defineStore('tornado', () => {
   const gameStore = useGameStore()
-  const boardStore = useBoardStore()
   const router = useRouter()
   const uiStore = useUiStore()
   const authStore = useAuthStore()
@@ -41,7 +39,7 @@ export const useTornadoStore = defineStore('tornado', () => {
   const sessionRating = ref(600)
   const themeRatings = ref<Record<string, ThemeRating> | null>(null)
   const activePuzzle = ref<GamePuzzle | null>(null)
-  const mistakenPuzzles = ref<string[]>([])
+  const mistakenPuzzles = ref<GamePuzzle[]>([])
   const sessionId = ref<string | null>(null)
 
   const timerValueMs = ref(0)
@@ -123,21 +121,33 @@ export const useTornadoStore = defineStore('tornado', () => {
       finalScore: sessionRating.value
     });
 
+    const hasMistakes = mistakenPuzzles.value.length > 0;
+
     const userResponse = await uiStore.showConfirmation(
       'Сессия окончена',
       `Ваш финальный рейтинг: ${sessionRating.value}`,
       {
         confirmText: 'Заново',
         cancelText: 'Выйти',
+        extraText: 'Ошибки',
+        showExtra: hasMistakes,
       },
     )
 
-    if (userResponse) {
-      if (mode.value) {
-        startSession(mode.value)
-      }
-    } else {
-      router.push('/')
+    switch (userResponse) {
+      case 'extra':
+        router.push('/tornado/mistakes');
+        break;
+      case 'confirm':
+        if (mode.value) {
+          startSession(mode.value); // reset() is called inside startSession
+        }
+        break;
+      case 'cancel':
+      default:
+        localStorage.removeItem(MISTAKES_STORAGE_KEY);
+        router.push('/');
+        break;
     }
   }
 
@@ -195,8 +205,7 @@ export const useTornadoStore = defineStore('tornado', () => {
       soundService.playSound('game_tacktics_success')
     } else {
       soundService.playSound('game_tacktics_error')
-      const currentFen = boardStore.fen
-      mistakenPuzzles.value.push(currentFen)
+      mistakenPuzzles.value.push(activePuzzle.value)
       localStorage.setItem(MISTAKES_STORAGE_KEY, JSON.stringify(mistakenPuzzles.value))
     }
 
@@ -244,3 +253,4 @@ export const useTornadoStore = defineStore('tornado', () => {
     reset,
   }
 })
+

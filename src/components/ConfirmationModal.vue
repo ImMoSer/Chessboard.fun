@@ -11,11 +11,10 @@ const uiStore = useUiStore()
       <h3 class="modal-title">{{ uiStore.modalTitle }}</h3>
       <p class="modal-message">{{ uiStore.modalMessage }}</p>
       <div class="modal-actions">
-        <button
-          v-if="uiStore.isCancelButtonVisible"
-          class="button-cancel"
-          @click="uiStore.handleCancel"
-        >
+        <button v-if="uiStore.isExtraButtonVisible" class="button-extra" @click="uiStore.handleExtra">
+          {{ uiStore.modalExtraText }}
+        </button>
+        <button v-if="uiStore.isCancelButtonVisible" class="button-cancel" @click="uiStore.handleCancel">
           {{ uiStore.modalCancelText }}
         </button>
         <button class="button-confirm" @click="uiStore.handleConfirm">
@@ -83,6 +82,7 @@ const uiStore = useUiStore()
   background-color: var(--color-bg-tertiary);
   color: var(--color-text-default);
 }
+
 .button-cancel:hover {
   background-color: var(--color-border-hover);
 }
@@ -91,7 +91,17 @@ const uiStore = useUiStore()
   background-color: var(--color-accent-error);
   color: var(--color-text-on-accent);
 }
+
 .button-confirm:hover {
   background-color: var(--color-accent-error-hover);
+}
+
+.button-extra {
+  background-color: var(--color-accent-success);
+  color: var(--color-text-dark);
+}
+
+.button-extra:hover {
+  background-color: var(--color-accent-success-hover);
 }
 </style>

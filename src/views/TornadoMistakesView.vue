@@ -1,29 +1,134 @@
 <!-- src/views/TornadoMistakesView.vue -->
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useBoardStore } from '@/stores/board.store'
+import { ref, onMounted, computed } from 'vue'
+import { onBeforeRouteLeave, useRouter } from 'vue-router'
+import { useGameStore } from '@/stores/game.store'
+import { useAnalysisStore } from '@/stores/analysis.store'
+import { useUiStore } from '@/stores/ui.store'
 import GameLayout from '@/components/GameLayout.vue'
+import AnalysisPanel from '@/components/AnalysisPanel.vue'
+import type { GamePuzzle } from '@/types/api.types'
 
+// --- CONSTANTS ---
 const MISTAKES_STORAGE_KEY = 'tornado_mistakes'
-const boardStore = useBoardStore()
 
-const mistakes = ref<string[]>([])
-const selectedFen = ref<string | null>(null)
+// --- STORES ---
+const gameStore = useGameStore()
+const analysisStore = useAnalysisStore()
+const uiStore = useUiStore()
+const router = useRouter()
 
+// --- STATE ---
+const mistakes = ref<GamePuzzle[]>([])
+const solvedStatus = ref<Record<string, boolean>>({})
+const selectedPuzzleId = ref<string | null>(null)
+const feedbackMessage = ref('Выберите задачу для начала.')
+const isAttemptMade = ref(false)
+
+// --- COMPUTED ---
+const selectedPuzzle = computed(() => {
+  return mistakes.value.find((p) => p.PuzzleId === selectedPuzzleId.value) || null
+})
+
+const puzzleImageUrl = (puzzleId: string) => {
+  return `https://lichess.org/api/puzzle/${puzzleId}/image.png?theme=blue-marble&piece=alpha`
+}
+
+const allMistakesSolved = computed(() => {
+  if (mistakes.value.length === 0) return false
+  return mistakes.value.every((p) => solvedStatus.value[p.PuzzleId])
+})
+
+// --- METHODS ---
+function selectPuzzle(puzzle: GamePuzzle) {
+  if (analysisStore.isPanelVisible) {
+    analysisStore.hidePanel()
+  }
+  isAttemptMade.value = false
+  selectedPuzzleId.value = puzzle.PuzzleId
+  feedbackMessage.value = 'Ваш ход. Попробуйте снова!'
+
+  gameStore.setupPuzzle(
+    puzzle.FEN_0,
+    puzzle.Moves.split(' '),
+    handlePuzzleResult,
+    () => true,
+    () => { },
+    'tornado',
+  )
+}
+
+function handlePuzzleResult(isCorrect: boolean) {
+  if (!selectedPuzzle.value) return
+  isAttemptMade.value = true
+  if (isCorrect) {
+    solvedStatus.value[selectedPuzzle.value.PuzzleId] = true
+    feedbackMessage.value = 'Отлично! Задача решена верно.'
+  } else {
+    feedbackMessage.value = 'Неверно. Попробуйте проанализировать позицию.'
+  }
+}
+
+function selectNextUnsolvedPuzzle() {
+  const currentIndex = mistakes.value.findIndex((p) => p.PuzzleId === selectedPuzzleId.value)
+  const nextPuzzles = [...mistakes.value.slice(currentIndex + 1), ...mistakes.value.slice(0, currentIndex + 1)]
+
+  const nextUnsolved = nextPuzzles.find(p => !solvedStatus.value[p.PuzzleId])
+
+  if (nextUnsolved) {
+    selectPuzzle(nextUnsolved)
+  } else if (allMistakesSolved.value) {
+    feedbackMessage.value = 'Поздравляем! Все ошибки исправлены.'
+  }
+}
+
+function showAnalysis() {
+  if (isAttemptMade.value) {
+    analysisStore.showPanel(true)
+  }
+}
+
+// --- LIFECYCLE & ROUTE GUARDS ---
 onMounted(() => {
   const storedMistakes = localStorage.getItem(MISTAKES_STORAGE_KEY)
   if (storedMistakes) {
-    mistakes.value = JSON.parse(storedMistakes)
-    const firstMistake = mistakes.value[0]
-    if (firstMistake) {
-      selectMistake(firstMistake)
+    try {
+      const parsedMistakes: GamePuzzle[] = JSON.parse(storedMistakes)
+      mistakes.value = parsedMistakes
+      parsedMistakes.forEach((p) => {
+        solvedStatus.value[p.PuzzleId] = false
+      })
+      if (parsedMistakes.length > 0) {
+        const firstMistake = parsedMistakes[0]
+        if (firstMistake) {
+          selectPuzzle(firstMistake)
+        }
+      } else {
+        feedbackMessage.value = 'В последней сессии не было ошибок!'
+      }
+    } catch (e) {
+      console.error('Error parsing mistakes from localStorage', e)
+      feedbackMessage.value = 'Не удалось загрузить ошибки.'
     }
   }
 })
 
-const selectMistake = (fen: string) => {
-  selectedFen.value = fen
-  boardStore.setupPosition(fen, 'white') // Ориентация может быть любой для анализа
+onBeforeRouteLeave(async (to, from, next) => {
+  const userResponse = await uiStore.showConfirmation(
+    'Выход из режима',
+    'Вы уверены, что хотите выйти? Список нерешенных задач будет очищен.',
+  )
+  if (userResponse === 'confirm') {
+    localStorage.removeItem(MISTAKES_STORAGE_KEY)
+    gameStore.resetGame()
+    next()
+  } else {
+    next(false)
+  }
+})
+
+async function handleExit() {
+  router.push('/')
 }
 </script>
 
@@ -31,16 +136,15 @@ const selectMistake = (fen: string) => {
   <GameLayout>
     <template #left-panel>
       <div class="mistakes-list-container">
-        <h4>Ошибки</h4>
-        <div class="mistakes-list">
-          <div
-            v-for="(fen, index) in mistakes"
-            :key="index"
-            class="mistake-item"
-            :class="{ active: fen === selectedFen }"
-            @click="selectMistake(fen)"
-          >
-            Ошибка #{{ index + 1 }}
+        <h4>Работа над ошибками</h4>
+        <div class="mistakes-list-scrollable">
+          <div v-for="(puzzle, index) in mistakes" :key="puzzle.PuzzleId" class="mistake-item" :class="{
+            active: puzzle.PuzzleId === selectedPuzzleId,
+            solved: solvedStatus[puzzle.PuzzleId],
+            unsolved: !solvedStatus[puzzle.PuzzleId],
+          }" @click="selectPuzzle(puzzle)">
+            <img :src="puzzleImageUrl(puzzle.PuzzleId)" :alt="`Ошибка #${index + 1}`" class="puzzle-preview" />
+            <span class="puzzle-label">Ошибка #{{ index + 1 }}</span>
           </div>
           <div v-if="mistakes.length === 0" class="no-mistakes">
             В последней сессии не было ошибок!
@@ -50,10 +154,24 @@ const selectMistake = (fen: string) => {
     </template>
 
     <template #right-panel>
-      <div class="analysis-placeholder">
-        <!-- Здесь будет AnalysisPanel -->
-        <h4>Анализ</h4>
-        <p>Панель анализа будет доступна на следующих этапах.</p>
+      <div class="controls-container">
+        <div class="feedback-panel">
+          {{ feedbackMessage }}
+        </div>
+
+        <div class="action-buttons">
+          <button @click="showAnalysis" :disabled="!isAttemptMade" class="action-btn analysis-btn">
+            Анализ
+          </button>
+          <button @click="selectNextUnsolvedPuzzle" :disabled="allMistakesSolved" class="action-btn next-btn">
+            Следующая
+          </button>
+          <button @click="handleExit" class="action-btn exit-btn">
+            Выйти
+          </button>
+        </div>
+
+        <AnalysisPanel v-if="analysisStore.isPanelVisible" />
       </div>
     </template>
   </GameLayout>
@@ -61,44 +179,129 @@ const selectMistake = (fen: string) => {
 
 <style scoped>
 .mistakes-list-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   padding: 10px;
 }
+
 h4 {
   text-align: center;
   margin-top: 0;
+  margin-bottom: 15px;
   color: var(--color-accent-warning);
+  flex-shrink: 0;
 }
-.mistakes-list {
+
+.mistakes-list-scrollable {
+  flex-grow: 1;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  max-height: 80vh;
-  overflow-y: auto;
+  gap: 15px;
+  padding-right: 5px;
 }
+
 .mistake-item {
-  padding: 15px;
-  background-color: var(--color-bg-tertiary);
-  border-radius: var(--panel-border-radius);
   cursor: pointer;
-  border: 1px solid var(--color-border);
+  border: 3px solid var(--color-border);
+  border-radius: var(--panel-border-radius);
   transition: all 0.2s ease;
+  overflow: hidden;
+  position: relative;
 }
+
 .mistake-item:hover {
+  transform: scale(1.03);
   border-color: var(--color-accent-primary);
 }
+
+.mistake-item.unsolved {
+  border-color: var(--color-accent-error);
+}
+
+.mistake-item.solved {
+  border-color: var(--color-accent-success);
+}
+
 .mistake-item.active {
-  background-color: var(--color-accent-primary);
-  color: var(--color-text-dark);
+  box-shadow: 0 0 15px var(--color-accent-primary);
+  border-color: var(--color-accent-primary);
+}
+
+.puzzle-preview {
+  width: 100%;
+  display: block;
+}
+
+.puzzle-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 5px;
+  text-align: center;
+  font-size: var(--font-size-small);
   font-weight: bold;
 }
+
 .no-mistakes {
   text-align: center;
   color: var(--color-text-muted);
   padding: 20px;
 }
-.analysis-placeholder {
-  padding: 20px;
+
+.controls-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  height: 100%;
+}
+
+.feedback-panel {
+  padding: 15px;
+  background-color: var(--color-bg-tertiary);
+  border-radius: var(--panel-border-radius);
   text-align: center;
+  font-weight: bold;
+  min-height: 50px;
+}
+
+.action-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+
+.action-btn {
+  padding: 12px;
+  font-size: var(--font-size-base);
+  font-weight: bold;
+  border: none;
+  border-radius: var(--panel-border-radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.analysis-btn {
+  background-color: var(--color-accent-primary);
+  color: var(--color-text-dark);
+}
+
+.next-btn {
+  background-color: var(--color-accent-success);
+  color: var(--color-text-dark);
+}
+
+.exit-btn {
+  background-color: var(--color-accent-error);
+  color: var(--color-text-on-accent);
 }
 </style>
-
