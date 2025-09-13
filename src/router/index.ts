@@ -23,6 +23,8 @@ import UserCabinetView from '../views/UserCabinetView.vue'
 import TornadoSelectionView from '../views/TornadoSelectionView.vue'
 import TornadoView from '../views/TornadoView.vue'
 import TornadoMistakesView from '../views/TornadoMistakesView.vue'
+import AdvantageSelectionView from '../views/AdvantageSelectionView.vue'
+import AdvantageView from '../views/AdvantageView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -67,6 +69,18 @@ const router = createRouter({
       name: 'tornado-mistakes',
       component: TornadoMistakesView,
       meta: { requiresAuth: true },
+    },
+    {
+      path: '/advantage',
+      name: 'advantage-selection',
+      component: AdvantageSelectionView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/advantage/:mode/:theme',
+      name: 'advantage-game',
+      component: AdvantageView,
+      meta: { isGame: true, requiresAuth: true },
     },
     {
       path: '/user-cabinet',

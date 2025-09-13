@@ -10,6 +10,7 @@ import { useControlsStore } from '@/stores/controls.store'
 import FinishHimSelection from '@/components/FinishHimSelection.vue'
 import EngineSelector from '@/components/EngineSelector.vue'
 import { useI18n } from 'vue-i18n'
+import { useAdvantageStore } from '@/stores/advantage.store'
 
 const { t } = useI18n()
 
@@ -18,6 +19,7 @@ const finishHimStore = useFinishHimStore()
 const attackStore = useAttackStore()
 const towerStore = useTowerStore()
 const tornadoStore = useTornadoStore()
+const advantageStore = useAdvantageStore()
 useControlsStore()
 
 const formattedTimer = computed(() => {
@@ -39,6 +41,8 @@ const containerClass = computed(() => {
       return 'mode-finish-him'
     case 'tornado':
       return 'mode-tornado'
+    case 'advantage-game':
+      return 'mode-advantage'
     default:
       return 'mode-default'
   }
@@ -47,12 +51,17 @@ const containerClass = computed(() => {
 
 <template>
   <div class="top-info-panel-container" :class="containerClass">
-    <!-- Таймер для всех режимов, кроме выбора Торнадо -->
-    <div v-if="route.name !== 'tornado-selection'" class="timer-container">
+    <!-- Таймер для всех режимов, кроме выбора Торнадо и Advantage -->
+    <div v-if="!['tornado-selection', 'advantage-game'].includes(route.name as string)" class="timer-container">
       <span v-if="route.name === 'tornado'" class="session-rating-label">
         {{ t('tornado.ui.ratingLabel') }}: {{ tornadoStore.sessionRating }}
       </span>
       {{ formattedTimer }}
+    </div>
+
+    <!-- Сообщение обратной связи для Advantage -->
+    <div v-if="route.name === 'advantage-game'" class="feedback-container">
+      {{ advantageStore.feedbackMessage }}
     </div>
 
     <!-- Селектор тем для FinishHim -->
@@ -88,7 +97,8 @@ const containerClass = computed(() => {
   /* Centered middle column */
 }
 
-.top-info-panel-container.mode-tornado {
+.top-info-panel-container.mode-tornado,
+.top-info-panel-container.mode-advantage {
   grid-template-columns: 1fr;
   justify-content: center;
 }
@@ -102,6 +112,16 @@ const containerClass = computed(() => {
   font-size: var(--font-size-xlarge);
   font-weight: bold;
   color: var(--color-accent-warning);
+}
+
+.feedback-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: var(--font-size-large);
+  font-weight: bold;
+  color: var(--color-accent-warning);
+  text-align: center;
 }
 
 .session-rating-label {

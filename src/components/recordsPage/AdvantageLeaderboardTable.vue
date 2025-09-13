@@ -1,0 +1,199 @@
+<!-- src/components/recordsPage/AdvantageLeaderboardTable.vue -->
+<script setup lang="ts">
+import { type PropType } from 'vue'
+import { useI18n } from 'vue-i18n'
+import type { AdvantageLeaderboardEntry, TornadoMode } from '@/types/api.types'
+
+type AdvantageLeaderboards = { [key in TornadoMode]?: AdvantageLeaderboardEntry[] }
+
+defineProps({
+  title: {
+    type: String,
+    required: true,
+  },
+  advantageData: {
+    type: Object as PropType<AdvantageLeaderboards>,
+    required: true,
+  },
+  colorClass: {
+    type: String,
+    required: true,
+  },
+})
+
+const { t } = useI18n()
+
+const ADVANTAGE_DEFINITIONS: {
+  id: TornadoMode
+  name: string
+}[] = [
+    { id: 'bullet', name: 'Bullet' },
+    { id: 'blitz', name: 'Blitz' },
+    { id: 'rapid', name: 'Rapid' },
+    { id: 'classic', name: 'Classic' },
+  ]
+
+const tierToPieceMap: { [key: string]: string } = {
+  Pawn: 'wP.svg',
+  Knight: 'wN.svg',
+  Bishop: 'wB.svg',
+  Rook: 'wR.svg',
+  Queen: 'wQ.svg',
+  King: 'wK.svg',
+}
+
+const getSubscriptionIcon = (tier?: string) => {
+  if (!tier || !tierToPieceMap[tier]) {
+    return null
+  }
+  return `/piece/alpha/${tierToPieceMap[tier]}`
+}
+</script>
+
+<template>
+  <div class="records-page__table-container" :class="colorClass">
+    <h3 class="records-page__table-title">{{ title }}</h3>
+    <table class="records-page__table">
+      <thead>
+        <tr>
+          <th class="text-center">{{ t('records.table.rank') }}</th>
+          <th class="text-left">{{ t('records.table.player') }}</th>
+          <th class="text-right">{{ t('advantage.leaderboard.globalRating') }}</th>
+          <th class="text-right">{{ t('advantage.leaderboard.puzzlesSolved') }}</th>
+          <th class="text-right">{{ t('records.table.daysOld') }}</th>
+        </tr>
+      </thead>
+      <tbody v-for="modeDef in ADVANTAGE_DEFINITIONS" :key="modeDef.id">
+        <template v-if="advantageData && advantageData[modeDef.id] && advantageData[modeDef.id]!.length > 0">
+          <tr class="records-page__table-section-header" :class="`header--${modeDef.id}`">
+            <th colspan="5">
+              {{ modeDef.name }}
+            </th>
+          </tr>
+          <tr v-for="entry in advantageData[modeDef.id]" :key="entry.lichess_id">
+            <td class="text-center">{{ entry.rank }}</td>
+            <td class="text-left">
+              <img v-if="getSubscriptionIcon(entry.subscriptionTier)"
+                :src="getSubscriptionIcon(entry.subscriptionTier)!" class="records-page__sub-icon"
+                :alt="entry.subscriptionTier || 'N/A'" />
+              <a :href="`https://lichess.org/@/${entry.lichess_id}`" target="_blank">{{
+                entry.username
+              }}</a>
+            </td>
+            <td class="text-right">{{ entry.globalRating }}</td>
+            <td class="text-right">{{ entry.globalPuzzlesSolved }}</td>
+            <td class="text-right">{{ entry.days_old }}d</td>
+          </tr>
+        </template>
+      </tbody>
+    </table>
+  </div>
+</template>
+
+<style scoped>
+.records-page__table-container {
+  padding: 0;
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--panel-border-radius);
+  border: 1px solid var(--color-border-hover);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.records-page__table-title {
+  color: var(--color-bg-primary);
+  font-size: var(--font-size-large);
+  padding: 10px 10px;
+  margin: 0;
+  text-align: center;
+  border-bottom: 1px solid var(--color-border-hover);
+  font-weight: var(--font-weight-bold);
+}
+
+.advantageLeaderboard .records-page__table-title {
+  background-color: var(--color-accent-success);
+}
+
+.records-page__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--font-size-base);
+}
+
+.records-page__table th,
+.records-page__table td {
+  padding: 3px 3px;
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+
+.records-page__table th {
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-bold);
+}
+
+.records-page__table tbody tr:nth-child(even) {
+  background-color: var(--color-bg-tertiary);
+}
+
+.records-page__table tbody tr:hover {
+  background-color: var(--color-border-hover);
+}
+
+.records-page__table td a {
+  color: var(--color-text-link);
+  text-decoration: none;
+  font-weight: var(--font-weight-bold);
+}
+
+.records-page__table td a:hover {
+  text-decoration: underline;
+}
+
+.records-page__sub-icon {
+  width: auto;
+  height: 1.7em;
+  vertical-align: -0.4em;
+  margin-right: 6px;
+}
+
+.records-page__table-section-header th {
+  font-size: var(--font-size-base);
+  color: var(--color-bg-primary);
+  padding: 8px 10px;
+  text-align: center;
+  font-weight: var(--font-weight-bold);
+  border-bottom: 2px solid var(--color-bg-secondary);
+  border-top: 2px solid var(--color-bg-secondary);
+}
+
+.header--bullet th {
+  background-color: var(--color-accent-primary);
+}
+
+.header--blitz th {
+  background-color: var(--color-accent-success);
+}
+
+.header--rapid th {
+  background-color: var(--color-accent-warning);
+}
+
+.header--classic th {
+  background-color: var(--color-accent-error);
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+</style>

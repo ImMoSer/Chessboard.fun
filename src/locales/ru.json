@@ -32,7 +32,8 @@
     "about": "О нас",
     "login": "Войти",
     "logout": "Выйти",
-    "loginWithLichess": "Войти через Lichess"
+    "loginWithLichess": "Войти через Lichess",
+    "advantage": "Преимущество"
   },
   "auth": {
     "requiredForAction": "Для этого действия необходимо войти в систему."
@@ -402,7 +403,8 @@
         "finishHim": "Добивание",
         "attack": "Атака",
         "tower": "Спидран",
-        "tacticalTrainer": "Тактика"
+        "tacticalTrainer": "Тактика",
+        "advantage": "Преимущество"
       },
       "noData": "Нет данных за выбранный период.",
       "towerTitle": "Статистика 'Спидрана'",
@@ -641,6 +643,52 @@
     },
     "ui": {
       "ratingLabel": "Рейтинг"
+    }
+  },
+    "advantage": {
+    "selection": {
+      "title": "Выберите режим и тему",
+      "theme": "Тема",
+      "themeAutomatic": "Автоматически"
+    },
+    "feedback": {
+      "getReady": "Приготовьтесь к задаче",
+      "yourTurn": "Ваш ход",
+      "correct": "Верно! Ваш новый рейтинг: {rating}",
+      "incorrect": "Ошибка. Ваш новый рейтинг: {rating}",
+      "loadingFailed": "Не удалось загрузить задачу",
+      "submitFailed": "Не удалось отправить результат"
+    },
+    "stats": {
+      "title": "Статистика Advantage",
+      "globalRating": "Глобальный рейтинг",
+      "puzzlesSolved": "Решено задач"
+    },
+    "leaderboard": {
+      "globalRating": "Глобальный рейтинг",
+      "puzzlesSolved": "Решено задач"
+    },
+    "themes": {
+      "bishop_endgame": "Слоновый эндшпиль",
+      "bishop_vs_knight": "Слон против коня",
+      "exchange_advantage": "Лишнее качество",
+      "knight_endgame": "Коневой эндшпиль",
+      "knight_vs_bishop": "Конь против слона",
+      "material_advantage": "Материальный перевес",
+      "minor_piece_endgame": "Легкофигурный эндшпиль",
+      "minors_vs_queen": "Легкие фигуры против ферзя",
+      "minors_vs_rook": "Легкие фигуры против ладьи",
+      "mixed_endgame": "Смешанный эндшпиль",
+      "opposite_color_bishops": "Разноцветные слоны",
+      "pawn_advantage": "Пешечное преимущество",
+      "pawn_endgame": "Пешечный эндшпиль",
+      "queen_endgame": "Ферзевый эндшпиль",
+      "queen_vs_minors": "Ферзь против легких фигур",
+      "queen_vs_rooks": "Ферзь против ладей",
+      "rook_endgame": "Ладейный эндшпиль",
+      "rook_vs_minors": "Ладья против легких фигур",
+      "rooks_vs_queen": "Ладьи против ферзя",
+      "two_bishops_advantage": "Преимущество двух слонов"
     }
   }
 }

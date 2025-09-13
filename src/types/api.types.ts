@@ -95,6 +95,75 @@ export const TOWER_THEMES = [
 ] as const;
 export type TowerTheme = typeof TOWER_THEMES[number];
 
+// --- ADVANTAGE MODE ---
+export const ADVANTAGE_THEMES = [
+  'bishop_endgame',
+  'bishop_vs_knight',
+  'exchange_advantage',
+  'knight_endgame',
+  'knight_vs_bishop',
+  'material_advantage',
+  'minor_piece_endgame',
+  'minors_vs_queen',
+  'minors_vs_rook',
+  'mixed_endgame',
+  'opposite_color_bishops',
+  'pawn_advantage',
+  'pawn_endgame',
+  'queen_endgame',
+  'queen_vs_minors',
+  'queen_vs_rooks',
+  'rook_endgame',
+  'rook_vs_minors',
+  'rooks_vs_queen',
+  'two_bishops_advantage',
+] as const
+export type AdvantageTheme = typeof ADVANTAGE_THEMES[number]
+
+export interface StartAdvantageDto {
+  mode: TornadoMode
+  theme: AdvantageTheme | 'automatic'
+}
+
+export interface SubmitAdvantageDto {
+  puzzleId: string
+  mode: TornadoMode
+  wasCorrect: boolean
+  timeInSeconds: number
+}
+
+export interface CachedAdvantagePuzzle {
+  PuzzleId: string
+  FEN_0: string
+  Moves: string
+  Rating: number
+  mainTheme: AdvantageTheme
+  bw_value: number
+}
+
+export interface AdvantageSubmitResponse {
+  updatedUser: UserSessionProfile
+  globalRating: number
+  globalPuzzlesSolved: number
+}
+
+export interface AdvantageLeaderboardEntry {
+  rank: number
+  username: string
+  lichess_id: string
+  globalRating: number
+  globalPuzzlesSolved: number
+  subscriptionTier?: string
+  days_old: number
+}
+
+export interface AdvantageStats {
+  globalRating: number;
+  globalPuzzlesSolved: number;
+  themeRatings: Record<AdvantageTheme, any>; // Define more strictly if needed
+}
+// --- END ADVANTAGE ---
+
 // --- TORNADO MODE ---
 export type TornadoMode = 'bullet' | 'blitz' | 'rapid' | 'classic';
 
@@ -459,6 +528,7 @@ export interface LeaderboardApiResponse extends WorktableLeaderboards {
   skillStreakLeaderboard: SkillStreakLeaderboardEntry[];
   topTodayLeaderboard: OverallSkillLeaderboardEntry[];
   tornadoLeaderboard?: { [key in TornadoMode]?: TornadoLeaderboardEntry[] };
+  advantageLeaderboards?: { [key in TornadoMode]?: AdvantageLeaderboardEntry[] };
 }
 
 export interface SkillByMode {
@@ -467,6 +537,7 @@ export interface SkillByMode {
   tower: number;
   tacticalTrainer: number;
   tornado: number;
+  advantage: number;
 }
 
 export interface OverallSkillLeaderboardEntry {
@@ -524,6 +595,8 @@ export interface ActivityPeriodStats {
   attack: ActivityModeStats;
   finishHim: ActivityModeStats;
   tornado: ActivityModeStats;
+  advantage: ActivityModeStats;
+  tacticalTrainer: ActivityModeStats;
 }
 
 export interface PersonalActivityStatsResponse {
@@ -573,6 +646,7 @@ export interface PuzzlesSolvedToday {
   finishHim: number;
   tacticalTrainer: number;
   tornado: number;
+  advantage: number;
   total: number;
 }
 
@@ -582,6 +656,7 @@ export interface SkillEarnedToday {
   finishHim: number;
   tacticalTrainer: number;
   tornado: number;
+  advantage: number;
   total: number;
 }
 
@@ -597,7 +672,6 @@ export interface UserStatsUpdate {
   endgame_skill: number;
   attack_skill: number;
   today_activity: TodayActivity;
-  // --- ИЗМЕНЕНИЕ: Добавлены новые опциональные поля ---
   attackRating?: { rating: number };
   finishHimRating?: { rating: number };
   tornadoHighScores?: {
@@ -606,6 +680,7 @@ export interface UserStatsUpdate {
     bullet?: number;
     classic?: number;
   };
+  advantageStats?: AdvantageStats;
 }
 
 export interface GameResultResponse {
@@ -618,7 +693,6 @@ export interface GameResultResponse {
 export interface UserSessionProfile extends LichessUserProfile {
   FunCoins: number;
   subscriptionTier: SubscriptionTier;
-  // --- ИЗМЕНЕНИЕ: Удалены старые поля статистики ---
   follow_clubs?: ClubIdNamePair[];
   club_founder?: ClubIdNamePair[];
   validatedAt?: number;
@@ -627,7 +701,6 @@ export interface UserSessionProfile extends LichessUserProfile {
   endgame_skill: number;
   attack_skill: number;
   today_activity?: TodayActivity;
-  // --- ИЗМЕНЕНИЕ: Добавлены новые поля рейтинга и рекордов ---
   attackRating?: { rating: number };
   finishHimRating?: { rating: number };
   tornadoHighScores?: {
@@ -636,6 +709,7 @@ export interface UserSessionProfile extends LichessUserProfile {
     bullet?: number;
     classic?: number;
   };
+  advantageStats?: AdvantageStats;
 }
 
 export interface AuthState {
@@ -644,4 +718,3 @@ export interface AuthState {
   isProcessing: boolean;
   error: string | null;
 }
-

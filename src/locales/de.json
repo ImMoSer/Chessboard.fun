@@ -20,7 +20,7 @@
   },
   "nav": {
     "home": "Start",
-    "finishHim": "Verwertung",
+    "finishHim": "FinishHim",
     "attack": "Angriff",
     "tower": "Speedrun",
     "tacktics": "Taktik",
@@ -32,7 +32,8 @@
     "about": "Über uns",
     "login": "Anmelden",
     "logout": "Abmelden",
-    "loginWithLichess": "Mit Lichess anmelden"
+    "loginWithLichess": "Mit Lichess anmelden",
+    "advantage": "Vorteil"
   },
   "auth": {
     "requiredForAction": "Sie müssen angemeldet sein, um diese Aktion durchzuführen."
@@ -93,7 +94,7 @@
   "welcome": {
     "titleV2": "Wählen Sie einen Spielmodus",
     "buttons": {
-      "finishHim": "Verwertung",
+      "finishHim": "FinishHim",
       "tower": "Speedrun",
       "attack": "Angriff",
       "tacktics": "Taktik",
@@ -234,7 +235,7 @@
   "records": {
     "bannerAlt": "Bestenlisten-Banner",
     "titles": {
-      "topFinishHim": "Meister der Verwertung",
+      "topFinishHim": "FinishHim Meister",
       "topAttack": "Meister des Angriffs",
       "towerLeaderboard": "Speedrun-Meister",
       "overallSkill": "Gesamter Skill",
@@ -383,7 +384,7 @@
       "attackSkillLabel": "Angriffs-Skill",
       "puzzlesSolved": "Gelöste Aufgaben",
       "skillEarned": "Skill heute",
-      "finishHimRatingLabel": "Verwertungs-Wertung",
+      "finishHimRatingLabel": "FinishHims-Wertung",
       "attackRatingLabel": "Angriffs-Wertung",
       "tornadoTitle": "Tornado-Höchstwerte",
       "global": {
@@ -399,10 +400,11 @@
       },
       "modes": {
         "all": "Modus",
-        "finishHim": "Verwertung",
+        "finishHim": "FinishHim",
         "attack": "Angriff",
         "tower": "Speedrun",
-        "tacticalTrainer": "Taktik"
+        "tacticalTrainer": "Taktik",
+        "advantage": "Vorteil"
       },
       "noData": "Keine Daten für den ausgewählten Zeitraum verfügbar.",
       "towerTitle": "Speedrun-Statistik",
@@ -477,7 +479,7 @@
       "licenseAndAcknowledgementsTitle": "Lizenzierung und Danksagung"
     },
     "modes": {
-      "conversionTitle": "Verwertung (Finish-Him): ",
+      "conversionTitle": "FinishHim (Finish-Him): ",
       "conversion": "Ein einzigartiger Modus, in dem Sie zuerst eine taktische Aufgabe lösen und dann Ihren Vorteil im Endspiel gegen die Stockfish-Engine beweisen müssen.",
       "speedrunTitle": "Speedrun: ",
       "speedrun": "Testen Sie Ihre Geschwindigkeit und Genauigkeit, indem Sie eine Reihe von zeitgesteuerten taktischen Aufgaben lösen. Die Schwierigkeit der Türme reicht vom Kandidatenmeister- bis zum Großmeisterniveau.",
@@ -506,7 +508,7 @@
       "lichessIntegrationTitle": "Lichess-Integration: ",
       "lichessIntegration": "Melden Sie sich über Ihr Lichess-Konto an, nutzen Sie Ihr Profil und rufen Sie Daten zur Clubaktivität ab.",
       "advancedStatsTitle": "Erweiterte Statistiken: ",
-      "advancedStats": "Verfolgen Sie Ihre Taktik- und Verwertungswertungen, die Anzahl der gespielten Partien, FunCoins und mehr.",
+      "advancedStats": "Verfolgen Sie Ihre Taktik- und FinishHim-Wertungen, die Anzahl der gespielten Partien, FunCoins und mehr.",
       "puzzleDatabaseTitle": "Lichess-Aufgabendatenbank: ",
       "puzzleDatabase": "Alle Aufgaben in der Anwendung basieren auf der riesigen und hochwertigen Lichess-Aufgabendatenbank: ",
       "modernUITitle": "Moderne Benutzeroberfläche: ",
@@ -642,6 +644,52 @@
     },
     "ui": {
       "ratingLabel": "Rating"
+    }
+  },
+    "advantage": {
+    "selection": {
+      "title": "Modus und Thema auswählen",
+      "theme": "Thema",
+      "themeAutomatic": "Automatisch"
+    },
+    "feedback": {
+      "getReady": "Bereiten Sie sich auf die Aufgabe vor",
+      "yourTurn": "Du bist dran",
+      "correct": "Richtig! Deine neue Wertung: {rating}",
+      "incorrect": "Falsch. Deine neue Wertung: {rating}",
+      "loadingFailed": "Aufgabe konnte nicht geladen werden",
+      "submitFailed": "Ergebnis konnte nicht übermittelt werden"
+    },
+    "stats": {
+      "title": "Advantage-Statistiken",
+      "globalRating": "Globale Wertung",
+      "puzzlesSolved": "Gelöste Aufgaben"
+    },
+    "leaderboard": {
+      "globalRating": "Globale Wertung",
+      "puzzlesSolved": "Gelöste Aufgaben"
+    },
+    "themes": {
+      "bishop_endgame": "Läuferendspiel",
+      "bishop_vs_knight": "Läufer gegen Springer",
+      "exchange_advantage": "Qualitätsvorteil",
+      "knight_endgame": "Springerendspiel",
+      "knight_vs_bishop": "Springer gegen Läufer",
+      "material_advantage": "Materieller Vorteil",
+      "minor_piece_endgame": "Leichtfiguren-Endspiel",
+      "minors_vs_queen": "Leichtfiguren gegen Dame",
+      "minors_vs_rook": "Leichtfiguren gegen Turm",
+      "mixed_endgame": "Gemischtes Endspiel",
+      "opposite_color_bishops": "Ungleichfarbige Läufer",
+      "pawn_advantage": "Bauernvorteil",
+      "pawn_endgame": "Bauernendspiel",
+      "queen_endgame": "Damenendspiel",
+      "queen_vs_minors": "Dame gegen Leichtfiguren",
+      "queen_vs_rooks": "Dame gegen Türme",
+      "rook_endgame": "Turmendspiel",
+      "rook_vs_minors": "Turm gegen Leichtfiguren",
+      "rooks_vs_queen": "Türme gegen Dame",
+      "two_bishops_advantage": "Läuferpaar-Vorteil"
     }
   }
 }

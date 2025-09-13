@@ -32,6 +32,10 @@ import type {
   TornadoStartResponse,
   TornadoNextResponse,
   TornadoEndResponse,
+  StartAdvantageDto,
+  CachedAdvantagePuzzle,
+  SubmitAdvantageDto,
+  AdvantageSubmitResponse,
 } from '../types/api.types'
 
 export class RateLimitError extends Error {
@@ -141,6 +145,21 @@ class WebhookServiceController {
       return null
     }
   }
+
+  // --- ADVANTAGE API ---
+  public async startAdvantage(dto: StartAdvantageDto): Promise<CachedAdvantagePuzzle | null> {
+    return this._apiRequest<CachedAdvantagePuzzle>('/advantage/start', 'POST', 'startAdvantage', dto)
+  }
+
+  public async submitAdvantage(dto: SubmitAdvantageDto): Promise<AdvantageSubmitResponse | null> {
+    return this._apiRequest<AdvantageSubmitResponse>(
+      '/advantage/submit',
+      'POST',
+      'submitAdvantage',
+      dto,
+    )
+  }
+  // --- END ADVANTAGE API ---
 
   // --- TORNADO API ---
   public async startTornadoSession(mode: TornadoMode): Promise<TornadoStartResponse | null> {
@@ -385,3 +404,4 @@ class WebhookServiceController {
 }
 
 export const webhookService = new WebhookServiceController()
+

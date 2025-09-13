@@ -55,6 +55,13 @@ export const useAuthStore = defineStore('auth', () => {
     _syncState();
   }
 
+  // --- НАЧАЛО ИЗМЕНЕНИЙ ---
+  function updateProfile(profileUpdate: Partial<UserSessionProfile>) {
+    authService.updateUserProfile(profileUpdate);
+    _syncState();
+  }
+  // --- КОНЕЦ ИЗМЕНЕНИЙ ---
+
   return {
     // State
     userProfile,
@@ -72,5 +79,8 @@ export const useAuthStore = defineStore('auth', () => {
     logout,
     checkSession,
     updateUserStats,
+    // --- НАЧАЛО ИЗМЕНЕНИЙ ---
+    updateProfile,
+    // --- КОНЕЦ ИЗМЕНЕНИЙ ---
   };
 });

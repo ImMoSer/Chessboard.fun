@@ -50,6 +50,10 @@ const handleChangeLang = (lang: 'en' | 'ru' | 'de') => {
           <span class="mode-button-icon">🌪️</span>
           <span class="mode-button-text">{{ t('nav.tornado') }}</span>
         </router-link>
+        <router-link class="mode-button" to="/advantage">
+          <span class="mode-button-icon">🎓</span>
+          <span class="mode-button-text">{{ t('nav.advantage') }}</span>
+        </router-link>
         <router-link class="mode-button" to="/lichess-clubs">
           <span class="mode-button-icon">🏰</span>
           <span class="mode-button-text">{{ t('welcome.buttons.clubs') }}</span>
@@ -73,27 +77,15 @@ const handleChangeLang = (lang: 'en' | 'ru' | 'de') => {
     </div>
 
     <div class="language-switcher-container">
-      <button
-        class="lang-button"
-        :class="{ active: locale === 'en' }"
-        @click="handleChangeLang('en')"
-      >
+      <button class="lang-button" :class="{ active: locale === 'en' }" @click="handleChangeLang('en')">
         EN
       </button>
       <span class="lang-separator">|</span>
-      <button
-        class="lang-button"
-        :class="{ active: locale === 'ru' }"
-        @click="handleChangeLang('ru')"
-      >
+      <button class="lang-button" :class="{ active: locale === 'ru' }" @click="handleChangeLang('ru')">
         RU
       </button>
       <span class="lang-separator">|</span>
-      <button
-        class="lang-button"
-        :class="{ active: locale === 'de' }"
-        @click="handleChangeLang('de')"
-      >
+      <button class="lang-button" :class="{ active: locale === 'de' }" @click="handleChangeLang('de')">
         DE
       </button>
     </div>
@@ -103,15 +95,18 @@ const handleChangeLang = (lang: 'en' | 'ru' | 'de') => {
 <style scoped>
 /* Стили из welcome.css */
 .welcome-page-container {
-  position: relative; /* Добавлено для создания контекста позиционирования */
+  position: relative;
+  /* Добавлено для создания контекста позиционирования */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh; /* Изменено с 80vh на 100vh для полной высоты экрана */
+  min-height: 100vh;
+  /* Изменено с 80vh на 100vh для полной высоты экрана */
   text-align: center;
   padding: 20px;
-  padding-bottom: 30px; /* Добавлен отступ снизу для языкового переключателя */
+  padding-bottom: 30px;
+  /* Добавлен отступ снизу для языкового переключателя */
   box-sizing: border-box;
   background-color: var(--color-bg-primary);
   color: var(--color-text-default);
@@ -123,7 +118,8 @@ const handleChangeLang = (lang: 'en' | 'ru' | 'de') => {
   display: flex;
   gap: 10px;
   align-items: center;
-  z-index: 10; /* Добавлен z-index для гарантии отображения поверх других элементов */
+  z-index: 10;
+  /* Добавлен z-index для гарантии отображения поверх других элементов */
   margin-top: 50px;
 }
 
@@ -263,7 +259,8 @@ const handleChangeLang = (lang: 'en' | 'ru' | 'de') => {
 /* Адаптация для мобильных устройств */
 @media (max-width: 768px) {
   .welcome-page-container {
-    padding-bottom: 60px; /* Уменьшенный отступ для мобильных */
+    padding-bottom: 60px;
+    /* Уменьшенный отступ для мобильных */
   }
 
   .welcome-content {

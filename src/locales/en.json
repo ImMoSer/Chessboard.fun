@@ -20,7 +20,7 @@
   },
   "nav": {
     "home": "Home",
-    "finishHim": "Conversion",
+    "finishHim": "FinishHim",
     "attack": "Attack",
     "tower": "SpeedRun",
     "tacktics": "Tacktics",
@@ -32,7 +32,8 @@
     "about": "About",
     "login": "Login",
     "logout": "Logout",
-    "loginWithLichess": "Login with Lichess"
+    "loginWithLichess": "Login with Lichess",
+    "advantage": "Advantage"
   },
   "auth": {
     "requiredForAction": "You must be logged in to perform this action."
@@ -383,7 +384,7 @@
       "attackSkillLabel": "Attack Skill",
       "puzzlesSolved": "Puzzles Solved",
       "skillEarned": "Skill Today",
-      "finishHimRatingLabel": "Conversion Rating",
+      "finishHimRatingLabel": "FinishHim Rating",
       "attackRatingLabel": "Attack Rating",
       "tornadoTitle": "Tornado High Scores",
       "global": {
@@ -399,10 +400,11 @@
       },
       "modes": {
         "all": "Mode",
-        "finishHim": "Conversion",
+        "finishHim": "FinishHim",
         "attack": "Attack",
         "tower": "SpeedRun",
-        "tacticalTrainer": "Tactics"
+        "tacticalTrainer": "Tactics",
+        "advantage": "Advantage"
       },
       "noData": "No data available for the selected period.",
       "towerTitle": "SpeedRun Statistics",
@@ -506,7 +508,7 @@
       "lichessIntegrationTitle": "Lichess Integration: ",
       "lichessIntegration": "Log in via your Lichess account, use your profile, and fetch club activity data.",
       "advancedStatsTitle": "Advanced Statistics: ",
-      "advancedStats": "Track your tactical and conversion ratings, number of games played, FunCoins, and more.",
+      "advancedStats": "Track your tactical and FinishHim ratings, number of games played, FunCoins, and more.",
       "puzzleDatabaseTitle": "Lichess Puzzle Database: ",
       "puzzleDatabase": "All puzzles in the application are based on the vast and high-quality Lichess puzzle database: ",
       "modernUITitle": "Modern UI: ",
@@ -641,6 +643,52 @@
     },
     "ui": {
       "ratingLabel": "Rating"
+    }
+  },
+    "advantage": {
+    "selection": {
+      "title": "Select Mode and Theme",
+      "theme": "Theme",
+      "themeAutomatic": "Automatic"
+    },
+    "feedback": {
+      "getReady": "Get ready for the puzzle",
+      "yourTurn": "Your turn",
+      "correct": "Correct! Your new rating: {rating}",
+      "incorrect": "Incorrect. Your new rating: {rating}",
+      "loadingFailed": "Failed to load puzzle",
+      "submitFailed": "Failed to submit result"
+    },
+    "stats": {
+      "title": "Advantage Stats",
+      "globalRating": "Global Rating",
+      "puzzlesSolved": "Puzzles Solved"
+    },
+    "leaderboard": {
+      "globalRating": "Global Rating",
+      "puzzlesSolved": "Puzzles Solved"
+    },
+    "themes": {
+      "bishop_endgame": "Bishop Endgame",
+      "bishop_vs_knight": "Bishop vs Knight",
+      "exchange_advantage": "Exchange Advantage",
+      "knight_endgame": "Knight Endgame",
+      "knight_vs_bishop": "Knight vs Bishop",
+      "material_advantage": "Material Advantage",
+      "minor_piece_endgame": "Minor Piece Endgame",
+      "minors_vs_queen": "Minors vs Queen",
+      "minors_vs_rook": "Minors vs Rook",
+      "mixed_endgame": "Mixed Endgame",
+      "opposite_color_bishops": "Opposite-colored Bishops",
+      "pawn_advantage": "Pawn Advantage",
+      "pawn_endgame": "Pawn Endgame",
+      "queen_endgame": "Queen Endgame",
+      "queen_vs_minors": "Queen vs Minors",
+      "queen_vs_rooks": "Queen vs Rooks",
+      "rook_endgame": "Rook Endgame",
+      "rook_vs_minors": "Rook vs Minors",
+      "rooks_vs_queen": "Rooks vs Queen",
+      "two_bishops_advantage": "Two Bishops Advantage"
     }
   }
 }

@@ -11,7 +11,9 @@ import { useControlsStore } from './controls.store'
 import { soundService } from '../services/sound.service'
 
 export type GamePhase = 'IDLE' | 'LOADING' | 'PLAYING' | 'GAMEOVER'
-export type GameMode = 'finish-him' | 'attack' | 'tower' | 'tornado' | null
+// --- НАЧАЛО ИЗМЕНЕНИЙ ---
+export type GameMode = 'finish-him' | 'attack' | 'tower' | 'tornado' | 'advantage' | null
+// --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
 const BOT_MOVE_DELAY_MS = 50
 const FIRST_BOT_MOVE_DELAY_MS = 500
@@ -153,18 +155,18 @@ export const useGameStore = defineStore('game', () => {
     if (isScenarioActive) {
       const expectedMove = scenarioMoves.value[currentScenarioMoveIndex.value]
       if (uciMove === expectedMove) {
-        if (userMovesCount.value === 1 && (currentGameMode.value === 'tornado')) {
+        if (userMovesCount.value === 1 && (currentGameMode.value === 'tornado' || currentGameMode.value === 'advantage')) {
           onCorrectFirstMoveCallback()
         }
         currentScenarioMoveIndex.value++
         const isPuzzleComplete = currentScenarioMoveIndex.value >= scenarioMoves.value.length
-        if (isPuzzleComplete && (currentGameMode.value === 'tornado')) {
+        if (isPuzzleComplete && (currentGameMode.value === 'tornado' || currentGameMode.value === 'advantage')) {
           onGameOverCallback(true)
           return
         }
       } else {
         currentScenarioMoveIndex.value = scenarioMoves.value.length
-        if (currentGameMode.value === 'tornado') {
+        if (currentGameMode.value === 'tornado' || currentGameMode.value === 'advantage') {
           onGameOverCallback(false, { winner: undefined, reason: 'wrong_move' })
           return
         }

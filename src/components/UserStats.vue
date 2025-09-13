@@ -37,6 +37,7 @@ const activityModes: {
     { key: 'tower', label: t('nav.tower'), icon: '🏁' },
     { key: 'attack', label: t('nav.attack'), icon: '⚔️' },
     { key: 'tornado', label: t('nav.tornado'), icon: '🌪️' },
+    { key: 'advantage', label: t('nav.advantage'), icon: '🎓' },
   ]
 
 const tornadoMode = computed(() => {
