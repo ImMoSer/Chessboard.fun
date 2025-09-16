@@ -1,7 +1,7 @@
 <!-- src/App.vue -->
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue'
-import { RouterView } from 'vue-router'
+import { computed, onMounted, onUnmounted } from 'vue'
+import { RouterView, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import NavMenu from './components/NavMenu.vue'
 import SettingsMenu from './components/SettingsMenu.vue'
@@ -10,6 +10,11 @@ import { useGameStore } from './stores/game.store'
 
 const gameStore = useGameStore()
 const { t } = useI18n()
+const route = useRoute()
+
+// --- НАЧАЛО ИЗМЕНЕНИЙ: Проверяем, является ли текущая страница страницей для скриншота ---
+const isScreenshotView = computed(() => route.name === 'funclub-latest-battle')
+// --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
 // Обработчик для перезагрузки/закрытия страницы
 const beforeUnloadHandler = (event: BeforeUnloadEvent) => {
@@ -35,7 +40,9 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <header class="app-header">
+  <!-- --- НАЧАЛО ИЗМЕНЕНИЙ: Скрываем header для страницы скриншота --- -->
+  <header v-if="!isScreenshotView" class="app-header">
+    <!-- --- КОНЕЦ ИЗМЕНЕНИЙ --- -->
     <div class="header-content">
       <div class="logo">
         <RouterLink to="/">
@@ -83,14 +90,13 @@ onUnmounted(() => {
 .navigation-wrapper {
   display: flex;
   align-items: center;
-  gap: 1rem; /* Расстояние между меню и шестеренкой */
+  gap: 1rem;
+  /* Расстояние между меню и шестеренкой */
 }
 
-/* --- НАЧАЛО ИЗМЕНЕНИЙ --- */
 @media (orientation: portrait) {
   .header-content {
     justify-content: space-between;
   }
 }
-/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
 </style>

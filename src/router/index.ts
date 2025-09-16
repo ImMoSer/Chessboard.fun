@@ -21,6 +21,7 @@ import UserCabinetView from '../views/UserCabinetView.vue'
 import TornadoSelectionView from '../views/TornadoSelectionView.vue'
 import TornadoView from '../views/TornadoView.vue'
 import TornadoMistakesView from '../views/TornadoMistakesView.vue'
+import FunclubLatestBattleView from '../views/FunclubLatestBattleView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -86,6 +87,11 @@ const router = createRouter({
       path: '/funclub',
       name: 'funclub',
       component: () => import('../views/FunclubView.vue'),
+    },
+    {
+      path: '/funclub/latestbattle/:lang?',
+      name: 'funclub-latest-battle',
+      component: FunclubLatestBattleView,
     },
     {
       path: '/records',
@@ -174,3 +180,4 @@ router.afterEach(async (to, from) => {
 })
 
 export default router
+

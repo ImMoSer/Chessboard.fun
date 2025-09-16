@@ -28,6 +28,9 @@ import type {
   TornadoEndResponse,
   FunclubMeta,
   TeamBattleReport,
+  // --- НАЧАЛО ИЗМЕНЕНИЙ ---
+  LatestTeamBattleReport,
+  // --- КОНЕЦ ИЗМЕНЕНИЙ ---
 } from '../types/api.types'
 
 export class RateLimitError extends Error {
@@ -135,6 +138,16 @@ class WebhookServiceController {
         : `/funclub-stats/team-battle/monthly/${period.replace('-', '/')}`
     return this._apiRequest<TeamBattleReport>(path, 'GET', 'fetchFunclubTeamBattleReport')
   }
+
+  // --- НАЧАЛО ИЗМЕНЕНИЙ ---
+  public async fetchLatestTeamBattleReport(): Promise<LatestTeamBattleReport | null> {
+    return this._apiRequest<LatestTeamBattleReport>(
+      '/funclub-stats/team-battle/latest',
+      'GET',
+      'fetchLatestTeamBattleReport',
+    )
+  }
+  // --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
   // --- TORNADO API ---
   public async startTornadoSession(mode: TornadoMode): Promise<TornadoStartResponse | null> {
@@ -309,4 +322,3 @@ class WebhookServiceController {
 }
 
 export const webhookService = new WebhookServiceController()
-

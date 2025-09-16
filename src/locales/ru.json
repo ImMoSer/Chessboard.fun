@@ -642,5 +642,37 @@
     "ui": {
       "ratingLabel": "Рейтинг"
     }
+  },
+  "latestBattle": {
+    "linkToTournament": "Ссылка на турнир на Lichess",
+    "teamStatsTitle": "СТАТИСТИКА КОМАНДЫ",
+    "rankInTournament": "Место в турнире",
+    "playersCount": "Игроков",
+    "totalGames": "Всего игр",
+    "totalScore": "Всего очков",
+    "winRatePercent": "Процент побед",
+    "table": {
+      "rank": "№",
+      "player": "Игрок",
+      "score": "Очки",
+      "games": "Игры",
+      "performance": "Перф"
+    },
+    "medalsTitle": "МЕДАЛИ",
+    "goldMedal": "1 место",
+    "silverMedal": "2 место",
+    "bronzeMedal": "3 место",
+    "nominationsTitle": "НОМИНАЦИИ",
+    "berserker": "Берсеркер",
+    "workhorse": "Трудяга",
+    "winStreaker": "Серийный убийца",
+    "performer": "Перформер",
+    "winsUnit": "побед",
+    "gamesUnit": "игр",
+    "streakUnit": "серия",
+    "perfUnit": "перф",
+    "errors": {
+      "noData": "Отчет о последней битве не найден."
+    }
   }
 }

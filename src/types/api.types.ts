@@ -559,7 +559,6 @@ export interface CalculatedPlayerStats {
   longestWinStreak: number
 }
 
-// --- НАЧАЛО ИЗМЕНЕНИЙ: Исправлен интерфейс TournamentPlayer ---
 export interface TournamentPlayer {
   rank_in_club: number
   rank_in_arena: number
@@ -572,7 +571,6 @@ export interface TournamentPlayer {
   flair?: string
   calculatedStats: CalculatedPlayerStats
 }
-// --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
 export interface TeamBattlePlayedArena {
   arena_id: string
@@ -596,3 +594,53 @@ export interface TeamBattleReport {
     user_in_club_medals: MedalsReportUser[]
   }
 }
+
+// --- НАЧАЛО ИЗМЕНЕНИЙ ---
+// Types for the latest battle report
+export interface LatestBattleMedals {
+  gold: string
+  silver: string
+  bronze: string
+}
+
+export interface LatestBattleTeamStats {
+  total_games: number
+  total_score: number
+  players_count: number
+  win_rate_percent: number
+  rank_in_tournament: number
+}
+
+export interface LatestBattleNomination {
+  value: number
+  username: string
+}
+
+export interface LatestBattleNominations {
+  berserker: LatestBattleNomination
+  performer: LatestBattleNomination
+  workhorse: LatestBattleNomination
+  win_streaker: LatestBattleNomination
+}
+
+export interface LatestBattlePlayer {
+  rank: number
+  games: number
+  score: number
+  username: string
+  performance: number
+}
+
+export interface LatestBattleTournamentInfo {
+  url: string
+  name: string
+}
+
+export interface LatestTeamBattleReport {
+  medals: LatestBattleMedals
+  team_stats: LatestBattleTeamStats
+  nominations: LatestBattleNominations
+  players_table: LatestBattlePlayer[]
+  tournament_info: LatestBattleTournamentInfo
+}
+// --- КОНЕЦ ИЗМЕНЕНИЙ ---

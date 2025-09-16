@@ -642,5 +642,37 @@
     "ui": {
       "ratingLabel": "Rating"
     }
+  },
+  "latestBattle": {
+    "linkToTournament": "Link to the tournament on Lichess",
+    "teamStatsTitle": "TEAM STATISTICS",
+    "rankInTournament": "Tournament Rank",
+    "playersCount": "Players",
+    "totalGames": "Total Games",
+    "totalScore": "Total Score",
+    "winRatePercent": "Win Rate",
+    "table": {
+      "rank": "#",
+      "player": "Player",
+      "score": "Score",
+      "games": "Games",
+      "performance": "Perf"
+    },
+    "medalsTitle": "MEDALS",
+    "goldMedal": "1st place",
+    "silverMedal": "2nd place",
+    "bronzeMedal": "3rd place",
+    "nominationsTitle": "NOMINATIONS",
+    "berserker": "Berserker",
+    "workhorse": "Workhorse",
+    "winStreaker": "Win Streaker",
+    "performer": "Performer",
+    "winsUnit": "wins",
+    "gamesUnit": "games",
+    "streakUnit": "streak",
+    "perfUnit": "perf",
+    "errors": {
+      "noData": "Latest battle report not found."
+    }
   }
 }
