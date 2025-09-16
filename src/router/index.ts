@@ -15,8 +15,6 @@ import WelcomeView from '../views/WelcomeView.vue'
 import AboutView from '../views/AboutView.vue'
 import PricingView from '../views/PricingView.vue'
 import AttackView from '../views/AttackView.vue'
-import ClubPageView from '../views/ClubPageView.vue'
-import LichessClubsView from '../views/LichessClubsView.vue'
 import RecordsPageView from '../views/RecordsPageView.vue'
 import TowerView from '../views/TowerView.vue'
 import UserCabinetView from '../views/UserCabinetView.vue'
@@ -85,14 +83,9 @@ const router = createRouter({
       component: PricingView,
     },
     {
-      path: '/clubs/:clubId',
-      name: 'clubs',
-      component: ClubPageView,
-    },
-    {
-      path: '/lichess-clubs',
-      name: 'lichess-clubs',
-      component: LichessClubsView,
+      path: '/funclub',
+      name: 'funclub',
+      component: () => import('../views/FunclubView.vue'),
     },
     {
       path: '/records',

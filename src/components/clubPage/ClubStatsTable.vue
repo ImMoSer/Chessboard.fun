@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { ref, computed, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { PlayerData } from '../../types/api.types'
+import type { TeamBattlePlayerSummary } from '../../types/api.types'
 
 const { t } = useI18n()
 const VISIBLE_COUNT_INCREMENT = 10
@@ -14,17 +14,17 @@ const props = defineProps({
     required: true,
   },
   players: {
-    type: Array as PropType<PlayerData[]>,
+    type: Array as PropType<TeamBattlePlayerSummary[]>,
     required: true,
   },
   // Определяем колонки таблицы через props для гибкости
   columns: {
-    type: Array as PropType<{ key: keyof PlayerData; label: string; class?: string }[]>,
+    type: Array as PropType<{ key: keyof TeamBattlePlayerSummary; label: string; class?: string }[]>,
     required: true,
   },
   // Ключ для сортировки
   sortKey: {
-    type: String as PropType<keyof PlayerData>,
+    type: String as PropType<keyof TeamBattlePlayerSummary>,
     required: true,
   },
   // Класс для цвета заголовка
@@ -75,17 +75,16 @@ const getFlairIconUrl = (flair?: string | null) => {
 }
 
 // Рендерим ячейку с игроком (имя + иконка)
-const renderPlayerCell = (player: PlayerData) => {
+const renderPlayerCell = (player: TeamBattlePlayerSummary) => {
   const flairHtml = player.flair
-    ? `<img src="${getFlairIconUrl(player.flair)}" alt="Flair" title="${
-        player.flair
-      }" class="club-page__flair-icon" />`
+    ? `<img src="${getFlairIconUrl(player.flair)}" alt="Flair" title="${player.flair
+    }" class="club-page__flair-icon" />`
     : ''
   return `<a href="https://lichess.org/@/${player.lichess_id}" target="_blank">${player.username}</a>${flairHtml}`
 }
 
 // Получаем значение для любой ячейки
-const getCellValue = (player: PlayerData, key: keyof PlayerData) => {
+const getCellValue = (player: TeamBattlePlayerSummary, key: keyof TeamBattlePlayerSummary) => {
   const value = player[key]
   if (typeof value === 'object' && value !== null && 'avg' in value) {
     return (value as any).avg
@@ -147,12 +146,15 @@ const getCellValue = (player: PlayerData, key: keyof PlayerData) => {
 .title-color-primary {
   background-color: var(--color-accent-primary);
 }
+
 .title-color-secondary {
   background-color: var(--color-accent-secondary);
 }
+
 .title-color-violet {
   background-color: var(--color-violett-lichess);
 }
+
 .default-title-color {
   background-color: var(--color-bg-secondary);
   color: var(--color-text-default);
@@ -175,9 +177,11 @@ const getCellValue = (player: PlayerData, key: keyof PlayerData) => {
 .club-page__table .text-left {
   text-align: left;
 }
+
 .club-page__table .text-center {
   text-align: center;
 }
+
 .club-page__table .text-right {
   text-align: right;
 }
@@ -187,12 +191,14 @@ const getCellValue = (player: PlayerData, key: keyof PlayerData) => {
   font-weight: var(--font-weight-bold);
 }
 
-.club-page__table > tbody > tr:nth-child(odd) {
+.club-page__table>tbody>tr:nth-child(odd) {
   background-color: var(--color-bg-tertiary);
 }
-.club-page__table > tbody > tr:nth-child(even) {
+
+.club-page__table>tbody>tr:nth-child(even) {
   background-color: var(--color-bg-secondary);
 }
+
 .club-page__table tbody tr:hover {
   background-color: var(--color-border-hover);
 }
@@ -202,6 +208,7 @@ const getCellValue = (player: PlayerData, key: keyof PlayerData) => {
   color: var(--color-text-link);
   text-decoration: none;
 }
+
 :deep(a:hover) {
   text-decoration: underline;
 }
@@ -240,10 +247,12 @@ const getCellValue = (player: PlayerData, key: keyof PlayerData) => {
     font-size: var(--font-size-base);
     padding: 8px 10px;
   }
+
   .club-page__table,
   .club-page__show-more-button {
     font-size: var(--font-size-xsmall);
   }
+
   .club-page__table th,
   .club-page__table td {
     padding: 5px;

@@ -1,12 +1,7 @@
 // src/services/AuthService.ts
 import logger from '../utils/logger'
 import i18n from './i18n'
-import type {
-  UserSessionProfile,
-  AuthState,
-  ClubIdNamePair,
-  UserStatsUpdate,
-} from '../types/api.types'
+import type { UserSessionProfile, AuthState, UserStatsUpdate } from '../types/api.types'
 
 const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL as string
 
@@ -204,13 +199,6 @@ class AuthServiceController {
 
   public getFunCoins(): number | null {
     return this.state.userProfile?.FunCoins ?? null
-  }
-  public getFollowClubs(): ClubIdNamePair[] | undefined {
-    return this.state.userProfile?.follow_clubs
-  }
-
-  public getFounderClubs(): ClubIdNamePair[] | undefined {
-    return this.state.userProfile?.club_founder
   }
 
   public updateUserProfile(updatedData: Partial<UserSessionProfile>) {

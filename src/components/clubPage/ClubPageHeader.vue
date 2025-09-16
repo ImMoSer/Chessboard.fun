@@ -1,20 +1,13 @@
 <!-- src/components/clubPage/ClubPageHeader.vue -->
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { storeToRefs } from 'pinia'
-import { useClubePageStore } from '../../stores/clubePage.store'
-import type { ClubInfo } from '../../types/api.types'
+import type { FunclubMeta } from '../../types/api.types'
 
 const { t } = useI18n()
-const clubePageStore = useClubePageStore()
-
-// Получаем необходимые состояния и геттеры из стора
-const { isFollowingCurrentClub, isFollowRequestProcessing, getIsUserAuthenticated } =
-  storeToRefs(clubePageStore)
 
 // Определяем props, которые компонент принимает от родителя
 defineProps<{
-  clubInfo: ClubInfo
+  clubInfo: FunclubMeta
 }>()
 
 // Хелпер для получения URL иконки flair
@@ -26,45 +19,20 @@ const getFlairIconUrl = (flair?: string | null) => {
 
 <template>
   <div>
-    <img
-      :src="`/clubPageBanner/club_id_${clubInfo.club_id}.jpg`"
-      class="club-page__banner"
-      :alt="t('clubPage.bannerAlt')"
-      @error="($event.target as HTMLImageElement).style.display = 'none'"
-    />
+    <img src="/clubPageBanner/clubBanner.jpg" class="club-page__banner" :alt="t('clubPage.bannerAlt')"
+      @error="($event.target as HTMLImageElement).style.display = 'none'" />
     <header class="club-page__header">
       <div class="club-page__header-info">
-        <a
-          :href="`https://lichess.org/team/${clubInfo.club_id}`"
-          target="_blank"
-          class="club-page__name-link"
-        >
-          <h1 class="club-page__name">{{ clubInfo.club_name }}</h1>
+        <a :href="`https://lichess.org/team/${clubInfo.clubId}`" target="_blank" class="club-page__name-link">
+          <h1 class="club-page__name">{{ clubInfo.name }}</h1>
         </a>
         <p class="club-page__meta">
           {{ t('clubPage.founder') }}:
-          <a :href="`https://lichess.org/@/${clubInfo.grunder.name}`" target="_blank">{{
-            clubInfo.grunder.name
+          <a :href="`https://lichess.org/@/${clubInfo.leader.name}`" target="_blank">{{
+            clubInfo.leader.name
           }}</a>
-          | {{ t('clubPage.members') }}: {{ clubInfo.nb_members }}
+          | {{ t('clubPage.members') }}: {{ clubInfo.nbMembers }}
         </p>
-      </div>
-      <div class="club-page__follow-button-container">
-        <button
-          v-if="getIsUserAuthenticated"
-          class="club-page__follow-button"
-          :class="{ following: isFollowingCurrentClub, 'not-following': !isFollowingCurrentClub }"
-          :disabled="isFollowRequestProcessing"
-          @click="clubePageStore.toggleFollowCurrentClub"
-        >
-          {{
-            isFollowRequestProcessing
-              ? t('common.processing')
-              : isFollowingCurrentClub
-                ? t('clubPage.button.unfollow')
-                : t('clubPage.button.follow')
-          }}
-        </button>
       </div>
     </header>
 
@@ -74,12 +42,8 @@ const getFlairIconUrl = (flair?: string | null) => {
         <li v-for="leader in clubInfo.leaders" :key="leader.id">
           <a :href="`https://lichess.org/@/${leader.id}`" target="_blank">
             {{ leader.title ? `${leader.title} ` : '' }}{{ leader.name }}
-            <img
-              v-if="getFlairIconUrl(leader.flair)"
-              :src="getFlairIconUrl(leader.flair)!"
-              alt="Flair"
-              class="club-page__flair-icon"
-            />
+            <img v-if="getFlairIconUrl(leader.flair)" :src="getFlairIconUrl(leader.flair)!" alt="Flair"
+              class="club-page__flair-icon" />
           </a>
         </li>
       </ul>
@@ -131,36 +95,10 @@ const getFlairIconUrl = (flair?: string | null) => {
   color: var(--color-text-link);
   text-decoration: none;
 }
+
 .club-page__name-link:hover,
 .club-page__meta a:hover {
   text-decoration: underline;
-}
-
-.club-page__follow-button-container {
-  display: flex;
-  justify-content: center;
-}
-
-.club-page__follow-button {
-  padding: 8px 20px;
-  font-size: var(--font-size-large);
-  font-weight: var(--font-weight-bold);
-  border-radius: var(--panel-border-radius);
-  border: 1px solid;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.club-page__follow-button.following {
-  background-color: var(--color-accent-error);
-  border-color: var(--color-accent-error);
-  color: var(--color-text-on-accent);
-}
-
-.club-page__follow-button.not-following {
-  background-color: var(--color-accent-success);
-  border-color: var(--color-accent-success);
-  color: var(--color-text-dark);
 }
 
 .club-page__leaders-section {
@@ -221,19 +159,18 @@ const getFlairIconUrl = (flair?: string | null) => {
   .club-page__header-info .club-page__name {
     font-size: var(--font-size-large);
   }
+
   .club-page__meta {
     font-size: var(--font-size-small);
   }
+
   .club-page__section-title {
     font-size: var(--font-size-base);
     padding: 8px 10px;
   }
+
   .club-page__leaders-list li a {
     font-size: var(--font-size-xsmall);
-  }
-  .club-page__follow-button {
-    padding: 8px 10px;
-    font-size: var(--font-size-small);
   }
 }
 </style>

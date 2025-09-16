@@ -27,7 +27,7 @@
     "tornado": "Tornado",
     "leaderboards": "LeaderBoards",
     "userCabinet": "Cabinet",
-    "lichessClubs": "Clubs",
+    "lichessClubs": "FunClub",
     "pricing": "Pricing",
     "about": "About",
     "login": "Login",
@@ -97,7 +97,7 @@
       "tower": "Speedrun",
       "attack": "Attack",
       "tacktics": "Tacktics",
-      "clubs": "Lichess Clubs",
+      "clubs": "FunClub",
       "leaderboards": "Leaderboards"
     },
     "loginPrompt": "Or log in to access all features:"
@@ -264,9 +264,9 @@
   },
   "lichessClubs": {
     "pageTitle": {
-      "loading": "Loading Lichess Clubs...",
-      "loaded": "Lichess Clubs",
-      "error": "Error Loading Lichess Clubs"
+      "loading": "Loading FunClub...",
+      "loaded": "FunClub",
+      "error": "Error Loading FunClub"
     },
     "table": {
       "clubName": "Club Name",
@@ -276,7 +276,7 @@
       "activePlayers": "Players",
       "noClubs": "No registered clubs found."
     },
-    "bannerAlt": "Lichess Clubs Banner",
+    "bannerAlt": "FunClub Banner",
     "founder": {
       "cooldownMessage": "You can perform the next action in {hours} hours.",
       "clubIsListed": "Your club is listed: {clubName}",
@@ -348,7 +348,7 @@
       "clubScore": "Score",
       "score": "Score",
       "performance": "Perf.",
-      "arenaRank": "Arena Rank",
+      "arenaRank": "ArenaRank",
       "cronePlayer": "Contributed to the tournament standings"
     },
     "follow": {
@@ -495,10 +495,10 @@
         "dimas": " (Stockfish.js - local: depth 6, contempt 100)",
         "darko": " (Stockfish.js - local: depth 4, contempt 100)"
       },
-      "lichessClubsTitle": "Club Statistics: ",
-      "lichessClubs": "View detailed statistics and leaderboards for any Lichess chess club, tracking player activity and achievements. (Only clubs registered in the system are displayed).",
+      "lichessClubsTitle": "FunClub Statistics: ",
+      "lichessClubs": "View detailed statistics and leaderboards for our FunClub, tracking player activity and achievements.",
       "userCabinetTitle": "User Dashboard: ",
-      "userCabinet": "Your personal dashboard with statistics for all game modes, a list of your favorite puzzles, and your Lichess activity.",
+      "userCabinet": "Your personal dashboard with statistics for all game modes, a list of your favorite puzzles, and your FunClub activity.",
       "analysisPanelTitle": "Analysis Panel: ",
       "analysisPanel": "A powerful tool for analyzing any position with the Stockfish engine, viewing variations, and PGN."
     },

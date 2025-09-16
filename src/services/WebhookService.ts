@@ -1,6 +1,5 @@
 // src/services/WebhookService.ts
 import logger from '../utils/logger'
-import { CacheService } from './cache.service'
 import { authService } from './AuthService'
 import type {
   WebhookSuccessResponse,
@@ -8,16 +7,11 @@ import type {
   GetNewTowerDto,
   SaveTowerRecordDto,
   AttackRecordDto,
-  FollowClubDto,
-  FounderActionDto,
   SubmitTacticalResultDto,
   GamePuzzle,
   TacticalTrainerStats,
   TowerData,
-  ClubApiResponse,
-  LichessClubsApiResponse,
   TelegramBindingUrlResponse,
-  ListedClub,
   GetTacticalPuzzleDto,
   OverallSkillLeaderboardEntry,
   PersonalOverallSkillResponse,
@@ -32,6 +26,8 @@ import type {
   TornadoStartResponse,
   TornadoNextResponse,
   TornadoEndResponse,
+  FunclubMeta,
+  TeamBattleReport,
 } from '../types/api.types'
 
 export class RateLimitError extends Error {
@@ -51,17 +47,6 @@ export class InsufficientFunCoinsError extends Error {
 }
 
 const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL as string
-
-const CACHE_CLUBS_ALL_TTL_MS = parseInt(import.meta.env.VITE_CACHE_CLUBS_ALL_TTL_MS || '1000', 10)
-const CACHE_CLUB_STATS_TTL_MS = parseInt(import.meta.env.VITE_CACHE_CLUB_STATS_TTL_MS || '1000', 10)
-const CACHE_LEADERBOARDS_TTL_MS = parseInt(
-  import.meta.env.VITE_CACHE_LEADERBOARDS_TTL_MS || '1000',
-  10,
-)
-const CACHE_PERSONAL_ACTIVITY_TTL_MS = parseInt(
-  import.meta.env.VITE_CACHE_PERSONAL_ACTIVITY_TTL_MS || '1000',
-  10,
-)
 
 if (!BACKEND_API_URL) {
   logger.error(
@@ -128,18 +113,27 @@ class WebhookServiceController {
         return { status: 'ok' } as unknown as TResponse
       }
 
-      const responseData = (await response.json()) as TResponse
-
-      if (context === 'fetchClubStats') {
-        logger.debug(`[WebhookService ${context}] Raw API Response:`, JSON.parse(JSON.stringify(responseData)))
-      }
-
-      return responseData
+      return (await response.json()) as TResponse
     } catch (error) {
       if (error instanceof RateLimitError || error instanceof InsufficientFunCoinsError) throw error
       logger.error(`[WebhookService ${context}] Network or fetch error:`, error)
       return null
     }
+  }
+
+  // --- NEW FUNCLUB STATS API ---
+  public async fetchFunclubClubMeta(): Promise<FunclubMeta | null> {
+    return this._apiRequest<FunclubMeta>('/funclub-stats/club-meta', 'GET', 'fetchFunclubClubMeta')
+  }
+
+  public async fetchFunclubTeamBattleReport(
+    period: 'last_30_days' | string,
+  ): Promise<TeamBattleReport | null> {
+    const path =
+      period === 'last_30_days'
+        ? '/funclub-stats/team-battle/last_30_days'
+        : `/funclub-stats/team-battle/monthly/${period.replace('-', '/')}`
+    return this._apiRequest<TeamBattleReport>(path, 'GET', 'fetchFunclubTeamBattleReport')
   }
 
   // --- TORNADO API ---
@@ -271,77 +265,22 @@ class WebhookServiceController {
     )
   }
 
-  public async fetchAllClubsStats(): Promise<WebhookSuccessResponse<ListedClub[]>> {
-    const k = 'lichess_clubs_all'
-    const c = CacheService.get<ListedClub[]>(k, CACHE_CLUBS_ALL_TTL_MS)
-    if (c) return c
-    const d = await this._apiRequest<LichessClubsApiResponse>(
-      '/n8n-proxy/clubs',
-      'GET',
-      'fetchAllClubsStats',
-    )
-    const s = d?.stats ?? null
-    if (s) CacheService.set(k, s)
-    return s
-  }
-
-  public async fetchClubStats(clubId: string): Promise<WebhookSuccessResponse<ClubApiResponse>> {
-    const k = `club_stats_v4_${clubId}`
-    const c = CacheService.get<ClubApiResponse>(k, CACHE_CLUB_STATS_TTL_MS)
-    if (c) return c
-    const d = await this._apiRequest<ClubApiResponse>(
-      `/n8n-proxy/clubs/${clubId}`,
-      'GET',
-      'fetchClubStats',
-    )
-    if (d) CacheService.set(k, d)
-    return d
-  }
-
-  public async updateClubFollowStatus(dto: FollowClubDto): Promise<any | null> {
-    return this._apiRequest<any>('/n8n-proxy/clubs/follow', 'POST', 'updateClubFollowStatus', dto)
-  }
-
-  public async manageFounderClub(dto: FounderActionDto): Promise<{ success: boolean } | null> {
-    return this._apiRequest<{ success: boolean }>(
-      '/n8n-proxy/clubs/founder-action',
-      'POST',
-      'manageFounderClub',
-      dto,
-    )
-  }
-
   public async fetchCombinedLeaderboards(): Promise<LeaderboardApiResponse | null> {
-    const cacheKey = 'leaderboards_combined_v2'
-    const cachedData = CacheService.get<LeaderboardApiResponse>(cacheKey, CACHE_LEADERBOARDS_TTL_MS)
-    if (cachedData) return cachedData
-
-    const data = await this._apiRequest<LeaderboardApiResponse>(
+    return this._apiRequest<LeaderboardApiResponse>(
       `/n8n-proxy/leaderboards`,
       'GET',
       'fetchCombinedLeaderboards',
     )
-    if (data) CacheService.set(cacheKey, data)
-    return data
   }
 
   public async fetchOverallSkillLeaderboard(
     period: '7' | '14' | '21' | '30',
   ): Promise<OverallSkillLeaderboardEntry[] | null> {
-    const cacheKey = `leaderboard_overall_skill_${period}`
-    const cachedData = CacheService.get<OverallSkillLeaderboardEntry[]>(
-      cacheKey,
-      CACHE_LEADERBOARDS_TTL_MS,
-    )
-    if (cachedData) return cachedData
-
-    const data = await this._apiRequest<OverallSkillLeaderboardEntry[]>(
+    return this._apiRequest<OverallSkillLeaderboardEntry[]>(
       `/n8n-proxy/leaderboards/overall-skill?period=${period}`,
       'GET',
       'fetchOverallSkillLeaderboard',
     )
-    if (data) CacheService.set(cacheKey, data)
-    return data
   }
 
   public async fetchPersonalOverallSkill(): Promise<PersonalOverallSkillResponse | null> {
@@ -361,27 +300,13 @@ class WebhookServiceController {
   }
 
   public async fetchPersonalActivityStats(): Promise<PersonalActivityStatsResponse | null> {
-    const cacheKey = 'personal_activity_stats'
-    const cachedData = CacheService.get<PersonalActivityStatsResponse>(
-      cacheKey,
-      CACHE_PERSONAL_ACTIVITY_TTL_MS,
-    )
-    if (cachedData) {
-      logger.info('[WebhookService] Returning cached personal activity stats.')
-      return cachedData
-    }
-
-    const data = await this._apiRequest<PersonalActivityStatsResponse>(
+    return this._apiRequest<PersonalActivityStatsResponse>(
       '/activity/personal',
       'GET',
       'fetchPersonalActivityStats',
     )
-
-    if (data) {
-      CacheService.set(cacheKey, data)
-    }
-    return data
   }
 }
 
 export const webhookService = new WebhookServiceController()
+

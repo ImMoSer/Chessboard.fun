@@ -39,10 +39,6 @@ const formatTierExpireDate = (isoDate: string | null | undefined) => {
   return t('userCabinet.info.tierExpires', { date: date.toLocaleDateString() })
 }
 
-const handleClubClick = (clubId: string) => {
-  router.push({ name: 'clubs', params: { clubId } })
-}
-
 const formatLichessActivityDate = (timestamp: number) => {
   return new Date(timestamp).toLocaleDateString(undefined, {
     year: 'numeric',
@@ -174,7 +170,9 @@ const sortedTornadoScores = computed(() => {
               <tbody>
                 <tr v-for="mode in ['finishHim', 'attack', 'tower', 'tornado'] as const" :key="mode">
                   <td>
-                    {{ t(mode === 'tornado' ? 'nav.tornado' : `userCabinet.stats.modes.${mode}`) }}
+                    {{
+                      t(mode === 'tornado' ? 'nav.tornado' : `userCabinet.stats.modes.${mode}`)
+                    }}
                   </td>
                   <td>
                     {{ personalActivityStats[selectedActivityPeriod][mode].puzzles_requested }}
@@ -228,30 +226,6 @@ const sortedTornadoScores = computed(() => {
             </tr>
           </tbody>
         </table>
-      </section>
-
-      <!-- Club Activity Section -->
-      <section v-if="userProfile.follow_clubs?.length || userProfile.club_founder?.length"
-        class="user-cabinet__club-activity-section">
-        <h3 class="user-cabinet__section-title">{{ t('userCabinet.clubs.activityTitle') }}</h3>
-        <div v-if="userProfile.follow_clubs && userProfile.follow_clubs.length > 0"
-          class="user-cabinet__club-list-section">
-          <h4 class="user-cabinet__club-list-title">{{ t('userCabinet.clubs.followedClubs') }}</h4>
-          <ul class="user-cabinet__club-list">
-            <li v-for="club in userProfile.follow_clubs" :key="club.club_id" class="user-cabinet__club-list-item">
-              <a @click="handleClubClick(club.club_id)">{{ club.club_name }}</a>
-            </li>
-          </ul>
-        </div>
-        <div v-if="userProfile.club_founder && userProfile.club_founder.length > 0"
-          class="user-cabinet__club-list-section">
-          <h4 class="user-cabinet__club-list-title">{{ t('userCabinet.clubs.founderOfClubs') }}</h4>
-          <ul class="user-cabinet__club-list">
-            <li v-for="club in userProfile.club_founder" :key="club.club_id" class="user-cabinet__club-list-item">
-              <a @click="handleClubClick(club.club_id)">{{ club.club_name }}</a>
-            </li>
-          </ul>
-        </div>
       </section>
 
       <!-- Tornado Stats -->

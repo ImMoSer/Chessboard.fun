@@ -1,7 +1,7 @@
 <!-- src/components/clubPage/ClubPageTabs.vue -->
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import type { ClubPageTabId } from '../../views/ClubPageView.vue'
+import type { ClubPageTabId } from '../../views/FunclubView.vue'
 
 const { t } = useI18n()
 
@@ -19,20 +19,14 @@ const tabs: { id: ClubPageTabId; labelKey: string }[] = [
   { id: 'overview', labelKey: 'clubPage.tabs.overview' },
   { id: 'key_indicators', labelKey: 'clubPage.tabs.keyIndicators' },
   { id: 'play_style', labelKey: 'clubPage.tabs.playStyle' },
-  { id: 'ratings', labelKey: 'clubPage.tabs.ratings' },
   { id: 'medals', labelKey: 'clubPage.tabs.medals' },
 ]
 </script>
 
 <template>
   <div class="club-page__tabs">
-    <button
-      v-for="tab in tabs"
-      :key="tab.id"
-      class="club-page__tab-button"
-      :class="{ active: activeTab === tab.id }"
-      @click="emit('setActiveTab', tab.id)"
-    >
+    <button v-for="tab in tabs" :key="tab.id" class="club-page__tab-button" :class="{ active: activeTab === tab.id }"
+      @click="emit('setActiveTab', tab.id)">
       {{ t(tab.labelKey) }}
     </button>
   </div>
@@ -75,6 +69,7 @@ const tabs: { id: ClubPageTabId; labelKey: string }[] = [
     gap: 5px;
     padding-bottom: 0;
   }
+
   .club-page__tab-button {
     padding: 8px 12px;
     font-size: var(--font-size-xsmall);

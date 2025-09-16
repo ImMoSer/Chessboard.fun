@@ -97,7 +97,7 @@
       "tower": "Speedrun",
       "attack": "Angriff",
       "tacktics": "Taktik",
-      "clubs": "Lichess Clubs",
+      "clubs": "FunClub",
       "leaderboards": "Bestenlisten"
     },
     "loginPrompt": "Oder melden Sie sich an, um alle Funktionen zu nutzen:"
@@ -264,9 +264,9 @@
   },
   "lichessClubs": {
     "pageTitle": {
-      "loading": "Lade Lichess Clubs...",
-      "loaded": "Lichess Clubs",
-      "error": "Fehler beim Laden der Lichess Clubs"
+      "loading": "Lade FunClub...",
+      "loaded": "FunClub",
+      "error": "Fehler beim Laden der FunClub"
     },
     "table": {
       "clubName": "Club-Name",
@@ -276,7 +276,7 @@
       "activePlayers": "Spieler",
       "noClubs": "Keine registrierten Clubs gefunden."
     },
-    "bannerAlt": "Lichess Clubs Banner",
+    "bannerAlt": "FunClub Banner",
     "founder": {
       "cooldownMessage": "Sie können die nächste Aktion in {hours} Stunden durchführen.",
       "clubIsListed": "Ihr Club ist gelistet: {clubName}",
@@ -348,7 +348,7 @@
       "clubScore": "Punkte",
       "score": "Punkte",
       "performance": "Perf.",
-      "arenaRank": "Arena-Rang",
+      "arenaRank": "ArenaRang",
       "cronePlayer": "Hat zum Turnierergebnis beigetragen"
     },
     "follow": {
@@ -496,9 +496,9 @@
         "darko": " (Stockfish.js - lokal: Tiefe 4, Contempt 100)"
       },
       "lichessClubsTitle": "Club-Statistiken: ",
-      "lichessClubs": "Sehen Sie detaillierte Statistiken und Bestenlisten für jeden Lichess-Schachclub und verfolgen Sie die Aktivitäten und Erfolge der Spieler. (Es werden nur im System registrierte Clubs angezeigt).",
+      "lichessClubs": "Sehen Sie detaillierte Statistiken und Bestenlisten für unseren FunClub und verfolgen Sie die Aktivitäten und Erfolge der Spieler.",
       "userCabinetTitle": "Benutzer-Dashboard: ",
-      "userCabinet": "Ihr persönliches Dashboard mit Statistiken für alle Spielmodi, einer Liste Ihrer Lieblingsaufgaben und Ihrer Lichess-Aktivität.",
+      "userCabinet": "Ihr persönliches Dashboard mit Statistiken für alle Spielmodi, einer Liste Ihrer Lieblingsaufgaben und Ihrer FunClub-Aktivität.",
       "analysisPanelTitle": "Analyse-Panel: ",
       "analysisPanel": "Ein leistungsstarkes Werkzeug zur Analyse jeder Stellung mit der Stockfish-Engine, zur Anzeige von Varianten und PGN."
     },

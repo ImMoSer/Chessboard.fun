@@ -2,14 +2,14 @@
 <script setup lang="ts">
 import { ref, computed, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { PlayerData } from '../../types/api.types'
+import type { TeamBattlePlayerSummary } from '../../types/api.types'
 
 const { t } = useI18n()
 
 // --- PROPS ---
 const props = defineProps({
   players: {
-    type: Array as PropType<PlayerData[]>,
+    type: Array as PropType<TeamBattlePlayerSummary[]>,
     required: true,
   },
 })
@@ -22,7 +22,7 @@ const toggleMedalDetails = (key: string) => {
   expandedMedalInfoKey.value = expandedMedalInfoKey.value === key ? null : key
 }
 
-const getMedalSum = (player: PlayerData, type: 'team' | 'arena') => {
+const getMedalSum = (player: TeamBattlePlayerSummary, type: 'team' | 'arena') => {
   const medals = type === 'team' ? player.medals_in_team : player.medals_in_arena
   return (medals.gold?.count || 0) + (medals.silver?.count || 0) + (medals.bronze?.count || 0)
 }
@@ -44,11 +44,10 @@ const getFlairIconUrl = (flair?: string | null) => {
   return `https://lichess1.org/assets/flair/img/${flair}.webp`
 }
 
-const renderPlayerCell = (player: PlayerData) => {
+const renderPlayerCell = (player: TeamBattlePlayerSummary) => {
   const flairHtml = player.flair
-    ? `<img src="${getFlairIconUrl(player.flair)}" alt="Flair" title="${
-        player.flair
-      }" class="club-page__flair-icon" />`
+    ? `<img src="${getFlairIconUrl(player.flair)}" alt="Flair" title="${player.flair
+    }" class="club-page__flair-icon" />`
     : ''
   return `<a href="https://lichess.org/@/${player.lichess_id}" target="_blank">${player.username}</a>${flairHtml}`
 }
@@ -82,27 +81,21 @@ const sortedMedalPlayers = computed(() => (type: 'team' | 'arena') => {
             <tr>
               <td class="text-center">{{ index + 1 }}</td>
               <td class="text-left" v-html="renderPlayerCell(player)"></td>
-              <td
-                class="text-center club-page__medal-cell--expandable"
+              <td class="text-center club-page__medal-cell--expandable"
                 :class="{ expanded: expandedMedalInfoKey === `${player.lichess_id}::team::gold` }"
-                @click="toggleMedalDetails(`${player.lichess_id}::team::gold`)"
-              >
+                @click="toggleMedalDetails(`${player.lichess_id}::team::gold`)">
                 <span>{{ player.medals_in_team.gold?.count || '0' }}</span>
                 <span v-if="player.medals_in_team.gold?.count > 0" class="expand-arrow">▼</span>
               </td>
-              <td
-                class="text-center club-page__medal-cell--expandable"
+              <td class="text-center club-page__medal-cell--expandable"
                 :class="{ expanded: expandedMedalInfoKey === `${player.lichess_id}::team::silver` }"
-                @click="toggleMedalDetails(`${player.lichess_id}::team::silver`)"
-              >
+                @click="toggleMedalDetails(`${player.lichess_id}::team::silver`)">
                 <span>{{ player.medals_in_team.silver?.count || '0' }}</span>
                 <span v-if="player.medals_in_team.silver?.count > 0" class="expand-arrow">▼</span>
               </td>
-              <td
-                class="text-center club-page__medal-cell--expandable"
+              <td class="text-center club-page__medal-cell--expandable"
                 :class="{ expanded: expandedMedalInfoKey === `${player.lichess_id}::team::bronze` }"
-                @click="toggleMedalDetails(`${player.lichess_id}::team::bronze`)"
-              >
+                @click="toggleMedalDetails(`${player.lichess_id}::team::bronze`)">
                 <span>{{ player.medals_in_team.bronze?.count || '0' }}</span>
                 <span v-if="player.medals_in_team.bronze?.count > 0" class="expand-arrow">▼</span>
               </td>
@@ -165,31 +158,21 @@ const sortedMedalPlayers = computed(() => (type: 'team' | 'arena') => {
             <tr>
               <td class="text-center">{{ index + 1 }}</td>
               <td class="text-left" v-html="renderPlayerCell(player)"></td>
-              <td
-                class="text-center club-page__medal-cell--expandable"
+              <td class="text-center club-page__medal-cell--expandable"
                 :class="{ expanded: expandedMedalInfoKey === `${player.lichess_id}::arena::gold` }"
-                @click="toggleMedalDetails(`${player.lichess_id}::arena::gold`)"
-              >
+                @click="toggleMedalDetails(`${player.lichess_id}::arena::gold`)">
                 <span>{{ player.medals_in_arena.gold?.count || '0' }}</span>
                 <span v-if="player.medals_in_arena.gold?.count > 0" class="expand-arrow">▼</span>
               </td>
-              <td
-                class="text-center club-page__medal-cell--expandable"
-                :class="{
-                  expanded: expandedMedalInfoKey === `${player.lichess_id}::arena::silver`,
-                }"
-                @click="toggleMedalDetails(`${player.lichess_id}::arena::silver`)"
-              >
+              <td class="text-center club-page__medal-cell--expandable" :class="{
+                expanded: expandedMedalInfoKey === `${player.lichess_id}::arena::silver`,
+              }" @click="toggleMedalDetails(`${player.lichess_id}::arena::silver`)">
                 <span>{{ player.medals_in_arena.silver?.count || '0' }}</span>
                 <span v-if="player.medals_in_arena.silver?.count > 0" class="expand-arrow">▼</span>
               </td>
-              <td
-                class="text-center club-page__medal-cell--expandable"
-                :class="{
-                  expanded: expandedMedalInfoKey === `${player.lichess_id}::arena::bronze`,
-                }"
-                @click="toggleMedalDetails(`${player.lichess_id}::arena::bronze`)"
-              >
+              <td class="text-center club-page__medal-cell--expandable" :class="{
+                expanded: expandedMedalInfoKey === `${player.lichess_id}::arena::bronze`,
+              }" @click="toggleMedalDetails(`${player.lichess_id}::arena::bronze`)">
                 <span>{{ player.medals_in_arena.bronze?.count || '0' }}</span>
                 <span v-if="player.medals_in_arena.bronze?.count > 0" class="expand-arrow">▼</span>
               </td>
@@ -247,6 +230,7 @@ const sortedMedalPlayers = computed(() => (type: 'team' | 'arena') => {
 .club-page__table-container--team-medals .club-page__table-title {
   background-color: var(--color-accent-success);
 }
+
 .club-page__table-container--arena-medals .club-page__table-title {
   background-color: var(--color-accent-secondary);
 }
@@ -272,12 +256,15 @@ const sortedMedalPlayers = computed(() => (type: 'team' | 'arena') => {
   color: var(--color-text-default);
   white-space: nowrap;
 }
+
 .club-page__table .bold {
   font-weight: var(--font-weight-bold);
 }
+
 .club-page__table .text-left {
   text-align: left;
 }
+
 .club-page__table .text-center {
   text-align: center;
 }
@@ -287,10 +274,11 @@ const sortedMedalPlayers = computed(() => (type: 'team' | 'arena') => {
   font-weight: var(--font-weight-bold);
 }
 
-.club-page__table > tbody > tr:nth-child(odd) {
+.club-page__table>tbody>tr:nth-child(odd) {
   background-color: var(--color-bg-tertiary);
 }
-.club-page__table > tbody > tr:nth-child(even) {
+
+.club-page__table>tbody>tr:nth-child(even) {
   background-color: var(--color-bg-secondary);
 }
 
@@ -302,6 +290,7 @@ const sortedMedalPlayers = computed(() => (type: 'team' | 'arena') => {
   color: var(--color-text-link);
   text-decoration: none;
 }
+
 :deep(a:hover) {
   text-decoration: underline;
 }
@@ -316,12 +305,14 @@ const sortedMedalPlayers = computed(() => (type: 'team' | 'arena') => {
   cursor: pointer;
   user-select: none;
 }
+
 .club-page__medal-cell--expandable .expand-arrow {
   display: inline-block;
   transition: transform 0.2s ease;
   font-size: 0.7em;
   margin-left: 4px;
 }
+
 .club-page__medal-cell--expandable.expanded .expand-arrow {
   transform: rotate(180deg);
 }
@@ -337,10 +328,12 @@ const sortedMedalPlayers = computed(() => (type: 'team' | 'arena') => {
   padding: 10px 20px;
   margin: 0;
 }
+
 .club-page__medal-tournament-list li {
   padding: 4px 0;
   font-size: var(--font-size-xsmall);
 }
+
 .club-page__medal-tournament-list .date {
   color: var(--color-text-muted);
   margin-left: 8px;
@@ -350,9 +343,11 @@ const sortedMedalPlayers = computed(() => (type: 'team' | 'arena') => {
   .club-page__table-title {
     font-size: var(--font-size-base);
   }
+
   .club-page__table {
     font-size: var(--font-size-xsmall);
   }
+
   .club-page__table th,
   .club-page__table td {
     padding: 5px;

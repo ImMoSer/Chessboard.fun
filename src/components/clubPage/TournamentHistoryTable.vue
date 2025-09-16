@@ -2,14 +2,18 @@
 <script setup lang="ts">
 import { ref, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { TournamentHistoryEntry } from '../../types/api.types'
+// --- НАЧАЛО ИЗМЕНЕНИЙ: Импортируем правильный тип ---
+import type { TeamBattlePlayedArena } from '../../types/api.types'
+// --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
 const { t } = useI18n()
 
 // --- PROPS ---
 defineProps({
   tournaments: {
-    type: Array as PropType<TournamentHistoryEntry[]>,
+    // --- НАЧАЛО ИЗМЕНЕНИЙ: Используем правильный тип ---
+    type: Array as PropType<TeamBattlePlayedArena[]>,
+    // --- КОНЕЦ ИЗМЕНЕНИЙ ---
     required: true,
   },
 })
@@ -21,6 +25,14 @@ const expandedBattleId = ref<string | null>(null)
 const toggleTournamentDetails = (arenaId: string) => {
   expandedBattleId.value = expandedBattleId.value === arenaId ? null : arenaId
 }
+
+// --- НАЧАЛО ИЗМЕНЕНИЙ: Метод для вычисления общего счета команды ---
+const calculateTeamScore = (tournament: TeamBattlePlayedArena) => {
+  return tournament.players_in_arena
+    .filter((p) => p.isScoringPlayer)
+    .reduce((sum, player) => sum + (player.scores ? player.scores.length : 0), 0) // Примерный расчет, возможно, нужно будет уточнить
+}
+// --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
 const formatDateForUser = (isoDateString: string): string => {
   try {
@@ -48,10 +60,8 @@ const renderCrownIcon = () => {
 </script>
 
 <template>
-  <div
-    v-if="tournaments && tournaments.length > 0"
-    class="club-page__table-container club-page__table-container--history"
-  >
+  <div v-if="tournaments && tournaments.length > 0"
+    class="club-page__table-container club-page__table-container--history">
     <h3 class="club-page__table-title">{{ t('clubPage.tournamentHistoryTitle') }}</h3>
     <table class="club-page__table club-page__table--history">
       <thead>
@@ -64,21 +74,19 @@ const renderCrownIcon = () => {
       </thead>
       <tbody>
         <template v-for="tournament in tournaments" :key="tournament.arena_id">
-          <tr
-            class="club-page__expandable-row"
-            :class="{ expanded: expandedBattleId === tournament.arena_id }"
-            @click="toggleTournamentDetails(tournament.arena_id)"
-          >
-            <td class="text-left">{{ formatDateForUser(tournament.starts_at_date) }}</td>
+          <tr class="club-page__expandable-row" :class="{ expanded: expandedBattleId === tournament.arena_id }"
+            @click="toggleTournamentDetails(tournament.arena_id)">
+            <!-- --- НАЧАЛО ИЗМЕНЕНИЙ: Исправлены поля в шаблоне --- -->
+            <td class="text-left">{{ formatDateForUser(tournament.startsAt) }}</td>
             <td class="text-left">
-              <a :href="tournament.arena_url" target="_blank" rel="noopener noreferrer">
+              <a :href="tournament.tournament_url" target="_blank" rel="noopener noreferrer">
                 {{ tournament.tournament_name.replace(/ Team Battle$/, '') }}
               </a>
             </td>
             <td class="text-right">
               {{ tournament.club_in_arena_rank ? tournament.club_in_arena_rank : '-' }}
             </td>
-            <td class="text-right">{{ tournament.team_score }}</td>
+            <td class="text-right">{{ calculateTeamScore(tournament) }}</td>
           </tr>
           <tr v-if="expandedBattleId === tournament.arena_id" class="club-page__details-row">
             <td colspan="4" class="club-page__sub-table-container">
@@ -95,24 +103,16 @@ const renderCrownIcon = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="player in tournament.players" :key="player.lichess_id">
-                    <td class="text-center">{{ player.user_inTeamRank }}</td>
+                  <tr v-for="player in tournament.players_in_arena" :key="player.lichess_id">
+                    <td class="text-center">{{ player.rank_in_club }}</td>
                     <td class="text-left">
-                      <span v-if="player.crone" v-html="renderCrownIcon()"></span>
-                      <a
-                        :href="`https://lichess.org/@/${player.lichess_id}`"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        >{{ player.username }}</a
-                      >
-                      <img
-                        v-if="getFlairIconUrl(player.user_flair)"
-                        :src="getFlairIconUrl(player.user_flair)!"
-                        alt="Flair"
-                        class="club-page__flair-icon"
-                      />
+                      <span v-if="player.isScoringPlayer" v-html="renderCrownIcon()"></span>
+                      <a :href="`https://lichess.org/@/${player.lichess_id}`" target="_blank"
+                        rel="noopener noreferrer">{{ player.username }}</a>
+                      <img v-if="getFlairIconUrl(player.flair)" :src="getFlairIconUrl(player.flair)!" alt="Flair"
+                        class="club-page__flair-icon" />
                     </td>
-                    <td class="text-right bold">{{ player.user_score }}</td>
+                    <td class="text-right bold">{{ player.scores.length }}</td>
                     <td class="text-center">
                       <span class="win-color">{{ player.calculatedStats.wins }}</span>
                       /
@@ -120,9 +120,10 @@ const renderCrownIcon = () => {
                       /
                       <span class="loss-color">{{ player.calculatedStats.losses }}</span>
                     </td>
-                    <td class="text-right">{{ player.user_performance }}</td>
+                    <td class="text-right">{{ player.performance }}</td>
                     <td class="text-center">{{ player.calculatedStats.berserkWins }}</td>
-                    <td class="text-right">{{ player.user_inArenaRank }}</td>
+                    <td class="text-right">{{ player.rank_in_arena }}</td>
+                    <!-- --- КОНЕЦ ИЗМЕНЕНИЙ --- -->
                   </tr>
                 </tbody>
               </table>
@@ -172,12 +173,15 @@ const renderCrownIcon = () => {
 .club-page__table .bold {
   font-weight: var(--font-weight-bold);
 }
+
 .club-page__table .text-left {
   text-align: left;
 }
+
 .club-page__table .text-center {
   text-align: center;
 }
+
 .club-page__table .text-right {
   text-align: right;
 }
@@ -187,10 +191,11 @@ const renderCrownIcon = () => {
   font-weight: var(--font-weight-bold);
 }
 
-.club-page__table > tbody > tr:nth-child(odd) {
+.club-page__table>tbody>tr:nth-child(odd) {
   background-color: var(--color-bg-tertiary);
 }
-.club-page__table > tbody > tr:nth-child(even) {
+
+.club-page__table>tbody>tr:nth-child(even) {
   background-color: var(--color-bg-secondary);
 }
 
@@ -202,6 +207,7 @@ const renderCrownIcon = () => {
   color: var(--color-text-link);
   text-decoration: none;
 }
+
 .club-page__table td a:hover {
   text-decoration: underline;
 }
@@ -209,6 +215,7 @@ const renderCrownIcon = () => {
 .club-page__expandable-row {
   cursor: pointer;
 }
+
 .club-page__expandable-row.expanded {
   background-color: var(--color-border-hover) !important;
 }
@@ -226,16 +233,20 @@ const renderCrownIcon = () => {
 .club-page__table--sub {
   font-size: var(--font-size-xsmall);
 }
+
 .club-page__table--sub th,
 .club-page__table--sub td {
   padding: 4px 6px;
 }
+
 .club-page__table--sub tbody tr:nth-child(odd) {
   background-color: var(--color-bg-tertiary);
 }
+
 .club-page__table--sub tbody tr:nth-child(even) {
   background-color: var(--color-bg-secondary);
 }
+
 .club-page__table--sub tbody tr:hover {
   background-color: var(--color-border-hover);
 }
@@ -257,9 +268,11 @@ const renderCrownIcon = () => {
   color: var(--color-accent-success);
   font-weight: bold;
 }
+
 .draw-color {
   color: var(--color-text-muted);
 }
+
 .loss-color {
   color: var(--color-accent-error);
 }
@@ -268,10 +281,12 @@ const renderCrownIcon = () => {
   .club-page__table-title {
     font-size: var(--font-size-base);
   }
+
   .club-page__table,
   .club-page__table--sub {
     font-size: var(--font-size-xsmall);
   }
+
   .club-page__table th,
   .club-page__table td {
     padding: 5px;
