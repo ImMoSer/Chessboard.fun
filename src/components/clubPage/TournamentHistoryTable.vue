@@ -26,11 +26,11 @@ const toggleTournamentDetails = (arenaId: string) => {
   expandedBattleId.value = expandedBattleId.value === arenaId ? null : arenaId
 }
 
-// --- НАЧАЛО ИЗМЕНЕНИЙ: Метод для вычисления общего счета команды ---
+// --- НАЧАЛО ИЗМЕНЕНИЙ: Исправлен метод для вычисления общего счета команды ---
 const calculateTeamScore = (tournament: TeamBattlePlayedArena) => {
   return tournament.players_in_arena
     .filter((p) => p.isScoringPlayer)
-    .reduce((sum, player) => sum + (player.scores ? player.scores.length : 0), 0) // Примерный расчет, возможно, нужно будет уточнить
+    .reduce((sum, player) => sum + (player.calculatedStats?.pointsTotal || 0), 0)
 }
 // --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
@@ -76,7 +76,6 @@ const renderCrownIcon = () => {
         <template v-for="tournament in tournaments" :key="tournament.arena_id">
           <tr class="club-page__expandable-row" :class="{ expanded: expandedBattleId === tournament.arena_id }"
             @click="toggleTournamentDetails(tournament.arena_id)">
-            <!-- --- НАЧАЛО ИЗМЕНЕНИЙ: Исправлены поля в шаблоне --- -->
             <td class="text-left">{{ formatDateForUser(tournament.startsAt) }}</td>
             <td class="text-left">
               <a :href="tournament.tournament_url" target="_blank" rel="noopener noreferrer">
@@ -112,7 +111,7 @@ const renderCrownIcon = () => {
                       <img v-if="getFlairIconUrl(player.flair)" :src="getFlairIconUrl(player.flair)!" alt="Flair"
                         class="club-page__flair-icon" />
                     </td>
-                    <td class="text-right bold">{{ player.scores.length }}</td>
+                    <td class="text-right bold">{{ player.calculatedStats.pointsTotal }}</td>
                     <td class="text-center">
                       <span class="win-color">{{ player.calculatedStats.wins }}</span>
                       /
@@ -123,7 +122,6 @@ const renderCrownIcon = () => {
                     <td class="text-right">{{ player.performance }}</td>
                     <td class="text-center">{{ player.calculatedStats.berserkWins }}</td>
                     <td class="text-right">{{ player.rank_in_arena }}</td>
-                    <!-- --- КОНЕЦ ИЗМЕНЕНИЙ --- -->
                   </tr>
                 </tbody>
               </table>
