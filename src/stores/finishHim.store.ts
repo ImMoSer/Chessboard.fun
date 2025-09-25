@@ -273,6 +273,25 @@ export const useFinishHimStore = defineStore('finishHim', () => {
     router.push('/')
   }
 
+  function handleUnloadResignation() {
+    if (!activePuzzle.value || !authStore.userProfile) {
+      logger.info('[FinishHimStore] No active puzzle or user not logged in. Beacon not sent.')
+      return
+    }
+
+    const dto: UpdateFinishHimStatsDto = {
+      PuzzleId: activePuzzle.value.PuzzleId,
+      success: false,
+      bw_value: activePuzzle.value.bw_value || 0,
+    }
+
+    webhookService.sendFinishHimStatsUpdateBeacon(dto)
+    logger.info(
+      '[FinishHimStore] Resignation beacon sent for puzzle:',
+      activePuzzle.value.PuzzleId,
+    )
+  }
+
   return {
     gamePhase: computed(() => gameStore.gamePhase),
     activePuzzle,
@@ -290,6 +309,7 @@ export const useFinishHimStore = defineStore('finishHim', () => {
     reset,
     // --- НАЧАЛО ИЗМЕНЕНИЙ ---
     setThemeAndLoadPuzzle,
+    handleUnloadResignation,
     // --- КОНЕЦ ИЗМЕНЕНИЙ ---
   }
 })

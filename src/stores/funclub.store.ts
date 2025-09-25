@@ -16,6 +16,7 @@ export const useFunclubStore = defineStore('funclub', () => {
   const teamBattleReport = ref<TeamBattleReport | null>(null)
   const selectedPeriod = ref('last_30_days')
   const periodOptions = ref<{ label: string; value: string }[]>([])
+  const selectedPeriodIndex = ref(0)
 
   // --- ACTIONS ---
   async function initializePage() {
@@ -31,6 +32,11 @@ export const useFunclubStore = defineStore('funclub', () => {
         // Если метаданные не загрузились, создаем опцию по умолчанию
         periodOptions.value = [{ label: t('clubPage.tournamentHistoryTitle'), value: 'last_30_days' }]
       }
+
+      // Устанавливаем индекс по умолчанию
+      selectedPeriodIndex.value = periodOptions.value.findIndex(
+        (p) => p.value === selectedPeriod.value,
+      )
 
       // Затем загружаем отчет по умолчанию
       const report = await webhookService.fetchFunclubTeamBattleReport(selectedPeriod.value)
@@ -85,10 +91,18 @@ export const useFunclubStore = defineStore('funclub', () => {
 
   async function changePeriod(newPeriod: string) {
     if (selectedPeriod.value === newPeriod) return
+
+    const newIndex = periodOptions.value.findIndex((p) => p.value === newPeriod)
+    if (newIndex === -1) {
+      logger.warn(`[FunclubStore] Period ${newPeriod} not found in options.`)
+      return
+    }
+
     selectedPeriod.value = newPeriod
+    selectedPeriodIndex.value = newIndex
+
     isLoading.value = true
     error.value = null
-    teamBattleReport.value = null
     try {
       const newReport = await webhookService.fetchFunclubTeamBattleReport(newPeriod)
       teamBattleReport.value = newReport
@@ -102,6 +116,30 @@ export const useFunclubStore = defineStore('funclub', () => {
     }
   }
 
+  function selectNextPeriod() {
+    if (periodOptions.value.length === 0) return
+    let newIndex = selectedPeriodIndex.value + 1
+    if (newIndex >= periodOptions.value.length) {
+      newIndex = 0
+    }
+    const newPeriodOption = periodOptions.value[newIndex]
+    if (newPeriodOption) {
+      changePeriod(newPeriodOption.value)
+    }
+  }
+
+  function selectPreviousPeriod() {
+    if (periodOptions.value.length === 0) return
+    let newIndex = selectedPeriodIndex.value - 1
+    if (newIndex < 0) {
+      newIndex = periodOptions.value.length - 1
+    }
+    const newPeriodOption = periodOptions.value[newIndex]
+    if (newPeriodOption) {
+      changePeriod(newPeriodOption.value)
+    }
+  }
+
   return {
     isLoading,
     error,
@@ -109,7 +147,10 @@ export const useFunclubStore = defineStore('funclub', () => {
     teamBattleReport,
     selectedPeriod,
     periodOptions,
+    selectedPeriodIndex,
     initializePage,
     changePeriod,
+    selectNextPeriod,
+    selectPreviousPeriod,
   }
 })

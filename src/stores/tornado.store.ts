@@ -271,6 +271,18 @@ export const useTornadoStore = defineStore('tornado', () => {
     }
   }
 
+  function handleRestart() {
+    if (mode.value) {
+      logger.info(`[TornadoStore] Restarting session with mode: ${mode.value}`)
+      startSession(mode.value)
+    }
+  }
+
+  function handleNew() {
+    reset()
+    router.push('/tornado')
+  }
+
   return {
     mode,
     sessionRating,
@@ -282,6 +294,8 @@ export const useTornadoStore = defineStore('tornado', () => {
     formattedTimer,
     startSession,
     reset,
+    handleRestart,
+    handleNew,
   }
 })
 

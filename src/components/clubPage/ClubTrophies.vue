@@ -136,9 +136,9 @@ const topThree = computed(() => {
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  gap: 2%;
+  gap: 1%;
   max-width: 1200px;
-  margin: 0 auto;
+  margin: 0 0 0 0;
   /* Убираем overflow: hidden чтобы свечение не обрезалось */
   padding: 30px 5px;
   /* Добавляем внутренний padding для "дыхания" */
@@ -184,7 +184,7 @@ const topThree = computed(() => {
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 20px;
+  border-radius: 10px;
   overflow: visible;
   /* Позволяем свечению быть видимым */
   animation: breathe-red 3s ease-in-out infinite;
@@ -204,7 +204,7 @@ const topThree = computed(() => {
   width: 100%;
   height: auto;
   object-fit: contain;
-  border-radius: 20px;
+  border-radius: 10px;
   transition: transform 0.3s ease;
 }
 
@@ -251,85 +251,50 @@ const topThree = computed(() => {
 }
 
 /* Адаптивность для планшетов */
-@media (max-width: 768px) {
+@media (orientation: portrait) {
   .trophies-main-container {
-    padding: 30px 15px;
+    padding: 0px;
     /* Сохраняем место для свечения */
-    min-height: 180px;
+
+  }
+
+  /* Размеры трофейных контейнеров */
+  .trophy-container--first {
+    flex: 0 1 40%;
+    order: 2;
+    transform: translateY(-10px);
+    padding: 1px;
+  }
+
+  .trophy-container--second {
+    flex: 0 1 35%;
+    order: 1;
+    padding: 1px;
+  }
+
+  .trophy-container--third {
+    flex: 0 1 30%;
+    order: 3;
+    padding: 1px;
   }
 
   .trophies-parent-container {
-    padding: 20px 8px;
+    padding: 1px 1px;
   }
 
   .trophy-container {
     min-height: 200px;
-    padding: 12px;
+    width: 100%;
+    padding: 1px;
   }
 
   .trophy-container--first {
-    transform: translateY(-10px);
+    transform: translateY(-1px);
   }
 
   .trophy-container__nameplate {
-    padding: 10px 12px;
-  }
-}
-
-/* Адаптивность для мобильных */
-@media (max-width: 480px) {
-  .trophies-main-container {
-    padding: 25px 10px;
-    min-height: 150px;
-  }
-
-  .trophies-parent-container {
-    gap: 1%;
-    padding: 15px 5px;
-  }
-
-  .trophy-container {
-    min-height: 160px;
-    padding: 10px;
-  }
-
-  .trophy-container--first {
-    flex: 0 1 38%;
-    transform: translateY(-8px);
-  }
-
-  .trophy-container--second,
-  .trophy-container--third {
-    flex: 0 1 31%;
-  }
-
-  .trophy-container__nameplate {
-    padding: 8px 10px;
-    width: calc(95% - 20px);
-  }
-
-  .trophy-container__name {
-    font-size: clamp(0.7rem, 3vw, 0.9rem);
-  }
-
-  .trophy-container__image-wrapper {
-    margin-bottom: 15px;
-  }
-}
-
-/* Очень маленькие экраны */
-@media (max-width: 320px) {
-  .trophies-parent-container {
-    gap: 0.5%;
-  }
-
-  .trophy-container--first {
-    flex: 0 1 36%;
-  }
-
-  .trophy-container--second,
-  .trophy-container--third {
-    flex: 0 1 32%;
+    padding: 2px 2px;
+    border-radius: 5px;
   }
 }
 </style>

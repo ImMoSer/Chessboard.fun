@@ -1,6 +1,6 @@
 <!-- src/views/FunclubView.vue -->
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed, watch, nextTick } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { useFunclubStore } from '../stores/funclub.store'
@@ -25,10 +25,41 @@ type ClubStatsTableColumn = {
 const funclubStore = useFunclubStore()
 const { t } = useI18n()
 
-const { isLoading, error, clubMeta, teamBattleReport, selectedPeriod, periodOptions } =
-  storeToRefs(funclubStore)
+const {
+  isLoading,
+  error,
+  clubMeta,
+  teamBattleReport,
+  periodOptions,
+  selectedPeriodIndex,
+} = storeToRefs(funclubStore)
 
 const activeTab = ref<ClubPageTabId>('overview')
+const scrollPosition = ref(0)
+
+const currentPeriodLabel = computed(() => {
+  return periodOptions.value[selectedPeriodIndex.value]?.label || '...'
+})
+
+// --- НАЧАЛО ИЗМЕНЕНИЙ: Логика сохранения скролла ---
+watch(isLoading, (loading) => {
+  if (!loading) {
+    nextTick(() => {
+      window.scrollTo(0, scrollPosition.value)
+    })
+  }
+})
+
+function handleSelectNext() {
+  scrollPosition.value = window.scrollY
+  funclubStore.selectNextPeriod()
+}
+
+function handleSelectPrevious() {
+  scrollPosition.value = window.scrollY
+  funclubStore.selectPreviousPeriod()
+}
+// --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
 // --- Определения колонок для компонента ClubStatsTable ---
 const overviewColumns: ClubStatsTableColumn[] = [
@@ -71,12 +102,6 @@ const winStreaksColumns: ClubStatsTableColumn[] = [
 onMounted(() => {
   funclubStore.initializePage()
 })
-
-// Обработчик смены периода
-const handlePeriodChange = (event: Event) => {
-  const newPeriod = (event.target as HTMLSelectElement).value
-  funclubStore.changePeriod(newPeriod)
-}
 </script>
 
 <template>
@@ -88,16 +113,12 @@ const handlePeriodChange = (event: Event) => {
       {{ t('common.error') }}: {{ error }}
     </div>
     <div v-else-if="clubMeta && teamBattleReport">
-      <ClubPageHeader :club-info="clubMeta" />
-
       <ClubTrophies :players="teamBattleReport.players_summary" sort-key="vector" />
 
-      <div class="controls-container">
-        <select :value="selectedPeriod" @change="handlePeriodChange" class="period-selector" :disabled="isLoading">
-          <option v-for="option in periodOptions" :key="option.value" :value="option.value">
-            {{ option.label }}
-          </option>
-        </select>
+      <div class="period-switcher">
+        <button @click="handleSelectPrevious" :disabled="isLoading">&lt;</button>
+        <span class="period-switcher__label">{{ currentPeriodLabel }}</span>
+        <button @click="handleSelectNext" :disabled="isLoading">&gt;</button>
       </div>
 
       <ClubPageTabs :active-tab="activeTab" @set-active-tab="(tab) => (activeTab = tab)" />
@@ -222,6 +243,47 @@ const handlePeriodChange = (event: Event) => {
     grid-template-columns: repeat(3, 1fr);
     gap: 25px;
   }
+}
+
+.period-switcher {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  padding: 10px 0;
+}
+
+.period-switcher button {
+  background: none;
+  border: 1px solid var(--color-border-hover);
+  color: var(--color-text-default);
+  font-size: var(--font-size-large);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.period-switcher button:hover:not(:disabled) {
+  background-color: var(--color-bg-tertiary);
+  border-color: var(--color-text-default);
+}
+
+.period-switcher button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.period-switcher__label {
+  font-size: var(--font-size-large);
+  font-weight: bold;
+  color: var(--color-text-default);
+  min-width: 150px;
+  text-align: center;
 }
 
 @media (orientation: portrait) {

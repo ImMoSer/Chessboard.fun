@@ -25,14 +25,15 @@ onMounted(() => {
 
 watch(
   () => tornadoStore.isSessionActive,
-  (isActive) => {
+  () => {
     controlsStore.setControls({
-      canRequestNew: !isActive,
-      canRestart: !isActive,
-      canResign: false,
+      canRequestNew: true, // Always active
+      canRestart: true, // Always active
+      canResign: false, // Not used in Tornado
       canShare: !!tornadoStore.activePuzzle,
-      onExit: () => tornadoStore.reset(),
-      // Другие обработчики будут добавлены позже
+      onRequestNew: tornadoStore.handleNew,
+      onRestart: tornadoStore.handleRestart,
+      onExit: tornadoStore.handleNew, // Exit to selection screen
     })
   },
   { immediate: true },

@@ -205,6 +205,28 @@ class WebhookServiceController {
     )
   }
 
+  public sendFinishHimStatsUpdateBeacon(dto: UpdateFinishHimStatsDto): boolean {
+    const url = `${BACKEND_API_URL}/n8n-proxy/stats/finish-him`
+    const telegramInitData = authService.getTelegramInitData()
+
+    // The backend must be adapted to read auth data from the body for beacon requests
+    const payload = {
+      ...dto,
+      ...(telegramInitData && { telegramInitData }),
+    }
+
+    const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' })
+
+    try {
+      const status = navigator.sendBeacon(url, blob)
+      logger.info(`[WebhookService] sendFinishHimStatsUpdateBeacon status: ${status}`)
+      return status
+    } catch (error) {
+      logger.error('[WebhookService] sendFinishHimStatsUpdateBeacon failed:', error)
+      return false
+    }
+  }
+
   public async fetchNewTower(dto: GetNewTowerDto): Promise<TowerData | null> {
     return this._apiRequest<TowerData>('/n8n-proxy/towers/new', 'POST', 'fetchNewTower', dto)
   }

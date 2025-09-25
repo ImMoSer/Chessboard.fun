@@ -7,8 +7,10 @@ import NavMenu from './components/NavMenu.vue'
 import SettingsMenu from './components/SettingsMenu.vue'
 import ConfirmationModal from './components/ConfirmationModal.vue'
 import { useGameStore } from './stores/game.store'
+import { useFinishHimStore } from './stores/finishHim.store'
 
 const gameStore = useGameStore()
+const finishHimStore = useFinishHimStore()
 const { t } = useI18n()
 const route = useRoute()
 
@@ -24,9 +26,14 @@ const beforeUnloadHandler = (event: BeforeUnloadEvent) => {
     // Chrome требует установки returnValue
     event.returnValue = t('gameplay.confirmExit.browserMessage')
 
-    // Синхронно засчитываем поражение. API вызов может не успеть,
-    // но состояние в браузере (localStorage) обновится.
+    // Синхронно обновляем локальное состояние
     gameStore.handleGameResignation()
+
+    // Надежно отправляем статистику на сервер в зависимости от режима игры
+    if (gameStore.currentGameMode === 'finish-him') {
+      finishHimStore.handleUnloadResignation()
+    }
+    // TODO: Добавить обработчики для других режимов игры (attack, tower)
   }
 }
 
