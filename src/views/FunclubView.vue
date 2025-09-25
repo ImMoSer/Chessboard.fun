@@ -1,12 +1,13 @@
 <!-- src/views/FunclubView.vue -->
 <script setup lang="ts">
-import { onMounted, watch, ref, computed } from 'vue'
+import { onMounted, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { useFunclubStore } from '../stores/funclub.store'
 
 // Импорт компонентов
 import ClubPageHeader from '../components/clubPage/ClubPageHeader.vue'
+import ClubTrophies from '../components/clubPage/ClubTrophies.vue'
 import ClubPageTabs from '../components/clubPage/ClubPageTabs.vue'
 import ClubStatsTable from '../components/clubPage/ClubStatsTable.vue'
 import TournamentHistoryTable from '../components/clubPage/TournamentHistoryTable.vue'
@@ -88,6 +89,8 @@ const handlePeriodChange = (event: Event) => {
     </div>
     <div v-else-if="clubMeta && teamBattleReport">
       <ClubPageHeader :club-info="clubMeta" />
+
+      <ClubTrophies :players="teamBattleReport.players_summary" sort-key="vector" />
 
       <div class="controls-container">
         <select :value="selectedPeriod" @change="handlePeriodChange" class="period-selector" :disabled="isLoading">
