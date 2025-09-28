@@ -150,7 +150,7 @@ const renderCrownIcon = () => {
   font-size: var(--font-size-xlarge);
   color: var(--color-text-dark);
   margin: 0;
-  padding: 12px 15px;
+  padding: 10px 10px;
   border-bottom: 1px solid var(--color-border-hover);
 }
 
