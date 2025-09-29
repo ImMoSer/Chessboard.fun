@@ -25,6 +25,7 @@
     "tower": "Спидран",
     "tacktics": "Тактика",
     "tornado": "Торнадо",
+    "advantage": "Advantage",
     "leaderboards": "Рейтинги",
     "userCabinet": "Профиль",
     "lichessClubs": "ФанКлуб",
@@ -385,6 +386,7 @@
       "skillEarned": "Скилл сегодня",
       "finishHimRatingLabel": "Рейтинг добивания",
       "attackRatingLabel": "Рейтинг атаки",
+      "advantageRatingLabel": "Рейтинг Advantage",
       "tornadoTitle": "Рекорды Торнадо",
       "global": {
         "title": "Статистика активности"
@@ -591,6 +593,11 @@
       "separator": ": "
     },
     "footerNote": "Сделано с ❤️ для любителей шахмат"
+  },
+  "advantage": {
+    "selection": {
+      "title": "Выберите режим игры"
+    }
   },
   "tornado": {
     "selection": {

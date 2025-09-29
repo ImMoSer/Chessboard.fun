@@ -1,11 +1,19 @@
-<!-- src/views/TornadoSelectionView.vue -->
+<!-- src/views/ModeSelectionView.vue -->
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
+import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { type TornadoMode } from '@/types/api.types'
 
 const router = useRouter()
+const route = useRoute()
 const { t } = useI18n()
+
+const gameMode = computed(() => route.meta.gameMode as 'tornado' | 'advantage')
+
+const title = computed(() => {
+  return t(`${gameMode.value}.selection.title`)
+})
 
 interface Mode {
   id: TornadoMode
@@ -14,21 +22,28 @@ interface Mode {
 }
 
 const modes: Mode[] = [
-  { id: 'bullet', image: '/png/tornado/tornado_bulet.png', alt: 'Tornado Bullet Mode' },
-  { id: 'blitz', image: '/png/tornado/tornado_blitz.png', alt: 'Tornado Blitz Mode' },
-  { id: 'rapid', image: '/png/tornado/tornado_rapid.png', alt: 'Tornado Rapid Mode' },
-  { id: 'classic', image: '/png/tornado/tornado_classic.png', alt: 'Tornado Classic Mode' },
+  { id: 'bullet', image: '/png/tornado/tornado_bulet.png', alt: 'Bullet Mode' },
+  { id: 'blitz', image: '/png/tornado/tornado_blitz.png', alt: 'Blitz Mode' },
+  { id: 'rapid', image: '/png/tornado/tornado_rapid.png', alt: 'Rapid Mode' },
+  { id: 'classic', image: '/png/tornado/tornado_classic.png', alt: 'Classic Mode' },
 ]
 
 const selectMode = (modeId: TornadoMode) => {
-  router.push(`/tornado/${modeId}`)
+  const puzzleId = route.params.puzzleId as string | undefined
+  if (gameMode.value === 'advantage' && puzzleId) {
+    router.push(`/advantage/puzzle/${puzzleId}/${modeId}`)
+  } else if (puzzleId) {
+    router.push(`/${gameMode.value}/${puzzleId}/${modeId}`)
+  } else {
+    router.push(`/${gameMode.value}/${modeId}`)
+  }
 }
 </script>
 
 <template>
   <div class="selection-wrapper">
     <div class="title-container">
-      <h2 class="title">{{ t('tornado.selection.title') }}</h2>
+      <h2 class="title">{{ title }}</h2>
     </div>
 
     <div class="modes-container">

@@ -3,7 +3,7 @@ import logger from '../utils/logger'
 import { useUiStore } from '@/stores/ui.store'
 import i18n from './i18n'
 
-type ShareMode = 'finish-him' | 'attack' | 'tacktics' | 'tower'
+type ShareMode = 'finish-him' | 'attack' | 'tacktics' | 'tower' | 'advantage'
 
 class ShareServiceController {
   /**
@@ -64,10 +64,11 @@ class ShareServiceController {
    * Основная функция "Поделиться". Использует Web Share API, если доступно, иначе копирует ссылку.
    * @param mode - Игровой режим.
    * @param id - ID задачи или башни.
+   * @param advantageMode - опциональный режим для Advantage.
    */
-  public async share(mode: ShareMode, id: string): Promise<void> {
+  public async share(mode: ShareMode, id: string, advantageMode?: string): Promise<void> {
     const t = i18n.global.t
-    const url = `${window.location.origin}/${mode}/${id}` // Правильный URL без хэша
+    const url = advantageMode ? `${window.location.origin}/${mode}/${id}/${advantageMode}` : `${window.location.origin}/${mode}/${id}`
     const shareData = {
       title: t('app.title'),
       text: t(`nav.${mode}`),

@@ -6,6 +6,7 @@ import { useFinishHimStore } from '@/stores/finishHim.store'
 import { useAttackStore } from '@/stores/attack.store'
 import { useTowerStore } from '@/stores/tower.store'
 import { useTornadoStore } from '@/stores/tornado.store'
+import { useAdvantageStore } from '@/stores/advantage.store'
 import { useControlsStore } from '@/stores/controls.store'
 import FinishHimSelection from '@/components/FinishHimSelection.vue'
 import EngineSelector from '@/components/EngineSelector.vue'
@@ -18,6 +19,7 @@ const finishHimStore = useFinishHimStore()
 const attackStore = useAttackStore()
 const towerStore = useTowerStore()
 const tornadoStore = useTornadoStore()
+const advantageStore = useAdvantageStore()
 useControlsStore()
 
 const formattedTimer = computed(() => {
@@ -30,6 +32,9 @@ const formattedTimer = computed(() => {
   if (route.name === 'tornado') {
     return tornadoStore.formattedTimer
   }
+  if (['advantage', 'advantage-puzzle'].includes(route.name as string)) {
+    return advantageStore.formattedTimer
+  }
   return finishHimStore.formattedTimer
 })
 
@@ -39,6 +44,9 @@ const containerClass = computed(() => {
       return 'mode-finish-him'
     case 'tornado':
       return 'mode-tornado'
+    case 'advantage':
+    case 'advantage-puzzle':
+      return 'mode-default'
     default:
       return 'mode-default'
   }
@@ -59,7 +67,7 @@ const containerClass = computed(() => {
     <FinishHimSelection v-if="route.name === 'finish-him'" />
 
     <!-- Селектор движка для режимов с ботом -->
-    <div v-if="['finish-him', 'attack', 'tower'].includes(route.name as string)" class="engine-selector-container">
+    <div v-if="['finish-him', 'attack', 'tower', 'advantage', 'advantage-puzzle'].includes(route.name as string)" class="engine-selector-container">
       <img src="/buttons/robot.svg" alt="Select Engine" class="robot-icon" />
       <EngineSelector />
     </div>

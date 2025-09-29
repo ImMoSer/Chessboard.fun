@@ -30,6 +30,8 @@ import type {
   TeamBattleReport,
   // --- НАЧАЛО ИЗМЕНЕНИЙ ---
   LatestTeamBattleReport,
+  AdvantageMode,
+  AdvantageResultDto,
   // --- КОНЕЦ ИЗМЕНЕНИЙ ---
 } from '../types/api.types'
 
@@ -123,6 +125,36 @@ class WebhookServiceController {
       return null
     }
   }
+
+  // --- ADVANTAGE API ---
+  public async getAdvantageNextPuzzle(mode: AdvantageMode): Promise<GamePuzzle | null> {
+    return this._apiRequest<GamePuzzle>(
+      `/advantage/next/${mode}`,
+      'GET',
+      'getAdvantageNextPuzzle',
+    )
+  }
+
+  public async postAdvantageResult(
+    mode: AdvantageMode,
+    dto: AdvantageResultDto,
+  ): Promise<GameResultResponse | null> {
+    return this._apiRequest<GameResultResponse>(
+      `/advantage/result/${mode}`,
+      'POST',
+      'postAdvantageResult',
+      dto,
+    )
+  }
+
+  public async getAdvantagePuzzleById(puzzleId: string): Promise<GamePuzzle | null> {
+    return this._apiRequest<GamePuzzle>(
+      `/advantage/PuzzleId/${puzzleId}`,
+      'GET',
+      'getAdvantagePuzzleById',
+    )
+  }
+  // --- END ADVANTAGE API ---
 
   // --- NEW FUNCLUB STATS API ---
   public async fetchFunclubClubMeta(): Promise<FunclubMeta | null> {

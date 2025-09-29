@@ -25,6 +25,7 @@
     "tower": "SpeedRun",
     "tacktics": "Tacktics",
     "tornado": "Tornado",
+    "advantage": "Advantage",
     "leaderboards": "LeaderBoards",
     "userCabinet": "Cabinet",
     "lichessClubs": "FunClub",
@@ -385,6 +386,7 @@
       "skillEarned": "Skill Today",
       "finishHimRatingLabel": "Conversion Rating",
       "attackRatingLabel": "Attack Rating",
+      "advantageRatingLabel": "Advantage Rating",
       "tornadoTitle": "Tornado High Scores",
       "global": {
         "title": "Activity Statistics"
@@ -591,6 +593,11 @@
       "separator": ": "
     },
     "footerNote": "Made with ❤️ for chess enthusiasts everywhere"
+  },
+  "advantage": {
+    "selection": {
+      "title": "Select a game mode"
+    }
   },
   "tornado": {
     "selection": {

@@ -11,7 +11,7 @@ import { useControlsStore } from './controls.store'
 import { soundService } from '../services/sound.service'
 
 export type GamePhase = 'IDLE' | 'LOADING' | 'PLAYING' | 'GAMEOVER'
-export type GameMode = 'finish-him' | 'attack' | 'tower' | 'tornado' | null
+export type GameMode = 'finish-him' | 'attack' | 'tower' | 'tornado' | 'advantage' | null
 
 const BOT_MOVE_DELAY_MS = 50
 const FIRST_BOT_MOVE_DELAY_MS = 500
@@ -153,7 +153,7 @@ export const useGameStore = defineStore('game', () => {
     if (isScenarioActive) {
       const expectedMove = scenarioMoves.value[currentScenarioMoveIndex.value]
       if (uciMove === expectedMove) {
-        if (userMovesCount.value === 1 && (currentGameMode.value === 'tornado')) {
+        if (userMovesCount.value === 1 && (currentGameMode.value === 'tornado' || currentGameMode.value === 'advantage')) {
           onCorrectFirstMoveCallback()
         }
         currentScenarioMoveIndex.value++

@@ -18,10 +18,11 @@ import AttackView from '../views/AttackView.vue'
 import RecordsPageView from '../views/RecordsPageView.vue'
 import TowerView from '../views/TowerView.vue'
 import UserCabinetView from '../views/UserCabinetView.vue'
-import TornadoSelectionView from '../views/TornadoSelectionView.vue'
+import ModeSelectionView from '../views/ModeSelectionView.vue'
 import TornadoView from '../views/TornadoView.vue'
 import TornadoMistakesView from '../views/TornadoMistakesView.vue'
 import FunclubLatestBattleView from '../views/FunclubLatestBattleView.vue'
+import AdvantageView from '../views/AdvantageView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -35,37 +36,61 @@ const router = createRouter({
       path: '/finish-him/:puzzleId?',
       name: 'finish-him',
       component: FinishHimView,
-      meta: { isGame: true, requiresAuth: true },
+      meta: { isGame: true, requiresAuth: true, game: 'finish-him' },
     },
     {
       path: '/attack/:puzzleId?',
       name: 'attack',
       component: AttackView,
-      meta: { isGame: true, requiresAuth: true },
+      meta: { isGame: true, requiresAuth: true, game: 'attack' },
     },
     {
       path: '/tower/:towerId?',
       name: 'tower',
       component: TowerView,
-      meta: { isGame: true, requiresAuth: true },
+      meta: { isGame: true, requiresAuth: true, game: 'tower' },
     },
     {
       path: '/tornado',
       name: 'tornado-selection',
-      component: TornadoSelectionView,
-      meta: { requiresAuth: true },
+      component: ModeSelectionView,
+      meta: { requiresAuth: true, gameMode: 'tornado' },
     },
     {
       path: '/tornado/:mode',
       name: 'tornado',
       component: TornadoView,
-      meta: { isGame: true, requiresAuth: true },
+      meta: { isGame: true, requiresAuth: true, game: 'tornado' },
     },
     {
       path: '/tornado/mistakes',
       name: 'tornado-mistakes',
       component: TornadoMistakesView,
       meta: { requiresAuth: true },
+    },
+    {
+      path: '/advantage',
+      name: 'advantage-selection',
+      component: ModeSelectionView,
+      meta: { requiresAuth: true, gameMode: 'advantage' },
+    },
+    {
+      path: '/advantage/puzzle/:puzzleId',
+      name: 'advantage-puzzle-selection',
+      component: ModeSelectionView,
+      meta: { requiresAuth: true, gameMode: 'advantage' },
+    },
+    {
+      path: '/advantage/:mode(bullet|blitz|rapid|classic)',
+      name: 'advantage',
+      component: AdvantageView,
+      meta: { isGame: true, requiresAuth: true, game: 'advantage' },
+    },
+    {
+      path: '/advantage/puzzle/:puzzleId/:mode(bullet|blitz|rapid|classic)',
+      name: 'advantage-puzzle',
+      component: AdvantageView,
+      meta: { isGame: true, requiresAuth: true, game: 'advantage' },
     },
     {
       path: '/user-cabinet',
@@ -132,7 +157,7 @@ router.beforeEach(async (to, from, next) => {
     return next(false)
   }
 
-  if (from.meta.isGame && from.name !== to.name) {
+  if (from.meta.isGame && to.meta.game !== from.meta.game) {
     const isTornadoToMistakes = from.name === 'tornado' && to.name === 'tornado-mistakes'
 
     if (gameStore.isGameActive && !isTornadoToMistakes) {

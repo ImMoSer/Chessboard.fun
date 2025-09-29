@@ -50,9 +50,9 @@ const handleChangeLang = (lang: 'en' | 'ru' | 'de') => {
           <span class="mode-button-icon">🌪️</span>
           <span class="mode-button-text">{{ t('nav.tornado') }}</span>
         </router-link>
-        <router-link class="mode-button" to="/funclub">
-          <span class="mode-button-icon">🏰</span>
-          <span class="mode-button-text">{{ t('welcome.buttons.clubs') }}</span>
+        <router-link class="mode-button" to="/advantage">
+          <span class="mode-button-icon">⚡</span>
+          <span class="mode-button-text">{{ t('nav.advantage') }}</span>
         </router-link>
         <router-link class="mode-button" to="/records">
           <span class="mode-button-icon">🏆</span>

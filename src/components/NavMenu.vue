@@ -11,6 +11,7 @@ const router = useRouter()
 const menuItems = [
   { path: '/', labelKey: 'nav.home', icon: '🏠' },
   { path: '/tornado', labelKey: 'nav.tornado', icon: '🌪️', group: 'games' },
+  { path: '/advantage', labelKey: 'nav.advantage', icon: '⚡', group: 'games' },
   { path: '/finish-him', labelKey: 'nav.finishHim', icon: '🎯', group: 'games' },
   { path: '/attack', labelKey: 'nav.attack', icon: '⚔️', group: 'games' },
   { path: '/tower', labelKey: 'nav.tower', icon: '🏁', group: 'games' },

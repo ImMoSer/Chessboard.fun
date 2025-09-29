@@ -25,6 +25,7 @@
     "tower": "Speedrun",
     "tacktics": "Taktik",
     "tornado": "Tornado",
+    "advantage": "Advantage",
     "leaderboards": "Bestenlisten",
     "userCabinet": "Profil",
     "lichessClubs": "Clubs",
@@ -385,6 +386,7 @@
       "skillEarned": "Skill heute",
       "finishHimRatingLabel": "Verwertungs-Wertung",
       "attackRatingLabel": "Angriffs-Wertung",
+      "advantageRatingLabel": "Advantage-Wertung",
       "tornadoTitle": "Tornado-Höchstwerte",
       "global": {
         "title": "Aktivitätsstatistik"
@@ -591,6 +593,11 @@
       "separator": ": "
     },
     "footerNote": "Mit ❤️ für Schachbegeisterte überall gemacht"
+  },
+  "advantage": {
+    "selection": {
+      "title": "Wählen Sie einen Spielmodus"
+    }
   },
   "tornado": {
     "selection": {

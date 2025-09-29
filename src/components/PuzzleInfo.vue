@@ -7,6 +7,7 @@ import { useFinishHimStore } from '../stores/finishHim.store'
 import { useAttackStore } from '../stores/attack.store'
 import { useTowerStore } from '../stores/tower.store'
 import { useTornadoStore } from '../stores/tornado.store'
+import { useAdvantageStore } from '../stores/advantage.store'
 import { useThemeStore } from '../stores/theme.store'
 import type { GamePuzzle } from '../types/api.types'
 
@@ -15,10 +16,12 @@ const finishHimStore = useFinishHimStore()
 const attackStore = useAttackStore()
 const towerStore = useTowerStore()
 const tornadoStore = useTornadoStore()
+const advantageStore = useAdvantageStore()
 const themeStore = useThemeStore()
 const { t } = useI18n()
 
 const activeStore = computed(() => {
+  if (['advantage', 'advantage-puzzle'].includes(route.name as string)) return advantageStore
   if (route.name === 'attack') return attackStore
   if (route.name === 'tower') return towerStore
   if (route.name === 'tornado') return tornadoStore
@@ -137,6 +140,18 @@ const sortedResults = computed(() => {
         <div v-if="activePuzzle.solve_time" class="info-item">
           <span class="label">{{ t('puzzleInfo.solveTime') }}:</span>
           <span class="value">{{ formatTime(activePuzzle.solve_time) }}</span>
+        </div>
+        <div v-if="activePuzzle.EndgameType" class="info-item">
+          <span class="label">{{ t('tacktics.stats.theme', 'Theme') }}:</span>
+          <span class="value">{{ activePuzzle.EndgameType }}</span>
+        </div>
+        <div v-if="activePuzzle.eval" class="info-item">
+          <span class="label">{{ t('puzzleInfo.evaluation', 'Evaluation') }}:</span>
+          <span class="value">{{ (activePuzzle.eval / 100).toFixed(2) }}</span>
+        </div>
+        <div v-if="activePuzzle.num_pieces" class="info-item">
+          <span class="label">{{ t('puzzleInfo.pieces', 'Pieces') }}:</span>
+          <span class="value">{{ activePuzzle.num_pieces }}</span>
         </div>
         <div v-if="activePuzzle.bw_value" class="info-item">
           <span class="label">{{ t('puzzleInfo.funValue') }}:</span>

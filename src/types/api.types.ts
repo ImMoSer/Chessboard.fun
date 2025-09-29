@@ -143,7 +143,17 @@ export interface TornadoEndResponse {
   userStatsUpdate?: UserStatsUpdate
 }
 
-// --- END TORNADO ---
+// --- END TORNADO --
+
+// --- ADVANTAGE MODE ---
+export type AdvantageMode = 'bullet' | 'blitz' | 'rapid' | 'classic'
+
+export interface AdvantageResultDto {
+  puzzleId: string
+  wasCorrect: boolean
+  theme: string
+}
+// --- END ADVANTAGE ---
 
 export interface TowerPositionEntry {
   FEN_0: string
@@ -225,6 +235,10 @@ export interface GamePuzzle {
   Rating: number
   solve_time?: number
   bw_value?: number
+  mc_value?: number
+  num_pieces?: number
+  eval?: number
+  EndgameType?: string
   fen_final?: string
   endgame_results?: PuzzleResultEntry[]
   attack_results?: PuzzleResultEntry[]
@@ -445,6 +459,7 @@ export interface PuzzlesSolvedToday {
   finishHim: number
   tacticalTrainer: number
   tornado: number
+  advantage: number
   total: number
 }
 
@@ -454,6 +469,7 @@ export interface SkillEarnedToday {
   finishHim: number
   tacticalTrainer: number
   tornado: number
+  advantage: number
   total: number
 }
 
@@ -466,11 +482,18 @@ export interface UserStatsUpdate {
   id: string
   username: string
   FunCoins: number
-  endgame_skill: number
-  attack_skill: number
-  today_activity: TodayActivity
-  attackRating?: { rating: number }
-  finishHimRating?: { rating: number }
+  advantageHighScores?: {
+    blitz?: number
+    rapid?: number
+    bullet?: number
+    classic?: number
+  }
+  advantageSkills?: {
+    blitz?: number
+    rapid?: number
+    bullet?: number
+    classic?: number
+  }
   tornadoHighScores?: {
     blitz?: number
     rapid?: number
@@ -496,6 +519,18 @@ export interface UserSessionProfile extends LichessUserProfile {
   today_activity?: TodayActivity
   attackRating?: { rating: number }
   finishHimRating?: { rating: number }
+  advantageHighScores?: {
+    blitz?: number
+    rapid?: number
+    bullet?: number
+    classic?: number
+  }
+  advantageSkills?: {
+    blitz?: number
+    rapid?: number
+    bullet?: number
+    classic?: number
+  }
   tornadoHighScores?: {
     blitz?: number
     rapid?: number
