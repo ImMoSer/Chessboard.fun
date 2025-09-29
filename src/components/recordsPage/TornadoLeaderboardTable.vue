@@ -113,6 +113,10 @@ const getSubscriptionIcon = (tier?: string) => {
   background-color: var(--color-accent-error-hover);
 }
 
+.advantageLeaderboard .records-page__table-title {
+  background-color: var(--color-text-error);
+}
+
 .records-page__table {
   width: 100%;
   border-collapse: collapse;

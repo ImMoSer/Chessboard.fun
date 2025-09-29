@@ -330,6 +330,15 @@ export interface TornadoLeaderboardEntry {
   subscriptionTier?: string
 }
 
+export interface AdvantageLeaderboardEntry {
+  rank: number
+  username: string
+  lichess_id: string
+  highScore: number
+  days_old: number
+  subscriptionTier?: string
+}
+
 export interface WorktableLeaderboards {
   towerLeaderboards: { [key in TowerId]?: TowerLeaderboardEntry[] }
   finishHimLeaderboard: FinishHimLeaderboardEntry[]
@@ -341,8 +350,10 @@ export type SkillPeriod = '7' | '14' | '21' | '30'
 export interface LeaderboardApiResponse extends WorktableLeaderboards {
   overallSkillLeaderboard: OverallSkillLeaderboardEntry[]
   skillStreakLeaderboard: SkillStreakLeaderboardEntry[]
+  skillStreakMegaLeaderboard: SkillStreakLeaderboardEntry[]
   topTodayLeaderboard: OverallSkillLeaderboardEntry[]
   tornadoLeaderboard?: { [key in TornadoMode]?: TornadoLeaderboardEntry[] }
+  advantageLeaderboard?: { [key in AdvantageMode]?: AdvantageLeaderboardEntry[] }
 }
 
 export interface SkillByMode {
@@ -351,6 +362,7 @@ export interface SkillByMode {
   tower: number
   tacticalTrainer: number
   tornado: number
+  advantage: number
 }
 
 export interface OverallSkillLeaderboardEntry {

@@ -101,6 +101,11 @@ const gameCosts = [
     icon: '🧩',
     cost: 1,
   },
+  {
+    name: t('nav.advantage'),
+    icon: '📈',
+    cost: 10,
+  },
 ]
 </script>
 

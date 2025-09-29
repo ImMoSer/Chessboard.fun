@@ -20,7 +20,7 @@
   },
   "nav": {
     "home": "Home",
-    "finishHim": "Conversion",
+    "finishHim": "FinishHim",
     "attack": "Attack",
     "tower": "SpeedRun",
     "tacktics": "Tacktics",
@@ -240,6 +240,7 @@
       "towerLeaderboard": "Tower Masters",
       "overallSkill": "Overall Skill",
       "skillStreak": "+100 everyday",
+      "skillStreakMega": "MEGA STREAK",
       "topToday": "Top Today"
     },
     "table": {
@@ -384,7 +385,7 @@
       "attackSkillLabel": "Attack Skill",
       "puzzlesSolved": "Puzzles Solved",
       "skillEarned": "Skill Today",
-      "finishHimRatingLabel": "Conversion Rating",
+      "finishHimRatingLabel": "FinishHim Rating",
       "attackRatingLabel": "Attack Rating",
       "advantageRatingLabel": "Advantage Rating",
       "tornadoTitle": "Tornado High Scores",
@@ -401,7 +402,7 @@
       },
       "modes": {
         "all": "Mode",
-        "finishHim": "Conversion",
+        "finishHim": "FinishHim",
         "attack": "Attack",
         "tower": "SpeedRun",
         "tacticalTrainer": "Tactics"
@@ -479,7 +480,7 @@
       "licenseAndAcknowledgementsTitle": "Licensing and Acknowledgements"
     },
     "modes": {
-      "conversionTitle": "Finish-Him (Conversion): ",
+      "conversionTitle": "Finish-Him: ",
       "conversion": "A unique mode where you first solve a tactical puzzle and then must prove your advantage in the endgame by playing against the Stockfish engine.",
       "speedrunTitle": "Speedrun: ",
       "speedrun": "Test your speed and accuracy by solving a series of timed tactical puzzles. The difficulty of the towers ranges from Candidate Master to Grandmaster level.",
@@ -487,6 +488,9 @@
       "attack": "A mode where you face positions requiring a decisive combination or a powerful attack to checkmate the bot.",
       "automaticTacticalTrainerTitle": "Automatic Tactical Trainer: ",
       "automaticTacticalTrainer": "Unlike standard trainers, our smart system turns puzzle-solving into a personalized path to mastery. It analyzes your profile across 25 tactical themes (fork, pin, discovered attack, etc.), identifies your weakest areas, and automatically selects the puzzle that will benefit you the most right now. After each answer, your rating for that theme is instantly updated, ensuring the next puzzle perfectly matches your current skill level.",
+      "advantageTitle": "Advantage: ",
+      "advantage": "This mode operates on the same principle as Finish-Him, but features a set of puzzles without initial tactics. While in Finish-Him mode you first solve a tactic, making the subsequent playout trivial in most cases, here there are no tactics, and the user must apply positional thinking from the start. The puzzle set is based on a selection of positions where the engine evaluation is always in the user's favor, in the range of +500 to +1500 centipawns (or -500 to -1500 if the user is playing Black). The game mode is configured for 4 time controls, each with a separate rating. The \"Endgame Skill\" represents the total value of all pieces on the board in pawns. Data source: ",
+      "advantageDisclaimer": "Disclaimer: All positions were selected by an algorithm, not manually. The author apologizes if you encounter any uninteresting positions.",
       "botSelectionTitle": "Chess Bot Selection: ",
       "botSelectionIntro": "On our platform, you can choose from several chess bots for training:",
       "bots": {
@@ -508,7 +512,7 @@
       "lichessIntegrationTitle": "Lichess Integration: ",
       "lichessIntegration": "Log in via your Lichess account, use your profile, and fetch club activity data.",
       "advancedStatsTitle": "Advanced Statistics: ",
-      "advancedStats": "Track your tactical and conversion ratings, number of games played, FunCoins, and more.",
+      "advancedStats": "Track your tactical and FinishHim ratings, number of games played, FunCoins, and more.",
       "puzzleDatabaseTitle": "Lichess Puzzle Database: ",
       "puzzleDatabase": "All puzzles in the application are based on the vast and high-quality Lichess puzzle database: ",
       "modernUITitle": "Modern UI: ",

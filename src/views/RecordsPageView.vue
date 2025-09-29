@@ -54,6 +54,15 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
         :show-streak="true"
       />
 
+      <!-- Skill Streak Mega Leaderboard -->
+      <SkillLeaderboardTable
+        v-if="leaderboards.skillStreakMegaLeaderboard && leaderboards.skillStreakMegaLeaderboard.length > 0"
+        :title="t('records.titles.skillStreakMega')"
+        :entries="leaderboards.skillStreakMegaLeaderboard"
+        color-class="skillStreakMega"
+        :show-streak="true"
+      />
+
       <!-- Top Today Leaderboard -->
       <SkillLeaderboardTable
         v-if="leaderboards.topTodayLeaderboard && leaderboards.topTodayLeaderboard.length > 0"
@@ -78,6 +87,14 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
         :title="t('nav.tornado')"
         :tornado-data="leaderboards.tornadoLeaderboard"
         color-class="tornadoLeaderboard"
+      />
+
+      <!-- Advantage Leaderboard -->
+      <TornadoLeaderboardTable
+        v-if="leaderboards.advantageLeaderboard"
+        :title="t('nav.advantage')"
+        :tornado-data="leaderboards.advantageLeaderboard"
+        color-class="advantageLeaderboard"
       />
       <!-- --- КОНЕЦ ИЗМЕНЕНИЙ --- -->
 

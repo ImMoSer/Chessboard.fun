@@ -43,6 +43,7 @@ const skillModes: { key: keyof SkillByMode; nameKey: string }[] = [
   { key: 'attack', nameKey: 'userCabinet.stats.modes.attack' },
   { key: 'tower', nameKey: 'userCabinet.stats.modes.tower' },
   { key: 'tornado', nameKey: 'nav.tornado' },
+  { key: 'advantage', nameKey: 'nav.advantage' },
 ]
 // --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
@@ -170,6 +171,9 @@ const handlePeriodChange = (event: Event) => {
 .skillStreak .records-page__table-title {
   background-color: var(--color-accent-success);
 }
+.skillStreakMega .records-page__table-title {
+  background-color: var(--color-violett-lichess);
+}
 .topToday .records-page__table-title {
   background-color: var(--color-accent-warning);
 }
@@ -230,6 +234,9 @@ const handlePeriodChange = (event: Event) => {
 }
 .legend-color-swatch.tornado {
   background-color: var(--color-accent-secondary);
+}
+.legend-color-swatch.advantage {
+  background-color: var(--color-text-error);
 }
 /* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
 .legend-label {
@@ -301,6 +308,9 @@ const handlePeriodChange = (event: Event) => {
 }
 .skill-bar-segment.tornado {
   background-color: var(--color-accent-secondary);
+}
+.skill-bar-segment.advantage {
+  background-color: var(--color-text-error);
 }
 /* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
 .text-left {

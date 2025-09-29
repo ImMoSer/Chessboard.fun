@@ -10,6 +10,7 @@ An interactive web platform for chess enthusiasts, offering unique training mode
 - **⚡ Speedrun** - Timed tactical puzzles with difficulty ranging from Candidate Master to Grandmaster
 - **⚔️ Attack** - Face positions requiring decisive combinations or powerful attacks to checkmate
 - **🧠 Automatic Tactical Trainer** - AI-powered personalized training across 25 tactical themes
+- **📈 Advantage** - Train your positional understanding by converting a winning advantage without any initial tactical puzzle. Positions are selected from a database where the evaluation is between +5 and +15.
 
 ### Analysis & Statistics
 
@@ -45,7 +46,7 @@ Choose from several training bots with different skill levels:
 
 - **🔗 Lichess Integration** - Login via Lichess account with full profile integration
 - **📈 Advanced Statistics** - Track tactical ratings, conversion ratings, games played, and FunCoins
-- **🧩 Lichess Puzzle Database** - Built on the comprehensive [Lichess puzzle database](https://database.lichess.org/#puzzles)
+- **🧩 Lichess Puzzle & Evaluation Database** - Built on the comprehensive [Lichess puzzle database](https://database.lichess.org/#puzzles) and [evaluation database](https://database.lichess.org/#evals)
 - **🎨 Modern UI** - Clean, responsive interface built with TypeScript and Vue.js
 - **🌍 Localization** - Available in English, German, and Russian
 
