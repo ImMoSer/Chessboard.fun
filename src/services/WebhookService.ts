@@ -32,6 +32,7 @@ import type {
   LatestTeamBattleReport,
   AdvantageMode,
   AdvantageResultDto,
+  DetailedStatsResponse,
   // --- КОНЕЦ ИЗМЕНЕНИЙ ---
 } from '../types/api.types'
 
@@ -371,6 +372,14 @@ class WebhookServiceController {
       '/activity/personal',
       'GET',
       'fetchPersonalActivityStats',
+    )
+  }
+
+  public async fetchDetailedStats(): Promise<DetailedStatsResponse | null> {
+    return this._apiRequest<DetailedStatsResponse>(
+      '/users/me/detailed-stats',
+      'GET',
+      'fetchDetailedStats',
     )
   }
 }

@@ -691,3 +691,22 @@ export interface LatestTeamBattleReport {
   tournament_info: LatestBattleTournamentInfo
 }
 // --- КОНЕЦ ИЗМЕНЕНИЙ ---
+
+// --- Типы для детальной статистики в кабинете пользователя ---
+export interface ThemeStatsDto {
+  rating: number
+  solved: number
+  attempted: number
+  accuracy: number
+}
+
+export type ModeStatsDto = Record<string, ThemeStatsDto> // Ключ - название темы
+export type TimedModeStatsDto = Record<string, ModeStatsDto> // Ключ - bullet, blitz и т.д.
+
+export type UntimedModeStatsDto = Record<string, ThemeStatsDto> // Ключ - название темы
+
+export interface DetailedStatsResponse {
+  tornadoStats: TimedModeStatsDto
+  advantageStats: TimedModeStatsDto
+  endgameStats: UntimedModeStatsDto
+}

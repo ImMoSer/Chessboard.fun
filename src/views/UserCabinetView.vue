@@ -7,6 +7,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { useUserCabinetStore, type ActivityPeriod } from '@/stores/userCabinet.store'
 import type { TornadoMode } from '@/types/api.types'
+import DetailedAnalytics from '@/components/userCabinet/DetailedAnalytics.vue'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -187,6 +188,9 @@ const sortedTornadoScores = computed(() => {
           </div>
         </div>
       </section>
+
+      <!-- Detailed Analytics Section -->
+      <detailed-analytics />
 
       <!-- Lichess Activity Section -->
       <section class="user-cabinet__stats-section user-cabinet__stats-section--lichess-activity">
