@@ -4,10 +4,7 @@ import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { useUserCabinetStore } from '@/stores/userCabinet.store'
-
-import TornadoStats from './TornadoStats.vue'
-import AdvantageStats from './AdvantageStats.vue'
-import EndgameStats from './EndgameStats.vue'
+import AnalyticsDisplay from './AnalyticsDisplay.vue'
 
 const { t } = useI18n()
 const userCabinetStore = useUserCabinetStore()
@@ -16,13 +13,7 @@ const { detailedStats, isDetailedStatsLoading, detailedStatsError } = storeToRef
 type Tab = 'Tornado' | 'Advantage' | 'Endgame'
 const activeTab = ref<Tab>('Tornado')
 
-const tabs: Record<Tab, any> = {
-  Tornado: TornadoStats,
-  Advantage: AdvantageStats,
-  Endgame: EndgameStats,
-}
-
-const currentTabComponent = computed(() => tabs[activeTab.value])
+const tabs: Tab[] = ['Tornado', 'Advantage', 'Endgame']
 
 const currentStats = computed(() => {
   if (!detailedStats.value) return null
@@ -37,6 +28,10 @@ const currentStats = computed(() => {
       return null
   }
 })
+
+const isCurrentStatsTimed = computed(() => {
+  return activeTab.value === 'Tornado' || activeTab.value === 'Advantage'
+})
 </script>
 
 <template>
@@ -49,14 +44,14 @@ const currentStats = computed(() => {
     </div>
     <div v-else-if="detailedStats" class="analytics-content">
       <div class="tabs-navigation">
-        <button v-for="tab in Object.keys(tabs) as Tab[]" :key="tab" class="tab-button"
+        <button v-for="tab in tabs" :key="tab" class="tab-button"
           :class="{ active: activeTab === tab }" @click="activeTab = tab">
           {{ tab }}
         </button>
       </div>
 
       <div class="tab-content">
-        <component :is="currentTabComponent" :stats="currentStats" />
+        <AnalyticsDisplay :stats="currentStats" :is-timed="isCurrentStatsTimed" />
       </div>
     </div>
     <div v-else class="no-data-message">Нет данных для отображения.</div>

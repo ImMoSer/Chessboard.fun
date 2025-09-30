@@ -3,7 +3,7 @@
 import { ref } from 'vue'
 import { useTowerStore } from '@/stores/tower.store'
 import { useI18n } from 'vue-i18n'
-import type { TowerId, TowerTheme } from '@/types/api.types'
+import { TOWER_THEMES, type TowerId, type TowerTheme } from '@/types/api.types'
 
 const towerStore = useTowerStore()
 const { t } = useI18n()
@@ -18,26 +18,26 @@ const towerDefinitions: { id: TowerId; nameKey: string; displayLevels: number; c
   { id: 'GM', nameKey: 'tower.names.GM', displayLevels: 8, color: 'var(--color-accent-error)' },
 ]
 
-// --- НАЧАЛО ИЗМЕНЕНИЙ ---
-const availableThemes: TowerTheme[] = [
-  'mix',
-  'rook_and_minor_vs_rook',
-  'rook_endgame',
-  'pawn_endgame',
-  'queens_vs_rooks',
-  'knight_endgame',
-  'bishop_endgame',
-  'rooks_vs_minors',
-  'opposite_color_bishops',
-  'two_rooks_endgame',
-  'queens_vs_minors',
-  'queen_endgame',
-  'knights_vs_bishops',
-  'bishops_vs_knights',
-  'minors_vs_rooks',
-  'vs_queen_disadvantage',
-]
-// --- КОНЕЦ ИЗМЕНЕНИЙ ---
+const keyMap: Record<string, string> = {
+  mix: 'mix',
+  rook_and_minor_vs_rook: 'rookAndMinorVsRook',
+  rook_endgame: 'rookEndgame',
+  pawn_endgame: 'pawnEndgame',
+  queens_vs_rooks: 'queensVsRooks',
+  knight_endgame: 'knightEndgame',
+  bishop_endgame: 'bishopEndgame',
+  rooks_vs_minors: 'rooksVsMinors',
+  opposite_color_bishops: 'oppositeColorBishops',
+  two_rooks_endgame: 'twoRooksEndgame',
+  queens_vs_minors: 'queensVsMinors',
+  queen_endgame: 'queenEndgame',
+  knights_vs_bishops: 'knightsVsBishops',
+  bishops_vs_knights: 'bishopsVsKnights',
+  minors_vs_rooks: 'minorsVsRooks',
+  vs_queen_disadvantage: 'vsQueenDisadvantage',
+}
+
+const availableThemes: readonly TowerTheme[] = TOWER_THEMES
 
 const handleSelectTower = (towerId: TowerId) => {
   selectedTowerId.value = towerId
@@ -47,6 +47,11 @@ const handleSelectTower = (towerId: TowerId) => {
 const handleThemeChange = (event: Event) => {
   const target = event.target as HTMLSelectElement
   selectedTheme.value = target.value as TowerTheme
+}
+
+const getThemeName = (theme: TowerTheme) => {
+  const mappedTheme = keyMap[theme] || theme
+  return t(`themes.${mappedTheme}`)
 }
 </script>
 
@@ -61,7 +66,7 @@ const handleThemeChange = (event: Event) => {
         @change="handleThemeChange"
       >
         <option v-for="theme in availableThemes" :key="theme" :value="theme">
-          {{ t(`tower.themes.${theme}`) }}
+          {{ getThemeName(theme) }}
         </option>
       </select>
     </div>

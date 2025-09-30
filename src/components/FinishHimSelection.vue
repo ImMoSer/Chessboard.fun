@@ -2,34 +2,48 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useFinishHimStore } from '@/stores/finishHim.store'
-// --- НАЧАЛО ИЗМЕНЕНИЙ ---
 import { useGameStore } from '@/stores/game.store'
-// --- КОНЕЦ ИЗМЕНЕНИЙ ---
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { TOWER_THEMES, type TowerTheme } from '@/types/api.types'
 
 const finishHimStore = useFinishHimStore()
-// --- НАЧАЛО ИЗМЕНЕНИЙ ---
 const gameStore = useGameStore()
 const { selectedTheme } = storeToRefs(finishHimStore)
 const { isGameActive } = storeToRefs(gameStore)
-// --- КОНЕЦ ИЗМЕНЕНИЙ ---
 const { t } = useI18n()
 
 const isOpen = ref(false)
 const dropdownRef = ref<HTMLElement | null>(null)
 
+const keyMap: Record<string, string> = {
+  mix: 'mix',
+  rook_and_minor_vs_rook: 'rookAndMinorVsRook',
+  rook_endgame: 'rookEndgame',
+  pawn_endgame: 'pawnEndgame',
+  queens_vs_rooks: 'queensVsRooks',
+  knight_endgame: 'knightEndgame',
+  bishop_endgame: 'bishopEndgame',
+  rooks_vs_minors: 'rooksVsMinors',
+  opposite_color_bishops: 'oppositeColorBishops',
+  two_rooks_endgame: 'twoRooksEndgame',
+  queens_vs_minors: 'queensVsMinors',
+  queen_endgame: 'queenEndgame',
+  knights_vs_bishops: 'knightsVsBishops',
+  bishops_vs_knights: 'bishopsVsKnights',
+  minors_vs_rooks: 'minorsVsRooks',
+  vs_queen_disadvantage: 'vsQueenDisadvantage',
+}
+
 const availableThemes: TowerTheme[] = [...TOWER_THEMES]
 
 const selectedThemeName = computed(() => {
-  return t(`tower.themes.${selectedTheme.value}`)
+  const mappedTheme = keyMap[selectedTheme.value] || selectedTheme.value
+  return t(`themes.${mappedTheme}`)
 })
 
 const toggleDropdown = () => {
-  // --- НАЧАЛО ИЗМЕНЕНИЙ ---
   if (isGameActive.value) return
-  // --- КОНЕЦ ИЗМЕНЕНИЙ ---
   isOpen.value = !isOpen.value
 }
 
@@ -44,6 +58,11 @@ const handleClickOutside = (event: MouseEvent) => {
   }
 }
 
+const getThemeName = (theme: TowerTheme) => {
+  const mappedTheme = keyMap[theme] || theme
+  return t(`themes.${mappedTheme}`)
+}
+
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
 })
@@ -55,9 +74,7 @@ onUnmounted(() => {
 
 <template>
   <div class="finish-him-selection" ref="dropdownRef">
-    <!-- --- НАЧАЛО ИЗМЕНЕНИЙ --- -->
     <button class="selector-toggle" @click="toggleDropdown" :disabled="isGameActive">
-      <!-- --- КОНЕЦ ИЗМЕНЕНИЙ --- -->
       <span class="selector-text-desktop">{{ selectedThemeName }}</span>
       <span class="selector-text-mobile">{{ t('tower.ui.themeLabel') }}</span>
       <span class="selector-arrow" :class="{ 'is-open': isOpen }">▼</span>
@@ -70,7 +87,7 @@ onUnmounted(() => {
         :class="{ active: theme === selectedTheme }"
         @click="handleThemeSelect(theme)"
       >
-        {{ t(`tower.themes.${theme}`) }}
+        {{ getThemeName(theme) }}
       </button>
     </div>
   </div>

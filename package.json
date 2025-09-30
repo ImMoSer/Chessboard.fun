@@ -22,11 +22,13 @@
     "@lichess-org/chessground": "^9.6.0",
     "chessground": "^9.2.1",
     "chessops": "^0.15.0",
+    "echarts": "^6.0.0",
     "pinia": "^3.0.3",
     "sass": "^1.92.1",
     "stockfish-nnue.wasm": "1.0.0-1946a675.smolnet",
     "stockfish.js": "^10.0.2",
     "vue": "^3.5.21",
+    "vue-echarts": "^8.0.0",
     "vue-i18n": "^11.1.12",
     "vue-router": "^4.5.1"
   },
