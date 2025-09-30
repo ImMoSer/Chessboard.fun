@@ -85,6 +85,8 @@
     "tacticalRating": "Taktik-Wertung",
     "solveTime": "Lösungszeit",
     "funValue": "Skill-Punkte",
+    "evaluation": "Bewertung",
+    "pieces": "Figuren",
     "finalPositionTitle": "Material in der Endstellung",
     "leaderboardTitle": "Bestzeiten",
     "tableRank": "#",
@@ -431,6 +433,12 @@
     },
     "detailedAnalytics": {
       "title": "Detaillierte Analyse"
+    },
+    "analyticsTable": {
+      "theme": "Thema",
+      "rating": "Wertung",
+      "solved_attempted": "Gelöst/Versucht",
+      "accuracy_percent": "Genauigkeit %"
     }
   },
   "pricing": {
@@ -603,6 +611,9 @@
   "advantage": {
     "selection": {
       "title": "Wählen Sie einen Spielmodus"
+    },
+    "leaderboard": {
+      "highScore": "Rating"
     }
   },
   "tornado": {
@@ -646,7 +657,7 @@
       }
     },
     "leaderboard": {
-      "highScore": "Höchstpunktzahl"
+      "highScore": "Rating"
     },
     "stats": {
       "title": "Ihre Statistiken",

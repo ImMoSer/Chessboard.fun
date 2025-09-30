@@ -85,6 +85,8 @@
     "tacticalRating": "Tactical Rating",
     "solveTime": "Solve Time",
     "funValue": "Skill Value",
+    "evaluation": "Evaluation",
+    "pieces": "Pieces",
     "finalPositionTitle": "Material in final position",
     "leaderboardTitle": "Best Times",
     "tableRank": "#",
@@ -388,7 +390,7 @@
       "finishHimRatingLabel": "FinishHim Rating",
       "attackRatingLabel": "Attack Rating",
       "advantageRatingLabel": "Advantage Rating",
-      "tornadoTitle": "Tornado High Scores",
+      "tornadoTitle": "Tornado Ratings",
       "global": {
         "title": "Activity Statistics"
       },
@@ -432,6 +434,12 @@
     },
     "detailedAnalytics": {
       "title": "Detailed Analytics"
+    },
+    "analyticsTable": {
+      "theme": "Theme",
+      "rating": "Rating",
+      "solved_attempted": "Solved/Attempted",
+      "accuracy_percent": "Accuracy %"
     }
   },
   "pricing": {
@@ -604,6 +612,9 @@
   "advantage": {
     "selection": {
       "title": "Select a game mode"
+    },
+    "leaderboard": {
+      "highScore": "Rating"
     }
   },
   "tornado": {
@@ -646,7 +657,7 @@
       }
     },
     "leaderboard": {
-      "highScore": "High Score"
+      "highScore": "Rating"
     },
     "stats": {
       "title": "Your Statistics",

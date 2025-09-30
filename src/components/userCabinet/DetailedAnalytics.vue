@@ -49,13 +49,8 @@ const currentStats = computed(() => {
     </div>
     <div v-else-if="detailedStats" class="analytics-content">
       <div class="tabs-navigation">
-        <button
-          v-for="tab in Object.keys(tabs) as Tab[]"
-          :key="tab"
-          class="tab-button"
-          :class="{ active: activeTab === tab }"
-          @click="activeTab = tab"
-        >
+        <button v-for="tab in Object.keys(tabs) as Tab[]" :key="tab" class="tab-button"
+          :class="{ active: activeTab === tab }" @click="activeTab = tab">
           {{ tab }}
         </button>
       </div>
@@ -75,10 +70,11 @@ const currentStats = computed(() => {
   border-radius: var(--panel-border-radius);
   border: 1px solid var(--color-border);
   margin-top: 20px;
+  margin-bottom: 20px;
 }
 
 .detailed-analytics__title {
-  font-size: var(--font-size-xlarge);
+  font-size: var(--font-size-large);
   color: var(--color-accent-secondary);
   margin-top: 0;
   margin-bottom: 15px;
@@ -105,13 +101,13 @@ const currentStats = computed(() => {
 }
 
 .tab-button {
-  padding: 10px 20px;
+  padding: 8px 20px;
   border-radius: var(--panel-border-radius);
   border: 1px solid var(--color-border-hover);
   background-color: var(--color-bg-secondary);
   color: var(--color-text-muted);
   font-family: var(--font-family-primary);
-  font-size: var(--font-size-large);
+  font-size: var(--font-size-base);
   cursor: pointer;
   transition: all 0.2s ease;
 }

@@ -85,6 +85,8 @@
     "tacticalRating": "Рейтинг тактики",
     "solveTime": "Время решения",
     "funValue": "Очки Скилла",
+    "evaluation": "Оценка",
+    "pieces": "Фигуры",
     "finalPositionTitle": "Материал в финале",
     "leaderboardTitle": "Лучшее время",
     "tableRank": "№",
@@ -432,6 +434,12 @@
     },
     "detailedAnalytics": {
       "title": "Детальная аналитика"
+    },
+    "analyticsTable": {
+      "theme": "Тема",
+      "rating": "Рейтинг",
+      "solved_attempted": "Решено/Попыток",
+      "accuracy_percent": "Точность %"
     }
   },
   "pricing": {
@@ -604,6 +612,9 @@
   "advantage": {
     "selection": {
       "title": "Выберите режим игры"
+    },
+    "leaderboard": {
+      "highScore": "Рекорд"
     }
   },
   "tornado": {
@@ -646,7 +657,7 @@
       }
     },
     "leaderboard": {
-      "highScore": "Высокий рейтинг"
+      "highScore": "Рейтинг"
     },
     "stats": {
       "title": "Ваши статистики",

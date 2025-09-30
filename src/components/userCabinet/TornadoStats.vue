@@ -135,13 +135,8 @@ function getSortIcon(key: SortKey) {
     </div>
     <div v-else>
       <div class="sub-tabs-navigation">
-        <button
-          v-for="mode in displayModes"
-          :key="mode"
-          class="sub-tab-button"
-          :class="{ active: activeMode === mode }"
-          @click="activeMode = mode"
-        >
+        <button v-for="mode in displayModes" :key="mode" class="sub-tab-button" :class="{ active: activeMode === mode }"
+          @click="activeMode = mode">
           {{ mode }}
         </button>
       </div>
@@ -151,9 +146,12 @@ function getSortIcon(key: SortKey) {
           <thead>
             <tr>
               <th @click="sortBy('theme')">{{ t('userCabinet.analyticsTable.theme') }} {{ getSortIcon('theme') }}</th>
-              <th @click="sortBy('rating')">{{ t('userCabinet.analyticsTable.rating') }} {{ getSortIcon('rating') }}</th>
-              <th @click="sortBy('attempted')">{{ t('userCabinet.analyticsTable.solved_attempted') }} {{ getSortIcon('attempted') }}</th>
-              <th @click="sortBy('accuracy')">{{ t('userCabinet.analyticsTable.accuracy_percent') }} {{ getSortIcon('accuracy') }}</th>
+              <th @click="sortBy('rating')">{{ t('userCabinet.analyticsTable.rating') }} {{ getSortIcon('rating') }}
+              </th>
+              <th @click="sortBy('attempted')">{{ t('userCabinet.analyticsTable.solved_attempted') }} {{
+                getSortIcon('attempted') }}</th>
+              <th @click="sortBy('accuracy')">{{ t('userCabinet.analyticsTable.accuracy_percent') }} {{
+                getSortIcon('accuracy') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -175,14 +173,14 @@ function getSortIcon(key: SortKey) {
   display: flex;
   justify-content: flex-start;
   gap: 8px;
-  margin-bottom: 15px;
+  margin-bottom: 5px;
   flex-wrap: wrap;
   border-bottom: 1px solid var(--color-border);
-  padding-bottom: 10px;
+  padding-bottom: 5px;
 }
 
 .sub-tab-button {
-  padding: 6px 12px;
+  padding: 2px 10px;
   border-radius: 6px;
   border: 1px solid transparent;
   background-color: var(--color-bg-secondary);
