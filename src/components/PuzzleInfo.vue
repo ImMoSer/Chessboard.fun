@@ -52,6 +52,22 @@ const localizedThemes = computed(() => {
   ).join(', ')
 })
 
+const tacticalThemes = computed(() => {
+  if (!activePuzzle.value?.Themes) return ''
+  return activePuzzle.value.Themes.split(' ').join(', ')
+})
+
+const endgameTheme = computed(() => {
+  if (!activePuzzle.value?.engm_type) return ''
+  const camelCaseType = activePuzzle.value.engm_type.replace(
+    /_([a-z])/g,
+    (_, p1) => p1.toUpperCase(),
+  )
+  return t(`themes.${camelCaseType}`, {
+    defaultValue: activePuzzle.value.engm_type,
+  })
+})
+
 const formatTime = (seconds: number | null | undefined): string => {
   if (seconds === null || seconds === undefined || seconds < 0) return '--:--'
   const totalSeconds = Math.ceil(seconds)
@@ -157,33 +173,31 @@ const sortedResults = computed(() => {
           <span class="label">{{ t('puzzleInfo.funValue') }}:</span>
           <span class="value">{{ activePuzzle.bw_value }}</span>
         </div>
+        <div v-if="tacticalThemes" class="info-item">
+          <span class="label">{{ t('tacktics.stats.theme') }}:</span>
+          <span class="value">{{ tacticalThemes }}</span>
+        </div>
+        <div v-if="endgameTheme" class="info-item">
+          <span class="label">{{ t('puzzleInfo.endgameThemeLabel', 'Тема эндшпиля') }}:</span>
+          <span class="value">{{ endgameTheme }}</span>
+        </div>
         <div v-if="route.name === 'tornado' && localizedThemes" class="info-item">
           <span class="label">{{ t('tacktics.stats.theme') }}:</span>
           <span class="value">{{ localizedThemes }}</span>
         </div>
       </div>
 
-      <div
-        v-if="finalMaterial.playerPieces.length > 0 || finalMaterial.botPieces.length > 0"
-        class="final-position-preview"
-      >
+      <div v-if="finalMaterial.playerPieces.length > 0 || finalMaterial.botPieces.length > 0"
+        class="final-position-preview">
         <h5 class="final-position-title">{{ t('puzzleInfo.finalPositionTitle') }}</h5>
         <div class="sorted-pieces-container">
           <div class="pieces-row player-pieces">
-            <img
-              v-for="(p, index) in finalMaterial.playerPieces"
-              :key="'player-' + index"
-              :src="`/piece/${themeStore.currentTheme.pieces}/${p.pieceFile}`"
-              class="sorted-piece-icon"
-            />
+            <img v-for="(p, index) in finalMaterial.playerPieces" :key="'player-' + index"
+              :src="`/piece/${themeStore.currentTheme.pieces}/${p.pieceFile}`" class="sorted-piece-icon" />
           </div>
           <div class="pieces-row bot-pieces">
-            <img
-              v-for="(p, index) in finalMaterial.botPieces"
-              :key="'bot-' + index"
-              :src="`/piece/${themeStore.currentTheme.pieces}/${p.pieceFile}`"
-              class="sorted-piece-icon"
-            />
+            <img v-for="(p, index) in finalMaterial.botPieces" :key="'bot-' + index"
+              :src="`/piece/${themeStore.currentTheme.pieces}/${p.pieceFile}`" class="sorted-piece-icon" />
           </div>
         </div>
       </div>
@@ -202,11 +216,7 @@ const sortedResults = computed(() => {
             <tr v-for="(result, index) in sortedResults" :key="result.lichess_id">
               <td class="rank">{{ index + 1 }}</td>
               <td class="player">
-                <a
-                  :href="`https://lichess.org/@/${result.lichess_id}`"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                <a :href="`https://lichess.org/@/${result.lichess_id}`" target="_blank" rel="noopener noreferrer">
                   {{ result.username }}
                 </a>
               </td>
@@ -232,10 +242,7 @@ const sortedResults = computed(() => {
           <span class="value">{{ activeTowerInfo.bw_value_total }}</span>
         </div>
       </div>
-      <div
-        v-if="towerSortedResults && towerSortedResults.length > 0"
-        class="puzzle-leaderboard-container"
-      >
+      <div v-if="towerSortedResults && towerSortedResults.length > 0" class="puzzle-leaderboard-container">
         <h5 class="leaderboard-title">{{ t('tower.ui.leaderboardTitle') }}</h5>
         <table class="puzzle-leaderboard-table">
           <thead>
@@ -249,11 +256,7 @@ const sortedResults = computed(() => {
             <tr v-for="(result, index) in towerSortedResults" :key="result.lichess_id">
               <td class="rank">{{ index + 1 }}</td>
               <td class="player">
-                <a
-                  :href="`https://lichess.org/@/${result.lichess_id}`"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                <a :href="`https://lichess.org/@/${result.lichess_id}`" target="_blank" rel="noopener noreferrer">
                   {{ result.username }}
                 </a>
               </td>
@@ -275,6 +278,7 @@ const sortedResults = computed(() => {
   flex-direction: column;
   gap: 15px;
 }
+
 h4 {
   margin: 0;
   padding-bottom: 8px;
@@ -283,42 +287,50 @@ h4 {
   color: var(--color-accent-warning);
   font-size: var(--font-size-base);
 }
+
 .info-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 5px;
 }
+
 .info-item {
   display: flex;
   justify-content: space-between;
   font-size: var(--font-size-small);
 }
+
 .label {
   color: var(--color-text-muted);
   margin-right: 10px;
   white-space: nowrap;
 }
+
 .value {
   font-weight: bold;
   text-align: right;
 }
+
 .final-position-preview {
   background-color: var(--color-bg-tertiary);
   padding: 8px;
   border-radius: 6px;
   border: 1px solid var(--color-border);
 }
+
 .final-position-title {
   margin: 0 0 8px 0;
   font-size: var(--font-size-small);
   color: var(--color-text-default);
   text-align: center;
 }
+
 .sorted-pieces-container {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
+
 .pieces-row {
   display: flex;
   flex-wrap: wrap;
@@ -328,60 +340,74 @@ h4 {
   border-radius: 4px;
   background-color: rgba(0, 0, 0, 0.1);
 }
+
 .pieces-row.player-pieces {
   border: 1px solid var(--color-accent-primary);
 }
+
 .pieces-row.bot-pieces {
   border: 1px solid var(--color-accent-error);
 }
+
 .sorted-piece-icon {
   height: 1.8rem;
   width: 1.8rem;
 }
+
 .puzzle-leaderboard-container {
   background-color: var(--color-bg-tertiary);
   border: 1px solid var(--color-border);
   border-radius: var(--panel-border-radius);
   padding: 10px;
-  margin-top: 10px; /* Added margin */
+  margin-top: 10px;
+  /* Added margin */
 }
+
 .leaderboard-title {
   margin: 0 0 8px 0;
   font-size: var(--font-size-small);
   color: var(--color-text-default);
   text-align: center;
 }
+
 .puzzle-leaderboard-table {
   width: 100%;
   border-collapse: collapse;
   font-size: var(--font-size-small);
 }
+
 .puzzle-leaderboard-table th,
 .puzzle-leaderboard-table td {
   padding: 6px 8px;
   text-align: left;
   border-bottom: 1px solid var(--color-border);
 }
+
 .puzzle-leaderboard-table tr:last-child td {
   border-bottom: none;
 }
+
 .puzzle-leaderboard-table th {
   color: var(--color-text-muted);
   font-weight: bold;
 }
+
 .puzzle-leaderboard-table .rank {
   text-align: center;
   width: 1%;
   padding-right: 10px;
 }
+
 .puzzle-leaderboard-table .time {
   text-align: right;
   font-weight: bold;
 }
+
 .puzzle-leaderboard-table .player a {
   color: var(--color-text-link);
   text-decoration: none;
 }
+
 .puzzle-leaderboard-table .player a:hover {
   text-decoration: underline;
 }

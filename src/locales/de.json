@@ -91,7 +91,8 @@
     "leaderboardTitle": "Bestzeiten",
     "tableRank": "#",
     "tablePlayer": "Spieler",
-    "tableTime": "Zeit"
+    "tableTime": "Zeit",
+    "endgameThemeLabel": "Endspiel-Thema"
   },
   "welcome": {
     "titleV2": "Wählen Sie einen Spielmodus",

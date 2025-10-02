@@ -9,6 +9,7 @@ import { parseFen } from 'chessops/fen'
 import logger from '../utils/logger'
 import { useControlsStore } from './controls.store'
 import { soundService } from '../services/sound.service'
+import { useAdvantageStore } from './advantage.store.ts'
 
 export type GamePhase = 'IDLE' | 'LOADING' | 'PLAYING' | 'GAMEOVER'
 export type GameMode = 'finish-him' | 'attack' | 'tower' | 'tornado' | 'advantage' | null
@@ -29,6 +30,7 @@ export const useGameStore = defineStore('game', () => {
   const boardStore = useBoardStore()
   const controlsStore = useControlsStore()
   const analysisStore = useAnalysisStore()
+  const advantageStore = useAdvantageStore()
 
   let onGameOverCallback: (isWin: boolean, outcome?: GameEndOutcome) => void = noop
   let checkWinCondition: (outcome?: GameEndOutcome) => boolean = () => false
@@ -143,6 +145,10 @@ export const useGameStore = defineStore('game', () => {
       isGameActive.value = true
     }
     userMovesCount.value++
+
+    if (currentGameMode.value === 'advantage') {
+      advantageStore.addIncrement()
+    }
 
     if (_checkAndHandleGameOver()) {
       return

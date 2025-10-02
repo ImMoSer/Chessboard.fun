@@ -233,6 +233,7 @@ export interface GamePuzzle {
   FEN_0: string
   Moves: string
   Rating: number
+  Themes?: string
   solve_time?: number
   bw_value?: number
   mc_value?: number

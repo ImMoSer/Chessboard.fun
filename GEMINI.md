@@ -44,11 +44,7 @@ The `README.md` file provides clear guidelines for contributing to the project. 
 
 - Детали только по запросу
 
-
-
 # Инструкции для работы с кодом:
-
-
 
 ## Принципы:
 
@@ -58,8 +54,6 @@ The `README.md` file provides clear guidelines for contributing to the project. 
 
 - Избегать неиспользуемых импортов/переменных
 
-
-
 ## Формат кода:
 
 - Каждый модуль в отдельном артефакте
@@ -67,8 +61,6 @@ The `README.md` file provides clear guidelines for contributing to the project. 
 - Всегда полный код модуля для копипаста. ты пишешь код а я копирую и вставлю его целиком! неполные коды вызывают ошибки!
 
 - Первая строка: путь к файлу (// src/puzzles/puzzles.service.ts)
-
-
 
 ## КРИТИЧЕСКИ ВАЖНО:
 
@@ -80,8 +72,6 @@ The `README.md` file provides clear guidelines for contributing to the project. 
 
 - Запрещены попутные изменения, не связанные с задачей
 
-
-
 ## Рабочий процесс:
 
 1. Изучить существующий код в папке `src`
@@ -91,3 +81,5 @@ The `README.md` file provides clear guidelines for contributing to the project. 
 3. Получить подтверждение
 
 4. Выполнить изменения
+
+5. Shell pnpm type-check (Run TypeScript type checking to verify the fixes.)

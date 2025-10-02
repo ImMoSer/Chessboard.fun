@@ -223,7 +223,6 @@ export const useAdvantageStore = defineStore('advantage', () => {
         _checkWinCondition,
         _startTimer,
         'advantage',
-        addIncrement,
       )
 
       feedbackMessage.value = t('finishHim.feedback.yourTurn')
@@ -317,5 +316,6 @@ export const useAdvantageStore = defineStore('advantage', () => {
     handleExit,
     reset,
     handleUnloadResignation,
+    addIncrement,
   }
 })
