@@ -40,7 +40,11 @@ const chartOption = computed(() => ({
     },
   },
   radar: {
-    indicator: props.chartData.map(item => ({ name: item.name, max: 2500 })),
+    indicator: props.chartData.map(item => ({
+      name: item.name,
+      max: maxRating.value,
+      min: minRating.value,
+    })),
     shape: 'circle',
     center: ['50%', '45%'],
     radius: '65%',
@@ -90,6 +94,20 @@ const chartOption = computed(() => ({
     },
   ],
 }))
+
+const minRating = computed(() => {
+  if (props.chartData.length === 0) return 0;
+  const values = props.chartData.map(item => item.value);
+  const minValue = Math.min(...values);
+  return Math.max(0, Math.floor(minValue / 100) * 100 - 200);
+});
+
+const maxRating = computed(() => {
+  if (props.chartData.length === 0) return 2500; // Default max if no data
+  const values = props.chartData.map(item => item.value);
+  const maxValue = Math.max(...values);
+  return Math.ceil(maxValue / 100) * 100 + 200;
+});
 </script>
 
 <template>

@@ -45,21 +45,21 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
     </div>
 
     <div v-else-if="leaderboards" class="records-page__grid">
-      <!-- Skill Streak Leaderboard -->
-      <SkillLeaderboardTable
-        v-if="leaderboards.skillStreakLeaderboard && leaderboards.skillStreakLeaderboard.length > 0"
-        :title="t('records.titles.skillStreak')"
-        :entries="leaderboards.skillStreakLeaderboard"
-        color-class="skillStreak"
-        :show-streak="true"
-      />
-
       <!-- Skill Streak Mega Leaderboard -->
       <SkillLeaderboardTable
         v-if="leaderboards.skillStreakMegaLeaderboard && leaderboards.skillStreakMegaLeaderboard.length > 0"
         :title="t('records.titles.skillStreakMega')"
         :entries="leaderboards.skillStreakMegaLeaderboard"
         color-class="skillStreakMega"
+        :show-streak="true"
+      />
+
+      <!-- Skill Streak Leaderboard -->
+      <SkillLeaderboardTable
+        v-if="leaderboards.skillStreakLeaderboard && leaderboards.skillStreakLeaderboard.length > 0"
+        :title="t('records.titles.skillStreak')"
+        :entries="leaderboards.skillStreakLeaderboard"
+        color-class="skillStreak"
         :show-streak="true"
       />
 
@@ -72,15 +72,6 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
         :show-timer="true"
       />
 
-      <!-- Tower Leaderboards -->
-      <TowerLeaderboardTable
-        v-if="leaderboards.towerLeaderboards"
-        :title="t('records.titles.towerLeaderboard')"
-        :tower-data="leaderboards.towerLeaderboards"
-        color-class="towerLeaderboard"
-      />
-
-      <!-- --- НАЧАЛО ИЗМЕНЕНИЙ --- -->
       <!-- Tornado Leaderboard -->
       <TornadoLeaderboardTable
         v-if="leaderboards.tornadoLeaderboard"
@@ -96,7 +87,14 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
         :tornado-data="leaderboards.advantageLeaderboard"
         color-class="advantageLeaderboard"
       />
-      <!-- --- КОНЕЦ ИЗМЕНЕНИЙ --- -->
+
+      <!-- Tower Leaderboards -->
+      <TowerLeaderboardTable
+        v-if="leaderboards.towerLeaderboards"
+        :title="t('records.titles.towerLeaderboard')"
+        :tower-data="leaderboards.towerLeaderboards"
+        color-class="towerLeaderboard"
+      />
 
       <!-- Finish Him Leaderboard -->
       <SimpleLeaderboardTable

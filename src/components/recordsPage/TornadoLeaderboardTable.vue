@@ -53,38 +53,47 @@ const getSubscriptionIcon = (tier?: string) => {
 <template>
   <div class="records-page__table-container" :class="colorClass">
     <h3 class="records-page__table-title">{{ title }}</h3>
-    <table class="records-page__table">
-      <thead>
-        <tr>
-          <th class="text-center">{{ t('records.table.rank') }}</th>
-          <th class="text-left">{{ t('records.table.player') }}</th>
-          <th class="text-right">{{ t('tornado.leaderboard.highScore') }}</th>
-          <th class="text-right">{{ t('records.table.daysOld') }}</th>
-        </tr>
-      </thead>
-      <tbody v-for="modeDef in TORNADO_DEFINITIONS" :key="modeDef.id">
-        <template v-if="tornadoData && tornadoData[modeDef.id] && tornadoData[modeDef.id]!.length > 0">
-          <tr class="records-page__table-section-header" :class="`header--${modeDef.id}`">
-            <th colspan="4">
-              {{ modeDef.name }}
-            </th>
-          </tr>
-          <tr v-for="entry in tornadoData[modeDef.id]" :key="entry.lichess_id">
-            <td class="text-center">{{ entry.rank }}</td>
-            <td class="text-left">
-              <img v-if="getSubscriptionIcon(entry.subscriptionTier)"
-                :src="getSubscriptionIcon(entry.subscriptionTier)!" class="records-page__sub-icon"
-                :alt="entry.subscriptionTier || 'N/A'" />
-              <a :href="`https://lichess.org/@/${entry.lichess_id}`" target="_blank">{{
-                entry.username
-              }}</a>
-            </td>
-            <td class="text-right">{{ entry.highScore }}</td>
-            <td class="text-right">{{ entry.days_old }}d</td>
-          </tr>
-        </template>
-      </tbody>
-    </table>
+    <div class="records-page__modes-grid">
+      <div v-for="modeDef in TORNADO_DEFINITIONS" :key="modeDef.id" class="records-page__mode-section">
+        <table class="records-page__table">
+          <thead>
+            <tr class="records-page__table-section-header" :class="`header--${modeDef.id}`">
+              <th colspan="4">
+                {{ modeDef.name }}
+              </th>
+            </tr>
+            <tr>
+              <th class="text-center">{{ t('records.table.rank') }}</th>
+              <th class="text-left">{{ t('records.table.player') }}</th>
+              <th class="text-right">{{ t('tornado.leaderboard.highScore') }}</th>
+              <th class="text-right">{{ t('records.table.daysOld') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template v-if="tornadoData && tornadoData[modeDef.id] && tornadoData[modeDef.id]!.length > 0">
+              <tr v-for="entry in tornadoData[modeDef.id]" :key="entry.lichess_id">
+                <td class="text-center">{{ entry.rank }}</td>
+                <td class="text-left">
+                  <img v-if="getSubscriptionIcon(entry.subscriptionTier)"
+                    :src="getSubscriptionIcon(entry.subscriptionTier)!" class="records-page__sub-icon"
+                    :alt="entry.subscriptionTier || 'N/A'" />
+                  <a :href="`https://lichess.org/@/${entry.lichess_id}`" target="_blank">{{
+                    entry.username
+                  }}</a>
+                </td>
+                <td class="text-right">{{ entry.highScore }}</td>
+                <td class="text-right">{{ entry.days_old }}d</td>
+              </tr>
+            </template>
+            <template v-else>
+              <tr>
+                <td colspan="4" class="text-center">{{ t('common.noData') }}</td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -98,6 +107,27 @@ const getSubscriptionIcon = (tier?: string) => {
   display: flex;
   flex-direction: column;
 }
+
+.records-page__modes-grid {
+  display: flex;
+  /* Default to column for mobile */
+  flex-direction: column;
+  gap: 20px;
+  /* Space between sections */
+}
+
+@media (min-width: 768px) {
+
+  /* Apply grid for desktop/landscape */
+  .records-page__modes-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    /* 2 columns */
+    gap: 20px;
+    /* Space between grid items */
+  }
+}
+
 
 .records-page__table-title {
   color: var(--color-bg-primary);

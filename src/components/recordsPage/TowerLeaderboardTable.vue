@@ -68,44 +68,53 @@ const handleChallengeClick = (towerId?: string) => {
 <template>
   <div class="records-page__table-container" :class="colorClass">
     <h3 class="records-page__table-title">{{ title }}</h3>
-    <table class="records-page__table">
-      <thead>
-        <tr>
-          <th class="text-center">{{ t('records.table.rank') }}</th>
-          <th class="text-left">{{ t('records.table.player') }}</th>
-          <th class="text-right">{{ t('records.table.time') }}</th>
-          <th class="text-right">{{ t('records.table.daysOld') }}</th>
-          <th class="text-center">{{ t('records.table.action') }}</th>
-        </tr>
-      </thead>
-      <tbody v-for="towerDef in TOWER_DEFINITIONS" :key="towerDef.id">
-        <template v-if="towerData && towerData[towerDef.id] && towerData[towerDef.id]!.length > 0">
-          <tr class="records-page__table-section-header" :class="`header--${towerDef.id}`">
-            <th colspan="5">
-              {{ t(towerDef.nameKey) }}
-            </th>
-          </tr>
-          <tr v-for="entry in towerData[towerDef.id]" :key="entry.tower_id + entry.lichess_id">
-            <td class="text-center">{{ entry.rank }}</td>
-            <td class="text-left">
-              <img v-if="getSubscriptionIcon(entry.subscriptionTier)"
-                :src="getSubscriptionIcon(entry.subscriptionTier)!" class="records-page__sub-icon"
-                :alt="entry.subscriptionTier || 'N/A'" />
-              <a :href="`https://lichess.org/@/${entry.lichess_id}`" target="_blank">{{
-                entry.username
-              }}</a>
-            </td>
-            <td class="text-right">{{ formatTime(entry.best_time) }}</td>
-            <td class="text-right">{{ entry.days_old }}d</td>
-            <td class="text-center">
-              <button class="records-page__challenge-button" @click="handleChallengeClick(entry.tower_id)">
-                {{ t('records.table.challenge') }}
-              </button>
-            </td>
-          </tr>
-        </template>
-      </tbody>
-    </table>
+    <div class="records-page__modes-grid">
+      <div v-for="towerDef in TOWER_DEFINITIONS" :key="towerDef.id" class="records-page__mode-section">
+        <table class="records-page__table">
+          <thead>
+            <tr class="records-page__table-section-header" :class="`header--${towerDef.id}`">
+              <th colspan="5">
+                {{ t(towerDef.nameKey) }}
+              </th>
+            </tr>
+            <tr>
+              <th class="text-center">{{ t('records.table.rank') }}</th>
+              <th class="text-left">{{ t('records.table.player') }}</th>
+              <th class="text-right">{{ t('records.table.time') }}</th>
+              <th class="text-right">{{ t('records.table.daysOld') }}</th>
+              <th class="text-center">{{ t('records.table.action') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template v-if="towerData && towerData[towerDef.id] && towerData[towerDef.id]!.length > 0">
+              <tr v-for="entry in towerData[towerDef.id]" :key="entry.tower_id + entry.lichess_id">
+                <td class="text-center">{{ entry.rank }}</td>
+                <td class="text-left">
+                  <img v-if="getSubscriptionIcon(entry.subscriptionTier)"
+                    :src="getSubscriptionIcon(entry.subscriptionTier)!" class="records-page__sub-icon"
+                    :alt="entry.subscriptionTier || 'N/A'" />
+                  <a :href="`https://lichess.org/@/${entry.lichess_id}`" target="_blank">{{
+                    entry.username
+                  }}</a>
+                </td>
+                <td class="text-right">{{ formatTime(entry.best_time) }}</td>
+                <td class="text-right">{{ entry.days_old }}d</td>
+                <td class="text-center">
+                  <button class="records-page__challenge-button" @click="handleChallengeClick(entry.tower_id)">
+                    {{ t('records.table.challenge') }}
+                  </button>
+                </td>
+              </tr>
+            </template>
+            <template v-else>
+              <tr>
+                <td colspan="5" class="text-center">{{ t('common.noData') }}</td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -119,6 +128,24 @@ const handleChallengeClick = (towerId?: string) => {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+
+.records-page__modes-grid {
+  display: flex; /* Default to column for mobile */
+  flex-direction: column;
+  gap: 20px; /* Space between sections */
+}
+
+@media (min-width: 768px) { /* Apply grid for desktop/landscape */
+  .records-page__modes-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 columns */
+    gap: 20px; /* Space between grid items */
+  }
+}
+
+.records-page__mode-section {
+  /* No specific styles for mode-section itself, as it should appear as part of the container */
 }
 
 .records-page__table-title {

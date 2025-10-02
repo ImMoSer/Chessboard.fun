@@ -295,7 +295,15 @@ function sortBy(key: SortKey) {
 
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 15px;
+  /* Default for mobile (portrait) - 2 columns */
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (min-width: 768px) { /* Adjust breakpoint as needed for landscape/desktop */
+  .card-grid {
+    /* For landscape/desktop - 5 columns */
+    grid-template-columns: repeat(5, 1fr);
+  }
 }
 </style>
