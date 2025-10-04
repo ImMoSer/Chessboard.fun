@@ -49,17 +49,17 @@
   },
   "settings": {
     "title": "Настройки",
-    "selectBoard": "Выбрать доску",
-    "selectPieces": "Выбрать фигуры",
-    "selectLanguage": "Выбрать язык",
+    "selectBoard": "Доска",
+    "selectPieces": "Фигуры",
+    "selectLanguage": "Язык",
     "back": "Назад",
     "sounds": {
-      "title": "Настройки звука",
+      "title": "Звуки",
       "voice": "Голос",
       "board": "Доска"
     },
     "animation": {
-      "title": "Настройки анимации",
+      "title": "Анимация",
       "duration": "Длительность"
     }
   },

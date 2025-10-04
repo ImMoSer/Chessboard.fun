@@ -49,17 +49,17 @@
   },
   "settings": {
     "title": "Einstellungen",
-    "selectBoard": "Brett auswählen",
-    "selectPieces": "Figuren auswählen",
-    "selectLanguage": "Sprache auswählen",
+    "selectBoard": "Brett",
+    "selectPieces": "Figuren",
+    "selectLanguage": "Sprache",
     "back": "Zurück",
     "sounds": {
-      "title": "Sound-Einstellungen",
+      "title": "Sounds",
       "voice": "Stimme",
       "board": "Brett"
     },
     "animation": {
-      "title": "Animationseinstellungen",
+      "title": "Animation",
       "duration": "Dauer"
     }
   },

@@ -49,17 +49,17 @@
   },
   "settings": {
     "title": "Settings",
-    "selectBoard": "Select Board",
-    "selectPieces": "Select Pieces",
-    "selectLanguage": "Select Language",
+    "selectBoard": "Board",
+    "selectPieces": "Pieces",
+    "selectLanguage": "Language",
     "back": "Back",
     "sounds": {
-      "title": "Sound Settings",
+      "title": "Sounds",
       "voice": "Voice",
       "board": "Board"
     },
     "animation": {
-      "title": "Animation Settings",
+      "title": "Animation",
       "duration": "Duration"
     }
   },

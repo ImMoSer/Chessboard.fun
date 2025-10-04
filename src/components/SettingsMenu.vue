@@ -14,7 +14,7 @@ const { isAuthenticated } = storeToRefs(authStore)
 const { t, locale } = useI18n()
 
 const isOpen = ref(false)
-const activePanel = ref<'main' | 'board' | 'pieces' | 'language' | 'sounds' | 'animation'>('main')
+const activePanel = ref<'main' | 'board' | 'pieces' | 'sounds' | 'animation'>('main')
 
 const voiceVolume = ref(soundService.getVoiceVolume())
 const boardVolume = ref(soundService.getBoardVolume())
@@ -93,6 +93,31 @@ onUnmounted(() => {
     <div v-if="isOpen" class="dropdown-menu">
       <!-- Главная панель -->
       <div v-if="activePanel === 'main'" class="panel main-panel">
+        <div class="language-switcher">
+          <div class="language-buttons">
+            <button
+              class="lang-button"
+              :class="{ active: locale === 'en' }"
+              @click="handleLanguageChange('en')"
+            >
+              EN
+            </button>
+            <button
+              class="lang-button"
+              :class="{ active: locale === 'ru' }"
+              @click="handleLanguageChange('ru')"
+            >
+              RU
+            </button>
+            <button
+              class="lang-button"
+              :class="{ active: locale === 'de' }"
+              @click="handleLanguageChange('de')"
+            >
+              DE
+            </button>
+          </div>
+        </div>
         <button class="panel-button" @click="activePanel = 'board'">
           {{ t('settings.selectBoard') }}
         </button>
@@ -101,9 +126,6 @@ onUnmounted(() => {
         </button>
         <button class="panel-button" @click="activePanel = 'animation'">
           {{ t('settings.animation.title') }}
-        </button>
-        <button class="panel-button" @click="activePanel = 'language'">
-          {{ t('settings.selectLanguage') }}
         </button>
         <button class="panel-button" @click="activePanel = 'sounds'">
           {{ t('settings.sounds.title') }}
@@ -178,39 +200,6 @@ onUnmounted(() => {
             />
             <span class="duration-value">{{ animationDuration }}ms</span>
           </div>
-        </div>
-      </div>
-
-      <!-- Панель выбора языка -->
-      <div v-if="activePanel === 'language'" class="panel">
-        <div class="panel-header">
-          <button class="back-button" @click="activePanel = 'main'">
-            &lt; {{ t('settings.back') }}
-          </button>
-          <h4>{{ t('settings.selectLanguage') }}</h4>
-        </div>
-        <div class="language-selector">
-          <button
-            class="panel-button lang-button"
-            :class="{ selected: locale === 'en' }"
-            @click="handleLanguageChange('en')"
-          >
-            English
-          </button>
-          <button
-            class="panel-button lang-button"
-            :class="{ selected: locale === 'ru' }"
-            @click="handleLanguageChange('ru')"
-          >
-            Русский
-          </button>
-          <button
-            class="panel-button lang-button"
-            :class="{ selected: locale === 'de' }"
-            @click="handleLanguageChange('de')"
-          >
-            Deutsch
-          </button>
         </div>
       </div>
 
@@ -384,15 +373,36 @@ onUnmounted(() => {
   padding-top: 10px;
 }
 
-.language-selector {
+.language-switcher {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  justify-content: center;
+  align-items: center;
 }
-
-.lang-button.selected {
-  border-color: var(--color-accent-success);
-  background-color: var(--color-border-hover);
+.language-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--color-bg-primary);
+  padding: 4px;
+  border-radius: 5px;
+}
+.lang-button {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 4px 8px;
+  border-radius: 3px;
+}
+.lang-button:hover {
+  color: var(--color-text-default);
+}
+.lang-button.active {
+  color: var(--color-text-on-accent);
+  background-color: var(--color-accent-primary);
 }
 
 .sound-settings,
