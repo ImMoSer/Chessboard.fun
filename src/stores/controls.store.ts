@@ -1,16 +1,18 @@
 // src/stores/controls.store.ts
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
+import { useRouter } from 'vue-router'
 import type { EngineId } from '../types/api.types'
 import logger from '../utils/logger'
-import { useUiStore } from './ui.store' // Импортируем ui.store
+import { useUiStore } from './ui.store'
 
 const ENGINE_STORAGE_KEY = 'user_selected_engine'
 
 const noop = () => {}
 
 export const useControlsStore = defineStore('controls', () => {
-  const uiStore = useUiStore() // Получаем экземпляр ui.store
+  const uiStore = useUiStore()
+  const router = useRouter()
 
   const availableEngines = ref<EngineId[]>([
     'SF_2200',
@@ -42,15 +44,20 @@ export const useControlsStore = defineStore('controls', () => {
   const canRestart = ref(false)
   const canResign = ref(false)
   const canShare = ref(false)
-  const canShowInfo = ref(true) // Замена canExit на canShowInfo
+  const canShowInfo = ref(true)
 
   const onRequestNew = ref<() => void>(noop)
   const onRestart = ref<() => void>(noop)
   const onResign = ref<() => void>(noop)
   const onShare = ref<() => void>(noop)
-  // onExit заменяется на onShowInfo
+
   const onShowInfo = () => {
-    uiStore.toggleInfoModal(true)
+    const routeName = router.currentRoute.value.name?.toString() || ''
+    // Преобразуем имя маршрута, чтобы оно соответствовало ключам в локализации
+    const modeKey = routeName.replace(/-(puzzle|selection)$/, '')
+    if (modeKey) {
+      uiStore.showInfoModal('info.modes.' + modeKey)
+    }
   }
 
   function setControls(config: {
@@ -58,7 +65,7 @@ export const useControlsStore = defineStore('controls', () => {
     canRestart?: boolean
     canResign?: boolean
     canShare?: boolean
-    canShowInfo?: boolean // Замена canExit
+    canShowInfo?: boolean
     onRequestNew?: () => void
     onRestart?: () => void
     onResign?: () => void
@@ -68,7 +75,7 @@ export const useControlsStore = defineStore('controls', () => {
     canRestart.value = config.canRestart ?? false
     canResign.value = config.canResign ?? false
     canShare.value = config.canShare ?? false
-    canShowInfo.value = config.canShowInfo ?? true // Замена canExit
+    canShowInfo.value = config.canShowInfo ?? true
 
     onRequestNew.value = config.onRequestNew ?? noop
     onRestart.value = config.onRestart ?? noop
@@ -100,7 +107,7 @@ export const useControlsStore = defineStore('controls', () => {
     canRestart,
     canResign,
     canShare,
-    canShowInfo, // Замена canExit
+    canShowInfo,
     availableEngines,
     selectedEngine,
     isEngineSelectorOpen,
@@ -108,7 +115,7 @@ export const useControlsStore = defineStore('controls', () => {
     onRestart,
     onResign,
     onShare,
-    onShowInfo, // Замена onExit
+    onShowInfo,
     setControls,
     resetControls,
     toggleEngineSelector,

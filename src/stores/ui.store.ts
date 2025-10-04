@@ -27,7 +27,7 @@ export const useUiStore = defineStore('ui', () => {
   const isExtraButtonVisible = ref(false)
 
   // For Info Modal
-  const isInfoModalVisible = ref(false)
+  const infoModalKey = ref<string | null>(null)
 
   let resolvePromise: ResolveFunction | null = null
 
@@ -85,8 +85,12 @@ export const useUiStore = defineStore('ui', () => {
     isExtraButtonVisible.value = false
   }
 
-  function toggleInfoModal(visible: boolean) {
-    isInfoModalVisible.value = visible
+  function showInfoModal(key: string) {
+    infoModalKey.value = key
+  }
+
+  function hideInfoModal() {
+    infoModalKey.value = null
   }
 
   return {
@@ -105,7 +109,8 @@ export const useUiStore = defineStore('ui', () => {
     handleExtra,
 
     // Info Modal
-    isInfoModalVisible,
-    toggleInfoModal,
+    infoModalKey,
+    showInfoModal,
+    hideInfoModal,
   }
 })

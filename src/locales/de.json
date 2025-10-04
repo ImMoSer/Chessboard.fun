@@ -20,13 +20,66 @@
     "close": "Schließen"
   },
   "info": {
-    "title": "Informationen zum Spielmodus",
-    "default": "Für diese Seite sind keine Informationen verfügbar.",
-    "finish-him": "Ein einzigartiger Modus, in dem Sie zuerst eine taktische Aufgabe lösen und dann Ihren Vorteil im Endspiel gegen die Stockfish-Engine beweisen müssen.",
-    "attack": "Ein Modus, in dem Sie mit Stellungen konfrontiert werden, die eine entscheidende Kombination oder einen starken Angriff erfordern, um den Bot mattzusetzen.",
-    "tower": "Testen Sie Ihre Geschwindigkeit und Genauigkeit, indem Sie eine Reihe von zeitgesteuerten taktischen Aufgaben lösen. Die Schwierigkeit der Türme reicht vom Kandidatenmeister- bis zum Großmeisterniveau.",
-    "advantage": "Dieser Modus funktioniert nach dem gleichen Prinzip wie der \"Finish-Him\"-Modus, bietet jedoch eine Reihe von Aufgaben ohne anfängliche Taktik. Der Benutzer muss von Anfang an positionelles Denken anwenden.",
-    "tornado": "Ein Modus, in dem Sie in begrenzter Zeit so viele Aufgaben wie möglich lösen. Die Bewertung wird basierend auf der Schwierigkeit der Aufgaben und der aufgewendeten Zeit berechnet."
+    "modes": {
+      "finish-him": {
+        "title": "Finish-Him-Modus",
+        "content": "Ein einzigartiger Modus, in dem Sie zuerst eine taktische Aufgabe lösen und dann Ihren Vorteil im Endspiel gegen die Stockfish-Engine beweisen müssen."
+      },
+      "attack": {
+        "title": "Angriffsmodus",
+        "content": "Ein Modus, in dem Sie mit Stellungen konfrontiert werden, die eine entscheidende Kombination oder einen starken Angriff erfordern, um den Bot mattzusetzen."
+      },
+      "tower": {
+        "title": "Turm- (Speedrun) Modus",
+        "content": "Testen Sie Ihre Geschwindigkeit und Genauigkeit, indem Sie eine Reihe von zeitgesteuerten taktischen Aufgaben lösen. Die Schwierigkeit der Türme reicht vom Kandidatenmeister- bis zum Großmeisterniveau."
+      },
+      "advantage": {
+        "title": "Vorteil-Modus",
+        "content": "Dieser Modus funktioniert nach dem gleichen Prinzip wie der \"Finish-Him\"-Modus, bietet jedoch eine Reihe von Aufgaben ohne anfängliche Taktik. Der Benutzer muss von Anfang an positionelles Denken anwenden."
+      },
+      "tornado": {
+        "title": "Tornado-Modus",
+        "content": "Ein Modus, in dem Sie in begrenzter Zeit so viele Aufgaben wie möglich lösen. Die Bewertung wird basierend auf der Schwierigkeit der Aufgaben und der aufgewendeten Zeit berechnet."
+      }
+    },
+    "leaderboards": {
+      "topFinishHim": {
+        "title": "Finish Him Meister Bestenliste",
+        "content": "Diese Bestenliste ordnet die Spieler nach der schnellsten Lösungszeit für Finish-Him-Aufgaben. Je weniger Zeit Sie benötigen, um den taktischen Teil zu lösen und das Endspiel zu gewinnen, desto höher Ihr Rang."
+      },
+      "topAttack": {
+        "title": "Angriffsmeister Bestenliste",
+        "content": "Diese Bestenliste ordnet die Spieler nach der schnellsten Zeit, um den Gegner im Angriffsmodus mattzusetzen. Ihre Geschwindigkeit beim Ausführen des letzten Schlags ist entscheidend."
+      },
+      "towerLeaderboard": {
+        "title": "Turm-Meister Bestenliste",
+        "content": "Diese Bestenliste zeigt die besten Abschlusszeiten für jeden Speedrun-Turm. Die Spieler werden nach der Gesamtzeit eingestuft, die zum Lösen aller Aufgaben in einem Turm benötigt wird."
+      },
+      "overallSkill": {
+        "title": "Gesamt-Skill Bestenliste",
+        "content": "Diese Bewertung spiegelt die gesamten Skill-Punkte eines Spielers wider, die in allen Spielmodi verdient wurden. Punkte werden für das Lösen von Aufgaben und das Gewinnen von Partien vergeben, wobei es für schwierigere Herausforderungen mehr Punkte gibt."
+      },
+      "skillStreak": {
+        "title": "Tägliche Skill-Serie Bestenliste",
+        "content": "Diese Bestenliste verfolgt Spieler, die konstant jeden Tag mindestens 100 Skill-Punkte verdienen. Die Rangliste basiert auf der Anzahl der aufeinanderfolgenden Tage, an denen ein Spieler diese Serie aufrechterhalten hat."
+      },
+      "skillStreakMega": {
+        "title": "MEGA Skill-Serie Bestenliste",
+        "content": "Diese Bestenliste ist für die absolute Elite, die eine Skill-Serie über eine außergewöhnlich lange Zeit aufrechterhalten hat. Sie zeigt die Besten der Besten."
+      },
+      "topToday": {
+        "title": "Top Heute Bestenliste",
+        "content": "Diese Bestenliste zeigt die Spieler, die heute die meisten Skill-Punkte verdient haben. Die Rangliste wird täglich zurückgesetzt."
+      },
+      "tornadoLeaderboard": {
+        "title": "Tornado-Bestenliste",
+        "content": "Diese Bestenliste ordnet die Spieler nach ihrer höchsten im Tornado-Modus erreichten Bewertung. Die Bewertung wird basierend auf der Schwierigkeit der gelösten Aufgaben und der aufgewendeten Zeit berechnet."
+      },
+      "advantageLeaderboard": {
+        "title": "Vorteil-Bestenliste",
+        "content": "Diese Bestenliste ordnet die Spieler nach ihrer Bewertung im Vorteil-Modus. Die Bewertung wird von der Fähigkeit beeinflusst, eine vorteilhafte Stellung in einen Sieg gegen den Engine umzuwandeln."
+      }
+    }
   },
   "nav": {
     "home": "Start",
@@ -236,6 +289,7 @@
       "towerLeaderboard": "Speedrun-Meister",
       "overallSkill": "Gesamter Skill",
       "skillStreak": "+100 jeden Tag",
+      "skillStreakMega": "MEGA-SERIE",
       "topToday": "Top des Tages"
     },
     "table": {

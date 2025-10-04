@@ -1,29 +1,24 @@
 // src/components/InfoModal.vue
 <script setup lang="ts">
-import { useUiStore } from '../stores/ui.store'
-import { useI18n } from 'vue-i18n'
-import { useRoute } from 'vue-router'
 import { computed } from 'vue'
-import i18n from '../services/i18n'
+import { useI18n } from 'vue-i18n'
+import { useUiStore } from '../stores/ui.store'
 
 const uiStore = useUiStore()
 const { t } = useI18n()
-const route = useRoute()
 
-const modeKey = computed(() => {
-  const routeName = Array.isArray(route.name) ? route.name.join('-') : route.name?.toString() || 'unknown'
-  // Проверяем, существует ли ключ локализации для текущего режима
-  if (i18n.global.te('info.' + routeName)) {
-    return 'info.' + routeName
-  }
-  return 'info.default' // Ключ по умолчанию, если описание для режима не найдено
+const title = computed(() => {
+  if (!uiStore.infoModalKey) return ''
+  return t(uiStore.infoModalKey + '.title')
 })
 
-const title = computed(() => t('info.title'))
-const content = computed(() => t(modeKey.value))
+const content = computed(() => {
+  if (!uiStore.infoModalKey) return ''
+  return t(uiStore.infoModalKey + '.content')
+})
 
 const closeModal = () => {
-  uiStore.toggleInfoModal(false)
+  uiStore.hideInfoModal()
 }
 </script>
 

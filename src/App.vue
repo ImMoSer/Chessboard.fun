@@ -72,7 +72,7 @@ onUnmounted(() => {
   </main>
 
   <ConfirmationModal />
-  <InfoModal v-if="uiStore.isInfoModalVisible" />
+  <InfoModal v-if="uiStore.infoModalKey" />
 </template>
 
 <style scoped>

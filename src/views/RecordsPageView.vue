@@ -52,6 +52,7 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
         :entries="leaderboards.skillStreakMegaLeaderboard"
         color-class="skillStreakMega"
         :show-streak="true"
+        info-topic="skillStreakMega"
       />
 
       <!-- Skill Streak Leaderboard -->
@@ -61,6 +62,7 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
         :entries="leaderboards.skillStreakLeaderboard"
         color-class="skillStreak"
         :show-streak="true"
+        info-topic="skillStreak"
       />
 
       <!-- Top Today Leaderboard -->
@@ -70,6 +72,7 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
         :entries="leaderboards.topTodayLeaderboard"
         color-class="topToday"
         :show-timer="true"
+        info-topic="topToday"
       />
 
       <!-- Tornado Leaderboard -->
@@ -78,6 +81,7 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
         :title="t('nav.tornado')"
         :tornado-data="leaderboards.tornadoLeaderboard"
         color-class="tornadoLeaderboard"
+        info-topic="tornadoLeaderboard"
       />
 
       <!-- Advantage Leaderboard -->
@@ -86,6 +90,7 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
         :title="t('nav.advantage')"
         :tornado-data="leaderboards.advantageLeaderboard"
         color-class="advantageLeaderboard"
+        info-topic="advantageLeaderboard"
       />
 
       <!-- Tower Leaderboards -->
@@ -94,6 +99,7 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
         :title="t('records.titles.towerLeaderboard')"
         :tower-data="leaderboards.towerLeaderboards"
         color-class="towerLeaderboard"
+        info-topic="towerLeaderboard"
       />
 
       <!-- Finish Him Leaderboard -->
@@ -103,6 +109,7 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
         :entries="leaderboards.finishHimLeaderboard"
         mode="finish-him"
         color-class="finishHimLeaderboard"
+        info-topic="topFinishHim"
       />
 
       <!-- Attack Leaderboard -->
@@ -112,6 +119,7 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
         :entries="leaderboards.attackLeaderboard"
         mode="attack"
         color-class="attackLeaderboard"
+        info-topic="topAttack"
       />
 
       <!-- Overall Skill Leaderboard -->
@@ -123,6 +131,7 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
         :show-filter="true"
         :is-loading="isSkillLeaderboardLoading"
         :selected-period="selectedSkillPeriod"
+        info-topic="overallSkill"
         @period-change="handleSkillPeriodChange"
       />
     </div>

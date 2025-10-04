@@ -20,13 +20,66 @@
     "close": "Close"
   },
   "info": {
-    "title": "Game Mode Information",
-    "default": "No information available for this page.",
-    "finish-him": "A unique mode where you first solve a tactical puzzle and then must prove your advantage in the endgame against the Stockfish engine.",
-    "attack": "A mode where you face positions requiring a decisive combination or a powerful attack to checkmate the bot.",
-    "tower": "Test your speed and accuracy by solving a series of timed tactical puzzles. The difficulty of the towers ranges from Candidate Master to Grandmaster level.",
-    "advantage": "This mode operates on the same principle as Finish-Him, but features a set of puzzles without initial tactics. The user must apply positional thinking from the start.",
-    "tornado": "A mode where you solve as many puzzles as possible in a limited time. The rating is calculated based on the difficulty of the puzzles and the time spent."
+    "modes": {
+      "finish-him": {
+        "title": "Finish-Him Mode",
+        "content": "A unique mode where you first solve a tactical puzzle and then must prove your advantage in the endgame against the Stockfish engine."
+      },
+      "attack": {
+        "title": "Attack Mode",
+        "content": "A mode where you face positions requiring a decisive combination or a powerful attack to checkmate the bot."
+      },
+      "tower": {
+        "title": "Tower (Speedrun) Mode",
+        "content": "Test your speed and accuracy by solving a series of timed tactical puzzles. The difficulty of the towers ranges from Candidate Master to Grandmaster level."
+      },
+      "advantage": {
+        "title": "Advantage Mode",
+        "content": "This mode operates on the same principle as Finish-Him, but features a set of puzzles without initial tactics. The user must apply positional thinking from the start."
+      },
+      "tornado": {
+        "title": "Tornado Mode",
+        "content": "A mode where you solve as many puzzles as possible in a limited time. The rating is calculated based on the difficulty of the puzzles and the time spent."
+      }
+    },
+    "leaderboards": {
+      "topFinishHim": {
+        "title": "Finish Him Masters Leaderboard",
+        "content": "This leaderboard ranks players by the fastest solution time for Finish-Him puzzles. The less time you take to solve the tactical part and win the endgame, the higher your rank."
+      },
+      "topAttack": {
+        "title": "Attack Masters Leaderboard",
+        "content": "This leaderboard ranks players by the fastest time to checkmate the opponent in Attack mode puzzles. Your speed in delivering the final blow is what counts."
+      },
+      "towerLeaderboard": {
+        "title": "Tower Masters Leaderboard",
+        "content": "This leaderboard shows the best completion times for each Speedrun Tower. Players are ranked based on the total time taken to solve all puzzles in a tower."
+      },
+      "overallSkill": {
+        "title": "Overall Skill Leaderboard",
+        "content": "This rating reflects a player's total skill points earned across all game modes. Points are awarded for solving puzzles and winning games, with more points for more difficult challenges."
+      },
+      "skillStreak": {
+        "title": "Daily Skill Streak Leaderboard",
+        "content": "This leaderboard tracks players who consistently earn at least 100 skill points every day. The ranking is based on the number of consecutive days a player has maintained this streak."
+      },
+      "skillStreakMega": {
+        "title": "MEGA Skill Streak Leaderboard",
+        "content": "This leaderboard is for the absolute elite who have maintained a skill streak for an exceptionally long time. It shows the best of the best."
+      },
+      "topToday": {
+        "title": "Top Today Leaderboard",
+        "content": "This leaderboard shows the players who have earned the most skill points today. The ranking resets daily."
+      },
+      "tornadoLeaderboard": {
+        "title": "Tornado Leaderboard",
+        "content": "This leaderboard ranks players by their highest rating achieved in the Tornado mode. The rating is calculated based on the difficulty of the puzzles solved and the time spent."
+      },
+      "advantageLeaderboard": {
+        "title": "Advantage Leaderboard",
+        "content": "This leaderboard ranks players by their rating in the Advantage mode. The rating is influenced by the ability to convert an advantageous position into a win against the engine."
+      }
+    }
   },
   "nav": {
     "home": "Home",
@@ -236,6 +289,7 @@
       "towerLeaderboard": "Tower Masters",
       "overallSkill": "Overall Skill",
       "skillStreak": "+100 everyday",
+      "skillStreakMega": "MEGA STREAK",
       "skillStreakMega": "MEGA STREAK",
       "topToday": "Top Today"
     },

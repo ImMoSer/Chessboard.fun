@@ -8,6 +8,7 @@ import type {
   SkillByMode,
   SkillPeriod,
 } from '@/types/api.types'
+import InfoIcon from '../InfoIcon.vue'
 
 type LeaderboardEntry = OverallSkillLeaderboardEntry | SkillStreakLeaderboardEntry
 
@@ -20,6 +21,7 @@ const props = defineProps({
   showTimer: { type: Boolean, default: false },
   isLoading: { type: Boolean, default: false },
   selectedPeriod: { type: String as PropType<SkillPeriod>, default: '7' },
+  infoTopic: { type: String, required: false },
 })
 
 const emit = defineEmits<{
@@ -84,7 +86,10 @@ const handlePeriodChange = (event: Event) => {
 
 <template>
   <div class="records-page__table-container" :class="colorClass">
-    <h3 class="records-page__table-title">{{ title }}</h3>
+    <h3 class="records-page__table-title">
+      {{ title }}
+      <InfoIcon v-if="infoTopic" :topic="infoTopic" />
+    </h3>
     <h5 v-if="showTimer" class="reset-timer-message">{{ localResetTimeMessage }}</h5>
 
     <div v-if="showFilter" class="stats-filters">

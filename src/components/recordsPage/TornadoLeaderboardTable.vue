@@ -3,6 +3,7 @@
 import { type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { TornadoLeaderboardEntry, TornadoMode } from '@/types/api.types'
+import InfoIcon from '../InfoIcon.vue'
 
 type TornadoLeaderboards = { [key in TornadoMode]?: TornadoLeaderboardEntry[] }
 
@@ -19,6 +20,7 @@ defineProps({
     type: String,
     required: true,
   },
+  infoTopic: { type: String, required: false },
 })
 
 const { t } = useI18n()
@@ -52,7 +54,10 @@ const getSubscriptionIcon = (tier?: string) => {
 
 <template>
   <div class="records-page__table-container" :class="colorClass">
-    <h3 class="records-page__table-title">{{ title }}</h3>
+    <h3 class="records-page__table-title">
+      {{ title }}
+      <InfoIcon v-if="infoTopic" :topic="infoTopic" />
+    </h3>
     <div class="records-page__modes-grid">
       <div v-for="modeDef in TORNADO_DEFINITIONS" :key="modeDef.id" class="records-page__mode-section">
         <table class="records-page__table">

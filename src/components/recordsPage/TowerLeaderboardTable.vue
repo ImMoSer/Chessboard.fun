@@ -4,6 +4,7 @@ import { type PropType } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import type { TowerLeaderboardEntry, TowerId } from '@/types/api.types'
+import InfoIcon from '../InfoIcon.vue'
 
 type TowerLeaderboards = { [key in TowerId]?: TowerLeaderboardEntry[] }
 
@@ -20,6 +21,7 @@ defineProps({
     type: String,
     required: true,
   },
+  infoTopic: { type: String, required: false },
 })
 
 const router = useRouter()
@@ -67,7 +69,10 @@ const handleChallengeClick = (towerId?: string) => {
 
 <template>
   <div class="records-page__table-container" :class="colorClass">
-    <h3 class="records-page__table-title">{{ title }}</h3>
+    <h3 class="records-page__table-title">
+      {{ title }}
+      <InfoIcon v-if="infoTopic" :topic="infoTopic" />
+    </h3>
     <div class="records-page__modes-grid">
       <div v-for="towerDef in TOWER_DEFINITIONS" :key="towerDef.id" class="records-page__mode-section">
         <table class="records-page__table">

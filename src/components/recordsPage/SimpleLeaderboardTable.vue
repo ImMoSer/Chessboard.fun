@@ -4,6 +4,7 @@ import { type PropType } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import type { FinishHimLeaderboardEntry, AttackLeaderboardEntry } from '@/types/api.types'
+import InfoIcon from '../InfoIcon.vue'
 
 type LeaderboardEntry = FinishHimLeaderboardEntry | AttackLeaderboardEntry
 
@@ -24,6 +25,7 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  infoTopic: { type: String, required: false },
 })
 
 const router = useRouter()
@@ -61,7 +63,10 @@ const handleChallengeClick = (puzzleId?: string) => {
 
 <template>
   <div class="records-page__table-container" :class="colorClass">
-    <h3 class="records-page__table-title">{{ title }}</h3>
+    <h3 class="records-page__table-title">
+      {{ title }}
+      <InfoIcon v-if="infoTopic" :topic="infoTopic" />
+    </h3>
     <table class="records-page__table">
       <thead>
         <tr>
