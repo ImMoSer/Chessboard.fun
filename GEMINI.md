@@ -82,4 +82,4 @@ The `README.md` file provides clear guidelines for contributing to the project. 
 
 4. Выполнить изменения
 
-5. Shell pnpm type-check (Run TypeScript type checking to verify the fixes.)
+5. проверить код командой Shell "pnpm type-check" - не "pnpm lint"

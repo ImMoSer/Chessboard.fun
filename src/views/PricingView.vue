@@ -8,9 +8,9 @@ const { t } = useI18n()
 // Задаем значения и цвета для подписок как переменные
 const PAWN_FUNCOINS = 100
 const KNIGHT_FUNCOINS = 200
-const BISHOP_FUNCOINS = 300
-const ROOK_FUNCOINS = 500
-const QUEEN_FUNCOINS = 1000
+const BISHOP_FUNCOINS = 500
+const ROOK_FUNCOINS = 5000
+const QUEEN_FUNCOINS = 10000
 
 const PAWN_COLOR = 'var(--color-accent-success-hover)'
 const KNIGHT_COLOR = 'var(--color-accent-primary-hover)'
@@ -25,10 +25,9 @@ const subscriptionTiers = [
     name: t('pricing.tiers.pawn.name'),
     icon: '/piece/alpha/wP.svg',
     // --- НАЧАЛО ИЗМЕНЕНИЙ: Обновляем описание с выделением цветом и размером шрифта ---
-    description: `${t('pricing.tiers.pawn.description').replace(
-      String(PAWN_FUNCOINS),
-      `<span style="color: ${PAWN_COLOR}; font-weight: bold; font-size: 1.1em;">${PAWN_FUNCOINS}</span>`,
-    )}`,
+    description: t('pricing.tiers.pawn.description', {
+      funcoins: `<span style="color: ${PAWN_COLOR}; font-weight: bold; font-size: 1.1em;">${PAWN_FUNCOINS}</span>`,
+    }),
     // --- КОНЕЦ ИЗМЕНЕНИЙ ---
     price: t('pricing.tiers.pawn.price'),
     highlight: true,
@@ -37,43 +36,39 @@ const subscriptionTiers = [
     name: t('pricing.tiers.knight.name'),
     icon: '/piece/alpha/wN.svg',
     // --- НАЧАЛО ИЗМЕНЕНИЙ: Обновляем описание с выделением цветом и размером шрифта ---
-    description: `${t('pricing.tiers.knight.description').replace(
-      String(KNIGHT_FUNCOINS),
-      `<span style="color: ${KNIGHT_COLOR}; font-weight: bold; font-size: 1.2em;">${KNIGHT_FUNCOINS}</span>`,
-    )}`,
+    description: t('pricing.tiers.knight.description', {
+      funcoins: `<span style="color: ${KNIGHT_COLOR}; font-weight: bold; font-size: 1.2em;">${KNIGHT_FUNCOINS}</span>`,
+    }),
     // --- КОНЕЦ ИЗМЕНЕНИЙ ---
-    price: t('pricing.tiers.price.soon'),
+    price: t('pricing.tiers.price.bonus'),
   },
   {
     name: t('pricing.tiers.bishop.name'),
     icon: '/piece/alpha/wB.svg',
     // --- НАЧАЛО ИЗМЕНЕНИЙ: Обновляем описание с выделением цветом и размером шрифта ---
-    description: `${t('pricing.tiers.bishop.description').replace(
-      String(BISHOP_FUNCOINS),
-      `<span style="color: ${BISHOP_COLOR}; font-weight: bold; font-size: 1.3em;">${BISHOP_FUNCOINS}</span>`,
-    )}`,
+    description: t('pricing.tiers.bishop.description', {
+      funcoins: `<span style="color: ${BISHOP_COLOR}; font-weight: bold; font-size: 1.3em;">${BISHOP_FUNCOINS}</span>`,
+    }),
     // --- КОНЕЦ ИЗМЕНЕНИЙ ---
-    price: t('pricing.tiers.price.soon'),
+    price: t('pricing.tiers.price.bonus'),
   },
   {
     name: t('pricing.tiers.rook.name'),
     icon: '/piece/alpha/wR.svg',
     // --- НАЧАЛО ИЗМЕНЕНИЙ: Обновляем описание с выделением цветом и размером шрифта ---
-    description: `${t('pricing.tiers.rook.description').replace(
-      String(ROOK_FUNCOINS),
-      `<span style="color: ${ROOK_COLOR}; font-weight: bold; font-size: 1.4em;">${ROOK_FUNCOINS}</span>`,
-    )}`,
+    description: t('pricing.tiers.rook.description', {
+      funcoins: `<span style="color: ${ROOK_COLOR}; font-weight: bold; font-size: 1.4em;">${ROOK_FUNCOINS}</span>`,
+    }),
     // --- КОНЕЦ ИЗМЕНЕНИЙ ---
-    price: t('pricing.tiers.price.soon'),
+    price: t('pricing.tiers.price.bonus'),
   },
   {
     name: t('pricing.tiers.queen.name'),
     icon: '/piece/alpha/wQ.svg',
     // --- НАЧАЛО ИЗМЕНЕНИЙ: Обновляем описание с выделением цветом и размером шрифта ---
-    description: `${t('pricing.tiers.queen.description').replace(
-      String(QUEEN_FUNCOINS),
-      `<span style="color: ${QUEEN_COLOR}; font-weight: bold; font-size: 1.5em;">${QUEEN_FUNCOINS}</span>`,
-    )}`,
+    description: t('pricing.tiers.queen.description', {
+      funcoins: `<span style="color: ${QUEEN_COLOR}; font-weight: bold; font-size: 1.5em;">${QUEEN_FUNCOINS}</span>`,
+    }),
     // --- КОНЕЦ ИЗМЕНЕНИЙ ---
     price: t('pricing.tiers.price.soon'),
   },
@@ -125,17 +120,31 @@ const gameCosts = [
     <div class="section">
       <h2 class="section-title">{{ t('pricing.tiers.title') }}</h2>
       <div class="tiers-grid">
-        <div
-          v-for="tier in subscriptionTiers"
-          :key="tier.name"
-          class="tier-card"
-          :class="{ highlight: tier.highlight }"
-        >
+        <div v-for="tier in subscriptionTiers" :key="tier.name" class="tier-card"
+          :class="{ highlight: tier.highlight }">
           <img :src="tier.icon" :alt="tier.name" class="tier-icon" />
           <!-- <h3 class="tier-name">{{ tier.name }}</h3> -->
           <p class="tier-description" v-html="tier.description"></p>
           <div class="tier-price">{{ tier.price }}</div>
         </div>
+      </div>
+
+      <div class="bonus-info-section">
+        <h3 class="bonus-info-title">{{ t('pricing.bonusInfo.title') }}</h3>
+        <p>{{ t('pricing.bonusInfo.p1') }}</p>
+        <p>{{ t('pricing.bonusInfo.p2') }}</p>
+        <p>{{ t('pricing.bonusInfo.p3') }}</p>
+        <h4>{{ t('pricing.bonusInfo.howItWorks') }}</h4>
+        <p>{{ t('pricing.bonusInfo.p4') }}</p>
+        <p>{{ t('pricing.bonusInfo.p5') }}</p>
+        <ul class="bonus-levels-list">
+          <li>{{ t('pricing.bonusInfo.knight') }}</li>
+          <li>{{ t('pricing.bonusInfo.bishop') }}</li>
+          <li>{{ t('pricing.bonusInfo.rook') }}</li>
+        </ul>
+        <p>{{ t('pricing.bonusInfo.p6') }}</p>
+        <p>{{ t('pricing.bonusInfo.p7') }}</p>
+        <p>{{ t('pricing.bonusInfo.p8') }}</p>
       </div>
     </div>
 
@@ -238,6 +247,7 @@ const gameCosts = [
   height: 60px;
   margin-bottom: 15px;
 }
+
 /*
 .tier-name {
   font-size: var(--font-size-large);
@@ -304,6 +314,45 @@ const gameCosts = [
   font-size: 0.7em;
   color: var(--color-text-muted);
   margin-left: 5px;
+}
+
+.bonus-info-section {
+  margin-top: 40px;
+  padding: 20px;
+  background-color: var(--color-bg-tertiary);
+  border-radius: var(--panel-border-radius);
+  border: 1px solid var(--color-border);
+  text-align: left;
+}
+
+.bonus-info-title {
+  font-size: var(--font-size-large);
+  color: var(--color-accent-primary);
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.bonus-info-section h4 {
+  font-size: var(--font-size-base);
+  color: var(--color-text-default);
+  font-weight: var(--font-weight-bold);
+  margin-top: 15px;
+  margin-bottom: 10px;
+}
+
+.bonus-info-section p {
+  margin-bottom: 10px;
+}
+
+.bonus-levels-list {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 10px;
+}
+
+.bonus-levels-list li {
+  margin-bottom: 5px;
+  font-weight: var(--font-weight-bold);
 }
 
 @media (max-width: 768px) {

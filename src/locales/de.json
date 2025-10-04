@@ -435,28 +435,44 @@
       "title": "Abonnementstufen",
       "pawn": {
         "name": "Bauer",
-        "description": "Tägliche Auffüllung bis zu 100 FunCoins",
+        "description": "Tägliche Auffüllung bis zu {funcoins} FunCoins",
         "price": "Für immer kostenlos"
       },
       "knight": {
         "name": "Springer",
-        "description": "Tägliche Auffüllung bis zu 200 FunCoins"
+        "description": "Tägliche Auffüllung bis zu {funcoins} FunCoins"
       },
       "bishop": {
         "name": "Läufer",
-        "description": "Tägliche Auffüllung bis zu 300 FunCoins"
+        "description": "Tägliche Auffüllung bis zu {funcoins} FunCoins"
       },
       "rook": {
         "name": "Turm",
-        "description": "Tägliche Auffüllung bis zu 500 FunCoins"
+        "description": "Tägliche Auffüllung bis zu {funcoins} FunCoins"
       },
       "queen": {
         "name": "Dame",
-        "description": "Tägliche Auffüllung bis zu 1000 FunCoins"
+        "description": "Tägliche Auffüllung bis zu {funcoins} FunCoins"
       },
       "price": {
-        "soon": "Preis wird bekannt gegeben"
+        "soon": "Preis wird bekannt gegeben",
+        "bonus": "Club-Bonus"
       }
+    },
+    "bonusInfo": {
+      "title": "🎉 Aktualisierte Abonnement-Bonuslevel!",
+      "p1": "Hallo, Freunde 👋",
+      "p2": "Wir haben die Bedingungen für automatische Boni für die aktivsten Clubspieler aktualisiert.",
+      "p3": "Jetzt können Sie kostenlos ein Premium-Level erhalten – einfach durch die Teilnahme an Teamturnieren 🏆",
+      "howItWorks": "📅 So funktioniert es:",
+      "p4": "Jeden Tag analysiert das System Ihre Aktivitäten der letzten 30 Tage (Turniere, Punkte und Partien) und vergibt Aktivitätspunkte.",
+      "p5": "Abhängig von der Anzahl wird eines der Level zugewiesen:",
+      "knight": "♘ Springer – ab 50 Punkten",
+      "bishop": "♗ Läufer – ab 150 Punkten",
+      "rook": "♖ Turm – ab 300 Punkten",
+      "p6": "✨ Das Level wird automatisch neu berechnet und kann sich je nach Ihrer Aktivität ändern.",
+      "p7": "Keine Anträge erforderlich – spielen Sie einfach, und das System erledigt alles von selbst ✅",
+      "p8": "Danke, dass Sie den Club unterstützen ❤️♟"
     },
     "costs": {
       "title": "Kosten der Spielmodi",

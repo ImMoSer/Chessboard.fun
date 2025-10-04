@@ -436,28 +436,44 @@
       "title": "Subscription Tiers",
       "pawn": {
         "name": "Pawn",
-        "description": "Daily replenishment up to 100 FunCoins",
+        "description": "Daily replenishment up to {funcoins} FunCoins",
         "price": "Free forever"
       },
       "knight": {
         "name": "Knight",
-        "description": "Daily replenishment up to 200 FunCoins"
+        "description": "Daily replenishment up to {funcoins} FunCoins"
       },
       "bishop": {
         "name": "Bishop",
-        "description": "Daily replenishment up to 300 FunCoins"
+        "description": "Daily replenishment up to {funcoins} FunCoins"
       },
       "rook": {
         "name": "Rook",
-        "description": "Daily replenishment up to 500 FunCoins"
+        "description": "Daily replenishment up to {funcoins} FunCoins"
       },
       "queen": {
         "name": "Queen",
-        "description": "Daily replenishment up to 1000 FunCoins"
+        "description": "Daily replenishment up to {funcoins} FunCoins"
       },
       "price": {
-        "soon": "Price will be announced"
+        "soon": "Price will be announced",
+        "bonus": "Club Bonus"
       }
+    },
+    "bonusInfo": {
+      "title": "🎉 Updated Subscription Bonus Tiers!",
+      "p1": "Hello, friends 👋",
+      "p2": "We have updated the terms for automatic bonuses for the most active club players.",
+      "p3": "Now you can get a premium tier for free — just by playing in team tournaments 🏆",
+      "howItWorks": "📅 How it works:",
+      "p4": "Every day, the system analyzes your activity over the last 30 days (tournaments, points, and games) and awards activity points.",
+      "p5": "Depending on the amount, one of the tiers is assigned:",
+      "knight": "♘ Knight — from 50 points",
+      "bishop": "♗ Bishop — from 150 points",
+      "rook": "♖ Rook — from 300 points",
+      "p6": "✨ The tier is recalculated automatically and may change depending on your activity.",
+      "p7": "No applications needed — just play, and the system will do everything itself ✅",
+      "p8": "Thank you for supporting the club ❤️♟"
     },
     "costs": {
       "title": "Game Mode Costs",
