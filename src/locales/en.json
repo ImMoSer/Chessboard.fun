@@ -16,7 +16,17 @@
     "copyFailed": "Could not copy link.",
     "closingParenthesis": ")",
     "period": ".",
-    "periodAndSpace": ". "
+    "periodAndSpace": ". ",
+    "close": "Close"
+  },
+  "info": {
+    "title": "Game Mode Information",
+    "default": "No information available for this page.",
+    "finish-him": "A unique mode where you first solve a tactical puzzle and then must prove your advantage in the endgame against the Stockfish engine.",
+    "attack": "A mode where you face positions requiring a decisive combination or a powerful attack to checkmate the bot.",
+    "tower": "Test your speed and accuracy by solving a series of timed tactical puzzles. The difficulty of the towers ranges from Candidate Master to Grandmaster level.",
+    "advantage": "This mode operates on the same principle as Finish-Him, but features a set of puzzles without initial tactics. The user must apply positional thinking from the start.",
+    "tornado": "A mode where you solve as many puzzles as possible in a limited time. The rating is calculated based on the difficulty of the puzzles and the time spent."
   },
   "nav": {
     "home": "Home",

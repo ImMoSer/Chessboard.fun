@@ -62,7 +62,6 @@ watch(
         }
       },
       // --- КОНЕЦ ИЗМЕНЕНИЙ ---
-      onExit: finishHimStore.handleExit,
     })
   },
   { immediate: true, deep: true },

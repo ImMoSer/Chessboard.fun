@@ -6,11 +6,14 @@ import { useI18n } from 'vue-i18n'
 import NavMenu from './components/NavMenu.vue'
 import SettingsMenu from './components/SettingsMenu.vue'
 import ConfirmationModal from './components/ConfirmationModal.vue'
+import InfoModal from './components/InfoModal.vue' // Импорт InfoModal
 import { useGameStore } from './stores/game.store'
 import { useFinishHimStore } from './stores/finishHim.store'
+import { useUiStore } from './stores/ui.store' // Импорт useUiStore
 
 const gameStore = useGameStore()
 const finishHimStore = useFinishHimStore()
+const uiStore = useUiStore() // Инициализация uiStore
 const { t } = useI18n()
 const route = useRoute()
 
@@ -69,6 +72,7 @@ onUnmounted(() => {
   </main>
 
   <ConfirmationModal />
+  <InfoModal v-if="uiStore.isInfoModalVisible" />
 </template>
 
 <style scoped>

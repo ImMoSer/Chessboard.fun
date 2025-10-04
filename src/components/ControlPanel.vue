@@ -41,11 +41,11 @@ const controlsStore = useControlsStore()
 
     <button
       class="control-panel-button"
-      title="Exit"
-      :disabled="!controlsStore.canExit"
-      @click="controlsStore.onExit"
+      title="Info"
+      :disabled="!controlsStore.canShowInfo"
+      @click="controlsStore.onShowInfo"
     >
-      <img src="/buttons/exit.svg" alt="Exit" />
+      <img src="/buttons/info.svg" alt="Info" />
     </button>
   </div>
 </template>

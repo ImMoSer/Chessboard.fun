@@ -1,91 +1,97 @@
 // src/stores/controls.store.ts
-import { ref } from 'vue';
-import { defineStore } from 'pinia';
-import type { EngineId } from '../types/api.types';
-import logger from '../utils/logger'; // <<< ИЗМЕНЕНИЕ: Добавлен логгер
+import { ref } from 'vue'
+import { defineStore } from 'pinia'
+import type { EngineId } from '../types/api.types'
+import logger from '../utils/logger'
+import { useUiStore } from './ui.store' // Импортируем ui.store
 
-const ENGINE_STORAGE_KEY = 'user_selected_engine';
+const ENGINE_STORAGE_KEY = 'user_selected_engine'
 
-const noop = () => { };
+const noop = () => {}
 
 export const useControlsStore = defineStore('controls', () => {
-  const availableEngines = ref<EngineId[]>([
-    'SF_2200', 'SF_2100', 'SF_1900', 'MOZER_1900+', 'SF_1700', 'SF_1600'
-  ]);
+  const uiStore = useUiStore() // Получаем экземпляр ui.store
 
-  // <<< НАЧАЛО ИЗМЕНЕНИЙ: Загрузка, новый стандарт
+  const availableEngines = ref<EngineId[]>([
+    'SF_2200',
+    'SF_2100',
+    'SF_1900',
+    'MOZER_1900+',
+    'SF_1700',
+    'SF_1600',
+  ])
+
   const loadSavedEngine = (): EngineId => {
     try {
-      const savedEngine = localStorage.getItem(ENGINE_STORAGE_KEY);
+      const savedEngine = localStorage.getItem(ENGINE_STORAGE_KEY)
       if (savedEngine && availableEngines.value.includes(savedEngine as EngineId)) {
-        logger.info(`[ControlsStore] Loaded saved engine: ${savedEngine}`);
-        return savedEngine as EngineId;
+        logger.info(`[ControlsStore] Loaded saved engine: ${savedEngine}`)
+        return savedEngine as EngineId
       }
     } catch (error) {
-      logger.error('[ControlsStore] Failed to load engine from localStorage', error);
+      logger.error('[ControlsStore] Failed to load engine from localStorage', error)
     }
-    logger.info('[ControlsStore] No saved engine found, setting default: MOZER_1900+');
-    return 'MOZER_1900+'; // Новый стандарт
-  };
+    logger.info('[ControlsStore] No saved engine found, setting default: MOZER_1900+')
+    return 'MOZER_1900+'
+  }
 
-  const selectedEngine = ref<EngineId>(loadSavedEngine());
-  // <<< КОНЕЦ ИЗМЕНЕНИЙ
+  const selectedEngine = ref<EngineId>(loadSavedEngine())
 
-  const isEngineSelectorOpen = ref(false);
-  const canRequestNew = ref(false);
-  const canRestart = ref(false);
-  const canResign = ref(false);
-  const canShare = ref(false);
-  const canExit = ref(true);
+  const isEngineSelectorOpen = ref(false)
+  const canRequestNew = ref(false)
+  const canRestart = ref(false)
+  const canResign = ref(false)
+  const canShare = ref(false)
+  const canShowInfo = ref(true) // Замена canExit на canShowInfo
 
-  const onRequestNew = ref<() => void>(noop);
-  const onRestart = ref<() => void>(noop);
-  const onResign = ref<() => void>(noop);
-  const onShare = ref<() => void>(noop);
-  const onExit = ref<() => void>(noop);
+  const onRequestNew = ref<() => void>(noop)
+  const onRestart = ref<() => void>(noop)
+  const onResign = ref<() => void>(noop)
+  const onShare = ref<() => void>(noop)
+  // onExit заменяется на onShowInfo
+  const onShowInfo = () => {
+    uiStore.toggleInfoModal(true)
+  }
 
   function setControls(config: {
-    canRequestNew?: boolean;
-    canRestart?: boolean;
-    canResign?: boolean;
-    canShare?: boolean;
-    canExit?: boolean;
-    onRequestNew?: () => void;
-    onRestart?: () => void;
-    onResign?: () => void;
-    onShare?: () => void;
-    onExit?: () => void;
+    canRequestNew?: boolean
+    canRestart?: boolean
+    canResign?: boolean
+    canShare?: boolean
+    canShowInfo?: boolean // Замена canExit
+    onRequestNew?: () => void
+    onRestart?: () => void
+    onResign?: () => void
+    onShare?: () => void
   }) {
-    canRequestNew.value = config.canRequestNew ?? false;
-    canRestart.value = config.canRestart ?? false;
-    canResign.value = config.canResign ?? false;
-    canShare.value = config.canShare ?? false;
-    canExit.value = config.canExit ?? true;
+    canRequestNew.value = config.canRequestNew ?? false
+    canRestart.value = config.canRestart ?? false
+    canResign.value = config.canResign ?? false
+    canShare.value = config.canShare ?? false
+    canShowInfo.value = config.canShowInfo ?? true // Замена canExit
 
-    onRequestNew.value = config.onRequestNew ?? noop;
-    onRestart.value = config.onRestart ?? noop;
-    onResign.value = config.onResign ?? noop;
-    onShare.value = config.onShare ?? noop;
-    onExit.value = config.onExit ?? noop;
+    onRequestNew.value = config.onRequestNew ?? noop
+    onRestart.value = config.onRestart ?? noop
+    onResign.value = config.onResign ?? noop
+    onShare.value = config.onShare ?? noop
   }
 
   function resetControls() {
-    setControls({});
+    setControls({})
   }
 
   function toggleEngineSelector() {
-    isEngineSelectorOpen.value = !isEngineSelectorOpen.value;
+    isEngineSelectorOpen.value = !isEngineSelectorOpen.value
   }
 
   function setEngine(engineId: EngineId) {
-    selectedEngine.value = engineId;
-    isEngineSelectorOpen.value = false;
-    // <<< ИЗМЕНЕНИЕ: Сохраняем выбор в localStorage
+    selectedEngine.value = engineId
+    isEngineSelectorOpen.value = false
     try {
-      localStorage.setItem(ENGINE_STORAGE_KEY, engineId);
-      logger.info(`[ControlsStore] Saved selected engine to localStorage: ${engineId}`);
+      localStorage.setItem(ENGINE_STORAGE_KEY, engineId)
+      logger.info(`[ControlsStore] Saved selected engine to localStorage: ${engineId}`)
     } catch (error) {
-      logger.error('[ControlsStore] Failed to save engine to localStorage', error);
+      logger.error('[ControlsStore] Failed to save engine to localStorage', error)
     }
   }
 
@@ -94,7 +100,7 @@ export const useControlsStore = defineStore('controls', () => {
     canRestart,
     canResign,
     canShare,
-    canExit,
+    canShowInfo, // Замена canExit
     availableEngines,
     selectedEngine,
     isEngineSelectorOpen,
@@ -102,10 +108,10 @@ export const useControlsStore = defineStore('controls', () => {
     onRestart,
     onResign,
     onShare,
-    onExit,
+    onShowInfo, // Замена onExit
     setControls,
     resetControls,
     toggleEngineSelector,
     setEngine,
-  };
-});
+  }
+})

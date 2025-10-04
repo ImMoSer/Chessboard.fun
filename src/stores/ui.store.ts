@@ -16,6 +16,7 @@ interface ConfirmationOptions {
 }
 
 export const useUiStore = defineStore('ui', () => {
+  // For Confirmation Modal
   const isModalVisible = ref(false)
   const modalTitle = ref('')
   const modalMessage = ref('')
@@ -24,6 +25,9 @@ export const useUiStore = defineStore('ui', () => {
   const modalExtraText = ref('')
   const isCancelButtonVisible = ref(true)
   const isExtraButtonVisible = ref(false)
+
+  // For Info Modal
+  const isInfoModalVisible = ref(false)
 
   let resolvePromise: ResolveFunction | null = null
 
@@ -81,7 +85,12 @@ export const useUiStore = defineStore('ui', () => {
     isExtraButtonVisible.value = false
   }
 
+  function toggleInfoModal(visible: boolean) {
+    isInfoModalVisible.value = visible
+  }
+
   return {
+    // Confirmation Modal
     isModalVisible,
     modalTitle,
     modalMessage,
@@ -94,5 +103,9 @@ export const useUiStore = defineStore('ui', () => {
     handleConfirm,
     handleCancel,
     handleExtra,
+
+    // Info Modal
+    isInfoModalVisible,
+    toggleInfoModal,
   }
 })

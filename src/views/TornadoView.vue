@@ -33,7 +33,6 @@ watch(
       canShare: !!tornadoStore.activePuzzle,
       onRequestNew: tornadoStore.handleNew,
       onRestart: tornadoStore.handleRestart,
-      onExit: tornadoStore.handleNew, // Exit to selection screen
     })
   },
   { immediate: true },

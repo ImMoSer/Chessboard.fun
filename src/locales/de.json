@@ -16,7 +16,17 @@
     "copyFailed": "Link konnte nicht kopiert werden.",
     "closingParenthesis": ")",
     "period": ".",
-    "periodAndSpace": ". "
+    "periodAndSpace": ". ",
+    "close": "Schließen"
+  },
+  "info": {
+    "title": "Informationen zum Spielmodus",
+    "default": "Für diese Seite sind keine Informationen verfügbar.",
+    "finish-him": "Ein einzigartiger Modus, in dem Sie zuerst eine taktische Aufgabe lösen und dann Ihren Vorteil im Endspiel gegen die Stockfish-Engine beweisen müssen.",
+    "attack": "Ein Modus, in dem Sie mit Stellungen konfrontiert werden, die eine entscheidende Kombination oder einen starken Angriff erfordern, um den Bot mattzusetzen.",
+    "tower": "Testen Sie Ihre Geschwindigkeit und Genauigkeit, indem Sie eine Reihe von zeitgesteuerten taktischen Aufgaben lösen. Die Schwierigkeit der Türme reicht vom Kandidatenmeister- bis zum Großmeisterniveau.",
+    "advantage": "Dieser Modus funktioniert nach dem gleichen Prinzip wie der \"Finish-Him\"-Modus, bietet jedoch eine Reihe von Aufgaben ohne anfängliche Taktik. Der Benutzer muss von Anfang an positionelles Denken anwenden.",
+    "tornado": "Ein Modus, in dem Sie in begrenzter Zeit so viele Aufgaben wie möglich lösen. Die Bewertung wird basierend auf der Schwierigkeit der Aufgaben und der aufgewendeten Zeit berechnet."
   },
   "nav": {
     "home": "Start",

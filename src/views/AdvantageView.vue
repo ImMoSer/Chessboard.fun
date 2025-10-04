@@ -86,7 +86,6 @@ watch(
           shareService.share('advantage', advantageStore.activePuzzle.PuzzleId, advantageStore.mode)
         }
       },
-      onExit: advantageStore.handleExit,
     })
   },
   { immediate: true, deep: true },

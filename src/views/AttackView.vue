@@ -61,7 +61,6 @@ watch(
         }
       },
       // --- КОНЕЦ ИЗМЕНЕНИЙ ---
-      onExit: attackStore.handleExit,
     })
   },
   { immediate: true, deep: true },

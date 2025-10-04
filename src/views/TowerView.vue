@@ -70,7 +70,6 @@ watch(
         }
       },
       // --- КОНЕЦ ИЗМЕНЕНИЙ ---
-      onExit: towerStore.handleExit,
     })
   },
   { immediate: true, deep: true },
