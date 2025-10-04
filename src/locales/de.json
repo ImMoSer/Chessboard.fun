@@ -338,6 +338,15 @@
       "arenaRank": "ArenaRang",
       "cronePlayer": "Hat zum Turnierergebnis beigetragen"
     },
+    "details": {
+      "medalsTitle": "Medaillen",
+      "teamMedals": "Medaillen",
+      "arenaMedals": "Arena",
+      "keyMetrics": "Kennzahlen",
+      "winRate": "Siegesrate",
+      "performance": "Spielstil",
+      "tournamentsPlayed": "Gespielte Turniere"
+    },
     "follow": {
       "successAdded": "Sie folgen diesem Club jetzt!",
       "successRemoved": "Sie folgen diesem Club nicht mehr."

@@ -339,6 +339,15 @@
       "arenaRank": "Место",
       "cronePlayer": "Внес вклад в зачет турнира"
     },
+    "details": {
+      "medalsTitle": "Медали",
+      "teamMedals": "Медали",
+      "arenaMedals": "В аренах",
+      "keyMetrics": "Ключевые показатели",
+      "winRate": "Процент побед",
+      "performance": "Стиль игры",
+      "tournamentsPlayed": "Сыгранные турниры"
+    },
     "follow": {
       "successAdded": "Вы подписались на этот клуб!",
       "successRemoved": "Вы отписались от этого клуба."

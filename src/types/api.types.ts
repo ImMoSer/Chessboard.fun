@@ -595,6 +595,18 @@ export interface TeamBattlePlayerSummary {
   win_rate: number
   vector: number
   flair?: string
+  arenas_report?: ArenaReport[]
+}
+
+export interface ArenaReport {
+  startsAt: string
+  win_streak: number
+  rank_in_club: number
+  points_scored: number
+  rank_in_arena: number
+  tournament_url: string
+  berserks_scored: number
+  tournament_name: string
 }
 
 export interface CalculatedPlayerStats {

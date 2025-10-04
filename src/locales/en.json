@@ -339,6 +339,15 @@
       "arenaRank": "ArenaRank",
       "cronePlayer": "Contributed to the tournament standings"
     },
+    "details": {
+      "medalsTitle": "Medals",
+      "teamMedals": "Medals",
+      "arenaMedals": "Arena",
+      "keyMetrics": "Key Metrics",
+      "winRate": "Win Rate",
+      "performance": "Performance",
+      "tournamentsPlayed": "Tournaments Played"
+    },
     "follow": {
       "successAdded": "You are now following this club!",
       "successRemoved": "You have unfollowed this club."
