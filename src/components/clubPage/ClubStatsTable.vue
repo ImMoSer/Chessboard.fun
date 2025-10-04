@@ -4,6 +4,7 @@ import { ref, computed, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { TeamBattlePlayerSummary } from '../../types/api.types'
 import PlayerStatsDetail from './PlayerStatsDetail.vue'
+import InfoIcon from '../InfoIcon.vue'
 
 const { t } = useI18n()
 const VISIBLE_COUNT_INCREMENT = 10
@@ -29,6 +30,10 @@ const props = defineProps({
   titleColorClass: {
     type: String,
     default: 'default-title-color',
+  },
+  infoTopic: {
+    type: String,
+    required: false,
   },
 })
 
@@ -97,7 +102,10 @@ const getCellValue = (player: TeamBattlePlayerSummary, key: keyof TeamBattlePlay
 
 <template>
   <div class="club-page__table-container">
-    <h3 class="club-page__table-title" :class="titleColorClass">{{ title }}</h3>
+    <h3 class="club-page__table-title" :class="titleColorClass">
+      {{ title }}
+      <InfoIcon v-if="infoTopic" :topic="infoTopic" base-path="info.club." />
+    </h3>
     <table class="club-page__table">
       <thead>
         <tr>

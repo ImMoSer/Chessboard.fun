@@ -7,12 +7,16 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  basePath: {
+    type: String,
+    default: 'info.leaderboards.',
+  },
 })
 
 const uiStore = useUiStore()
 
 const showInfo = () => {
-  uiStore.showInfoModal('info.leaderboards.' + props.topic)
+  uiStore.showInfoModal(props.basePath + props.topic)
 }
 </script>
 
@@ -26,20 +30,19 @@ const showInfo = () => {
 .info-icon-button {
   background: none;
   border: none;
-  padding: 0;
+  padding: 5px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-left: 8px;
+  margin-left: 10px;
   /* Отступ от заголовка */
 }
 
 .info-icon {
   width: 25px;
   height: 25px;
-  opacity: 0.9;
-  transition: opacity 0.2s ease;
+
 }
 
 .info-icon-button:hover .info-icon {

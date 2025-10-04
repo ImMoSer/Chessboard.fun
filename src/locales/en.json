@@ -79,6 +79,32 @@
         "title": "Advantage Leaderboard",
         "content": "This leaderboard ranks players by their rating in the Advantage mode. The rating is influenced by the ability to convert an advantageous position into a win against the engine."
       }
+    },
+    "club": {
+      "overview": {
+        "title": "Club Overview",
+        "content": "This table provides a comprehensive summary of each player's performance, including their VECTOR score, total points, tournaments played, and games played."
+      },
+      "mostValuablePlayers": {
+        "title": "Most Valuable Players",
+        "content": "Players are ranked by the total number of points scored in all tournaments. This shows who contributed the most to the club's success."
+      },
+      "mostActivePlayers": {
+        "title": "Most Active Players",
+        "content": "This ranking is based on the total number of tournaments each player has participated in. It highlights the most dedicated members of the club."
+      },
+      "mostGamesPlayed": {
+        "title": "Hard Workers (Games)",
+        "content": "This table shows players ranked by the total number of games played in tournaments, recognizing the most persistent and hardworking members."
+      },
+      "berserkKings": {
+        "title": "Berserk Kings",
+        "content": "This leaderboard honors the players who have achieved the most wins using the 'berserk' option in tournaments, showcasing their confidence and skill."
+      },
+      "winStreakMasters": {
+        "title": "Win Streak Masters",
+        "content": "This ranks players by their longest-ever win streak in tournaments. It highlights players who can maintain high performance over many consecutive games."
+      }
     }
   },
   "nav": {

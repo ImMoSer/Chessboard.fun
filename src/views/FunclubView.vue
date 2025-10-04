@@ -130,22 +130,27 @@ onMounted(() => {
       <div class="club-page__tab-content">
         <div v-if="activeTab === 'overview'">
           <ClubStatsTable :title="t('clubPage.overview.title')" :players="teamBattleReport.players_summary"
-            :columns="overviewColumns" sort-key="vector" title-color-class="title-color-secondary" />
+            :columns="overviewColumns" sort-key="vector" title-color-class="title-color-secondary"
+            info-topic="overview" />
         </div>
         <div v-if="activeTab === 'key_indicators'" class="club-page__stats-grid-3-cols">
           <ClubStatsTable :title="t('clubPage.mostValuablePlayersTitle')" :players="teamBattleReport.players_summary"
-            :columns="mvpColumns" sort-key="total_score" title-color-class="title-color-primary" />
+            :columns="mvpColumns" sort-key="total_score" title-color-class="title-color-primary"
+            info-topic="mostValuablePlayers" />
           <ClubStatsTable :title="t('clubPage.mostActivePlayersTitle')" :players="teamBattleReport.players_summary"
-            :columns="activeColumns" sort-key="tournaments_played" title-color-class="title-color-violet" />
+            :columns="activeColumns" sort-key="tournaments_played" title-color-class="title-color-violet"
+            info-topic="mostActivePlayers" />
           <ClubStatsTable :title="t('clubPage.mostGamesPlayedTitle')" :players="teamBattleReport.players_summary"
-            :columns="gamesColumns" sort-key="total_games_played" title-color-class="title-color-primary" />
+            :columns="gamesColumns" sort-key="total_games_played" title-color-class="title-color-primary"
+            info-topic="mostGamesPlayed" />
         </div>
         <div v-if="activeTab === 'play_style'" class="club-page__stats-grid-2-cols">
           <ClubStatsTable :title="t('clubPage.berserkKingsTitle')" :players="teamBattleReport.players_summary"
-            :columns="berserkersColumns" sort-key="total_berserk_wins" title-color-class="title-color-primary" />
+            :columns="berserkersColumns" sort-key="total_berserk_wins" title-color-class="title-color-primary"
+            info-topic="berserkKings" />
           <ClubStatsTable :title="t('clubPage.winStreakMastersTitle')" :players="teamBattleReport.players_summary"
             :columns="winStreaksColumns" sort-key="max_longest_win_streak_ever"
-            title-color-class="title-color-primary" />
+            title-color-class="title-color-primary" info-topic="winStreakMasters" />
         </div>
         <div v-if="activeTab === 'medals'">
           <MedalStandingsTable :players="teamBattleReport.players_summary" />

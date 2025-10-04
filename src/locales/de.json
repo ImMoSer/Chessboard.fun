@@ -79,6 +79,32 @@
         "title": "Vorteil-Bestenliste",
         "content": "Diese Bestenliste ordnet die Spieler nach ihrer Bewertung im Vorteil-Modus. Die Bewertung wird von der Fähigkeit beeinflusst, eine vorteilhafte Stellung in einen Sieg gegen den Engine umzuwandeln."
       }
+    },
+    "club": {
+      "overview": {
+        "title": "Club-Übersicht",
+        "content": "Diese Tabelle bietet eine umfassende Zusammenfassung der Leistung jedes Spielers, einschließlich ihres VECTOR-Scores, der Gesamtpunktzahl, der gespielten Turniere und der gespielten Partien."
+      },
+      "mostValuablePlayers": {
+        "title": "Wertvollste Spieler",
+        "content": "Die Spieler werden nach der Gesamtzahl der in allen Turnieren erzielten Punkte geordnet. Dies zeigt, wer am meisten zum Erfolg des Clubs beigetragen hat."
+      },
+      "mostActivePlayers": {
+        "title": "Aktivste Spieler",
+        "content": "Dieses Ranking basiert auf der Gesamtzahl der Turniere, an denen jeder Spieler teilgenommen hat. Es hebt die engagiertesten Mitglieder des Clubs hervor."
+      },
+      "mostGamesPlayed": {
+        "title": "Fleißige Arbeiter (Partien)",
+        "content": "Diese Tabelle zeigt die Spieler, geordnet nach der Gesamtzahl der in Turnieren gespielten Partien, und würdigt die ausdauerndsten und fleißigsten Mitglieder."
+      },
+      "berserkKings": {
+        "title": "Berserker-Könige",
+        "content": "Diese Bestenliste ehrt die Spieler, die die meisten Siege mit der 'Berserker'-Option in Turnieren erzielt haben, und zeigt ihr Selbstvertrauen und Können."
+      },
+      "winStreakMasters": {
+        "title": "Siegesserien-Meister",
+        "content": "Diese Rangliste ordnet die Spieler nach ihrer längsten Siegesserie in Turnieren. Sie hebt Spieler hervor, die über viele aufeinanderfolgende Partien eine hohe Leistung aufrechterhalten können."
+      }
     }
   },
   "nav": {
