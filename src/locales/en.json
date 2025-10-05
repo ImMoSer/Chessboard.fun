@@ -19,94 +19,94 @@
     "periodAndSpace": ". ",
     "close": "Close"
   },
-  "info": {
-    "modes": {
-      "finish-him": {
-        "title": "Finish-Him Mode",
-        "content": "A unique mode where you first solve a tactical puzzle and then must prove your advantage in the endgame against the Stockfish engine."
+    "info": {
+      "modes": {
+        "finish-him": {
+          "title": "Finish Him",
+          "content": "First solve a tactical puzzle, then prove your advantage in the endgame against your chosen engine. Skill Points are awarded for wins and equal the sum of material on the board (♟=1, ♞♝=3, ♜=5, ♛=9). Draws and losses give no points. Completion time is also recorded for leaderboards."
+        },
+        "attack": {
+          "title": "Attack",
+          "content": "Solve positions requiring a decisive combination or powerful attack to deliver checkmate. First find the solution, then convert the win against your chosen engine. Skill Points for wins equal the material sum (♟=1, ♞♝=3, ♜=5, ♛=9). Time is recorded for leaderboards."
+        },
+        "tower": {
+          "title": "Speedrun",
+          "content": "Test your speed and accuracy by solving a series of tactical puzzles against the clock. Difficulty ranges from Candidate Master to Grandmaster level. You have three lives for the entire run. Skill Points equal the sum of material from all positions in the session (♟=1, ♞♝=3, ♜=5, ♛=9). Only awarded for complete runs."
+        },
+        "advantage": {
+          "title": "Advantage",
+          "content": "Four time controls available: 1+1, 3+2, 5+3, and 10+5 (separate rating in each). A set of positions with material advantage — apply positional thinking and convert your edge against the engine. Skill Points for wins equal the material sum (♟=1, ♞♝=3, ♜=5, ♛=9). Draws and losses give no points."
+        },
+        "tornado": {
+          "title": "Tornado",
+          "content": "Four time controls available: 1+1, 3+2, 5+3, and 10+5 (separate rating in each). Solve as many puzzles as possible within the time limit. Rating calculated using the Glicko2 system based on puzzle difficulty and time spent. Each solved puzzle awards 1 Skill Point."
+        }
       },
-      "attack": {
-        "title": "Attack Mode",
-        "content": "A mode where you face positions requiring a decisive combination or a powerful attack to checkmate the bot."
+      "leaderboards": {
+        "topFinishHim": {
+          "title": "Finish Him Masters",
+          "content": "TOP-10 fastest times in Finish Him mode. Records are always tied to a specific puzzle. You can try to set your record in any of them! Only one record per puzzle is possible."
+        },
+        "topAttack": {
+          "title": "Attack Masters",
+          "content": "TOP-10 fastest times in Attack mode. Records are always tied to a specific puzzle. You can try to set your record in any of them! Only one record per puzzle is possible."
+        },
+        "towerLeaderboard": {
+          "title": "Speedrun Masters",
+          "content": "TOP-10 fastest times in Speedrun mode across disciplines: CM, FM, IM, GM. Records are tied to specific speedruns. Try to set your record! Only one record per speedrun is possible."
+        },
+        "overallSkill": {
+          "title": "Overall Skill Rating",
+          "content": "Total Skill Points earned across all game modes for the selected period: week, 14 days, 21 days, or month. Skill Points equal the material sum (♟=1, ♞♝=3, ♜=5, ♛=9) in Finish Him, Attack, Advantage, and Speedrun modes. In Tornado mode, each puzzle awards 1 point. Only wins count."
+        },
+        "skillStreak": {
+          "title": "Daily Streak Rating",
+          "content": "Tracks players who earn at least 100 Skill Points every consecutive day in any mode. Rating based on the number of consecutive days. Missing a day resets the streak. This encourages regular activity and consistent improvement."
+        },
+        "skillStreakMega": {
+          "title": "MEGA Streak Rating",
+          "content": "For the absolute elite: a streak of earning at least 100 Skill Points in each separate mode daily. Shows the most dedicated and disciplined players. Missing a day in any mode resets the streak."
+        },
+        "topToday": {
+          "title": "Top Today",
+          "content": "Shows players who earned the most Skill Points during today. The rating resets daily at midnight."
+        },
+        "tornadoLeaderboard": {
+          "title": "Tornado Rating",
+          "content": "Ranks players by their highest rating achieved in Tornado mode. Rating calculated using the Glicko2 system based on solved puzzle difficulty and time spent."
+        },
+        "advantageLeaderboard": {
+          "title": "Advantage Rating",
+          "content": "Ranks players by their rating in Advantage mode. Rating reflects the ability to convert favorable positions into wins against the engine."
+        }
       },
-      "tower": {
-        "title": "Tower (Speedrun) Mode",
-        "content": "Test your speed and accuracy by solving a series of timed tactical puzzles. The difficulty of the towers ranges from Candidate Master to Grandmaster level."
-      },
-      "advantage": {
-        "title": "Advantage Mode",
-        "content": "This mode operates on the same principle as Finish-Him, but features a set of puzzles without initial tactics. The user must apply positional thinking from the start."
-      },
-      "tornado": {
-        "title": "Tornado Mode",
-        "content": "A mode where you solve as many puzzles as possible in a limited time. The rating is calculated based on the difficulty of the puzzles and the time spent."
+      "club": {
+        "overview": {
+          "title": "Club Overview",
+          "content": "Comprehensive summary of each player's performance: VECTOR score, total points, tournaments played, and games played. VECTOR is calculated using the formula: √(points earned² + games played² + tournaments played²)."
+        },
+        "mostValuablePlayers": {
+          "title": "Club MVPs",
+          "content": "Players ranked by total points earned across all tournaments. Shows who contributed the most to the club's success."
+        },
+        "mostActivePlayers": {
+          "title": "Most Active Players",
+          "content": "Rating based on the total number of tournaments each player participated in. Highlights the most dedicated club members."
+        },
+        "mostGamesPlayed": {
+          "title": "Grinders (Games)",
+          "content": "Shows players ranked by total number of games played in tournaments. Recognizes the most persistent and hardworking club members."
+        },
+        "berserkKings": {
+          "title": "Berserk Kings",
+          "content": "Honors players who achieved the most wins using the 'berserk' option in tournaments. Demonstrates their confidence and skill."
+        },
+        "winStreakMasters": {
+          "title": "Win Streak Masters",
+          "content": "Players ranked by their longest winning streak in tournaments. Highlights players capable of maintaining high performance across many consecutive games."
+        }
       }
     },
-    "leaderboards": {
-      "topFinishHim": {
-        "title": "Finish Him Masters Leaderboard",
-        "content": "This leaderboard ranks players by the fastest solution time for Finish-Him puzzles. The less time you take to solve the tactical part and win the endgame, the higher your rank."
-      },
-      "topAttack": {
-        "title": "Attack Masters Leaderboard",
-        "content": "This leaderboard ranks players by the fastest time to checkmate the opponent in Attack mode puzzles. Your speed in delivering the final blow is what counts."
-      },
-      "towerLeaderboard": {
-        "title": "Tower Masters Leaderboard",
-        "content": "This leaderboard shows the best completion times for each Speedrun Tower. Players are ranked based on the total time taken to solve all puzzles in a tower."
-      },
-      "overallSkill": {
-        "title": "Overall Skill Leaderboard",
-        "content": "This rating reflects a player's total skill points earned across all game modes. Points are awarded for solving puzzles and winning games, with more points for more difficult challenges."
-      },
-      "skillStreak": {
-        "title": "Daily Skill Streak Leaderboard",
-        "content": "This leaderboard tracks players who consistently earn at least 100 skill points every day. The ranking is based on the number of consecutive days a player has maintained this streak."
-      },
-      "skillStreakMega": {
-        "title": "MEGA Skill Streak Leaderboard",
-        "content": "This leaderboard is for the absolute elite who have maintained a skill streak for an exceptionally long time. It shows the best of the best."
-      },
-      "topToday": {
-        "title": "Top Today Leaderboard",
-        "content": "This leaderboard shows the players who have earned the most skill points today. The ranking resets daily."
-      },
-      "tornadoLeaderboard": {
-        "title": "Tornado Leaderboard",
-        "content": "This leaderboard ranks players by their highest rating achieved in the Tornado mode. The rating is calculated based on the difficulty of the puzzles solved and the time spent."
-      },
-      "advantageLeaderboard": {
-        "title": "Advantage Leaderboard",
-        "content": "This leaderboard ranks players by their rating in the Advantage mode. The rating is influenced by the ability to convert an advantageous position into a win against the engine."
-      }
-    },
-    "club": {
-      "overview": {
-        "title": "Club Overview",
-        "content": "This table provides a comprehensive summary of each player's performance, including their VECTOR score, total points, tournaments played, and games played."
-      },
-      "mostValuablePlayers": {
-        "title": "Most Valuable Players",
-        "content": "Players are ranked by the total number of points scored in all tournaments. This shows who contributed the most to the club's success."
-      },
-      "mostActivePlayers": {
-        "title": "Most Active Players",
-        "content": "This ranking is based on the total number of tournaments each player has participated in. It highlights the most dedicated members of the club."
-      },
-      "mostGamesPlayed": {
-        "title": "Hard Workers (Games)",
-        "content": "This table shows players ranked by the total number of games played in tournaments, recognizing the most persistent and hardworking members."
-      },
-      "berserkKings": {
-        "title": "Berserk Kings",
-        "content": "This leaderboard honors the players who have achieved the most wins using the 'berserk' option in tournaments, showcasing their confidence and skill."
-      },
-      "winStreakMasters": {
-        "title": "Win Streak Masters",
-        "content": "This ranks players by their longest-ever win streak in tournaments. It highlights players who can maintain high performance over many consecutive games."
-      }
-    }
-  },
   "nav": {
     "home": "Home",
     "finishHim": "FinishHim",
@@ -316,7 +316,6 @@
       "overallSkill": "Overall Skill",
       "skillStreak": "+100 everyday",
       "skillStreakMega": "MEGA STREAK",
-      "skillStreakMega": "MEGA STREAK",
       "topToday": "Top Today"
     },
     "table": {
@@ -398,9 +397,9 @@
     "overview": {
       "title": "Club Overview"
     },
-    "mostValuablePlayersTitle": "Most Valuable Players",
-    "mostActivePlayersTitle": "Most Active Players",
-    "mostGamesPlayedTitle": "Hard Workers (Games)",
+    "mostValuablePlayersTitle": "Valuable Players",
+    "mostActivePlayersTitle": "Active Players",
+    "mostGamesPlayedTitle": "Hard Workers",
     "berserkKingsTitle": "Berserk Kings",
     "winStreakMastersTitle": "Win Streak Masters",
     "performanceLeadersTitle": "Performance Leaders",

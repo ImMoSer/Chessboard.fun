@@ -19,94 +19,94 @@
     "periodAndSpace": ". ",
     "close": "Schließen"
   },
-  "info": {
-    "modes": {
-      "finish-him": {
-        "title": "Finish-Him-Modus",
-        "content": "Ein einzigartiger Modus, in dem Sie zuerst eine taktische Aufgabe lösen und dann Ihren Vorteil im Endspiel gegen die Stockfish-Engine beweisen müssen."
+    "info": {
+      "modes": {
+        "finish-him": {
+          "title": "Finish Him",
+          "content": "Löse zuerst ein taktisches Rätsel, dann beweise deinen Vorteil im Endspiel gegen die gewählte Engine. Skill-Punkte werden für Siege vergeben und entsprechen der Materialsumme auf dem Brett (♟=1, ♞♝=3, ♜=5, ♛=9). Remis und Niederlagen geben keine Punkte. Die Durchlaufzeit wird ebenfalls für die Bestenliste erfasst."
+        },
+        "attack": {
+          "title": "Angriff",
+          "content": "Löse Positionen, die eine entscheidende Kombination oder einen kraftvollen Angriff zum Matt erfordern. Finde zuerst die Lösung, dann verwerte den Sieg gegen die gewählte Engine. Skill-Punkte für Siege entsprechen der Materialsumme (♟=1, ♞♝=3, ♜=5, ♛=9). Die Zeit wird für Bestenlisten erfasst."
+        },
+        "tower": {
+          "title": "Speedrun",
+          "content": "Teste deine Geschwindigkeit und Genauigkeit, indem du eine Serie taktischer Aufgaben gegen die Uhr löst. Die Schwierigkeit reicht vom Kandidatenmeister bis zum Großmeister. Du hast drei Leben für den gesamten Durchlauf. Skill-Punkte entsprechen der Materialsumme aller Positionen der Sitzung (♟=1, ♞♝=3, ♜=5, ♛=9). Werden nur bei vollständigem Durchlauf vergeben."
+        },
+        "advantage": {
+          "title": "Advantage",
+          "content": "Vier Zeitkontrollen verfügbar: 1+1, 3+2, 5+3 und 10+5 (separate Wertung in jeder). Ein Set von Positionen mit Materialvorteil — wende positionelles Denken an und verwerte deinen Vorteil gegen die Engine. Skill-Punkte für Siege entsprechen der Materialsumme (♟=1, ♞♝=3, ♜=5, ♛=9). Remis und Niederlagen geben keine Punkte."
+        },
+        "tornado": {
+          "title": "Tornado",
+          "content": "Vier Zeitkontrollen verfügbar: 1+1, 3+2, 5+3 und 10+5 (separate Wertung in jeder). Löse so viele Aufgaben wie möglich innerhalb der Zeitbegrenzung. Wertung wird mit dem Glicko2-System basierend auf Aufgabenschwierigkeit und aufgewendeter Zeit berechnet. Jede gelöste Aufgabe gibt 1 Skill-Punkt."
+        }
       },
-      "attack": {
-        "title": "Angriffsmodus",
-        "content": "Ein Modus, in dem Sie mit Stellungen konfrontiert werden, die eine entscheidende Kombination oder einen starken Angriff erfordern, um den Bot mattzusetzen."
+      "leaderboards": {
+        "topFinishHim": {
+          "title": "Finish-Him-Meister",
+          "content": "TOP-10 der schnellsten Zeiten im Finish-Him-Modus. Rekorde sind immer an eine bestimmte Aufgabe gebunden. Du kannst versuchen, in jeder deinen Rekord aufzustellen! Nur ein Rekord pro Aufgabe ist möglich."
+        },
+        "topAttack": {
+          "title": "Angriffs-Meister",
+          "content": "TOP-10 der schnellsten Zeiten im Angriffsmodus. Rekorde sind immer an eine bestimmte Aufgabe gebunden. Du kannst versuchen, in jeder deinen Rekord aufzustellen! Nur ein Rekord pro Aufgabe ist möglich."
+        },
+        "towerLeaderboard": {
+          "title": "Speedrun-Meister",
+          "content": "TOP-10 der schnellsten Zeiten im Speedrun-Modus über die Disziplinen: KM, FM, IM, GM. Rekorde sind an bestimmte Speedruns gebunden. Versuche, deinen Rekord aufzustellen! Nur ein Rekord pro Speedrun ist möglich."
+        },
+        "overallSkill": {
+          "title": "Gesamt-Skill-Wertung",
+          "content": "Gesamt-Skill-Punkte über alle Spielmodi für den gewählten Zeitraum: Woche, 14 Tage, 21 Tage oder Monat. Skill-Punkte entsprechen der Materialsumme (♟=1, ♞♝=3, ♜=5, ♛=9) in den Modi Finish Him, Angriff, Advantage und Speedrun. Im Tornado-Modus gibt jede Aufgabe 1 Punkt. Nur Siege zählen."
+        },
+        "skillStreak": {
+          "title": "Tägliche Serien-Wertung",
+          "content": "Verfolgt Spieler, die jeden aufeinanderfolgenden Tag mindestens 100 Skill-Punkte in einem beliebigen Modus verdienen. Wertung basiert auf der Anzahl aufeinanderfolgender Tage. Ein verpasster Tag setzt die Serie zurück. Dies fördert regelmäßige Aktivität und kontinuierliche Verbesserung."
+        },
+        "skillStreakMega": {
+          "title": "MEGA-Serien-Wertung",
+          "content": "Für die absolute Elite: eine Serie von mindestens 100 Skill-Punkten in jedem separaten Modus täglich. Zeigt die engagiertesten und diszipliniertesten Spieler. Ein verpasster Tag in einem Modus setzt die Serie zurück."
+        },
+        "topToday": {
+          "title": "Top Heute",
+          "content": "Zeigt Spieler, die heute die meisten Skill-Punkte verdient haben. Die Wertung wird täglich um Mitternacht zurückgesetzt."
+        },
+        "tornadoLeaderboard": {
+          "title": "Tornado-Wertung",
+          "content": "Ordnet Spieler nach ihrer höchsten im Tornado-Modus erreichten Wertung. Wertung wird mit dem Glicko2-System basierend auf gelöster Aufgabenschwierigkeit und aufgewendeter Zeit berechnet."
+        },
+        "advantageLeaderboard": {
+          "title": "Advantage-Wertung",
+          "content": "Ordnet Spieler nach ihrer Wertung im Advantage-Modus. Die Wertung spiegelt die Fähigkeit wider, vorteilhafte Positionen in Siege gegen die Engine umzuwandeln."
+        }
       },
-      "tower": {
-        "title": "Turm- (Speedrun) Modus",
-        "content": "Testen Sie Ihre Geschwindigkeit und Genauigkeit, indem Sie eine Reihe von zeitgesteuerten taktischen Aufgaben lösen. Die Schwierigkeit der Türme reicht vom Kandidatenmeister- bis zum Großmeisterniveau."
-      },
-      "advantage": {
-        "title": "Vorteil-Modus",
-        "content": "Dieser Modus funktioniert nach dem gleichen Prinzip wie der \"Finish-Him\"-Modus, bietet jedoch eine Reihe von Aufgaben ohne anfängliche Taktik. Der Benutzer muss von Anfang an positionelles Denken anwenden."
-      },
-      "tornado": {
-        "title": "Tornado-Modus",
-        "content": "Ein Modus, in dem Sie in begrenzter Zeit so viele Aufgaben wie möglich lösen. Die Bewertung wird basierend auf der Schwierigkeit der Aufgaben und der aufgewendeten Zeit berechnet."
+      "club": {
+        "overview": {
+          "title": "Club-Übersicht",
+          "content": "Umfassende Zusammenfassung der Leistung jedes Spielers: VECTOR-Punktzahl, Gesamtpunkte, gespielte Turniere und Partien. VECTOR wird mit der Formel berechnet: √(erzielte Punkte² + gespielte Partien² + gespielte Turniere²)."
+        },
+        "mostValuablePlayers": {
+          "title": "Club-MVPs",
+          "content": "Spieler nach Gesamtpunkten in allen Turnieren geordnet. Zeigt, wer am meisten zum Erfolg des Clubs beigetragen hat."
+        },
+        "mostActivePlayers": {
+          "title": "Aktivste Spieler",
+          "content": "Wertung basierend auf der Gesamtzahl der Turniere, an denen jeder Spieler teilgenommen hat. Hebt die engagiertesten Club-Mitglieder hervor."
+        },
+        "mostGamesPlayed": {
+          "title": "Fleißigste (Partien)",
+          "content": "Zeigt Spieler nach Gesamtzahl der in Turnieren gespielten Partien geordnet. Würdigt die hartnäckigsten und fleißigsten Club-Mitglieder."
+        },
+        "berserkKings": {
+          "title": "Berserk-Könige",
+          "content": "Ehrt Spieler, die die meisten Siege mit der 'Berserk'-Option in Turnieren erzielt haben. Demonstriert ihr Selbstvertrauen und Können."
+        },
+        "winStreakMasters": {
+          "title": "Siegesserien-Meister",
+          "content": "Spieler nach ihrer längsten Siegesserie in Turnieren geordnet. Hebt Spieler hervor, die in der Lage sind, hohe Leistung über viele aufeinanderfolgende Partien aufrechtzuerhalten."
+        }
       }
     },
-    "leaderboards": {
-      "topFinishHim": {
-        "title": "Finish Him Meister Bestenliste",
-        "content": "Diese Bestenliste ordnet die Spieler nach der schnellsten Lösungszeit für Finish-Him-Aufgaben. Je weniger Zeit Sie benötigen, um den taktischen Teil zu lösen und das Endspiel zu gewinnen, desto höher Ihr Rang."
-      },
-      "topAttack": {
-        "title": "Angriffsmeister Bestenliste",
-        "content": "Diese Bestenliste ordnet die Spieler nach der schnellsten Zeit, um den Gegner im Angriffsmodus mattzusetzen. Ihre Geschwindigkeit beim Ausführen des letzten Schlags ist entscheidend."
-      },
-      "towerLeaderboard": {
-        "title": "Turm-Meister Bestenliste",
-        "content": "Diese Bestenliste zeigt die besten Abschlusszeiten für jeden Speedrun-Turm. Die Spieler werden nach der Gesamtzeit eingestuft, die zum Lösen aller Aufgaben in einem Turm benötigt wird."
-      },
-      "overallSkill": {
-        "title": "Gesamt-Skill Bestenliste",
-        "content": "Diese Bewertung spiegelt die gesamten Skill-Punkte eines Spielers wider, die in allen Spielmodi verdient wurden. Punkte werden für das Lösen von Aufgaben und das Gewinnen von Partien vergeben, wobei es für schwierigere Herausforderungen mehr Punkte gibt."
-      },
-      "skillStreak": {
-        "title": "Tägliche Skill-Serie Bestenliste",
-        "content": "Diese Bestenliste verfolgt Spieler, die konstant jeden Tag mindestens 100 Skill-Punkte verdienen. Die Rangliste basiert auf der Anzahl der aufeinanderfolgenden Tage, an denen ein Spieler diese Serie aufrechterhalten hat."
-      },
-      "skillStreakMega": {
-        "title": "MEGA Skill-Serie Bestenliste",
-        "content": "Diese Bestenliste ist für die absolute Elite, die eine Skill-Serie über eine außergewöhnlich lange Zeit aufrechterhalten hat. Sie zeigt die Besten der Besten."
-      },
-      "topToday": {
-        "title": "Top Heute Bestenliste",
-        "content": "Diese Bestenliste zeigt die Spieler, die heute die meisten Skill-Punkte verdient haben. Die Rangliste wird täglich zurückgesetzt."
-      },
-      "tornadoLeaderboard": {
-        "title": "Tornado-Bestenliste",
-        "content": "Diese Bestenliste ordnet die Spieler nach ihrer höchsten im Tornado-Modus erreichten Bewertung. Die Bewertung wird basierend auf der Schwierigkeit der gelösten Aufgaben und der aufgewendeten Zeit berechnet."
-      },
-      "advantageLeaderboard": {
-        "title": "Vorteil-Bestenliste",
-        "content": "Diese Bestenliste ordnet die Spieler nach ihrer Bewertung im Vorteil-Modus. Die Bewertung wird von der Fähigkeit beeinflusst, eine vorteilhafte Stellung in einen Sieg gegen den Engine umzuwandeln."
-      }
-    },
-    "club": {
-      "overview": {
-        "title": "Club-Übersicht",
-        "content": "Diese Tabelle bietet eine umfassende Zusammenfassung der Leistung jedes Spielers, einschließlich ihres VECTOR-Scores, der Gesamtpunktzahl, der gespielten Turniere und der gespielten Partien."
-      },
-      "mostValuablePlayers": {
-        "title": "Wertvollste Spieler",
-        "content": "Die Spieler werden nach der Gesamtzahl der in allen Turnieren erzielten Punkte geordnet. Dies zeigt, wer am meisten zum Erfolg des Clubs beigetragen hat."
-      },
-      "mostActivePlayers": {
-        "title": "Aktivste Spieler",
-        "content": "Dieses Ranking basiert auf der Gesamtzahl der Turniere, an denen jeder Spieler teilgenommen hat. Es hebt die engagiertesten Mitglieder des Clubs hervor."
-      },
-      "mostGamesPlayed": {
-        "title": "Fleißige Arbeiter (Partien)",
-        "content": "Diese Tabelle zeigt die Spieler, geordnet nach der Gesamtzahl der in Turnieren gespielten Partien, und würdigt die ausdauerndsten und fleißigsten Mitglieder."
-      },
-      "berserkKings": {
-        "title": "Berserker-Könige",
-        "content": "Diese Bestenliste ehrt die Spieler, die die meisten Siege mit der 'Berserker'-Option in Turnieren erzielt haben, und zeigt ihr Selbstvertrauen und Können."
-      },
-      "winStreakMasters": {
-        "title": "Siegesserien-Meister",
-        "content": "Diese Rangliste ordnet die Spieler nach ihrer längsten Siegesserie in Turnieren. Sie hebt Spieler hervor, die über viele aufeinanderfolgende Partien eine hohe Leistung aufrechterhalten können."
-      }
-    }
-  },
   "nav": {
     "home": "Start",
     "finishHim": "FinishHim",
@@ -399,7 +399,7 @@
     },
     "mostValuablePlayersTitle": "Wertvollste Spieler",
     "mostActivePlayersTitle": "Aktivste Spieler",
-    "mostGamesPlayedTitle": "Fleißige Arbeiter (Partien)",
+    "mostGamesPlayedTitle": "Fleißige Arbeiter",
     "berserkKingsTitle": "Berserker-Könige",
     "winStreakMastersTitle": "Siegesserien-Meister",
     "performanceLeadersTitle": "Performance-Führer",
@@ -408,7 +408,7 @@
       "teamTitle": "Medaillenspiegel (Team)",
       "arenaTitle": "Medaillenspiegel (Arena)"
     },
-    "tournamentHistoryTitle": "Letzte 30 Tage",
+    "tournamentHistoryTitle": "30 Tage",
     "table": {
       "player": "Spieler",
       "totalScore": "Punkte",
