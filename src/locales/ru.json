@@ -606,7 +606,8 @@
         "rbleipzig": " (Stockfish.js - локально: глубина 12, contempt 100)",
         "krokodil": " (Stockfish.js - локально: глубина 10, contempt 100)",
         "karde": " (Stockfish.js - локально: глубина 8, contempt 100)",
-        "mozer": " (LCZero+Maia1900 — человекоподобный движок на СЕРВЕРЕ)",
+        "mozer_2000": " (Работает так же, как и Mozer 1900+, но использует другие веса)",
+        "mozer_1900": " (LCZero+Maia1900 — человекоподобный движок на СЕРВЕРЕ)",
         "dimas": " (Stockfish.js - локально: глубина 6, contempt 100)",
         "darko": " (Stockfish.js - локально: глубина 4, contempt 100)"
       },

@@ -8,6 +8,7 @@ export type EngineId =
   | 'SF_2100'
   | 'SF_2200'
   | 'MOZER_1900+'
+  | 'MOZER_2000+'
 
 // --- Types from LichessApiService ---
 interface RatingProgression {

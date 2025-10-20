@@ -10,9 +10,10 @@ const availableEngines = computed(() => controlsStore.availableEngines)
 const selectedEngine = computed(() => controlsStore.selectedEngine)
 
 const engineNames: Record<EngineId, string> = {
-  SF_2200: 'Rbleipzig 2200+',
-  SF_2100: 'Krokodil 2100+',
-  SF_1900: 'Karde 2000+',
+  SF_2200: 'Rbleipzig 2350+',
+  SF_2100: 'Krokodil 2200+',
+  SF_1900: 'Karde 2100+',
+  'MOZER_2000+': 'MoZeR 2000+',
   'MOZER_1900+': 'MoZeR 1900+',
   SF_1700: 'Dimas 1800+',
   SF_1600: 'Darko 1700+',
@@ -51,13 +52,8 @@ onUnmounted(() => {
       <span class="selector-arrow" :class="{ 'is-open': isOpen }">▼</span>
     </button>
     <div v-if="isOpen" class="engine-dropdown">
-      <button
-        v-for="engine in availableEngines"
-        :key="engine"
-        class="engine-item"
-        :class="{ active: engine === selectedEngine }"
-        @click="selectEngine(engine)"
-      >
+      <button v-for="engine in availableEngines" :key="engine" class="engine-item"
+        :class="{ active: engine === selectedEngine }" @click="selectEngine(engine)">
         {{ engineNames[engine] }}
       </button>
     </div>
@@ -147,15 +143,18 @@ onUnmounted(() => {
 .engine-dropdown::-webkit-scrollbar {
   width: 5px;
 }
+
 .engine-dropdown::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .engine-dropdown::-webkit-scrollbar-thumb {
   background: var(--color-border-hover);
   border-radius: 5px;
 }
 
 @media (orientation: portrait) {
+
   .selector-toggle,
   .engine-item {
     padding: 5px 5px;

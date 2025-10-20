@@ -606,7 +606,8 @@
         "rbleipzig": " (Stockfish.js - lokal: Tiefe 12, Contempt 100)",
         "krokodil": " (Stockfish.js - lokal: Tiefe 10, Contempt 100)",
         "karde": " (Stockfish.js - lokal: Tiefe 8, Contempt 100)",
-        "mozer": " (LCZero+Maia1900 — eine menschenähnliche Engine auf dem SERVER)",
+        "mozer_2000": " (Funktioniert wie MoZeR 1900+, verwendet aber andere Gewichte)",
+        "mozer_1900": " (LCZero+Maia1900 — eine menschenähnliche Engine auf dem SERVER)",
         "dimas": " (Stockfish.js - lokal: Tiefe 6, Contempt 100)",
         "darko": " (Stockfish.js - lokal: Tiefe 4, Contempt 100)"
       },

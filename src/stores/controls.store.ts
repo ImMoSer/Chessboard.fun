@@ -18,6 +18,7 @@ export const useControlsStore = defineStore('controls', () => {
     'SF_2200',
     'SF_2100',
     'SF_1900',
+    'MOZER_2000+',
     'MOZER_1900+',
     'SF_1700',
     'SF_1600',

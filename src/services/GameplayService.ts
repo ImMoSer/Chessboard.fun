@@ -25,7 +25,8 @@ const engineConfigs: Record<EngineId, EngineConfig> = {
   SF_1900: { type: 'local', depth: 8, contempt: 100 },
   SF_1700: { type: 'local', depth: 6, contempt: 100 },
   SF_1600: { type: 'local', depth: 4, contempt: 100 },
-  'MOZER_1900+': { type: 'server', model: 'maia', fallback: true },
+  'MOZER_1900+': { type: 'server', model: 'maia_1900', fallback: true },
+  'MOZER_2000+': { type: 'server', model: 'mozer_2000', fallback: true },
 }
 
 class GameplayServiceController {

@@ -3,7 +3,8 @@ import logger from '../utils/logger';
 import { authService } from './AuthService';
 
 const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL as string;
-const SERVER_ENGINE_ENDPOINT = `${BACKEND_API_URL}/engine/move`;
+// Эндпоинт изменен на /bestmove в соответствии с новым API
+const SERVER_ENGINE_ENDPOINT = `${BACKEND_API_URL}/bestmove`;
 const MOVE_TIMEOUT_MS = 15000;
 
 class ServerEngineServiceController {
@@ -13,7 +14,8 @@ class ServerEngineServiceController {
     logger.info(`[ServerEngineService] Initialized to work with Backend at: ${SERVER_ENGINE_ENDPOINT}`);
   }
 
-  public async getMoveFromServer(fen: string, modelId: string): Promise<string | null> {
+  // modelId теперь соответствует параметру engine_name
+  public async getMoveFromServer(fen: string, engine_name: string): Promise<string | null> {
     if (this.isThinking) {
       logger.warn('[ServerEngineService] getMoveFromServer called while already thinking. Request rejected.');
       return Promise.reject(new Error('ServerEngineService is already processing a request.'));
@@ -25,18 +27,21 @@ class ServerEngineServiceController {
     }
 
     this.isThinking = true;
-    logger.info(`[ServerEngineService] Requesting move for FEN: ${fen} using model: ${modelId}`);
+    // Логируем engine_name для ясности
+    logger.info(`[ServerEngineService] Requesting move for FEN: ${fen} using engine: ${engine_name}`);
 
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), MOVE_TIMEOUT_MS);
 
-      const response = await fetch(SERVER_ENGINE_ENDPOINT, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ fen, model: modelId }),
+      // Формируем URL с обязательными query-параметрами
+      const url = new URL(SERVER_ENGINE_ENDPOINT);
+      url.searchParams.append('fen', fen);
+      url.searchParams.append('engine_name', engine_name);
+
+      // Выполняем GET-запрос
+      const response = await fetch(url.toString(), {
+        method: 'GET',
         signal: controller.signal,
         credentials: 'include',
       });
