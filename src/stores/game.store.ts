@@ -10,13 +10,14 @@ import logger from '../utils/logger'
 import { useControlsStore } from './controls.store'
 import { soundService } from '../services/sound.service'
 import { useAdvantageStore } from './advantage.store.ts'
+import { useUiStore } from './ui.store'
 
 export type GamePhase = 'IDLE' | 'LOADING' | 'PLAYING' | 'GAMEOVER'
-export type GameMode = 'finish-him' | 'attack' | 'tower' | 'tornado' | 'advantage' | null
+export type GameMode = 'finish-him' | 'attack' | 'tower' | 'tornado' | 'advantage' | 'sandbox' | null
 
 const BOT_MOVE_DELAY_MS = 50
 const FIRST_BOT_MOVE_DELAY_MS = 500
-const noop = () => { }
+const noop = () => {}
 
 export const useGameStore = defineStore('game', () => {
   const gamePhase = ref<GamePhase>('IDLE')
@@ -31,6 +32,7 @@ export const useGameStore = defineStore('game', () => {
   const controlsStore = useControlsStore()
   const analysisStore = useAnalysisStore()
   const advantageStore = useAdvantageStore()
+  const uiStore = useUiStore()
 
   let onGameOverCallback: (isWin: boolean, outcome?: GameEndOutcome) => void = noop
   let checkWinCondition: (outcome?: GameEndOutcome) => boolean = () => false
@@ -108,8 +110,14 @@ export const useGameStore = defineStore('game', () => {
   ) {
     try {
       const setup = parseFen(fen).unwrap()
-      const botTurnColor = setup.turn
-      const humanPlayerColor: ChessgroundColor = botTurnColor === 'white' ? 'black' : 'white'
+      let humanPlayerColor: ChessgroundColor
+
+      if (mode === 'sandbox') {
+        humanPlayerColor = setup.turn
+      } else {
+        const botTurnColor = setup.turn
+        humanPlayerColor = botTurnColor === 'white' ? 'black' : 'white'
+      }
 
       boardStore.setupPosition(fen, humanPlayerColor)
 
@@ -125,13 +133,38 @@ export const useGameStore = defineStore('game', () => {
       isGameActive.value = false
       gamePhase.value = 'PLAYING'
 
-      if (scenarioMoves.value.length > 0) {
+      if (setup.turn !== humanPlayerColor) {
         _triggerBotMove()
       }
     } catch (e) {
       logger.error('[GameStore] Invalid FEN provided for setup:', fen, e)
       gamePhase.value = 'IDLE'
     }
+  }
+
+  async function startSandboxGame(rawFen: string) {
+    const fen = rawFen.replace(/_/g, ' ')
+    try {
+      parseFen(fen).unwrap()
+    } catch (e) {
+      await uiStore.showConfirmation('Invalid FEN', 'The provided FEN is not valid.', {
+        showCancel: false,
+      })
+      return
+    }
+
+    controlsStore.setSandboxEngine()
+
+    const onGameOver = (isWin: boolean, outcome?: GameEndOutcome) => {
+      logger.info(`[Sandbox] Game over. Win: ${isWin}, Outcome: ${outcome?.reason}`)
+      setGamePhase('GAMEOVER')
+    }
+
+    const winCondition = (outcome?: GameEndOutcome) => {
+      return outcome?.winner === boardStore.orientation
+    }
+
+    setupPuzzle(fen, [], onGameOver, winCondition, noop, 'sandbox')
   }
 
   async function handleUserMove(orig: Key, dest: Key) {
@@ -214,6 +247,7 @@ export const useGameStore = defineStore('game', () => {
     isGameActive,
     currentGameMode,
     setupPuzzle,
+    startSandboxGame,
     handleUserMove,
     setGamePhase,
     handleGameResignation,

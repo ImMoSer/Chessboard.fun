@@ -103,6 +103,10 @@ export const useControlsStore = defineStore('controls', () => {
     }
   }
 
+  function setSandboxEngine() {
+    setEngine('SF_2200')
+  }
+
   return {
     canRequestNew,
     canRestart,
@@ -121,5 +125,6 @@ export const useControlsStore = defineStore('controls', () => {
     resetControls,
     toggleEngineSelector,
     setEngine,
+    setSandboxEngine,
   }
 })

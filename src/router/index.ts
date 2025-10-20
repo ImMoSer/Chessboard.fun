@@ -33,6 +33,17 @@ const router = createRouter({
       component: WelcomeView,
     },
     {
+      path: '/sandbox',
+      name: 'sandbox-base',
+      redirect: '/sandbox/play/rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR_w_KQkq_-_0_1',
+    },
+    {
+      path: '/sandbox/play/:fen(.+)', // :fen(.+) for supporting FENs with slashes
+      name: 'sandbox',
+      component: () => import('../views/SandboxView.vue'),
+      meta: { isGame: true, game: 'sandbox' },
+    },
+    {
       path: '/finish-him/:puzzleId?',
       name: 'finish-him',
       component: FinishHimView,
@@ -151,7 +162,7 @@ router.beforeEach(async (to, from, next) => {
       },
     )
 
-    if (userConfirmedLogin) {
+    if (userConfirmedLogin === 'confirm') {
       authStore.login()
     }
     return next(false)
@@ -166,7 +177,7 @@ router.beforeEach(async (to, from, next) => {
         t('gameplay.confirmExit.message'),
       )
 
-      if (userConfirmed) {
+      if (userConfirmed === 'confirm') {
         await gameStore.resetGame()
         next()
       } else {

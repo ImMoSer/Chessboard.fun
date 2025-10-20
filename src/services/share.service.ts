@@ -3,7 +3,7 @@ import logger from '../utils/logger'
 import { useUiStore } from '@/stores/ui.store'
 import i18n from './i18n'
 
-type ShareMode = 'finish-him' | 'attack' | 'tacktics' | 'tower' | 'advantage'
+type ShareMode = 'finish-him' | 'attack' | 'tacktics' | 'tower' | 'advantage' | 'sandbox'
 
 class ShareServiceController {
   /**
@@ -68,7 +68,13 @@ class ShareServiceController {
    */
   public async share(mode: ShareMode, id: string, advantageMode?: string): Promise<void> {
     const t = i18n.global.t
-    const url = advantageMode ? `${window.location.origin}/${mode}/${id}/${advantageMode}` : `${window.location.origin}/${mode}/${id}`
+    let url = `${window.location.origin}/${mode}/${id}`
+    if (mode === 'advantage' && advantageMode) {
+      url = `${window.location.origin}/${mode}/${id}/${advantageMode}`
+    } else if (mode === 'sandbox') {
+      url = `${window.location.origin}/sandbox/play/${id}`
+    }
+
     const shareData = {
       title: t('app.title'),
       text: t(`nav.${mode}`),
