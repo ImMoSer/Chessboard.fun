@@ -11,6 +11,7 @@ import { useControlsStore } from './controls.store'
 import { soundService } from '../services/sound.service'
 import { useAdvantageStore } from './advantage.store.ts'
 import { useUiStore } from './ui.store'
+import { pgnService } from '../services/PgnService'
 
 export type GamePhase = 'IDLE' | 'LOADING' | 'PLAYING' | 'GAMEOVER'
 export type GameMode = 'finish-him' | 'attack' | 'tower' | 'tornado' | 'advantage' | 'sandbox' | null
@@ -143,6 +144,7 @@ export const useGameStore = defineStore('game', () => {
   }
 
   async function startSandboxGame(rawFen: string) {
+    analysisStore.hidePanel()
     const fen = rawFen.replace(/_/g, ' ')
     try {
       parseFen(fen).unwrap()
@@ -158,6 +160,9 @@ export const useGameStore = defineStore('game', () => {
     const onGameOver = (isWin: boolean, outcome?: GameEndOutcome) => {
       logger.info(`[Sandbox] Game over. Win: ${isWin}, Outcome: ${outcome?.reason}`)
       setGamePhase('GAMEOVER')
+      const pgn = pgnService.getCurrentPgnString({ showResult: true })
+      logger.info(`[Sandbox] Final PGN: ${pgn}`)
+      analysisStore.showPanel(false)
     }
 
     const winCondition = (outcome?: GameEndOutcome) => {

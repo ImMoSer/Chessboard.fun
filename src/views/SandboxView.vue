@@ -1,11 +1,14 @@
 // src/views/SandboxView.vue
 <template>
   <GameLayout>
-    <template #header>
+    <template #top-left>
       <div class="fen-input-container">
         <input v-model="fenInput" type="text" placeholder="Enter FEN here" />
         <button @click="playFen">Play</button>
       </div>
+    </template>
+    <template #top-info>
+      <TopInfoPanel />
     </template>
     <template #right-panel>
       <div class="right-panel-content-wrapper">
@@ -22,6 +25,7 @@ import { useRoute, useRouter } from 'vue-router'
 import GameLayout from '../components/GameLayout.vue'
 import ControlPanel from '../components/ControlPanel.vue'
 import AnalysisPanel from '../components/AnalysisPanel.vue'
+import TopInfoPanel from '../components/TopInfoPanel.vue'
 import { useGameStore } from '../stores/game.store'
 import { useControlsStore } from '../stores/controls.store'
 import { useBoardStore } from '../stores/board.store'

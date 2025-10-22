@@ -3,8 +3,16 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useControlsStore } from '@/stores/controls.store'
 import type { EngineId } from '@/types/api.types'
+import { useAuthStore } from '@/stores/auth.store'
+import { useUiStore } from '@/stores/ui.store'
+import i18n from '@/services/i18n'
 
 const controlsStore = useControlsStore()
+const authStore = useAuthStore()
+const uiStore = useUiStore()
+const t = i18n.global.t
+
+const isAuthenticated = computed(() => authStore.isAuthenticated)
 
 const availableEngines = computed(() => controlsStore.availableEngines)
 const selectedEngine = computed(() => controlsStore.selectedEngine)
@@ -24,6 +32,25 @@ const dropdownRef = ref<HTMLElement | null>(null)
 
 const toggleDropdown = () => {
   isOpen.value = !isOpen.value
+}
+
+const handleEngineSelectorClick = async () => {
+  if (isAuthenticated.value) {
+    toggleDropdown()
+  } else {
+    const userConfirmedLogin = await uiStore.showConfirmation(
+      t('auth.requiredForAction'),
+      t('userCabinet.loginPrompt'),
+      {
+        confirmText: t('nav.loginWithLichess'),
+        showCancel: true,
+      },
+    )
+
+    if (userConfirmedLogin === 'confirm') {
+      authStore.login()
+    }
+  }
 }
 
 const selectEngine = (engine: EngineId) => {
@@ -46,14 +73,29 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="engine-selector" ref="dropdownRef">
-    <button class="selector-toggle" @click="toggleDropdown">
+  <div
+    class="engine-selector"
+    ref="dropdownRef"
+    @click="handleEngineSelectorClick"
+  >
+    <button
+      class="selector-toggle"
+      :disabled="!isAuthenticated"
+      :title="
+        !isAuthenticated ? t('auth.requiredForAction') : t('engine.select')
+      "
+    >
       {{ engineNames[selectedEngine] }}
       <span class="selector-arrow" :class="{ 'is-open': isOpen }">▼</span>
     </button>
-    <div v-if="isOpen" class="engine-dropdown">
-      <button v-for="engine in availableEngines" :key="engine" class="engine-item"
-        :class="{ active: engine === selectedEngine }" @click="selectEngine(engine)">
+    <div v-if="isOpen && isAuthenticated" class="engine-dropdown">
+      <button
+        v-for="engine in availableEngines"
+        :key="engine"
+        class="engine-item"
+        :class="{ active: engine === selectedEngine }"
+        @click.stop="selectEngine(engine)"
+      >
         {{ engineNames[engine] }}
       </button>
     </div>
@@ -87,8 +129,13 @@ onUnmounted(() => {
     opacity 0.2s ease;
 }
 
-.selector-toggle:hover {
+.selector-toggle:hover:not(:disabled) {
   border-color: var(--color-accent-primary);
+}
+
+.selector-toggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .selector-arrow {
@@ -154,7 +201,6 @@ onUnmounted(() => {
 }
 
 @media (orientation: portrait) {
-
   .selector-toggle,
   .engine-item {
     padding: 5px 5px;

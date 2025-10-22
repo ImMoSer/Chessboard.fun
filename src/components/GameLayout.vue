@@ -234,9 +234,11 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
   .game-layout {
     display: flex;
     flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
     width: 97vw;
     height: auto;
-    min-height: 100vh;
+
     margin: 0 auto;
     padding: 10px 0;
     gap: 5px;
@@ -244,7 +246,7 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
     grid-template-rows: none;
     grid-template-columns: none;
     overflow-x: hidden;
-    overflow-y: hidden;
+    overflow-y: auto;
     -ms-overflow-style: none;
     scrollbar-width: none;
     box-sizing: border-box;
