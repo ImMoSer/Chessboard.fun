@@ -67,7 +67,7 @@ const containerClass = computed(() => {
     <FinishHimSelection v-if="route.name === 'finish-him'" />
 
     <!-- Селектор движка для режимов с ботом -->
-    <div v-if="['finish-him', 'attack', 'tower', 'advantage', 'advantage-puzzle', 'sandbox'].includes(route.name as string)" class="engine-selector-container">
+    <div v-if="['finish-him', 'attack', 'tower', 'advantage', 'advantage-puzzle', 'sandbox', 'sandbox-with-engine'].includes(route.name as string)" class="engine-selector-container">
       <img src="/buttons/robot.svg" alt="Select Engine" class="robot-icon" />
       <EngineSelector />
     </div>

@@ -125,7 +125,8 @@
     "loginWithLichess": "Войти через Lichess"
   },
   "auth": {
-    "requiredForAction": "Для этого действия необходимо войти в систему."
+    "requiredForAction": "Для этого действия необходимо войти в систему.",
+    "serverEngineAuth": "Для игры с серверным движком требуется авторизация. Войти или играть с движком по умолчанию?"
   },
   "errors": {
     "backendConnectionFailed": "Не удалось подключиться к серверу.",
@@ -160,7 +161,8 @@
     },
     "gameOver": {
       "stalemate": "Партия завершена: Пат."
-    }
+    },
+    "playWithDefaultEngine": "Играть с движком по умолчанию"
   },
   "analysis": {
     "engine": "Анализ",

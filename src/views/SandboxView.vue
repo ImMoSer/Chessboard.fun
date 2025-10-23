@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import GameLayout from '../components/GameLayout.vue'
 import ControlPanel from '../components/ControlPanel.vue'
@@ -31,6 +31,11 @@ import { useControlsStore } from '../stores/controls.store'
 import { useBoardStore } from '../stores/board.store'
 import { useAnalysisStore } from '../stores/analysis.store'
 import { shareService } from '../services/share.service'
+import { useAuthStore } from '@/stores/auth.store'
+import { useUiStore } from '@/stores/ui.store'
+import { isServerEngine } from '@/services/GameplayService'
+import i18n from '@/services/i18n'
+import type { EngineId } from '@/types/api.types'
 
 const route = useRoute()
 const router = useRouter()
@@ -38,10 +43,14 @@ const gameStore = useGameStore()
 const controlsStore = useControlsStore()
 const boardStore = useBoardStore()
 const analysisStore = useAnalysisStore()
+const authStore = useAuthStore()
+const uiStore = useUiStore()
+const t = i18n.global.t
 
 const fenInput = ref('')
 
 const loadGameFromFen = (fen: string) => {
+  if (!fen) return
   const formattedFen = fen.replace(/_/g, ' ')
   fenInput.value = formattedFen
   gameStore.startSandboxGame(fen)
@@ -50,23 +59,64 @@ const loadGameFromFen = (fen: string) => {
 const playFen = () => {
   if (fenInput.value) {
     const urlFen = fenInput.value.replace(/ /g, '_')
-    router.push({ name: 'sandbox', params: { fen: urlFen } })
+    const engineId = controlsStore.selectedEngine
+    router.push({
+      name: 'sandbox-with-engine',
+      params: { fen: urlFen, engineId },
+    })
   }
 }
 
-onMounted(() => {
-  if (route.params.fen) {
-    loadGameFromFen(route.params.fen as string)
-  }
-})
-
+// Centralized logic to handle route changes
 watch(
-  () => route.params.fen,
-  (newFen) => {
-    if (newFen) {
-      loadGameFromFen(newFen as string)
+  () => route.fullPath,
+  async () => {
+    // Wait for auth to be resolved
+    while (authStore.isLoading) {
+      await new Promise((resolve) => setTimeout(resolve, 50))
+    }
+
+    const fen = route.params.fen as string
+    const engineIdFromUrl = route.params.engineId as EngineId | undefined
+
+    if (engineIdFromUrl) {
+      if (isServerEngine(engineIdFromUrl) && !authStore.isAuthenticated) {
+        const userConfirmedLogin = await uiStore.showConfirmation(
+          t('auth.requiredForAction'),
+          t('auth.serverEngineAuth'),
+          {
+            confirmText: t('nav.loginWithLichess'),
+            cancelText: t('gameplay.playWithDefaultEngine'),
+            showCancel: true,
+          },
+        )
+
+        if (userConfirmedLogin === 'confirm') {
+          localStorage.setItem('redirect_after_login', route.fullPath)
+          authStore.login()
+        } else {
+          await router.replace({
+            name: 'sandbox-with-engine',
+            params: { engineId: 'SF_2200', fen },
+          })
+        }
+        return // Stop processing, will be handled by new route
+      }
+      // URL is valid, sync store and load game
+      controlsStore.setEngine(engineIdFromUrl, true)
+      loadGameFromFen(fen)
+    } else if (fen) {
+      // Engine is NOT in URL, determine default and redirect
+      const defaultEngineId = authStore.isAuthenticated
+        ? controlsStore.selectedEngine
+        : 'SF_2200'
+      await router.replace({
+        name: 'sandbox-with-engine',
+        params: { engineId: defaultEngineId, fen },
+      })
     }
   },
+  { immediate: true },
 )
 
 watch(
@@ -90,7 +140,8 @@ watch(
       onResign: gameStore.handleGameResignation,
       onShare: () => {
         const urlFen = boardStore.fen.replace(/ /g, '_')
-        shareService.share('sandbox', urlFen)
+        const engineId = controlsStore.selectedEngine
+        shareService.share('sandbox', urlFen, undefined, engineId)
       },
     })
   },

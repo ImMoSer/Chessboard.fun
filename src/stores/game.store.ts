@@ -155,8 +155,6 @@ export const useGameStore = defineStore('game', () => {
       return
     }
 
-    controlsStore.setSandboxEngine()
-
     const onGameOver = (isWin: boolean, outcome?: GameEndOutcome) => {
       logger.info(`[Sandbox] Game over. Win: ${isWin}, Outcome: ${outcome?.reason}`)
       setGamePhase('GAMEOVER')

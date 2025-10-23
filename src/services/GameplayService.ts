@@ -19,14 +19,18 @@ interface EngineConfig {
 const FALLBACK_TIMEOUT_MS = 1500
 
 // --- НОВАЯ КОНФИГУРАЦИЯ ДВИЖКОВ ---
-const engineConfigs: Record<EngineId, EngineConfig> = {
+export const engineConfigs: Record<EngineId, EngineConfig> = {
   SF_2200: { type: 'local', depth: 12, contempt: 100 },
   SF_2100: { type: 'local', depth: 10, contempt: 100 },
   SF_1900: { type: 'local', depth: 8, contempt: 100 },
   SF_1700: { type: 'local', depth: 6, contempt: 100 },
   SF_1600: { type: 'local', depth: 4, contempt: 100 },
-  'MOZER_1900': { type: 'server', model: 'maia_1900', fallback: true },
-  'MOZER_2000': { type: 'server', model: 'mozer_2000', fallback: true },
+  MOZER_1900: { type: 'server', model: 'maia_1900', fallback: true },
+  MOZER_2000: { type: 'server', model: 'mozer_2000', fallback: true },
+}
+
+export function isServerEngine(engineId: EngineId): boolean {
+  return engineConfigs[engineId]?.type === 'server'
 }
 
 class GameplayServiceController {

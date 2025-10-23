@@ -125,7 +125,8 @@
     "loginWithLichess": "Login with Lichess"
   },
   "auth": {
-    "requiredForAction": "You must be logged in to perform this action."
+    "requiredForAction": "You must be logged in to perform this action.",
+    "serverEngineAuth": "Authentication required to use selected engine."
   },
   "errors": {
     "backendConnectionFailed": "Could not connect to the server.",
@@ -160,7 +161,8 @@
     },
     "gameOver": {
       "stalemate": "Game over: Stalemate."
-    }
+    },
+    "playWithDefaultEngine": "Play with default engine"
   },
   "analysis": {
     "engine": "Analysis",

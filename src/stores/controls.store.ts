@@ -92,7 +92,9 @@ export const useControlsStore = defineStore('controls', () => {
     isEngineSelectorOpen.value = !isEngineSelectorOpen.value
   }
 
-  function setEngine(engineId: EngineId) {
+  function setEngine(engineId: EngineId, fromUrlSync = false) {
+    if (selectedEngine.value === engineId) return
+
     selectedEngine.value = engineId
     isEngineSelectorOpen.value = false
     try {
@@ -100,6 +102,19 @@ export const useControlsStore = defineStore('controls', () => {
       logger.info(`[ControlsStore] Saved selected engine to localStorage: ${engineId}`)
     } catch (error) {
       logger.error('[ControlsStore] Failed to save engine to localStorage', error)
+    }
+
+    if (fromUrlSync) return
+
+    const route = router.currentRoute.value
+    if (route.name === 'sandbox' || route.name === 'sandbox-with-engine') {
+      const fen = route.params.fen as string
+      if (fen) {
+        router.replace({
+          name: 'sandbox-with-engine',
+          params: { engineId, fen },
+        })
+      }
     }
   }
 

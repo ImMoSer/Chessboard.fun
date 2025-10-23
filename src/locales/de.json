@@ -125,7 +125,8 @@
     "loginWithLichess": "Mit Lichess anmelden"
   },
   "auth": {
-    "requiredForAction": "Sie müssen angemeldet sein, um diese Aktion durchzuführen."
+    "requiredForAction": "Sie müssen angemeldet sein, um diese Aktion durchzuführen.",
+    "serverEngineAuth": "Authentifizierung erforderlich, um die ausgewählte Engine zu verwenden."
   },
   "errors": {
     "backendConnectionFailed": "Verbindung zum Server fehlgeschlagen.",
@@ -160,7 +161,8 @@
     },
     "gameOver": {
       "stalemate": "Partie beendet: Patt."
-    }
+    },
+    "playWithDefaultEngine": "Mit Standard-Engine spielen"
   },
   "analysis": {
     "engine": "Analyse",

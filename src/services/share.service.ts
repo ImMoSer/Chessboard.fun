@@ -1,5 +1,6 @@
 // src/services/share.service.ts
 import logger from '../utils/logger'
+import type { EngineId } from '@/types/api.types'
 import { useUiStore } from '@/stores/ui.store'
 import i18n from './i18n'
 
@@ -66,13 +67,22 @@ class ShareServiceController {
    * @param id - ID задачи или башни.
    * @param advantageMode - опциональный режим для Advantage.
    */
-  public async share(mode: ShareMode, id: string, advantageMode?: string): Promise<void> {
+  public async share(
+    mode: ShareMode,
+    id: string,
+    advantageMode?: string,
+    engineId?: EngineId,
+  ): Promise<void> {
     const t = i18n.global.t
     let url = `${window.location.origin}/${mode}/${id}`
     if (mode === 'advantage' && advantageMode) {
       url = `${window.location.origin}/${mode}/${id}/${advantageMode}`
     } else if (mode === 'sandbox') {
-      url = `${window.location.origin}/sandbox/play/${id}`
+      if (engineId) {
+        url = `${window.location.origin}/sandbox/play/${engineId}/${id}`
+      } else {
+        url = `${window.location.origin}/sandbox/play/${id}`
+      }
     }
 
     const shareData = {

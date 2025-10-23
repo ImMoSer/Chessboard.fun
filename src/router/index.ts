@@ -38,6 +38,12 @@ const router = createRouter({
       redirect: '/sandbox/play/rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR_w_KQkq_-_0_1',
     },
     {
+      path: '/sandbox/play/:engineId([A-Z0-9_]+)/:fen(.+)',
+      name: 'sandbox-with-engine',
+      component: () => import('../views/SandboxView.vue'),
+      meta: { isGame: true, game: 'sandbox' },
+    },
+    {
       path: '/sandbox/play/:fen(.+)', // :fen(.+) for supporting FENs with slashes
       name: 'sandbox',
       component: () => import('../views/SandboxView.vue'),
