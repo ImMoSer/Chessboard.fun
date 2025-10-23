@@ -21,8 +21,8 @@ const engineNames: Record<EngineId, string> = {
   SF_2200: 'Rbleipzig 2350+',
   SF_2100: 'Krokodil 2200+',
   SF_1900: 'Karde 2100+',
-  'MOZER_2000+': 'MoZeR 2000+',
-  'MOZER_1900+': 'MoZeR 1900+',
+  'MOZER_2000': 'MoZeR 2000+',
+  'MOZER_1900': 'MoZeR 1900+',
   SF_1700: 'Dimas 1800+',
   SF_1600: 'Darko 1700+',
 }
@@ -73,29 +73,15 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div
-    class="engine-selector"
-    ref="dropdownRef"
-    @click="handleEngineSelectorClick"
-  >
-    <button
-      class="selector-toggle"
-      :disabled="!isAuthenticated"
-      :title="
-        !isAuthenticated ? t('auth.requiredForAction') : t('engine.select')
-      "
-    >
+  <div class="engine-selector" ref="dropdownRef" @click="handleEngineSelectorClick">
+    <button class="selector-toggle" :disabled="!isAuthenticated" :title="!isAuthenticated ? t('auth.requiredForAction') : t('engine.select')
+      ">
       {{ engineNames[selectedEngine] }}
       <span class="selector-arrow" :class="{ 'is-open': isOpen }">▼</span>
     </button>
     <div v-if="isOpen && isAuthenticated" class="engine-dropdown">
-      <button
-        v-for="engine in availableEngines"
-        :key="engine"
-        class="engine-item"
-        :class="{ active: engine === selectedEngine }"
-        @click.stop="selectEngine(engine)"
-      >
+      <button v-for="engine in availableEngines" :key="engine" class="engine-item"
+        :class="{ active: engine === selectedEngine }" @click.stop="selectEngine(engine)">
         {{ engineNames[engine] }}
       </button>
     </div>
@@ -201,6 +187,7 @@ onUnmounted(() => {
 }
 
 @media (orientation: portrait) {
+
   .selector-toggle,
   .engine-item {
     padding: 5px 5px;

@@ -8,7 +8,7 @@ import { useUiStore } from './ui.store'
 
 const ENGINE_STORAGE_KEY = 'user_selected_engine'
 
-const noop = () => {}
+const noop = () => { }
 
 export const useControlsStore = defineStore('controls', () => {
   const uiStore = useUiStore()
@@ -18,8 +18,8 @@ export const useControlsStore = defineStore('controls', () => {
     'SF_2200',
     'SF_2100',
     'SF_1900',
-    'MOZER_2000+',
-    'MOZER_1900+',
+    'MOZER_2000',
+    'MOZER_1900',
     'SF_1700',
     'SF_1600',
   ])
@@ -34,8 +34,8 @@ export const useControlsStore = defineStore('controls', () => {
     } catch (error) {
       logger.error('[ControlsStore] Failed to load engine from localStorage', error)
     }
-    logger.info('[ControlsStore] No saved engine found, setting default: MOZER_1900+')
-    return 'MOZER_1900+'
+    logger.info('[ControlsStore] No saved engine found, setting default: MOZER_1900')
+    return 'MOZER_1900'
   }
 
   const selectedEngine = ref<EngineId>(loadSavedEngine())
