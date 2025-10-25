@@ -69,6 +69,16 @@ const navigateAndClose = (path: string) => {
   display: none;
 }
 
+@media (min-width: 769px) and (orientation: landscape) {
+  nav {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0;
+    width: 100%;
+  }
+}
+
 .desktop-menu-wrapper {
   display: block;
 }
@@ -79,6 +89,7 @@ nav {
   justify-content: center;
   gap: 1.25rem;
   padding: 1rem;
+  background-color: var(--color-bg-secondary);
 }
 
 .nav-item-link {
@@ -155,43 +166,6 @@ nav {
 }
 
 /* Адаптивность */
-@media (min-width: 769px) and (orientation: landscape) {
-  .desktop-menu-wrapper {
-    position: fixed;
-    left: 0;
-    top: 0;
-    height: 100vh;
-    width: 200px;
-    background-color: var(--color-bg-secondary);
-    padding-top: 70px;
-    /* Space for the header */
-    z-index: 999;
-    display: block;
-    border-right: 1px solid var(--color-border);
-  }
-
-  .desktop-menu-wrapper nav {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-    padding: 1rem;
-    width: 100%;
-  }
-
-  .desktop-menu-wrapper .nav-item-link {
-    width: 100%;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-  }
-
-  .desktop-menu-wrapper .nav-item-link:hover {
-    background-color: var(--color-bg-hover);
-  }
-
-  .menu-toggle {
-    display: none;
-  }
-}
 
 @media (max-width: 768px) {
   .desktop-menu-wrapper {

@@ -54,15 +54,17 @@ onUnmounted(() => {
   <header v-if="!isScreenshotView" class="app-header">
     <!-- --- КОНЕЦ ИЗМЕНЕНИЙ --- -->
     <div class="header-content">
-      <div class="logo">
-        <RouterLink to="/">
-          <img src="/png/1920_Banner.png" alt="Logo" class="logo-image" />
-        </RouterLink>
+      <div class="top-bar">
+        <div class="logo">
+          <RouterLink to="/">
+            <img src="/png/1920_Banner.png" alt="Logo" class="logo-image" />
+          </RouterLink>
+        </div>
+        <SettingsMenu />
       </div>
 
       <div class="navigation-wrapper">
         <NavMenu />
-        <SettingsMenu />
       </div>
     </div>
   </header>
@@ -112,6 +114,40 @@ onUnmounted(() => {
 }
 
 @media (min-width: 769px) and (orientation: landscape) {
+  .app-header {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    width: 11vw;
+    padding: 1rem;
+    border-right: 1px solid var(--color-border);
+    z-index: 1000;
+    overflow-y: auto;
+    /* Add scroll for smaller heights */
+  }
+
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2rem;
+    height: auto;
+  }
+
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+  }
+
+  .navigation-wrapper {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+    width: 100%;
+  }
+
   #page-content-wrapper {
     margin-left: 200px;
   }
