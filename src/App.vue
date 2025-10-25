@@ -110,4 +110,10 @@ onUnmounted(() => {
     justify-content: space-between;
   }
 }
+
+@media (min-width: 769px) and (orientation: landscape) {
+  #page-content-wrapper {
+    margin-left: 200px;
+  }
+}
 </style>
