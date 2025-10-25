@@ -1,6 +1,6 @@
 // src/services/share.service.ts
 import logger from '../utils/logger'
-import type { EngineId } from '@/types/api.types'
+import type { EngineId, Color as ChessgroundColor } from '@/types/api.types'
 import { useUiStore } from '@/stores/ui.store'
 import i18n from './i18n'
 
@@ -72,13 +72,16 @@ class ShareServiceController {
     id: string,
     advantageMode?: string,
     engineId?: EngineId,
+    userColor?: ChessgroundColor,
   ): Promise<void> {
     const t = i18n.global.t
     let url = `${window.location.origin}/${mode}/${id}`
     if (mode === 'advantage' && advantageMode) {
       url = `${window.location.origin}/${mode}/${id}/${advantageMode}`
     } else if (mode === 'sandbox') {
-      if (engineId) {
+      if (engineId && userColor) {
+        url = `${window.location.origin}/sandbox/play/${engineId}/${userColor}/${id}`
+      } else if (engineId) {
         url = `${window.location.origin}/sandbox/play/${engineId}/${id}`
       } else {
         url = `${window.location.origin}/sandbox/play/${id}`

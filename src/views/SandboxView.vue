@@ -35,7 +35,7 @@ import { useAuthStore } from '@/stores/auth.store'
 import { useUiStore } from '@/stores/ui.store'
 import { isServerEngine } from '@/services/GameplayService'
 import i18n from '@/services/i18n'
-import type { EngineId } from '@/types/api.types'
+import type { EngineId, Color as ChessgroundColor } from '@/types/api.types'
 
 const route = useRoute()
 const router = useRouter()
@@ -49,20 +49,30 @@ const t = i18n.global.t
 
 const fenInput = ref('')
 
-const loadGameFromFen = (fen: string) => {
+const loadGameFromFen = (fen: string, userColor?: ChessgroundColor) => {
   if (!fen) return
   const formattedFen = fen.replace(/_/g, ' ')
   fenInput.value = formattedFen
-  gameStore.startSandboxGame(fen)
+  gameStore.startSandboxGame(fen, userColor)
 }
 
 const playFen = () => {
   if (fenInput.value) {
     const urlFen = fenInput.value.replace(/ /g, '_')
     const engineId = controlsStore.selectedEngine
+    const userColor = route.params.userColor as ChessgroundColor | undefined
+
+    const routeParams: { fen: string; engineId: EngineId; userColor?: ChessgroundColor } = {
+      fen: urlFen,
+      engineId,
+    }
+    if (userColor) {
+      routeParams.userColor = userColor
+    }
+
     router.push({
-      name: 'sandbox-with-engine',
-      params: { fen: urlFen, engineId },
+      name: userColor ? 'sandbox-with-engine-and-color' : 'sandbox-with-engine',
+      params: routeParams,
     })
   }
 }
@@ -78,6 +88,7 @@ watch(
 
     const fen = route.params.fen as string
     const engineIdFromUrl = route.params.engineId as EngineId | undefined
+    const userColorFromUrl = route.params.userColor as ChessgroundColor | undefined
 
     if (engineIdFromUrl) {
       if (isServerEngine(engineIdFromUrl) && !authStore.isAuthenticated) {
@@ -95,16 +106,20 @@ watch(
           localStorage.setItem('redirect_after_login', route.fullPath)
           authStore.login()
         } else {
+          const newParams: any = { engineId: 'SF_2200', fen }
+          if (userColorFromUrl) {
+            newParams.userColor = userColorFromUrl
+          }
           await router.replace({
-            name: 'sandbox-with-engine',
-            params: { engineId: 'SF_2200', fen },
+            name: userColorFromUrl ? 'sandbox-with-engine-and-color' : 'sandbox-with-engine',
+            params: newParams,
           })
         }
         return // Stop processing, will be handled by new route
       }
       // URL is valid, sync store and load game
       controlsStore.setEngine(engineIdFromUrl, true)
-      loadGameFromFen(fen)
+      loadGameFromFen(fen, userColorFromUrl)
     } else if (fen) {
       // Engine is NOT in URL, determine default and redirect
       const defaultEngineId = authStore.isAuthenticated
@@ -134,14 +149,18 @@ watch(
       onRequestNew: () => {},
       onRestart: () => {
         if (route.params.fen) {
-          loadGameFromFen(route.params.fen as string)
+          loadGameFromFen(
+            route.params.fen as string,
+            route.params.userColor as ChessgroundColor | undefined,
+          )
         }
       },
       onResign: gameStore.handleGameResignation,
       onShare: () => {
         const urlFen = boardStore.fen.replace(/ /g, '_')
         const engineId = controlsStore.selectedEngine
-        shareService.share('sandbox', urlFen, undefined, engineId)
+        const userColor = route.params.userColor as ChessgroundColor | undefined
+        shareService.share('sandbox', urlFen, undefined, engineId, userColor)
       },
     })
   },

@@ -2,81 +2,84 @@
 
 ## 1. Overview
 
-The Sandbox mode is a special gameplay feature that allows any user (including guests) to start a game against a local engine from any given FEN (Forsyth-Edwards Notation) position. Its primary purpose is to provide a quick and easy way to play out specific chess positions without the need for puzzles or predefined scenarios.
+The Sandbox mode is a flexible gameplay feature allowing any user to start a game against a selected engine from any FEN position. It's designed for quick analysis and gameplay of specific chess scenarios.
 
-Users can access this mode via a dedicated URL or by inputting a FEN string directly into the UI.
+Key features of the Sandbox are its dynamic engine selection and an optional parameter to specify the user's playing color, both integrated directly into the URL. This allows for easy sharing of exact game scenarios.
 
 ---
 
 ## 2. User-Facing Features
 
-- **URL-Based Game Start**: A game can be initiated by navigating to a URL in the format `.../sandbox/play/{FEN}`. The FEN string in the URL must replace spaces with underscores (`_`).
-  - *Example*: `/sandbox/play/5k2/8/8/8/1P6/8/8/3K4_w_-_-_0_1`
+- **URL-Based Game Start**: A game is initiated via a URL. The primary format is `.../sandbox/play/{engineId}/{userColor}/{FEN}`.
+  - **`{engineId}`**: The ID of the engine to play against (e.g., `SF_2200`, `MOZER_2000`).
+  - **`{userColor}`** (Optional): The color the user will play (`white` or `black`).
+  - **`{FEN}`**: The FEN string, with spaces replaced by underscores (`_`).
+  - _Example_: `/sandbox/play/MOZER_2000/black/5k2/8/8/8/1P6/8/8/3K4_w_-_-_0_1`
 
-- **Custom FEN Input**: The UI provides a text field where users can paste a FEN string. Clicking the "Play" button updates the URL and starts a new game from that position.
+- **Player Color Logic**:
+  - **If `userColor` is specified**: The user plays as that color. The board is oriented accordingly. If it is not that color's turn to move according to the FEN, the engine will make the first move.
+  - **If `userColor` is omitted**: The user plays as the color whose turn it is in the FEN (the default behavior).
 
-- **User Always Moves First**: A key feature of the Sandbox is that the user always plays the side whose turn it is according to the FEN. If the FEN specifies White to move (`w`), the user plays as White, and the board is oriented accordingly.
+- **Legacy URL Redirection**: Older URL formats are automatically redirected.
+  - `/sandbox/play/{engineId}/{FEN}`: This format (without `userColor`) is still valid and works as before.
+  - `/sandbox/play/{FEN}`: Redirected to a URL with a default engine (`SF_2200` for guests, or the user's last-used engine for authenticated users) and no `userColor`.
 
-- **Fixed Opponent**: The opponent is always the same local engine: `SF_2200` ('Rbleipzig 2350+'). There is no option to change the opponent.
+- **Engine Selection**: Changing the engine in the UI updates the URL, preserving the `userColor` if it was present.
 
-- **Game Controls**: The standard `ControlPanel` is available with the following behavior:
-  - **Restart**: Restarts the game from the initial FEN position loaded from the URL.
-  - **Resign**: Ends the current game. After resigning, the analysis feature becomes available.
-  - **Share**: Generates a shareable link to the current board position in the Sandbox mode format.
+- **Guest User Authentication for Server Engines**: This behavior is unchanged. If a guest tries to use a server engine, they are prompted to log in or switch to a default local engine. The `userColor` parameter is preserved during this process.
 
-- **No Authentication Required**: This mode is fully accessible to all users, whether they are logged in or not.
+- **Custom FEN Input**: Clicking "Play" after entering a FEN constructs a new URL with the currently selected engine and preserves the `userColor` from the current URL (if any).
+
+- **Game Controls**:
+  - **Restart**: Restarts the game from the initial FEN, respecting the engine and user color from the URL.
+  - **Resign**: Ends the current game.
+  - **Share**: Generates a shareable link that includes the engine and the user's color.
 
 ---
 
 ## 3. Technical Implementation
 
-This section details the core components and logic involved in the Sandbox mode for developers.
-
 ### Routing (`src/router/index.ts`)
 
-- A new route was added: `/sandbox/play/:fen(.+)`.
-- The `:fen(.+)` part is crucial to correctly capture FEN strings, which contain slashes.
-- The route's `meta` object is set to `{ isGame: true, game: 'sandbox' }`. This integrates with the global `router.beforeEach` navigation guard to handle confirmations when a user navigates away from an active game. `requiresAuth` is intentionally omitted.
+- Three routes now manage the Sandbox mode:
+  1.  `path: '/sandbox/play/:engineId/:userColor(white|black)/:fen(.+)'`
+  - `name: 'sandbox-with-engine-and-color'`
+  - The primary route that handles games with a specified engine and user color.
+  2.  `path: '/sandbox/play/:engineId/:fen(.+)'`
+  - `name: 'sandbox-with-engine'`
+  - Handles games without an explicit user color.
+  3.  `path: '/sandbox/play/:fen(.+)'`
+  - `name: 'sandbox'`
+  - A legacy route that is redirected to `'sandbox-with-engine'`.
 
 ### Main View (`src/views/SandboxView.vue`)
 
-- This is the main component for the mode.
-- It uses `GameLayout.vue` for the overall structure and includes the `ControlPanel` and `AnalysisPanel` components in the `right-panel` slot.
-- It contains a `watch` on `route.params.fen` which triggers the `gameStore.startSandboxGame` action whenever the URL changes.
-- It also contains a `watch` on `gameStore.gamePhase` to dynamically set the available controls (Restart, Resign, etc.) by calling `controlsStore.setControls`.
+- The `watch` on `route.fullPath` is the entry point.
+- **Logic Flow on Route Change**:
+  1.  It extracts `engineId`, `userColor`, and `fen` from `route.params`.
+  2.  The logic for handling missing `engineId` (legacy URLs) remains the same: it redirects to add a default engine.
+  3.  The server engine authentication for guests remains the same, but the redirection logic now preserves the `userColor` parameter if it exists.
+  4.  Finally, it calls `loadGameFromFen(fen, userColor)`, passing both the FEN and the (potentially undefined) user color.
 
-### Game Logic (`src/stores/game.store.ts`)
+### State Management (`src/stores/game.store.ts`)
 
-- **`startSandboxGame(rawFen: string)`**: This is the primary action for the mode.
-  1.  It replaces underscores `_` in the `rawFen` string with spaces.
-  2.  **Validation**: It validates the FEN using `parseFen` from the `chessops/fen` library within a `try...catch` block. `parseFen(fen).unwrap()` throws an error if the FEN is invalid.
-  3.  **Error Handling**: On catching a validation error, it calls `uiStore.showConfirmation` to display a modal window to the user.
-  4.  **Engine Setup**: It calls `controlsStore.setSandboxEngine()` to force the opponent to `SF_2200`.
-  5.  **Game Setup**: It then calls the generic `setupPuzzle` function with an empty move list (`[]`) and callbacks tailored for this mode.
+- **`startSandboxGame(rawFen: string, userColor?: ChessgroundColor)`**: This action now accepts the optional `userColor` and passes it directly to `setupPuzzle`.
 
-- **`setupPuzzle` Modification**: The `setupPuzzle` function was modified to handle the "user always moves first" logic.
-  ```typescript
-  let humanPlayerColor: ChessgroundColor;
+- **`setupPuzzle(..., userColor?: ChessgroundColor)`**: The signature is updated.
+  - The logic for determining the player's color in sandbox mode was changed:
+    ```typescript
+    if (mode === 'sandbox') {
+      humanPlayerColor = userColor || setup.turn; // Use specified color, or fallback to FEN turn
+    } else { ... }
+    ```
+  - After setting up the position, the existing logic automatically handles the engine's first move if it's not the user's turn:
+    ```typescript
+    if (setup.turn !== humanPlayerColor) {
+      _triggerBotMove()
+    }
+    ```
 
-  if (mode === 'sandbox') {
-    humanPlayerColor = setup.turn; // User plays the side to move
-  } else {
-    const botTurnColor = setup.turn;
-    humanPlayerColor = botTurnColor === 'white' ? 'black' : 'white';
-  }
-  boardStore.setupPosition(fen, humanPlayerColor);
-  ```
-  This ensures the board is oriented correctly and the user makes the first move.
+### Sharing (`src/services/share.service.ts`)
 
-### Controls & Sharing
-
-- **`src/stores/controls.store.ts`**: A new action `setSandboxEngine()` was added to programmatically set `selectedEngine` to `'SF_2200'`.
-- **`src/services/share.service.ts`**: The `ShareMode` type was extended to include `'sandbox'`, and the `share` function was updated to construct the correct `/sandbox/play/...` URL.
-
----
-
-## 4. Future Improvements
-
-- **Enhanced FEN Validation**: The current validation just shows a generic "Invalid FEN" message. This could be improved to provide more specific details about the error.
-- **Engine Selection**: While currently fixed, the UI could be extended in the future to allow users to select their opponent engine within Sandbox mode.
-- **Game History**: For logged-in users, sandbox games could be saved to their personal game history for later review.
+- The `share` function signature was updated to accept an optional `userColor`.
+- When `mode` is `'sandbox'`, it constructs the URL including the `userColor` if it is provided, fitting the new `/sandbox/play/{engineId}/{userColor}/{id}` format.

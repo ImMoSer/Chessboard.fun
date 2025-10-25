@@ -108,13 +108,14 @@ export const useGameStore = defineStore('game', () => {
     onPlayoutStart: () => void,
     mode: GameMode = null,
     onCorrectFirstMove?: () => void,
+    userColor?: ChessgroundColor,
   ) {
     try {
       const setup = parseFen(fen).unwrap()
       let humanPlayerColor: ChessgroundColor
 
       if (mode === 'sandbox') {
-        humanPlayerColor = setup.turn
+        humanPlayerColor = userColor || setup.turn
       } else {
         const botTurnColor = setup.turn
         humanPlayerColor = botTurnColor === 'white' ? 'black' : 'white'
@@ -143,7 +144,7 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
-  async function startSandboxGame(rawFen: string) {
+  async function startSandboxGame(rawFen: string, userColor?: ChessgroundColor) {
     analysisStore.hidePanel()
     const fen = rawFen.replace(/_/g, ' ')
     try {
@@ -167,7 +168,7 @@ export const useGameStore = defineStore('game', () => {
       return outcome?.winner === boardStore.orientation
     }
 
-    setupPuzzle(fen, [], onGameOver, winCondition, noop, 'sandbox')
+    setupPuzzle(fen, [], onGameOver, winCondition, noop, 'sandbox', undefined, userColor)
   }
 
   async function handleUserMove(orig: Key, dest: Key) {
