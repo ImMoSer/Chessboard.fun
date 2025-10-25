@@ -1,6 +1,6 @@
 <!-- src/App.vue -->
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import NavMenu from './components/NavMenu.vue'
@@ -16,6 +16,13 @@ const finishHimStore = useFinishHimStore()
 const uiStore = useUiStore() // Инициализация uiStore
 const { t } = useI18n()
 const route = useRoute()
+
+const isSidebarCollapsed = ref(false)
+
+const toggleSidebar = () => {
+  isSidebarCollapsed.value = !isSidebarCollapsed.value
+}
+
 
 // --- НАЧАЛО ИЗМЕНЕНИЙ: Проверяем, является ли текущая страница страницей для скриншота ---
 const isScreenshotView = computed(() => route.name === 'funclub-latest-battle')
@@ -51,20 +58,25 @@ onUnmounted(() => {
 
 <template>
   <!-- --- НАЧАЛО ИЗМЕНЕНИЙ: Скрываем header для страницы скриншота --- -->
-  <header v-if="!isScreenshotView" class="app-header">
+  <header v-if="!isScreenshotView" class="app-header" :class="{ 'sidebar-collapsed': isSidebarCollapsed }">
+    <button class="sidebar-toggle" @click="toggleSidebar">
+      <svg v-if="isSidebarCollapsed" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+      <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg>
+    </button>
     <!-- --- КОНЕЦ ИЗМЕНЕНИЙ --- -->
     <div class="header-content">
-      <div class="top-bar">
+      <div class="top-bar" :class="{ collapsed: isSidebarCollapsed }">
         <div class="logo">
           <RouterLink to="/">
-            <img src="/png/1920_Banner.png" alt="Logo" class="logo-image" />
+            <img v-if="isSidebarCollapsed" src="/png/ChessBoard_fun.png" alt="Logo" class="logo-image-collapsed" />
+            <img v-else src="/png/1920_Banner.png" alt="Logo" class="logo-image" />
           </RouterLink>
         </div>
         <SettingsMenu />
       </div>
 
       <div class="navigation-wrapper">
-        <NavMenu />
+        <NavMenu :is-sidebar-collapsed="isSidebarCollapsed" />
       </div>
     </div>
   </header>
@@ -134,22 +146,49 @@ onUnmounted(() => {
     height: auto;
   }
 
-  .top-bar {
-    display: flex;
-    justify-content: space-between;
+  .top-bar.collapsed {
+    flex-direction: column;
     align-items: center;
-    width: 100%;
+    gap: 1rem;
   }
 
-  .navigation-wrapper {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1.5rem;
-    width: 100%;
+  .logo-image-collapsed {
+    width: 40px;
+    height: 40px;
   }
 
   #page-content-wrapper {
     margin-left: 200px;
+    transition: margin-left 0.3s ease;
+  }
+
+  .app-header.sidebar-collapsed {
+    width: 80px; /* Increased width for collapsed view */
+  }
+
+  .app-header.sidebar-collapsed + #page-content-wrapper {
+    margin-left: 80px; /* Match collapsed width */
+  }
+
+  .sidebar-toggle {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+    border-left: none;
+    color: var(--color-text-default);
+    cursor: pointer;
+    padding: 0.5rem 0.2rem;
+    position: absolute;
+    top: 50%;
+    right: -25px; 
+    transform: translateY(-50%);
+    z-index: 1100;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .sidebar-toggle svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
   }
 }
 </style>

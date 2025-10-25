@@ -8,6 +8,14 @@ const { t } = useI18n()
 const isMenuOpen = ref(false)
 const router = useRouter()
 
+const props = defineProps({
+  isSidebarCollapsed: {
+    type: Boolean,
+    default: false,
+  },
+})
+
+
 const menuItems = [
   { path: '/', labelKey: 'nav.home', icon: '🏠' },
   { path: '/tornado', labelKey: 'nav.tornado', icon: '🌪️', group: 'games' },
@@ -41,7 +49,7 @@ const navigateAndClose = (path: string) => {
   <div class="desktop-menu-wrapper">
     <nav>
       <template v-for="item in menuItems" :key="item.path">
-        <a @click="navigateAndClose(item.path)" class="nav-item-link">
+        <a @click="navigateAndClose(item.path)" class="nav-item-link" :class="{ collapsed: isSidebarCollapsed }">
           <span class="nav-item-icon">{{ item.icon }}</span>
           <span class="nav-item-text">{{ t(item.labelKey) }}</span>
         </a>
@@ -102,6 +110,15 @@ nav {
   align-items: center;
   gap: 0.5rem;
 }
+
+.nav-item-link.collapsed .nav-item-text {
+  display: none;
+}
+
+.nav-item-link.collapsed {
+  justify-content: center;
+}
+
 
 .nav-item-link:hover {
   color: var(--color-text-link-hover);
