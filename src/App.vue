@@ -65,9 +65,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <!-- --- НАЧАЛО ИЗМЕНЕНИЙ: Скрываем header для страницы скриншота --- -->
   <header v-if="!isScreenshotView" class="app-header" :class="{ 'sidebar-collapsed': isSidebarCollapsed }">
-    <!-- --- КОНЕЦ ИЗМЕНЕНИЙ --- -->
     <div class="header-content">
       <div class="top-bar" :class="{ collapsed: isSidebarCollapsed && isLandscape }">
         <div class="logo">
@@ -131,6 +129,13 @@ onUnmounted(() => {
   .header-content {
     justify-content: space-between;
   }
+
+  .top-bar {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+  }
 }
 
 .sidebar-toggle {
@@ -144,7 +149,7 @@ onUnmounted(() => {
   padding: 0.5rem 0.2rem;
   position: fixed;
   top: 50%;
-  left: 270px;
+  left: 255px;
   /* Default position for expanded */
   transform: translateY(-50%);
   z-index: 1100;
@@ -201,7 +206,7 @@ onUnmounted(() => {
   }
 
   #page-content-wrapper {
-    margin-left: 150px;
+    margin-left: 60px;
     transition: margin-left 0.3s ease;
   }
 
@@ -221,7 +226,7 @@ onUnmounted(() => {
   }
 
   .app-header.sidebar-collapsed~.sidebar-toggle {
-    left: 70px;
+    left: 55px;
     /* Position for collapsed */
   }
 }
