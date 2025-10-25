@@ -70,7 +70,8 @@ onUnmounted(() => {
       <div class="top-bar" :class="{ collapsed: isSidebarCollapsed && isLandscape }">
         <div class="logo">
           <RouterLink to="/">
-            <img v-if="isSidebarCollapsed" src="/png/ChessBoard_fun.png" alt="Logo" class="logo-image-collapsed" />
+            <img v-if="isSidebarCollapsed && isLandscape" src="/png/ChessBoard_fun.png" alt="Logo"
+              class="logo-image-collapsed" />
             <img v-else src="/png/1920_Banner.png" alt="Logo" class="logo-image" />
           </RouterLink>
         </div>
@@ -149,7 +150,7 @@ onUnmounted(() => {
   padding: 0.5rem 0.2rem;
   position: fixed;
   top: 50%;
-  left: 255px;
+  left: 260px;
   /* Default position for expanded */
   transform: translateY(-50%);
   z-index: 1100;
@@ -226,7 +227,7 @@ onUnmounted(() => {
   }
 
   .app-header.sidebar-collapsed~.sidebar-toggle {
-    left: 55px;
+    left: 60px;
     /* Position for collapsed */
   }
 }
