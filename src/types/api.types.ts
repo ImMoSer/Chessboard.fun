@@ -10,6 +10,8 @@ export type EngineId =
   | 'MOZER_1900'
   | 'MOZER_2000'
 
+export type Color = 'white' | 'black'
+
 // --- Types from LichessApiService ---
 interface RatingProgression {
   before: number
