@@ -17,7 +17,9 @@ const uiStore = useUiStore() // Инициализация uiStore
 const { t } = useI18n()
 const route = useRoute()
 
+const isLandscape = ref(false)
 const isSidebarCollapsed = ref(false)
+
 
 const toggleSidebar = () => {
   isSidebarCollapsed.value = !isSidebarCollapsed.value
@@ -47,11 +49,17 @@ const beforeUnloadHandler = (event: BeforeUnloadEvent) => {
   }
 }
 
+const mediaQuery = window.matchMedia('(min-width: 769px) and (orientation: landscape)');
+const updateLandscape = () => isLandscape.value = mediaQuery.matches;
+
 onMounted(() => {
+  mediaQuery.addEventListener('change', updateLandscape);
+  updateLandscape(); // Initial check
   window.addEventListener('beforeunload', beforeUnloadHandler)
 })
 
 onUnmounted(() => {
+  mediaQuery.removeEventListener('change', updateLandscape);
   window.removeEventListener('beforeunload', beforeUnloadHandler)
 })
 </script>
@@ -59,13 +67,9 @@ onUnmounted(() => {
 <template>
   <!-- --- НАЧАЛО ИЗМЕНЕНИЙ: Скрываем header для страницы скриншота --- -->
   <header v-if="!isScreenshotView" class="app-header" :class="{ 'sidebar-collapsed': isSidebarCollapsed }">
-    <button class="sidebar-toggle" @click="toggleSidebar">
-      <svg v-if="isSidebarCollapsed" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
-      <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg>
-    </button>
     <!-- --- КОНЕЦ ИЗМЕНЕНИЙ --- -->
     <div class="header-content">
-      <div class="top-bar" :class="{ collapsed: isSidebarCollapsed }">
+      <div class="top-bar" :class="{ collapsed: isSidebarCollapsed && isLandscape }">
         <div class="logo">
           <RouterLink to="/">
             <img v-if="isSidebarCollapsed" src="/png/ChessBoard_fun.png" alt="Logo" class="logo-image-collapsed" />
@@ -80,6 +84,10 @@ onUnmounted(() => {
       </div>
     </div>
   </header>
+  <button class="sidebar-toggle" @click="toggleSidebar">
+    <img v-if="isSidebarCollapsed" src="/svg/right-arrow.svg" alt="Expand" />
+    <img v-else src="/svg/left-arrow.svg" alt="Collapse" />
+  </button>
 
   <main id="page-content-wrapper">
     <RouterView />
@@ -125,18 +133,46 @@ onUnmounted(() => {
   }
 }
 
+.sidebar-toggle {
+  display: none;
+  /* Hide by default */
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-left: none;
+  color: var(--color-text-default);
+  cursor: pointer;
+  padding: 0.5rem 0.2rem;
+  position: fixed;
+  top: 50%;
+  left: 270px;
+  /* Default position for expanded */
+  transform: translateY(-50%);
+  z-index: 1100;
+  border-radius: 0 4px 4px 0;
+  transition: left 0.3s ease;
+}
+
+.sidebar-toggle img {
+  width: 24px;
+  /* Restored size */
+  height: 24px;
+  /* Restored size */
+}
+
 @media (min-width: 769px) and (orientation: landscape) {
   .app-header {
     position: fixed;
     left: 0;
     top: 0;
     height: 100vh;
-    width: 11vw;
+    width: 250px;
+    /* Restored width */
     padding: 1rem;
     border-right: 1px solid var(--color-border);
     z-index: 1000;
     overflow-y: auto;
     /* Add scroll for smaller heights */
+    transition: width 0.3s ease;
   }
 
   .header-content {
@@ -144,6 +180,13 @@ onUnmounted(() => {
     align-items: flex-start;
     gap: 2rem;
     height: auto;
+  }
+
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
   }
 
   .top-bar.collapsed {
@@ -158,37 +201,28 @@ onUnmounted(() => {
   }
 
   #page-content-wrapper {
-    margin-left: 200px;
+    margin-left: 150px;
     transition: margin-left 0.3s ease;
   }
 
   .app-header.sidebar-collapsed {
-    width: 80px; /* Increased width for collapsed view */
+    width: 50px;
+    /* Corrected width for collapsed view */
   }
 
-  .app-header.sidebar-collapsed + #page-content-wrapper {
-    margin-left: 80px; /* Match collapsed width */
+  .app-header.sidebar-collapsed+#page-content-wrapper {
+    margin-left: 50px;
+    /* Match collapsed width */
   }
 
   .sidebar-toggle {
-    background: var(--color-bg-secondary);
-    border: 1px solid var(--color-border);
-    border-left: none;
-    color: var(--color-text-default);
-    cursor: pointer;
-    padding: 0.5rem 0.2rem;
-    position: absolute;
-    top: 50%;
-    right: -25px; 
-    transform: translateY(-50%);
-    z-index: 1100;
-    border-radius: 0 4px 4px 0;
+    display: block;
+    /* Show in landscape */
   }
 
-  .sidebar-toggle svg {
-    width: 24px;
-    height: 24px;
-    fill: currentColor;
+  .app-header.sidebar-collapsed~.sidebar-toggle {
+    left: 70px;
+    /* Position for collapsed */
   }
 }
 </style>

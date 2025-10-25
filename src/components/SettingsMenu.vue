@@ -1,6 +1,6 @@
 <!-- src/components/SettingsMenu.vue -->
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed, nextTick } from 'vue'
 import { useThemeStore } from '@/stores/theme.store'
 import { useAuthStore } from '@/stores/auth.store'
 import { useI18n } from 'vue-i18n'
@@ -15,6 +15,9 @@ const { t, locale } = useI18n()
 
 const isOpen = ref(false)
 const activePanel = ref<'main' | 'board' | 'pieces' | 'sounds' | 'animation'>('main')
+const dropdownPosition = ref({ top: '0px', left: '0px' })
+const toggleButton = ref<HTMLButtonElement | null>(null)
+
 
 const voiceVolume = ref(soundService.getVoiceVolume())
 const boardVolume = ref(soundService.getBoardVolume())
@@ -24,9 +27,27 @@ const animationDuration = computed({
   set: (value) => themeStore.setAnimationDuration(value),
 })
 
-const toggleMenu = (event: MouseEvent) => {
+const toggleMenu = async (event: MouseEvent) => {
   event.stopPropagation()
   isOpen.value = !isOpen.value
+  if (isOpen.value) {
+    await nextTick()
+    if (toggleButton.value) {
+      const rect = toggleButton.value.getBoundingClientRect()
+      const isLandscape = window.matchMedia('(orientation: landscape) and (min-width: 769px)').matches
+      if (isLandscape) {
+        dropdownPosition.value = {
+          top: `${rect.top}px`,
+          left: `${rect.right + 10}px`,
+        }
+      } else {
+        dropdownPosition.value = {
+          top: `${rect.bottom + 10}px`,
+          left: `${rect.right - 250}px`, // 250 is the width of the dropdown
+        }
+      }
+    }
+  }
   if (!isOpen.value) {
     activePanel.value = 'main'
   }
@@ -86,161 +107,163 @@ onUnmounted(() => {
 
 <template>
   <div class="settings-menu-container" @click.stop>
-    <button class="settings-toggle-button" @click="toggleMenu" :title="t('settings.title')">
+    <button ref="toggleButton" class="settings-toggle-button" @click="toggleMenu" :title="t('settings.title')">
       ⚙️
     </button>
 
-    <div v-if="isOpen" class="dropdown-menu">
-      <!-- Главная панель -->
-      <div v-if="activePanel === 'main'" class="panel main-panel">
-        <div class="language-switcher">
-          <div class="language-buttons">
-            <button
-              class="lang-button"
-              :class="{ active: locale === 'en' }"
-              @click="handleLanguageChange('en')"
-            >
-              EN
+    <Teleport to="body">
+      <div v-if="isOpen" class="dropdown-menu" :style="dropdownPosition">
+        <!-- Главная панель -->
+        <div v-if="activePanel === 'main'" class="panel main-panel">
+          <div class="language-switcher">
+            <div class="language-buttons">
+              <button
+                class="lang-button"
+                :class="{ active: locale === 'en' }"
+                @click="handleLanguageChange('en')"
+              >
+                EN
+              </button>
+              <button
+                class="lang-button"
+                :class="{ active: locale === 'ru' }"
+                @click="handleLanguageChange('ru')"
+              >
+                RU
+              </button>
+              <button
+                class="lang-button"
+                :class="{ active: locale === 'de' }"
+                @click="handleLanguageChange('de')"
+              >
+                DE
+              </button>
+            </div>
+          </div>
+          <button class="panel-button" @click="activePanel = 'board'">
+            {{ t('settings.selectBoard') }}
+          </button>
+          <button class="panel-button" @click="activePanel = 'pieces'">
+            {{ t('settings.selectPieces') }}
+          </button>
+          <button class="panel-button" @click="activePanel = 'animation'">
+            {{ t('settings.animation.title') }}
+          </button>
+          <button class="panel-button" @click="activePanel = 'sounds'">
+            {{ t('settings.sounds.title') }}
+          </button>
+          <button class="panel-button auth-button" @click="handleAuthAction">
+            {{ isAuthenticated ? t('nav.logout') : t('nav.login') }}
+          </button>
+        </div>
+
+        <!-- Панель выбора доски -->
+        <div v-if="activePanel === 'board'" class="panel">
+          <div class="panel-header">
+            <button class="back-button" @click="activePanel = 'main'">
+              &lt; {{ t('settings.back') }}
             </button>
-            <button
-              class="lang-button"
-              :class="{ active: locale === 'ru' }"
-              @click="handleLanguageChange('ru')"
+            <h4>{{ t('settings.selectBoard') }}</h4>
+          </div>
+          <div class="board-selector-grid">
+            <div
+              v-for="board in themeStore.availableBoards"
+              :key="board.name"
+              class="selector-item board-item"
+              :class="{ selected: board.name === themeStore.currentTheme.board }"
+              @click="handleBoardChange(board.name)"
             >
-              RU
+              <img :src="`/board/jpg_png/${board.thumbnailFile}`" :alt="board.name" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Панель выбора фигур -->
+        <div v-if="activePanel === 'pieces'" class="panel">
+          <div class="panel-header">
+            <button class="back-button" @click="activePanel = 'main'">
+              &lt; {{ t('settings.back') }}
             </button>
-            <button
-              class="lang-button"
-              :class="{ active: locale === 'de' }"
-              @click="handleLanguageChange('de')"
+            <h4>{{ t('settings.selectPieces') }}</h4>
+          </div>
+          <div class="piece-selector-list">
+            <div
+              v-for="pieceSet in themeStore.availablePieceSets"
+              :key="pieceSet.name"
+              class="selector-item piece-item"
+              :class="{ selected: pieceSet.name === themeStore.currentTheme.pieces }"
+              @click="handlePieceSetChange(pieceSet.name)"
             >
-              DE
+              <img :src="pieceSet.previewPieceFile" :alt="pieceSet.name" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Панель настроек анимации -->
+        <div v-if="activePanel === 'animation'" class="panel">
+          <div class="panel-header">
+            <button class="back-button" @click="activePanel = 'main'">
+              &lt; {{ t('settings.back') }}
             </button>
+            <h4>{{ t('settings.animation.title') }}</h4>
+          </div>
+          <div class="animation-settings">
+            <div class="setting-item">
+              <label for="animation-duration">{{ t('settings.animation.duration') }}</label>
+              <input
+                id="animation-duration"
+                type="range"
+                min="0"
+                max="500"
+                step="100"
+                :value="animationDuration"
+                @input="handleAnimationDurationChange"
+                class="volume-slider"
+              />
+              <span class="duration-value">{{ animationDuration }}ms</span>
+            </div>
           </div>
         </div>
-        <button class="panel-button" @click="activePanel = 'board'">
-          {{ t('settings.selectBoard') }}
-        </button>
-        <button class="panel-button" @click="activePanel = 'pieces'">
-          {{ t('settings.selectPieces') }}
-        </button>
-        <button class="panel-button" @click="activePanel = 'animation'">
-          {{ t('settings.animation.title') }}
-        </button>
-        <button class="panel-button" @click="activePanel = 'sounds'">
-          {{ t('settings.sounds.title') }}
-        </button>
-        <button class="panel-button auth-button" @click="handleAuthAction">
-          {{ isAuthenticated ? t('nav.logout') : t('nav.login') }}
-        </button>
-      </div>
 
-      <!-- Панель выбора доски -->
-      <div v-if="activePanel === 'board'" class="panel">
-        <div class="panel-header">
-          <button class="back-button" @click="activePanel = 'main'">
-            &lt; {{ t('settings.back') }}
-          </button>
-          <h4>{{ t('settings.selectBoard') }}</h4>
-        </div>
-        <div class="board-selector-grid">
-          <div
-            v-for="board in themeStore.availableBoards"
-            :key="board.name"
-            class="selector-item board-item"
-            :class="{ selected: board.name === themeStore.currentTheme.board }"
-            @click="handleBoardChange(board.name)"
-          >
-            <img :src="`/board/jpg_png/${board.thumbnailFile}`" :alt="board.name" />
+        <!-- Панель настроек звука -->
+        <div v-if="activePanel === 'sounds'" class="panel">
+          <div class="panel-header">
+            <button class="back-button" @click="activePanel = 'main'">
+              &lt; {{ t('settings.back') }}
+            </button>
+            <h4>{{ t('settings.sounds.title') }}</h4>
+          </div>
+          <div class="sound-settings">
+            <div class="volume-slider-container">
+              <label for="voice-volume">{{ t('settings.sounds.voice') }}</label>
+              <input
+                id="voice-volume"
+                type="range"
+                min="0"
+                max="1"
+                step="0.1"
+                :value="voiceVolume"
+                @input="handleVoiceVolumeChange"
+                class="volume-slider"
+              />
+            </div>
+            <div class="volume-slider-container">
+              <label for="board-volume">{{ t('settings.sounds.board') }}</label>
+              <input
+                id="board-volume"
+                type="range"
+                min="0"
+                max="1"
+                step="0.1"
+                :value="boardVolume"
+                @input="handleBoardVolumeChange"
+                class="volume-slider"
+              />
+            </div>
           </div>
         </div>
       </div>
-
-      <!-- Панель выбора фигур -->
-      <div v-if="activePanel === 'pieces'" class="panel">
-        <div class="panel-header">
-          <button class="back-button" @click="activePanel = 'main'">
-            &lt; {{ t('settings.back') }}
-          </button>
-          <h4>{{ t('settings.selectPieces') }}</h4>
-        </div>
-        <div class="piece-selector-list">
-          <div
-            v-for="pieceSet in themeStore.availablePieceSets"
-            :key="pieceSet.name"
-            class="selector-item piece-item"
-            :class="{ selected: pieceSet.name === themeStore.currentTheme.pieces }"
-            @click="handlePieceSetChange(pieceSet.name)"
-          >
-            <img :src="pieceSet.previewPieceFile" :alt="pieceSet.name" />
-          </div>
-        </div>
-      </div>
-
-      <!-- Панель настроек анимации -->
-      <div v-if="activePanel === 'animation'" class="panel">
-        <div class="panel-header">
-          <button class="back-button" @click="activePanel = 'main'">
-            &lt; {{ t('settings.back') }}
-          </button>
-          <h4>{{ t('settings.animation.title') }}</h4>
-        </div>
-        <div class="animation-settings">
-          <div class="setting-item">
-            <label for="animation-duration">{{ t('settings.animation.duration') }}</label>
-            <input
-              id="animation-duration"
-              type="range"
-              min="0"
-              max="500"
-              step="100"
-              :value="animationDuration"
-              @input="handleAnimationDurationChange"
-              class="volume-slider"
-            />
-            <span class="duration-value">{{ animationDuration }}ms</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Панель настроек звука -->
-      <div v-if="activePanel === 'sounds'" class="panel">
-        <div class="panel-header">
-          <button class="back-button" @click="activePanel = 'main'">
-            &lt; {{ t('settings.back') }}
-          </button>
-          <h4>{{ t('settings.sounds.title') }}</h4>
-        </div>
-        <div class="sound-settings">
-          <div class="volume-slider-container">
-            <label for="voice-volume">{{ t('settings.sounds.voice') }}</label>
-            <input
-              id="voice-volume"
-              type="range"
-              min="0"
-              max="1"
-              step="0.1"
-              :value="voiceVolume"
-              @input="handleVoiceVolumeChange"
-              class="volume-slider"
-            />
-          </div>
-          <div class="volume-slider-container">
-            <label for="board-volume">{{ t('settings.sounds.board') }}</label>
-            <input
-              id="board-volume"
-              type="range"
-              min="0"
-              max="1"
-              step="0.1"
-              :value="boardVolume"
-              @input="handleBoardVolumeChange"
-              class="volume-slider"
-            />
-          </div>
-        </div>
-      </div>
-    </div>
+    </Teleport>
   </div>
 </template>
 
@@ -266,9 +289,7 @@ onUnmounted(() => {
 }
 
 .dropdown-menu {
-  position: absolute;
-  right: 0;
-  top: 100%;
+  position: fixed;
   margin-top: 10px;
   background-color: var(--color-bg-secondary);
   border: 1px solid var(--color-border-hover);
@@ -472,4 +493,6 @@ onUnmounted(() => {
   min-width: 50px;
   text-align: right;
 }
+
+
 </style>
