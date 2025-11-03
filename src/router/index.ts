@@ -23,6 +23,7 @@ import TornadoView from '../views/TornadoView.vue'
 import TornadoMistakesView from '../views/TornadoMistakesView.vue'
 import FunclubLatestBattleView from '../views/FunclubLatestBattleView.vue'
 import AdvantageView from '../views/AdvantageView.vue'
+import TowerLoader from '../views/TowerLoader.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -31,6 +32,13 @@ const router = createRouter({
       path: '/',
       name: 'welcome',
       component: WelcomeView,
+    },
+    {
+      path: '/tower/:difficulty/:theme',
+      name: 'tower-loader',
+      component: TowerLoader,
+      props: true,
+      meta: { requiresAuth: true },
     },
     {
       path: '/sandbox',
