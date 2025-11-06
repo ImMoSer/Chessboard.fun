@@ -6,6 +6,7 @@ import { useGameStore } from '@/stores/game.store'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { TOWER_THEMES, type TowerTheme } from '@/types/api.types'
+import { getThemeTranslationKey } from '@/utils/theme-mapper'
 
 const finishHimStore = useFinishHimStore()
 const gameStore = useGameStore()
@@ -16,30 +17,10 @@ const { t } = useI18n()
 const isOpen = ref(false)
 const dropdownRef = ref<HTMLElement | null>(null)
 
-const keyMap: Record<string, string> = {
-  mix: 'mix',
-  rook_and_minor_vs_rook: 'rookAndMinorVsRook',
-  rook_endgame: 'rookEndgame',
-  pawn_endgame: 'pawnEndgame',
-  queens_vs_rooks: 'queensVsRooks',
-  knight_endgame: 'knightEndgame',
-  bishop_endgame: 'bishopEndgame',
-  rooks_vs_minors: 'rooksVsMinors',
-  opposite_color_bishops: 'oppositeColorBishops',
-  two_rooks_endgame: 'twoRooksEndgame',
-  queens_vs_minors: 'queensVsMinors',
-  queen_endgame: 'queenEndgame',
-  knights_vs_bishops: 'knightsVsBishops',
-  bishops_vs_knights: 'bishopsVsKnights',
-  minors_vs_rooks: 'minorsVsRooks',
-  vs_queen_disadvantage: 'vsQueenDisadvantage',
-}
-
 const availableThemes: TowerTheme[] = [...TOWER_THEMES]
 
 const selectedThemeName = computed(() => {
-  const mappedTheme = keyMap[selectedTheme.value] || selectedTheme.value
-  return t(`themes.${mappedTheme}`)
+  return t(`themes.${getThemeTranslationKey(selectedTheme.value)}`)
 })
 
 const toggleDropdown = () => {
@@ -59,8 +40,7 @@ const handleClickOutside = (event: MouseEvent) => {
 }
 
 const getThemeName = (theme: TowerTheme) => {
-  const mappedTheme = keyMap[theme] || theme
-  return t(`themes.${mappedTheme}`)
+  return t(`themes.${getThemeTranslationKey(theme)}`)
 }
 
 onMounted(() => {

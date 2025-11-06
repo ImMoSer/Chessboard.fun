@@ -4,6 +4,7 @@ import { ref } from 'vue'
 import { useTowerStore } from '@/stores/tower.store'
 import { useI18n } from 'vue-i18n'
 import { TOWER_THEMES, type TowerId, type TowerTheme } from '@/types/api.types'
+import { getThemeTranslationKey } from '@/utils/theme-mapper'
 
 const towerStore = useTowerStore()
 const { t } = useI18n()
@@ -18,25 +19,6 @@ const towerDefinitions: { id: TowerId; nameKey: string; displayLevels: number; c
   { id: 'GM', nameKey: 'tower.names.GM', displayLevels: 8, color: 'var(--color-accent-error)' },
 ]
 
-const keyMap: Record<string, string> = {
-  mix: 'mix',
-  rook_and_minor_vs_rook: 'rookAndMinorVsRook',
-  rook_endgame: 'rookEndgame',
-  pawn_endgame: 'pawnEndgame',
-  queens_vs_rooks: 'queensVsRooks',
-  knight_endgame: 'knightEndgame',
-  bishop_endgame: 'bishopEndgame',
-  rooks_vs_minors: 'rooksVsMinors',
-  opposite_color_bishops: 'oppositeColorBishops',
-  two_rooks_endgame: 'twoRooksEndgame',
-  queens_vs_minors: 'queensVsMinors',
-  queen_endgame: 'queenEndgame',
-  knights_vs_bishops: 'knightsVsBishops',
-  bishops_vs_knights: 'bishopsVsKnights',
-  minors_vs_rooks: 'minorsVsRooks',
-  vs_queen_disadvantage: 'vsQueenDisadvantage',
-}
-
 const availableThemes: readonly TowerTheme[] = TOWER_THEMES
 
 const handleSelectTower = (towerId: TowerId) => {
@@ -50,8 +32,7 @@ const handleThemeChange = (event: Event) => {
 }
 
 const getThemeName = (theme: TowerTheme) => {
-  const mappedTheme = keyMap[theme] || theme
-  return t(`themes.${mappedTheme}`)
+  return t(`themes.${getThemeTranslationKey(theme)}`)
 }
 </script>
 

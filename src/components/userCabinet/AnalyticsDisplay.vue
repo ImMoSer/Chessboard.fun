@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import type { TimedModeStatsDto, UntimedModeStatsDto, ModeStatsDto, TornadoMode, AdvantageMode } from '@/types/api.types'
 import RadarChart from './sections/RadarChart.vue'
 import StatsCard from './sections/StatsCard.vue'
+import { getThemeTranslationKey } from '@/utils/theme-mapper'
 
 const { t } = useI18n()
 
@@ -36,7 +37,7 @@ const availableModes = computed<Array<TornadoMode | AdvantageMode>>(() => {
   }) as Array<TornadoMode | AdvantageMode>
 })
 
-const displayModes = computed<DisplayMode[]>(() => 
+const displayModes = computed<DisplayMode[]>(() =>
   props.isTimed ? ['All', ...availableModes.value] : []
 )
 
@@ -101,79 +102,11 @@ const currentStats = computed<ModeStatsDto | null>(() => {
   return null
 })
 
-const keyMap: Record<string, string> = {
-  pawn_endgame: 'pawnEndgame',
-  knight_endgame: 'knightEndgame',
-  bishop_endgame: 'bishopEndgame',
-  rook_endgame: 'rookEndgame',
-  queen_endgame: 'queenEndgame',
-  'Heavy Pieces Endgame': 'heavyPiecesEndgame',
-  'Minor Pieces Endgame': 'minorPiecesEndgame',
-  two_rooks_endgame: 'twoRooksEndgame',
-  'Double Rooks Endgame': 'twoRooksEndgame',
-  opposite_color_bishops: 'oppositeColorBishops',
-  'Bishop vs Knight': 'bishopVsKnight',
-  'Knight vs Bishop': 'knightVsBishop',
-  'Rook vs Minor': 'rookVsMinor',
-  'Minorvs Rook': 'minorVsRook',
-  'Rook vs Two Minors': 'rookVsTwoMinors',
-  'Two Minors vs Rook': 'twoMinorsVsRook',
-  'Queen vs Rook': 'queenVsRook',
-  'Queen vs Two Rooks': 'queenVsTwoRooks',
-  'Two Rooks vs Queen': 'twoRooksVsQueen',
-  'Queen vs Rook and Minor': 'queenVsRookMinor',
-  'Rook and Minor vs Queen': 'rookMinorVsQueen',
-  'Rook and Minor vs Rook': 'rookMinorVsRook',
-  'Pawn vs Knight': 'pawnVsKnight',
-  'Pawn vs Bishop': 'pawnVsBishop',
-  'Pawn vs Rook': 'pawnVsRook',
-  vs_queen_disadvantage: 'vsQueenDisadvantage',
-  'Rooks and Minors': 'rooksAndMinors',
-  'Queens and Minors': 'queensAndMinors',
-  'Two Minors vs Two Minors': 'twoMinorsVsTwoMinors',
-  minors_vs_rooks: 'minorsVsRooks',
-  queens_vs_rooks: 'queensVsRooks',
-  rooks_vs_minors: 'rooksVsMinors',
-  queens_vs_minors: 'queensVsMinors',
-  bishops_vs_knights: 'bishopsVsKnights',
-  knights_vs_bishops: 'knightsVsBishops',
-  rook_and_minor_vs_rook: 'rookAndMinorVsRook',
-  'Pawn Endgame': 'pawnEndgame',
-  'Rook Endgame': 'rookEndgame',
-  'Queen Endgame': 'queenEndgame',
-  'Rook vs Pawns': 'rookVsPawns',
-  'Queen vs Pawns': 'queenVsPawns',
-  'Bishop vs Pawns': 'bishopVsPawns',
-  'Bishops Endgame': 'bishopsEndgame',
-  'Knight vs Pawns': 'knightVsPawns',
-  'Knights Endgame': 'knightsEndgame',
-  advancedPawn: 'advancedPawn',
-  backRankMate: 'backRankMate',
-  capturingDefender: 'capturingDefender',
-  clearance: 'clearance',
-  deflection: 'deflection',
-  discoveredAttack: 'discoveredAttack',
-  doubleCheck: 'doubleCheck',
-  fork: 'fork',
-  interference: 'interference',
-  intermezzo: 'intermezzo',
-  mate: 'mate',
-  attraction: 'attraction',
-  pin: 'pin',
-  promotion: 'promotion',
-  quietMove: 'quietMove',
-  sacrifice: 'sacrifice',
-  skewer: 'skewer',
-  trappedPiece: 'trappedPiece',
-  xRayAttack: 'xRayAttack',
-  zugzwang: 'zugzwang',
-};
-
 const sortedStats = computed(() => {
   if (!currentStats.value) return []
 
   const statsArray = Object.entries(currentStats.value).map(([theme, data]) => ({
-    theme: keyMap[theme] || theme,
+    theme: getThemeTranslationKey(theme),
     ...data,
   }))
 

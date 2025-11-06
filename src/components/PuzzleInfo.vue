@@ -10,6 +10,7 @@ import { useTornadoStore } from '../stores/tornado.store'
 import { useAdvantageStore } from '../stores/advantage.store'
 import { useThemeStore } from '../stores/theme.store'
 import type { GamePuzzle } from '../types/api.types'
+import { getThemeTranslationKey } from '../utils/theme-mapper'
 
 const route = useRoute()
 const finishHimStore = useFinishHimStore()
@@ -59,11 +60,8 @@ const tacticalThemes = computed(() => {
 
 const endgameTheme = computed(() => {
   if (!activePuzzle.value?.engm_type) return ''
-  const camelCaseType = activePuzzle.value.engm_type.replace(
-    /_([a-z])/g,
-    (_, p1) => p1.toUpperCase(),
-  )
-  return t(`themes.${camelCaseType}`, {
+  const themeKey = getThemeTranslationKey(activePuzzle.value.engm_type)
+  return t(`themes.${themeKey}`, {
     defaultValue: activePuzzle.value.engm_type,
   })
 })
@@ -229,9 +227,11 @@ const sortedResults = computed(() => {
 
     <div v-if="activeTowerInfo">
       <div class="info-grid">
-        <div class="info-item">
+                <div class="info-item">
           <span class="label">{{ t('tower.ui.themeLabel') }}:</span>
-          <span class="value">{{ t(`tower.themes.${activeTowerInfo.tower_theme}`) }}</span>
+          <span class="value">{{
+            t(`themes.${getThemeTranslationKey(activeTowerInfo.tower_theme)}`)
+          }}</span>
         </div>
         <div class="info-item">
           <span class="label">{{ t('tower.ui.averageRating') }}:</span>
