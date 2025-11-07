@@ -171,7 +171,7 @@ export const useTornadoStore = defineStore('tornado', () => {
     }
   }
 
-  async function startSession(selectedMode: TornadoMode) {
+  async function startSession(selectedMode: TornadoMode, theme?: string) {
     reset()
     mode.value = selectedMode
     const controls = timeControls[selectedMode]
@@ -180,7 +180,7 @@ export const useTornadoStore = defineStore('tornado', () => {
     feedbackMessage.value = t('tornado.feedback.loadingFirstPuzzle')
 
     try {
-      const response = await webhookService.startTornadoSession(selectedMode)
+      const response = await webhookService.startTornadoSession(selectedMode, theme)
       logger.info('[TornadoStore] Start session response:', response)
       if (response && response.puzzle && response.sessionId) {
         isSessionActive.value = true

@@ -183,12 +183,12 @@ class WebhookServiceController {
   // --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
   // --- TORNADO API ---
-  public async startTornadoSession(mode: TornadoMode): Promise<TornadoStartResponse | null> {
-    return this._apiRequest<TornadoStartResponse>(
-      `/tornado/start/${mode}`,
-      'GET',
-      'startTornadoSession',
-    )
+  public async startTornadoSession(
+    mode: TornadoMode,
+    theme?: string,
+  ): Promise<TornadoStartResponse | null> {
+    const path = theme ? `/tornado/start/${mode}?theme=${theme}` : `/tornado/start/${mode}`
+    return this._apiRequest<TornadoStartResponse>(path, 'GET', 'startTornadoSession')
   }
 
   public async getNextTornadoPuzzle(

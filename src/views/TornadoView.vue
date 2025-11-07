@@ -18,8 +18,10 @@ const route = useRoute()
 
 onMounted(() => {
   const mode = route.params.mode as TornadoMode
+  const theme = route.query.theme as string | undefined
+
   if (mode) {
-    tornadoStore.startSession(mode)
+    tornadoStore.startSession(mode, theme)
   }
 })
 
