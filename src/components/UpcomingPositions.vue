@@ -12,7 +12,7 @@ const { t } = useI18n()
 
 const upcomingPositions = computed(() => {
   if (!activeTower.value) return []
-  const positions = activeTower.value.positions.slice(currentPositionIndex.value)
+  const positions = activeTower.value.positions.slice(currentPositionIndex.value + 1)
   return positions.map((pos, index) => {
     let orientation: 'white' | 'black' = 'white'
     if (pos.fen_final) {
@@ -20,7 +20,7 @@ const upcomingPositions = computed(() => {
     }
     return {
       ...pos,
-      absoluteIndex: currentPositionIndex.value + index + 1,
+      absoluteIndex: currentPositionIndex.value + index + 2,
       orientation,
     }
   })
