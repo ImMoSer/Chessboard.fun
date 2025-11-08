@@ -82,4 +82,4 @@ The `README.md` file provides clear guidelines for contributing to the project. 
 
 4. Выполнить изменения
 
-5. проверить код командой Shell "pnpm type-check" - не "pnpm lint"
+5. проверить код командой только Shell "pnpm type-check" - но не "pnpm lint"! pnpm lint проверку делать не надо!

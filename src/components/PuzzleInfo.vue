@@ -29,7 +29,26 @@ const activeStore = computed(() => {
 })
 
 const activePuzzle = computed<GamePuzzle | null>(() => {
-  if (route.name === 'tower') return null
+  if (route.name === 'tower') {
+    const tower = towerStore.activeTower
+    if (tower && tower.positions.length > 0) {
+      const currentPos = tower.positions[towerStore.currentPositionIndex]
+      if (!currentPos) return null
+
+      // Адаптируем TowerPositionEntry к GamePuzzle-подобному объекту
+      return {
+        PuzzleId: `${tower.tower_id}-${towerStore.currentPositionIndex}`,
+        FEN_0: currentPos.FEN_0,
+        Moves: currentPos.solution_moves,
+        Rating: currentPos.rating, // Устанавливаем обязательное поле
+        rating: currentPos.rating,
+        puzzle_theme: currentPos.puzzle_theme,
+        fen_final: currentPos.fen_final,
+        bw_value: (currentPos as any).bw_value,
+      } as GamePuzzle
+    }
+    return null
+  }
   return (activeStore.value as { activePuzzle: GamePuzzle | null }).activePuzzle
 })
 
@@ -53,8 +72,11 @@ const localizedThemes = computed(() => {
 })
 
 const tacticalThemes = computed(() => {
-  if (!activePuzzle.value?.Themes) return ''
-  return activePuzzle.value.Themes.split(' ').join(', ')
+  const puzzle = activePuzzle.value
+  if (!puzzle) return ''
+  if (puzzle.Themes) return puzzle.Themes.split(' ').join(', ')
+  if (puzzle.puzzle_theme) return puzzle.puzzle_theme.split(' ').join(', ')
+  return ''
 })
 
 const endgameTheme = computed(() => {
@@ -93,11 +115,30 @@ const sortedResults = computed(() => {
 
 <template>
   <div class="puzzle-info-container">
-    <div v-if="activePuzzle">
+    <div v-if="activeTowerInfo" class="tower-info-section">
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="label">{{ t('tower.ui.themeLabel') }}:</span>
+          <span class="value">{{
+            t(`themes.${getThemeTranslationKey(activeTowerInfo.tower_theme)}`)
+          }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">{{ t('tower.ui.averageRating') }}:</span>
+          <span class="value">{{ activeTowerInfo.average_rating }}</span>
+        </div>
+        <div class="info-item">
+          <span class="label">{{ t('tower.ui.skillValue') }}:</span>
+          <span class="value">{{ activeTowerInfo.bw_value_total }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div v-if="activePuzzle" class="puzzle-details-section">
       <div class="info-grid">
         <div class="info-item">
           <span class="label">{{ t('puzzleInfo.tacticalRating') }}:</span>
-          <span class="value">{{ activePuzzle.Rating }}</span>
+          <span class="value">{{ activePuzzle.Rating ?? activePuzzle.rating }}</span>
         </div>
         <div v-if="activePuzzle.solve_time" class="info-item">
           <span class="label">{{ t('puzzleInfo.solveTime') }}:</span>
@@ -163,24 +204,8 @@ const sortedResults = computed(() => {
       </div>
     </div>
 
-    <div v-if="activeTowerInfo">
-      <div class="info-grid">
-        <div class="info-item">
-          <span class="label">{{ t('tower.ui.themeLabel') }}:</span>
-          <span class="value">{{
-            t(`themes.${getThemeTranslationKey(activeTowerInfo.tower_theme)}`)
-          }}</span>
-        </div>
-        <div class="info-item">
-          <span class="label">{{ t('tower.ui.averageRating') }}:</span>
-          <span class="value">{{ activeTowerInfo.average_rating }}</span>
-        </div>
-        <div class="info-item">
-          <span class="label">{{ t('tower.ui.skillValue') }}:</span>
-          <span class="value">{{ activeTowerInfo.bw_value_total }}</span>
-        </div>
-      </div>
-      <div v-if="towerSortedResults && towerSortedResults.length > 0" class="puzzle-leaderboard-container">
+    <div v-if="activeTowerInfo && towerSortedResults && towerSortedResults.length > 0" class="tower-leaderboard-section">
+      <div class="puzzle-leaderboard-container">
         <h5 class="leaderboard-title">{{ t('tower.ui.leaderboardTitle') }}</h5>
         <table class="puzzle-leaderboard-table">
           <thead>
