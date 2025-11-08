@@ -112,7 +112,7 @@ onUnmounted(() => {
     </button>
 
     <Teleport to="body">
-      <div v-if="isOpen" class="dropdown-menu" :style="dropdownPosition">
+      <div v-if="isOpen" class="dropdown-menu" :style="dropdownPosition" @click.stop>
         <!-- Главная панель -->
         <div v-if="activePanel === 'main'" class="panel main-panel">
           <div class="language-switcher">
