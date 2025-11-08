@@ -8,9 +8,9 @@ import { useAttackStore } from '../stores/attack.store'
 import { useTowerStore } from '../stores/tower.store'
 import { useTornadoStore } from '../stores/tornado.store'
 import { useAdvantageStore } from '../stores/advantage.store'
-import { useThemeStore } from '../stores/theme.store'
 import type { GamePuzzle } from '../types/api.types'
 import { getThemeTranslationKey } from '../utils/theme-mapper'
+import ChessboardPreview from './ChessboardPreview.vue'
 
 const route = useRoute()
 const finishHimStore = useFinishHimStore()
@@ -18,7 +18,6 @@ const attackStore = useAttackStore()
 const towerStore = useTowerStore()
 const tornadoStore = useTornadoStore()
 const advantageStore = useAdvantageStore()
-const themeStore = useThemeStore()
 const { t } = useI18n()
 
 const activeStore = computed(() => {
@@ -31,7 +30,7 @@ const activeStore = computed(() => {
 
 const activePuzzle = computed<GamePuzzle | null>(() => {
   if (route.name === 'tower') return null
-  return (activeStore.value as any).activePuzzle
+  return (activeStore.value as { activePuzzle: GamePuzzle | null }).activePuzzle
 })
 
 const activeTowerInfo = computed(() => {
@@ -66,6 +65,14 @@ const endgameTheme = computed(() => {
   })
 })
 
+const finalPositionOrientation = computed(() => {
+  if (!activePuzzle.value || !activePuzzle.value.fen_final) {
+    return 'white'
+  }
+  const turn = activePuzzle.value.fen_final.split(' ')[1]
+  return turn === 'b' ? 'white' : 'black'
+})
+
 const formatTime = (seconds: number | null | undefined): string => {
   if (seconds === null || seconds === undefined || seconds < 0) return '--:--'
   const totalSeconds = Math.ceil(seconds)
@@ -73,65 +80,6 @@ const formatTime = (seconds: number | null | undefined): string => {
   const secs = totalSeconds % 60
   return `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
 }
-
-const pieceFileMap: { [key: string]: string } = {
-  r: 'bR.svg',
-  n: 'bN.svg',
-  b: 'bB.svg',
-  q: 'bQ.svg',
-  k: 'bK.svg',
-  p: 'bP.svg',
-  R: 'wR.svg',
-  N: 'wN.svg',
-  B: 'wB.svg',
-  Q: 'wQ.svg',
-  K: 'wK.svg',
-  P: 'wP.svg',
-}
-const pieceOrder: { [key: string]: number } = { P: 1, N: 2, B: 3, R: 4, Q: 5, K: 6 }
-
-interface PieceInfo {
-  pieceFile: string
-  pieceType: string
-}
-
-const finalMaterial = computed(() => {
-  const puzzle = activePuzzle.value
-  if (!puzzle || !puzzle.fen_final) {
-    return { playerPieces: [], botPieces: [] }
-  }
-
-  const fenParts = puzzle.fen_final.split(' ')
-  const botColor = fenParts[1]
-
-  const playerPieces: PieceInfo[] = []
-  const botPieces: PieceInfo[] = []
-  const fenBoard = fenParts[0]
-
-  if (fenBoard) {
-    for (const char of fenBoard) {
-      if (pieceFileMap[char]) {
-        const pieceColor = char === char.toUpperCase() ? 'w' : 'b'
-        const pieceInfo = {
-          pieceFile: pieceFileMap[char],
-          pieceType: char.toUpperCase(),
-        }
-        if (pieceColor === botColor) {
-          botPieces.push(pieceInfo)
-        } else {
-          playerPieces.push(pieceInfo)
-        }
-      }
-    }
-  }
-
-  const sortFn = (a: PieceInfo, b: PieceInfo) =>
-    (pieceOrder[a.pieceType] || 0) - (pieceOrder[b.pieceType] || 0)
-  playerPieces.sort(sortFn)
-  botPieces.sort(sortFn)
-
-  return { playerPieces, botPieces }
-})
 
 const sortedResults = computed(() => {
   const puzzle = activePuzzle.value
@@ -185,19 +133,9 @@ const sortedResults = computed(() => {
         </div>
       </div>
 
-      <div v-if="finalMaterial.playerPieces.length > 0 || finalMaterial.botPieces.length > 0"
-        class="final-position-preview">
+      <div v-if="activePuzzle && activePuzzle.fen_final" class="final-position-preview">
         <h5 class="final-position-title">{{ t('puzzleInfo.finalPositionTitle') }}</h5>
-        <div class="sorted-pieces-container">
-          <div class="pieces-row player-pieces">
-            <img v-for="(p, index) in finalMaterial.playerPieces" :key="'player-' + index"
-              :src="`/piece/${themeStore.currentTheme.pieces}/${p.pieceFile}`" class="sorted-piece-icon" />
-          </div>
-          <div class="pieces-row bot-pieces">
-            <img v-for="(p, index) in finalMaterial.botPieces" :key="'bot-' + index"
-              :src="`/piece/${themeStore.currentTheme.pieces}/${p.pieceFile}`" class="sorted-piece-icon" />
-          </div>
-        </div>
+        <ChessboardPreview :fen="activePuzzle.fen_final" :orientation="finalPositionOrientation" />
       </div>
 
       <div v-if="sortedResults" class="puzzle-leaderboard-container">
@@ -227,7 +165,7 @@ const sortedResults = computed(() => {
 
     <div v-if="activeTowerInfo">
       <div class="info-grid">
-                <div class="info-item">
+        <div class="info-item">
           <span class="label">{{ t('tower.ui.themeLabel') }}:</span>
           <span class="value">{{
             t(`themes.${getThemeTranslationKey(activeTowerInfo.tower_theme)}`)
@@ -314,8 +252,9 @@ h4 {
 .final-position-preview {
   background-color: var(--color-bg-tertiary);
   padding: 8px;
-  border-radius: 6px;
-  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  border: 1px solid var(--color-text-link);
+  margin-top: 10px;
 }
 
 .final-position-title {
