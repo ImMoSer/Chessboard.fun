@@ -23,6 +23,7 @@ const menuItems = [
   { path: '/finish-him', labelKey: 'nav.finishHim', icon: '🎯', group: 'games' },
   { path: '/attack', labelKey: 'nav.attack', icon: '⚔️', group: 'games' },
   { path: '/tower', labelKey: 'nav.tower', icon: '🏁', group: 'games' },
+  { path: '/sandbox', labelKey: 'nav.sandbox', icon: '🔬', group: 'games' },
   { path: '/records', labelKey: 'nav.leaderboards', icon: '🏆' },
   { path: '/funclub', labelKey: 'nav.lichessClubs', icon: '🏰' },
   { path: '/user-cabinet', labelKey: 'nav.userCabinet', icon: '👤' },

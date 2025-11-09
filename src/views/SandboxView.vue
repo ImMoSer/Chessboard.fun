@@ -146,7 +146,7 @@ watch(
       canRestart: isGameOver || isIdle || !gameStore.isGameActive,
       canResign: isPlaying && gameStore.isGameActive,
       canShare: true,
-      onRequestNew: () => {},
+      onRequestNew: () => { },
       onRestart: () => {
         if (route.params.fen) {
           loadGameFromFen(
@@ -172,7 +172,7 @@ watch(
 .fen-input-container {
   display: flex;
   gap: 10px;
-  padding: 10px;
+  padding: 1px;
   background-color: var(--color-background-mute);
   border-radius: 8px;
   margin: 0 auto;

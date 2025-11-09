@@ -197,12 +197,13 @@ const handleChangeLang = (lang: 'en' | 'ru' | 'de') => {
 }
 
 .mode-button-icon {
-  font-size: 2.5em;
+  font-size: 4rem;
   line-height: 1;
 }
 
 .mode-button-text {
   line-height: 1.2;
+  font-size: var(--font-size-xlarge);
 }
 
 .login-section {

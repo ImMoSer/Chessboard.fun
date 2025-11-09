@@ -19,6 +19,9 @@
     "periodAndSpace": ". ",
     "close": "Закрыть"
   },
+  "engine": {
+    "select": "Выберите движок"
+  },
     "info": {
       "modes": {
         "finish-him": {
@@ -112,6 +115,7 @@
     "finishHim": "Добивание",
     "attack": "Атака",
     "tower": "Спидран",
+    "sandbox": "Песочница",
     "tacktics": "Тактика",
     "tornado": "Торнадо",
     "advantage": "Advantage",

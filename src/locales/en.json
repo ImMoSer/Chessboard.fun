@@ -19,6 +19,9 @@
     "periodAndSpace": ". ",
     "close": "Close"
   },
+  "engine": {
+    "select": "Choose Engine"
+  },
     "info": {
       "modes": {
         "finish-him": {
@@ -112,6 +115,7 @@
     "finishHim": "FinishHim",
     "attack": "Attack",
     "tower": "SpeedRun",
+    "sandbox": "Sandbox",
     "tacktics": "Tacktics",
     "tornado": "Tornado",
     "advantage": "Advantage",

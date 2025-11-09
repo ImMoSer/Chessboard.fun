@@ -19,6 +19,9 @@
     "periodAndSpace": ". ",
     "close": "Schließen"
   },
+  "engine": {
+    "select": "Engine auswählen"
+  },
     "info": {
       "modes": {
         "finish-him": {

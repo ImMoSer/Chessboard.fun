@@ -43,7 +43,7 @@ const router = createRouter({
     {
       path: '/sandbox',
       name: 'sandbox-base',
-      redirect: '/sandbox/play/rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR_w_KQkq_-_0_1',
+      redirect: '/sandbox/play/MOZER_2000/white/rnbqkbnr/ppp1pppp/8/3p4/3PP3/8/PPP2PPP/RNBQKBNR b KQkq - 0 2',
     },
     {
       path: '/sandbox/play/:engineId([A-Z0-9_]+)/:userColor(white|black)/:fen(.+)',
