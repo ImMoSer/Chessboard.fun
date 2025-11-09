@@ -118,7 +118,8 @@ const advantageSkill = computed(() => {
 
         <template v-if="advantageMode && advantageHighScore !== null">
           <div class="stat-item">
-            <span class="stat-label">{{ t('advantage.leaderboard.highScore', 'High Score') }} ({{ advantageMode }})</span>
+            <span class="stat-label">{{ t('advantage.leaderboard.highScore', 'High Score') }} ({{ advantageMode
+            }})</span>
             <span class="stat-value">{{ advantageHighScore }}</span>
           </div>
           <div v-if="advantageSkill !== null" class="stat-item">
@@ -209,7 +210,7 @@ const advantageSkill = computed(() => {
   align-items: center;
   font-size: var(--font-size-base);
   background-color: var(--color-bg-tertiary);
-  padding: 5px 8px;
+  padding: 3px 10px;
   border-radius: 4px;
 }
 
@@ -229,10 +230,10 @@ const advantageSkill = computed(() => {
 .today-activity {
   margin-top: 0px;
   border-top: 1px dashed var(--color-border-hover);
-  padding-top: 5px;
+  padding-top: 3px;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 2px;
 }
 
 .activity-title {
@@ -253,7 +254,7 @@ const advantageSkill = computed(() => {
   justify-content: space-between;
   align-items: center;
   font-size: var(--font-size-base);
-  padding-bottom: 5px;
+  padding-bottom: 1px;
   margin-bottom: 0;
   border-bottom: 1px solid var(--color-border);
 }
@@ -271,7 +272,7 @@ const advantageSkill = computed(() => {
 .detail-item {
   display: flex;
   justify-content: space-between;
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-small);
 }
 
 .detail-label {

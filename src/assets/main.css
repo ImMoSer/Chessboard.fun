@@ -15,9 +15,9 @@ body {
   --panel-width: 20vw;
   --panel-gap: 10px;
   --panel-border-radius: 10px;
-  --page-vertical-padding: 10px;
-  --top-board-panel-height: 50px;
-  --bottom-board-panel-height: 50px;
+  --page-vertical-padding: 5px;
+  --top-board-panel-height: 20px;
+  --bottom-board-panel-height: 20px;
 
   /* Backgrounds */
   --color-bg-primary: #161512;
@@ -83,13 +83,13 @@ body {
   --font-style-normal: normal;
 
   /* Font sizes */
-  --font-size-hxsmall: 0.5rem;
-  --font-size-xsmall: 0.7rem;
-  --font-size-small: 0.9rem;
-  --font-size-base: 1.1rem;
-  --font-size-large: 1.5rem;
-  --font-size-xlarge: 1.8rem;
-  --font-size-xxlarge: 2.5rem;
+  --font-size-hxsmall: 0.4rem;
+  --font-size-xsmall: 0.6rem;
+  --font-size-small: 0.8rem;
+  --font-size-base: 1.0rem;
+  --font-size-large: 1.2rem;
+  --font-size-xlarge: 1.5rem;
+  --font-size-xxlarge: 2.0rem;
 }
 
 /* --- Глобальные стили и сбросы --- */

@@ -204,7 +204,8 @@ const sortedResults = computed(() => {
       </div>
     </div>
 
-    <div v-if="activeTowerInfo && towerSortedResults && towerSortedResults.length > 0" class="tower-leaderboard-section">
+    <div v-if="activeTowerInfo && towerSortedResults && towerSortedResults.length > 0"
+      class="tower-leaderboard-section">
       <div class="puzzle-leaderboard-container">
         <h5 class="leaderboard-title">{{ t('tower.ui.leaderboardTitle') }}</h5>
         <table class="puzzle-leaderboard-table">
