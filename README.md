@@ -22,14 +22,12 @@ An interactive web platform for chess enthusiasts, offering unique training mode
 
 Choose from several training bots with different skill levels:
 
-| Bot       | Rating | Engine          | Configuration                   |
-| --------- | ------ | --------------- | ------------------------------- |
-| Rbleipzig | 2200+  | Stockfish.js    | depth 12, contempt 100          |
-| Krokodil  | 2100+  | Stockfish.js    | depth 10, contempt 100          |
-| Karde     | 2000+  | Stockfish.js    | depth 8, contempt 100           |
-| MoZeR     | 1900+  | LCZero+Maia1900 | Human-like engine (server-side) |
-| Dimas     | 1800+  | Stockfish.js    | depth 6, contempt 100           |
-| Darko     | 1700+  | Stockfish.js    | depth 4, contempt 100           |
+| Bot              | Rating | Engine          | Configuration                   |
+| ---------------- | ------ | --------------- | ------------------------------- |
+| 'Stockfish 2500' | 2500+  | Stockfish.js    | depth 12, contempt 100          |
+| 'MoZeR 2200+'    | 2200+  | LCZero+BadGyal8 | Human-like engine (server-side) |
+| 'Maia 2200'      | 2200+  | LCZero+Maia2200 | Human-like engine (server-side) |
+| 'Maia 1900'      | 1900+  | LCZero+Maia1900 | Human-like engine (server-side) |
 
 ## 🛠️ Tech Stack
 
@@ -71,7 +69,7 @@ Game and move analysis powered by [Stockfish](https://stockfishchess.org/), an o
 
 > **Important**: Due to GPLv3 requirements, our source code is available under the same license. You can read the full text [here](https://www.gnu.org/licenses/gpl-3.0.html).
 
-#### Maia Chess Engine
+#### Maia Chess Weights
 
 Human-like moves on the server are provided by **Maia Chess**, a project designed to play chess like a human. Maia uses neural networks trained on millions of human games to predict moves a player at a specific rating level would make.
 
@@ -85,6 +83,7 @@ To run Maia Chess neural network weights, the server uses **Leela Chess Zero**, 
 
 - [Website](https://lczero.org/)
 - [GitHub](https://github.com/LeelaChessZero/lc0)
+- Special thanks to dkappe for the "Bad Gyal" Leela Chess Zero weights: [Bad Gyal Weights](https://github.com/dkappe/leela-chess-weights/wiki/Bad-Gyal)
 
 ### Libraries & Tools
 

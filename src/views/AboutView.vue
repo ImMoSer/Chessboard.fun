@@ -85,13 +85,10 @@ const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
         <strong>{{ t('about.modes.botSelectionTitle') }}</strong
         >{{ t('about.modes.botSelectionIntro') }}
         <ul class="bot-list">
-          <li><strong>'Rbleipzig 2350+'</strong>{{ t('about.modes.bots.rbleipzig') }}</li>
-          <li><strong>'Krokodil 2200+'</strong>{{ t('about.modes.bots.krokodil') }}</li>
-          <li><strong>'Karde 2100+'</strong>{{ t('about.modes.bots.karde') }}</li>
-          <li><strong>'MoZeR 2000+'</strong>{{ t('about.modes.bots.mozer_2000') }}</li>
-          <li><strong>'MoZeR 1900+'</strong>{{ t('about.modes.bots.mozer_1900') }}</li>
-          <li><strong>'Dimas 1800+'</strong>{{ t('about.modes.bots.dimas') }}</li>
-          <li><strong>'Darko 1700+'</strong>{{ t('about.modes.bots.darko') }}</li>
+          <li><strong>'Stockfish 2500'</strong>{{ t('about.modes.bots.stockfish_2500') }}</li>
+          <li><strong>'MoZeR 2200+'</strong>{{ t('about.modes.bots.mozer_2200') }}</li>
+          <li><strong>'Maia 2200'</strong>{{ t('about.modes.bots.maia_2200') }}</li>
+          <li><strong>'Maia 1900'</strong>{{ t('about.modes.bots.maia_1900') }}</li>
         </ul>
       </li>
     </ul>

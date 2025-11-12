@@ -609,13 +609,10 @@
       "botSelectionTitle": "Chess Bot Selection: ",
       "botSelectionIntro": "On our platform, you can choose from several chess bots for training:",
       "bots": {
-        "rbleipzig": " (Stockfish.js - local: depth 12, contempt 100)",
-        "krokodil": " (Stockfish.js - local: depth 10, contempt 100)",
-        "karde": " (Stockfish.js - local: depth 8, contempt 100)",
-        "mozer_2000": " (Works like MoZeR 1900+, but uses different weights)",
-        "mozer_1900": " (LCZero+Maia1900 — a human-like engine server-side)",
-        "dimas": " (Stockfish.js - local: depth 6, contempt 100)",
-        "darko": " (Stockfish.js - local: depth 4, contempt 100)"
+        "stockfish_2500": " (Stockfish.js - local: depth 12, contempt 100)",
+        "mozer_2200": " (LCZero+BadGyal8 - Human-like engine (server-side))",
+        "maia_2200": " (LCZero+Maia2200 - Human-like engine (server-side))",
+        "maia_1900": " (LCZero+Maia1900 - Human-like engine (server-side))"
       },
       "lichessClubsTitle": "FunClub Statistics: ",
       "lichessClubs": "View detailed statistics and leaderboards for our FunClub, tracking player activity and achievements.",

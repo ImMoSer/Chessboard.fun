@@ -608,13 +608,10 @@
       "botSelectionTitle": "Auswahl des Schach-Bots: ",
       "botSelectionIntro": "Auf unserer Plattform können Sie aus mehreren Schach-Bots für das Training wählen:",
       "bots": {
-        "rbleipzig": " (Stockfish.js - lokal: Tiefe 12, Contempt 100)",
-        "krokodil": " (Stockfish.js - lokal: Tiefe 10, Contempt 100)",
-        "karde": " (Stockfish.js - lokal: Tiefe 8, Contempt 100)",
-        "mozer_2000": " (Funktioniert wie MoZeR 1900+, verwendet aber andere Gewichte)",
-        "mozer_1900": " (LCZero+Maia1900 — eine menschenähnliche Engine auf dem SERVER)",
-        "dimas": " (Stockfish.js - lokal: Tiefe 6, Contempt 100)",
-        "darko": " (Stockfish.js - lokal: Tiefe 4, Contempt 100)"
+        "stockfish_2500": " (Stockfish.js - lokal: Tiefe 12, Contempt 100)",
+        "mozer_2200": " (LCZero+BadGyal8 - Menschenähnliche Engine (Server-seitig))",
+        "maia_2200": " (LCZero+Maia2200 - Menschenähnliche Engine (Server-seitig))",
+        "maia_1900": " (LCZero+Maia1900 - Menschenähnliche Engine (Server-seitig))"
       },
       "lichessClubsTitle": "Club-Statistiken: ",
       "lichessClubs": "Sehen Sie detaillierte Statistiken und Bestenlisten für unseren FunClub und verfolgen Sie die Aktivitäten und Erfolge der Spieler.",
