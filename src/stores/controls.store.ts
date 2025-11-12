@@ -15,13 +15,11 @@ export const useControlsStore = defineStore('controls', () => {
   const router = useRouter()
 
   const availableEngines = ref<EngineId[]>([
-    'SF_2200',
-    'SF_2100',
-    'SF_1900',
+
     'MOZER_2000',
+    'maia_2200',
     'MOZER_1900',
-    'SF_1700',
-    'SF_1600',
+    'SF_2200',
   ])
 
   const loadSavedEngine = (): EngineId => {

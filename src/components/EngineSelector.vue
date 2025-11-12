@@ -18,13 +18,11 @@ const availableEngines = computed(() => controlsStore.availableEngines)
 const selectedEngine = computed(() => controlsStore.selectedEngine)
 
 const engineNames: Record<EngineId, string> = {
-  SF_2200: 'Rbleipzig 2350+',
-  SF_2100: 'Krokodil 2200+',
-  SF_1900: 'Karde 2100+',
-  'MOZER_2000': 'MoZeR 2000+',
-  'MOZER_1900': 'MoZeR 1900+',
-  SF_1700: 'Dimas 1800+',
-  SF_1600: 'Darko 1700+',
+
+  MOZER_2000: 'MoZeR 2200+',
+  MOZER_1900: 'Maia 1900',
+  maia_2200: 'Maia 2200',
+  SF_2200: 'Stockfish 2500',
 }
 
 const isOpen = ref(false)
