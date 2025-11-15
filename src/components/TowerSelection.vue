@@ -19,13 +19,14 @@ const towerDefinitions: { id: TowerId; nameKey: string; displayLevels: number; c
   { id: 'GM', nameKey: 'tower.names.GM', displayLevels: 8, color: 'var(--color-accent-error)' },
 ]
 
-const availableThemes: readonly TowerTheme[] = TOWER_THEMES
+// const availableThemes: readonly TowerTheme[] = TOWER_THEMES
 
 const handleSelectTower = (towerId: TowerId) => {
   selectedTowerId.value = towerId
   towerStore.startNewTower(towerId, selectedTheme.value)
 }
 
+/*
 const handleThemeChange = (event: Event) => {
   const target = event.target as HTMLSelectElement
   selectedTheme.value = target.value as TowerTheme
@@ -34,10 +35,12 @@ const handleThemeChange = (event: Event) => {
 const getThemeName = (theme: TowerTheme) => {
   return t(`themes.${getThemeTranslationKey(theme)}`)
 }
+*/
 </script>
 
 <template>
   <div class="tower-selection-area">
+    <!--
     <div class="tower-theme-selector-container">
       <label class="selector-label" for="tower-theme-select">{{ t('tower.ui.themeLabel') }}</label>
       <select
@@ -51,6 +54,7 @@ const getThemeName = (theme: TowerTheme) => {
         </option>
       </select>
     </div>
+    -->
 
     <div class="towers-visual-container">
       <div

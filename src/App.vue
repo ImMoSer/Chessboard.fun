@@ -18,7 +18,7 @@ const { t } = useI18n()
 const route = useRoute()
 
 const isLandscape = ref(false)
-const isSidebarCollapsed = ref(false)
+const isSidebarCollapsed = ref(true)
 
 
 const toggleSidebar = () => {
