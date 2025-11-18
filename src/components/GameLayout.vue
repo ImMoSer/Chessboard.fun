@@ -106,7 +106,7 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
 
 <style scoped>
 .game-layout {
-  --side-panel-width: 20vw;
+  --side-panel-width: 300px;
   --top-bottom-height: 5vh;
 
   display: grid;
