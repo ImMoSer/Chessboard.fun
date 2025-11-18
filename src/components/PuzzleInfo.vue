@@ -88,11 +88,18 @@ const endgameTheme = computed(() => {
 })
 
 const finalPositionOrientation = computed(() => {
-  if (!activePuzzle.value || !activePuzzle.value.fen_final) {
-    return 'white'
+  // Используем FEN_0 для определения ориентации, чтобы показать позицию со стороны решающего
+  if (activePuzzle.value && activePuzzle.value.FEN_0) {
+    const turn = activePuzzle.value.FEN_0.split(' ')[1]
+    // Показываем доску со стороны противника того, чей ход в начале
+    return turn === 'w' ? 'black' : 'white'
   }
-  const turn = activePuzzle.value.fen_final.split(' ')[1]
-  return turn === 'b' ? 'white' : 'black'
+  // Запасной вариант, если FEN_0 отсутствует, используем старую логику
+  if (activePuzzle.value && activePuzzle.value.fen_final) {
+    const turn = activePuzzle.value.fen_final.split(' ')[1]
+    return turn === 'b' ? 'white' : 'black'
+  }
+  return 'white' // По умолчанию
 })
 
 const formatTime = (seconds: number | null | undefined): string => {

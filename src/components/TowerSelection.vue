@@ -57,20 +57,11 @@ const getThemeName = (theme: TowerTheme) => {
     -->
 
     <div class="towers-visual-container">
-      <div
-        v-for="towerDef in towerDefinitions"
-        :key="towerDef.id"
-        class="tower-visual-item"
-        :class="{ selected: selectedTowerId === towerDef.id }"
-        @click="handleSelectTower(towerDef.id)"
-      >
+      <div v-for="towerDef in towerDefinitions" :key="towerDef.id" class="tower-visual-item"
+        :class="{ selected: selectedTowerId === towerDef.id }" @click="handleSelectTower(towerDef.id)">
         <div class="tower-bricks">
-          <div
-            v-for="i in towerDef.displayLevels"
-            :key="`${towerDef.id}-brick-${i}`"
-            class="tower-brick"
-            :style="{ backgroundColor: towerDef.color }"
-          ></div>
+          <div v-for="i in towerDef.displayLevels" :key="`${towerDef.id}-brick-${i}`" class="tower-brick"
+            :style="{ backgroundColor: towerDef.color }"></div>
         </div>
         <div class="tower-label">{{ t(towerDef.nameKey) }}</div>
       </div>
@@ -83,25 +74,28 @@ const getThemeName = (theme: TowerTheme) => {
 .tower-selection-area {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 5px;
 }
+
 .tower-theme-selector-container {
   display: flex;
   flex-direction: column;
   gap: 5px;
-  padding: 10px;
+  padding: 5px;
   background-color: var(--color-bg-secondary);
   border-radius: var(--panel-border-radius);
   border: 1px solid var(--color-border-hover);
 }
+
 .selector-label {
   font-weight: bold;
   color: var(--color-text-default);
   text-align: center;
 }
+
 .custom-select {
   width: 100%;
-  padding: 8px;
+  padding: 5px;
   border-radius: 4px;
   border: 1px solid var(--color-border);
   background-color: var(--color-bg-tertiary);
@@ -109,17 +103,19 @@ const getThemeName = (theme: TowerTheme) => {
   font-size: var(--font-size-base);
   cursor: pointer;
 }
+
 .towers-visual-container {
   display: flex;
   justify-content: space-around;
   align-items: flex-end;
-  gap: 10px;
-  padding: 15px 10px;
+  gap: 5px;
+  padding: 5px 5px;
   background-color: var(--color-bg-secondary);
   border-radius: var(--panel-border-radius);
   border: 1px solid var(--color-border-hover);
   overflow-x: auto;
 }
+
 .tower-visual-item {
   display: flex;
   flex-direction: column;
@@ -133,24 +129,29 @@ const getThemeName = (theme: TowerTheme) => {
     border-color 0.2s ease,
     background-color 0.2s ease;
 }
+
 .tower-visual-item:hover:not(.disabled) {
   background-color: var(--color-bg-tertiary);
 }
+
 .tower-visual-item.selected {
   border-color: var(--color-accent-primary);
   background-color: rgba(var(--color-accent-primary-rgb, 19, 173, 246), 0.15);
 }
+
 .tower-bricks {
   display: flex;
   flex-direction: column-reverse;
   gap: 2px;
 }
+
 .tower-brick {
-  width: 50px;
-  height: 15px;
-  border-radius: 3px;
+  width: 40px;
+  height: 10px;
+  border-radius: 2px;
   box-shadow: inset 0 -1px 1px rgba(0, 0, 0, 0.2);
 }
+
 .tower-label {
   font-weight: bold;
   font-size: var(--font-size-small);
