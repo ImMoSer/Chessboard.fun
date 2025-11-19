@@ -3,7 +3,7 @@
 import { ref } from 'vue'
 import { useTowerStore } from '@/stores/tower.store'
 import { useI18n } from 'vue-i18n'
-import { TOWER_THEMES, type TowerId, type TowerTheme } from '@/types/api.types'
+import { TOWER_THEMES, type TowerId, type TowerTheme, type TowerMode } from '@/types/api.types'
 import { getThemeTranslationKey } from '@/utils/theme-mapper'
 
 const towerStore = useTowerStore()
@@ -11,6 +11,14 @@ const { t } = useI18n()
 
 const selectedTowerId = ref<TowerId | null>(null)
 const selectedTheme = ref<TowerTheme>('mix')
+const selectedMode = ref<TowerMode>(
+  (localStorage.getItem('tower_mode_preference') as TowerMode) || 'tactical',
+)
+
+const handleModeChange = (mode: TowerMode) => {
+  selectedMode.value = mode
+  localStorage.setItem('tower_mode_preference', mode)
+}
 
 const towerDefinitions: { id: TowerId; nameKey: string; displayLevels: number; color: string }[] = [
   { id: 'CM', nameKey: 'tower.names.CM', displayLevels: 5, color: 'var(--color-accent-primary)' },
@@ -23,7 +31,7 @@ const towerDefinitions: { id: TowerId; nameKey: string; displayLevels: number; c
 
 const handleSelectTower = (towerId: TowerId) => {
   selectedTowerId.value = towerId
-  towerStore.startNewTower(towerId, selectedTheme.value)
+  towerStore.startNewTower(towerId, selectedTheme.value, selectedMode.value)
 }
 
 /*
@@ -40,6 +48,19 @@ const getThemeName = (theme: TowerTheme) => {
 
 <template>
   <div class="tower-selection-area">
+    <div class="tower-mode-selector-container">
+      <label class="selector-label">{{ t('tower.ui.modeLabel') }}</label>
+      <div class="mode-buttons">
+        <button class="mode-button" :class="{ active: selectedMode === 'tactical' }"
+          @click="handleModeChange('tactical')">
+          {{ t('tower.mode.tactical') }}
+        </button>
+        <button class="mode-button" :class="{ active: selectedMode === 'positional' }"
+          @click="handleModeChange('positional')">
+          {{ t('tower.mode.positional') }}
+        </button>
+      </div>
+    </div>
     <!--
     <div class="tower-theme-selector-container">
       <label class="selector-label" for="tower-theme-select">{{ t('tower.ui.themeLabel') }}</label>
@@ -156,5 +177,43 @@ const getThemeName = (theme: TowerTheme) => {
   font-weight: bold;
   font-size: var(--font-size-small);
   color: var(--color-text-default);
+}
+
+.tower-mode-selector-container {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 5px;
+  background-color: var(--color-bg-secondary);
+  border-radius: var(--panel-border-radius);
+  border: 1px solid var(--color-border-hover);
+}
+
+.mode-buttons {
+  display: flex;
+  gap: 5px;
+}
+
+.mode-button {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background-color: var(--color-bg-tertiary);
+  color: var(--color-text-default);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.mode-button:hover {
+  background-color: var(--color-bg-primary);
+  border-color: var(--color-border-hover);
+}
+
+.mode-button.active {
+  background-color: var(--color-accent-primary);
+  color: white;
+  border-color: var(--color-accent-primary);
 }
 </style>

@@ -160,6 +160,7 @@ export interface TowerPositionEntry {
   rating: number
   bot_color: 'w' | 'b'
   solution_moves: string
+  Moves?: string
   absoluteIndex?: number
   fen_final?: string
   avg_rating?: number
@@ -195,9 +196,12 @@ export interface UpdateFinishHimStatsDto {
   bw_value: number
 }
 
+export type TowerMode = 'tactical' | 'positional'
+
 export interface GetNewTowerDto {
   tower_type: TowerId
   tower_theme: TowerTheme
+  tower_mode?: TowerMode
 }
 export interface SaveTowerRecordDto {
   username: string

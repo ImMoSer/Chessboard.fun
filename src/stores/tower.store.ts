@@ -4,7 +4,7 @@ import { defineStore } from 'pinia'
 import { useGameStore } from './game.store'
 import { useBoardStore, type GameEndOutcome } from './board.store'
 import { webhookService } from '../services/WebhookService'
-import type { TowerData, SaveTowerRecordDto, TowerId, TowerTheme } from '../types/api.types'
+import type { TowerData, SaveTowerRecordDto, TowerId, TowerTheme, TowerMode } from '../types/api.types'
 import logger from '../utils/logger'
 import { soundService } from '../services/sound.service'
 import { useAuthStore } from './auth.store'
@@ -163,7 +163,8 @@ export const useTowerStore = defineStore('tower', () => {
       return
     }
 
-    const moves = position.solution_moves ? position.solution_moves.split(' ') : []
+    const movesStr = position.Moves || position.solution_moves
+    const moves = movesStr ? movesStr.split(' ') : []
     gameStore.setupPuzzle(
       position.FEN_0,
       moves,
@@ -182,7 +183,7 @@ export const useTowerStore = defineStore('tower', () => {
 
   function initialize() { }
 
-  async function startNewTower(towerType: TowerId, theme: TowerTheme) {
+  async function startNewTower(towerType: TowerId, theme: TowerTheme, mode: 'tactical' | 'positional' = 'tactical') {
     if (analysisStore.isPanelVisible) {
       await analysisStore.hidePanel()
     }
@@ -192,6 +193,7 @@ export const useTowerStore = defineStore('tower', () => {
       const towerData = await webhookService.fetchNewTower({
         tower_type: towerType,
         tower_theme: theme,
+        tower_mode: mode,
       })
       if (!towerData || towerData.positions.length === 0)
         throw new Error(t('tower.error.noPositionsInTower'))

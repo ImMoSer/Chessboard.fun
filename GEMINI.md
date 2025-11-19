@@ -1,40 +1,43 @@
 # Project Overview
 
-This is a Vue.js project for an interactive web platform for chess enthusiasts called Chessboard.fun. It offers unique training modes, detailed statistics, and powerful analysis tools.
+Это проект Vue.js для интерактивной веб-платформы для любителей шахмат под названием Chessboard.fun. Он предлагает уникальные режимы тренировок, подробную статистику и мощные инструменты анализа.
 
-The frontend is built with TypeScript and Vue.js, using Pinia for state management, Vue Router for routing, and `vue-i18n` for internationalization. The UI is rendered using Chessground. The application integrates with the Lichess API for user authentication and puzzle databases.
+Фронтенд построен с использованием TypeScript и Vue.js, Pinia для управления состоянием, Vue Router для маршрутизации и `vue-i18n` для интернационализации. Пользовательский интерфейс отображается с помощью Chessground. Приложение интегрируется с Lichess API для аутентификации пользователей и баз данных головоломок.
 
-The backend is powered by n8n.io and Nest.js, and the application uses Stockfish.js for local chess analysis and also has a server-side engine.
+Бэкенд работает на n8n.io и Nest.js, а приложение использует Stockfish.js для локального шахматного анализа, а также имеет серверный движок.
+
+Приложение включает в себя различные игровые режимы, такие как "finish-him", "attack", "tower", "tornado", "advantage", и "sandbox", а также разделы для кабинета пользователя, "О нас", "Цены", "Фан-клуб" и "Записи".
 
 # Building and Running
 
 ## Prerequisites
 
-- Node.js (version specified in `package.json`)
+- Node.js (версия указана в `package.json`, рекомендуется `^20.19.0 || >=22.12.0`)
 - pnpm
 
 ## Key Commands
 
-- **Install dependencies:** `pnpm install`
-- **Run development server:** `pnpm dev`
-- **Build for production:** `pnpm build`
-- **Run unit tests:** `pnpm test:unit`
-- **Lint and fix code:** `pnpm lint`
-- **Format code:** `pnpm format`
+- **Установить зависимости:** `pnpm install`
+- **Запустить сервер разработки:** `pnpm dev`
+- **Собрать для production:** `pnpm build`
+- **Запустить модульные тесты:** `pnpm test:unit`
+- **Линтинг и исправление кода:** `pnpm lint`
+- **Форматировать код:** `pnpm format`
+- **Проверка типов:** `pnpm type-check`
 
 # Development Conventions
 
 ## Coding Style
 
-The project uses Prettier for code formatting and ESLint for linting. Configuration files for both are present in the root directory (`.prettierrc.json`, `eslint.config.ts`).
+Проект использует Prettier для форматирования кода и ESLint для линтинга. Файлы конфигурации для обоих присутствуют в корневом каталоге (`.prettierrc.json`, `eslint.config.ts`).
 
 ## Testing
 
-Unit tests are written using Vitest and can be found in the `src/__tests__` directory.
+Модульные тесты написаны с использованием Vitest и могут быть найдены в каталоге `src/__tests__`.
 
 ## Contribution
 
-The `README.md` file provides clear guidelines for contributing to the project. It is recommended to create an issue to discuss any changes before submitting a pull request.
+Файл `README.md` содержит четкие рекомендации по внесению вклада в проект. Рекомендуется создать issue для обсуждения любых изменений перед отправкой pull request.
 
 # Правила взаимодействия:
 
@@ -68,18 +71,8 @@ The `README.md` file provides clear guidelines for contributing to the project. 
 
 - Перед изменением модуля обязательно запросить разрешение с указанием имени модуля
 
-- Модификации без разрешения будут немедленно прерваны
+- Получить подтверждение
 
-- Запрещены попутные изменения, не связанные с задачей
+- Выполнить изменения
 
-## Рабочий процесс:
-
-1. Изучить существующий код в папке `src`
-
-2. Запросить разрешение на модификацию конкретного модуля
-
-3. Получить подтверждение
-
-4. Выполнить изменения
-
-5. проверить код командой только Shell "pnpm type-check" - но не "pnpm lint"! pnpm lint проверку делать не надо!
+- проверить код командой только Shell "pnpm type-check" - но не "pnpm lint"! pnpm lint проверку делать не надо!
