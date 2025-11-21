@@ -33,7 +33,7 @@ const upcomingPositions = computed(() => {
     <div class="positions-list-scrollable">
       <div v-for="pos in upcomingPositions" :key="pos.absoluteIndex" class="position-preview-item">
         <h5 class="position-preview-title">
-          #{{ pos.absoluteIndex }} ({{ t('puzzleInfo.tacticalRating') }}: {{ pos.rating }})
+          #{{ pos.absoluteIndex }} ({{ t('tacktics.stats.rating') }}: {{ (pos as any).Rating || pos.rating }})
         </h5>
         <ChessboardPreview v-if="pos.fen_final" :fen="pos.fen_final" :orientation="pos.orientation" />
       </div>

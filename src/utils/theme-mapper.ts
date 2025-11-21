@@ -70,6 +70,13 @@ export const THEME_KEY_MAP: Record<string, string> = {
   trappedPiece: 'trappedPiece',
   xRayAttack: 'xRayAttack',
   zugzwang: 'zugzwang',
+  // New Tower Themes
+  'Rook vs Knight': 'rookVsKnight',
+  'Bishop vs Bishop': 'bishopVsBishop',
+  'Knight vs Knight': 'knightVsKnight',
+  'Rook vs Bishop': 'rookVsBishop',
+  'Queen vs Bishop': 'queenVsBishop',
+  'Queen vs Knight': 'queenVsKnight',
 }
 
 export const getThemeTranslationKey = (theme: string): string => {

@@ -91,6 +91,8 @@ export const TOWER_THEMES = [
   'bishops_vs_knights',
   'minors_vs_rooks',
   'vs_queen_disadvantage',
+  'mixed_balanced',
+  'tactical_mixed',
 ] as const
 export type TowerTheme = (typeof TOWER_THEMES)[number]
 
@@ -166,6 +168,7 @@ export interface TowerPositionEntry {
   avg_rating?: number
   engm_rating?: number
   puzzle_theme?: string
+  engm_type?: string
 }
 
 export interface TowerResultEntry {
@@ -272,6 +275,7 @@ export interface TowerData {
   tower_id: string
   tower_type: TowerId
   tower_theme: TowerTheme
+  tower_mode?: TowerMode
   bw_value_total: number
   average_rating: number
   positions: TowerPositionEntry[]

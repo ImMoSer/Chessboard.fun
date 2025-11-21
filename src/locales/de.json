@@ -245,7 +245,8 @@
     },
     "mode": {
       "tactical": "Taktisch",
-      "positional": "Positionell"
+      "positional": "Positionell",
+      "mix": "Gemischt"
     },
     "ui": {
       "modeLabel": "Modus",
@@ -304,7 +305,32 @@
       "advancedPawn": "Freibauer",
       "promotion": "Umwandlung",
       "backRankMate": "Grundreihenmatt",
-      "mate": "Matt"
+      "mate": "Matt",
+      "rookVsKnight": "Turm gegen Springer",
+      "bishopVsBishop": "Läufer gegen Läufer",
+      "knightVsKnight": "Springer gegen Springer",
+      "rookVsBishop": "Turm gegen Läufer",
+      "queenVsBishop": "Dame gegen Läufer",
+      "queenVsKnight": "Dame gegen Springer",
+      "twoMinorsVsRook": "Zwei Leichtfiguren gegen Turm",
+      "knightVsPawns": "Springer gegen Bauern",
+      "rookVsPawns": "Turm gegen Bauern",
+      "queenVsPawns": "Dame gegen Bauern",
+      "bishopVsPawns": "Läufer gegen Bauern",
+      "pawnEndgame": "Bauernendspiel",
+      "rookAndMinorVsRook": "Turm und Leichtfigur gegen Turm",
+      "rookEndgame": "Turmendspiel",
+      "queensVsRooks": "Damen gegen Türme",
+      "knightEndgame": "Springerendspiel",
+      "bishopEndgame": "Läuferendspiel",
+      "rooksVsMinors": "Türme gegen Leichtfiguren",
+      "oppositeColorBishops": "Ungleichfarbige Läufer",
+      "twoRooksEndgame": "Zwei Türme Endspiel",
+      "queensVsMinors": "Damen gegen Leichtfiguren",
+      "queenEndgame": "Damenendspiel",
+      "knightsVsBishops": "Springer gegen Läufer",
+      "bishopsVsKnights": "Läufer gegen Springer",
+      "minorsVsRooks": "Leichtfiguren gegen Türme"
     },
     "controls": {
       "levelTitle": "Schwierigkeit",
@@ -869,6 +895,8 @@
     "bishopVsPawns": "Läufer vs Bauern",
     "bishopsEndgame": "Läuferendspiel",
     "knightVsPawns": "Springer vs Bauern",
-    "knightsEndgame": "Springerendspiel"
+    "knightsEndgame": "Springerendspiel",
+    "tactical_mixed": "Taktisch",
+    "mixed_balanced": "Positional"
   }
 }

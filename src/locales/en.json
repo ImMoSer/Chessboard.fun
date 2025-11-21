@@ -246,7 +246,8 @@
     },
     "mode": {
       "tactical": "Tactical",
-      "positional": "Positional"
+      "positional": "Positional",
+      "mix": "Mixed"
     },
     "ui": {
       "modeLabel": "Mode",
@@ -305,7 +306,32 @@
       "advancedPawn": "Advanced Pawn",
       "promotion": "Promotion",
       "backRankMate": "Back-Rank Mate",
-      "mate": "Mate"
+      "mate": "Mate",
+      "rookVsKnight": "Rook vs Knight",
+      "bishopVsBishop": "Bishop vs Bishop",
+      "knightVsKnight": "Knight vs Knight",
+      "rookVsBishop": "Rook vs Bishop",
+      "queenVsBishop": "Queen vs Bishop",
+      "queenVsKnight": "Queen vs Knight",
+      "twoMinorsVsRook": "Two Minors vs Rook",
+      "knightVsPawns": "Knight vs Pawns",
+      "rookVsPawns": "Rook vs Pawns",
+      "queenVsPawns": "Queen vs Pawns",
+      "bishopVsPawns": "Bishop vs Pawns",
+      "pawnEndgame": "Pawn Endgame",
+      "rookAndMinorVsRook": "Rook and Minor vs Rook",
+      "rookEndgame": "Rook Endgame",
+      "queensVsRooks": "Queens vs Rooks",
+      "knightEndgame": "Knight Endgame",
+      "bishopEndgame": "Bishop Endgame",
+      "rooksVsMinors": "Rooks vs Minors",
+      "oppositeColorBishops": "Opposite Color Bishops",
+      "twoRooksEndgame": "Two Rooks Endgame",
+      "queensVsMinors": "Queens vs Minors",
+      "queenEndgame": "Queen Endgame",
+      "knightsVsBishops": "Knights vs Bishops",
+      "bishopsVsKnights": "Bishops vs Knights",
+      "minorsVsRooks": "Minors vs Rooks"
     },
     "controls": {
       "levelTitle": "Difficulty",
@@ -869,6 +895,8 @@
     "bishopVsPawns": "Bishop vs Pawns",
     "bishopsEndgame": "Bishops Endgame",
     "knightVsPawns": "Knight vs Pawns",
-    "knightsEndgame": "Knights Endgame"
+    "knightsEndgame": "Knights Endgame",
+    "tactical_mixed": "Tactical",
+    "mixed_balanced": "Positional"
   }
 }

@@ -246,7 +246,8 @@
     },
     "mode": {
       "tactical": "Тактический",
-      "positional": "Позиционный"
+      "positional": "Позиционный",
+      "mix": "Смешанный"
     },
     "ui": {
       "modeLabel": "Режим",
@@ -305,7 +306,32 @@
       "advancedPawn": "Проходная пешка",
       "promotion": "Превращение",
       "backRankMate": "Мат по последней горизонтали",
-      "mate": "Мат"
+      "mate": "Мат",
+      "rookVsKnight": "Ладья против Коня",
+      "bishopVsBishop": "Слон против Слона",
+      "knightVsKnight": "Конь против Коня",
+      "rookVsBishop": "Ладья против Слона",
+      "queenVsBishop": "Ферзь против Слона",
+      "queenVsKnight": "Ферзь против Коня",
+      "twoMinorsVsRook": "Две легкие против Ладьи",
+      "knightVsPawns": "Конь против Пешек",
+      "rookVsPawns": "Ладья против Пешек",
+      "queenVsPawns": "Ферзь против Пешек",
+      "bishopVsPawns": "Слон против Пешек",
+      "pawnEndgame": "Пешечный эндшпиль",
+      "rookAndMinorVsRook": "Ладья и легкая против Ладьи",
+      "rookEndgame": "Ладейный эндшпиль",
+      "queensVsRooks": "Ферзи против Ладей",
+      "knightEndgame": "Коневой эндшпиль",
+      "bishopEndgame": "Слоновый эндшпиль",
+      "rooksVsMinors": "Ладьи против Легких",
+      "oppositeColorBishops": "Разноцветные слоны",
+      "twoRooksEndgame": "Две ладьи",
+      "queensVsMinors": "Ферзи против Легких",
+      "queenEndgame": "Ферзевый эндшпиль",
+      "knightsVsBishops": "Кони против Слонов",
+      "bishopsVsKnights": "Слоны против Коней",
+      "minorsVsRooks": "Легкие против Ладей"
     },
     "controls": {
       "levelTitle": "Сложность",
@@ -869,6 +895,8 @@
     "bishopVsPawns": "Слон против пешек",
     "bishopsEndgame": "Слоновый эндшпиль",
     "knightVsPawns": "Конь против пешек",
-    "knightsEndgame": "Коневой эндшпиль"
+    "knightsEndgame": "Коневой эндшпиль",
+    "tactical_mixed": "Тактический",
+    "mixed_balanced": "Позиционный"
   }
 }

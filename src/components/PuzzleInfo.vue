@@ -1,4 +1,3 @@
-<!-- src/components/PuzzleInfo.vue -->
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -39,12 +38,14 @@ const activePuzzle = computed<GamePuzzle | null>(() => {
       return {
         PuzzleId: `${tower.tower_id}-${towerStore.currentPositionIndex}`,
         FEN_0: currentPos.FEN_0,
-        Moves: currentPos.solution_moves,
-        Rating: currentPos.rating, // Устанавливаем обязательное поле
-        rating: currentPos.rating,
+        Moves: currentPos.solution_moves || currentPos.Moves,
+        Rating: (currentPos as any).Rating || currentPos.rating, // Устанавливаем обязательное поле
+        rating: (currentPos as any).Rating || currentPos.rating,
         puzzle_theme: currentPos.puzzle_theme,
         fen_final: currentPos.fen_final,
         bw_value: (currentPos as any).bw_value,
+        engm_type: currentPos.engm_type, // Важно для отображения темы
+        Themes: (currentPos as any).Themes,
       } as GamePuzzle
     }
     return null
@@ -55,6 +56,16 @@ const activePuzzle = computed<GamePuzzle | null>(() => {
 const activeTowerInfo = computed(() => {
   if (route.name !== 'tower') return null
   return towerStore.activeTower
+})
+
+// Логика отображения режима башни на основе темы
+const towerModeDisplay = computed(() => {
+  if (!activeTowerInfo.value) return ''
+  const theme = activeTowerInfo.value.tower_theme
+  if (theme === 'mixed_balanced') return t('tower.mode.positional')
+  if (theme === 'tactical_mixed') return t('tower.mode.tactical')
+  // Fallback to existing mode or default
+  return t(`tower.mode.${activeTowerInfo.value.tower_mode || 'tactical'}`)
 })
 
 const towerSortedResults = computed(() => {
@@ -74,6 +85,12 @@ const localizedThemes = computed(() => {
 const tacticalThemes = computed(() => {
   const puzzle = activePuzzle.value
   if (!puzzle) return ''
+  // Для Tower используем engm_type как основную тему, если она есть
+  if (route.name === 'tower' && puzzle.engm_type) {
+    const themeKey = getThemeTranslationKey(puzzle.engm_type)
+    return t(`themes.${themeKey}`, { defaultValue: puzzle.engm_type })
+  }
+
   if (puzzle.Themes) return puzzle.Themes.split(' ').join(', ')
   if (puzzle.puzzle_theme) return puzzle.puzzle_theme.split(' ').join(', ')
   return ''
@@ -118,6 +135,9 @@ const sortedResults = computed(() => {
   }
   return [...results].sort((a, b) => a.time_in_seconds - b.time_in_seconds)
 })
+
+// Список следующих позиций
+// Removed as it is now handled by UpcomingPositions.vue
 </script>
 
 <template>
@@ -125,10 +145,8 @@ const sortedResults = computed(() => {
     <div v-if="activeTowerInfo" class="tower-info-section">
       <div class="info-grid">
         <div class="info-item">
-          <span class="label">{{ t('tower.ui.themeLabel') }}:</span>
-          <span class="value">{{
-            t(`themes.${getThemeTranslationKey(activeTowerInfo.tower_theme)}`)
-          }}</span>
+          <span class="label">{{ t('tower.ui.modeLabel') }}:</span>
+          <span class="value">{{ towerModeDisplay }}</span>
         </div>
         <div class="info-item">
           <span class="label">{{ t('tower.ui.averageRating') }}:</span>
@@ -144,17 +162,25 @@ const sortedResults = computed(() => {
     <div v-if="activePuzzle" class="puzzle-details-section">
       <div class="info-grid">
         <div class="info-item">
-          <span class="label">{{ t('puzzleInfo.tacticalRating') }}:</span>
+          <span class="label">{{ t('tacktics.stats.rating') }}:</span>
           <span class="value">{{ activePuzzle.Rating ?? activePuzzle.rating }}</span>
         </div>
+
+        <div v-if="activePuzzle.bw_value" class="info-item">
+          <span class="label">{{ t('puzzleInfo.funValue') }}:</span>
+          <span class="value">{{ activePuzzle.bw_value }}</span>
+        </div>
+
+        <div v-if="tacticalThemes" class="info-item">
+          <span class="label">{{ t('tacktics.stats.theme') }}:</span>
+          <span class="value">{{ tacticalThemes }}</span>
+        </div>
+
         <div v-if="activePuzzle.solve_time" class="info-item">
           <span class="label">{{ t('puzzleInfo.solveTime') }}:</span>
           <span class="value">{{ formatTime(activePuzzle.solve_time) }}</span>
         </div>
-        <div v-if="activePuzzle.EndgameType" class="info-item">
-          <span class="label">{{ t('tacktics.stats.theme', 'Theme') }}:</span>
-          <span class="value">{{ activePuzzle.EndgameType }}</span>
-        </div>
+
         <div v-if="activePuzzle.eval" class="info-item">
           <span class="label">{{ t('puzzleInfo.evaluation', 'Evaluation') }}:</span>
           <span class="value">{{ (activePuzzle.eval / 100).toFixed(2) }}</span>
@@ -163,18 +189,7 @@ const sortedResults = computed(() => {
           <span class="label">{{ t('puzzleInfo.pieces', 'Pieces') }}:</span>
           <span class="value">{{ activePuzzle.num_pieces }}</span>
         </div>
-        <div v-if="activePuzzle.bw_value" class="info-item">
-          <span class="label">{{ t('puzzleInfo.funValue') }}:</span>
-          <span class="value">{{ activePuzzle.bw_value }}</span>
-        </div>
-        <div v-if="tacticalThemes" class="info-item">
-          <span class="label">{{ t('tacktics.stats.theme') }}:</span>
-          <span class="value">{{ tacticalThemes }}</span>
-        </div>
-        <div v-if="endgameTheme" class="info-item">
-          <span class="label">{{ t('puzzleInfo.endgameThemeLabel', 'Тема эндшпиля') }}:</span>
-          <span class="value">{{ endgameTheme }}</span>
-        </div>
+
         <div v-if="route.name === 'tornado' && localizedThemes" class="info-item">
           <span class="label">{{ t('tacktics.stats.theme') }}:</span>
           <span class="value">{{ localizedThemes }}</span>
@@ -332,7 +347,6 @@ h4 {
   border-radius: var(--panel-border-radius);
   padding: 10px;
   margin-top: 10px;
-  /* Added margin */
 }
 
 .leaderboard-title {
