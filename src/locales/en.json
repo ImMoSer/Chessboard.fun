@@ -897,6 +897,14 @@
     "knightVsPawns": "Knight vs Pawns",
     "knightsEndgame": "Knights Endgame",
     "tactical_mixed": "Tactical",
-    "mixed_balanced": "Positional"
+    "mixed_balanced": "Positional",
+    "bishopVsBishop": "Bishop vs Bishop",
+    "knightVsKnight": "Knight vs Knight",
+    "queenVsBishop": "Queen vs Bishop",
+    "queenVsKnight": "Queen vs Knight",
+    "queenVsQueen": "Queen vs Queen",
+    "rookVsBishop": "Rook vs Bishop",
+    "rookVsKnight": "Rook vs Knight",
+    "rookVsRook": "Rook vs Rook"
   }
 }

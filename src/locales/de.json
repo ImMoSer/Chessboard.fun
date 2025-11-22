@@ -897,6 +897,14 @@
     "knightVsPawns": "Springer vs Bauern",
     "knightsEndgame": "Springerendspiel",
     "tactical_mixed": "Taktisch",
-    "mixed_balanced": "Positional"
+    "mixed_balanced": "Positional",
+    "bishopVsBishop": "Läufer gegen Läufer",
+    "knightVsKnight": "Springer gegen Springer",
+    "queenVsBishop": "Dame gegen Läufer",
+    "queenVsKnight": "Dame gegen Springer",
+    "queenVsQueen": "Dame gegen Dame",
+    "rookVsBishop": "Turm gegen Läufer",
+    "rookVsKnight": "Turm gegen Springer",
+    "rookVsRook": "Turm gegen Turm"
   }
 }

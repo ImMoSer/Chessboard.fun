@@ -5,10 +5,11 @@ import { useTowerStore } from '@/stores/tower.store'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import ChessboardPreview from './ChessboardPreview.vue'
+import { getThemeTranslationKey } from '@/utils/theme-mapper'
 
 const towerStore = useTowerStore()
 const { activeTower, currentPositionIndex } = storeToRefs(towerStore)
-const { t } = useI18n()
+const { t, te } = useI18n()
 
 const upcomingPositions = computed(() => {
   if (!activeTower.value) return []
@@ -25,6 +26,21 @@ const upcomingPositions = computed(() => {
     }
   })
 })
+
+const getThemeLabel = (theme: string | undefined): string => {
+  if (!theme) return ''
+  const key = getThemeTranslationKey(theme)
+  const translationKey = `themes.${key}`
+  if (te(translationKey)) {
+    return t(translationKey)
+  }
+  // Fallback to tacktics themes if needed, though most seem to be in 'themes' now
+  const tackticsKey = `tacktics.themes.${key}`
+  if (te(tackticsKey)) {
+    return t(tackticsKey)
+  }
+  return theme
+}
 </script>
 
 <template>
@@ -33,7 +49,13 @@ const upcomingPositions = computed(() => {
     <div class="positions-list-scrollable">
       <div v-for="pos in upcomingPositions" :key="pos.absoluteIndex" class="position-preview-item">
         <h5 class="position-preview-title">
-          #{{ pos.absoluteIndex }} ({{ t('tacktics.stats.rating') }}: {{ (pos as any).Rating || pos.rating }})
+          #{{ pos.absoluteIndex }}
+          <span v-if="pos.engm_type">
+            ({{ getThemeLabel(pos.engm_type) }})
+          </span>
+          <span v-else>
+            ({{ t('tacktics.stats.rating') }}: {{ (pos as any).Rating || pos.rating }})
+          </span>
         </h5>
         <ChessboardPreview v-if="pos.fen_final" :fen="pos.fen_final" :orientation="pos.orientation" />
       </div>

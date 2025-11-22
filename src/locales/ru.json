@@ -897,6 +897,14 @@
     "knightVsPawns": "Конь против пешек",
     "knightsEndgame": "Коневой эндшпиль",
     "tactical_mixed": "Тактический",
-    "mixed_balanced": "Позиционный"
+    "mixed_balanced": "Позиционный",
+    "bishopVsBishop": "Слон vs Слона",
+    "knightVsKnight": "Конь vs Коня",
+    "queenVsBishop": "Ферзь vs Слона",
+    "queenVsKnight": "Ферзь vs Коня",
+    "queenVsQueen": "Ферзь vs Ферзя",
+    "rookVsBishop": "Ладья vs Слона",
+    "rookVsKnight": "Ладья vs Коня",
+    "rookVsRook": "Ладья vs Ладьи"
   }
 }

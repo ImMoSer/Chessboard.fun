@@ -77,6 +77,8 @@ export const THEME_KEY_MAP: Record<string, string> = {
   'Rook vs Bishop': 'rookVsBishop',
   'Queen vs Bishop': 'queenVsBishop',
   'Queen vs Knight': 'queenVsKnight',
+  'Queen vs Queen': 'queenVsQueen',
+  'Rook vs Rook': 'rookVsRook',
 }
 
 export const getThemeTranslationKey = (theme: string): string => {
