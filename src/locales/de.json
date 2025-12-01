@@ -67,8 +67,8 @@
         "content": "Verfolgt Spieler, die jeden aufeinanderfolgenden Tag mindestens 100 Skill-Punkte in einem beliebigen Modus verdienen. Wertung basiert auf der Anzahl aufeinanderfolgender Tage. Ein verpasster Tag setzt die Serie zurück. Dies fördert regelmäßige Aktivität und kontinuierliche Verbesserung."
       },
       "skillStreakMega": {
-        "title": "MEGA-Serien-Wertung",
-        "content": "Für die absolute Elite: eine Serie von mindestens 100 Skill-Punkten in jedem separaten Modus täglich. Zeigt die engagiertesten und diszipliniertesten Spieler. Ein verpasster Tag in einem Modus setzt die Serie zurück."
+        "title": "Tornado +300 jeden Tag",
+        "content": "Für die absolute Elite: eine Serie von mindestens 300 Skill-Punkten im Tornado-Modus täglich. Zeigt die engagiertesten und diszipliniertesten Spieler. Ein verpasster Tag im Modus setzt die Serie zurück."
       },
       "topToday": {
         "title": "Top Heute",
@@ -350,7 +350,7 @@
       "towerLeaderboard": "Speedrun-Meister",
       "overallSkill": "Gesamter Skill",
       "skillStreak": "+100 jeden Tag",
-      "skillStreakMega": "MEGA-SERIE",
+      "skillStreakMega": "Tornado +300 jeden Tag",
       "topToday": "Top des Tages"
     },
     "table": {

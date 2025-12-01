@@ -67,8 +67,8 @@
         "content": "Tracks players who earn at least 100 Skill Points every consecutive day in any mode. Rating based on the number of consecutive days. Missing a day resets the streak. This encourages regular activity and consistent improvement."
       },
       "skillStreakMega": {
-        "title": "MEGA Streak Rating",
-        "content": "For the absolute elite: a streak of earning at least 100 Skill Points in each separate mode daily. Shows the most dedicated and disciplined players. Missing a day in any mode resets the streak."
+        "title": "Tornado +300 Every Day",
+        "content": "For the absolute elite: a streak of earning at least 300 Skill Points in Tornado mode daily. Shows the most dedicated and disciplined players. Missing a day in the mode resets the streak."
       },
       "topToday": {
         "title": "Top Today",
@@ -351,7 +351,7 @@
       "towerLeaderboard": "Tower Masters",
       "overallSkill": "Overall Skill",
       "skillStreak": "+100 everyday",
-      "skillStreakMega": "MEGA STREAK",
+      "skillStreakMega": "Tornado +300 Every Day",
       "topToday": "Top Today"
     },
     "table": {
