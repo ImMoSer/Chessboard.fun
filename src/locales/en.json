@@ -797,7 +797,8 @@
       "theme": "Theme"
     },
     "ui": {
-      "ratingLabel": "Rating"
+      "ratingLabel": "Rating",
+      "themeLabel": "Theme"
     }
   },
   "latestBattle": {
@@ -905,6 +906,10 @@
     "queenVsQueen": "Queen vs Queen",
     "rookVsBishop": "Rook vs Bishop",
     "rookVsKnight": "Rook vs Knight",
-    "rookVsRook": "Rook vs Rook"
+    "rookVsRook": "Rook vs Rook",
+    "attackTheKing": "Attack the King",
+    "defensiveMove": "Defensive Move",
+    "hangingPiece": "Hanging Piece",
+    "endgame": "Endgame Tactics"
   }
 }

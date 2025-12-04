@@ -797,7 +797,8 @@
       "theme": "Тема"
     },
     "ui": {
-      "ratingLabel": "Рейтинг"
+      "ratingLabel": "Рейтинг",
+      "themeLabel": "Тема"
     }
   },
   "latestBattle": {
@@ -905,6 +906,10 @@
     "queenVsQueen": "Ферзь vs Ферзя",
     "rookVsBishop": "Ладья vs Слона",
     "rookVsKnight": "Ладья vs Коня",
-    "rookVsRook": "Ладья vs Ладьи"
+    "rookVsRook": "Ладья vs Ладьи",
+    "attackTheKing": "Атака Короля",
+    "defensiveMove": "Защитительный ход",
+    "hangingPiece": "Висячая фигура",
+    "endgame": "Тактика в эндшпиле"
   }
 }

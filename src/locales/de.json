@@ -797,7 +797,8 @@
       "theme": "Thema"
     },
     "ui": {
-      "ratingLabel": "Rating"
+      "ratingLabel": "Rating",
+      "themeLabel": "Thema"
     }
   },
   "latestBattle": {
@@ -905,6 +906,10 @@
     "queenVsQueen": "Dame gegen Dame",
     "rookVsBishop": "Turm gegen Läufer",
     "rookVsKnight": "Turm gegen Springer",
-    "rookVsRook": "Turm gegen Turm"
+    "rookVsRook": "Turm gegen Turm",
+    "attackTheKing": "Königsangriff",
+    "defensiveMove": "Verteidigungszug",
+    "hangingPiece": "Hängende Figur",
+    "endgame": "Endspieltaktik"
   }
 }

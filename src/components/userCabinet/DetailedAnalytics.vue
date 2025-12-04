@@ -30,7 +30,7 @@ const currentStats = computed(() => {
 })
 
 const isCurrentStatsTimed = computed(() => {
-  return activeTab.value === 'Tornado' || activeTab.value === 'Advantage'
+  return activeTab.value === 'Advantage'
 })
 </script>
 

@@ -122,6 +122,7 @@ export interface TornadoStartResponse {
   puzzle: GamePuzzle
   sessionId: string
   sessionRating: number
+  sessionTheme?: string
 }
 
 export interface TornadoNextResponse {
@@ -729,7 +730,7 @@ export type TimedModeStatsDto = Record<string, ModeStatsDto> // Ключ - bulle
 export type UntimedModeStatsDto = Record<string, ThemeStatsDto> // Ключ - название темы
 
 export interface DetailedStatsResponse {
-  tornadoStats: TimedModeStatsDto
+  tornadoStats: ModeStatsDto
   advantageStats: TimedModeStatsDto
   endgameStats: UntimedModeStatsDto
 }

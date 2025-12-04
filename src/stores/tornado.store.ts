@@ -56,6 +56,7 @@ export const useTornadoStore = defineStore('tornado', () => {
 
   const mode = ref<TornadoMode | null>(null)
   const sessionRating = ref(600)
+  const sessionTheme = ref<string | null>(null)
   const themeRatings = ref<Record<string, ThemeRating> | null>(null)
   const activePuzzle = ref<GamePuzzle | null>(null)
   const mistakenPuzzles = ref<GamePuzzle[]>([])
@@ -82,6 +83,7 @@ export const useTornadoStore = defineStore('tornado', () => {
     _stopTimer()
     mode.value = null
     sessionRating.value = 600
+    sessionTheme.value = null
     themeRatings.value = null
     activePuzzle.value = null
     mistakenPuzzles.value = []
@@ -186,6 +188,7 @@ export const useTornadoStore = defineStore('tornado', () => {
         isSessionActive.value = true
         sessionId.value = response.sessionId
         sessionRating.value = response.sessionRating
+        sessionTheme.value = response.sessionTheme || null
         activePuzzle.value = response.puzzle
         setupPuzzle(response.puzzle)
         feedbackMessage.value = t('tornado.feedback.yourTurn')
@@ -286,6 +289,7 @@ export const useTornadoStore = defineStore('tornado', () => {
   return {
     mode,
     sessionRating,
+    sessionTheme,
     themeRatings,
     activePuzzle,
     mistakenPuzzles,

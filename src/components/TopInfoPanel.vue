@@ -57,9 +57,14 @@ const containerClass = computed(() => {
   <div class="top-info-panel-container" :class="containerClass">
     <!-- Таймер для всех режимов, кроме выбора Торнадо -->
     <div v-if="route.name !== 'tornado-selection'" class="timer-container">
-      <span v-if="route.name === 'tornado'" class="session-rating-label">
-        {{ t('tornado.ui.ratingLabel') }}: {{ tornadoStore.sessionRating }}
-      </span>
+      <div v-if="route.name === 'tornado'" class="tornado-info-container">
+        <span v-if="tornadoStore.sessionTheme" class="session-theme-label">
+          {{ t('tornado.ui.themeLabel') }}: {{ t('themes.' + tornadoStore.sessionTheme) }}
+        </span>
+        <span class="session-rating-label">
+          {{ t('tornado.ui.ratingLabel') }}: {{ tornadoStore.sessionRating }}
+        </span>
+      </div>
       {{ formattedTimer }}
     </div>
 
@@ -121,6 +126,18 @@ const containerClass = computed(() => {
   color: var(--color-accent-success);
 }
 
+.tornado-info-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-right: 15px;
+}
+
+.session-theme-label {
+  font-size: var(--font-size-large);
+  color: var(--color-text-link);
+}
+
 /* Контейнер под селектор движка */
 .engine-selector-container {
   display: flex;
@@ -147,6 +164,16 @@ const containerClass = computed(() => {
   }
 
   .session-rating-label {
+    font-size: var(--font-size-base);
+  }
+
+  .tornado-info-container {
+    flex-direction: column;
+    gap: 2px;
+    margin-right: 0;
+  }
+
+  .session-theme-label {
     font-size: var(--font-size-base);
   }
 }
