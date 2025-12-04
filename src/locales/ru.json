@@ -289,6 +289,10 @@
     "themes": {
       "fork": "Вилка",
       "pin": "Связка",
+      "attackTheKing": "Атака Короля",
+      "defensiveMove": "Защитительный ход",
+      "hangingPiece": "Висячая фигура",
+      "endgame": "Тактика в эндшпиле",
       "discoveredAttack": "Вскрытое нападение",
       "doubleCheck": "Двойной шах",
       "skewer": "Сквозной удар",
@@ -789,7 +793,7 @@
       }
     },
     "leaderboard": {
-      "highScore": "Рейтинг"
+      "highScore": "Рекорд"
     },
     "stats": {
       "title": "Ваши статистики",

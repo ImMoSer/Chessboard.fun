@@ -289,6 +289,10 @@
     "themes": {
       "fork": "Fork",
       "pin": "Pin",
+      "attackTheKing": "Attack the King",
+      "defensiveMove": "Defensive Move",
+      "hangingPiece": "Hanging Piece",
+      "endgame": "Endgame Tactics",
       "discoveredAttack": "Discovered Attack",
       "doubleCheck": "Double Check",
       "skewer": "Skewer",
@@ -746,7 +750,7 @@
       "title": "Select a game mode"
     },
     "leaderboard": {
-      "highScore": "Rating"
+      "highScore": "Records"
     }
   },
   "tornado": {
@@ -789,7 +793,7 @@
       }
     },
     "leaderboard": {
-      "highScore": "Rating"
+      "highScore": "Records"
     },
     "stats": {
       "title": "Your Statistics",

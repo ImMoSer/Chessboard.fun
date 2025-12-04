@@ -288,6 +288,10 @@
     "themes": {
       "fork": "Gabel",
       "pin": "Fesselung",
+      "attackTheKing": "Königsangriff",
+      "defensiveMove": "Verteidigungszug",
+      "hangingPiece": "Hängende Figur",
+      "endgame": "Endspieltaktik",
       "discoveredAttack": "Abzugsangriff",
       "doubleCheck": "Doppelschach",
       "skewer": "Spieß",
@@ -745,7 +749,7 @@
       "title": "Wählen Sie einen Spielmodus"
     },
     "leaderboard": {
-      "highScore": "Rating"
+      "highScore": "Rekorde"
     }
   },
   "tornado": {
@@ -789,7 +793,7 @@
       }
     },
     "leaderboard": {
-      "highScore": "Rating"
+      "highScore": "Rekorde"
     },
     "stats": {
       "title": "Ihre Statistiken",

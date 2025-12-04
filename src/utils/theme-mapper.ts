@@ -79,6 +79,11 @@ export const THEME_KEY_MAP: Record<string, string> = {
   'Queen vs Knight': 'queenVsKnight',
   'Queen vs Queen': 'queenVsQueen',
   'Rook vs Rook': 'rookVsRook',
+  // New Tornado Themes
+  attackTheKing: 'attackTheKing',
+  defensiveMove: 'defensiveMove',
+  hangingPiece: 'hangingPiece',
+  endgame: 'endgame',
 }
 
 export const getThemeTranslationKey = (theme: string): string => {
