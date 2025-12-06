@@ -68,6 +68,8 @@ export const useTornadoStore = defineStore('tornado', () => {
   const isSessionActive = ref(false)
   const feedbackMessage = ref(t('tornado.feedback.selectMode'))
   const isProcessingMove = ref(false)
+  const puzzlesSolved = ref(0)
+  const puzzlesAttempted = ref(0)
 
   const tenSecondsWarningPlayed = ref(false)
   const eightSecondsWarningPlayed = ref(false)
@@ -91,6 +93,8 @@ export const useTornadoStore = defineStore('tornado', () => {
     timerValueMs.value = 0
     timeIncrementMs.value = 0
     isSessionActive.value = false
+    puzzlesSolved.value = 0
+    puzzlesAttempted.value = 0
     feedbackMessage.value = t('tornado.feedback.selectMode')
     isProcessingMove.value = false
     tenSecondsWarningPlayed.value = false
@@ -136,7 +140,17 @@ export const useTornadoStore = defineStore('tornado', () => {
     _stopTimer()
     isSessionActive.value = false
     gameStore.setGamePhase('GAMEOVER')
-    feedbackMessage.value = t('tornado.feedback.sessionEnded', { rating: sessionRating.value })
+
+    // Format stats message
+    const themeLabel = sessionTheme.value ? t(`themes.${sessionTheme.value}`) : t('themes.mix')
+    const message = t('tornado.sessionEnd.stats', {
+      rating: sessionRating.value,
+      solved: puzzlesSolved.value,
+      total: puzzlesAttempted.value,
+      theme: themeLabel,
+    })
+
+    feedbackMessage.value = message
 
     await webhookService.endTornadoSession(mode.value, {
       sessionId: sessionId.value,
@@ -147,12 +161,13 @@ export const useTornadoStore = defineStore('tornado', () => {
 
     const userResponse = await uiStore.showConfirmation(
       t('tornado.sessionEnd.title'),
-      t('tornado.sessionEnd.message', { rating: sessionRating.value }),
+      message,
       {
         confirmText: t('tornado.sessionEnd.newSession'),
         cancelText: t('tornado.sessionEnd.exit'),
         extraText: t('tornado.sessionEnd.mistakes'),
         showExtra: hasMistakes,
+        persistent: true,
       },
     )
 
@@ -233,7 +248,9 @@ export const useTornadoStore = defineStore('tornado', () => {
       timerValueMs.value += timeIncrementMs.value
     }
 
+    puzzlesAttempted.value++
     if (isCorrect) {
+      puzzlesSolved.value++
       soundService.playSound('game_tacktics_success')
     } else {
       soundService.playSound('game_tacktics_error')

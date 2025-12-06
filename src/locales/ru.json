@@ -767,6 +767,7 @@
     "sessionEnd": {
       "title": "Сессия окончена",
       "message": "Ваш финальный рейтинг: {rating}",
+      "stats": "Рейтинг: {rating} | Решено: {solved}/{total} | Тема: {theme}",
       "newSession": "Заново",
       "exit": "Выйти",
       "mistakes": "Работа над ошибками",
@@ -774,6 +775,11 @@
     },
     "mistakes": {
       "title": "Работа над ошибками",
+      "info": {
+        "rating": "Рейтинг",
+        "theme": "Тема",
+        "id": "ID"
+      },
       "feedback": {
         "selectPuzzle": "Выберите задачу для начала.",
         "yourTurn": "Ваш ход. Попробуйте снова!",
@@ -785,7 +791,8 @@
       "ui": {
         "analysisButton": "Анализ",
         "nextButton": "Следующая",
-        "exitButton": "Выйти"
+        "exitButton": "Выйти",
+        "restartButton": "Заново"
       },
       "exit": {
         "title": "Выход из режима",
@@ -849,7 +856,7 @@
     "skewer": "Сквозной удар",
     "promotion": "Превращение",
     "quietMove": "Тихий ход",
-    "trappedPiece": "Запертая фигура",
+    "trappedPiece": "Пойманная фигура",
     "clearance": "Освобождение поля",
     "intermezzo": "Промежуточный ход",
     "capturingDefender": "Взятие защитника",

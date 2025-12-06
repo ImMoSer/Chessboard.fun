@@ -6,7 +6,7 @@ const uiStore = useUiStore()
 </script>
 
 <template>
-  <div v-if="uiStore.isModalVisible" class="modal-overlay" @click.self="uiStore.handleCancel">
+  <div v-if="uiStore.isModalVisible" class="modal-overlay" @click.self="uiStore.handleOverlayClick">
     <div class="modal-content">
       <h3 class="modal-title">{{ uiStore.modalTitle }}</h3>
       <p class="modal-message">{{ uiStore.modalMessage }}</p>

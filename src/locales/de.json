@@ -767,12 +767,19 @@
     "sessionEnd": {
       "title": "Sitzung beendet",
       "message": "Ihre endgültige Wertung: {rating}",
+      "stats": "Wertung: {rating} | Gelöst: {solved}/{total} | Thema: {theme}",
       "newSession": "Neue Sitzung",
       "exit": "Verlassen",
-      "mistakes": "Fehler Analysieren"
+      "mistakes": "Fehler Analysieren",
+      "sessionEnded": "Sitzung beendet. Ihre endgültige Wertung: {rating}"
     },
     "mistakes": {
       "title": "Fehleranalyse",
+      "info": {
+        "rating": "Wertung",
+        "theme": "Thema",
+        "id": "ID"
+      },
       "feedback": {
         "selectPuzzle": "Wählen Sie eine Aufgabe zum Starten.",
         "yourTurn": "Sie sind am Zug. Versuchen Sie es erneut!",
@@ -785,11 +792,8 @@
         "analysisButton": "Analyse",
         "nextButton": "Nächste",
         "exitButton": "Verlassen",
+        "restartButton": "Neustart",
         "ratingLabel": "Rating"
-      },
-      "exit": {
-        "title": "Modus verlassen",
-        "message": "Sind Sie sicher, dass Sie den Modus verlassen möchten? Die Liste der ungelösten Aufgaben wird gelöscht."
       }
     },
     "leaderboard": {

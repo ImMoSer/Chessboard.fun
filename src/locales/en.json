@@ -768,12 +768,18 @@
     "sessionEnd": {
       "title": "Session ended",
       "message": "Your final rating: {rating}",
+      "stats": "Rating: {rating} | Solved: {solved}/{total} | Theme: {theme}",
       "newSession": "New session",
       "exit": "Exit",
       "mistakes": "Mistakes"
     },
     "mistakes": {
       "title": "Work on mistakes",
+      "info": {
+        "rating": "Rating",
+        "theme": "Theme",
+        "id": "ID"
+      },
       "feedback": {
         "selectPuzzle": "Select a puzzle to start.",
         "yourTurn": "Your turn. Try again!",
@@ -785,7 +791,8 @@
       "ui": {
         "analysisButton": "Analysis",
         "nextButton": "Next",
-        "exitButton": "Exit"
+        "exitButton": "Exit",
+        "restartButton": "Restart"
       },
       "exit": {
         "title": "Exit mode",

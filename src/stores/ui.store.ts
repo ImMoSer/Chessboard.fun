@@ -13,11 +13,13 @@ interface ConfirmationOptions {
   extraText?: string
   showCancel?: boolean
   showExtra?: boolean
+  persistent?: boolean
 }
 
 export const useUiStore = defineStore('ui', () => {
   // For Confirmation Modal
   const isModalVisible = ref(false)
+  const isModalPersistent = ref(false)
   const modalTitle = ref('')
   const modalMessage = ref('')
   const modalConfirmText = ref(t('common.confirm'))
@@ -43,6 +45,7 @@ export const useUiStore = defineStore('ui', () => {
     modalExtraText.value = options.extraText || ''
     isCancelButtonVisible.value = options.showCancel ?? true
     isExtraButtonVisible.value = options.showExtra ?? false
+    isModalPersistent.value = options.persistent ?? false
     isModalVisible.value = true
 
     return new Promise<'confirm' | 'cancel' | 'extra' | null>((resolve) => {
@@ -73,6 +76,12 @@ export const useUiStore = defineStore('ui', () => {
     isModalVisible.value = false
     reset()
   }
+  
+  function handleOverlayClick() {
+    if (!isModalPersistent.value) {
+      handleCancel()
+    }
+  }
 
   function reset() {
     modalTitle.value = ''
@@ -83,6 +92,7 @@ export const useUiStore = defineStore('ui', () => {
     modalExtraText.value = ''
     isCancelButtonVisible.value = true
     isExtraButtonVisible.value = false
+    isModalPersistent.value = false
   }
 
   function showInfoModal(key: string) {
@@ -107,6 +117,7 @@ export const useUiStore = defineStore('ui', () => {
     handleConfirm,
     handleCancel,
     handleExtra,
+    handleOverlayClick,
 
     // Info Modal
     infoModalKey,

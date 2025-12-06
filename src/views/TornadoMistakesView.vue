@@ -11,6 +11,7 @@ import AnalysisPanel from '@/components/AnalysisPanel.vue'
 import ChessboardPreview from '@/components/ChessboardPreview.vue'
 import type { GamePuzzle } from '@/types/api.types'
 import { soundService } from '@/services/sound.service'
+import { getThemeTranslationKey } from '@/utils/theme-mapper'
 
 // --- CONSTANTS ---
 const MISTAKES_STORAGE_KEY = 'tornado_mistakes'
@@ -41,6 +42,26 @@ const unsolvedMistakes = computed(() => {
 const allMistakesSolved = computed(() => {
   if (mistakes.value.length === 0) return false
   return mistakes.value.every((p) => solvedStatus.value[p.PuzzleId])
+})
+
+const formattedThemes = computed(() => {
+  if (!selectedPuzzle.value) return ''
+
+  let themesList: string[] = []
+
+  if (selectedPuzzle.value.Themes_PG && Array.isArray(selectedPuzzle.value.Themes_PG)) {
+    themesList = selectedPuzzle.value.Themes_PG
+  } else if (selectedPuzzle.value.Themes) {
+    // Handle both space and comma separated strings
+    themesList = selectedPuzzle.value.Themes.split(/[ ,]+/).filter(Boolean)
+  }
+
+  return themesList
+    .map((theme) => {
+      const key = getThemeTranslationKey(theme)
+      return t(`themes.${key}`)
+    })
+    .join(', ')
 })
 
 // --- METHODS ---
@@ -137,7 +158,7 @@ onBeforeRouteLeave(async (to, from, next) => {
 })
 
 async function handleExit() {
-  router.push('/')
+  router.push('/tornado')
 }
 </script>
 
@@ -169,6 +190,21 @@ async function handleExit() {
 
     <template #right-panel>
       <div class="controls-container">
+        <div v-if="selectedPuzzle" class="puzzle-info-box">
+          <div class="info-row">
+            <span class="label">{{ t('tornado.mistakes.info.id') }}:</span>
+            <span class="value">#{{ selectedPuzzle.PuzzleId }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">{{ t('tornado.mistakes.info.rating') }}:</span>
+            <span class="value">{{ selectedPuzzle.Rating }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label">{{ t('tornado.mistakes.info.theme') }}:</span>
+            <span class="value">{{ formattedThemes }}</span>
+          </div>
+        </div>
+
         <div class="action-buttons">
           <button @click="showAnalysis" :disabled="!isAttemptMade" class="action-btn analysis-btn">
             {{ t('tornado.mistakes.ui.analysisButton') }}
@@ -177,8 +213,8 @@ async function handleExit() {
             class="action-btn next-btn">
             {{ t('tornado.mistakes.ui.nextButton') }}
           </button>
-          <button @click="handleExit" class="action-btn exit-btn">
-            {{ t('tornado.mistakes.ui.exitButton') }}
+          <button @click="handleExit" class="action-btn restart-btn">
+            {{ t('tornado.mistakes.ui.restartButton') }}
           </button>
         </div>
 
@@ -267,6 +303,35 @@ h4 {
   text-align: center;
 }
 
+.puzzle-info-box {
+  background-color: var(--color-bg-tertiary);
+  padding: 15px;
+  border-radius: var(--panel-border-radius);
+  border: 1px solid var(--color-border);
+  margin-bottom: 10px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 5px;
+  font-size: var(--font-size-small);
+}
+
+.info-row:last-child {
+  margin-bottom: 0;
+}
+
+.info-row .label {
+  color: var(--color-text-muted);
+}
+
+.info-row .value {
+  font-weight: bold;
+  text-align: right;
+  max-width: 70%;
+}
+
 .action-buttons {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -295,6 +360,11 @@ h4 {
 
 .next-btn {
   background-color: var(--color-accent-success);
+  color: var(--color-text-dark);
+}
+
+.restart-btn {
+  background-color: var(--color-accent-warning);
   color: var(--color-text-dark);
 }
 
