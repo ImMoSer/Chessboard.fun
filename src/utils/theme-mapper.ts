@@ -50,26 +50,20 @@ export const THEME_KEY_MAP: Record<string, string> = {
   'Bishops Endgame': 'bishopsEndgame',
   'Knight vs Pawns': 'knightVsPawns',
   'Knights Endgame': 'knightsEndgame',
-  advancedPawn: 'advancedPawn',
   backRankMate: 'backRankMate',
   capturingDefender: 'capturingDefender',
   clearance: 'clearance',
   deflection: 'deflection',
   discoveredAttack: 'discoveredAttack',
-  doubleCheck: 'doubleCheck',
   fork: 'fork',
   interference: 'interference',
-  intermezzo: 'intermezzo',
-  mate: 'mate',
   attraction: 'attraction',
   pin: 'pin',
   promotion: 'promotion',
   quietMove: 'quietMove',
-  sacrifice: 'sacrifice',
   skewer: 'skewer',
   trappedPiece: 'trappedPiece',
   xRayAttack: 'xRayAttack',
-  zugzwang: 'zugzwang',
   // New Tower Themes
   'Rook vs Knight': 'rookVsKnight',
   'Bishop vs Bishop': 'bishopVsBishop',
@@ -79,11 +73,6 @@ export const THEME_KEY_MAP: Record<string, string> = {
   'Queen vs Knight': 'queenVsKnight',
   'Queen vs Queen': 'queenVsQueen',
   'Rook vs Rook': 'rookVsRook',
-  // New Tornado Themes
-  attackTheKing: 'attackTheKing',
-  defensiveMove: 'defensiveMove',
-  hangingPiece: 'hangingPiece',
-  endgame: 'endgame',
 }
 
 export const getThemeTranslationKey = (theme: string): string => {

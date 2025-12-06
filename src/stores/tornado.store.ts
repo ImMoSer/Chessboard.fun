@@ -26,26 +26,20 @@ const timeControls: Record<TornadoMode, { initial: number; increment: number }> 
 }
 
 const officialThemes = new Set([
-  'mate',
   'fork',
-  'sacrifice',
   'pin',
   'attraction',
   'discoveredAttack',
-  'advancedPawn',
   'deflection',
   'skewer',
   'promotion',
-  'quietMove',
   'trappedPiece',
+  'quietMove',
   'clearance',
-  'intermezzo',
   'capturingDefender',
   'backRankMate',
-  'doubleCheck',
   'interference',
   'xRayAttack',
-  'zugzwang',
 ])
 
 export const useTornadoStore = defineStore('tornado', () => {

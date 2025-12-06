@@ -10,30 +10,20 @@ const { themeRatings } = storeToRefs(tornadoStore)
 const { t } = useI18n()
 
 const tacticalThemes = [
-  'mate',
   'fork',
-  'attackTheKing',
-  'sacrifice',
-  'endgame',
   'pin',
   'attraction',
   'discoveredAttack',
-  'advancedPawn',
   'deflection',
-  'defensiveMove',
   'skewer',
   'promotion',
-  'hangingPiece',
   'trappedPiece',
   'quietMove',
   'clearance',
-  'intermezzo',
   'capturingDefender',
-  'doubleCheck',
   'backRankMate',
   'interference',
   'xRayAttack',
-  'zugzwang',
 ]
 
 const sortedThemeStats = computed(() => {
