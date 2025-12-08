@@ -67,6 +67,7 @@ const progressCircleStyle = computed(() => ({
   flex-direction: column;
   gap: 10px;
   transition: all 0.2s ease;
+  cursor: pointer;
 }
 
 .stats-card:hover {

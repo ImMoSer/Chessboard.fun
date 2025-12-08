@@ -2,11 +2,13 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useUserCabinetStore } from '@/stores/userCabinet.store'
 import AnalyticsDisplay from './AnalyticsDisplay.vue'
 
 const { t } = useI18n()
+const router = useRouter()
 const userCabinetStore = useUserCabinetStore()
 const { detailedStats, isDetailedStatsLoading, detailedStatsError } = storeToRefs(userCabinetStore)
 
@@ -32,6 +34,16 @@ const currentStats = computed(() => {
 const isCurrentStatsTimed = computed(() => {
   return activeTab.value === 'Advantage'
 })
+
+function handleThemeClick(theme: string) {
+  if (activeTab.value === 'Tornado') {
+    router.push({
+      name: 'tornado',
+      params: { mode: 'classic' },
+      query: { theme },
+    })
+  }
+}
 </script>
 
 <template>
@@ -51,7 +63,11 @@ const isCurrentStatsTimed = computed(() => {
       </div>
 
       <div class="tab-content">
-        <AnalyticsDisplay :stats="currentStats" :is-timed="isCurrentStatsTimed" />
+        <AnalyticsDisplay
+          :stats="currentStats"
+          :is-timed="isCurrentStatsTimed"
+          @theme-click="handleThemeClick"
+        />
       </div>
     </div>
     <div v-else class="no-data-message">Нет данных для отображения.</div>

@@ -9,6 +9,11 @@ import { getThemeTranslationKey } from '@/utils/theme-mapper'
 
 const { t } = useI18n()
 
+// Define emits
+const emit = defineEmits<{
+  (e: 'theme-click', theme: string): void
+}>()
+
 type AllStats = TimedModeStatsDto | UntimedModeStatsDto
 
 const props = defineProps({
@@ -107,6 +112,7 @@ const sortedStats = computed(() => {
 
   const statsArray = Object.entries(currentStats.value).map(([theme, data]) => ({
     theme: getThemeTranslationKey(theme),
+    originalTheme: theme,
     ...data,
   }))
 
@@ -174,6 +180,7 @@ function sortBy(key: SortKey) {
           :accuracy="stat.accuracy"
           :solved="stat.solved"
           :attempted="stat.attempted"
+          @click="emit('theme-click', stat.originalTheme)"
         />
       </div>
     </div>
