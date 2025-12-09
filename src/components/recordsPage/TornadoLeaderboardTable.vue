@@ -137,7 +137,7 @@ const getSubscriptionIcon = (tier?: string) => {
 .records-page__table-title {
   color: var(--color-bg-primary);
   font-size: var(--font-size-large);
-  padding: 10px 10px;
+  padding: 1px;
   margin: 0;
   text-align: center;
   border-bottom: 1px solid var(--color-border-hover);
@@ -199,7 +199,7 @@ const getSubscriptionIcon = (tier?: string) => {
 .records-page__table-section-header th {
   font-size: var(--font-size-base);
   color: var(--color-bg-primary);
-  padding: 8px 10px;
+  padding: 1px;
   text-align: center;
   font-weight: var(--font-weight-bold);
   border-bottom: 2px solid var(--color-bg-secondary);

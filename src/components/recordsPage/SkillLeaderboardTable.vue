@@ -122,12 +122,8 @@ const handlePeriodChange = (event: Event) => {
         <tr v-for="(entry, index) in entries" :key="entry.lichess_id">
           <td class="text-center">{{ index + 1 }}</td>
           <td class="text-left">
-            <img
-              v-if="getSubscriptionIcon(entry.subscriptionTier)"
-              :src="getSubscriptionIcon(entry.subscriptionTier)!"
-              class="records-page__sub-icon"
-              :alt="entry.subscriptionTier || 'N/A'"
-            />
+            <img v-if="getSubscriptionIcon(entry.subscriptionTier)" :src="getSubscriptionIcon(entry.subscriptionTier)!"
+              class="records-page__sub-icon" :alt="entry.subscriptionTier || 'N/A'" />
             <a :href="`https://lichess.org/@/${entry.lichess_id}`" target="_blank">{{
               entry.username
             }}</a>
@@ -138,13 +134,9 @@ const handlePeriodChange = (event: Event) => {
           <td class="text-right">
             <span class="total-skill-value">{{ entry.total_skill }}</span>
             <div class="skill-progress-bar">
-              <div
-                v-for="mode in skillModes"
-                :key="mode.key"
-                :class="`skill-bar-segment ${mode.key}`"
+              <div v-for="mode in skillModes" :key="mode.key" :class="`skill-bar-segment ${mode.key}`"
                 :style="getSkillSegmentStyle(entry.skill_by_mode, entry.total_skill, mode.key)"
-                :title="`${t(mode.nameKey)}: ${entry.skill_by_mode[mode.key] || 0}`"
-              ></div>
+                :title="`${t(mode.nameKey)}: ${entry.skill_by_mode[mode.key] || 0}`"></div>
             </div>
           </td>
         </tr>
@@ -164,27 +156,33 @@ const handlePeriodChange = (event: Event) => {
   display: flex;
   flex-direction: column;
 }
+
 .records-page__table-title {
   color: var(--color-bg-primary);
   font-size: var(--font-size-large);
-  padding: 10px;
+  padding: 1px;
   margin: 0;
   text-align: center;
   border-bottom: 1px solid var(--color-border-hover);
   font-weight: var(--font-weight-bold);
 }
+
 .skillStreak .records-page__table-title {
   background-color: var(--color-accent-success);
 }
+
 .skillStreakMega .records-page__table-title {
   background-color: var(--color-violett-lichess);
 }
+
 .topToday .records-page__table-title {
   background-color: var(--color-accent-warning);
 }
+
 .overallSkill .records-page__table-title {
   background-color: var(--color-accent-primary);
 }
+
 .reset-timer-message {
   text-align: center;
   font-size: var(--font-size-small);
@@ -193,12 +191,14 @@ const handlePeriodChange = (event: Event) => {
   padding: 5px;
   margin: 0;
 }
+
 .stats-filters {
   display: flex;
   justify-content: center;
   padding: 10px;
   background-color: var(--color-bg-tertiary);
 }
+
 .stats-filters select {
   padding: 8px 12px;
   border-radius: 6px;
@@ -208,6 +208,7 @@ const handlePeriodChange = (event: Event) => {
   font-size: var(--font-size-base);
   cursor: pointer;
 }
+
 .skill-legend {
   display: flex;
   justify-content: center;
@@ -216,78 +217,96 @@ const handlePeriodChange = (event: Event) => {
   padding: 10px;
   background-color: var(--color-bg-tertiary);
 }
+
 .legend-item {
   display: flex;
   align-items: center;
   gap: 8px;
 }
+
 .legend-color-swatch {
   width: 16px;
   height: 16px;
   border-radius: 4px;
   border: 1px solid var(--color-border-hover);
 }
+
 /* --- НАЧАЛО ИЗМЕНЕНИЙ --- */
 .legend-color-swatch.finishHim {
   background-color: var(--color-accent-primary);
 }
+
 .legend-color-swatch.attack {
   background-color: var(--color-accent-warning);
 }
+
 .legend-color-swatch.tower {
   background-color: var(--color-violett-lichess);
 }
+
 .legend-color-swatch.tornado {
   background-color: var(--color-accent-secondary);
 }
+
 .legend-color-swatch.advantage {
   background-color: var(--color-text-error);
 }
+
 /* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
 .legend-label {
   font-size: var(--font-size-small);
   color: var(--color-text-muted);
 }
+
 .loading-message {
   text-align: center;
   padding: 20px;
 }
+
 .records-page__table {
   width: 100%;
   border-collapse: collapse;
   font-size: var(--font-size-base);
 }
+
 .records-page__table th,
 .records-page__table td {
   padding: 3px 3px;
   border-bottom: 1px solid var(--color-border);
   white-space: nowrap;
 }
+
 .records-page__table th {
   background-color: var(--color-bg-tertiary);
   color: var(--color-text-muted);
 }
+
 .records-page__table tbody tr:nth-child(even) {
   background-color: var(--color-bg-tertiary);
 }
+
 .records-page__table tbody tr:hover {
   background-color: var(--color-border-hover);
 }
+
 .records-page__table td a {
   color: var(--color-text-link);
   text-decoration: none;
   font-weight: var(--font-weight-bold);
 }
+
 .records-page__sub-icon {
   width: auto;
   height: 1.7em;
   vertical-align: -0.4em;
   margin-right: 6px;
 }
+
 .total-skill-value {
   font-weight: bold;
   margin-right: 10px;
 }
+
 .skill-progress-bar {
   display: inline-flex;
   width: 300px;
@@ -298,39 +317,49 @@ const handlePeriodChange = (event: Event) => {
   border: 1px solid var(--color-border-hover);
   vertical-align: middle;
 }
+
 .skill-bar-segment {
   height: 100%;
 }
+
 /* --- НАЧАЛО ИЗМЕНЕНИЙ --- */
 .skill-bar-segment.finishHim {
   background-color: var(--color-accent-primary);
 }
+
 .skill-bar-segment.attack {
   background-color: var(--color-accent-warning);
 }
+
 .skill-bar-segment.tower {
   background-color: var(--color-violett-lichess);
 }
+
 .skill-bar-segment.tornado {
   background-color: var(--color-accent-secondary);
 }
+
 .skill-bar-segment.advantage {
   background-color: var(--color-text-error);
 }
+
 /* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
 .text-left {
   text-align: left;
 }
+
 .text-center {
   text-align: center;
 }
+
 .text-right {
   text-align: right;
 }
 
-@media (max-width: 768px) {
+@media (orientation: portrait) {
   .skill-progress-bar {
-    width: 100px; /* Например, делаем балку короче на узких экранах */
+    width: 100px;
+    /* Например, делаем балку короче на узких экранах */
   }
 }
 </style>

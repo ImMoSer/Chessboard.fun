@@ -136,27 +136,30 @@ const handleChallengeClick = (towerId?: string) => {
 }
 
 .records-page__modes-grid {
-  display: flex; /* Default to column for mobile */
+  display: flex;
+  /* Default to column for mobile */
   flex-direction: column;
-  gap: 20px; /* Space between sections */
+  gap: 20px;
+  /* Space between sections */
 }
 
-@media (min-width: 768px) { /* Apply grid for desktop/landscape */
+@media (min-width: 768px) {
+
+  /* Apply grid for desktop/landscape */
   .records-page__modes-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr); /* 2 columns */
-    gap: 20px; /* Space between grid items */
+    grid-template-columns: repeat(2, 1fr);
+    /* 2 columns */
+    gap: 20px;
+    /* Space between grid items */
   }
 }
 
-.records-page__mode-section {
-  /* No specific styles for mode-section itself, as it should appear as part of the container */
-}
 
 .records-page__table-title {
   color: var(--color-bg-primary);
   font-size: var(--font-size-large);
-  padding: 10px 10px;
+  padding: 1px;
   margin: 0;
   text-align: center;
   border-bottom: 1px solid var(--color-border-hover);
@@ -214,7 +217,7 @@ const handleChallengeClick = (towerId?: string) => {
 .records-page__table-section-header th {
   font-size: var(--font-size-base);
   color: var(--color-bg-primary);
-  padding: 8px 10px;
+  padding: 1px;
   text-align: center;
   font-weight: var(--font-weight-bold);
   border-bottom: 2px solid var(--color-bg-secondary);

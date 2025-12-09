@@ -22,10 +22,10 @@ interface Mode {
 }
 
 const modes: Mode[] = [
-  { id: 'bullet', image: '/png/tornado/tornado_bulet.png', alt: 'Bullet Mode' },
-  { id: 'blitz', image: '/png/tornado/tornado_blitz.png', alt: 'Blitz Mode' },
-  { id: 'rapid', image: '/png/tornado/tornado_rapid.png', alt: 'Rapid Mode' },
-  { id: 'classic', image: '/png/tornado/tornado_classic.png', alt: 'Classic Mode' },
+  { id: 'bullet', image: '/jpg/tornado/tornado_bullet.jpg', alt: 'Bullet Mode' },
+  { id: 'blitz', image: '/jpg/tornado/tornado_blitz.jpg', alt: 'Blitz Mode' },
+  { id: 'rapid', image: '/jpg/tornado/tornado_rapid.jpg', alt: 'Rapid Mode' },
+  { id: 'classic', image: '/jpg/tornado/tornado_classic.jpg', alt: 'Classic Mode' },
 ]
 
 const selectMode = (modeId: TornadoMode) => {
@@ -88,7 +88,7 @@ const selectMode = (modeId: TornadoMode) => {
 }
 
 .modes-container {
-  background: rgba(255, 255, 255, 0.05);
+
   backdrop-filter: blur(15px);
   border-radius: var(--panel-border-radius);
   padding: 30px;
@@ -162,10 +162,11 @@ const selectMode = (modeId: TornadoMode) => {
   }
 
   .modes-container {
-    padding: 20px;
+    padding: 1px;
     max-width: none;
     width: calc(100% - 10px);
     box-sizing: border-box;
+    border: none;
   }
 
   .modes-grid {

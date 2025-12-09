@@ -153,7 +153,7 @@ const handleChangeLang = (lang: 'en' | 'ru' | 'de') => {
 .welcome-logo {
   max-width: 100%;
   height: auto;
-  border-radius: 10px;
+  border-radius: 5px;
 }
 
 .welcome-title {
@@ -197,12 +197,12 @@ const handleChangeLang = (lang: 'en' | 'ru' | 'de') => {
 }
 
 .mode-button-icon {
-  font-size: 4rem;
+  font-size: 3rem;
   line-height: 1;
 }
 
 .mode-button-text {
-  line-height: 1.2;
+  line-height: 1.1;
   font-size: var(--font-size-xlarge);
 }
 
@@ -254,7 +254,7 @@ const handleChangeLang = (lang: 'en' | 'ru' | 'de') => {
 }
 
 /* Адаптация для мобильных устройств */
-@media (max-width: 768px) {
+@media (orientation: portrait) {
   .welcome-page-container {
     padding-bottom: 60px;
     /* Уменьшенный отступ для мобильных */
@@ -274,8 +274,8 @@ const handleChangeLang = (lang: 'en' | 'ru' | 'de') => {
   }
 
   .mode-button {
-    padding: 20px;
-    font-size: var(--font-size-base);
+    padding: 10px;
+    font-size: var(--font-size-small);
   }
 
   .language-switcher-container {
@@ -290,6 +290,10 @@ const handleChangeLang = (lang: 'en' | 'ru' | 'de') => {
 
   .lang-separator {
     font-size: var(--font-size-small);
+  }
+
+  .mode-button-text {
+    font-size: var(--font-size-large);
   }
 }
 </style>
