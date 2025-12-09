@@ -4,8 +4,8 @@ import { defineStore } from 'pinia'
 import { analysisService, type EvaluatedLineWithSan } from '../services/AnalysisService'
 import { useBoardStore } from './board.store'
 import logger from '../utils/logger'
-import type { Key } from 'chessground/types'
-import type { DrawShape } from 'chessground/draw'
+import type { Key } from '@lichess-org/chessground/types'
+import type { DrawShape } from '@lichess-org/chessground/draw'
 
 const THREADS_STORAGE_KEY = 'analysis_threads'
 const ARROW_STYLES = [

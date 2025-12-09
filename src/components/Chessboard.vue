@@ -1,13 +1,13 @@
 <!-- src/components/Chessboard.vue -->
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch, shallowRef, type PropType } from 'vue'
-import { Chessground } from 'chessground'
-import type { Api } from 'chessground/api'
-import type { Config } from 'chessground/config'
-import type { Key, Dests, Color as ChessgroundColor, MoveMetadata } from 'chessground/types'
+import { Chessground } from '@lichess-org/chessground'
+import type { Api } from '@lichess-org/chessground/api'
+import type { Config } from '@lichess-org/chessground/config'
+import type { Key, Dests, Color as ChessgroundColor, MoveMetadata } from '@lichess-org/chessground/types'
 import PromotionDialog from './PromotionDialog.vue'
 import type { Role as ChessopsRole } from 'chessops/types'
-import type { DrawShape } from 'chessground/draw'
+import type { DrawShape } from '@lichess-org/chessground/draw'
 import logger from '../utils/logger'
 import { useBoardStore } from '@/stores/board.store'
 

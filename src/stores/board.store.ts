@@ -7,8 +7,8 @@ import { makeSan } from 'chessops/san'
 import { parseSquare, makeUci, parseUci as parseUciMove } from 'chessops/util'
 import { chessgroundDests } from 'chessops/compat'
 import { isNormal } from 'chessops/types'
-import type { Api } from 'chessground/api'
-import type { Key, Dests, Color as ChessgroundColor, Piece as ChessopsPiece } from 'chessground/types'
+import type { Api } from '@lichess-org/chessground/api'
+import type { Key, Dests, Color as ChessgroundColor, Piece as ChessopsPiece } from '@lichess-org/chessground/types'
 import type {
   Role as ChessopsRole,
   Color as ChessopsColor,
@@ -18,7 +18,7 @@ import type {
 import { pgnService, type PgnNode } from '../services/PgnService'
 import logger from '../utils/logger'
 import { soundService } from '../services/sound.service'
-import type { DrawShape } from 'chessground/draw'
+import type { DrawShape } from '@lichess-org/chessground/draw'
 import { useGameStore } from './game.store'
 
 export interface GameEndOutcome {

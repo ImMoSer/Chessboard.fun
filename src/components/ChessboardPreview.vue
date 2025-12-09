@@ -1,10 +1,10 @@
 <!-- src/components/ChessboardPreview.vue -->
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch, shallowRef } from 'vue'
-import { Chessground } from 'chessground'
-import type { Api } from 'chessground/api'
-import type { Config } from 'chessground/config'
-import type { Color as ChessgroundColor } from 'chessground/types'
+import { Chessground } from '@lichess-org/chessground'
+import type { Api } from '@lichess-org/chessground/api'
+import type { Config } from '@lichess-org/chessground/config'
+import type { Color as ChessgroundColor } from '@lichess-org/chessground/types'
 
 const props = defineProps({
   fen: {

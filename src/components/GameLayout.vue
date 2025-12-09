@@ -6,7 +6,7 @@ import { useGameStore } from '@/stores/game.store'
 import { useAnalysisStore } from '@/stores/analysis.store'
 import { useThemeStore } from '@/stores/theme.store'
 import Chessboard from './Chessboard.vue'
-import type { Key } from 'chessground/types'
+import type { Key } from '@lichess-org/chessground/types'
 import { useBoardResizer } from '../composables/useBoardResizer'
 
 const centerColumnRef = ref<HTMLElement | null>(null)

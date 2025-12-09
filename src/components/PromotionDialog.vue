@@ -2,8 +2,8 @@
 <script setup lang="ts">
 import { computed, type PropType } from 'vue'
 import type { Role as ChessopsRole } from 'chessops/types'
-import type { Key, Color as ChessgroundColor } from 'chessground/types'
-import { key2pos } from 'chessground/util'
+import type { Key, Color as ChessgroundColor } from '@lichess-org/chessground/types'
+import { key2pos } from '@lichess-org/chessground/util'
 
 const props = defineProps({
   dest: {
