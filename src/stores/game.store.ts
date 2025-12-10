@@ -18,7 +18,7 @@ export type GameMode = 'finish-him' | 'attack' | 'tower' | 'tornado' | 'advantag
 
 const BOT_MOVE_DELAY_MS = 50
 const FIRST_BOT_MOVE_DELAY_MS = 500
-const noop = () => {}
+const noop = () => { }
 
 export const useGameStore = defineStore('game', () => {
   const gamePhase = ref<GamePhase>('IDLE')
@@ -92,10 +92,6 @@ export const useGameStore = defineStore('game', () => {
     if (gamePhase.value !== 'PLAYING' || !botMoveUci) return
 
     boardStore.applyUciMove(botMoveUci)
-
-    setTimeout(() => {
-      boardStore.playPremove()
-    }, 0)
 
     _checkAndHandleGameOver()
   }

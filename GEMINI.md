@@ -39,6 +39,14 @@
 
 Файл `README.md` содержит четкие рекомендации по внесению вклада в проект. Рекомендуется создать issue для обсуждения любых изменений перед отправкой pull request.
 
+# Recent Changes
+
+- **Refactoring Stage 2 (Chessboard Optimization)**:
+  - **Architecture**: Decoupled `Chessboard.vue` from `board.store.ts`. Removed `groundApi` from global store.
+  - **Performance**: Implemented atomic watchers in `Chessboard.vue` to preventing unnecessary re-renders.
+  - **Premoves**: Added native Chessground premove support (`premovable: true`) with robust server-side validation flow (`check-premove` event).
+  - **UI**: Added CSS Grid implementation for `PromotionDialog` for pixel-perfect positioning overlay.
+
 # Правила взаимодействия:
 
 - Коммуникация **только на русском языке**
@@ -74,5 +82,3 @@
 - Получить подтверждение
 
 - Выполнить изменения
-
-- проверить код командой только Shell "pnpm type-check" - но не "pnpm lint"! pnpm lint проверку делать не надо!

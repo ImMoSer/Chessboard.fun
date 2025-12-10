@@ -91,6 +91,7 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
           :promotion-state="boardStore.promotionState" :drawable-shapes="boardStore.drawableShapes"
           :is-analysis-mode="boardStore.isAnalysisModeActive" :animation-enabled="isAnimationEnabled"
           :animation-duration="themeStore.currentTheme.animationDuration" @user-move="handleUserMove"
+          @check-premove="handleUserMove"
           @complete-promotion="boardStore.completePromotion" @cancel-promotion="boardStore.cancelPromotion"
           @wheel-navigate="handleBoardWheel" />
         <slot name="center-column"></slot>

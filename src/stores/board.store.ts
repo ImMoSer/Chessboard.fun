@@ -1,5 +1,5 @@
 // src/stores/board.store.ts
-import { ref, computed, shallowRef } from 'vue'
+import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { Chess } from 'chessops/chess'
 import { parseFen, makeFen } from 'chessops/fen'
@@ -7,7 +7,6 @@ import { makeSan } from 'chessops/san'
 import { parseSquare, makeUci, parseUci as parseUciMove } from 'chessops/util'
 import { chessgroundDests } from 'chessops/compat'
 import { isNormal } from 'chessops/types'
-import type { Api } from '@lichess-org/chessground/api'
 import type { Key, Dests, Color as ChessgroundColor, Piece as ChessopsPiece } from '@lichess-org/chessground/types'
 import type {
   Role as ChessopsRole,
@@ -36,16 +35,7 @@ export interface PromotionState {
 const INITIAL_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 
 export const useBoardStore = defineStore('board', () => {
-  const groundApi = shallowRef<Api | null>(null)
   const gameStore = useGameStore()
-
-  function setGroundApi(api: Api | null) {
-    groundApi.value = api
-  }
-
-  function playPremove() {
-    groundApi.value?.playPremove()
-  }
 
   const fen = ref<string>(INITIAL_FEN)
   const chessPosition = ref(Chess.fromSetup(parseFen(fen.value).unwrap()).unwrap())
@@ -350,24 +340,6 @@ export const useBoardStore = defineStore('board', () => {
     drawableShapes.value = []
     isAnalysisModeActive.value = false
 
-    // --- <<< НАЧАЛО ИЗМЕНЕНИЙ: Исправлена ошибка TypeScript >>> ---
-    groundApi.value?.set({
-      fen: INITIAL_FEN,
-      orientation: 'white',
-      turnColor: 'white',
-      lastMove: undefined,
-      check: false,
-      drawable: {
-        shapes: [],
-      },
-      movable: {
-        dests: chessgroundDests(chessPosition.value as any), // 'dests' теперь внутри 'movable'
-        free: false,
-        color: 'white',
-      },
-    })
-    // --- <<< КОНЕЦ ИЗМЕНЕНИЙ >>> ---
-
     logger.info('[BoardStore] Board state has been reset to initial.')
   }
 
@@ -393,8 +365,6 @@ export const useBoardStore = defineStore('board', () => {
     navigatePgn,
     navigateToNode,
     setAnalysisMode,
-    setGroundApi,
-    playPremove,
     resetBoardState,
   }
 })
