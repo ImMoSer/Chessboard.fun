@@ -46,18 +46,6 @@ const formatTierExpireDate = (isoDate: string | null | undefined) => {
         }}</span>
         <span class="user-cabinet__stat-value">{{ userProfile.finishHimRating.rating }}</span>
       </div>
-      <div class="user-cabinet__stat-item">
-        <span class="user-cabinet__stat-label">{{
-          t('userCabinet.stats.attackSkillLabel')
-        }}</span>
-        <span class="user-cabinet__stat-value">{{ userProfile.attack_skill }}</span>
-      </div>
-      <div v-if="userProfile.attackRating" class="user-cabinet__stat-item">
-        <span class="user-cabinet__stat-label">{{
-          t('userCabinet.stats.attackRatingLabel')
-        }}</span>
-        <span class="user-cabinet__stat-value">{{ userProfile.attackRating.rating }}</span>
-      </div>
     </div>
   </header>
 </template>

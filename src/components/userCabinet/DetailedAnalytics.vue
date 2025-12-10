@@ -12,27 +12,21 @@ const router = useRouter()
 const userCabinetStore = useUserCabinetStore()
 const { detailedStats, isDetailedStatsLoading, detailedStatsError } = storeToRefs(userCabinetStore)
 
-type Tab = 'Tornado' | 'Advantage' | 'Endgame'
+type Tab = 'Tornado' | 'Endgame'
 const activeTab = ref<Tab>('Tornado')
 
-const tabs: Tab[] = ['Tornado', 'Advantage', 'Endgame']
+const tabs: Tab[] = ['Tornado', 'Endgame']
 
 const currentStats = computed(() => {
   if (!detailedStats.value) return null
   switch (activeTab.value) {
     case 'Tornado':
       return detailedStats.value.tornadoStats
-    case 'Advantage':
-      return detailedStats.value.advantageStats
     case 'Endgame':
       return detailedStats.value.endgameStats
     default:
       return null
   }
-})
-
-const isCurrentStatsTimed = computed(() => {
-  return activeTab.value === 'Advantage'
 })
 
 function handleThemeClick(theme: string) {
@@ -65,7 +59,7 @@ function handleThemeClick(theme: string) {
       <div class="tab-content">
         <AnalyticsDisplay
           :stats="currentStats"
-          :is-timed="isCurrentStatsTimed"
+          :is-timed="false"
           @theme-click="handleThemeClick"
         />
       </div>

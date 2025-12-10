@@ -6,7 +6,6 @@ import type {
   UpdateFinishHimStatsDto,
   GetNewTowerDto,
   SaveTowerRecordDto,
-  AttackRecordDto,
   SubmitTacticalResultDto,
   GamePuzzle,
   TacticalTrainerStats,
@@ -28,12 +27,8 @@ import type {
   TornadoEndResponse,
   FunclubMeta,
   TeamBattleReport,
-  // --- НАЧАЛО ИЗМЕНЕНИЙ ---
   LatestTeamBattleReport,
-  AdvantageMode,
-  AdvantageResultDto,
   DetailedStatsResponse,
-  // --- КОНЕЦ ИЗМЕНЕНИЙ ---
 } from '../types/api.types'
 
 export class RateLimitError extends Error {
@@ -127,36 +122,6 @@ class WebhookServiceController {
     }
   }
 
-  // --- ADVANTAGE API ---
-  public async getAdvantageNextPuzzle(mode: AdvantageMode): Promise<GamePuzzle | null> {
-    return this._apiRequest<GamePuzzle>(
-      `/advantage/next/${mode}`,
-      'GET',
-      'getAdvantageNextPuzzle',
-    )
-  }
-
-  public async postAdvantageResult(
-    mode: AdvantageMode,
-    dto: AdvantageResultDto,
-  ): Promise<GameResultResponse | null> {
-    return this._apiRequest<GameResultResponse>(
-      `/advantage/result/${mode}`,
-      'POST',
-      'postAdvantageResult',
-      dto,
-    )
-  }
-
-  public async getAdvantagePuzzleById(puzzleId: string): Promise<GamePuzzle | null> {
-    return this._apiRequest<GamePuzzle>(
-      `/advantage/PuzzleId/${puzzleId}`,
-      'GET',
-      'getAdvantagePuzzleById',
-    )
-  }
-  // --- END ADVANTAGE API ---
-
   // --- NEW FUNCLUB STATS API ---
   public async fetchFunclubClubMeta(): Promise<FunclubMeta | null> {
     return this._apiRequest<FunclubMeta>('/funclub-stats/club-meta', 'GET', 'fetchFunclubClubMeta')
@@ -172,7 +137,6 @@ class WebhookServiceController {
     return this._apiRequest<TeamBattleReport>(path, 'GET', 'fetchFunclubTeamBattleReport')
   }
 
-  // --- НАЧАЛО ИЗМЕНЕНИЙ ---
   public async fetchLatestTeamBattleReport(): Promise<LatestTeamBattleReport | null> {
     return this._apiRequest<LatestTeamBattleReport>(
       '/funclub-stats/team-battle/latest',
@@ -180,7 +144,6 @@ class WebhookServiceController {
       'fetchLatestTeamBattleReport',
     )
   }
-  // --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
   // --- TORNADO API ---
   public async startTornadoSession(
@@ -274,24 +237,7 @@ class WebhookServiceController {
       dto,
     )
   }
-  public async fetchAttackPuzzle(): Promise<GamePuzzle | null> {
-    return this._apiRequest<GamePuzzle>('/n8n-proxy/puzzles/attack', 'GET', 'fetchAttackPuzzle')
-  }
-  public async fetchAttackPuzzleById(puzzleId: string): Promise<GamePuzzle | null> {
-    return this._apiRequest<GamePuzzle>(
-      `/n8n-proxy/puzzles/attack/${puzzleId}`,
-      'GET',
-      'fetchAttackPuzzleById',
-    )
-  }
-  public async sendAttackRecord(dto: AttackRecordDto): Promise<GameResultResponse | null> {
-    return this._apiRequest<GameResultResponse>(
-      '/n8n-proxy/stats/attack',
-      'POST',
-      'sendAttackRecord',
-      dto,
-    )
-  }
+
   public async fetchTelegramBindingUrl(): Promise<TelegramBindingUrlResponse | null> {
     return this._apiRequest<TelegramBindingUrlResponse>(
       '/n8n-proxy/telegram/binding-url',

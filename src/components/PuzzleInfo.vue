@@ -3,25 +3,19 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import { useFinishHimStore } from '../stores/finishHim.store'
-import { useAttackStore } from '../stores/attack.store'
 import { useTowerStore } from '../stores/tower.store'
 import { useTornadoStore } from '../stores/tornado.store'
-import { useAdvantageStore } from '../stores/advantage.store'
 import type { GamePuzzle } from '../types/api.types'
 import { getThemeTranslationKey } from '../utils/theme-mapper'
 import ChessboardPreview from './ChessboardPreview.vue'
 
 const route = useRoute()
 const finishHimStore = useFinishHimStore()
-const attackStore = useAttackStore()
 const towerStore = useTowerStore()
 const tornadoStore = useTornadoStore()
-const advantageStore = useAdvantageStore()
 const { t } = useI18n()
 
 const activeStore = computed(() => {
-  if (['advantage', 'advantage-puzzle'].includes(route.name as string)) return advantageStore
-  if (route.name === 'attack') return attackStore
   if (route.name === 'tower') return towerStore
   if (route.name === 'tornado') return tornadoStore
   return finishHimStore
@@ -129,7 +123,7 @@ const formatTime = (seconds: number | null | undefined): string => {
 
 const sortedResults = computed(() => {
   const puzzle = activePuzzle.value
-  const results = puzzle?.endgame_results || puzzle?.attack_results
+  const results = puzzle?.endgame_results
   if (!results || results.length === 0) {
     return null
   }

@@ -3,10 +3,8 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useFinishHimStore } from '@/stores/finishHim.store'
-import { useAttackStore } from '@/stores/attack.store'
 import { useTowerStore } from '@/stores/tower.store'
 import { useTornadoStore } from '@/stores/tornado.store'
-import { useAdvantageStore } from '@/stores/advantage.store'
 import { useControlsStore } from '@/stores/controls.store'
 import FinishHimSelection from '@/components/FinishHimSelection.vue'
 import EngineSelector from '@/components/EngineSelector.vue'
@@ -16,24 +14,16 @@ const { t } = useI18n()
 
 const route = useRoute()
 const finishHimStore = useFinishHimStore()
-const attackStore = useAttackStore()
 const towerStore = useTowerStore()
 const tornadoStore = useTornadoStore()
-const advantageStore = useAdvantageStore()
 useControlsStore()
 
 const formattedTimer = computed(() => {
-  if (route.name === 'attack') {
-    return attackStore.formattedTimer
-  }
   if (route.name === 'tower') {
     return towerStore.formattedTimer
   }
   if (route.name === 'tornado') {
     return tornadoStore.formattedTimer
-  }
-  if (['advantage', 'advantage-puzzle'].includes(route.name as string)) {
-    return advantageStore.formattedTimer
   }
   return finishHimStore.formattedTimer
 })
@@ -44,9 +34,6 @@ const containerClass = computed(() => {
       return 'mode-finish-him'
     case 'tornado':
       return 'mode-tornado'
-    case 'advantage':
-    case 'advantage-puzzle':
-      return 'mode-default'
     default:
       return 'mode-default'
   }
@@ -74,7 +61,7 @@ const containerClass = computed(() => {
     <!-- Селектор движка для режимов с ботом -->
     <div
       v-if="
-        ['finish-him', 'attack', 'tower', 'advantage', 'advantage-puzzle', 'sandbox', 'sandbox-with-engine', 'sandbox-with-engine-and-color'].includes(route.name as string)
+        ['finish-him', 'tower', 'sandbox', 'sandbox-with-engine', 'sandbox-with-engine-and-color'].includes(route.name as string)
       "
       class="engine-selector-container">
       <img src="/buttons/robot.svg" alt="Select Engine" class="robot-icon" />

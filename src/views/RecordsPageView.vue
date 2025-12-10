@@ -84,15 +84,6 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
         info-topic="tornadoLeaderboard"
       />
 
-      <!-- Advantage Leaderboard -->
-      <TornadoLeaderboardTable
-        v-if="leaderboards.advantageLeaderboard"
-        :title="t('nav.advantage')"
-        :tornado-data="leaderboards.advantageLeaderboard"
-        color-class="advantageLeaderboard"
-        info-topic="advantageLeaderboard"
-      />
-
       <!-- Tower Leaderboards -->
       <TowerLeaderboardTable
         v-if="leaderboards.towerLeaderboards"
@@ -110,16 +101,6 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
         mode="finish-him"
         color-class="finishHimLeaderboard"
         info-topic="topFinishHim"
-      />
-
-      <!-- Attack Leaderboard -->
-      <SimpleLeaderboardTable
-        v-if="leaderboards.attackLeaderboard && leaderboards.attackLeaderboard.length > 0"
-        :title="t('records.titles.topAttack')"
-        :entries="leaderboards.attackLeaderboard"
-        mode="attack"
-        color-class="attackLeaderboard"
-        info-topic="topAttack"
       />
 
       <!-- Overall Skill Leaderboard -->

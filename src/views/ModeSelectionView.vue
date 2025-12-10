@@ -9,7 +9,8 @@ const router = useRouter()
 const route = useRoute()
 const { t } = useI18n()
 
-const gameMode = computed(() => route.meta.gameMode as 'tornado' | 'advantage')
+// Previously handled 'advantage', now defaulting to 'tornado' or based on route meta if needed for other future modes
+const gameMode = computed(() => route.meta.gameMode as 'tornado')
 
 const title = computed(() => {
   return t(`${gameMode.value}.selection.title`)
@@ -30,9 +31,7 @@ const modes: Mode[] = [
 
 const selectMode = (modeId: TornadoMode) => {
   const puzzleId = route.params.puzzleId as string | undefined
-  if (gameMode.value === 'advantage' && puzzleId) {
-    router.push(`/advantage/puzzle/${puzzleId}/${modeId}`)
-  } else if (puzzleId) {
+  if (puzzleId) {
     router.push(`/${gameMode.value}/${puzzleId}/${modeId}`)
   } else {
     router.push(`/${gameMode.value}/${modeId}`)

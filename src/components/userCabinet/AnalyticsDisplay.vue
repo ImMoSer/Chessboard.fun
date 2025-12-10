@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { ref, computed, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { TimedModeStatsDto, UntimedModeStatsDto, ModeStatsDto, TornadoMode, AdvantageMode } from '@/types/api.types'
+import type { TimedModeStatsDto, UntimedModeStatsDto, ModeStatsDto, TornadoMode } from '@/types/api.types'
 import RadarChart from './sections/RadarChart.vue'
 import StatsCard from './sections/StatsCard.vue'
 import { getThemeTranslationKey } from '@/utils/theme-mapper'
@@ -28,18 +28,18 @@ const props = defineProps({
 })
 
 type SortKey = 'theme' | 'rating' | 'attempted' | 'accuracy'
-type DisplayMode = TornadoMode | AdvantageMode | 'All'
+type DisplayMode = TornadoMode | 'All'
 
 const sortKey = ref<SortKey>('rating')
 const sortOrder = ref<'asc' | 'desc'>('desc')
 
-const availableModes = computed<Array<TornadoMode | AdvantageMode>>(() => {
+const availableModes = computed<Array<TornadoMode>>(() => {
   if (!props.stats || !props.isTimed) return []
   const timedStats = props.stats as TimedModeStatsDto
   return Object.keys(timedStats).filter((mode) => {
     const modeStats = timedStats[mode as keyof TimedModeStatsDto]
     return modeStats && Object.keys(modeStats).length > 0
-  }) as Array<TornadoMode | AdvantageMode>
+  }) as Array<TornadoMode>
 })
 
 const displayModes = computed<DisplayMode[]>(() =>

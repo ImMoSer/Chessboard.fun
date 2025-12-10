@@ -4,7 +4,6 @@ import { useGameStore } from '../stores/game.store'
 import { useUiStore } from '../stores/ui.store'
 import i18n from '../services/i18n'
 import { useAnalysisStore } from '../stores/analysis.store'
-import { useAttackStore } from '../stores/attack.store'
 import { useFinishHimStore } from '../stores/finishHim.store'
 import { useTowerStore } from '../stores/tower.store'
 import { useAuthStore } from '../stores/auth.store'
@@ -14,7 +13,6 @@ import FinishHimView from '../views/FinishHimView.vue'
 import WelcomeView from '../views/WelcomeView.vue'
 import AboutView from '../views/AboutView.vue'
 import PricingView from '../views/PricingView.vue'
-import AttackView from '../views/AttackView.vue'
 import RecordsPageView from '../views/RecordsPageView.vue'
 import TowerView from '../views/TowerView.vue'
 import UserCabinetView from '../views/UserCabinetView.vue'
@@ -22,7 +20,6 @@ import ModeSelectionView from '../views/ModeSelectionView.vue'
 import TornadoView from '../views/TornadoView.vue'
 import TornadoMistakesView from '../views/TornadoMistakesView.vue'
 import FunclubLatestBattleView from '../views/FunclubLatestBattleView.vue'
-import AdvantageView from '../views/AdvantageView.vue'
 import TowerLoader from '../views/TowerLoader.vue'
 
 const router = createRouter({
@@ -70,12 +67,6 @@ const router = createRouter({
       meta: { isGame: true, requiresAuth: true, game: 'finish-him' },
     },
     {
-      path: '/attack/:puzzleId?',
-      name: 'attack',
-      component: AttackView,
-      meta: { isGame: true, requiresAuth: true, game: 'attack' },
-    },
-    {
       path: '/tower/:towerId?',
       name: 'tower',
       component: TowerView,
@@ -98,30 +89,6 @@ const router = createRouter({
       name: 'tornado-mistakes',
       component: TornadoMistakesView,
       meta: { requiresAuth: true },
-    },
-    {
-      path: '/advantage',
-      name: 'advantage-selection',
-      component: ModeSelectionView,
-      meta: { requiresAuth: true, gameMode: 'advantage' },
-    },
-    {
-      path: '/advantage/puzzle/:puzzleId',
-      name: 'advantage-puzzle-selection',
-      component: ModeSelectionView,
-      meta: { requiresAuth: true, gameMode: 'advantage' },
-    },
-    {
-      path: '/advantage/:mode(bullet|blitz|rapid|classic)',
-      name: 'advantage',
-      component: AdvantageView,
-      meta: { isGame: true, requiresAuth: true, game: 'advantage' },
-    },
-    {
-      path: '/advantage/puzzle/:puzzleId/:mode(bullet|blitz|rapid|classic)',
-      name: 'advantage-puzzle',
-      component: AdvantageView,
-      meta: { isGame: true, requiresAuth: true, game: 'advantage' },
     },
     {
       path: '/user-cabinet',
@@ -224,8 +191,6 @@ router.afterEach(async (to, from) => {
 
   if (fromBaseRoute === 'tower' && toBaseRoute !== 'tower') {
     useTowerStore().reset()
-  } else if (fromBaseRoute === 'attack' && toBaseRoute !== 'attack') {
-    useAttackStore().reset()
   } else if (fromBaseRoute === 'finish-him' && toBaseRoute !== 'finish-him') {
     useFinishHimStore().reset()
   } else if (fromBaseRoute === 'tornado' && toBaseRoute !== 'tornado' && !isTornadoToMistakes) {
@@ -234,4 +199,3 @@ router.afterEach(async (to, from) => {
 })
 
 export default router
-

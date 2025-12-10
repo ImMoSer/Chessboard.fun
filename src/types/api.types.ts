@@ -148,16 +148,6 @@ export interface TornadoEndResponse {
 
 // --- END TORNADO --
 
-// --- ADVANTAGE MODE ---
-export type AdvantageMode = 'bullet' | 'blitz' | 'rapid' | 'classic'
-
-export interface AdvantageResultDto {
-  puzzleId: string
-  wasCorrect: boolean
-  theme: string
-}
-// --- END ADVANTAGE ---
-
 export interface TowerPositionEntry {
   FEN_0: string
   rating: number
@@ -216,13 +206,6 @@ export interface SaveTowerRecordDto {
   success: boolean
   bw_value_total: number
 }
-export interface AttackRecordDto {
-  username: string
-  PuzzleId: string
-  time_in_seconds: number
-  success: boolean
-  bw_value: number
-}
 
 export interface SubmitTacticalResultDto {
   PuzzleId: string
@@ -252,7 +235,6 @@ export interface GamePuzzle {
   EndgameType?: string
   fen_final?: string
   endgame_results?: PuzzleResultEntry[]
-  attack_results?: PuzzleResultEntry[]
   Themes_PG?: string[]
   engm_type?: TowerTheme | null
   difficulty_level?: string | null
@@ -323,26 +305,8 @@ export interface TowerLeaderboardEntry {
   lichess_id: string
   subscriptionTier?: string
 }
-export interface AttackLeaderboardEntry {
-  rank: number
-  username: string
-  best_time: number
-  days_old: number
-  puzzle_id: string
-  lichess_id: string
-  subscriptionTier?: string
-}
 
 export interface TornadoLeaderboardEntry {
-  rank: number
-  username: string
-  lichess_id: string
-  highScore: number
-  days_old: number
-  subscriptionTier?: string
-}
-
-export interface AdvantageLeaderboardEntry {
   rank: number
   username: string
   lichess_id: string
@@ -354,7 +318,6 @@ export interface AdvantageLeaderboardEntry {
 export interface WorktableLeaderboards {
   towerLeaderboards: { [key in TowerId]?: TowerLeaderboardEntry[] }
   finishHimLeaderboard: FinishHimLeaderboardEntry[]
-  attackLeaderboard?: AttackLeaderboardEntry[]
 }
 
 export type SkillPeriod = '7' | '14' | '21' | '30'
@@ -365,16 +328,13 @@ export interface LeaderboardApiResponse extends WorktableLeaderboards {
   skillStreakMegaLeaderboard: SkillStreakLeaderboardEntry[]
   topTodayLeaderboard: OverallSkillLeaderboardEntry[]
   tornadoLeaderboard?: { [key in TornadoMode]?: TornadoLeaderboardEntry[] }
-  advantageLeaderboard?: { [key in AdvantageMode]?: AdvantageLeaderboardEntry[] }
 }
 
 export interface SkillByMode {
   finishHim: number
-  attack: number
   tower: number
   tacticalTrainer: number
   tornado: number
-  advantage: number
 }
 
 export interface OverallSkillLeaderboardEntry {
@@ -432,7 +392,6 @@ export interface ActivityModeStats {
 
 export interface ActivityPeriodStats {
   tower: ActivityModeStats
-  attack: ActivityModeStats
   finishHim: ActivityModeStats
   tornado: ActivityModeStats
 }
@@ -472,28 +431,20 @@ export interface TowerAttempt {
   best_time: number
 }
 export type TowerStats = { [key: string]: TowerAttempt[] }
-export interface AttackStat {
-  PuzzleId: string
-  best_time: number
-}
 
 export interface PuzzlesSolvedToday {
   tower: number
-  attack: number
   finishHim: number
   tacticalTrainer: number
   tornado: number
-  advantage: number
   total: number
 }
 
 export interface SkillEarnedToday {
   tower: number
-  attack: number
   finishHim: number
   tacticalTrainer: number
   tornado: number
-  advantage: number
   total: number
 }
 
@@ -506,18 +457,6 @@ export interface UserStatsUpdate {
   id: string
   username: string
   FunCoins: number
-  advantageHighScores?: {
-    blitz?: number
-    rapid?: number
-    bullet?: number
-    classic?: number
-  }
-  advantageSkills?: {
-    blitz?: number
-    rapid?: number
-    bullet?: number
-    classic?: number
-  }
   tornadoHighScores?: {
     blitz?: number
     rapid?: number
@@ -539,22 +478,8 @@ export interface UserSessionProfile extends LichessUserProfile {
   telegram_id?: string | null
   TierExpire?: string | null
   endgame_skill: number
-  attack_skill: number
   today_activity?: TodayActivity
-  attackRating?: { rating: number }
   finishHimRating?: { rating: number }
-  advantageHighScores?: {
-    blitz?: number
-    rapid?: number
-    bullet?: number
-    classic?: number
-  }
-  advantageSkills?: {
-    blitz?: number
-    rapid?: number
-    bullet?: number
-    classic?: number
-  }
   tornadoHighScores?: {
     blitz?: number
     rapid?: number
@@ -731,6 +656,5 @@ export type UntimedModeStatsDto = Record<string, ThemeStatsDto> // Ключ - н
 
 export interface DetailedStatsResponse {
   tornadoStats: ModeStatsDto
-  advantageStats: TimedModeStatsDto
   endgameStats: UntimedModeStatsDto
 }

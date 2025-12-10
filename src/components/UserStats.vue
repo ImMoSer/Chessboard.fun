@@ -5,7 +5,7 @@ import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import type { PuzzlesSolvedToday, TornadoMode, AdvantageMode } from '@/types/api.types'
+import type { PuzzlesSolvedToday, TornadoMode } from '@/types/api.types'
 
 const authStore = useAuthStore()
 const { userProfile, isAuthenticated } = storeToRefs(authStore)
@@ -35,9 +35,7 @@ const activityModes: {
 }[] = [
     { key: 'finishHim', label: t('nav.finishHim'), icon: '🎯' },
     { key: 'tower', label: t('nav.tower'), icon: '🏁' },
-    { key: 'attack', label: t('nav.attack'), icon: '⚔️' },
     { key: 'tornado', label: t('nav.tornado'), icon: '🌪️' },
-    { key: 'advantage', label: t('nav.advantage'), icon: '⚡' },
   ]
 
 const tornadoMode = computed(() => {
@@ -47,30 +45,9 @@ const tornadoMode = computed(() => {
   return null
 })
 
-const advantageMode = computed(() => {
-  if ((route.name === 'advantage' || route.name === 'advantage-puzzle') && route.params.mode) {
-    return route.params.mode as AdvantageMode
-  }
-  return null
-})
-
 const tornadoHighScore = computed(() => {
   if (userProfile.value?.tornadoHighScores && tornadoMode.value) {
     return userProfile.value.tornadoHighScores[tornadoMode.value]
-  }
-  return null
-})
-
-const advantageHighScore = computed(() => {
-  if (userProfile.value?.advantageHighScores && advantageMode.value) {
-    return userProfile.value.advantageHighScores[advantageMode.value]
-  }
-  return null
-})
-
-const advantageSkill = computed(() => {
-  if (userProfile.value?.advantageSkills && advantageMode.value) {
-    return userProfile.value.advantageSkills[advantageMode.value]
   }
   return null
 })
@@ -98,33 +75,10 @@ const advantageSkill = computed(() => {
           </div>
         </template>
 
-        <template v-if="route.name === 'attack'">
-          <div class="stat-item">
-            <span class="stat-label">{{ t('userCabinet.stats.attackSkillLabel') }}</span>
-            <span class="stat-value">{{ userProfile.attack_skill }}</span>
-          </div>
-          <div v-if="userProfile.attackRating" class="stat-item">
-            <span class="stat-label">{{ t('userCabinet.stats.attackRatingLabel') }}</span>
-            <span class="stat-value">{{ userProfile.attackRating.rating }}</span>
-          </div>
-        </template>
-
         <template v-if="tornadoMode && tornadoHighScore !== null">
           <div class="stat-item">
             <span class="stat-label">{{ t('tornado.leaderboard.highScore') }} ({{ tornadoMode }})</span>
             <span class="stat-value">{{ tornadoHighScore }}</span>
-          </div>
-        </template>
-
-        <template v-if="advantageMode && advantageHighScore !== null">
-          <div class="stat-item">
-            <span class="stat-label">{{ t('advantage.leaderboard.highScore', 'High Score') }} ({{ advantageMode
-            }})</span>
-            <span class="stat-value">{{ advantageHighScore }}</span>
-          </div>
-          <div v-if="advantageSkill !== null" class="stat-item">
-            <span class="stat-label">{{ t('userCabinet.stats.endgameSkillLabel') }} ({{ advantageMode }})</span>
-            <span class="stat-value">{{ advantageSkill }}</span>
           </div>
         </template>
       </div>

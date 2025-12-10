@@ -3,10 +3,10 @@
 import { type PropType } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import type { FinishHimLeaderboardEntry, AttackLeaderboardEntry } from '@/types/api.types'
+import type { FinishHimLeaderboardEntry } from '@/types/api.types'
 import InfoIcon from '../InfoIcon.vue'
 
-type LeaderboardEntry = FinishHimLeaderboardEntry | AttackLeaderboardEntry
+type LeaderboardEntry = FinishHimLeaderboardEntry
 
 const props = defineProps({
   title: {
@@ -18,7 +18,7 @@ const props = defineProps({
     required: true,
   },
   mode: {
-    type: String as PropType<'finish-him' | 'attack'>,
+    type: String as PropType<'finish-him'>,
     required: true,
   },
   colorClass: {
@@ -131,9 +131,6 @@ const handleChallengeClick = (puzzleId?: string) => {
 
 .finishHimLeaderboard .records-page__table-title {
   background-color: var(--color-accent-secondary);
-}
-.attackLeaderboard .records-page__table-title {
-  background-color: var(--color-accent-warning);
 }
 
 .records-page__table {

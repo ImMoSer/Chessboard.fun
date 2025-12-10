@@ -60,7 +60,7 @@
       },
       "overallSkill": {
         "title": "Gesamt-Skill-Wertung",
-        "content": "Gesamt-Skill-Punkte über alle Spielmodi für den gewählten Zeitraum: Woche, 14 Tage, 21 Tage oder Monat. Skill-Punkte entsprechen der Materialsumme (♟=1, ♞♝=3, ♜=5, ♛=9) in den Modi Finish Him, Angriff, Advantage und Speedrun. Im Tornado-Modus gibt jede Aufgabe 1 Punkt. Nur Siege zählen."
+        "content": "Gesamt-Skill-Punkte über alle Spielmodi für den gewählten Zeitraum: Woche, 14 Tage, 21 Tage oder Monat. Skill-Punkte entsprechen der Materialsumme (♟=1, ♞♝=3, ♜=5, ♛=9) in den Modi Finish Him und Speedrun. Im Tornado-Modus gibt jede Aufgabe 1 Punkt. Nur Siege zählen."
       },
       "skillStreak": {
         "title": "Tägliche Serien-Wertung",
@@ -77,10 +77,6 @@
       "tornadoLeaderboard": {
         "title": "Tornado-Wertung",
         "content": "Ordnet Spieler nach ihrer höchsten im Tornado-Modus erreichten Wertung. Wertung wird mit dem Glicko2-System basierend auf gelöster Aufgabenschwierigkeit und aufgewendeter Zeit berechnet."
-      },
-      "advantageLeaderboard": {
-        "title": "Advantage-Wertung",
-        "content": "Ordnet Spieler nach ihrer Wertung im Advantage-Modus. Die Wertung spiegelt die Fähigkeit wider, vorteilhafte Positionen in Siege gegen die Engine umzuwandeln."
       }
     },
     "club": {
@@ -193,7 +189,6 @@
     "buttons": {
       "finishHim": "FinishHim",
       "tower": "Speedrun",
-      "attack": "Angriff",
       "tacktics": "Taktik",
       "clubs": "FunClub",
       "leaderboards": "Bestenlisten"
@@ -214,17 +209,6 @@
     },
     "error": {
       "puzzleNotFound": "Aufgabe mit der ID {puzzleId} wurde nicht gefunden oder ist nicht verfügbar."
-    }
-  },
-  "attack": {
-    "feedback": {
-      "getReady": "Drücken Sie 'Spielen', um zu starten.",
-      "yourTurn": "Sie sind am Zug.",
-      "resigned": "Sie haben aufgegeben.",
-      "win": "Sie haben gewonnen! ({reason})",
-      "loss": "Sie haben verloren. ({reason})",
-      "timeUp": "Die Zeit ist um!",
-      "loadFailed": "Aufgabe konnte nicht geladen werden."
     }
   },
   "tower": {
@@ -350,7 +334,6 @@
     "bannerAlt": "Bestenlisten-Banner",
     "titles": {
       "topFinishHim": "Meister der FinishHim",
-      "topAttack": "Meister des Angriffs",
       "towerLeaderboard": "Speedrun-Meister",
       "overallSkill": "Gesamter Skill",
       "skillStreak": "+100 jeden Tag",
@@ -509,8 +492,6 @@
       "puzzlesSolved": "Gelöste Aufgaben",
       "skillEarned": "Skill heute",
       "finishHimRatingLabel": "FinishHims-Wertung",
-      "attackRatingLabel": "Angriffs-Wertung",
-      "advantageRatingLabel": "Advantage-Wertung",
       "tornadoTitle": "Tornado-Höchstwerte",
       "global": {
         "title": "Aktivitätsstatistik"
@@ -526,13 +507,11 @@
       "modes": {
         "all": "Modus",
         "finishHim": "FinishHim",
-        "attack": "Angriff",
         "tower": "Speedrun",
         "tacticalTrainer": "Taktik"
       },
       "noData": "Keine Daten für den ausgewählten Zeitraum verfügbar.",
       "towerTitle": "Speedrun-Statistik",
-      "attackTitle": "Angriffsmodus-Statistik",
       "bestTime": "Bestzeit",
       "attempts": "Versuche",
       "puzzle": "Aufgabe"
@@ -678,7 +657,7 @@
       "chessEngine": "Schach-Engine: ",
       "chessEngineStack": "`lokal: Stockfish.js + Stockfish.wasm, Server: LCZero + Maia 1900`",
       "api": "API: ",
-      "apiStack": "Lichess API ("
+      "apiStack": "Lichess API (" 
     },
     "contributing": "Wir freuen uns über alle Beiträge zum Projekt! Wenn Sie Ideen, Vorschläge haben oder einen Fehler gefunden haben, erstellen Sie bitte ein `Issue` oder einen `Pull Request`.",
     "licenseAndAcknowledgements": {

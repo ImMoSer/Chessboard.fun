@@ -4,7 +4,7 @@ import type { EngineId, Color as ChessgroundColor } from '@/types/api.types'
 import { useUiStore } from '@/stores/ui.store'
 import i18n from './i18n'
 
-type ShareMode = 'finish-him' | 'attack' | 'tacktics' | 'tower' | 'advantage' | 'sandbox'
+type ShareMode = 'finish-him' | 'tacktics' | 'tower' | 'sandbox'
 
 class ShareServiceController {
   /**
@@ -65,20 +65,16 @@ class ShareServiceController {
    * Основная функция "Поделиться". Использует Web Share API, если доступно, иначе копирует ссылку.
    * @param mode - Игровой режим.
    * @param id - ID задачи или башни.
-   * @param advantageMode - опциональный режим для Advantage.
    */
   public async share(
     mode: ShareMode,
     id: string,
-    advantageMode?: string,
     engineId?: EngineId,
     userColor?: ChessgroundColor,
   ): Promise<void> {
     const t = i18n.global.t
     let url = `${window.location.origin}/${mode}/${id}`
-    if (mode === 'advantage' && advantageMode) {
-      url = `${window.location.origin}/${mode}/${id}/${advantageMode}`
-    } else if (mode === 'sandbox') {
+    if (mode === 'sandbox') {
       if (engineId && userColor) {
         url = `${window.location.origin}/sandbox/play/${engineId}/${userColor}/${id}`
       } else if (engineId) {

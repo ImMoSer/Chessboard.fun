@@ -9,12 +9,11 @@ import { parseFen } from 'chessops/fen'
 import logger from '../utils/logger'
 import { useControlsStore } from './controls.store'
 import { soundService } from '../services/sound.service'
-import { useAdvantageStore } from './advantage.store.ts'
 import { useUiStore } from './ui.store'
 import { pgnService } from '../services/PgnService'
 
 export type GamePhase = 'IDLE' | 'LOADING' | 'PLAYING' | 'GAMEOVER'
-export type GameMode = 'finish-him' | 'attack' | 'tower' | 'tornado' | 'advantage' | 'sandbox' | null
+export type GameMode = 'finish-him' | 'tower' | 'tornado' | 'sandbox' | null
 
 const BOT_MOVE_DELAY_MS = 50
 const FIRST_BOT_MOVE_DELAY_MS = 500
@@ -32,7 +31,6 @@ export const useGameStore = defineStore('game', () => {
   const boardStore = useBoardStore()
   const controlsStore = useControlsStore()
   const analysisStore = useAnalysisStore()
-  const advantageStore = useAdvantageStore()
   const uiStore = useUiStore()
 
   let onGameOverCallback: (isWin: boolean, outcome?: GameEndOutcome) => void = noop
@@ -179,10 +177,6 @@ export const useGameStore = defineStore('game', () => {
     }
     userMovesCount.value++
 
-    if (currentGameMode.value === 'advantage') {
-      advantageStore.addIncrement()
-    }
-
     if (_checkAndHandleGameOver()) {
       return
     }
@@ -192,7 +186,7 @@ export const useGameStore = defineStore('game', () => {
     if (isScenarioActive) {
       const expectedMove = scenarioMoves.value[currentScenarioMoveIndex.value]
       if (uciMove === expectedMove) {
-        if (userMovesCount.value === 1 && (currentGameMode.value === 'tornado' || currentGameMode.value === 'advantage')) {
+        if (userMovesCount.value === 1 && (currentGameMode.value === 'tornado')) {
           onCorrectFirstMoveCallback()
         }
         currentScenarioMoveIndex.value++

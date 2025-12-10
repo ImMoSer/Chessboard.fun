@@ -42,10 +42,8 @@ const tierToPieceMap: { [key: string]: string } = {
 // --- НАЧАЛО ИЗМЕНЕНИЙ ---
 const skillModes: { key: keyof SkillByMode; nameKey: string }[] = [
   { key: 'finishHim', nameKey: 'userCabinet.stats.modes.finishHim' },
-  { key: 'attack', nameKey: 'userCabinet.stats.modes.attack' },
   { key: 'tower', nameKey: 'userCabinet.stats.modes.tower' },
   { key: 'tornado', nameKey: 'nav.tornado' },
-  { key: 'advantage', nameKey: 'nav.advantage' },
 ]
 // --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
@@ -236,20 +234,12 @@ const handlePeriodChange = (event: Event) => {
   background-color: var(--color-accent-primary);
 }
 
-.legend-color-swatch.attack {
-  background-color: var(--color-accent-warning);
-}
-
 .legend-color-swatch.tower {
   background-color: var(--color-violett-lichess);
 }
 
 .legend-color-swatch.tornado {
   background-color: var(--color-accent-secondary);
-}
-
-.legend-color-swatch.advantage {
-  background-color: var(--color-text-error);
 }
 
 /* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
@@ -327,20 +317,12 @@ const handlePeriodChange = (event: Event) => {
   background-color: var(--color-accent-primary);
 }
 
-.skill-bar-segment.attack {
-  background-color: var(--color-accent-warning);
-}
-
 .skill-bar-segment.tower {
   background-color: var(--color-violett-lichess);
 }
 
 .skill-bar-segment.tornado {
   background-color: var(--color-accent-secondary);
-}
-
-.skill-bar-segment.advantage {
-  background-color: var(--color-text-error);
 }
 
 /* --- КОНЕЦ ИЗМЕНЕНИЙ --- */

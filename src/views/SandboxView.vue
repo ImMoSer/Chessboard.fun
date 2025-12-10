@@ -160,7 +160,7 @@ watch(
         const urlFen = boardStore.fen.replace(/ /g, '_')
         const engineId = controlsStore.selectedEngine
         const userColor = route.params.userColor as ChessgroundColor | undefined
-        shareService.share('sandbox', urlFen, undefined, engineId, userColor)
+        shareService.share('sandbox', urlFen, engineId, userColor)
       },
     })
   },
