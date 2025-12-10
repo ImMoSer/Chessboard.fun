@@ -1,5 +1,6 @@
 // src/router/index.ts
 import { createRouter, createWebHistory } from 'vue-router'
+import { watch } from 'vue'
 import { useGameStore } from '../stores/game.store'
 import { useUiStore } from '../stores/ui.store'
 import i18n from '../services/i18n'
@@ -130,7 +131,19 @@ router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
   const t = i18n.global.t
 
-
+  if (authStore.isLoading) {
+    await new Promise<void>((resolve) => {
+      const unwatch = watch(
+        () => authStore.isLoading,
+        (isLoading) => {
+          if (!isLoading) {
+            unwatch()
+            resolve()
+          }
+        },
+      )
+    })
+  }
 
   const requiresAuth = to.meta.requiresAuth
   const isAuthenticated = authStore.isAuthenticated
