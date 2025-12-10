@@ -163,9 +163,7 @@ router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
   const t = i18n.global.t
 
-  while (authStore.isLoading) {
-    await new Promise((resolve) => setTimeout(resolve, 50))
-  }
+
 
   const requiresAuth = to.meta.requiresAuth
   const isAuthenticated = authStore.isAuthenticated
