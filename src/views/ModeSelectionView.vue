@@ -9,7 +9,6 @@ const router = useRouter()
 const route = useRoute()
 const { t } = useI18n()
 
-// Previously handled 'advantage', now defaulting to 'tornado' or based on route meta if needed for other future modes
 const gameMode = computed(() => route.meta.gameMode as 'tornado')
 
 const title = computed(() => {

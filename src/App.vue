@@ -45,7 +45,6 @@ const beforeUnloadHandler = (event: BeforeUnloadEvent) => {
     if (gameStore.currentGameMode === 'finish-him') {
       finishHimStore.handleUnloadResignation()
     }
-    // TODO: Добавить обработчики для других режимов игры (attack, tower)
   }
 }
 

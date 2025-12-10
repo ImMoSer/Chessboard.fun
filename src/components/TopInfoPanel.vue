@@ -59,11 +59,9 @@ const containerClass = computed(() => {
     <FinishHimSelection v-if="route.name === 'finish-him'" />
 
     <!-- Селектор движка для режимов с ботом -->
-    <div
-      v-if="
-        ['finish-him', 'tower', 'sandbox', 'sandbox-with-engine', 'sandbox-with-engine-and-color'].includes(route.name as string)
-      "
-      class="engine-selector-container">
+    <div v-if="
+      ['finish-him', 'tower', 'sandbox', 'sandbox-with-engine', 'sandbox-with-engine-and-color'].includes(route.name as string)
+    " class="engine-selector-container">
       <img src="/buttons/robot.svg" alt="Select Engine" class="robot-icon" />
       <EngineSelector />
     </div>
@@ -84,7 +82,6 @@ const containerClass = computed(() => {
 /* Макеты под разные режимы */
 .top-info-panel-container.mode-default {
   grid-template-columns: 1fr 1fr;
-  /* attack, tower */
 }
 
 .top-info-panel-container.mode-finish-him {

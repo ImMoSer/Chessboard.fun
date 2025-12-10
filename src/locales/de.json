@@ -28,18 +28,12 @@
         "title": "Finish Him",
         "content": "Löse zuerst ein taktisches Rätsel, dann beweise deinen Vorteil im Endspiel gegen die gewählte Engine. Skill-Punkte werden für Siege vergeben und entsprechen der Materialsumme auf dem Brett (♟=1, ♞♝=3, ♜=5, ♛=9). Remis und Niederlagen geben keine Punkte. Die Durchlaufzeit wird ebenfalls für die Bestenliste erfasst."
       },
-      "attack": {
-        "title": "Angriff",
-        "content": "Löse Positionen, die eine entscheidende Kombination oder einen kraftvollen Angriff zum Matt erfordern. Finde zuerst die Lösung, dann verwerte den Sieg gegen die gewählte Engine. Skill-Punkte für Siege entsprechen der Materialsumme (♟=1, ♞♝=3, ♜=5, ♛=9). Die Zeit wird für Bestenlisten erfasst."
-      },
+
       "tower": {
         "title": "Speedrun",
         "content": "Teste deine Geschwindigkeit und Genauigkeit, indem du eine Serie taktischer Aufgaben gegen die Uhr löst. Die Schwierigkeit reicht vom Kandidatenmeister bis zum Großmeister. Du hast drei Leben für den gesamten Durchlauf. Skill-Punkte entsprechen der Materialsumme aller Positionen der Sitzung (♟=1, ♞♝=3, ♜=5, ♛=9). Werden nur bei vollständigem Durchlauf vergeben."
       },
-      "advantage": {
-        "title": "Advantage",
-        "content": "Vier Zeitkontrollen verfügbar: 1+1, 3+2, 5+3 und 10+5 (separate Wertung in jeder). Ein Set von Positionen mit Materialvorteil — wende positionelles Denken an und verwerte deinen Vorteil gegen die Engine. Skill-Punkte für Siege entsprechen der Materialsumme (♟=1, ♞♝=3, ♜=5, ♛=9). Remis und Niederlagen geben keine Punkte."
-      },
+
       "tornado": {
         "title": "Tornado",
         "content": "Vier Zeitkontrollen verfügbar: 1+1, 3+2, 5+3 und 10+5 (separate Wertung in jeder). Löse so viele Aufgaben wie möglich innerhalb der Zeitbegrenzung. Wertung wird mit dem Glicko2-System basierend auf Aufgabenschwierigkeit und aufgewendeter Zeit berechnet. Jede gelöste Aufgabe gibt 1 Skill-Punkt."
@@ -50,10 +44,7 @@
         "title": "Finish-Him-Meister",
         "content": "TOP-10 der schnellsten Zeiten im Finish-Him-Modus. Rekorde sind immer an eine bestimmte Aufgabe gebunden. Du kannst versuchen, in jeder deinen Rekord aufzustellen! Nur ein Rekord pro Aufgabe ist möglich."
       },
-      "topAttack": {
-        "title": "Angriffs-Meister",
-        "content": "TOP-10 der schnellsten Zeiten im Angriffsmodus. Rekorde sind immer an eine bestimmte Aufgabe gebunden. Du kannst versuchen, in jeder deinen Rekord aufzustellen! Nur ein Rekord pro Aufgabe ist möglich."
-      },
+
       "towerLeaderboard": {
         "title": "Speedrun-Meister",
         "content": "TOP-10 der schnellsten Zeiten im Speedrun-Modus über die Disziplinen: KM, FM, IM, GM. Rekorde sind an bestimmte Speedruns gebunden. Versuche, deinen Rekord aufzustellen! Nur ein Rekord pro Speedrun ist möglich."
@@ -109,11 +100,9 @@
   "nav": {
     "home": "Start",
     "finishHim": "FinishHim",
-    "attack": "Angriff",
     "tower": "Speedrun",
     "tacktics": "Taktik",
     "tornado": "Tornado",
-    "advantage": "Advantage",
     "leaderboards": "Bestenlisten",
     "userCabinet": "Profil",
     "lichessClubs": "Clubs",
@@ -488,7 +477,6 @@
     "stats": {
       "funcoinsLabel": "FunCoins",
       "endgameSkillLabel": "Endspiel-Skill",
-      "attackSkillLabel": "Angriffs-Skill",
       "puzzlesSolved": "Gelöste Aufgaben",
       "skillEarned": "Skill heute",
       "finishHimRatingLabel": "FinishHims-Wertung",
@@ -611,13 +599,8 @@
       "conversion": "Ein einzigartiger Modus, in dem Sie zuerst eine taktische Aufgabe lösen und dann Ihren Vorteil im Endspiel gegen die Stockfish-Engine beweisen müssen.",
       "speedrunTitle": "Speedrun: ",
       "speedrun": "Testen Sie Ihre Geschwindigkeit und Genauigkeit, indem Sie eine Reihe von zeitgesteuerten taktischen Aufgaben lösen. Die Schwierigkeit der Türme reicht vom Kandidatenmeister- bis zum Großmeisterniveau.",
-      "attackTitle": "Angriff (Attack): ",
-      "attack": "Ein Modus, in dem Sie mit Stellungen konfrontiert werden, die eine entscheidende Kombination oder einen starken Angriff erfordern, um den Bot mattzusetzen.",
       "automaticTacticalTrainerTitle": "Automatischer Taktiktrainer: ",
       "automaticTacticalTrainer": "Im Gegensatz zu Standardtrainern verwandelt unser intelligentes System das Lösen von Aufgaben in einen personalisierten Weg zur Meisterschaft. Es analysiert Ihr Profil anhand von 25 taktischen Themen (Gabel, Fesselung, Abzugsangriff usw.), identifiziert Ihre schwächsten Bereiche und wählt automatisch die Aufgabe aus, die Ihnen im Moment am meisten nützt. Nach jeder Antwort wird Ihre Bewertung für dieses Thema sofort aktualisiert, um sicherzustellen, dass die nächste Aufgabe perfekt zu Ihrem aktuellen Fähigkeitsniveau passt.",
-      "advantageTitle": "Advantage: ",
-      "advantage": "Dieser Modus funktioniert nach dem gleichen Prinzip wie der \"Finish-Him\"-Modus, bietet jedoch eine Reihe von Aufgaben ohne anfängliche Taktik. Während im \"Finish-Him\"-Modus zuerst eine Taktikaufgabe gelöst wird, was das anschließende Ausspielen in den meisten Fällen trivial macht, gibt es hier keine Taktik, und der Benutzer muss von Anfang an positionelles Denken anwenden. Das Aufgabenset basiert auf einer Auswahl von Positionen, bei denen die Engine-Bewertung immer zugunsten des Benutzers im Bereich von +500 bis +1500 Zentibauern liegt (oder -500 bis -1500, wenn der Benutzer mit Schwarz spielt). Der Spielmodus ist für 4 Zeitkontrollen konfiguriert, von denen jede eine separate Bewertung hat. Der \"Endgame Skill\" stellt den Gesamtwert aller Figuren auf dem Brett in Bauern dar. Datenquelle: ",
-      "advantageDisclaimer": "Haftungsausschluss: Alle Positionen wurden von einem Algorithmus und nicht manuell ausgewählt. Der Autor entschuldigt sich, falls Sie auf uninteressante Positionen stoßen.",
       "botSelectionTitle": "Auswahl des Schach-Bots: ",
       "botSelectionIntro": "Auf unserer Plattform können Sie aus mehreren Schach-Bots für das Training wählen:",
       "bots": {
@@ -723,14 +706,7 @@
     },
     "footerNote": "Mit ❤️ für Schachbegeisterte überall gemacht"
   },
-  "advantage": {
-    "selection": {
-      "title": "Wählen Sie einen Spielmodus"
-    },
-    "leaderboard": {
-      "highScore": "Rekorde"
-    }
-  },
+
   "tornado": {
     "selection": {
       "title": "Wählen Sie einen Spielmodus"

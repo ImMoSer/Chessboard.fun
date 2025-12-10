@@ -28,18 +28,12 @@
         "title": "Finish Him",
         "content": "First solve a tactical puzzle, then prove your advantage in the endgame against your chosen engine. Skill Points are awarded for wins and equal the sum of material on the board (♟=1, ♞♝=3, ♜=5, ♛=9). Draws and losses give no points. Completion time is also recorded for leaderboards."
       },
-      "attack": {
-        "title": "Attack",
-        "content": "Solve positions requiring a decisive combination or powerful attack to deliver checkmate. First find the solution, then convert the win against your chosen engine. Skill Points for wins equal the material sum (♟=1, ♞♝=3, ♜=5, ♛=9). Time is recorded for leaderboards."
-      },
+
       "tower": {
         "title": "Speedrun",
         "content": "Test your speed and accuracy by solving a series of tactical puzzles against the clock. Difficulty ranges from Candidate Master to Grandmaster level. You have three lives for the entire run. Skill Points equal the sum of material from all positions in the session (♟=1, ♞♝=3, ♜=5, ♛=9). Only awarded for complete runs."
       },
-      "advantage": {
-        "title": "Advantage",
-        "content": "Four time controls available: 1+1, 3+2, 5+3, and 10+5 (separate rating in each). A set of positions with material advantage — apply positional thinking and convert your edge against the engine. Skill Points for wins equal the material sum (♟=1, ♞♝=3, ♜=5, ♛=9). Draws and losses give no points."
-      },
+
       "tornado": {
         "title": "Tornado",
         "content": "Four time controls available: 1+1, 3+2, 5+3, and 10+5 (separate rating in each). Solve as many puzzles as possible within the time limit. Rating calculated using the Glicko2 system based on puzzle difficulty and time spent. Each solved puzzle awards 1 Skill Point."
@@ -50,10 +44,7 @@
         "title": "Finish Him Masters",
         "content": "TOP-10 fastest times in Finish Him mode. Records are always tied to a specific puzzle. You can try to set your record in any of them! Only one record per puzzle is possible."
       },
-      "topAttack": {
-        "title": "Attack Masters",
-        "content": "TOP-10 fastest times in Attack mode. Records are always tied to a specific puzzle. You can try to set your record in any of them! Only one record per puzzle is possible."
-      },
+
       "towerLeaderboard": {
         "title": "Speedrun Masters",
         "content": "TOP-10 fastest times in Speedrun mode across disciplines: CM, FM, IM, GM. Records are tied to specific speedruns. Try to set your record! Only one record per speedrun is possible."
@@ -487,7 +478,6 @@
     "stats": {
       "funcoinsLabel": "FunCoins",
       "endgameSkillLabel": "Endgame Skill",
-      "attackSkillLabel": "Attack Skill",
       "puzzlesSolved": "Puzzles Solved",
       "skillEarned": "Skill Today",
       "finishHimRatingLabel": "FinishHim Rating",

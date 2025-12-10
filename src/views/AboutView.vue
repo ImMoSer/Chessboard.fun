@@ -25,22 +25,8 @@ const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
         >{{ t('about.modes.speedrun') }}
       </li>
       <li>
-        <strong>{{ t('about.modes.attackTitle') }}</strong
-        >{{ t('about.modes.attack') }}
-      </li>
-      <li>
         <strong>{{ t('about.modes.automaticTacticalTrainerTitle') }}</strong
         >{{ t('about.modes.automaticTacticalTrainer') }}
-      </li>
-      <li>
-        <strong>{{ t('about.modes.advantageTitle') }}</strong
-        >{{ t('about.modes.advantage') }}
-        <a href="https://database.lichess.org/#evals" target="_blank" rel="noopener noreferrer"
-          >https://database.lichess.org/#evals</a
-        >{{ t('common.period') }}
-        <p style="font-size: 0.9em; color: var(--color-text-muted); margin-top: 5px;">
-          <em>{{ t('about.modes.advantageDisclaimer') }}</em>
-        </p>
       </li>
       <li>
         <strong>{{ t('about.modes.lichessClubsTitle') }}</strong

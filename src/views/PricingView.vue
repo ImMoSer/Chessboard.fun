@@ -87,19 +87,9 @@ const gameCosts = [
     cost: 25,
   },
   {
-    name: t('nav.attack'),
-    icon: '⚔️',
-    cost: 10,
-  },
-  {
     name: t('nav.tacktics'),
     icon: '🧩',
     cost: 1,
-  },
-  {
-    name: t('nav.advantage'),
-    icon: '📈',
-    cost: 10,
   },
 ]
 </script>
