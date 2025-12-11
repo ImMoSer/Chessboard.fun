@@ -797,6 +797,7 @@
     }
   },
   "themes": {
+    "auto": "Automatisch (Intelligente Auswahl)",
     "fork": "Gabel",
     "pin": "Fesselung",
     "attraction": "Hinlenkung",

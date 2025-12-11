@@ -17,7 +17,7 @@ const { t } = useI18n()
 const isOpen = ref(false)
 const dropdownRef = ref<HTMLElement | null>(null)
 
-const availableThemes: AdvantageTheme[] = [...ADVANTAGE_THEMES]
+const availableThemes: string[] = ['auto', ...ADVANTAGE_THEMES]
 
 const selectedThemeName = computed(() => {
   return t(`themes.${getThemeTranslationKey(selectedTheme.value)}`)

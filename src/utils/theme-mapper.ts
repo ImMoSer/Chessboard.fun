@@ -1,6 +1,9 @@
 // src/utils/theme-mapper.ts
 
 export const THEME_KEY_MAP: Record<string, string> = {
+  // --- Special ---
+  auto: 'auto',
+
   // --- Tornado Themes (15) ---
   fork: 'fork',
   pin: 'pin',

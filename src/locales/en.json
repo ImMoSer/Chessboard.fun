@@ -799,6 +799,7 @@
     }
   },
   "themes": {
+    "auto": "Automatic (Smart Selection)",
     "fork": "Fork",
     "pin": "Pin",
     "attraction": "Attraction",

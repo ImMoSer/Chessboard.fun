@@ -34,11 +34,12 @@ export const useFinishHimStore = defineStore('finishHim', () => {
   const timerId = ref<number | null>(null)
   const feedbackMessage = ref(t('finishHim.feedback.pressNext'))
 
-  const selectedTheme = ref<string>('mixed') // Default theme
+  const selectedTheme = ref<string>('auto') // Default theme
 
   const isProcessingGameOver = ref(false)
 
   const tenSecondsWarningPlayed = ref(false)
+
   const eightSecondsWarningPlayed = ref(false)
 
   function reset() {
@@ -201,7 +202,8 @@ export const useFinishHimStore = defineStore('finishHim', () => {
         if (!activeMode.value) {
           throw new Error('Mode not selected for Finish Him')
         }
-        puzzle = await webhookService.fetchAdvantagePuzzle(activeMode.value, selectedTheme.value)
+        const themeParam = selectedTheme.value === 'auto' ? undefined : selectedTheme.value
+        puzzle = await webhookService.fetchAdvantagePuzzle(activeMode.value, themeParam)
       }
 
       if (!puzzle) throw new Error('Puzzle data is null')
