@@ -6,6 +6,8 @@ import { useFinishHimStore } from '../stores/finishHim.store'
 import { useGameStore } from '../stores/game.store'
 import { useControlsStore } from '../stores/controls.store'
 import { useAnalysisStore } from '../stores/analysis.store'
+import { shareService } from '../services/share.service'
+import type { AdvantageMode } from '@/types/api.types'
 
 import GameLayout from '../components/GameLayout.vue'
 import ControlPanel from '../components/ControlPanel.vue'
@@ -13,9 +15,6 @@ import TopInfoPanel from '../components/TopInfoPanel.vue'
 import PuzzleInfo from '../components/PuzzleInfo.vue'
 import UserStats from '../components/UserStats.vue'
 import AnalysisPanel from '../components/AnalysisPanel.vue'
-// --- НАЧАЛО ИЗМЕНЕНИЙ ---
-import { shareService } from '../services/share.service'
-// --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
 const finishHimStore = useFinishHimStore()
 const gameStore = useGameStore()
@@ -27,9 +26,21 @@ const router = useRouter()
 onMounted(() => {
   finishHimStore.initialize()
   const puzzleId = route.params.puzzleId as string | undefined
-  finishHimStore.loadNewPuzzle(puzzleId)
+  const mode = route.params.mode as AdvantageMode | undefined
+
+  if (mode) {
+    finishHimStore.setMode(mode)
+    finishHimStore.loadNewPuzzle()
+  } else if (puzzleId) {
+    finishHimStore.loadNewPuzzle(puzzleId)
+  } else {
+    // If accessed without mode or puzzleId, redirect to selection
+    router.push('/finish-him')
+  }
 })
 
+// Removed watcher that updates route to puzzleId to preserve mode in URL
+/*
 watch(
   () => finishHimStore.activePuzzle,
   (newPuzzle) => {
@@ -38,6 +49,7 @@ watch(
     }
   },
 )
+*/
 
 watch(
   () => [gameStore.gamePhase, gameStore.isGameActive],
@@ -55,13 +67,11 @@ watch(
       onRequestNew: () => finishHimStore.loadNewPuzzle(),
       onRestart: finishHimStore.handleRestart,
       onResign: finishHimStore.handleResign,
-      // --- НАЧАЛО ИЗМЕНЕНИЙ: Используем новый сервис ---
       onShare: () => {
         if (finishHimStore.activePuzzle?.PuzzleId) {
           shareService.share('finish-him', finishHimStore.activePuzzle.PuzzleId)
         }
       },
-      // --- КОНЕЦ ИЗМЕНЕНИЙ ---
     })
   },
   { immediate: true, deep: true },

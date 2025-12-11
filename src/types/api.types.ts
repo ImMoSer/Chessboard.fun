@@ -99,6 +99,26 @@ export type TowerTheme = (typeof TOWER_THEMES)[number]
 // --- TORNADO MODE ---
 export type TornadoMode = 'bullet' | 'blitz' | 'rapid' | 'classic'
 
+export const TORNADO_THEMES = [
+  'fork',
+  'pin',
+  'attraction',
+  'discoveredAttack',
+  'deflection',
+  'skewer',
+  'promotion',
+  'trappedPiece',
+  'quietMove',
+  'clearance',
+  'capturingDefender',
+  'backRankMate',
+  'interference',
+  'xRayAttack',
+  'doubleCheck',
+] as const
+
+export type TornadoTheme = (typeof TORNADO_THEMES)[number]
+
 export interface ThemeRating {
   rating: number
   rating_deviation: number
@@ -147,6 +167,41 @@ export interface TornadoEndResponse {
 }
 
 // --- END TORNADO --
+
+// --- ADVANTAGE MODE (Finish Him) ---
+export type AdvantageMode = TornadoMode // Reuse TornadoMode as they share the same 'time control' concept
+
+export const ADVANTAGE_THEMES = [
+  'opColBishopPlus',
+  'twoMinorsVsRook',
+  'queenVsBishop',
+  'queenVsKnight',
+  'queenVsQueen',
+  'queenVsPawns',
+  'rookVsKnight',
+  'queenVsRook',
+  'knightVsKnight',
+  'opColBishop',
+  'rookVsRook',
+  'bishopVsBishop',
+  'bishopVsPawns',
+  'complexEndgame',
+  'rookVsBishop',
+  'knightVsPawns',
+  'knightVsBishop',
+  'pawnEndgame',
+  'bishopVsKnight',
+  'rookVsPawns',
+] as const
+
+export type AdvantageTheme = (typeof ADVANTAGE_THEMES)[number]
+
+export interface AdvantageResultDto {
+  puzzleId: string
+  wasCorrect: boolean
+  theme: string
+}
+// --- END ADVANTAGE MODE ---
 
 export interface TowerPositionEntry {
   FEN_0: string

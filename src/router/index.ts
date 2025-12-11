@@ -62,8 +62,20 @@ const router = createRouter({
       meta: { isGame: true, game: 'sandbox' },
     },
     {
-      path: '/finish-him/:puzzleId?',
-      name: 'finish-him',
+      path: '/finish-him',
+      name: 'finish-him-selection',
+      component: ModeSelectionView,
+      meta: { requiresAuth: true, gameMode: 'finish-him' },
+    },
+    {
+      path: '/finish-him/:mode(bullet|blitz|rapid|classic)',
+      name: 'finish-him-play',
+      component: FinishHimView,
+      meta: { isGame: true, requiresAuth: true, game: 'finish-him' },
+    },
+    {
+      path: '/finish-him/:puzzleId',
+      name: 'finish-him-puzzle',
       component: FinishHimView,
       meta: { isGame: true, requiresAuth: true, game: 'finish-him' },
     },

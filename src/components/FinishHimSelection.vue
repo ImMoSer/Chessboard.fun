@@ -5,7 +5,7 @@ import { useFinishHimStore } from '@/stores/finishHim.store'
 import { useGameStore } from '@/stores/game.store'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
-import { TOWER_THEMES, type TowerTheme } from '@/types/api.types'
+import { ADVANTAGE_THEMES, type AdvantageTheme } from '@/types/api.types'
 import { getThemeTranslationKey } from '@/utils/theme-mapper'
 
 const finishHimStore = useFinishHimStore()
@@ -17,7 +17,7 @@ const { t } = useI18n()
 const isOpen = ref(false)
 const dropdownRef = ref<HTMLElement | null>(null)
 
-const availableThemes: TowerTheme[] = [...TOWER_THEMES]
+const availableThemes: AdvantageTheme[] = [...ADVANTAGE_THEMES]
 
 const selectedThemeName = computed(() => {
   return t(`themes.${getThemeTranslationKey(selectedTheme.value)}`)
@@ -28,7 +28,8 @@ const toggleDropdown = () => {
   isOpen.value = !isOpen.value
 }
 
-const handleThemeSelect = (theme: TowerTheme) => {
+const handleThemeSelect = (theme: string) => {
+  // Casting or ensure store accepts string or AdvantageTheme
   finishHimStore.setThemeAndLoadPuzzle(theme)
   isOpen.value = false
 }
@@ -39,7 +40,7 @@ const handleClickOutside = (event: MouseEvent) => {
   }
 }
 
-const getThemeName = (theme: TowerTheme) => {
+const getThemeName = (theme: string) => {
   return t(`themes.${getThemeTranslationKey(theme)}`)
 }
 

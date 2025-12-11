@@ -29,6 +29,8 @@ import type {
   TeamBattleReport,
   LatestTeamBattleReport,
   DetailedStatsResponse,
+  AdvantageMode,
+  AdvantageResultDto,
 } from '../types/api.types'
 
 export class RateLimitError extends Error {
@@ -178,6 +180,38 @@ class WebhookServiceController {
     )
   }
   // --- END TORNADO API ---
+
+  // --- ADVANTAGE API ---
+  public async fetchAdvantagePuzzle(
+    mode: AdvantageMode,
+    theme?: string,
+  ): Promise<GamePuzzle | null> {
+    const path = theme
+      ? `/advantage/start/${mode}?theme=${theme}`
+      : `/advantage/start/${mode}`
+    return this._apiRequest<GamePuzzle>(path, 'GET', 'fetchAdvantagePuzzle')
+  }
+
+  public async processAdvantageResult(
+    mode: AdvantageMode,
+    dto: AdvantageResultDto,
+  ): Promise<GameResultResponse | null> {
+    return this._apiRequest<GameResultResponse>(
+      `/advantage/result/${mode}`,
+      'POST',
+      'processAdvantageResult',
+      dto,
+    )
+  }
+
+  public async fetchAdvantagePuzzleById(puzzleId: string): Promise<GamePuzzle | null> {
+    return this._apiRequest<GamePuzzle>(
+      `/advantage/PuzzleId/${puzzleId}`,
+      'GET',
+      'fetchAdvantagePuzzleById',
+    )
+  }
+  // --- END ADVANTAGE API ---
 
   public async fetchPuzzle(dto?: GetFinishHimPuzzleDto): Promise<GamePuzzle | null> {
     return this._apiRequest<GamePuzzle>('/n8n-proxy/puzzles/finish-him', 'POST', 'fetchPuzzle', dto)

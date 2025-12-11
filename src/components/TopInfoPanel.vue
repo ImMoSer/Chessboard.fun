@@ -31,6 +31,8 @@ const formattedTimer = computed(() => {
 const containerClass = computed(() => {
   switch (route.name) {
     case 'finish-him':
+    case 'finish-him-play':
+    case 'finish-him-puzzle':
       return 'mode-finish-him'
     case 'tornado':
       return 'mode-tornado'
@@ -56,12 +58,28 @@ const containerClass = computed(() => {
     </div>
 
     <!-- Селектор тем для FinishHim -->
-    <FinishHimSelection v-if="route.name === 'finish-him'" />
+    <FinishHimSelection
+      v-if="
+        route.name === 'finish-him' ||
+        route.name === 'finish-him-play' ||
+        route.name === 'finish-him-puzzle'
+      "
+    />
 
-    <!-- Селектор движка для режимов с ботом -->
-    <div v-if="
-      ['finish-him', 'tower', 'sandbox', 'sandbox-with-engine', 'sandbox-with-engine-and-color'].includes(route.name as string)
-    " class="engine-selector-container">
+    <div
+      v-if="
+        [
+          'finish-him',
+          'finish-him-play',
+          'finish-him-puzzle',
+          'tower',
+          'sandbox',
+          'sandbox-with-engine',
+          'sandbox-with-engine-and-color',
+        ].includes(route.name as string)
+      "
+      class="engine-selector-container"
+    >
       <img src="/buttons/robot.svg" alt="Select Engine" class="robot-icon" />
       <EngineSelector />
     </div>
