@@ -158,7 +158,6 @@ export const useFinishHimStore = defineStore('finishHim', () => {
     const dto: AdvantageResultDto = {
       puzzleId: puzzle.PuzzleId,
       wasCorrect: isWin,
-      theme: puzzle.puzzle_theme || 'mixed',
     }
 
     try {

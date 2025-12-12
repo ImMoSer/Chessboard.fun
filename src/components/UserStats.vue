@@ -33,7 +33,7 @@ const activityModes: {
   label: string
   icon: string
 }[] = [
-    { key: 'finishHim', label: t('nav.finishHim'), icon: '🎯' },
+    { key: 'advantage', label: t('nav.finishHim'), icon: '🎯' },
     { key: 'tower', label: t('nav.tower'), icon: '🏁' },
     { key: 'tornado', label: t('nav.tornado'), icon: '🌪️' },
   ]

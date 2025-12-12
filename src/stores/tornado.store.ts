@@ -267,8 +267,10 @@ export const useTornadoStore = defineStore('tornado', () => {
     try {
       const response = await webhookService.getNextTornadoPuzzle(mode.value, dto)
       if (response) {
-        sessionRating.value = response.newSessionRating
-        themeRatings.value = response.updatedThemeRatings
+        sessionRating.value = response.sessionRating
+        if (response.updatedThemeRatings) {
+          themeRatings.value = response.updatedThemeRatings
+        }
         activePuzzle.value = response.nextPuzzle
         if (response.userStatsUpdate) {
           authStore.updateUserStats(response.userStatsUpdate)

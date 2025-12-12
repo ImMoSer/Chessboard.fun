@@ -146,9 +146,10 @@ export interface TornadoStartResponse {
 }
 
 export interface TornadoNextResponse {
-  newSessionRating: number
+  sessionRating: number
+  ratingDelta: number
   nextPuzzle: GamePuzzle
-  updatedThemeRatings: Record<string, ThemeRating>
+  updatedThemeRatings?: Record<string, ThemeRating>
   userStatsUpdate?: UserStatsUpdate
 }
 
@@ -199,7 +200,6 @@ export type AdvantageTheme = (typeof ADVANTAGE_THEMES)[number]
 export interface AdvantageResultDto {
   puzzleId: string
   wasCorrect: boolean
-  theme: string
 }
 // --- END ADVANTAGE MODE ---
 
@@ -489,7 +489,7 @@ export type TowerStats = { [key: string]: TowerAttempt[] }
 
 export interface PuzzlesSolvedToday {
   tower: number
-  finishHim: number
+  advantage: number
   tacticalTrainer: number
   tornado: number
   total: number
@@ -497,7 +497,7 @@ export interface PuzzlesSolvedToday {
 
 export interface SkillEarnedToday {
   tower: number
-  finishHim: number
+  advantage: number
   tacticalTrainer: number
   tornado: number
   total: number
@@ -512,6 +512,7 @@ export interface UserStatsUpdate {
   id: string
   username: string
   FunCoins: number
+  today_activity?: TodayActivity
   tornadoHighScores?: {
     blitz?: number
     rapid?: number
