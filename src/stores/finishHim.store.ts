@@ -1,5 +1,5 @@
 // src/stores/finishHim.store.ts
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { useGameStore } from './game.store'
 import { useBoardStore, type GameEndOutcome } from './board.store'
@@ -19,6 +19,13 @@ import i18n from '../services/i18n'
 import { useAnalysisStore } from './analysis.store'
 
 const t = i18n.global.t
+
+const timeControls: Record<AdvantageMode, { initial: number; increment: number }> = {
+  bullet: { initial: 1 * 60 * 1000, increment: 1 * 1000 },
+  blitz: { initial: 3 * 60 * 1000, increment: 2 * 1000 },
+  rapid: { initial: 5 * 60 * 1000, increment: 3 * 1000 },
+  classic: { initial: 10 * 60 * 1000, increment: 5 * 1000 },
+}
 
 export const useFinishHimStore = defineStore('finishHim', () => {
   const gameStore = useGameStore()
@@ -41,6 +48,23 @@ export const useFinishHimStore = defineStore('finishHim', () => {
   const tenSecondsWarningPlayed = ref(false)
 
   const eightSecondsWarningPlayed = ref(false)
+
+  watch(
+    () => gameStore.userMovesCount,
+    (count) => {
+      if (
+        count > 0 &&
+        activeMode.value &&
+        outplayTimeRemainingMs.value !== null &&
+        gameStore.isGameActive
+      ) {
+        if (outplayTimeRemainingMs.value > 10000) {
+          const increment = timeControls[activeMode.value].increment
+          outplayTimeRemainingMs.value += increment
+        }
+      }
+    },
+  )
 
   function reset() {
     _clearTimer()
@@ -210,8 +234,13 @@ export const useFinishHimStore = defineStore('finishHim', () => {
       activePuzzle.value = puzzle
 
       // Logic: solve_time is critical for Finish Him
-      const solveTimeSeconds = puzzle.solve_time ?? 300
-      outplayTimeRemainingMs.value = solveTimeSeconds * 1000
+      // Update: Use selected mode's time control if available
+      if (activeMode.value) {
+        outplayTimeRemainingMs.value = timeControls[activeMode.value].initial
+      } else {
+        const solveTimeSeconds = puzzle.solve_time ?? 300
+        outplayTimeRemainingMs.value = solveTimeSeconds * 1000
+      }
 
       gameStore.setupPuzzle(
         puzzle.FEN_0,

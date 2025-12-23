@@ -18,14 +18,14 @@ const activeTab = ref<Tab>('Tornado')
 const tabs: Tab[] = ['Tornado', 'Endgame']
 
 const currentStats = computed(() => {
-  if (!detailedStats.value) return null
+  if (!detailedStats.value) return []
   switch (activeTab.value) {
     case 'Tornado':
-      return detailedStats.value.tornadoStats
+      return detailedStats.value.tornado.themes
     case 'Endgame':
-      return detailedStats.value.endgameStats
+      return detailedStats.value.advantage.themes
     default:
-      return null
+      return []
   }
 })
 
@@ -59,7 +59,6 @@ function handleThemeClick(theme: string) {
       <div class="tab-content">
         <AnalyticsDisplay
           :stats="currentStats"
-          :is-timed="false"
           @theme-click="handleThemeClick"
         />
       </div>

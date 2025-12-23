@@ -9,67 +9,6 @@ export type EngineId =
 
 export type Color = 'white' | 'black'
 
-// --- Types from LichessApiService ---
-interface RatingProgression {
-  before: number
-  after: number
-}
-interface GameStats {
-  win: number
-  loss: number
-  draw: number
-  rp: RatingProgression
-}
-interface PuzzleStats {
-  score: GameStats
-}
-interface TournamentBest {
-  tournament: {
-    id: string
-    name: string
-  }
-  nbGames: number
-  score: number
-  rank: number
-  rankPercent: number
-}
-interface Tournaments {
-  nb: number
-  best: TournamentBest[]
-}
-interface CorrespondenceEnds {
-  correspondence: {
-    score: GameStats
-    games: {
-      id: string
-      color: 'white' | 'black'
-      url: string
-      opponent: {
-        aiLevel?: number
-        name?: string
-      }
-    }[]
-  }
-}
-interface Follows {
-  in?: { ids: string[] }
-  out?: { ids: string[] }
-}
-export interface LichessActivityEntry {
-  interval: {
-    start: number
-    end: number
-  }
-  games?: {
-    [gameType: string]: GameStats
-  }
-  puzzles?: PuzzleStats
-  tournaments?: Tournaments
-  correspondenceEnds?: CorrespondenceEnds
-  follows?: Follows
-}
-export type LichessActivityResponse = LichessActivityEntry[]
-
 // --- Original types from api.types.ts ---
 export const TOWER_IDS = ['CM', 'FM', 'IM', 'GM'] as const
 export type TowerId = (typeof TOWER_IDS)[number]
@@ -293,6 +232,8 @@ export interface GamePuzzle {
   Themes_PG?: string[]
   engm_type?: TowerTheme | null
   difficulty_level?: string | null
+  engmRating?: number
+  EngmThemes_PG?: string
 }
 
 export interface TacticalThemeStat {
@@ -447,7 +388,7 @@ export interface ActivityModeStats {
 
 export interface ActivityPeriodStats {
   tower: ActivityModeStats
-  finishHim: ActivityModeStats
+  advantage: ActivityModeStats
   tornado: ActivityModeStats
 }
 
@@ -698,19 +639,42 @@ export interface LatestTeamBattleReport {
 // --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
 // --- Типы для детальной статистики в кабинете пользователя ---
-export interface ThemeStatsDto {
+
+export interface TornadoThemeStatDto {
+  theme: string
+  attempts: number
+  accuracy: number
   rating: number
-  solved: number
-  attempted: number
+}
+
+export interface TornadoProfileDto {
+  highScores: {
+    bullet: number
+    blitz: number
+    rapid: number
+    classic: number
+  }
+  themes: TornadoThemeStatDto[]
+}
+
+export interface AdvantageThemeStatDto {
+  theme: string
+  rating: number
+  attempts: number
   accuracy: number
 }
 
-export type ModeStatsDto = Record<string, ThemeStatsDto> // Ключ - название темы
-export type TimedModeStatsDto = Record<string, ModeStatsDto> // Ключ - bullet, blitz и т.д.
+export interface AdvantageProfileDto {
+  themes: AdvantageThemeStatDto[]
+}
 
-export type UntimedModeStatsDto = Record<string, ThemeStatsDto> // Ключ - название темы
+export interface TowerProfileDto {
+  bestTower: string
+  bestTime: number
+}
 
-export interface DetailedStatsResponse {
-  tornadoStats: ModeStatsDto
-  endgameStats: UntimedModeStatsDto
+export interface UserProfileStatsDto {
+  tornado: TornadoProfileDto
+  advantage: AdvantageProfileDto
+  tower: TowerProfileDto
 }

@@ -708,6 +708,12 @@
     "footerNote": "Made with ❤️ for chess enthusiasts everywhere"
   },
   "tornado": {
+    "modes": {
+      "bullet": "Bullet (1+1)",
+      "blitz": "Blitz (3+2)",
+      "rapid": "Rapid (5+3)",
+      "classic": "Classic (10+5)"
+    },
     "selection": {
       "title": "Select a game mode"
     },

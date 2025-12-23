@@ -10,7 +10,6 @@ import DetailedAnalytics from '@/components/userCabinet/DetailedAnalytics.vue'
 import UserProfileHeader from '@/components/userCabinet/sections/UserProfileHeader.vue'
 import TelegramBinding from '@/components/userCabinet/sections/TelegramBinding.vue'
 import GlobalActivityStats from '@/components/userCabinet/sections/GlobalActivityStats.vue'
-import LichessActivity from '@/components/userCabinet/sections/LichessActivity.vue'
 import TornadoHighScores from '@/components/userCabinet/sections/TornadoHighScores.vue'
 
 const { t } = useI18n()
@@ -46,7 +45,6 @@ onMounted(() => {
       <TelegramBinding />
       <GlobalActivityStats />
       <DetailedAnalytics />
-      <LichessActivity />
       <TornadoHighScores />
     </div>
   </div>

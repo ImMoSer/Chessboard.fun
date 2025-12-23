@@ -246,5 +246,6 @@ export const useGameStore = defineStore('game', () => {
     setGamePhase,
     handleGameResignation,
     resetGame,
+    userMovesCount,
   }
 })

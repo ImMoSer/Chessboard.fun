@@ -49,10 +49,10 @@ const handlePeriodChange = (period: ActivityPeriod) => {
             </tr>
           </thead>
           <tbody>
-            <tr v-for="mode in ['finishHim', 'tower', 'tornado'] as const" :key="mode">
+            <tr v-for="mode in ['advantage', 'tower', 'tornado'] as const" :key="mode">
               <td>
                 {{
-                  t(mode === 'tornado' ? 'nav.tornado' : `userCabinet.stats.modes.${mode}`)
+                  t(mode === 'tornado' ? 'nav.tornado' : mode === 'advantage' ? 'nav.advantage' : `userCabinet.stats.modes.${mode}`)
                 }}
               </td>
               <td>

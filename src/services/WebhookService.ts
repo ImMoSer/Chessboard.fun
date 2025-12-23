@@ -28,7 +28,7 @@ import type {
   FunclubMeta,
   TeamBattleReport,
   LatestTeamBattleReport,
-  DetailedStatsResponse,
+  UserProfileStatsDto,
   AdvantageMode,
   AdvantageResultDto,
 } from '../types/api.types'
@@ -355,9 +355,9 @@ class WebhookServiceController {
     )
   }
 
-  public async fetchDetailedStats(): Promise<DetailedStatsResponse | null> {
-    return this._apiRequest<DetailedStatsResponse>(
-      '/users/me/detailed-stats',
+  public async fetchDetailedStats(): Promise<UserProfileStatsDto | null> {
+    return this._apiRequest<UserProfileStatsDto>(
+      '/users/me/profile-stats',
       'GET',
       'fetchDetailedStats',
     )

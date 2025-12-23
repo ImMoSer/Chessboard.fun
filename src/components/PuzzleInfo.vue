@@ -79,8 +79,25 @@ const localizedThemes = computed(() => {
 const tacticalThemes = computed(() => {
   const puzzle = activePuzzle.value
   if (!puzzle) return ''
-  // Для Tower используем engm_type как основную тему, если она есть
-  if (route.name === 'tower' && puzzle.engm_type) {
+
+  // Priority 1: EngmThemes_PG (Finish Him specific from backend)
+  if (puzzle.EngmThemes_PG) {
+    // Format is like "{knightVsPawns}" or "{theme1,theme2}"
+    const cleanThemes = puzzle.EngmThemes_PG.replace(/[{}]/g, '').split(',')
+    return cleanThemes
+      .map((tKey) => {
+        // Trim whitespace just in case
+        const key = tKey.trim()
+        // Try to find translation. The key might need mapping if it differs from ADVANTAGE_THEMES
+        // Assuming keys in EngmThemes_PG match keys in locales or getThemeTranslationKey handles it.
+        // If it's a raw key like "knightVsPawns", we can try `themes.${key}`.
+        return t(`themes.${key}`, { defaultValue: key })
+      })
+      .join(', ')
+  }
+
+  // Для Tower и Finish Him используем engm_type как основную тему, если она есть
+  if ((route.name === 'tower' || route.meta.game === 'finish-him') && puzzle.engm_type) {
     const themeKey = getThemeTranslationKey(puzzle.engm_type)
     return t(`themes.${themeKey}`, { defaultValue: puzzle.engm_type })
   }
@@ -88,6 +105,13 @@ const tacticalThemes = computed(() => {
   if (puzzle.Themes) return puzzle.Themes.split(' ').join(', ')
   if (puzzle.puzzle_theme) return puzzle.puzzle_theme.split(' ').join(', ')
   return ''
+})
+
+const finishHimModeDisplay = computed(() => {
+  if (route.meta.game !== 'finish-him' || !finishHimStore.activeMode) return null
+  const mode = finishHimStore.activeMode
+  // Simple mapping or translation
+  return t(`tornado.modes.${mode}`, { defaultValue: mode })
 })
 
 const endgameTheme = computed(() => {
@@ -155,9 +179,14 @@ const sortedResults = computed(() => {
 
     <div v-if="activePuzzle" class="puzzle-details-section">
       <div class="info-grid">
+        <div v-if="finishHimModeDisplay" class="info-item">
+          <span class="label">{{ t('tower.ui.modeLabel') }}:</span>
+          <span class="value">{{ finishHimModeDisplay }}</span>
+        </div>
+
         <div class="info-item">
           <span class="label">{{ t('tacktics.stats.rating') }}:</span>
-          <span class="value">{{ activePuzzle.Rating ?? activePuzzle.rating }}</span>
+          <span class="value">{{ activePuzzle.engmRating ?? activePuzzle.Rating ?? activePuzzle.rating }}</span>
         </div>
 
         <div v-if="activePuzzle.bw_value" class="info-item">
@@ -170,7 +199,7 @@ const sortedResults = computed(() => {
           <span class="value">{{ tacticalThemes }}</span>
         </div>
 
-        <div v-if="activePuzzle.solve_time" class="info-item">
+        <div v-if="activePuzzle.solve_time && route.meta.game !== 'finish-him'" class="info-item">
           <span class="label">{{ t('puzzleInfo.solveTime') }}:</span>
           <span class="value">{{ formatTime(activePuzzle.solve_time) }}</span>
         </div>

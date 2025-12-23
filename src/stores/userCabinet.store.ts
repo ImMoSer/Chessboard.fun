@@ -2,12 +2,10 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { webhookService } from '../services/WebhookService'
-import { lichessApiService } from '../services/LichessApiService'
 import { authService } from '../services/AuthService'
 import type {
   PersonalActivityStatsResponse,
-  LichessActivityResponse,
-  DetailedStatsResponse,
+  UserProfileStatsDto,
 } from '../types/api.types'
 import logger from '../utils/logger'
 import i18n from '../services/i18n'
@@ -23,11 +21,9 @@ export const useUserCabinetStore = defineStore('userCabinet', () => {
   const personalActivityStats = ref<PersonalActivityStatsResponse | null>(null)
   const isPersonalActivityStatsLoading = ref(true)
   const selectedActivityPeriod = ref<ActivityPeriod>('daily')
-  const lichessActivity = ref<LichessActivityResponse | null>(null)
-  const isActivityLoading = ref(true)
 
   // Состояние для детальной статистики
-  const detailedStats = ref<DetailedStatsResponse | null>(null)
+  const detailedStats = ref<UserProfileStatsDto | null>(null)
   const isDetailedStatsLoading = ref(true)
   const detailedStatsError = ref<string | null>(null)
 
@@ -46,7 +42,6 @@ export const useUserCabinetStore = defineStore('userCabinet', () => {
 
     await Promise.all([
       fetchPersonalActivityStats(),
-      fetchLichessActivity(user.username),
       fetchDetailedStats(), // Вызываем новый экшен при инициализации
     ])
     isLoading.value = false
@@ -80,17 +75,6 @@ export const useUserCabinetStore = defineStore('userCabinet', () => {
     }
   }
 
-  async function fetchLichessActivity(username: string) {
-    isActivityLoading.value = true
-    try {
-      lichessActivity.value = await lichessApiService.fetchUserActivity(username)
-    } catch (e: any) {
-      logger.error('[UserCabinetStore] Error fetching lichess activity:', e)
-    } finally {
-      isActivityLoading.value = false
-    }
-  }
-
   function setSelectedActivityPeriod(period: ActivityPeriod) {
     selectedActivityPeriod.value = period
   }
@@ -112,8 +96,6 @@ export const useUserCabinetStore = defineStore('userCabinet', () => {
     personalActivityStats,
     isPersonalActivityStatsLoading,
     selectedActivityPeriod,
-    lichessActivity,
-    isActivityLoading,
     detailedStats,
     isDetailedStatsLoading,
     detailedStatsError,

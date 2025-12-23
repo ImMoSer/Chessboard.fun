@@ -708,6 +708,12 @@
   },
 
   "tornado": {
+    "modes": {
+      "bullet": "Bullet (1+1)",
+      "blitz": "Blitz (3+2)",
+      "rapid": "Rapid (5+3)",
+      "classic": "Klassisch (10+5)"
+    },
     "selection": {
       "title": "Wählen Sie einen Spielmodus"
     },
