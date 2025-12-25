@@ -22,6 +22,7 @@ const router = useRouter();
 
 const isReviewMode = ref(false);
 const isSettingsModalOpen = ref(true);
+const isNavigatingToPlayout = ref(false);
 
 onMounted(() => {
     openingStore.reset();
@@ -29,7 +30,9 @@ onMounted(() => {
 
 onUnmounted(() => {
     openingStore.reset();
-    gameStore.resetGame();
+    if (!isNavigatingToPlayout.value) {
+        gameStore.resetGame();
+    }
 });
 
 async function startSession(color: 'white' | 'black') {
@@ -74,9 +77,11 @@ async function handlePlayout() {
         'Continue this position against Stockfish?'
     );
     if (confirmed) {
+        isNavigatingToPlayout.value = true;
         const fen = boardStore.fen.replace(/ /g, '_');
         const color = openingStore.playerColor;
-        router.push(`/finish-him/playout/${color}/${fen}`);
+        // Redirect to Sandbox with default engine SF_2200
+        router.push(`/sandbox/play/SF_2200/${color}/${fen}`);
     }
 }
 </script>

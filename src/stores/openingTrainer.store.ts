@@ -62,6 +62,7 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
         if (data.moves.length === 0) {
           logger.info('[OpeningTrainer] Theory ended: No more moves in Lichess DB.');
           isTheoryOver.value = true;
+          soundService.playSound('game_user_won');
         }
       } else {
         logger.info('[OpeningTrainer] Theory ended: No data returned from API.');
@@ -91,7 +92,7 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
     if (!moveData) {
       logger.warn(`[OpeningTrainer] Deviation! Move ${moveUci} not found in book.`);
       isDeviation.value = true;
-      soundService.playSound('game_user_lost');
+      soundService.playSound('game_user_won');
       return;
     }
 
@@ -121,6 +122,7 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
     if (!currentStats.value || currentStats.value.moves.length === 0) {
       logger.info('[OpeningTrainer] Bot cannot move: No moves available.');
       isTheoryOver.value = true;
+      soundService.playSound('game_user_won');
       return;
     }
 
@@ -131,6 +133,7 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
     if (totalGames === 0) {
       logger.info(`[OpeningTrainer] Bot cannot move: Top ${variability.value} moves have 0 total games.`);
       isTheoryOver.value = true;
+      soundService.playSound('game_user_won');
       return;
     }
 

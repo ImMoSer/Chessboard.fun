@@ -30,7 +30,7 @@ class OpeningApiService {
         const cached = await openingCacheService.getCachedStats(fen);
         if (cached) {
             logger.info(`[OpeningApiService] Cache hit for FEN: ${fen}`);
-            return cached;
+            return this.normalizeData(cached);
         }
 
         // 2. Build URL
@@ -65,11 +65,30 @@ class OpeningApiService {
             // 3. Cache Result
             await openingCacheService.cacheStats(fen, history, data);
 
-            return data;
+            return this.normalizeData(data);
         } catch (error) {
             logger.error('[OpeningApiService] Error fetching from Lichess:', error);
             throw error;
         }
+    }
+
+    private normalizeData(data: LichessOpeningResponse): LichessOpeningResponse {
+        if (!data || !data.moves) return data;
+
+        const CASTLING_MAP: Record<string, string> = {
+            'e1h1': 'e1g1', // White O-O
+            'e1a1': 'e1c1', // White O-O-O
+            'e8h8': 'e8g8', // Black O-O
+            'e8a8': 'e8c8'  // Black O-O-O
+        };
+
+        data.moves.forEach(move => {
+            const normalized = CASTLING_MAP[move.uci];
+            if (normalized) {
+                move.uci = normalized;
+            }
+        });
+        return data;
     }
 }
 

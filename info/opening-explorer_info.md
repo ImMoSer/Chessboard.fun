@@ -51,7 +51,21 @@ The Opening Trainer module allows users to practice chess openings against an op
   - Implemented `onUserMoveCallback` hook to notify the opening store of player actions.
 - **Playout Transition**:
   - Users can transition from any theoretical position to a Stockfish game via the "Playout" button.
-  - Uses `finishHimStore.startPlayoutFromFen(fen, color)`.
+  - **Implementation**: Uses `router.push('/sandbox/play/SF_2200/{color}/{fen}')` to transfer the current state to the Sandbox mode.
+  - **State Preservation**: The `OpeningTrainerView` uses a `isNavigatingToPlayout` flag to prevent the game state (PGN/Board) from being reset during the component unmount process, ensuring a seamless transition.
+
+### 5. Session Data & Analysis
+
+- **Session History**:
+  - Managed within `openingTrainer.store.ts` as `sessionHistory`.
+  - Stores enriched move data: FEN, UCI, SAN, Lichess stats, and points scored for each move.
+  - **Ephemeral Nature**: This data is currently **ephemeral**. It exists only for the duration of the active session and is cleared (`reset()`) when the user starts a new session or navigates away (unless navigating to Playout). There is no persistent "History of Trainings" feature yet.
+- **PGN Recording**:
+  - The standard `PgnService` records the move sequence (SAN/UCI) in parallel with the trainer store.
+  - This allows the `MoveHistory` component to display the moves on the UI side.
+- **Analysis Tools**:
+  - **Review Mode**: A togglable UI feature that un-blurs the stats table, allowing users to see all candidate moves, their popularity, and win rates for the current position *during* the session.
+  - **Playout**: The primary method for deep analysis of a specific position. By transferring to Sandbox, users can analyze "what if" scenarios using the Stockfish engine.
 
 ## UI Components
 
@@ -71,3 +85,4 @@ The Opening Trainer module allows users to practice chess openings against an op
 - **Eco Knowledge Base**: Linking to more detailed opening descriptions.
 - **Target Accuracy**: Setting a goal for "Perfect Theory" accuracy over a session.
 - **Premove Support**: Specific handling for pre-moves in theory.
+- **Session Archives**: Persisting `sessionHistory` to local storage or DB to allow users to review past training sessions.
