@@ -27,8 +27,12 @@ onMounted(() => {
   finishHimStore.initialize()
   const puzzleId = route.params.puzzleId as string | undefined
   const mode = route.params.mode as AdvantageMode | undefined
+  const fen = route.params.fen as string | undefined
+  const color = route.params.color as 'white' | 'black' | undefined
 
-  if (mode) {
+  if (fen && color) {
+    finishHimStore.startPlayoutFromFen(fen.replace(/_/g, ' '), color)
+  } else if (mode) {
     finishHimStore.setMode(mode)
     finishHimStore.loadNewPuzzle()
   } else if (puzzleId) {

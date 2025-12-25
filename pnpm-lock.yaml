@@ -17,6 +17,9 @@ importers:
       chessops:
         specifier: ^0.15.0
         version: 0.15.0
+      dexie:
+        specifier: ^4.2.1
+        version: 4.2.1
       echarts:
         specifier: ^6.0.0
         version: 6.0.0
@@ -1245,6 +1248,9 @@ packages:
     resolution: {integrity: sha512-pGjwhsmsp4kL2RTz08wcOlGN83otlqHeD/Z5T8GXZB+/YcpQ/dgo+lbU8ZsGxV0HIvqqxo9l7mqYwyYMD9bKDg==}
     engines: {node: '>=0.10'}
     hasBin: true
+
+  dexie@4.2.1:
+    resolution: {integrity: sha512-Ckej0NS6jxQ4Po3OrSQBFddayRhTCic2DoCAG5zacOfOVB9P2Q5Xc5uL/nVa7ZVs+HdMnvUPzLFCB/JwpB6Csg==}
 
   eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
@@ -3492,6 +3498,8 @@ snapshots:
 
   detect-libc@1.0.3:
     optional: true
+
+  dexie@4.2.1: {}
 
   eastasianwidth@0.2.0: {}
 

@@ -8,7 +8,6 @@ import type {
   GamePuzzle,
   AdvantageMode,
   AdvantageResultDto,
-  TowerTheme,
 } from '../types/api.types'
 import logger from '../utils/logger'
 import { soundService } from '../services/sound.service'
@@ -259,6 +258,28 @@ export const useFinishHimStore = defineStore('finishHim', () => {
     }
   }
 
+  async function startPlayoutFromFen(fen: string, color: 'white' | 'black') {
+    isProcessingGameOver.value = false
+    gameStore.setGamePhase('LOADING')
+    feedbackMessage.value = t('finishHim.feedback.yourTurnPlayout')
+    _clearTimer()
+
+    // Default time control for playout from opening: 5 min + 3 sec (Rapid)
+    outplayTimeRemainingMs.value = timeControls.rapid.initial
+    activeMode.value = 'rapid'
+
+    gameStore.setupPuzzle(
+      fen,
+      [], // No scenario moves, just playout
+      _handleGameOver,
+      _checkWinCondition,
+      _startTimer,
+      'finish-him',
+      undefined,
+      color,
+    )
+  }
+
   async function setThemeAndLoadPuzzle(theme: string) {
     if (selectedTheme.value === theme) return
     selectedTheme.value = theme
@@ -330,6 +351,7 @@ export const useFinishHimStore = defineStore('finishHim', () => {
     selectedTheme,
     initialize,
     loadNewPuzzle,
+    startPlayoutFromFen,
     handleResign,
     handleRestart,
     handleExit,

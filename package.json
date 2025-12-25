@@ -21,6 +21,7 @@
     "@bity/oauth2-auth-code-pkce": "^2.13.0",
     "@lichess-org/chessground": "^9.9.0",
     "chessops": "^0.15.0",
+    "dexie": "^4.2.1",
     "echarts": "^6.0.0",
     "pinia": "^3.0.4",
     "sass": "^1.95.0",

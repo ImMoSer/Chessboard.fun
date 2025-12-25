@@ -13,7 +13,7 @@ import { useUiStore } from './ui.store'
 import { pgnService } from '../services/PgnService'
 
 export type GamePhase = 'IDLE' | 'LOADING' | 'PLAYING' | 'GAMEOVER'
-export type GameMode = 'finish-him' | 'tower' | 'tornado' | 'sandbox' | null
+export type GameMode = 'finish-him' | 'tower' | 'tornado' | 'sandbox' | 'opening-trainer' | null
 
 const BOT_MOVE_DELAY_MS = 50
 const FIRST_BOT_MOVE_DELAY_MS = 500
@@ -37,6 +37,7 @@ export const useGameStore = defineStore('game', () => {
   let checkWinCondition: (outcome?: GameEndOutcome) => boolean = () => false
   let onPlayoutStartCallback: () => void = noop
   let onCorrectFirstMoveCallback: () => void = noop
+  let onUserMoveCallback: (uci: string) => void = noop
 
   function _checkAndHandleGameOver(): boolean {
     if (gamePhase.value !== 'PLAYING') {
@@ -103,12 +104,13 @@ export const useGameStore = defineStore('game', () => {
     mode: GameMode = null,
     onCorrectFirstMove?: () => void,
     userColor?: ChessgroundColor,
+    onUserMove?: (uci: string) => void,
   ) {
     try {
       const setup = parseFen(fen).unwrap()
       let humanPlayerColor: ChessgroundColor
 
-      if (mode === 'sandbox') {
+      if (mode === 'sandbox' || mode === 'opening-trainer') {
         humanPlayerColor = userColor || setup.turn
       } else {
         const botTurnColor = setup.turn
@@ -123,17 +125,18 @@ export const useGameStore = defineStore('game', () => {
       checkWinCondition = winCondition
       onPlayoutStartCallback = onPlayoutStart
       onCorrectFirstMoveCallback = onCorrectFirstMove ?? noop
+      onUserMoveCallback = onUserMove ?? noop
       currentGameMode.value = mode
 
       userMovesCount.value = 0
       isGameActive.value = false
       gamePhase.value = 'PLAYING'
 
-      if (setup.turn !== humanPlayerColor) {
+      if (setup.turn !== humanPlayerColor && mode !== 'opening-trainer') {
         _triggerBotMove()
       }
-    } catch (e) {
-      logger.error('[GameStore] Invalid FEN provided for setup:', fen, e)
+    } catch (error) {
+      logger.error('[GameStore] Invalid FEN provided for setup:', fen, error)
       gamePhase.value = 'IDLE'
     }
   }
@@ -141,9 +144,10 @@ export const useGameStore = defineStore('game', () => {
   async function startSandboxGame(rawFen: string, userColor?: ChessgroundColor) {
     analysisStore.hidePanel()
     const fen = rawFen.replace(/_/g, ' ')
+
     try {
       parseFen(fen).unwrap()
-    } catch (e) {
+    } catch {
       await uiStore.showConfirmation('Invalid FEN', 'The provided FEN is not valid.', {
         showCancel: false,
       })
@@ -205,8 +209,12 @@ export const useGameStore = defineStore('game', () => {
     }
 
     const isBotTurn = boardStore.turn !== boardStore.orientation
-    if (isBotTurn) {
+    if (isBotTurn && currentGameMode.value !== 'opening-trainer') {
       await _triggerBotMove()
+    }
+
+    if (currentGameMode.value === 'opening-trainer') {
+      onUserMoveCallback(uciMove)
     }
   }
 
@@ -232,6 +240,7 @@ export const useGameStore = defineStore('game', () => {
     checkWinCondition = () => false
     onPlayoutStartCallback = noop
     onCorrectFirstMoveCallback = noop
+    onUserMoveCallback = noop
 
     logger.info('[GameStore] Full game state has been reset.')
   }

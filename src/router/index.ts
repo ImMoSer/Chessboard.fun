@@ -134,6 +134,18 @@ const router = createRouter({
       name: 'records',
       component: RecordsPageView,
     },
+    {
+      path: '/opening-trainer',
+      name: 'opening-trainer',
+      component: () => import('../views/OpeningTrainerView.vue'),
+      meta: { isGame: true, game: 'opening-trainer' },
+    },
+    {
+      path: '/finish-him/playout/:color/:fen',
+      name: 'finish-him-playout',
+      component: FinishHimView,
+      meta: { isGame: true, requiresAuth: true, game: 'finish-him' },
+    },
   ],
 })
 
