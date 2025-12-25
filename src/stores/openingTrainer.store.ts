@@ -24,6 +24,7 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
   const openingName = ref('');
   const isLoading = ref(false);
   const error = ref<string | null>(null);
+  const moveQueue = ref<string[]>([]);
 
   const movesHistoryUci = computed(() => sessionHistory.value.map(h => h.moveUci));
 
@@ -47,6 +48,7 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
     openingName.value = '';
     error.value = null;
     isLoading.value = false;
+    moveQueue.value = [];
   }
 
   async function fetchStats() {
@@ -84,8 +86,14 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
   }
 
   async function handlePlayerMove(moveUci: string) {
-    if (isLoading.value || error.value || !currentStats.value) return;
+    moveQueue.value.push(moveUci);
+    await processMoveQueue();
+  }
 
+  async function processMoveQueue() {
+    if (isLoading.value || error.value || !currentStats.value || moveQueue.value.length === 0) return;
+
+    const moveUci = moveQueue.value.shift()!;
     const moveData = currentStats.value.moves.find((m: LichessMove) => m.uci === moveUci);
 
     // Check if move is in book
@@ -93,6 +101,7 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
       logger.warn(`[OpeningTrainer] Deviation! Move ${moveUci} not found in book.`);
       isDeviation.value = true;
       soundService.playSound('game_user_won');
+      moveQueue.value = []; // Clear queue on deviation
       return;
     }
 
@@ -155,6 +164,9 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
 
     // Fetch next position stats
     await fetchStats();
+
+    // Process any queued user moves
+    await processMoveQueue();
   }
 
   function calculateMoveScore(move: LichessMove, allMoves: LichessMove[]): number {
