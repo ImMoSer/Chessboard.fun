@@ -1,6 +1,7 @@
 <script setup lang="ts">
 defineProps<{
     openingName: string;
+    eco?: string;
     totalScore: number;
     isTheoryOver: boolean;
     isDeviation: boolean;
@@ -10,7 +11,10 @@ defineProps<{
 <template>
     <div class="opening-header">
         <div class="main-info">
-            <h2 class="opening-name">{{ openingName || 'Searching theory...' }}</h2>
+            <h2 class="opening-name">
+                <span v-if="eco" class="eco-code">{{ eco }}</span>
+                {{ openingName || 'Searching theory...' }}
+            </h2>
             <div class="stats-badges">
                 <div class="badge score">Score: {{ totalScore }}</div>
                 <div v-if="isTheoryOver" class="badge warning">Book Ended</div>
@@ -36,6 +40,16 @@ defineProps<{
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.eco-code {
+    background: var(--color-bg-tertiary);
+    color: var(--color-text-secondary);
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-right: 8px;
+    font-size: 1rem;
+    font-weight: bold;
 }
 
 .stats-badges {

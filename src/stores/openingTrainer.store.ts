@@ -2,6 +2,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { openingApiService, type LichessMove } from '../services/OpeningApiService';
+import { openingGraphService } from '../services/OpeningGraphService';
 import { type SessionMove } from '../types/openingTrainer.types';
 import { useBoardStore } from './board.store';
 import { useGameStore } from './game.store';
@@ -22,6 +23,7 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
   const variability = ref(5);
   const playerColor = ref<'white' | 'black'>('white');
   const openingName = ref('');
+  const currentEco = ref('');
   const isLoading = ref(false);
   const error = ref<string | null>(null);
   const moveQueue = ref<string[]>([]);
@@ -31,6 +33,10 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
   async function initializeSession(color: 'white' | 'black') {
     reset();
     playerColor.value = color;
+    
+    // Load the graph book if not loaded
+    await openingGraphService.loadBook();
+
     boardStore.setupPosition('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', color);
     await fetchStats();
 
@@ -46,6 +52,7 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
     isTheoryOver.value = false;
     isDeviation.value = false;
     openingName.value = '';
+    currentEco.value = '';
     error.value = null;
     isLoading.value = false;
     moveQueue.value = [];
@@ -58,8 +65,11 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
       const data = await openingApiService.fetchOpeningStats(boardStore.fen, movesHistoryUci.value);
       if (data) {
         currentStats.value = data;
-        if (data.opening) {
+        // We prefer the name from the Graph (set during move), but fallback to Lichess if not set?
+        // Actually, let's let Lichess be the fallback if we have nothing.
+        if (data.opening && !openingName.value) {
           openingName.value = data.opening.name;
+          if (data.opening.eco) currentEco.value = data.opening.eco;
         }
         if (data.moves.length === 0) {
           logger.info('[OpeningTrainer] Theory ended: No more moves in Lichess DB.');
@@ -109,6 +119,15 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
     const score = calculateMoveScore(moveData, currentStats.value.moves);
     totalScore.value += score;
 
+    // Look up Move in Graph to get Name/ECO
+    const graphMoves = openingGraphService.getMoves(boardStore.fen);
+    const graphMoveData = graphMoves.find(m => m.uci === moveUci);
+    
+    if (graphMoveData) {
+      if (graphMoveData.name) openingName.value = graphMoveData.name;
+      if (graphMoveData.eco) currentEco.value = graphMoveData.eco;
+    }
+
     // Add to history
     sessionHistory.value.push({
       fen: boardStore.fen,
@@ -135,8 +154,26 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
       return;
     }
 
+    // 1. Get Candidates from Lichess (Base Pool)
+    let candidateMoves = currentStats.value.moves;
+
+    // 2. Check Graph for "Academic" Moves
+    const graphMoves = openingGraphService.getMoves(boardStore.fen);
+    
+    // 3. Intersect: Prefer moves that are in BOTH Lichess AND Graph
+    const academicMoves = candidateMoves.filter((lm: LichessMove) => 
+      graphMoves.some(gm => gm.uci === lm.uci)
+    );
+
+    if (academicMoves.length > 0) {
+      logger.info(`[OpeningTrainer] Using ${academicMoves.length} Academic moves from Graph.`);
+      candidateMoves = academicMoves;
+    } else {
+      logger.info('[OpeningTrainer] No Academic moves found in Graph. Falling back to raw Lichess stats.');
+    }
+
     // Bot Weighted Random logic
-    const topMoves = currentStats.value.moves.slice(0, variability.value);
+    const topMoves = candidateMoves.slice(0, variability.value);
     const totalGames = topMoves.reduce((acc: number, m: LichessMove) => acc + (m.white + m.draws + m.black), 0);
 
     if (totalGames === 0) {
@@ -156,6 +193,13 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
         break;
       }
       random -= moveGames;
+    }
+
+    // Update Name/ECO from Graph for the selected move
+    const selectedGraphData = graphMoves.find(m => m.uci === selectedMove.uci);
+    if (selectedGraphData) {
+      if (selectedGraphData.name) openingName.value = selectedGraphData.name;
+      if (selectedGraphData.eco) currentEco.value = selectedGraphData.eco;
     }
 
     // Apply move to board
@@ -221,6 +265,7 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
     variability,
     playerColor,
     openingName,
+    currentEco,
     isLoading,
     error,
     initializeSession,

@@ -89,7 +89,7 @@ async function handlePlayout() {
 <template>
     <GameLayout>
         <template #top-info>
-            <OpeningTrainerHeader :opening-name="openingStore.openingName" :total-score="openingStore.totalScore"
+            <OpeningTrainerHeader :opening-name="openingStore.openingName" :eco="openingStore.currentEco" :total-score="openingStore.totalScore"
                 :is-theory-over="openingStore.isTheoryOver" :is-deviation="openingStore.isDeviation" />
         </template>
 
