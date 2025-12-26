@@ -135,7 +135,7 @@ const router = createRouter({
       component: RecordsPageView,
     },
     {
-      path: '/opening-trainer',
+      path: '/opening-trainer/:openingSlug?/:color?',
       name: 'opening-trainer',
       component: () => import('../views/OpeningTrainerView.vue'),
       meta: { isGame: true, game: 'opening-trainer' },

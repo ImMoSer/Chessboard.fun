@@ -30,7 +30,7 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
 
   const movesHistoryUci = computed(() => sessionHistory.value.map(h => h.moveUci));
 
-  async function initializeSession(color: 'white' | 'black') {
+  async function initializeSession(color: 'white' | 'black', startMoves: string[] = []) {
     reset();
     playerColor.value = color;
     
@@ -38,9 +38,17 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
     await openingGraphService.loadBook();
 
     boardStore.setupPosition('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', color);
+    
+    // Apply setup moves if any
+    for (const move of startMoves) {
+        boardStore.applyUciMove(move);
+    }
+
     await fetchStats();
 
-    if (color === 'black') {
+    // If it's not the player's turn, trigger bot
+    // Note: boardStore.turn is 'white' or 'black'
+    if (boardStore.turn !== color) {
       await triggerBotMove();
     }
   }

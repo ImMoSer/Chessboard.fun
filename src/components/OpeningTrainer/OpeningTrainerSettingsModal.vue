@@ -1,15 +1,27 @@
 <!-- src/components/OpeningTrainer/OpeningTrainerSettingsModal.vue -->
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useOpeningTrainerStore } from '../../stores/openingTrainer.store';
+import { openingGraphService } from '../../services/OpeningGraphService';
 
 const emit = defineEmits(['start', 'close']);
 const openingStore = useOpeningTrainerStore();
 
 const selectedColor = ref<'white' | 'black'>('white');
+const selectedOpening = ref<{ name: string, moves: string[] } | null>(null);
+const majorOpenings = ref<{ name: string, eco?: string, moves: string[] }[]>([]);
+
+onMounted(async () => {
+    await openingGraphService.loadBook();
+    majorOpenings.value = openingGraphService.getMajorOpenings();
+});
 
 function startSession() {
-    emit('start', selectedColor.value);
+    // If an opening is selected, use its moves. Otherwise empty array.
+    const moves = selectedOpening.value ? selectedOpening.value.moves : [];
+    // @ts-ignore
+    const slug = selectedOpening.value ? selectedOpening.value.slug : undefined;
+    emit('start', selectedColor.value, moves, slug);
 }
 </script>
 
@@ -34,6 +46,16 @@ function startSession() {
                             Black
                         </button>
                     </div>
+                </div>
+
+                <div class="setting-group">
+                    <label>Select Opening (Optional)</label>
+                    <select v-model="selectedOpening" class="opening-select">
+                        <option :value="null">Start Position (Standard)</option>
+                        <option v-for="op in majorOpenings" :key="op.name" :value="op">
+                            {{ op.eco ? `[${op.eco}] ` : '' }}{{ op.name }}
+                        </option>
+                    </select>
                 </div>
 
                 <div class="setting-group">
@@ -68,7 +90,7 @@ function startSession() {
 .modal-content {
     background: var(--color-bg-secondary);
     border-radius: 12px;
-    width: 400px;
+    width: 450px;
     max-width: 90%;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
     border: 1px solid var(--color-border);
@@ -141,6 +163,15 @@ function startSession() {
 .color-btn.active {
     border-color: var(--color-accent);
     transform: scale(1.02);
+}
+
+.opening-select {
+    padding: 10px;
+    border-radius: 8px;
+    background: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border);
+    font-size: 1rem;
 }
 
 .variability-slider {

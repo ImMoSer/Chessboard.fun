@@ -10,8 +10,9 @@ import { useOpeningTrainerStore } from '../stores/openingTrainer.store';
 import { useBoardStore } from '../stores/board.store';
 import { useGameStore } from '../stores/game.store';
 import { useUiStore } from '../stores/ui.store';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
 import i18n from '../services/i18n';
+import { openingGraphService } from '../services/OpeningGraphService';
 
 const t = i18n.global.t;
 const openingStore = useOpeningTrainerStore();
@@ -19,14 +20,55 @@ const boardStore = useBoardStore();
 const gameStore = useGameStore();
 const uiStore = useUiStore();
 const router = useRouter();
+const route = useRoute();
 
 const isReviewMode = ref(false);
 const isSettingsModalOpen = ref(true);
 const isNavigatingToPlayout = ref(false);
 
-onMounted(() => {
+onMounted(async () => {
     openingStore.reset();
+    if (route.params.openingSlug || route.params.color) {
+        await handleRouteParams();
+    }
 });
+
+async function handleRouteParams() {
+    await openingGraphService.loadBook();
+
+    let slug = route.params.openingSlug as string | undefined;
+    let colorParam = route.params.color as string | undefined;
+    let color: 'white' | 'black' = 'white';
+    let moves: string[] = [];
+
+    // Handle case where only color is provided in first param or slug is 'start'
+    if (slug) {
+        if (slug === 'white' || slug === 'black' || slug === 'for_white' || slug === 'for_black') {
+            colorParam = slug;
+            slug = undefined;
+        } else if (slug === 'start') {
+            slug = undefined;
+        }
+    }
+
+    if (colorParam) {
+        const normalized = colorParam.replace('for_', '');
+        if (normalized === 'white' || normalized === 'black') {
+            color = normalized;
+        }
+    }
+
+    if (slug) {
+        const opening = openingGraphService.findOpeningBySlug(slug);
+        if (opening) {
+            moves = opening.moves;
+        }
+    }
+
+    if (slug || colorParam) {
+        await startSession(color, moves, slug);
+    }
+}
 
 onUnmounted(() => {
     openingStore.reset();
@@ -35,8 +77,22 @@ onUnmounted(() => {
     }
 });
 
-async function startSession(color: 'white' | 'black') {
+async function startSession(color: 'white' | 'black', moves: string[] = [], slug?: string) {
     isSettingsModalOpen.value = false;
+
+    // Update URL to reflect current session
+    if (slug) {
+        router.replace({
+            name: 'opening-trainer',
+            params: {
+                openingSlug: slug,
+                color: `for_${color}`
+            }
+        });
+    } else {
+        // Clear params if starting fresh/standard
+        router.replace({ name: 'opening-trainer' });
+    }
 
     // Setup game store with opening-trainer mode FIRST
     gameStore.setupPuzzle(
@@ -52,7 +108,7 @@ async function startSession(color: 'white' | 'black') {
     );
 
     // Initialize opening store (will fetch stats and make bot move if Black)
-    await openingStore.initializeSession(color);
+    await openingStore.initializeSession(color, moves);
 }
 
 async function handleRestart() {
@@ -99,7 +155,7 @@ async function handlePlayout() {
                     <button class="btn" @click="handleRestart">New Session</button>
                     <button class="btn" @click="openingStore.hint">Hint</button>
                     <button class="btn" :class="{ 'active': isReviewMode }" @click="toggleReview">
-                        {{ isReviewMode ? 'Hide Theory' : 'Review' }}
+                        {{ isReviewMode ? 'Hide Theory' : 'Show Theory' }}
                     </button>
                     <button class="btn success" @click="handlePlayout">Playout</button>
                 </div>
