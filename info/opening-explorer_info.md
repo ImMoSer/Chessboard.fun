@@ -58,6 +58,12 @@ The Opening Trainer module allows users to practice chess openings against an op
 - **`game.store.ts`**:
   - Mode: `'opening-trainer'`.
   - Disables Stockfish bot; utilizes `onUserMoveCallback` to trigger the trainer's logic.
+- **Analysis Integration (`analysis.store.ts` & `board.store.ts`)**:
+  - **Overlay Analysis**: Users can toggle the Stockfish Engine (left panel) *during* the session. The `AnalysisStore` is decoupled from "Board Analysis Mode", allowing the user to make moves (gameplay) while seeing live evaluation.
+  - **Smart Navigation**: 
+    - When navigating the PGN history (via buttons or mouse wheel), the system detects the session's player color.
+    - It automatically **skips** the bot's moves, landing only on positions where it is the player's turn to move. This facilitates rapid review of player decisions.
+  - **Synchronized Theory**: The Opening Stats panel (right side) watches the board's FEN (debounced 500ms). When navigating through history, the stats table automatically updates to show theory for the *displayed* position, not just the *current game* position.
 - **Playout Transition**:
   - Users can jump to a Stockfish game at any time via `/sandbox/play/SF_2200/{color}/{fen}`.
   - Flag `isNavigatingToPlayout` prevents board reset during transition.
@@ -66,26 +72,24 @@ The Opening Trainer module allows users to practice chess openings against an op
 
 - **`OpeningTrainerSettingsModal.vue`**: 
   - **Color Selection**: White or Black.
-  - **Opening Catalog**: A searchable dropdown of major openings (e.g., Sicilian, French, Caro-Kann). 
-  - **Grouping**: Openings are grouped by their parent name (e.g., "English Opening" instead of 20 different "English Opening: Variation X" items) for better UX.
-- **`OpeningTrainerHeader.vue`**: Displays ECO code, Opening name (from Graph or Lichess), total score, and status badges.
-- **`WinrateProgressBar.vue`**: Visualizes White/Draw/Black win rates for the current position.
+  - **Opening Catalog**: A searchable dropdown of major openings. 
+- **`OpeningTrainerHeader.vue`**: Displays ECO code, Opening name, and total score.
+- **`OpeningTrainerView.vue`**:
+  - **Left Panel**: Contains the **Analysis Panel** (Engine/PGN) and control buttons.
+  - **Right Panel**: Contains `WinrateProgressBar` and `OpeningStatsTable`.
+- **`WinrateProgressBar.vue`**: Visualizes White/Draw/Black win rates.
 - **`OpeningStatsTable.vue`**: Lists available moves with blurring for "Practice Mode".
 
 ## Navigation & Sharing
 
 - **Route Pattern**: `/opening-trainer/:openingSlug?/:color?`
-- **Dynamic Parameters**:
-  - `openingSlug`: The URL-friendly name of the opening (e.g., `french_defense`).
-  - `color`: `for_white` or `for_black`.
-- **Auto-Initialization**: If the URL contains parameters, the trainer automatically loads the specified opening and color on mount.
-- **Shareability**: Starting a session from the modal automatically updates the browser's URL to reflect the current configuration.
+- **Dynamic Parameters**: `openingSlug`, `color`.
+- **Auto-Initialization**: Automatic session start based on URL.
 
 ## Development Status
 
 - **Academic Base**: Integrated via local JSON.
-- **ECO Codes**: Displayed in header.
-- **Start Position Presets**: Fully functional with PGN history support.
+- **Analysis Tools**: Fully integrated (Engine, Smart PGN Navigation, Live Theory Sync).
 - **Future**: 
   - Persistent session history.
   - "Goal" accuracy tracking.

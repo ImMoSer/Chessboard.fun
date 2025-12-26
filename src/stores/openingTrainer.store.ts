@@ -66,7 +66,7 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
     moveQueue.value = [];
   }
 
-  async function fetchStats() {
+  async function fetchStats(isGameplay = true) {
     isLoading.value = true;
     error.value = null;
     try {
@@ -80,13 +80,17 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
           if (data.opening.eco) currentEco.value = data.opening.eco;
         }
         if (data.moves.length === 0) {
-          logger.info('[OpeningTrainer] Theory ended: No more moves in Lichess DB.');
-          isTheoryOver.value = true;
-          soundService.playSound('game_user_won');
+          if (isGameplay) {
+            logger.info('[OpeningTrainer] Theory ended: No more moves in Lichess DB.');
+            isTheoryOver.value = true;
+            soundService.playSound('game_user_won');
+          }
         }
       } else {
         logger.info('[OpeningTrainer] Theory ended: No data returned from API.');
-        isTheoryOver.value = true;
+        if (isGameplay) {
+          isTheoryOver.value = true;
+        }
       }
     } catch (err: any) {
       // Clear stats on error to prevent stale data usage
@@ -278,6 +282,7 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
     error,
     initializeSession,
     handlePlayerMove,
+    fetchStats,
     reset,
     hint
   };

@@ -25,6 +25,7 @@ export const useAnalysisStore = defineStore('analysis', () => {
   const isMultiThreadAvailable = ref(false)
   const maxThreads = ref(1)
   const numThreads = ref(1)
+  const playerColor = ref<'white' | 'black' | null>(null)
 
   // --- Внутренний механизм для предотвращения гонки состояний ---
   let analysisVersion = 0
@@ -43,7 +44,6 @@ export const useAnalysisStore = defineStore('analysis', () => {
   async function showPanel(startActive = false) {
     isPanelVisible.value = true
     isLoading.value = true
-    boardStore.setAnalysisMode(true)
 
     isMultiThreadAvailable.value = analysisService.isMultiThreadAvailable()
     maxThreads.value = analysisService.getMaxThreads()
@@ -96,7 +96,6 @@ export const useAnalysisStore = defineStore('analysis', () => {
 
   async function toggleAnalysis() {
     isAnalysisActive.value = !isAnalysisActive.value
-    boardStore.setAnalysisMode(isAnalysisActive.value)
 
     if (isAnalysisActive.value) {
       await startCurrentPositionAnalysis()
@@ -159,8 +158,11 @@ export const useAnalysisStore = defineStore('analysis', () => {
     }
 
     boardStore.setDrawableShapes([])
-    boardStore.setAnalysisMode(false)
     logger.info('[AnalysisStore] Analysis state has been reset.')
+  }
+
+  function setPlayerColor(color: 'white' | 'black' | null) {
+    playerColor.value = color
   }
 
   return {
@@ -171,10 +173,12 @@ export const useAnalysisStore = defineStore('analysis', () => {
     isMultiThreadAvailable,
     maxThreads,
     numThreads,
+    playerColor,
     showPanel,
     hidePanel,
     toggleAnalysis,
     setThreads,
     resetAnalysisState,
+    setPlayerColor,
   }
 })

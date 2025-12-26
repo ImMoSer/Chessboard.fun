@@ -76,9 +76,9 @@ const handlePgnMoveClick = (node: PgnNode) => {
 const handlePgnWheelNavigation = (event: WheelEvent) => {
   event.preventDefault()
   if (event.deltaY < 0) {
-    boardStore.navigatePgn('backward')
+    boardStore.navigatePgn('backward', analysisStore.playerColor)
   } else {
-    boardStore.navigatePgn('forward')
+    boardStore.navigatePgn('forward', analysisStore.playerColor)
   }
 }
 
@@ -164,8 +164,8 @@ const PgnRenderer: FunctionalComponent<{ nodes: PgnNode[]; pathPrefix?: string }
     <div v-if="isAnalysisActive" class="analysis-panel-main-content">
       <div class="pgn-navigation-controls">
         <button class="pgn-nav-button" @click="boardStore.navigatePgn('start')">|◀</button>
-        <button class="pgn-nav-button" @click="boardStore.navigatePgn('backward')">◀</button>
-        <button class="pgn-nav-button" @click="boardStore.navigatePgn('forward')">▶</button>
+        <button class="pgn-nav-button" @click="boardStore.navigatePgn('backward', analysisStore.playerColor)">◀</button>
+        <button class="pgn-nav-button" @click="boardStore.navigatePgn('forward', analysisStore.playerColor)">▶</button>
         <button class="pgn-nav-button" @click="boardStore.navigatePgn('end')">▶|</button>
       </div>
 

@@ -77,7 +77,7 @@ class OpeningGraphService {
   }
 
   private simplifyName(name: string): string {
-    return name.split(':')[0].trim();
+    return name.split(':')[0]!.trim();
   }
 
   getMajorOpenings(): MajorOpening[] {

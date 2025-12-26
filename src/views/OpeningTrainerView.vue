@@ -1,15 +1,17 @@
 <!-- src/views/OpeningTrainerView.vue -->
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
 import GameLayout from '../components/GameLayout.vue';
 import OpeningTrainerHeader from '../components/OpeningTrainer/OpeningTrainerHeader.vue';
 import WinrateProgressBar from '../components/OpeningTrainer/WinrateProgressBar.vue';
 import OpeningStatsTable from '../components/OpeningTrainer/OpeningStatsTable.vue';
 import OpeningTrainerSettingsModal from '../components/OpeningTrainer/OpeningTrainerSettingsModal.vue';
+import AnalysisPanel from '../components/AnalysisPanel.vue';
 import { useOpeningTrainerStore } from '../stores/openingTrainer.store';
 import { useBoardStore } from '../stores/board.store';
 import { useGameStore } from '../stores/game.store';
 import { useUiStore } from '../stores/ui.store';
+import { useAnalysisStore } from '../stores/analysis.store';
 import { useRouter, useRoute } from 'vue-router';
 import i18n from '../services/i18n';
 import { openingGraphService } from '../services/OpeningGraphService';
@@ -19,12 +21,30 @@ const openingStore = useOpeningTrainerStore();
 const boardStore = useBoardStore();
 const gameStore = useGameStore();
 const uiStore = useUiStore();
+const analysisStore = useAnalysisStore();
 const router = useRouter();
 const route = useRoute();
 
 const isReviewMode = ref(false);
 const isSettingsModalOpen = ref(true);
 const isNavigatingToPlayout = ref(false);
+let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+// Sync Opening Stats with Board Position (Debounced)
+watch(() => boardStore.fen, (newFen) => {
+    // If we are in the middle of a move processing or initialization, we might want to skip?
+    // But for navigation support, we simple watch FEN.
+    
+    if (debounceTimer) clearTimeout(debounceTimer);
+    
+    debounceTimer = setTimeout(() => {
+        // Only fetch if we are not already loading (to avoid race conditions with game loop)
+        // and if the FEN actually requires an update (handled by store/cache usually)
+        if (!openingStore.isLoading) {
+            openingStore.fetchStats(false);
+        }
+    }, 500);
+});
 
 onMounted(async () => {
     openingStore.reset();
@@ -72,6 +92,7 @@ async function handleRouteParams() {
 
 onUnmounted(() => {
     openingStore.reset();
+    analysisStore.setPlayerColor(null);
     if (!isNavigatingToPlayout.value) {
         gameStore.resetGame();
     }
@@ -79,6 +100,9 @@ onUnmounted(() => {
 
 async function startSession(color: 'white' | 'black', moves: string[] = [], slug?: string) {
     isSettingsModalOpen.value = false;
+
+    // Set Analysis Player Color for smart navigation
+    analysisStore.setPlayerColor(color);
 
     // Update URL to reflect current session
     if (slug) {
@@ -157,9 +181,15 @@ async function handlePlayout() {
                     <button class="btn" :class="{ 'active': isReviewMode }" @click="toggleReview">
                         {{ isReviewMode ? 'Hide Theory' : 'Show Theory' }}
                     </button>
+                    <button class="btn" :class="{ 'active': analysisStore.isPanelVisible }"
+                        @click="analysisStore.isPanelVisible ? analysisStore.hidePanel() : analysisStore.showPanel()">
+                        Analysis
+                    </button>
                     <button class="btn success" @click="handlePlayout">Playout</button>
                 </div>
             </div>
+
+            <AnalysisPanel />
 
             <OpeningTrainerSettingsModal v-if="isSettingsModalOpen" @start="startSession" @close="() => { }" />
         </template>

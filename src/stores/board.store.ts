@@ -302,7 +302,11 @@ export const useBoardStore = defineStore('board', () => {
     drawableShapes.value = shapes
   }
 
-  function navigatePgn(move: 'start' | 'backward' | 'forward' | 'end') {
+  function navigatePgn(
+    move: 'start' | 'backward' | 'forward' | 'end',
+    targetTurn?: ChessgroundColor | null,
+  ) {
+    // 1. Perform the primary move
     switch (move) {
       case 'start':
         pgnService.navigateToStart()
@@ -318,6 +322,21 @@ export const useBoardStore = defineStore('board', () => {
         break
     }
     _updateBoardStateFromPgn()
+
+    // 2. Smart Navigation (Skip Bot Moves)
+    // If targetTurn is set, and we are not at the very start/end (where jumping might not be possible),
+    // and the resulting turn is NOT the target turn, we jump one more time.
+    if (targetTurn && (move === 'backward' || move === 'forward')) {
+      // Check current turn after the first move
+      // Note: chessPosition.value.turn is the side to move
+      if (turn.value !== targetTurn) {
+        // We landed on Bot's turn. Skip it.
+        if (move === 'backward') pgnService.navigateBackward()
+        else pgnService.navigateForward()
+        
+        _updateBoardStateFromPgn()
+      }
+    }
   }
 
   function navigateToNode(node: PgnNode) {

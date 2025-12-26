@@ -56,9 +56,9 @@ const handleUserMove = ({ orig, dest }: { orig: Key; dest: Key }) => {
 const handleBoardWheel = (direction: 'up' | 'down') => {
   if (analysisStore.isAnalysisActive) {
     if (direction === 'up') {
-      boardStore.navigatePgn('backward')
+      boardStore.navigatePgn('backward', analysisStore.playerColor)
     } else {
-      boardStore.navigatePgn('forward')
+      boardStore.navigatePgn('forward', analysisStore.playerColor)
     }
   }
 }
