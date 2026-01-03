@@ -5,10 +5,18 @@ import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { useAuthStore } from '@/stores/auth.store'
 import type { TornadoMode } from '@/types/api.types'
+import { Flash, Timer, Calendar } from '@vicons/ionicons5'
 
 const { t } = useI18n()
 const authStore = useAuthStore()
 const { userProfile } = storeToRefs(authStore)
+
+const modeMeta: Record<TornadoMode, { color: string; icon: any }> = {
+  bullet: { color: 'var(--color-accent-primary)', icon: Flash },
+  blitz: { color: 'var(--color-accent-success)', icon: Flash },
+  rapid: { color: 'var(--color-accent-warning)', icon: Timer },
+  classic: { color: 'var(--color-accent-error)', icon: Calendar },
+}
 
 const sortedTornadoScores = computed(() => {
   if (!userProfile.value?.tornadoHighScores) return []
@@ -23,64 +31,59 @@ const sortedTornadoScores = computed(() => {
 </script>
 
 <template>
-  <section v-if="sortedTornadoScores.length > 0"
-    class="user-cabinet__stats-section user-cabinet__stats-section--tornado">
-    <h3 class="user-cabinet__section-title">{{ t('userCabinet.stats.tornadoTitle') }}</h3>
-    <ul class="user-cabinet__tornado-list">
-      <li v-for="stat in sortedTornadoScores" :key="stat.mode" class="user-cabinet__tornado-item">
-        <span class="mode">{{ stat.mode }}</span>
-        <span class="score">{{ stat.score }}</span>
-      </li>
-    </ul>
-  </section>
+  <n-card v-if="sortedTornadoScores.length > 0" class="tornado-card">
+    <template #header>
+      <span class="card-header-text">{{ t('userCabinet.stats.tornadoTitle') }}</span>
+    </template>
+    
+    <n-grid :cols="2" :x-gap="12" :y-gap="12">
+      <n-grid-item v-for="stat in sortedTornadoScores" :key="stat.mode">
+        <div class="score-item" :style="{ borderColor: modeMeta[stat.mode].color }">
+          <n-icon :component="modeMeta[stat.mode].icon" :color="modeMeta[stat.mode].color" size="20" />
+          <div class="score-details">
+            <div class="mode-name">{{ stat.mode }}</div>
+            <div class="mode-score">{{ stat.score }}</div>
+          </div>
+        </div>
+      </n-grid-item>
+    </n-grid>
+  </n-card>
 </template>
 
 <style scoped>
-.user-cabinet__stats-section--tornado {
-    background-color: var(--color-bg-tertiary);
-    padding: 15px;
-    border-radius: var(--panel-border-radius);
-    border: 1px solid var(--color-border);
-    margin-bottom: 20px;
+.tornado-card {
+  height: 100%;
+  background-color: var(--color-bg-tertiary);
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
 }
 
-.user-cabinet__section-title {
-  font-size: var(--font-size-xlarge);
+.card-header-text {
+  font-family: var(--font-family-primary);
   color: var(--color-accent-secondary);
-  margin-top: 0;
-  margin-bottom: 15px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--color-border-hover);
-  text-align: center;
-}
-
-.user-cabinet__tornado-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 10px;
-}
-
-.user-cabinet__tornado-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: var(--color-bg-secondary);
-  padding: 10px 15px;
-  border-radius: 6px;
-  border: 1px solid var(--color-border-hover);
-  font-size: var(--font-size-base);
-}
-
-.user-cabinet__tornado-item .mode {
+  font-size: var(--font-size-large);
   font-weight: bold;
+}
+
+.score-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  background-color: var(--color-bg-secondary);
+  border-left: 4px solid;
+  border-radius: 6px;
+}
+
+.mode-name {
+  font-size: var(--font-size-small);
+  color: var(--color-text-muted);
   text-transform: capitalize;
 }
 
-.user-cabinet__tornado-item .score {
+.mode-score {
   font-weight: bold;
+  font-size: var(--font-size-large);
   color: var(--color-accent-warning);
 }
 </style>

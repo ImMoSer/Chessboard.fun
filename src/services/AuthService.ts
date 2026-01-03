@@ -21,21 +21,10 @@ class AuthServiceController {
     error: null,
   }
 
-  private telegramInitData: string | null = null
-
   private subscribers = new Set<() => void>()
 
   constructor() {
     logger.info(`[AuthService] Initializing with Backend API URL: ${BACKEND_API_URL}`)
-    const tg = (window as any).Telegram?.WebApp
-    if (tg && tg.initData) {
-      this.telegramInitData = tg.initData
-      logger.info('[AuthService] Telegram initData captured on startup.')
-    }
-  }
-
-  public getTelegramInitData(): string | null {
-    return this.telegramInitData
   }
 
   public getState(): Readonly<AuthState> {
@@ -71,56 +60,6 @@ class AuthServiceController {
     window.location.href = `${BACKEND_API_URL}/auth/lichess/login`
   }
 
-  public async loginViaTelegram(): Promise<void> {
-    logger.info('[AuthService] Attempting stateless login via Telegram...')
-    this._setState({ isProcessing: true, error: null })
-
-    if (!this.telegramInitData) {
-      logger.error('[AuthService] Telegram initData is not available for login.')
-      this._setState({ isProcessing: false, error: 'Telegram data not available.' })
-      return
-    }
-
-    try {
-      const response = await fetch(`${BACKEND_API_URL}/auth/telegram/validate`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ initData: this.telegramInitData }),
-      })
-
-      if (!response.ok) {
-        throw new Error(`Backend validation failed with status ${response.status}`)
-      }
-
-      const result = await response.json()
-
-      if (result.status === 'linking_required') {
-        logger.info('[AuthService] Telegram user not linked. Redirecting to Lichess.')
-        const encodedInitData = encodeURIComponent(this.telegramInitData)
-        window.location.href = `${BACKEND_API_URL}/auth/lichess/login?state=${encodedInitData}`
-      } else if (result.status === 'ok' && result.profile) {
-        const userProfile: UserSessionProfile = result.profile
-        logger.info(
-          `[AuthService] Stateless auth successful. User "${userProfile.username}" authenticated.`,
-        )
-        this._setState({
-          isAuthenticated: true,
-          userProfile: userProfile,
-          isProcessing: false,
-        })
-        localStorage.setItem('user_profile', JSON.stringify(userProfile))
-      } else {
-        throw new Error('Invalid response from backend during Telegram validation.')
-      }
-    } catch (error) {
-      logger.error('[AuthService] Error during Telegram login process:', error)
-      this._setState({
-        error: t('errors.telegramAuthFailed'),
-        isProcessing: false,
-      })
-    }
-  }
-
   public async logout(): Promise<void> {
     logger.info('[AuthService] Redirecting to backend for logout...')
     this._setState({ isProcessing: true })
@@ -129,13 +68,7 @@ class AuthServiceController {
 
   public async handleAuthentication(): Promise<boolean> {
     logger.info('[AuthService] Handling authentication...')
-
-    if (this.telegramInitData) {
-      await this.loginViaTelegram()
-    } else {
-      await this.checkSession()
-    }
-
+    await this.checkSession()
     return this.state.isAuthenticated
   }
 

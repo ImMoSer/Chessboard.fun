@@ -1,138 +1,97 @@
 <!-- src/components/userCabinet/sections/StatsCard.vue -->
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps({
-  title: {
-    type: String,
-    required: true,
-  },
-  rating: {
-    type: Number,
-    required: true,
-  },
-  accuracy: {
-    type: Number,
-    required: true,
-  },
-  solved: {
-    type: Number,
-    required: true,
-  },
-  attempted: {
-    type: Number,
-    required: true,
-  },
+  title: { type: String, required: true },
+  rating: { type: Number, required: true },
+  accuracy: { type: Number, required: true },
+  solved: { type: Number, required: true },
+  attempted: { type: Number, required: true },
 })
 
-const accuracyColor = computed(() => {
-  if (props.accuracy >= 85) return 'var(--color-accent-success)'
-  if (props.accuracy >= 60) return 'var(--color-accent-warning)'
-  return 'var(--color-accent-error)'
+const accuracyStatus = computed(() => {
+  if (props.accuracy >= 85) return 'success'
+  if (props.accuracy >= 60) return 'warning'
+  return 'error'
 })
-
-const progressCircleStyle = computed(() => ({
-  background: `radial-gradient(closest-side, var(--color-bg-tertiary) 79%, transparent 80% 100%),
-    conic-gradient(${accuracyColor.value} ${props.accuracy}%, var(--color-bg-secondary) 0)`,
-}))
 </script>
 
 <template>
-  <div class="stats-card">
-    <h4 class="card-title">{{ title }}</h4>
-    <div class="card-content">
-      <div class="rating-section">
-        <div class="rating-label">Рейтинг</div>
-        <div class="rating-value">{{ rating }}</div>
-      </div>
-      <div class="accuracy-section">
-        <div class="progress-circle" :style="progressCircleStyle">
-          <span class="accuracy-value">{{ accuracy }}%</span>
-        </div>
-        <div class="solved-attempts">
+  <n-card hoverable class="theme-stat-card" size="small">
+    <template #header>
+      <n-ellipsis style="max-width: 100%">
+        <span class="card-title">{{ title }}</span>
+      </n-ellipsis>
+    </template>
+    
+    <div class="card-body">
+      <n-statistic :label="t('userCabinet.analyticsTable.rating')" :value="rating">
+        <template #prefix>📈</template>
+      </n-statistic>
+
+      <div class="accuracy-box">
+        <n-progress
+          type="circle"
+          :percentage="accuracy"
+          :status="accuracyStatus"
+          :stroke-width="10"
+          :show-indicator="true"
+          size="small"
+        />
+        <n-text depth="3" class="attempts-text">
           {{ solved }} / {{ attempted }}
-        </div>
+        </n-text>
       </div>
     </div>
-  </div>
+  </n-card>
 </template>
 
 <style scoped>
-.stats-card {
-  background-color: var(--color-bg-tertiary);
+.theme-stat-card {
+  background-color: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
-  border-radius: var(--panel-border-radius);
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  transition: all 0.2s ease;
-  cursor: pointer;
+  transition: border-color 0.3s ease;
 }
 
-.stats-card:hover {
-  transform: translateY(-2px);
+.theme-stat-card:hover {
   border-color: var(--color-accent-primary);
 }
 
 .card-title {
-  margin: 0;
-  text-align: center;
-  font-size: var(--font-size-large);
-  color: var(--color-text-default);
-  font-weight: var(--font-weight-bold);
-  border-bottom: 1px solid var(--color-border-hover);
-  padding-bottom: 10px;
+  font-family: var(--font-family-primary);
+  font-weight: bold;
+  font-size: var(--font-size-base);
 }
 
-.card-content {
+.card-body {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
   align-items: center;
-  gap: 15px;
+  gap: 12px;
 }
 
-.rating-section {
-  text-align: center;
-}
-
-.rating-label {
-  font-size: var(--font-size-small);
-  color: var(--color-text-muted);
-  margin-bottom: 5px;
-}
-
-.rating-value {
-  font-size: var(--font-size-xlarge);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-accent-primary);
-}
-
-.accuracy-section {
+.accuracy-box {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
 }
 
-.progress-circle {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.attempts-text {
+  font-size: var(--font-size-xsmall);
+  font-family: var(--font-family-primary);
 }
 
-.accuracy-value {
+:deep(.n-statistic-label) {
+  font-size: var(--font-size-xsmall);
+}
+
+:deep(.n-statistic-value__content) {
   font-size: var(--font-size-large);
-  font-weight: var(--font-weight-bold);
-  color: v-bind(accuracyColor);
-}
-
-.solved-attempts {
-  font-size: var(--font-size-small);
-  color: var(--color-text-muted);
-  font-weight: var(--font-weight-bold);
+  color: var(--color-accent-primary);
 }
 </style>

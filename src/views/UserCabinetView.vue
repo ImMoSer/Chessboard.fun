@@ -8,7 +8,6 @@ import { useUserCabinetStore } from '@/stores/userCabinet.store'
 
 import DetailedAnalytics from '@/components/userCabinet/DetailedAnalytics.vue'
 import UserProfileHeader from '@/components/userCabinet/sections/UserProfileHeader.vue'
-import TelegramBinding from '@/components/userCabinet/sections/TelegramBinding.vue'
 import GlobalActivityStats from '@/components/userCabinet/sections/GlobalActivityStats.vue'
 import TornadoHighScores from '@/components/userCabinet/sections/TornadoHighScores.vue'
 
@@ -27,69 +26,66 @@ onMounted(() => {
 
 <template>
   <div class="user-cabinet-container">
-    <div v-if="isLoading" class="loading-message">
-      {{ t('common.loading') }}
+    <div v-if="isLoading" class="state-container">
+      <n-spin size="large" />
     </div>
-    <div v-else-if="error" class="error-message">
+
+    <n-alert v-else-if="error" type="error" closable class="error-alert">
       {{ error }}
+    </n-alert>
+
+    <div v-else-if="!isAuthenticated || !userProfile" class="login-prompt">
+      <n-result
+        status="403"
+        :title="t('userCabinet.title')"
+        :description="t('userCabinet.loginPrompt')"
+      >
+        <template #footer>
+          <n-button type="primary" size="large" @click="authStore.login()">
+            {{ t('nav.loginWithLichess') }}
+          </n-button>
+        </template>
+      </n-result>
     </div>
-    <div v-else-if="!isAuthenticated || !userProfile" class="login-prompt-container">
-      <h3>{{ t('userCabinet.title') }}</h3>
-      <p>{{ t('userCabinet.loginPrompt') }}</p>
-      <button @click="authStore.login()" class="login-button">
-        {{ t('nav.loginWithLichess') }}
-      </button>
-    </div>
+
     <div v-else class="user-cabinet-content">
-      <UserProfileHeader />
-      <TelegramBinding />
-      <GlobalActivityStats />
-      <DetailedAnalytics />
-      <TornadoHighScores />
+      <n-space vertical size="large">
+        <UserProfileHeader />
+        
+        <TornadoHighScores />
+
+        <GlobalActivityStats />
+        
+        <DetailedAnalytics />
+      </n-space>
     </div>
   </div>
 </template>
 
 <style scoped>
 .user-cabinet-container {
-  padding: 5px;
-  box-sizing: border-box;
-  background-color: var(--color-bg-secondary);
-  color: var(--color-text-default);
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  max-width: 70vw;
+  padding: 24px;
   max-width: 1200px;
   margin: 20px auto;
-  border-radius: var(--panel-border-radius);
+}
+
+.state-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 400px;
+}
+
+.login-prompt {
+  padding: 60px 0;
+  background-color: var(--color-bg-secondary);
+  border-radius: 12px;
   border: 1px solid var(--color-border-hover);
 }
 
-.loading-message,
-.error-message {
-  text-align: center;
-  padding: 20px;
-  font-size: var(--font-size-large);
-}
-
-.login-prompt-container {
-  text-align: center;
-  padding: 40px 20px;
-}
-
-.login-button {
-  background-color: var(--color-accent-primary);
-  color: var(--color-text-dark);
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.login-button:hover {
-  background-color: var(--color-accent-primary-hover);
+@media (max-width: 768px) {
+  .user-cabinet-container {
+    padding: 12px;
+  }
 }
 </style>

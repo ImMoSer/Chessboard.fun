@@ -4,7 +4,7 @@ import { h, ref, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { DataTableColumns } from 'naive-ui'
 import { NDataTable } from 'naive-ui' // Явный импорт для использования в render
-import type { TeamBattlePlayedArena, TeamBattlePlayerInArena } from '../../types/api.types'
+import type { TeamBattlePlayedArena, TournamentPlayer } from '../../types/api.types'
 
 const { t } = useI18n()
 
@@ -36,7 +36,7 @@ const calculateTeamScore = (tournament: TeamBattlePlayedArena) => {
 }
 
 // --- Колонки вложенной таблицы (игроки) ---
-const playerColumns: DataTableColumns<TeamBattlePlayerInArena> = [
+const playerColumns: DataTableColumns<TournamentPlayer> = [
   { title: '#', key: 'rank_in_club', align: 'center', width: 50 },
   {
     title: t('clubPage.table.player'),
@@ -108,7 +108,7 @@ const columns: DataTableColumns<TeamBattlePlayedArena> = [
               size: 'small',
               columns: playerColumns,
               data: row.players_in_arena,
-              rowKey: (r: TeamBattlePlayerInArena) => r.lichess_id,
+              rowKey: (r: TournamentPlayer) => r.lichess_id,
               striped: true,
             }
           )

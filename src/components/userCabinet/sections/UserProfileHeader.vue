@@ -9,90 +9,139 @@ const { t } = useI18n()
 const authStore = useAuthStore()
 const { userProfile } = storeToRefs(authStore)
 
+const tierToPieceMap: Record<string, string> = {
+  Pawn: 'wP.svg',
+  Knight: 'wN.svg',
+  Bishop: 'wB.svg',
+  Rook: 'wR.svg',
+  Queen: 'wQ.svg',
+  King: 'wK.svg',
+  Administrator: 'wK.svg',
+}
+
+const avatarUrl = computed(() => {
+  const tier = userProfile.value?.subscriptionTier
+  if (tier && tierToPieceMap[tier]) {
+    return `/piece/alpha/${tierToPieceMap[tier]}`
+  }
+  return 'https://lichess1.org/assets/images/avatar_default.png'
+})
+
 const formatTierExpireDate = (isoDate: string | null | undefined) => {
   if (!isoDate) return t('userCabinet.info.tierPermanent')
   const date = new Date(isoDate)
   return t('userCabinet.info.tierExpires', { date: date.toLocaleDateString() })
 }
+
+const getTierType = (tier: string = '') => {
+  const t = tier.toLowerCase()
+  if (t === 'platinum' || t === 'gold') return 'warning'
+  if (t === 'silver' || t === 'bronze') return 'info'
+  if (t === 'administrator') return 'error'
+  return 'default'
+}
 </script>
 
 <template>
-  <header v-if="userProfile" class="user-cabinet__header">
-    <h1 class="user-cabinet__page-main-title">
-      {{ userProfile.username }}
-    </h1>
-    <div class="user-cabinet__user-info-basic">
-      <div class="user-cabinet__stat-item">
-        <span class="user-cabinet__stat-label">{{ t('userCabinet.info.lichessId') }}:</span>
-        <span class="user-cabinet__stat-value">{{ userProfile.id }}</span>
+  <n-card v-if="userProfile" class="header-card" :bordered="false">
+    <div class="header-flex">
+      <div class="avatar-container">
+        <n-avatar
+          round
+          :size="80"
+          :src="avatarUrl"
+          fallback-src="https://lichess1.org/assets/images/avatar_default.png"
+          class="user-avatar"
+        />
       </div>
-      <div class="user-cabinet__stat-item">
-        <span class="user-cabinet__stat-label">{{ t('userCabinet.info.subscriptionTier') }}:</span>
-        <span class="user-cabinet__stat-value">{{ userProfile.subscriptionTier }}
-          <span class="tier-expire-date">{{
-            formatTierExpireDate(userProfile.TierExpire)
-          }}</span></span>
+      
+      <div class="user-main-info">
+        <n-h1 class="username">{{ userProfile.username }}</n-h1>
+        
+        <n-space size="small" align="center" wrap>
+          <n-tag :type="getTierType(userProfile.subscriptionTier)" round size="small">
+            {{ userProfile.subscriptionTier }}
+          </n-tag>
+          <n-text depth="3" class="expire-date">
+            {{ formatTierExpireDate(userProfile.TierExpire) }}
+          </n-text>
+        </n-space>
       </div>
-      <!-- Обновленные и новые поля -->
-      <div v-if="userProfile.finishHimRating" class="user-cabinet__stat-item">
-        <span class="user-cabinet__stat-label">{{
-          t('userCabinet.stats.finishHimRatingLabel')
-        }}</span>
-        <span class="user-cabinet__stat-value">{{ userProfile.finishHimRating.rating }}</span>
-      </div>
+
+      <n-space class="header-stats" justify="end">
+        <n-statistic :label="t('userCabinet.stats.finishHimRatingLabel')" :value="userProfile.finishHimRating?.rating || 0">
+          <template #prefix>🏆</template>
+        </n-statistic>
+        <n-statistic :label="t('userCabinet.stats.funcoinsLabel')" :value="userProfile.FunCoins">
+          <template #prefix>🪙</template>
+        </n-statistic>
+      </n-space>
     </div>
-  </header>
+  </n-card>
 </template>
 
 <style scoped>
-.user-cabinet__header {
-  padding-bottom: 15px;
-  margin-bottom: 20px;
-  text-align: center;
+.header-card {
+  background-color: var(--color-bg-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--color-border-hover);
 }
 
-.user-cabinet__page-main-title {
-  font-size: var(--font-size-xxlarge);
-  color: var(--color-accent-primary);
-  margin-top: 0;
-  margin-bottom: 10px;
-  font-weight: var(--font-weight-bold);
-}
-
-.user-cabinet__user-info-basic {
+.header-flex {
   display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 15px;
-  font-size: var(--font-size-base);
-  color: var(--color-text-muted);
-}
-
-.user-cabinet__stat-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px;
-  border-bottom: 1px dotted var(--color-border);
-  font-size: var(--font-size-base);
-  background-color: var(--color-bg-primary);
-  border-radius: 4px;
   align-items: center;
-  gap: 10px;
+  gap: 24px;
 }
 
-.user-cabinet__stat-label {
-  color: var(--color-text-muted);
-  font-weight: var(--font-weight-normal);
+.avatar-container {
+  background-color: var(--color-bg-primary);
+  padding: 4px;
+  border-radius: 50%;
+  border: 2px solid var(--color-border-hover);
+  line-height: 0;
 }
 
-.user-cabinet__stat-value {
+.user-avatar {
+  background-color: var(--color-bg-tertiary);
+}
+
+.user-main-info {
+  flex: 1;
+}
+
+.username {
+  margin: 0 0 8px 0 !important;
+  font-family: var(--font-family-primary);
   color: var(--color-accent-primary);
-  font-weight: var(--font-weight-bold);
 }
 
-.tier-expire-date {
-  font-style: italic;
-  font-size: 0.8em;
-  margin-left: 5px;
+.expire-date {
+  font-size: var(--font-size-small);
+}
+
+.header-stats {
+  min-width: 250px;
+}
+
+:deep(.n-statistic-label) {
+  font-family: var(--font-family-primary);
+}
+
+:deep(.n-statistic-value__content) {
+  font-family: var(--font-family-primary);
+  font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  .header-flex {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .header-stats {
+    justify-content: center;
+    width: 100%;
+    margin-top: 16px;
+  }
 }
 </style>

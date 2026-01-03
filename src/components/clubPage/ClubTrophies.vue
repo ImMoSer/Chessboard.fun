@@ -39,7 +39,7 @@ const topThree = computed(() => {
   <div v-if="topThree" class="trophies-main-wrapper">
     <n-grid :cols="3" x-gap="12" class="trophies-grid" align-items="end">
       <!-- 2-е место -->
-      <n-grid-item class="trophy-item second">
+      <n-grid-item v-if="topThree.second" class="trophy-item second">
         <div class="trophy-content">
           <div class="image-box breathe-red">
             <n-image src="/jpg/club_trofee/platz_2.jpg" preview-disabled class="trophy-img" />
@@ -53,7 +53,7 @@ const topThree = computed(() => {
       </n-grid-item>
 
       <!-- 1-е место -->
-      <n-grid-item class="trophy-item first">
+      <n-grid-item v-if="topThree.first" class="trophy-item first">
         <div class="trophy-content">
           <div class="image-box breathe-gold">
             <n-image src="/jpg/club_trofee/platz_1.jpg" preview-disabled class="trophy-img" />
@@ -67,7 +67,7 @@ const topThree = computed(() => {
       </n-grid-item>
 
       <!-- 3-е место -->
-      <n-grid-item class="trophy-item third">
+      <n-grid-item v-if="topThree.third" class="trophy-item third">
         <div class="trophy-content">
           <div class="image-box breathe-red">
             <n-image src="/jpg/club_trofee/platz_3.jpg" preview-disabled class="trophy-img" />

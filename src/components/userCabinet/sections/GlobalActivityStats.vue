@@ -1,8 +1,10 @@
 <!-- src/components/userCabinet/sections/GlobalActivityStats.vue -->
 <script setup lang="ts">
+import { h, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { useUserCabinetStore, type ActivityPeriod } from '@/stores/userCabinet.store'
+import type { DataTableColumns } from 'naive-ui'
 
 const { t } = useI18n()
 const userCabinetStore = useUserCabinetStore()
@@ -12,149 +14,111 @@ const {
   selectedActivityPeriod,
 } = storeToRefs(userCabinetStore)
 
-const handlePeriodChange = (period: ActivityPeriod) => {
-  userCabinetStore.setSelectedActivityPeriod(period)
+interface ActivityRow {
+  mode: 'advantage' | 'tower' | 'tornado'
+  requested: number
+  solved: number
+  skill: number
+}
+
+const columns: DataTableColumns<ActivityRow> = [
+  {
+    title: t('userCabinet.stats.modes.all'),
+    key: 'mode',
+    render(row) {
+      const label = row.mode === 'tornado' 
+        ? t('nav.tornado') 
+        : row.mode === 'advantage' 
+          ? t('nav.finishHim') // В ru.json "Добивание"
+          : t(`userCabinet.stats.modes.${row.mode}`)
+      return h('span', { style: { fontWeight: 'bold' } }, label)
+    }
+  },
+  { title: t('records.table.requested'), key: 'requested', align: 'center' },
+  { title: t('records.table.solved'), key: 'solved', align: 'center' },
+  {
+    title: t('records.table.totalSkill'),
+    key: 'skill',
+    align: 'right',
+    render(row) {
+      return h('span', { style: { fontWeight: 'bold', color: 'var(--color-accent-success)' } }, row.skill)
+    }
+  }
+]
+
+const tableData = computed(() => {
+  if (!personalActivityStats.value) return []
+  const periodData = personalActivityStats.value[selectedActivityPeriod.value]
+  return (['advantage', 'tower', 'tornado'] as const).map(mode => ({
+    mode,
+    requested: periodData[mode].puzzles_requested,
+    solved: periodData[mode].puzzles_solved,
+    skill: periodData[mode].skill_value
+  }))
+})
+
+const handlePeriodChange = (period: string) => {
+  userCabinetStore.setSelectedActivityPeriod(period as ActivityPeriod)
 }
 </script>
 
 <template>
-  <section class="user-cabinet__personal-activity-stats">
-    <h3 class="user-cabinet__section-title">{{ t('userCabinet.stats.global.title') }}</h3>
-    <div v-if="isPersonalActivityStatsLoading" class="loading-message">
-      {{ t('common.loading') }}
-    </div>
-    <div v-else-if="personalActivityStats">
-      <div class="stats-filters">
-        <button class="filter-button" :class="{ active: selectedActivityPeriod === 'daily' }"
-          @click="handlePeriodChange('daily')">
-          {{ t('userCabinet.stats.periods.day') }}
-        </button>
-        <button class="filter-button" :class="{ active: selectedActivityPeriod === 'weekly' }"
-          @click="handlePeriodChange('weekly')">
-          {{ t('userCabinet.stats.periods.week') }}
-        </button>
-        <button class="filter-button" :class="{ active: selectedActivityPeriod === 'monthly' }"
-          @click="handlePeriodChange('monthly')">
-          {{ t('userCabinet.stats.periods.month') }}
-        </button>
-      </div>
-      <div class="stats-table-container">
-        <table class="user-cabinet__stats-table">
-          <thead>
-            <tr>
-              <th>{{ t('userCabinet.stats.modes.all') }}</th>
-              <th>{{ t('records.table.requested') }}</th>
-              <th>{{ t('records.table.solved') }}</th>
-              <th>{{ t('records.table.totalSkill') }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="mode in ['advantage', 'tower', 'tornado'] as const" :key="mode">
-              <td>
-                {{
-                  t(mode === 'tornado' ? 'nav.tornado' : mode === 'advantage' ? 'nav.advantage' : `userCabinet.stats.modes.${mode}`)
-                }}
-              </td>
-              <td>
-                {{ personalActivityStats[selectedActivityPeriod][mode].puzzles_requested }}
-              </td>
-              <td>{{ personalActivityStats[selectedActivityPeriod][mode].puzzles_solved }}</td>
-              <td class="skill-value">
-                {{ personalActivityStats[selectedActivityPeriod][mode].skill_value }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </section>
+  <n-card class="activity-card">
+    <template #header>
+      <span class="card-header-text">{{ t('userCabinet.stats.global.title') }}</span>
+    </template>
+    
+    <n-tabs 
+      type="segment" 
+      :value="selectedActivityPeriod" 
+      @update:value="handlePeriodChange"
+      class="activity-tabs"
+    >
+      <n-tab-pane name="daily" :tab="t('userCabinet.stats.periods.day')" />
+      <n-tab-pane name="weekly" :tab="t('userCabinet.stats.periods.week')" />
+      <n-tab-pane name="monthly" :tab="t('userCabinet.stats.periods.month')" />
+    </n-tabs>
+
+    <n-data-table
+      :loading="isPersonalActivityStatsLoading"
+      :columns="columns"
+      :data="tableData"
+      :row-key="(row: ActivityRow) => row.mode"
+      striped
+      class="activity-table"
+    />
+  </n-card>
 </template>
 
 <style scoped>
-.user-cabinet__personal-activity-stats {
+.activity-card {
   background-color: var(--color-bg-tertiary);
-  padding: 15px;
-  border-radius: var(--panel-border-radius);
+  border-radius: 12px;
   border: 1px solid var(--color-border);
-  margin-bottom: 20px;
 }
 
-.user-cabinet__section-title {
-  font-size: var(--font-size-xlarge);
+.card-header-text {
+  font-family: var(--font-family-primary);
   color: var(--color-accent-success);
-  margin-top: 0;
-  margin-bottom: 15px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--color-border-hover);
-  text-align: center;
-}
-
-.loading-message {
-  text-align: center;
-  padding: 20px;
   font-size: var(--font-size-large);
+  font-weight: bold;
 }
 
-.stats-filters {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 15px;
-  flex-wrap: wrap;
+.activity-tabs {
+  margin-bottom: 16px;
 }
 
-.filter-button {
-  padding: 8px 16px;
-  border-radius: var(--panel-border-radius);
-  border: 1px solid var(--color-border-hover);
-  background-color: var(--color-bg-secondary);
-  color: var(--color-text-muted);
+.activity-table {
+  --n-td-color-striped: var(--color-bg-secondary);
+}
+
+:deep(.n-data-table-th) {
+  background-color: var(--color-bg-secondary) !important;
+  font-family: var(--font-family-primary);
+}
+
+:deep(.n-data-table-td) {
   font-family: var(--font-family-primary);
   font-size: var(--font-size-base);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.filter-button:hover {
-  border-color: var(--color-accent-primary);
-  color: var(--color-text-default);
-}
-
-.filter-button.active {
-  background-color: var(--color-accent-primary);
-  color: var(--color-text-dark);
-  border-color: var(--color-accent-primary);
-  font-weight: bold;
-}
-
-.stats-table-container {
-  overflow-x: auto;
-}
-
-.user-cabinet__stats-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.user-cabinet__stats-table th,
-.user-cabinet__stats-table td {
-  padding: 10px;
-  border: 1px solid var(--color-border);
-  text-align: center;
-}
-
-.user-cabinet__stats-table th {
-  background-color: var(--color-bg-secondary);
-  font-weight: bold;
-}
-
-.user-cabinet__stats-table td:first-child {
-  text-align: left;
-  font-weight: bold;
-}
-
-.user-cabinet__stats-table .skill-value {
-  font-weight: bold;
-  color: var(--color-accent-success);
 }
 </style>

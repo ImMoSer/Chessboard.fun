@@ -75,12 +75,6 @@ class WebhookServiceController {
       Accept: 'application/json',
     }
 
-    const telegramInitData = authService.getTelegramInitData()
-    if (telegramInitData) {
-      headers['X-Telegram-Init-Data'] = telegramInitData
-      logger.debug(`[WebhookService ${context}] Attaching Telegram auth header.`)
-    }
-
     const options: RequestInit = {
       method,
       headers,
@@ -237,12 +231,10 @@ class WebhookServiceController {
 
   public sendFinishHimStatsUpdateBeacon(dto: UpdateFinishHimStatsDto): boolean {
     const url = `${BACKEND_API_URL}/n8n-proxy/stats/finish-him`
-    const telegramInitData = authService.getTelegramInitData()
 
     // The backend must be adapted to read auth data from the body for beacon requests
     const payload = {
       ...dto,
-      ...(telegramInitData && { telegramInitData }),
     }
 
     const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' })
@@ -269,14 +261,6 @@ class WebhookServiceController {
       'POST',
       'sendTowerRecord',
       dto,
-    )
-  }
-
-  public async fetchTelegramBindingUrl(): Promise<TelegramBindingUrlResponse | null> {
-    return this._apiRequest<TelegramBindingUrlResponse>(
-      '/n8n-proxy/telegram/binding-url',
-      'GET',
-      'fetchTelegramBindingUrl',
     )
   }
 

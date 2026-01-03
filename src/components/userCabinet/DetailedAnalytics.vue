@@ -12,10 +12,7 @@ const router = useRouter()
 const userCabinetStore = useUserCabinetStore()
 const { detailedStats, isDetailedStatsLoading, detailedStatsError } = storeToRefs(userCabinetStore)
 
-type Tab = 'Tornado' | 'Endgame'
-const activeTab = ref<Tab>('Tornado')
-
-const tabs: Tab[] = ['Tornado', 'Endgame']
+const activeTab = ref('Tornado')
 
 const currentStats = computed(() => {
   if (!detailedStats.value) return []
@@ -41,94 +38,51 @@ function handleThemeClick(theme: string) {
 </script>
 
 <template>
-  <section class="detailed-analytics-container">
-    <h3 class="detailed-analytics__title">{{ t('userCabinet.detailedAnalytics.title') }}</h3>
+  <n-card class="analytics-card">
+    <template #header>
+      <span class="card-header-text">{{ t('userCabinet.detailedAnalytics.title') }}</span>
+    </template>
 
-    <div v-if="isDetailedStatsLoading" class="loading-message">Загрузка статистики...</div>
-    <div v-else-if="detailedStatsError" class="error-message">
+    <div v-if="isDetailedStatsLoading" class="state-box">
+      <n-spin size="large" />
+    </div>
+    
+    <n-alert v-else-if="detailedStatsError" type="error" class="error-alert">
       {{ detailedStatsError }}
+    </n-alert>
+    
+    <div v-else-if="detailedStats">
+      <n-tabs v-model:value="activeTab" type="segment" animated>
+        <n-tab-pane name="Tornado" tab="Tornado">
+          <AnalyticsDisplay :stats="currentStats" @theme-click="handleThemeClick" />
+        </n-tab-pane>
+        <n-tab-pane name="Endgame" tab="Endgame">
+          <AnalyticsDisplay :stats="currentStats" @theme-click="handleThemeClick" />
+        </n-tab-pane>
+      </n-tabs>
     </div>
-    <div v-else-if="detailedStats" class="analytics-content">
-      <div class="tabs-navigation">
-        <button v-for="tab in tabs" :key="tab" class="tab-button"
-          :class="{ active: activeTab === tab }" @click="activeTab = tab">
-          {{ tab }}
-        </button>
-      </div>
-
-      <div class="tab-content">
-        <AnalyticsDisplay
-          :stats="currentStats"
-          @theme-click="handleThemeClick"
-        />
-      </div>
-    </div>
-    <div v-else class="no-data-message">Нет данных для отображения.</div>
-  </section>
+    
+    <n-empty v-else :description="t('common.noData')" />
+  </n-card>
 </template>
 
 <style scoped>
-.detailed-analytics-container {
+.analytics-card {
   background-color: var(--color-bg-tertiary);
-  padding: 15px;
-  border-radius: var(--panel-border-radius);
+  border-radius: 12px;
   border: 1px solid var(--color-border);
-  margin-top: 20px;
-  margin-bottom: 20px;
 }
 
-.detailed-analytics__title {
-  font-size: var(--font-size-large);
-  color: var(--color-accent-secondary);
-  margin-top: 0;
-  margin-bottom: 15px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--color-border-hover);
-  text-align: center;
-}
-
-.loading-message,
-.error-message,
-.no-data-message {
-  text-align: center;
-  padding: 20px;
-  font-size: var(--font-size-large);
-  color: var(--color-text-muted);
-}
-
-.tabs-navigation {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 15px;
-  flex-wrap: wrap;
-}
-
-.tab-button {
-  padding: 8px 20px;
-  border-radius: var(--panel-border-radius);
-  border: 1px solid var(--color-border-hover);
-  background-color: var(--color-bg-secondary);
-  color: var(--color-text-muted);
+.card-header-text {
   font-family: var(--font-family-primary);
-  font-size: var(--font-size-base);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.tab-button:hover {
-  border-color: var(--color-accent-primary);
-  color: var(--color-text-default);
-}
-
-.tab-button.active {
-  background-color: var(--color-accent-primary);
-  color: var(--color-text-dark);
-  border-color: var(--color-accent-primary);
+  color: var(--color-accent-secondary);
+  font-size: var(--font-size-large);
   font-weight: bold;
 }
 
-.tab-content {
-  margin-top: 1rem;
+.state-box {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
 }
 </style>

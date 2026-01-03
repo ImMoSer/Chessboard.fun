@@ -79,17 +79,6 @@ export const useUserCabinetStore = defineStore('userCabinet', () => {
     selectedActivityPeriod.value = period
   }
 
-  async function handleTelegramBind() {
-    try {
-      const response = await webhookService.fetchTelegramBindingUrl()
-      if (response?.bindingUrl) {
-        window.open(response.bindingUrl, '_blank')
-      }
-    } catch (e: any) {
-      logger.error('[UserCabinetStore] Error getting telegram binding URL', e)
-    }
-  }
-
   return {
     isLoading,
     error,
@@ -101,7 +90,6 @@ export const useUserCabinetStore = defineStore('userCabinet', () => {
     detailedStatsError,
     initializePage,
     setSelectedActivityPeriod,
-    handleTelegramBind,
     fetchDetailedStats, // Экспортируем новый экшен
   }
 })

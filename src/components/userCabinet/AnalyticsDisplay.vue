@@ -8,7 +8,6 @@ import { getThemeTranslationKey } from '@/utils/theme-mapper'
 
 const { t } = useI18n()
 
-// Define emits
 const emit = defineEmits<{
   (e: 'theme-click', theme: string): void
 }>()
@@ -27,9 +26,7 @@ const props = defineProps({
   },
 })
 
-type SortKey = 'theme' | 'rating' | 'attempts' | 'accuracy'
-
-const sortKey = ref<SortKey>('rating')
+const sortKey = ref('rating')
 const sortOrder = ref<'asc' | 'desc'>('desc')
 
 const sortedStats = computed(() => {
@@ -37,21 +34,14 @@ const sortedStats = computed(() => {
 
   const statsArray = props.stats.map((data) => ({
     ...data,
-    theme: getThemeTranslationKey(data.theme),
+    themeLabel: t('themes.' + getThemeTranslationKey(data.theme)),
     originalTheme: data.theme,
     solved: Math.round((data.attempts * data.accuracy) / 100),
   }))
 
-  return [...statsArray].sort((a, b) => {
-    let aValue: string | number, bValue: string | number
-    if (sortKey.value === 'theme') {
-      aValue = t('themes.' + a.theme)
-      bValue = t('themes.' + b.theme)
-    } else {
-      aValue = a[sortKey.value]
-      bValue = b[sortKey.value]
-    }
-
+  return [...statsArray].sort((a: any, b: any) => {
+    const aValue = a[sortKey.value]
+    const bValue = b[sortKey.value]
     if (aValue < bValue) return sortOrder.value === 'asc' ? -1 : 1
     if (aValue > bValue) return sortOrder.value === 'asc' ? 1 : -1
     return 0
@@ -60,37 +50,40 @@ const sortedStats = computed(() => {
 
 const chartDataForRadar = computed(() => {
   return sortedStats.value.map((s) => ({
-    name: t('themes.' + s.theme, s.theme),
+    name: s.themeLabel,
     value: s.rating,
   }))
 })
-
-const datasetLabel = computed(() => `Рейтинг`)
 </script>
 
 <template>
   <div class="analytics-display-container">
-    <div v-if="!stats || stats.length === 0" class="no-data-message">
-      Нет данных для отображения.
+    <div v-if="!stats || stats.length === 0" class="no-data-box">
+      <n-empty description="Нет данных для отображения." />
     </div>
+    
     <div v-else>
-      <RadarChart
-        v-if="sortedStats.length > 0"
-        :chart-data="chartDataForRadar"
-        :dataset-label="datasetLabel"
-      />
-
-      <div class="card-grid">
-        <StatsCard
-          v-for="stat in sortedStats"
-          :key="stat.theme"
-          :title="t('themes.' + stat.theme, stat.theme)"
-          :rating="stat.rating"
-          :accuracy="stat.accuracy"
-          :solved="stat.solved"
-          :attempted="stat.attempts"
-          @click="emit('theme-click', stat.originalTheme)"
+      <n-card class="radar-card" :bordered="false">
+        <RadarChart
+          v-if="sortedStats.length > 0"
+          :chart-data="chartDataForRadar"
+          :dataset-label="t('userCabinet.analyticsTable.rating')"
         />
+      </n-card>
+
+      <div class="stats-grid-wrapper">
+        <n-grid x-gap="12" y-gap="12" cols="2 m:4 l:5" responsive="screen">
+          <n-grid-item v-for="stat in sortedStats" :key="stat.originalTheme">
+            <StatsCard
+              :title="stat.themeLabel"
+              :rating="stat.rating"
+              :accuracy="stat.accuracy"
+              :solved="stat.solved"
+              :attempted="stat.attempts"
+              @click="emit('theme-click', stat.originalTheme)"
+            />
+          </n-grid-item>
+        </n-grid>
       </div>
     </div>
   </div>
@@ -101,25 +94,18 @@ const datasetLabel = computed(() => `Рейтинг`)
   padding: 10px 0;
 }
 
-.no-data-message {
-  text-align: center;
-  padding: 20px;
-  font-size: var(--font-size-large);
-  color: var(--color-text-muted);
+.radar-card {
+  background-color: transparent;
+  margin-bottom: 24px;
 }
 
-.card-grid {
-  display: grid;
-  gap: 15px;
-  /* Default for mobile (portrait) - 2 columns */
-  grid-template-columns: repeat(2, 1fr);
+.stats-grid-wrapper {
+  margin-top: 12px;
 }
 
-@media (min-width: 768px) {
-  /* Adjust breakpoint as needed for landscape/desktop */
-  .card-grid {
-    /* For landscape/desktop - 5 columns */
-    grid-template-columns: repeat(5, 1fr);
-  }
+.no-data-box {
+  padding: 40px;
+  display: flex;
+  justify-content: center;
 }
 </style>

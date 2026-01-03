@@ -472,7 +472,6 @@ export interface UserSessionProfile extends LichessUserProfile {
   FunCoins: number
   subscriptionTier: SubscriptionTier
   validatedAt?: number
-  telegram_id?: string | null
   TierExpire?: string | null
   endgame_skill: number
   today_activity?: TodayActivity

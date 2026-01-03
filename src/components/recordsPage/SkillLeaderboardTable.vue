@@ -1,7 +1,8 @@
 <!-- src/components/recordsPage/SkillLeaderboardTable.vue -->
 <script setup lang="ts">
-import { computed, type PropType } from 'vue'
+import { h, computed, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
+import type { DataTableColumns } from 'naive-ui'
 import type {
   OverallSkillLeaderboardEntry,
   SkillStreakLeaderboardEntry,
@@ -10,11 +11,9 @@ import type {
 } from '@/types/api.types'
 import InfoIcon from '../InfoIcon.vue'
 
-type LeaderboardEntry = OverallSkillLeaderboardEntry | SkillStreakLeaderboardEntry
-
 const props = defineProps({
   title: { type: String, required: true },
-  entries: { type: Array as PropType<LeaderboardEntry[]>, required: true },
+  entries: { type: Array as PropType<(OverallSkillLeaderboardEntry | SkillStreakLeaderboardEntry)[]>, required: true },
   colorClass: { type: String, required: true },
   showStreak: { type: Boolean, default: false },
   showFilter: { type: Boolean, default: false },
@@ -30,318 +29,216 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 
-const tierToPieceMap: { [key: string]: string } = {
-  Pawn: 'wP.svg',
-  Knight: 'wN.svg',
-  Bishop: 'wB.svg',
-  Rook: 'wR.svg',
-  Queen: 'wQ.svg',
-  King: 'wK.svg',
+const tierToPieceMap: Record<string, string> = {
+  Pawn: 'wP.svg', Knight: 'wN.svg', Bishop: 'wB.svg', Rook: 'wR.svg', Queen: 'wQ.svg', King: 'wK.svg',
 }
 
-// --- НАЧАЛО ИЗМЕНЕНИЙ ---
-const skillModes: { key: keyof SkillByMode; nameKey: string }[] = [
-  { key: 'finishHim', nameKey: 'userCabinet.stats.modes.finishHim' },
-  { key: 'tower', nameKey: 'userCabinet.stats.modes.tower' },
-  { key: 'tornado', nameKey: 'nav.tornado' },
+const skillModes: { key: keyof SkillByMode; nameKey: string; color: string }[] = [
+  { key: 'finishHim', nameKey: 'userCabinet.stats.modes.finishHim', color: 'var(--color-accent-primary)' },
+  { key: 'tower', nameKey: 'userCabinet.stats.modes.tower', color: 'var(--color-violett-lichess)' },
+  { key: 'tornado', nameKey: 'nav.tornado', color: 'var(--color-accent-secondary)' },
 ]
-// --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
 const getSubscriptionIcon = (tier?: string) => {
   if (!tier || !tierToPieceMap[tier]) return null
   return `/piece/alpha/${tierToPieceMap[tier]}`
 }
 
-const getSkillSegmentStyle = (
-  skillByMode: SkillByMode,
-  totalSkill: number,
-  mode: keyof SkillByMode,
-) => {
-  const skillValue = skillByMode[mode] || 0
-  if (totalSkill === 0 || skillValue === 0) return { width: '0%' }
-  const width = (skillValue / totalSkill) * 100
-  return { width: `${width}%` }
-}
-
 const localResetTimeMessage = computed(() => {
   if (!props.showTimer) return ''
   const now = new Date()
-  const tomorrowUTC = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1),
-  )
-  const localTime = tomorrowUTC.toLocaleTimeString(undefined, {
-    hour: '2-digit',
-    minute: '2-digit',
-  })
+  const tomorrowUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1))
+  const localTime = tomorrowUTC.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
   return t('userCabinet.stats.activity.titleWithTime', { time: localTime })
 })
 
-const handlePeriodChange = (event: Event) => {
-  const target = event.target as HTMLSelectElement
-  emit('period-change', target.value as SkillPeriod)
-}
+const periodOptions = [
+  { label: t('userCabinet.stats.periods.week'), value: '7' },
+  { label: t('records.periods.days14'), value: '14' },
+  { label: t('records.periods.days21'), value: '21' },
+  { label: t('userCabinet.stats.periods.month'), value: '30' },
+]
+
+const columns = computed<DataTableColumns<OverallSkillLeaderboardEntry | SkillStreakLeaderboardEntry>>(() => {
+  const cols: DataTableColumns<OverallSkillLeaderboardEntry | SkillStreakLeaderboardEntry> = [
+    { title: t('records.table.rank'), key: 'rank', align: 'center', width: 60, render: (_, index) => index + 1 },
+    {
+      title: t('records.table.player'),
+      key: 'username',
+      render(row) {
+        const icon = getSubscriptionIcon(row.subscriptionTier)
+        return h('div', { style: { display: 'flex', alignItems: 'center' } }, [
+          icon ? h('img', { src: icon, style: { height: '24px', marginRight: '8px' } }) : null,
+          h('n-a', {
+            href: `https://lichess.org/@/${row.lichess_id}`,
+            target: '_blank',
+            style: { fontWeight: 'bold' }
+          }, row.username)
+        ])
+      }
+    }
+  ]
+
+  if (props.showStreak) {
+    cols.push({
+      title: t('records.table.streakDays'),
+      key: 'current_streak',
+      align: 'center',
+      render: (row) => (row as SkillStreakLeaderboardEntry).current_streak
+    })
+  }
+
+  cols.push({
+    title: t('records.table.totalSkill'),
+    key: 'total_skill',
+    align: 'right',
+    render(row) {
+      return h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '12px' } }, [
+        h('span', { style: { fontWeight: 'bold' } }, row.total_skill),
+        h('div', { class: 'skill-progress-bar' }, 
+          skillModes.map(mode => {
+            const val = row.skill_by_mode[mode.key] || 0
+            const width = row.total_skill > 0 ? (val / row.total_skill) * 100 : 0
+            if (width === 0) return null
+            return h('div', {
+              class: ['skill-bar-segment', mode.key],
+              style: { width: `${width}%`, backgroundColor: mode.color },
+              title: `${t(mode.nameKey)}: ${val}`
+            })
+          })
+        )
+      ])
+    }
+  })
+
+  return cols
+})
 </script>
 
 <template>
-  <div class="records-page__table-container" :class="colorClass">
-    <h3 class="records-page__table-title">
-      {{ title }}
-      <InfoIcon v-if="infoTopic" :topic="infoTopic" />
-    </h3>
-    <h5 v-if="showTimer" class="reset-timer-message">{{ localResetTimeMessage }}</h5>
-
-    <div v-if="showFilter" class="stats-filters">
-      <select @change="handlePeriodChange" :value="selectedPeriod">
-        <option value="7">{{ t('userCabinet.stats.periods.week') }}</option>
-        <option value="14">{{ t('records.periods.days14') }}</option>
-        <option value="21">{{ t('records.periods.days21') }}</option>
-        <option value="30">{{ t('userCabinet.stats.periods.month') }}</option>
-      </select>
+  <div class="records-card" :class="colorClass">
+    <div class="card-header">
+      <h3 class="card-title">
+        {{ title }}
+        <InfoIcon v-if="infoTopic" :topic="infoTopic" />
+      </h3>
+    </div>
+    
+    <div v-if="showTimer" class="timer-banner">
+      {{ localResetTimeMessage }}
     </div>
 
-    <div class="skill-legend">
-      <div v-for="mode in skillModes" :key="mode.key" class="legend-item">
-        <span :class="`legend-color-swatch ${mode.key}`"></span>
-        <span class="legend-label">{{ t(mode.nameKey) }}</span>
+    <n-space vertical class="controls-area" :size="12">
+      <div v-if="showFilter" class="filter-row">
+        <n-select
+          :value="selectedPeriod"
+          :options="periodOptions"
+          @update:value="(val: string) => emit('period-change', val as any)"
+          style="width: 200px"
+        />
       </div>
-    </div>
 
-    <div v-if="isLoading" class="loading-message">{{ t('common.loading') }}</div>
-    <table v-else class="records-page__table">
-      <thead>
-        <tr>
-          <th class="text-center">{{ t('records.table.rank') }}</th>
-          <th class="text-left">{{ t('records.table.player') }}</th>
-          <th v-if="showStreak" class="text-center">{{ t('records.table.streakDays') }}</th>
-          <th class="text-right">{{ t('records.table.totalSkill') }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(entry, index) in entries" :key="entry.lichess_id">
-          <td class="text-center">{{ index + 1 }}</td>
-          <td class="text-left">
-            <img v-if="getSubscriptionIcon(entry.subscriptionTier)" :src="getSubscriptionIcon(entry.subscriptionTier)!"
-              class="records-page__sub-icon" :alt="entry.subscriptionTier || 'N/A'" />
-            <a :href="`https://lichess.org/@/${entry.lichess_id}`" target="_blank">{{
-              entry.username
-            }}</a>
-          </td>
-          <td v-if="showStreak" class="text-center">
-            {{ (entry as SkillStreakLeaderboardEntry).current_streak }}
-          </td>
-          <td class="text-right">
-            <span class="total-skill-value">{{ entry.total_skill }}</span>
-            <div class="skill-progress-bar">
-              <div v-for="mode in skillModes" :key="mode.key" :class="`skill-bar-segment ${mode.key}`"
-                :style="getSkillSegmentStyle(entry.skill_by_mode, entry.total_skill, mode.key)"
-                :title="`${t(mode.nameKey)}: ${entry.skill_by_mode[mode.key] || 0}`"></div>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+      <div class="legend-row">
+        <n-space justify="center">
+          <div v-for="mode in skillModes" :key="mode.key" class="legend-item">
+            <span class="dot" :style="{ backgroundColor: mode.color }"></span>
+            <span class="label">{{ t(mode.nameKey) }}</span>
+          </div>
+        </n-space>
+      </div>
+    </n-space>
+
+    <n-data-table
+      :columns="columns"
+      :data="entries"
+      :loading="isLoading"
+      :row-key="(row: any) => row.lichess_id"
+      size="small"
+      striped
+      class="records-table"
+    />
   </div>
 </template>
 
 <style scoped>
-/* Стили скопированы и адаптированы из RecordsPageView */
-.records-page__table-container {
-  padding: 0;
+.records-card {
   background-color: var(--color-bg-secondary);
-  border-radius: var(--panel-border-radius);
+  border-radius: 12px;
   border: 1px solid var(--color-border-hover);
   overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
-.records-page__table-title {
+.card-header { padding: 10px; border-bottom: 1px solid var(--color-border-hover); }
+
+/* Цвета из оригинала */
+.skillStreak .card-header { background-color: var(--color-accent-success); }
+.skillStreakMega .card-header { background-color: var(--color-violett-lichess); }
+.topToday .card-header { background-color: var(--color-accent-warning); }
+.overallSkill .card-header { background-color: var(--color-accent-primary); }
+
+.card-title {
   color: var(--color-bg-primary);
   font-size: var(--font-size-large);
-  padding: 1px;
   margin: 0;
   text-align: center;
-  border-bottom: 1px solid var(--color-border-hover);
-  font-weight: var(--font-weight-bold);
-}
-
-.skillStreak .records-page__table-title {
-  background-color: var(--color-accent-success);
-}
-
-.skillStreakMega .records-page__table-title {
-  background-color: var(--color-violett-lichess);
-}
-
-.topToday .records-page__table-title {
-  background-color: var(--color-accent-warning);
-}
-
-.overallSkill .records-page__table-title {
-  background-color: var(--color-accent-primary);
-}
-
-.reset-timer-message {
-  text-align: center;
-  font-size: var(--font-size-small);
-  color: var(--color-text-muted);
-  background-color: var(--color-bg-tertiary);
-  padding: 5px;
-  margin: 0;
-}
-
-.stats-filters {
-  display: flex;
-  justify-content: center;
-  padding: 10px;
-  background-color: var(--color-bg-tertiary);
-}
-
-.stats-filters select {
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid var(--color-border-hover);
-  background-color: var(--color-bg-secondary);
-  color: var(--color-text-default);
-  font-size: var(--font-size-base);
-  cursor: pointer;
-}
-
-.skill-legend {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 15px;
-  padding: 10px;
-  background-color: var(--color-bg-tertiary);
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.legend-color-swatch {
-  width: 16px;
-  height: 16px;
-  border-radius: 4px;
-  border: 1px solid var(--color-border-hover);
-}
-
-/* --- НАЧАЛО ИЗМЕНЕНИЙ --- */
-.legend-color-swatch.finishHim {
-  background-color: var(--color-accent-primary);
-}
-
-.legend-color-swatch.tower {
-  background-color: var(--color-violett-lichess);
-}
-
-.legend-color-swatch.tornado {
-  background-color: var(--color-accent-secondary);
-}
-
-/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
-.legend-label {
-  font-size: var(--font-size-small);
-  color: var(--color-text-muted);
-}
-
-.loading-message {
-  text-align: center;
-  padding: 20px;
-}
-
-.records-page__table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--font-size-base);
-}
-
-.records-page__table th,
-.records-page__table td {
-  padding: 3px 3px;
-  border-bottom: 1px solid var(--color-border);
-  white-space: nowrap;
-}
-
-.records-page__table th {
-  background-color: var(--color-bg-tertiary);
-  color: var(--color-text-muted);
-}
-
-.records-page__table tbody tr:nth-child(even) {
-  background-color: var(--color-bg-tertiary);
-}
-
-.records-page__table tbody tr:hover {
-  background-color: var(--color-border-hover);
-}
-
-.records-page__table td a {
-  color: var(--color-text-link);
-  text-decoration: none;
-  font-weight: var(--font-weight-bold);
-}
-
-.records-page__sub-icon {
-  width: auto;
-  height: 1.7em;
-  vertical-align: -0.4em;
-  margin-right: 6px;
-}
-
-.total-skill-value {
   font-weight: bold;
-  margin-right: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
 }
 
-.skill-progress-bar {
-  display: inline-flex;
-  width: 300px;
-  height: 20px;
+.timer-banner {
+  text-align: center;
+  font-size: var(--font-size-small);
+  color: var(--color-text-muted);
+  background-color: var(--color-bg-tertiary);
+  padding: 4px;
+}
+
+.controls-area {
+  background-color: var(--color-bg-tertiary);
+  padding: 12px;
+}
+
+.filter-row { display: flex; justify-content: center; }
+
+.legend-item { display: flex; align-items: center; gap: 6px; }
+.legend-item .dot { width: 10px; height: 10px; border-radius: 50%; }
+.legend-item .label { font-size: var(--font-size-small); color: var(--color-text-muted); }
+
+.records-table {
+  --n-td-color-striped: var(--color-bg-tertiary);
+}
+
+:deep(.n-data-table-th) {
+  background-color: var(--color-bg-tertiary) !important;
+  color: var(--color-text-muted) !important;
+  font-family: var(--font-family-primary);
+}
+
+:deep(.n-data-table-td) {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-base);
+}
+
+:deep(.skill-progress-bar) {
+  display: flex;
+  width: 150px;
+  height: 12px;
   background-color: var(--color-bg-primary);
-  border-radius: 4px;
+  border-radius: 6px;
   overflow: hidden;
   border: 1px solid var(--color-border-hover);
-  vertical-align: middle;
 }
 
-.skill-bar-segment {
-  height: 100%;
-}
+.skill-bar-segment { height: 100%; }
 
-/* --- НАЧАЛО ИЗМЕНЕНИЙ --- */
-.skill-bar-segment.finishHim {
-  background-color: var(--color-accent-primary);
-}
-
-.skill-bar-segment.tower {
-  background-color: var(--color-violett-lichess);
-}
-
-.skill-bar-segment.tornado {
-  background-color: var(--color-accent-secondary);
-}
-
-/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
-.text-left {
-  text-align: left;
-}
-
-.text-center {
-  text-align: center;
-}
-
-.text-right {
-  text-align: right;
-}
-
-@media (orientation: portrait) {
-  .skill-progress-bar {
-    width: 100px;
-    /* Например, делаем балку короче на узких экранах */
+@media (max-width: 600px) {
+  :deep(.skill-progress-bar) {
+    width: 60px;
   }
 }
 </style>
