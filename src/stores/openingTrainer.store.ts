@@ -77,41 +77,39 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
     isLoading.value = true;
     error.value = null;
     try {
-      const data = await openingApiService.fetchOpeningStats(boardStore.fen, movesHistoryUci.value);
+      // Use Masters API for evaluation and UI display
+      const data = await openingApiService.fetchMastersStats(boardStore.fen);
+      
       if (data) {
         currentStats.value = data;
         
         const totalGames = data.white + data.draws + data.black;
 
-        // Name fallback
+        // Note: Masters API might not return opening name/eco in the same way Lichess does yet, 
+        // but we can rely on Graph lookup in processMoveQueue for names.
         if (data.opening && !openingName.value) {
           openingName.value = data.opening.name;
           if (data.opening.eco) currentEco.value = data.opening.eco;
         }
 
-        // Theory End Conditions
-        if (data.moves.length === 0 || totalGames < 3) {
+        // Theory End Conditions (Based on Masters)
+        if (data.moves.length === 0) {
           if (isGameplay) {
-            logger.info(`[OpeningTrainer] Theory ended. Moves: ${data.moves.length}, Total Games: ${totalGames}`);
+            logger.info(`[OpeningTrainer] Masters Theory ended.`);
             isTheoryOver.value = true;
             soundService.playSound('game_user_won');
           }
         }
       } else {
-        logger.info('[OpeningTrainer] Theory ended: No data returned from API.');
+        logger.info('[OpeningTrainer] Theory ended: No data returned from Masters API.');
         if (isGameplay) {
-          isTheoryOver.value = true;
+            // Check Lichess as fallback? No, user wants strict Masters evaluation.
+            isTheoryOver.value = true;
         }
       }
     } catch (err: any) {
-      // Clear stats on error to prevent stale data usage
       currentStats.value = null;
-
-      if (err.message === '429') {
-        error.value = 'Too many requests. Please wait.';
-      } else {
-        error.value = 'Failed to fetch opening data.';
-      }
+      error.value = 'Failed to fetch Masters stats.';
       logger.error('[OpeningTrainerStore] Error fetching stats:', err);
     } finally {
       isLoading.value = false;
@@ -121,32 +119,25 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
   async function handlePlayerMove(moveUci: string) {
     isProcessingMove.value = true;
     moveQueue.value.push(moveUci);
-    // Process queue handles the rest and clears the flag if needed, 
-    // but processMoveQueue is async, so we await it.
     try {
       await processMoveQueue();
     } catch (e) {
       logger.error('Error handling player move:', e);
       isProcessingMove.value = false;
     }
-    // Note: If bot is triggered, isProcessingMove remains true until bot finishes
   }
 
   async function processMoveQueue() {
     if (isLoading.value || error.value || !currentStats.value || moveQueue.value.length === 0) {
-        // If queue is empty, we are done processing unless bot needs to move.
-        // But bot move is triggered explicitly below.
-        // If we return here because empty, we might need to reset flag if not bot turn?
-        // Actually, let's manage flag at the top level (handlePlayerMove/triggerBotMove) or carefully here.
         return; 
     }
 
     const moveUci = moveQueue.value.shift()!;
     const moveData = currentStats.value.moves.find((m: LichessMove) => m.uci === moveUci);
 
-    // Check if move is in book
+    // Check if move is in Masters Book
     if (!moveData) {
-      logger.warn(`[OpeningTrainer] Deviation! Move ${moveUci} not found in book.`);
+      logger.warn(`[OpeningTrainer] Deviation! Move ${moveUci} not found in Masters book.`);
       isDeviation.value = true;
       soundService.playSound('game_user_won');
       moveQueue.value = []; // Clear queue on deviation
@@ -154,7 +145,7 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
       return;
     }
 
-    // Calculate Score
+    // Calculate Score based on Masters Stats
     const score = calculateMoveScore(moveData, currentStats.value.moves);
     totalScore.value += score;
 
@@ -176,7 +167,7 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
       score
     });
 
-    // Fetch next position stats
+    // Fetch next position stats (Masters)
     await fetchStats();
 
     if (!isTheoryOver.value && !isDeviation.value) {
@@ -188,22 +179,25 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
   }
 
   async function triggerBotMove() {
-    // Determine if we should proceed
-    if (!currentStats.value || currentStats.value.moves.length === 0) {
-      logger.info('[OpeningTrainer] Bot cannot move: No moves available.');
+    // 1. Fetch Masters Stats for Bot Logic
+    // We do NOT update currentStats here to avoid UI flicker/confusion.
+    const mastersData = await openingApiService.fetchMastersStats(boardStore.fen);
+
+    if (!mastersData || mastersData.moves.length === 0) {
+      logger.info('[OpeningTrainer] Bot cannot move: No moves available in Masters DB.');
       isTheoryOver.value = true;
       soundService.playSound('game_user_won');
       isProcessingMove.value = false;
       return;
     }
 
-    // 1. Get Candidates from Lichess (Base Pool)
-    let candidateMoves = currentStats.value.moves;
+    // 1. Get Candidates from Masters (Base Pool)
+    let candidateMoves = mastersData.moves;
 
     // 2. Check Graph for "Academic" Moves
     const graphMoves = openingGraphService.getMoves(boardStore.fen);
     
-    // 3. Intersect: Prefer moves that are in BOTH Lichess AND Graph
+    // 3. Intersect: Prefer moves that are in BOTH Masters AND Graph
     const academicMoves = candidateMoves.filter((lm: LichessMove) => 
       graphMoves.some(gm => gm.uci === lm.uci)
     );
@@ -212,11 +206,20 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
       logger.info(`[OpeningTrainer] Using ${academicMoves.length} Academic moves from Graph.`);
       candidateMoves = academicMoves;
     } else {
-      logger.info('[OpeningTrainer] No Academic moves found in Graph. Falling back to raw Lichess stats.');
+      logger.info('[OpeningTrainer] No Academic moves found in Graph. Falling back to raw Masters stats.');
     }
 
     // Bot Weighted Random logic
     const topMoves = candidateMoves.slice(0, variability.value);
+    
+    if (topMoves.length === 0) {
+      logger.info(`[OpeningTrainer] Bot cannot move: No candidate moves found.`);
+      isTheoryOver.value = true;
+      soundService.playSound('game_user_won');
+      isProcessingMove.value = false;
+      return;
+    }
+
     const totalGames = topMoves.reduce((acc: number, m: LichessMove) => acc + (m.white + m.draws + m.black), 0);
 
     if (totalGames === 0) {
@@ -228,7 +231,7 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
     }
 
     let random = Math.random() * totalGames;
-    let selectedMove: LichessMove = topMoves[0];
+    let selectedMove: LichessMove = topMoves[0]!;
 
     for (const move of topMoves) {
       const moveGames = move.white + move.draws + move.black;
@@ -253,11 +256,10 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
     isProcessingMove.value = true;
     boardStore.applyUciMove(selectedMove.uci);
 
-    // Fetch next position stats
+    // Fetch next position stats (Masters) for the User to see
     await fetchStats();
 
-    // Process any queued user moves (if user played extremely fast or pre-move logic exists)
-    // If queue is empty, we are done.
+    // Process any queued user moves
     if (moveQueue.value.length > 0) {
         await processMoveQueue();
     } else {

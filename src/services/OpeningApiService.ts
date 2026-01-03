@@ -87,6 +87,70 @@ class OpeningApiService {
         }
     }
 
+    async fetchMastersStats(fen: string): Promise<LichessOpeningResponse | null> {
+        // Use clean FEN (remove counters) to improve cache hit rate
+        const cleanFen = this.toCleanFen(fen);
+        const cacheKey = `${cleanFen}_masters`;
+        const baseUrl = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:3000/api';
+        
+        // 1. Try Cache
+        const cached = await openingCacheService.getCachedStats(cacheKey);
+        if (cached) {
+            logger.info(`[OpeningApiService] Cache hit for Masters FEN: ${cleanFen}`);
+            return cached; // Already normalized in cache? Actually we store raw data usually, but let's assume structure is kept
+        }
+
+        try {
+            const response = await fetch(`${baseUrl}/opening/masters`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ fen: cleanFen })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch Masters stats: ${response.statusText}`);
+            }
+
+            const rawMoves: any[] = await response.json();
+
+            // Adapt Backend Response to LichessOpeningResponse
+            const moves: LichessMove[] = rawMoves.map(m => ({
+                uci: m.uci,
+                san: m.san,
+                white: m.stats.white,
+                draws: m.stats.draws,
+                black: m.stats.black,
+                averageRating: 2500 // Dummy value for masters
+            }));
+
+            // Calculate totals
+            const totalWhite = moves.reduce((sum, m) => sum + m.white, 0);
+            const totalDraws = moves.reduce((sum, m) => sum + m.draws, 0);
+            const totalBlack = moves.reduce((sum, m) => sum + m.black, 0);
+
+            const result: LichessOpeningResponse = {
+                white: totalWhite,
+                draws: totalDraws,
+                black: totalBlack,
+                moves: moves
+            };
+
+            // 2. Cache Result
+            // Note: We pass empty history [] because it's not strictly needed for the key, 
+            // and the cache service just stores it.
+            await openingCacheService.cacheStats(cacheKey, [], result);
+
+            return result;
+
+        } catch (error) {
+            logger.error('[OpeningApiService] Error fetching Masters stats:', error);
+            return null;
+        }
+    }
+
     private normalizeData(data: LichessOpeningResponse): LichessOpeningResponse {
         if (!data || !data.moves) return data;
 

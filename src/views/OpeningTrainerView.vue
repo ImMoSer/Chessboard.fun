@@ -28,6 +28,20 @@ const route = useRoute();
 const isReviewMode = ref(false);
 const isSettingsModalOpen = ref(true);
 const isNavigatingToPlayout = ref(false);
+let navigationDebounce: ReturnType<typeof setTimeout> | null = null;
+
+// Sync Opening Stats with Board Position (Debounced for Navigation)
+watch(() => boardStore.fen, () => {
+  if (navigationDebounce) clearTimeout(navigationDebounce);
+  
+  navigationDebounce = setTimeout(() => {
+    // If the store is processing a game move, it will fetch stats itself.
+    // We only fetch here if it's purely navigation (isProcessingMove is false).
+    if (!openingStore.isLoading && !openingStore.isProcessingMove) {
+      openingStore.fetchStats(false); // isGameplay = false (silent mode)
+    }
+  }, 100);
+});
 
 onMounted(async () => {
   openingStore.reset();
