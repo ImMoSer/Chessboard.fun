@@ -90,10 +90,12 @@ const displayData = computed(() => {
   <div class="medal-card">
     <div class="card-header">
       <div class="header-top">
-        <h3 class="card-title">{{ t('clubPage.medals.title') }}</h3>
+        <h3 class="card-title">
+          {{ medalType === 'club' ? t('clubPage.medalStandings.teamTitle') : t('clubPage.medalStandings.arenaTitle') }}
+        </h3>
         <n-radio-group v-model:value="medalType" size="small" name="medalTypeGroup">
-          <n-radio-button value="club">{{ t('clubPage.tabs.medals') }} (Club)</n-radio-button>
-          <n-radio-button value="arena">Arenas</n-radio-button>
+          <n-radio-button value="club">{{ t('clubPage.details.teamMedals') }}</n-radio-button>
+          <n-radio-button value="arena">{{ t('clubPage.details.arenaMedals') }}</n-radio-button>
         </n-radio-group>
       </div>
     </div>

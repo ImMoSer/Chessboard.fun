@@ -420,7 +420,8 @@
     "ratingLeadersTitle": "Лидеры по рейтингу",
     "medalStandings": {
       "teamTitle": "Медальный зачет (Команда)",
-      "arenaTitle": "Медальный зачет (Арена)"
+      "arenaTitle": "Медальный зачет (Арена)",
+      "title": "Медалисты"
     },
     "tournamentHistoryTitle": "30 дней",
     "table": {

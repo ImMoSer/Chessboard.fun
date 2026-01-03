@@ -31,270 +31,156 @@ const topThree = computed(() => {
   })
 
   const [first, second, third] = sorted
-
-  if (!first || !second || !third) return null
-
-  return {
-    first,
-    second,
-    third,
-  }
+  return { first, second, third }
 })
 </script>
 
 <template>
-  <!-- Главный контейнер трофеев - занимает максимально доступное пространство -->
-  <div v-if="topThree" class="trophies-main-container">
+  <div v-if="topThree" class="trophies-main-wrapper">
+    <n-grid :cols="3" x-gap="12" class="trophies-grid" align-items="end">
+      <!-- 2-е место -->
+      <n-grid-item class="trophy-item second">
+        <div class="trophy-content">
+          <div class="image-box breathe-red">
+            <n-image src="/jpg/club_trofee/platz_2.jpg" preview-disabled class="trophy-img" />
+          </div>
+          <n-card size="small" class="name-card">
+            <n-a :href="`https://lichess.org/@/${topThree.second.lichess_id}`" target="_blank" class="player-link">
+              <n-ellipsis style="max-width: 100%">{{ topThree.second.username }}</n-ellipsis>
+            </n-a>
+          </n-card>
+        </div>
+      </n-grid-item>
 
-    <!-- Родительский контейнер для всех трофеев - устанавливает границы -->
-    <div class="trophies-parent-container">
+      <!-- 1-е место -->
+      <n-grid-item class="trophy-item first">
+        <div class="trophy-content">
+          <div class="image-box breathe-gold">
+            <n-image src="/jpg/club_trofee/platz_1.jpg" preview-disabled class="trophy-img" />
+          </div>
+          <n-card size="small" class="name-card gold-border">
+            <n-a :href="`https://lichess.org/@/${topThree.first.lichess_id}`" target="_blank" class="player-link first-place">
+              <n-ellipsis style="max-width: 100%">{{ topThree.first.username }}</n-ellipsis>
+            </n-a>
+          </n-card>
+        </div>
+      </n-grid-item>
 
-      <!-- Трофейный контейнер #1 - 2-е место -->
-      <div class="trophy-container trophy-container--second">
-        <div class="trophy-container__image-wrapper">
-          <img src="/jpg/club_trofee/platz_2.jpg" alt="2nd Place Trophy" class="trophy-container__image" />
+      <!-- 3-е место -->
+      <n-grid-item class="trophy-item third">
+        <div class="trophy-content">
+          <div class="image-box breathe-red">
+            <n-image src="/jpg/club_trofee/platz_3.jpg" preview-disabled class="trophy-img" />
+          </div>
+          <n-card size="small" class="name-card">
+            <n-a :href="`https://lichess.org/@/${topThree.third.lichess_id}`" target="_blank" class="player-link">
+              <n-ellipsis style="max-width: 100%">{{ topThree.third.username }}</n-ellipsis>
+            </n-a>
+          </n-card>
         </div>
-        <div class="trophy-container__nameplate">
-          <span class="trophy-container__name">{{ topThree.second.username }}</span>
-        </div>
-      </div>
-
-      <!-- Трофейный контейнер #2 - 1-е место -->
-      <div class="trophy-container trophy-container--first">
-        <div class="trophy-container__image-wrapper">
-          <img src="/jpg/club_trofee/platz_1.jpg" alt="1st Place Trophy" class="trophy-container__image" />
-        </div>
-        <div class="trophy-container__nameplate">
-          <span class="trophy-container__name">{{ topThree.first.username }}</span>
-        </div>
-      </div>
-
-      <!-- Трофейный контейнер #3 - 3-е место -->
-      <div class="trophy-container trophy-container--third">
-        <div class="trophy-container__image-wrapper">
-          <img src="/jpg/club_trofee/platz_3.jpg" alt="3rd Place Trophy" class="trophy-container__image" />
-        </div>
-        <div class="trophy-container__nameplate">
-          <span class="trophy-container__name">{{ topThree.third.username }}</span>
-        </div>
-      </div>
-
-    </div>
+      </n-grid-item>
+    </n-grid>
   </div>
 </template>
 
 <style scoped>
-/* Анимации */
 @keyframes breathe-red {
-  0% {
-    box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
-    transform: scale(1);
-  }
-
-  50% {
-    box-shadow: 0 0 35px rgba(255, 0, 0, 0.9), 0 0 50px rgba(255, 0, 0, 0.4);
-    transform: scale(1.03);
-  }
-
-  100% {
-    box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
-    transform: scale(1);
-  }
+  0% { box-shadow: 0 0 15px rgba(255, 0, 0, 0.4); transform: scale(1); }
+  50% { box-shadow: 0 0 30px rgba(255, 0, 0, 0.7); transform: scale(1.02); }
+  100% { box-shadow: 0 0 15px rgba(255, 0, 0, 0.4); transform: scale(1); }
 }
 
 @keyframes breathe-gold {
-  0% {
-    box-shadow: 0 0 25px rgba(255, 215, 0, 0.7), 0 0 15px rgba(255, 0, 0, 0.5);
-    transform: scale(1);
-  }
-
-  50% {
-    box-shadow: 0 0 45px rgba(255, 215, 0, 1), 0 0 35px rgba(255, 0, 0, 0.8), 0 0 60px rgba(255, 215, 0, 0.4);
-    transform: scale(1.04);
-  }
-
-  100% {
-    box-shadow: 0 0 25px rgba(255, 215, 0, 0.7), 0 0 15px rgba(255, 0, 0, 0.5);
-    transform: scale(1);
-  }
+  0% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); transform: scale(1); }
+  50% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.8), 0 0 20px rgba(255, 0, 0, 0.4); transform: scale(1.05); }
+  100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); transform: scale(1); }
 }
 
-/* Главный контейнер - занимает максимально доступное место */
-.trophies-main-container {
+.trophies-main-wrapper {
   width: 100%;
-  height: auto;
-  min-height: 200px;
-  padding: 10px 5px;
-  /* Увеличиваем padding для свечения */
-  box-sizing: border-box;
+  padding: 20px 0;
 }
 
-/* Родительский контейнер для трофеев - устанавливает границы и лайаут */
-.trophies-parent-container {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  gap: 1%;
-  max-width: 1200px;
-  margin: 0 0 0 0;
-  /* Убираем overflow: hidden чтобы свечение не обрезалось */
-  padding: 30px 5px;
-  /* Добавляем внутренний padding для "дыхания" */
+.trophies-grid {
+  max-width: 900px;
+  margin: 0 auto;
 }
 
-/* Базовый трофейный контейнер */
-.trophy-container {
+.trophy-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-end;
-  height: 100%;
-  min-height: 250px;
-  box-sizing: border-box;
-  position: relative;
-  padding: 5px;
-  /* Добавляем внутренний padding для дыхания */
-  /* Убираем overflow: hidden */
 }
 
-/* Размеры трофейных контейнеров */
-.trophy-container--first {
-  flex: 0 1 40%;
-  order: 2;
-  transform: translateY(-10px);
+.trophy-item.first {
+  transform: translateY(-15px);
 }
 
-.trophy-container--second {
-  flex: 0 1 35%;
-  order: 1;
-}
-
-.trophy-container--third {
-  flex: 0 1 35%;
-  order: 3;
-}
-
-/* Обертка изображения - контролирует анимацию и эффекты */
-.trophy-container__image-wrapper {
-  width: calc(100% - 20px);
-  /* Учитываем padding контейнера */
-  height: auto;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border-radius: 10px;
-  overflow: visible;
-  /* Позволяем свечению быть видимым */
-  animation: breathe-red 3s ease-in-out infinite;
-  margin-bottom: 20px;
-  /* Увеличиваем отступ */
-  position: relative;
-  z-index: 1;
-}
-
-/* Специальная анимация для первого места */
-.trophy-container--first .trophy-container__image-wrapper {
-  animation: breathe-gold 2.5s ease-in-out infinite;
-}
-
-/* Изображение трофея */
-.trophy-container__image {
+.trophy-content {
   width: 100%;
-  height: auto;
-  object-fit: contain;
-  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.image-box {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 12px;
+  overflow: hidden;
+  line-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-bg-primary);
+}
+
+.trophy-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   transition: transform 0.3s ease;
 }
 
-/* Hover эффект для изображения */
-.trophy-container:hover .trophy-container__image {
-  transform: scale(1.05);
+.trophy-item:hover .trophy-img {
+  transform: scale(1.08);
 }
 
-/* Табличка с именем - вписывается в дизайн контейнера */
-.trophy-container__nameplate {
-  width: calc(90% - 20px);
-  /* Учитываем padding контейнера */
-  background: linear-gradient(145deg, var(--color-bg-secondary), rgba(255, 255, 255, 0.05));
-  border: 1px solid var(--color-border-hover);
-  border-radius: 10px;
-  padding: 12px 16px;
-  box-shadow:
-    0 4px 15px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
-  position: relative;
-  z-index: 2;
-}
-
-/* Текст имени */
-.trophy-container__name {
-  font-weight: bold;
-  color: var(--color-text-link);
-  font-size: clamp(0.8rem, 2vw, 1.1rem);
+.name-card {
+  width: 90%;
   text-align: center;
-  display: block;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
-/* Hover эффект для таблички */
-.trophy-container:hover .trophy-container__nameplate {
-  transform: translateY(-3px);
-  box-shadow:
-    0 8px 25px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+.gold-border {
+  border-color: var(--color-gold) !important;
 }
 
-/* Адаптивность для планшетов */
-@media (orientation: portrait) {
-  .trophies-main-container {
-    padding: 0px;
-    /* Сохраняем место для свечения */
+.player-link {
+  text-decoration: none;
+  font-weight: bold;
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-large);
+}
 
+.first-place {
+  color: var(--color-gold) !important;
+}
+
+@media (max-width: 768px) {
+  .trophies-main-wrapper {
+    padding: 10px 0;
   }
-
-  /* Размеры трофейных контейнеров */
-  .trophy-container--first {
-    flex: 0 1 40%;
-    order: 2;
-    transform: translateY(-10px);
-    padding: 1px;
+  
+  .player-link {
+    font-size: var(--font-size-small);
   }
-
-  .trophy-container--second {
-    flex: 0 1 35%;
-    order: 1;
-    padding: 1px;
-  }
-
-  .trophy-container--third {
-    flex: 0 1 30%;
-    order: 3;
-    padding: 1px;
-  }
-
-  .trophies-parent-container {
-    padding: 1px 1px;
-  }
-
-  .trophy-container {
-    min-height: 200px;
-    width: 100%;
-    padding: 1px;
-  }
-
-  .trophy-container--first {
-    transform: translateY(-1px);
-  }
-
-  .trophy-container__nameplate {
-    padding: 2px 2px;
-    border-radius: 5px;
+  
+  .trophy-item.first {
+    transform: translateY(-5px);
   }
 }
 </style>

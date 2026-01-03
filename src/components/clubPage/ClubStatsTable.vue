@@ -66,7 +66,7 @@ const sortedData = computed(() => {
     <div class="card-header" :class="titleColorClass">
       <div class="header-content">
         <n-h3 class="card-title">{{ title }}</n-h3>
-        <info-icon v-if="infoTopic" :topic="infoTopic" color="white" />
+        <info-icon v-if="infoTopic" :topic="infoTopic" base-path="info.club." color="white" />
       </div>
     </div>
     <n-data-table
