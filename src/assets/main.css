@@ -1,9 +1,9 @@
 /* src/assets/main.css */
 
-/* --- НАЧАЛО ИЗМЕНЕНИЙ: Локальный импорт стилей Chessground --- */
+
 @import '@lichess-org/chessground/assets/chessground.base.css';
 @import '@lichess-org/chessground/assets/chessground.brown.css';
-/* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
+
 
 body {
   font-family: var(--font-family-primary);

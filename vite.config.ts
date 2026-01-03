@@ -4,6 +4,9 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 import VueDevTools from 'vite-plugin-vue-devtools'
+import AutoImport from 'unplugin-auto-import/vite'
+import Components from 'unplugin-vue-components/vite'
+import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
 
 export default defineConfig({
   plugins: [
@@ -14,6 +17,18 @@ export default defineConfig({
           isCustomElement: (tag) => tag.startsWith('piece'),
         },
       },
+    }),
+
+    AutoImport({
+      imports: [
+        'vue',
+        {
+          'naive-ui': ['useDialog', 'useMessage', 'useNotification', 'useLoadingBar'],
+        },
+      ],
+    }),
+    Components({
+      resolvers: [NaiveUiResolver()],
     }),
 
     viteStaticCopy({

@@ -4,11 +4,10 @@ import { onMounted, ref, computed, watch, nextTick } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { useFunclubStore } from '../stores/funclub.store'
+import { ChevronBack, ChevronForward } from '@vicons/ionicons5'
 
 // Импорт компонентов
-import ClubPageHeader from '../components/clubPage/ClubPageHeader.vue'
 import ClubTrophies from '../components/clubPage/ClubTrophies.vue'
-import ClubPageTabs from '../components/clubPage/ClubPageTabs.vue'
 import ClubStatsTable from '../components/clubPage/ClubStatsTable.vue'
 import TournamentHistoryTable from '../components/clubPage/TournamentHistoryTable.vue'
 import MedalStandingsTable from '../components/clubPage/MedalStandingsTable.vue'
@@ -41,7 +40,7 @@ const currentPeriodLabel = computed(() => {
   return periodOptions.value[selectedPeriodIndex.value]?.label || '...'
 })
 
-// --- НАЧАЛО ИЗМЕНЕНИЙ: Логика сохранения скролла ---
+// Сохранение скролла при загрузке новых данных
 watch(isLoading, (loading) => {
   if (!loading) {
     nextTick(() => {
@@ -59,7 +58,6 @@ function handleSelectPrevious() {
   scrollPosition.value = window.scrollY
   funclubStore.selectPreviousPeriod()
 }
-// --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
 // --- Определения колонок для компонента ClubStatsTable ---
 const overviewColumns: ClubStatsTableColumn[] = [
@@ -98,7 +96,6 @@ const winStreaksColumns: ClubStatsTableColumn[] = [
   },
 ]
 
-// Хук для инициализации загрузки данных
 onMounted(() => {
   funclubStore.initializePage()
 })
@@ -106,211 +103,154 @@ onMounted(() => {
 
 <template>
   <div class="club-page">
-    <div v-if="isLoading && !teamBattleReport" class="loading-message">
-      {{ t('common.loading') }}
+    <n-alert v-if="error" type="error" title="Ошибка" closable class="club-page__error">
+      {{ error }}
+    </n-alert>
+
+    <div v-if="isLoading && !teamBattleReport" class="loading-container">
+      <n-spin size="large" />
     </div>
-    <div v-else-if="error" class="club-page__error-message">
-      {{ t('common.error') }}: {{ error }}
-    </div>
+
     <div v-else-if="clubMeta && teamBattleReport">
       <ClubTrophies :players="teamBattleReport.players_summary" sort-key="vector" />
 
       <div class="period-switcher">
-        <button @click="handleSelectPrevious" :disabled="isLoading">&lt;</button>
-        <span class="period-switcher__label">{{ currentPeriodLabel }}</span>
-        <button @click="handleSelectNext" :disabled="isLoading">&gt;</button>
+        <n-button circle @click="handleSelectPrevious" :disabled="isLoading">
+          <template #icon>
+            <n-icon><ChevronBack /></n-icon>
+          </template>
+        </n-button>
+        <n-h3 class="period-label">{{ currentPeriodLabel }}</n-h3>
+        <n-button circle @click="handleSelectNext" :disabled="isLoading">
+          <template #icon>
+            <n-icon><ChevronForward /></n-icon>
+          </template>
+        </n-button>
       </div>
 
-      <ClubPageTabs :active-tab="activeTab" @set-active-tab="(tab) => (activeTab = tab)" />
+      <n-tabs v-model:value="activeTab" type="segment" animated class="club-tabs">
+        <n-tab-pane name="overview" :tab="t('clubPage.tabs.overview')">
+          <div class="tab-content">
+            <ClubStatsTable :title="t('clubPage.overview.title')" :players="teamBattleReport.players_summary"
+              :columns="overviewColumns" sort-key="vector" title-color-class="title-color-secondary"
+              info-topic="overview" />
+          </div>
+        </n-tab-pane>
 
-      <div v-if="isLoading" class="loading-overlay">
-        <span>{{ t('common.loading') }}</span>
+        <n-tab-pane name="key_indicators" :tab="t('clubPage.tabs.keyIndicators')">
+          <div class="tab-content">
+            <n-grid x-gap="20" y-gap="20" cols="1 m:3" responsive="screen">
+              <n-grid-item>
+                <ClubStatsTable :title="t('clubPage.mostValuablePlayersTitle')"
+                  :players="teamBattleReport.players_summary" :columns="mvpColumns" sort-key="total_score"
+                  title-color-class="title-color-primary" info-topic="mostValuablePlayers" />
+              </n-grid-item>
+              <n-grid-item>
+                <ClubStatsTable :title="t('clubPage.mostActivePlayersTitle')"
+                  :players="teamBattleReport.players_summary" :columns="activeColumns" sort-key="tournaments_played"
+                  title-color-class="title-color-violet" info-topic="mostActivePlayers" />
+              </n-grid-item>
+              <n-grid-item>
+                <ClubStatsTable :title="t('clubPage.mostGamesPlayedTitle')"
+                  :players="teamBattleReport.players_summary" :columns="gamesColumns" sort-key="total_games_played"
+                  title-color-class="title-color-primary" info-topic="mostGamesPlayed" />
+              </n-grid-item>
+            </n-grid>
+          </div>
+        </n-tab-pane>
+
+        <n-tab-pane name="play_style" :tab="t('clubPage.tabs.playStyle')">
+          <div class="tab-content">
+            <n-grid x-gap="20" y-gap="20" cols="1 m:2" responsive="screen">
+              <n-grid-item>
+                <ClubStatsTable :title="t('clubPage.berserkKingsTitle')" :players="teamBattleReport.players_summary"
+                  :columns="berserkersColumns" sort-key="total_berserk_wins" title-color-class="title-color-primary"
+                  info-topic="berserkKings" />
+              </n-grid-item>
+              <n-grid-item>
+                <ClubStatsTable :title="t('clubPage.winStreakMastersTitle')"
+                  :players="teamBattleReport.players_summary" :columns="winStreaksColumns"
+                  sort-key="max_longest_win_streak_ever" title-color-class="title-color-primary"
+                  info-topic="winStreakMasters" />
+              </n-grid-item>
+            </n-grid>
+          </div>
+        </n-tab-pane>
+
+        <n-tab-pane name="medals" :tab="t('clubPage.tabs.medals')">
+          <div class="tab-content">
+            <MedalStandingsTable :report="teamBattleReport.medals_report" />
+          </div>
+        </n-tab-pane>
+      </n-tabs>
+
+      <div class="history-section">
+        <TournamentHistoryTable :tournaments="teamBattleReport.played_arenas" />
       </div>
-
-      <div class="club-page__tab-content">
-        <div v-if="activeTab === 'overview'">
-          <ClubStatsTable :title="t('clubPage.overview.title')" :players="teamBattleReport.players_summary"
-            :columns="overviewColumns" sort-key="vector" title-color-class="title-color-secondary"
-            info-topic="overview" />
-        </div>
-        <div v-if="activeTab === 'key_indicators'" class="club-page__stats-grid-3-cols">
-          <ClubStatsTable :title="t('clubPage.mostValuablePlayersTitle')" :players="teamBattleReport.players_summary"
-            :columns="mvpColumns" sort-key="total_score" title-color-class="title-color-primary"
-            info-topic="mostValuablePlayers" />
-          <ClubStatsTable :title="t('clubPage.mostActivePlayersTitle')" :players="teamBattleReport.players_summary"
-            :columns="activeColumns" sort-key="tournaments_played" title-color-class="title-color-violet"
-            info-topic="mostActivePlayers" />
-          <ClubStatsTable :title="t('clubPage.mostGamesPlayedTitle')" :players="teamBattleReport.players_summary"
-            :columns="gamesColumns" sort-key="total_games_played" title-color-class="title-color-primary"
-            info-topic="mostGamesPlayed" />
-        </div>
-        <div v-if="activeTab === 'play_style'" class="club-page__stats-grid-2-cols">
-          <ClubStatsTable :title="t('clubPage.berserkKingsTitle')" :players="teamBattleReport.players_summary"
-            :columns="berserkersColumns" sort-key="total_berserk_wins" title-color-class="title-color-primary"
-            info-topic="berserkKings" />
-          <ClubStatsTable :title="t('clubPage.winStreakMastersTitle')" :players="teamBattleReport.players_summary"
-            :columns="winStreaksColumns" sort-key="max_longest_win_streak_ever"
-            title-color-class="title-color-primary" info-topic="winStreakMasters" />
-        </div>
-        <div v-if="activeTab === 'medals'">
-          <MedalStandingsTable :players="teamBattleReport.players_summary" />
-        </div>
-      </div>
-
-      <TournamentHistoryTable :tournaments="teamBattleReport.played_arenas" />
     </div>
   </div>
 </template>
 
 <style scoped>
 .club-page {
-  padding: 20px;
-  box-sizing: border-box;
-  background-color: var(--color-bg-secondary);
-  color: var(--color-text-default);
+  padding: 24px;
+  max-width: 1100px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 25px;
-  width: 80vw;
-  max-width: 1000px;
-  margin: 20px auto;
-  border-radius: var(--panel-border-radius);
-  border: 1px solid var(--color-border-hover);
+  gap: 32px;
 }
 
-.loading-message,
-.club-page__error-message {
-  color: var(--color-text-error);
-  background-color: var(--color-bg-tertiary);
-  border: 1px solid var(--color-accent-error);
-  padding: 10px 15px;
-  border-radius: var(--panel-border-radius);
-  text-align: center;
-  margin: 15px auto;
-}
-
-.club-page__tab-content {
-  padding-top: 25px;
-  position: relative;
-}
-
-.loading-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(var(--color-bg-primary), 0.7);
+.loading-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 10;
-  font-size: var(--font-size-large);
-  color: var(--color-accent-warning);
-  border-radius: var(--panel-border-radius);
-}
-
-.club-page__stats-grid-2-cols,
-.club-page__stats-grid-3-cols {
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-}
-
-.controls-container {
-  padding: 10px 0;
-}
-
-.period-selector {
-  width: 100%;
-  padding: 10px;
-  font-size: var(--font-size-large);
-  background-color: var(--color-bg-tertiary);
-  color: var(--color-text-default);
-  border: 1px solid var(--color-border-hover);
-  border-radius: var(--panel-border-radius);
-  font-family: var(--font-family-primary);
-}
-
-.period-selector:disabled {
-  opacity: 0.5;
-}
-
-@media (min-width: 1024px) {
-  .club-page__stats-grid-2-cols {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 25px;
-  }
-
-  .club-page__stats-grid-3-cols {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 25px;
-  }
+  height: 300px;
 }
 
 .period-switcher {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 15px;
-  padding: 10px 0;
+  gap: 20px;
+  background-color: var(--color-bg-secondary);
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--color-border);
 }
 
-.period-switcher button {
-  background: none;
-  border: 1px solid var(--color-border-hover);
-  color: var(--color-text-default);
-  font-size: var(--font-size-large);
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.2s, border-color 0.2s;
-}
-
-.period-switcher button:hover:not(:disabled) {
-  background-color: var(--color-bg-tertiary);
-  border-color: var(--color-text-default);
-}
-
-.period-switcher button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.period-switcher__label {
-  font-size: var(--font-size-large);
-  font-weight: bold;
-  color: var(--color-text-default);
-  min-width: 150px;
+.period-label {
+  margin: 0;
+  min-width: 200px;
   text-align: center;
+  font-family: var(--font-family-primary);
 }
 
-@media (orientation: portrait) {
+.club-tabs {
+  margin-top: 10px;
+}
+
+.tab-content {
+  padding-top: 20px;
+}
+
+.history-section {
+  margin-top: 20px;
+}
+
+:deep(.n-tabs-tab-wrapper) {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-large);
+}
+
+@media (max-width: 768px) {
   .club-page {
-    width: 100%;
-    padding: 10px;
-    margin: 0;
-    gap: 10px;
-    border-radius: 0;
-    border-left: none;
-    border-right: none;
+    padding: 12px;
   }
 
-  .club-page__stats-grid-2-cols,
-  .club-page__stats-grid-3-cols {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-  }
-
-  .period-selector {
+  .period-label {
     font-size: var(--font-size-base);
+    min-width: 140px;
   }
 }
 </style>

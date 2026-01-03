@@ -1,356 +1,167 @@
 <!-- src/components/clubPage/MedalStandingsTable.vue -->
 <script setup lang="ts">
-import { ref, computed, type PropType } from 'vue'
+import { h, ref, computed, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { TeamBattlePlayerSummary } from '../../types/api.types'
+import type { DataTableColumns } from 'naive-ui'
+import type { MedalsReportUser, Medals } from '../../types/api.types'
 
 const { t } = useI18n()
 
-// --- PROPS ---
 const props = defineProps({
-  players: {
-    type: Array as PropType<TeamBattlePlayerSummary[]>,
+  report: {
+    type: Object as PropType<{
+      user_in_arena_medals: MedalsReportUser[]
+      user_in_club_medals: MedalsReportUser[]
+    }>,
     required: true,
   },
 })
 
-// --- LOCAL STATE ---
-const expandedMedalInfoKey = ref<string | null>(null)
+// Состояние переключателя (клубные медали по умолчанию)
+const medalType = ref<'club' | 'arena'>('club')
 
-// --- METHODS ---
-const toggleMedalDetails = (key: string) => {
-  expandedMedalInfoKey.value = expandedMedalInfoKey.value === key ? null : key
+// Хелпер для получения количества медалей из объекта Medals
+const getMedalStats = (medals: Medals) => {
+  const gold = medals.gold?.count || 0
+  const silver = medals.silver?.count || 0
+  const bronze = medals.bronze?.count || 0
+  return { gold, silver, bronze, total: gold + silver + bronze }
 }
 
-const getMedalSum = (player: TeamBattlePlayerSummary, type: 'team' | 'arena') => {
-  const medals = type === 'team' ? player.medals_in_team : player.medals_in_arena
-  return (medals.gold?.count || 0) + (medals.silver?.count || 0) + (medals.bronze?.count || 0)
-}
-
-const formatDateForUser = (isoDateString: string): string => {
-  try {
-    const date = new Date(isoDateString)
-    const day = date.getDate().toString().padStart(2, '0')
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const year = date.getFullYear().toString().slice(-2)
-    return `${day}.${month}.${year}`
-  } catch (e) {
-    return isoDateString
+const columns: DataTableColumns<MedalsReportUser> = [
+  {
+    title: t('clubPage.table.player'),
+    key: 'username',
+    render(row) {
+      return h('a', {
+        href: `https://lichess.org/@/${row.username}`,
+        target: '_blank',
+        style: { color: 'var(--color-text-link)', textDecoration: 'none' }
+      }, row.username)
+    }
+  },
+  {
+    title: '🥇',
+    key: 'gold',
+    align: 'center',
+    render(row) {
+      return h('span', { class: 'medal-count gold' }, row.medals.gold?.count || 0)
+    }
+  },
+  {
+    title: '🥈',
+    key: 'silver',
+    align: 'center',
+    render(row) {
+      return h('span', { class: 'medal-count silver' }, row.medals.silver?.count || 0)
+    }
+  },
+  {
+    title: '🥉',
+    key: 'bronze',
+    align: 'center',
+    render(row) {
+      return h('span', { class: 'medal-count bronze' }, row.medals.bronze?.count || 0)
+    }
+  },
+  {
+    title: t('clubPage.table.totalMedals'),
+    key: 'total',
+    align: 'right',
+    render(row) {
+      const stats = getMedalStats(row.medals)
+      return h('span', { style: { fontWeight: 'bold' } }, stats.total)
+    }
   }
-}
+]
 
-const getFlairIconUrl = (flair?: string | null) => {
-  if (!flair) return null
-  return `https://lichess1.org/assets/flair/img/${flair}.webp`
-}
-
-const renderPlayerCell = (player: TeamBattlePlayerSummary) => {
-  const flairHtml = player.flair
-    ? `<img src="${getFlairIconUrl(player.flair)}" alt="Flair" title="${player.flair
-    }" class="club-page__flair-icon" />`
-    : ''
-  return `<a href="https://lichess.org/@/${player.lichess_id}" target="_blank">${player.username}</a>${flairHtml}`
-}
-
-// --- COMPUTED ---
-const sortedMedalPlayers = computed(() => (type: 'team' | 'arena') => {
-  return [...props.players]
-    .filter((p) => getMedalSum(p, type) > 0)
-    .sort((a, b) => getMedalSum(b, type) - getMedalSum(a, type))
+const displayData = computed(() => {
+  const data = medalType.value === 'club' 
+    ? props.report.user_in_club_medals 
+    : props.report.user_in_arena_medals
+  
+  return [...data]
+    .filter(item => getMedalStats(item.medals).total > 0)
+    .sort((a, b) => getMedalStats(b.medals).total - getMedalStats(a.medals).total)
 })
 </script>
 
 <template>
-  <div class="club-page__stats-grid-2-cols">
-    <!-- Team Medals Table -->
-    <div class="club-page__table-container club-page__table-container--team-medals">
-      <h3 class="club-page__table-title">{{ t('clubPage.medalStandings.teamTitle') }}</h3>
-      <table class="club-page__table">
-        <thead>
-          <tr>
-            <th class="text-center">#</th>
-            <th class="text-left">{{ t('clubPage.table.player') }}</th>
-            <th class="text-center">🥇</th>
-            <th class="text-center">🥈</th>
-            <th class="text-center">🥉</th>
-            <th class="text-center">Σ</th>
-          </tr>
-        </thead>
-        <tbody>
-          <template v-for="(player, index) in sortedMedalPlayers('team')" :key="player.lichess_id">
-            <tr>
-              <td class="text-center">{{ index + 1 }}</td>
-              <td class="text-left" v-html="renderPlayerCell(player)"></td>
-              <td class="text-center club-page__medal-cell--expandable"
-                :class="{ expanded: expandedMedalInfoKey === `${player.lichess_id}::team::gold` }"
-                @click="toggleMedalDetails(`${player.lichess_id}::team::gold`)">
-                <span>{{ player.medals_in_team.gold?.count || '0' }}</span>
-                <span v-if="player.medals_in_team.gold?.count > 0" class="expand-arrow">▼</span>
-              </td>
-              <td class="text-center club-page__medal-cell--expandable"
-                :class="{ expanded: expandedMedalInfoKey === `${player.lichess_id}::team::silver` }"
-                @click="toggleMedalDetails(`${player.lichess_id}::team::silver`)">
-                <span>{{ player.medals_in_team.silver?.count || '0' }}</span>
-                <span v-if="player.medals_in_team.silver?.count > 0" class="expand-arrow">▼</span>
-              </td>
-              <td class="text-center club-page__medal-cell--expandable"
-                :class="{ expanded: expandedMedalInfoKey === `${player.lichess_id}::team::bronze` }"
-                @click="toggleMedalDetails(`${player.lichess_id}::team::bronze`)">
-                <span>{{ player.medals_in_team.bronze?.count || '0' }}</span>
-                <span v-if="player.medals_in_team.bronze?.count > 0" class="expand-arrow">▼</span>
-              </td>
-              <td class="text-center bold">
-                {{ getMedalSum(player, 'team') }}
-              </td>
-            </tr>
-            <!-- Expanded Rows for Team Medals -->
-            <tr v-if="expandedMedalInfoKey === `${player.lichess_id}::team::gold`">
-              <td colspan="6" class="club-page__medal-details-row">
-                <ul class="club-page__medal-tournament-list">
-                  <li v-for="t in player.medals_in_team.gold.tournaments" :key="t.name">
-                    <a :href="t.url" target="_blank" rel="noopener noreferrer">{{ t.name }}</a>
-                    <span class="date">({{ formatDateForUser(t.date) }})</span>
-                  </li>
-                </ul>
-              </td>
-            </tr>
-            <tr v-if="expandedMedalInfoKey === `${player.lichess_id}::team::silver`">
-              <td colspan="6" class="club-page__medal-details-row">
-                <ul class="club-page__medal-tournament-list">
-                  <li v-for="t in player.medals_in_team.silver.tournaments" :key="t.name">
-                    <a :href="t.url" target="_blank" rel="noopener noreferrer">{{ t.name }}</a>
-                    <span class="date">({{ formatDateForUser(t.date) }})</span>
-                  </li>
-                </ul>
-              </td>
-            </tr>
-            <tr v-if="expandedMedalInfoKey === `${player.lichess_id}::team::bronze`">
-              <td colspan="6" class="club-page__medal-details-row">
-                <ul class="club-page__medal-tournament-list">
-                  <li v-for="t in player.medals_in_team.bronze.tournaments" :key="t.name">
-                    <a :href="t.url" target="_blank" rel="noopener noreferrer">{{ t.name }}</a>
-                    <span class="date">({{ formatDateForUser(t.date) }})</span>
-                  </li>
-                </ul>
-              </td>
-            </tr>
-          </template>
-        </tbody>
-      </table>
+  <div class="medal-card">
+    <div class="card-header">
+      <div class="header-top">
+        <h3 class="card-title">{{ t('clubPage.medals.title') }}</h3>
+        <n-radio-group v-model:value="medalType" size="small" name="medalTypeGroup">
+          <n-radio-button value="club">{{ t('clubPage.tabs.medals') }} (Club)</n-radio-button>
+          <n-radio-button value="arena">Arenas</n-radio-button>
+        </n-radio-group>
+      </div>
     </div>
-
-    <!-- Arena Medals Table -->
-    <div class="club-page__table-container club-page__table-container--arena-medals">
-      <h3 class="club-page__table-title">{{ t('clubPage.medalStandings.arenaTitle') }}</h3>
-      <table class="club-page__table">
-        <thead>
-          <tr>
-            <th class="text-center">#</th>
-            <th class="text-left">{{ t('clubPage.table.player') }}</th>
-            <th class="text-center">🥇</th>
-            <th class="text-center">🥈</th>
-            <th class="text-center">🥉</th>
-            <th class="text-center">Σ</th>
-          </tr>
-        </thead>
-        <tbody>
-          <template v-for="(player, index) in sortedMedalPlayers('arena')" :key="player.lichess_id">
-            <tr>
-              <td class="text-center">{{ index + 1 }}</td>
-              <td class="text-left" v-html="renderPlayerCell(player)"></td>
-              <td class="text-center club-page__medal-cell--expandable"
-                :class="{ expanded: expandedMedalInfoKey === `${player.lichess_id}::arena::gold` }"
-                @click="toggleMedalDetails(`${player.lichess_id}::arena::gold`)">
-                <span>{{ player.medals_in_arena.gold?.count || '0' }}</span>
-                <span v-if="player.medals_in_arena.gold?.count > 0" class="expand-arrow">▼</span>
-              </td>
-              <td class="text-center club-page__medal-cell--expandable" :class="{
-                expanded: expandedMedalInfoKey === `${player.lichess_id}::arena::silver`,
-              }" @click="toggleMedalDetails(`${player.lichess_id}::arena::silver`)">
-                <span>{{ player.medals_in_arena.silver?.count || '0' }}</span>
-                <span v-if="player.medals_in_arena.silver?.count > 0" class="expand-arrow">▼</span>
-              </td>
-              <td class="text-center club-page__medal-cell--expandable" :class="{
-                expanded: expandedMedalInfoKey === `${player.lichess_id}::arena::bronze`,
-              }" @click="toggleMedalDetails(`${player.lichess_id}::arena::bronze`)">
-                <span>{{ player.medals_in_arena.bronze?.count || '0' }}</span>
-                <span v-if="player.medals_in_arena.bronze?.count > 0" class="expand-arrow">▼</span>
-              </td>
-              <td class="text-center bold">
-                {{ getMedalSum(player, 'arena') }}
-              </td>
-            </tr>
-            <!-- Expanded Rows for Arena Medals -->
-            <tr v-if="expandedMedalInfoKey === `${player.lichess_id}::arena::gold`">
-              <td colspan="6" class="club-page__medal-details-row">
-                <ul class="club-page__medal-tournament-list">
-                  <li v-for="t in player.medals_in_arena.gold.tournaments" :key="t.name">
-                    <a :href="t.url" target="_blank" rel="noopener noreferrer">{{ t.name }}</a>
-                    <span class="date">({{ formatDateForUser(t.date) }})</span>
-                  </li>
-                </ul>
-              </td>
-            </tr>
-            <tr v-if="expandedMedalInfoKey === `${player.lichess_id}::arena::silver`">
-              <td colspan="6" class="club-page__medal-details-row">
-                <ul class="club-page__medal-tournament-list">
-                  <li v-for="t in player.medals_in_arena.silver.tournaments" :key="t.name">
-                    <a :href="t.url" target="_blank" rel="noopener noreferrer">{{ t.name }}</a>
-                    <span class="date">({{ formatDateForUser(t.date) }})</span>
-                  </li>
-                </ul>
-              </td>
-            </tr>
-            <tr v-if="expandedMedalInfoKey === `${player.lichess_id}::arena::bronze`">
-              <td colspan="6" class="club-page__medal-details-row">
-                <ul class="club-page__medal-tournament-list">
-                  <li v-for="t in player.medals_in_arena.bronze.tournaments" :key="t.name">
-                    <a :href="t.url" target="_blank" rel="noopener noreferrer">{{ t.name }}</a>
-                    <span class="date">({{ formatDateForUser(t.date) }})</span>
-                  </li>
-                </ul>
-              </td>
-            </tr>
-          </template>
-        </tbody>
-      </table>
-    </div>
+    <n-data-table
+      :columns="columns"
+      :data="displayData"
+      :row-key="(row: MedalsReportUser) => row.username"
+      striped
+      class="medal-table"
+      :max-height="500"
+    />
   </div>
 </template>
 
 <style scoped>
-.club-page__table-container {
-  padding: 0;
+.medal-card {
   background-color: var(--color-bg-tertiary);
-  border-radius: var(--panel-border-radius);
+  border-radius: 12px;
   border: 1px solid var(--color-border);
   overflow: hidden;
 }
 
-.club-page__table-container--team-medals .club-page__table-title {
-  background-color: var(--color-accent-success);
+.card-header {
+  background-color: var(--color-gold);
+  padding: 12px 16px;
 }
 
-.club-page__table-container--arena-medals .club-page__table-title {
-  background-color: var(--color-accent-secondary);
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
-.club-page__table-title {
-  font-size: var(--font-size-xlarge);
+.card-title {
+  margin: 0;
   color: var(--color-text-dark);
-  margin: 0;
-  padding: 12px 15px;
-  border-bottom: 1px solid var(--color-border-hover);
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-xlarge);
 }
 
-.club-page__table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--font-size-base);
+.medal-count {
+  font-weight: bold;
+  font-size: var(--font-size-large);
 }
 
-.club-page__table th,
-.club-page__table td {
-  padding: 8px 10px;
-  border-bottom: 1px solid var(--color-border);
-  color: var(--color-text-default);
-  white-space: nowrap;
+.gold { color: var(--color-gold); }
+.silver { color: var(--color-silver); }
+.bronze { color: var(--color-bronze); }
+
+.medal-table {
+  --n-td-color-striped: var(--color-bg-secondary);
 }
 
-.club-page__table .bold {
-  font-weight: var(--font-weight-bold);
+:deep(.n-data-table-th) {
+  background-color: var(--color-bg-secondary) !important;
+  font-family: var(--font-family-primary);
 }
 
-.club-page__table .text-left {
-  text-align: left;
+:deep(.n-data-table-td) {
+  font-family: var(--font-family-primary);
 }
 
-.club-page__table .text-center {
-  text-align: center;
-}
-
-.club-page__table thead th {
-  background-color: var(--color-bg-secondary);
-  font-weight: var(--font-weight-bold);
-}
-
-.club-page__table>tbody>tr:nth-child(odd) {
-  background-color: var(--color-bg-tertiary);
-}
-
-.club-page__table>tbody>tr:nth-child(even) {
-  background-color: var(--color-bg-secondary);
-}
-
-.club-page__table tbody tr:hover {
-  background-color: var(--color-border-hover);
-}
-
-:deep(a) {
-  color: var(--color-text-link);
-  text-decoration: none;
-}
-
-:deep(a:hover) {
-  text-decoration: underline;
-}
-
-:deep(.club-page__flair-icon) {
-  height: 15px;
-  vertical-align: -0.15em;
-  margin-left: 6px;
-}
-
-.club-page__medal-cell--expandable {
-  cursor: pointer;
-  user-select: none;
-}
-
-.club-page__medal-cell--expandable .expand-arrow {
-  display: inline-block;
-  transition: transform 0.2s ease;
-  font-size: 0.7em;
-  margin-left: 4px;
-}
-
-.club-page__medal-cell--expandable.expanded .expand-arrow {
-  transform: rotate(180deg);
-}
-
-.club-page__medal-details-row td {
-  padding: 0;
-  border-bottom: 1px solid var(--color-border-hover);
-  background-color: var(--color-bg-primary);
-}
-
-.club-page__medal-tournament-list {
-  list-style: none;
-  padding: 10px 20px;
-  margin: 0;
-}
-
-.club-page__medal-tournament-list li {
-  padding: 4px 0;
-  font-size: var(--font-size-xsmall);
-}
-
-.club-page__medal-tournament-list .date {
-  color: var(--color-text-muted);
-  margin-left: 8px;
-}
-
-@media (orientation: portrait) {
-  .club-page__table-title {
-    font-size: var(--font-size-base);
-  }
-
-  .club-page__table {
-    font-size: var(--font-size-xsmall);
-  }
-
-  .club-page__table th,
-  .club-page__table td {
-    padding: 5px;
+@media (max-width: 600px) {
+  .header-top {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
 </style>

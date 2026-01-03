@@ -1,38 +1,21 @@
 <!-- src/components/clubPage/TournamentHistoryTable.vue -->
 <script setup lang="ts">
-import { ref, type PropType } from 'vue'
+import { h, ref, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
-// --- НАЧАЛО ИЗМЕНЕНИЙ: Импортируем правильный тип ---
-import type { TeamBattlePlayedArena } from '../../types/api.types'
-// --- КОНЕЦ ИЗМЕНЕНИЙ ---
+import type { DataTableColumns } from 'naive-ui'
+import { NDataTable } from 'naive-ui' // Явный импорт для использования в render
+import type { TeamBattlePlayedArena, TeamBattlePlayerInArena } from '../../types/api.types'
 
 const { t } = useI18n()
 
-// --- PROPS ---
-defineProps({
+const props = defineProps({
   tournaments: {
-    // --- НАЧАЛО ИЗМЕНЕНИЙ: Используем правильный тип ---
     type: Array as PropType<TeamBattlePlayedArena[]>,
-    // --- КОНЕЦ ИЗМЕНЕНИЙ ---
     required: true,
   },
 })
 
-// --- LOCAL STATE ---
-const expandedBattleId = ref<string | null>(null)
-
-// --- METHODS ---
-const toggleTournamentDetails = (arenaId: string) => {
-  expandedBattleId.value = expandedBattleId.value === arenaId ? null : arenaId
-}
-
-// --- НАЧАЛО ИЗМЕНЕНИЙ: Исправлен метод для вычисления общего счета команды ---
-const calculateTeamScore = (tournament: TeamBattlePlayedArena) => {
-  return tournament.players_in_arena
-    .filter((p) => p.isScoringPlayer)
-    .reduce((sum, player) => sum + (player.calculatedStats?.pointsTotal || 0), 0)
-}
-// --- КОНЕЦ ИЗМЕНЕНИЙ ---
+const expandedRowKeys = ref<string[]>([])
 
 const formatDateForUser = (isoDateString: string): string => {
   try {
@@ -46,248 +29,207 @@ const formatDateForUser = (isoDateString: string): string => {
   }
 }
 
-const getFlairIconUrl = (flair?: string | null) => {
-  if (!flair) return null
-  return `https://lichess1.org/assets/flair/img/${flair}.webp`
+const calculateTeamScore = (tournament: TeamBattlePlayedArena) => {
+  return tournament.players_in_arena
+    .filter((p) => p.isScoringPlayer)
+    .reduce((sum, player) => sum + (player.calculatedStats?.pointsTotal || 0), 0)
 }
 
-const renderCrownIcon = () => {
-  const crownUrl = `/flair/objects.crown.webp`
-  return `<img src="${crownUrl}" alt="Crown" title="${t(
-    'clubPage.table.cronePlayer',
-  )}" class="crown-icon" />`
+// --- Колонки вложенной таблицы (игроки) ---
+const playerColumns: DataTableColumns<TeamBattlePlayerInArena> = [
+  { title: '#', key: 'rank_in_club', align: 'center', width: 50 },
+  {
+    title: t('clubPage.table.player'),
+    key: 'username',
+    render(row) {
+      const elements = []
+      if (row.isScoringPlayer) {
+        elements.push(h('img', {
+          src: '/flair/objects.crown.webp',
+          style: { width: '18px', marginRight: '8px', verticalAlign: 'middle' },
+          alt: 'Crown'
+        }))
+      }
+      elements.push(h('a', {
+        href: `https://lichess.org/@/${row.lichess_id}`,
+        target: '_blank',
+        style: { color: 'var(--color-text-link)', textDecoration: 'none' }
+      }, row.username))
+
+      if (row.flair) {
+        elements.push(h('img', {
+          src: `https://lichess1.org/assets/flair/img/${row.flair}.webp`,
+          style: { height: '14px', marginLeft: '6px', verticalAlign: 'middle' },
+          alt: 'Flair'
+        }))
+      }
+      return elements
+    }
+  },
+  {
+    title: t('clubPage.table.score'),
+    key: 'points',
+    align: 'right',
+    render(row) {
+      return h('span', { style: { fontWeight: 'bold' } }, row.calculatedStats.pointsTotal)
+    }
+  },
+  {
+    title: 'W/D/L',
+    key: 'wdl',
+    align: 'center',
+    render(row) {
+      return h('div', [
+        h('span', { style: { color: 'var(--color-accent-success)', fontWeight: 'bold' } }, row.calculatedStats.wins),
+        ' / ',
+        h('span', { style: { color: 'var(--color-text-muted)' } }, row.calculatedStats.draws),
+        ' / ',
+        h('span', { style: { color: 'var(--color-accent-error)' } }, row.calculatedStats.losses)
+      ])
+    }
+  },
+  { title: t('clubPage.table.performance'), key: 'performance', align: 'right' },
+  { title: '🚀', key: 'berserk', align: 'center', render: (row) => row.calculatedStats.berserkWins },
+  { title: t('clubPage.table.arenaRank'), key: 'rank_in_arena', align: 'right' }
+]
+
+// --- Колонки основной таблицы ---
+const columns: DataTableColumns<TeamBattlePlayedArena> = [
+  {
+    type: 'expand',
+    renderExpand: (row) => {
+      return h(
+        'div',
+        { style: { padding: '16px', backgroundColor: 'var(--color-bg-primary)' } },
+        [
+          h(
+            NDataTable,
+            {
+              size: 'small',
+              columns: playerColumns,
+              data: row.players_in_arena,
+              rowKey: (r: TeamBattlePlayerInArena) => r.lichess_id,
+              striped: true,
+            }
+          )
+        ]
+      )
+    }
+  },
+  {
+    title: t('clubPage.table.date'),
+    key: 'startsAt',
+    render(row) {
+      return formatDateForUser(row.startsAt)
+    }
+  },
+  {
+    title: t('clubPage.table.tournamentName'),
+    key: 'tournament_name',
+    render(row) {
+      return h(
+        'a',
+        {
+          href: row.tournament_url,
+          target: '_blank',
+          style: { color: 'var(--color-text-link)', textDecoration: 'none' },
+          onClick: (e) => e.stopPropagation() // Чтобы клик по ссылке не закрывал строку
+        },
+        row.tournament_name.replace(/ Team Battle$/, '')
+      )
+    }
+  },
+  {
+    title: t('clubPage.table.clubRank'),
+    key: 'club_in_arena_rank',
+    align: 'right',
+    render(row) {
+      return row.club_in_arena_rank || '-'
+    }
+  },
+  {
+    title: t('clubPage.table.clubScore'),
+    key: 'score',
+    align: 'right',
+    render(row) {
+      return calculateTeamScore(row)
+    }
+  }
+]
+
+// Обработчик клика по строке
+const rowProps = (row: TeamBattlePlayedArena) => {
+  return {
+    style: { cursor: 'pointer' },
+    onClick: () => {
+      const key = row.arena_id
+      const index = expandedRowKeys.value.indexOf(key)
+      if (index > -1) {
+        expandedRowKeys.value.splice(index, 1)
+      } else {
+        expandedRowKeys.value.push(key)
+      }
+    }
+  }
 }
 </script>
 
 <template>
-  <div v-if="tournaments && tournaments.length > 0"
-    class="club-page__table-container club-page__table-container--history">
-    <h3 class="club-page__table-title">{{ t('clubPage.tournamentHistoryTitle') }}</h3>
-    <table class="club-page__table club-page__table--history">
-      <thead>
-        <tr>
-          <th class="text-left">{{ t('clubPage.table.date') }}</th>
-          <th class="text-left">{{ t('clubPage.table.tournamentName') }}</th>
-          <th class="text-right">{{ t('clubPage.table.clubRank') }}</th>
-          <th class="text-right">{{ t('clubPage.table.clubScore') }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <template v-for="tournament in tournaments" :key="tournament.arena_id">
-          <tr class="club-page__expandable-row" :class="{ expanded: expandedBattleId === tournament.arena_id }"
-            @click="toggleTournamentDetails(tournament.arena_id)">
-            <td class="text-left">{{ formatDateForUser(tournament.startsAt) }}</td>
-            <td class="text-left">
-              <a :href="tournament.tournament_url" target="_blank" rel="noopener noreferrer">
-                {{ tournament.tournament_name.replace(/ Team Battle$/, '') }}
-              </a>
-            </td>
-            <td class="text-right">
-              {{ tournament.club_in_arena_rank ? tournament.club_in_arena_rank : '-' }}
-            </td>
-            <td class="text-right">{{ calculateTeamScore(tournament) }}</td>
-          </tr>
-          <tr v-if="expandedBattleId === tournament.arena_id" class="club-page__details-row">
-            <td colspan="4" class="club-page__sub-table-container">
-              <table class="club-page__table club-page__table--sub">
-                <thead>
-                  <tr>
-                    <th class="text-center">#</th>
-                    <th class="text-left">{{ t('clubPage.table.player') }}</th>
-                    <th class="text-right">{{ t('clubPage.table.score') }}</th>
-                    <th class="text-center">W/D/L</th>
-                    <th class="text-right">{{ t('clubPage.table.performance') }}</th>
-                    <th class="text-center">🚀</th>
-                    <th class="text-right">{{ t('clubPage.table.arenaRank') }}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="player in tournament.players_in_arena" :key="player.lichess_id">
-                    <td class="text-center">{{ player.rank_in_club }}</td>
-                    <td class="text-left">
-                      <span v-if="player.isScoringPlayer" v-html="renderCrownIcon()"></span>
-                      <a :href="`https://lichess.org/@/${player.lichess_id}`" target="_blank"
-                        rel="noopener noreferrer">{{ player.username }}</a>
-                      <img v-if="getFlairIconUrl(player.flair)" :src="getFlairIconUrl(player.flair)!" alt="Flair"
-                        class="club-page__flair-icon" />
-                    </td>
-                    <td class="text-right bold">{{ player.calculatedStats.pointsTotal }}</td>
-                    <td class="text-center">
-                      <span class="win-color">{{ player.calculatedStats.wins }}</span>
-                      /
-                      <span class="draw-color">{{ player.calculatedStats.draws }}</span>
-                      /
-                      <span class="loss-color">{{ player.calculatedStats.losses }}</span>
-                    </td>
-                    <td class="text-right">{{ player.performance }}</td>
-                    <td class="text-center">{{ player.calculatedStats.berserkWins }}</td>
-                    <td class="text-right">{{ player.rank_in_arena }}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </td>
-          </tr>
-        </template>
-      </tbody>
-    </table>
+  <div v-if="tournaments && tournaments.length > 0" class="history-card">
+    <div class="card-header">
+      <n-h3 class="card-title">{{ t('clubPage.tournamentHistoryTitle') }}</n-h3>
+    </div>
+    <n-data-table
+      v-model:expanded-row-keys="expandedRowKeys"
+      :columns="columns"
+      :data="tournaments"
+      :row-key="(row: TeamBattlePlayedArena) => row.arena_id"
+      :row-props="rowProps"
+      striped
+      class="history-table"
+    />
   </div>
 </template>
 
 <style scoped>
-.club-page__table-container {
-  padding: 0;
+.history-card {
   background-color: var(--color-bg-tertiary);
-  border-radius: var(--panel-border-radius);
+  border-radius: 12px;
   border: 1px solid var(--color-border);
   overflow: hidden;
 }
 
-.club-page__table-container--history .club-page__table-title {
+.card-header {
   background-color: var(--color-violett-lichess);
+  padding: 12px 16px;
 }
 
-.club-page__table-title {
-  font-size: var(--font-size-xlarge);
-  color: var(--color-text-dark);
+.card-title {
   margin: 0;
-  padding: 10px 10px;
-  border-bottom: 1px solid var(--color-border-hover);
+  color: white;
+  font-family: var(--font-family-primary);
 }
 
-.club-page__table {
-  width: 100%;
-  border-collapse: collapse;
+.history-table {
+  --n-th-font-weight: bold;
+  --n-td-color-hover: var(--color-border-hover);
+  --n-td-color-striped: var(--color-bg-secondary);
+}
+
+:deep(.n-data-table-th) {
+  background-color: var(--color-bg-secondary) !important;
+  font-family: var(--font-family-primary);
+}
+
+:deep(.n-data-table-td) {
+  font-family: var(--font-family-primary);
   font-size: var(--font-size-base);
 }
 
-.club-page__table th,
-.club-page__table td {
-  padding: 8px 10px;
-  border-bottom: 1px solid var(--color-border);
-  color: var(--color-text-default);
-  white-space: nowrap;
-}
-
-.club-page__table .bold {
-  font-weight: var(--font-weight-bold);
-}
-
-.club-page__table .text-left {
-  text-align: left;
-}
-
-.club-page__table .text-center {
-  text-align: center;
-}
-
-.club-page__table .text-right {
-  text-align: right;
-}
-
-.club-page__table thead th {
-  background-color: var(--color-bg-secondary);
-  font-weight: var(--font-weight-bold);
-}
-
-.club-page__table>tbody>tr:nth-child(odd) {
-  background-color: var(--color-bg-tertiary);
-}
-
-.club-page__table>tbody>tr:nth-child(even) {
-  background-color: var(--color-bg-secondary);
-}
-
-.club-page__table--history tbody tr:hover {
-  background-color: var(--color-border-hover);
-}
-
-.club-page__table td a {
-  color: var(--color-text-link);
-  text-decoration: none;
-}
-
-.club-page__table td a:hover {
-  text-decoration: underline;
-}
-
-.club-page__expandable-row {
-  cursor: pointer;
-}
-
-.club-page__expandable-row.expanded {
-  background-color: var(--color-border-hover) !important;
-}
-
-.club-page__details-row td {
-  padding: 0;
-  border-bottom: 1px solid var(--color-border-hover);
-}
-
-.club-page__sub-table-container {
-  padding: 15px;
-  background-color: var(--color-bg-primary);
-}
-
-.club-page__table--sub {
-  font-size: var(--font-size-xsmall);
-}
-
-.club-page__table--sub th,
-.club-page__table--sub td {
-  padding: 4px 6px;
-}
-
-.club-page__table--sub tbody tr:nth-child(odd) {
-  background-color: var(--color-bg-tertiary);
-}
-
-.club-page__table--sub tbody tr:nth-child(even) {
-  background-color: var(--color-bg-secondary);
-}
-
-.club-page__table--sub tbody tr:hover {
-  background-color: var(--color-border-hover);
-}
-
-:deep(.club-page__flair-icon) {
-  height: 15px;
-  vertical-align: -0.15em;
-  margin-left: 6px;
-}
-
-:deep(.crown-icon) {
-  width: 20px;
-  height: auto;
-  vertical-align: -0.3em;
-  margin-right: 10px;
-}
-
-.win-color {
-  color: var(--color-accent-success);
-  font-weight: bold;
-}
-
-.draw-color {
-  color: var(--color-text-muted);
-}
-
-.loss-color {
-  color: var(--color-accent-error);
-}
-
-@media (orientation: portrait) {
-  .club-page__table-title {
-    font-size: var(--font-size-base);
-  }
-
-  .club-page__table,
-  .club-page__table--sub {
+@media (max-width: 768px) {
+  :deep(.n-data-table-td), :deep(.n-data-table-th) {
     font-size: var(--font-size-xsmall);
-  }
-
-  .club-page__table th,
-  .club-page__table td {
-    padding: 5px;
+    padding: 8px 4px;
   }
 }
 </style>

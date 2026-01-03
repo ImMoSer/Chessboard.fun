@@ -3,6 +3,7 @@
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { darkTheme, type GlobalThemeOverrides } from 'naive-ui'
 import NavMenu from './components/NavMenu.vue'
 import SettingsMenu from './components/SettingsMenu.vue'
 import ConfirmationModal from './components/ConfirmationModal.vue'
@@ -20,6 +21,23 @@ const route = useRoute()
 const isLandscape = ref(false)
 const isSidebarCollapsed = ref(true)
 
+/**
+ * Тема Naive UI, настроенная под CSS проекта
+ */
+const themeOverrides: GlobalThemeOverrides = {
+  common: {
+    fontFamily: 'Neucha, cursive',
+    primaryColor: '#13ADF6',
+    primaryColorHover: '#0B8ACB',
+    primaryColorPressed: '#0B8ACB',
+    primaryColorSuppl: '#0B8ACB',
+    borderRadius: '5px',
+  },
+  Card: {
+    color: '#262421',
+    borderColor: '#33312E',
+  },
+}
 
 const toggleSidebar = () => {
   isSidebarCollapsed.value = !isSidebarCollapsed.value
@@ -64,35 +82,41 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <header v-if="!isScreenshotView" class="app-header" :class="{ 'sidebar-collapsed': isSidebarCollapsed }">
-    <div class="header-content">
-      <div class="top-bar" :class="{ collapsed: isSidebarCollapsed && isLandscape }">
-        <div class="logo">
-          <RouterLink to="/">
-            <img v-if="isSidebarCollapsed && isLandscape" src="/png/ChessBoard_fun.png" alt="Logo"
-              class="logo-image-collapsed" />
-            <img v-else src="/png/1920_Banner.png" alt="Logo" class="logo-image" />
-          </RouterLink>
-        </div>
-        <SettingsMenu />
-      </div>
+  <n-config-provider :theme="darkTheme" :theme-overrides="themeOverrides">
+    <n-message-provider>
+      <n-dialog-provider>
+        <header v-if="!isScreenshotView" class="app-header" :class="{ 'sidebar-collapsed': isSidebarCollapsed }">
+          <div class="header-content">
+            <div class="top-bar" :class="{ collapsed: isSidebarCollapsed && isLandscape }">
+              <div class="logo">
+                <RouterLink to="/">
+                  <img v-if="isSidebarCollapsed && isLandscape" src="/png/ChessBoard_fun.png" alt="Logo"
+                    class="logo-image-collapsed" />
+                  <img v-else src="/png/1920_Banner.png" alt="Logo" class="logo-image" />
+                </RouterLink>
+              </div>
+              <SettingsMenu />
+            </div>
 
-      <div class="navigation-wrapper">
-        <NavMenu :is-sidebar-collapsed="isSidebarCollapsed" />
-      </div>
-    </div>
-  </header>
-  <button class="sidebar-toggle" @click="toggleSidebar">
-    <img v-if="isSidebarCollapsed" src="/svg/right-arrow.svg" alt="Expand" />
-    <img v-else src="/svg/left-arrow.svg" alt="Collapse" />
-  </button>
+            <div class="navigation-wrapper">
+              <NavMenu :is-sidebar-collapsed="isSidebarCollapsed" />
+            </div>
+          </div>
+        </header>
+        <button class="sidebar-toggle" @click="toggleSidebar">
+          <img v-if="isSidebarCollapsed" src="/svg/right-arrow.svg" alt="Expand" />
+          <img v-else src="/svg/left-arrow.svg" alt="Collapse" />
+        </button>
 
-  <main id="page-content-wrapper">
-    <RouterView />
-  </main>
+        <main id="page-content-wrapper">
+          <RouterView />
+        </main>
 
-  <ConfirmationModal />
-  <InfoModal v-if="uiStore.infoModalKey" />
+        <ConfirmationModal />
+        <InfoModal v-if="uiStore.infoModalKey" />
+      </n-dialog-provider>
+    </n-message-provider>
+  </n-config-provider>
 </template>
 
 <style scoped>
