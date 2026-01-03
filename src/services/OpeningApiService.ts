@@ -25,15 +25,30 @@ export interface LichessOpeningResponse {
 class OpeningApiService {
     private readonly BASE_URL = 'https://explorer.lichess.ovh/lichess';
 
+    /**
+     * Converts a standard FEN to the "Clean FEN" format used as keys in the graph and API.
+     * Removes halfmove and fullmove counters.
+     * Example: "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1"
+     *       -> "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq -"
+     */
+    private toCleanFen(fen: string): string {
+        return fen.split(' ').slice(0, 4).join(' ');
+    }
+
     async fetchOpeningStats(fen: string, history: string[]): Promise<LichessOpeningResponse | null> {
-        // 1. Try Cache
-        const cached = await openingCacheService.getCachedStats(fen);
+        const cleanFen = this.toCleanFen(fen);
+
+        // 1. Try Cache with clean FEN
+        const cached = await openingCacheService.getCachedStats(cleanFen);
         if (cached) {
-            logger.info(`[OpeningApiService] Cache hit for FEN: ${fen}`);
+            logger.info(`[OpeningApiService] Cache hit for FEN: ${cleanFen}`);
             return this.normalizeData(cached);
         }
 
-        // 2. Build URL
+        // 2. Polite delay for Lichess API (300ms) - only on cache miss
+        await new Promise(resolve => setTimeout(resolve, 300));
+
+        // 3. Build URL using clean FEN
         const url = new URL(this.BASE_URL);
         url.searchParams.append('variant', 'standard');
         url.searchParams.append('speeds', 'bullet,blitz,rapid,classical');
@@ -42,7 +57,7 @@ class OpeningApiService {
         url.searchParams.append('topGames', '0');
         url.searchParams.append('recentGames', '0');
         url.searchParams.append('history', 'false');
-        url.searchParams.append('fen', fen);
+        url.searchParams.append('fen', cleanFen);
 
         try {
             const response = await fetch(url.toString(), {
@@ -62,8 +77,8 @@ class OpeningApiService {
 
             const data: LichessOpeningResponse = await response.json();
 
-            // 3. Cache Result
-            await openingCacheService.cacheStats(fen, history, data);
+            // 3. Cache Result using clean FEN
+            await openingCacheService.cacheStats(cleanFen, history, data);
 
             return this.normalizeData(data);
         } catch (error) {

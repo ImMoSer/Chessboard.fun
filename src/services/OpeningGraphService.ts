@@ -2,14 +2,21 @@
 import logger from '../utils/logger';
 import { slugify } from '../utils/slugify';
 
-interface GraphMoveData {
-  n?: string; // Name
-  c?: string; // ECO Code
-  next: string; // Target Clean FEN
+// Internal types for the optimized JSON structure
+type CompressedMove = [number, number, string]; // [nameIdx, ecoIdx, nextFen]
+
+interface OptimizedGraphJson {
+  names: string[];
+  ecos: string[];
+  graph: Record<string, Record<string, CompressedMove>>;
 }
 
-// Key is Clean FEN
-type OpeningBook = Record<string, Record<string, GraphMoveData>>;
+export interface GraphMove {
+  uci: string;
+  name: string | null;
+  eco: string | null;
+  nextFen: string;
+}
 
 export interface MajorOpening {
   name: string;
@@ -19,24 +26,25 @@ export interface MajorOpening {
 }
 
 class OpeningGraphService {
-  private book: OpeningBook | null = null;
+  private data: OptimizedGraphJson | null = null;
   private isLoading = false;
   private loadingPromise: Promise<void> | null = null;
+  private readonly JSON_URL = '/openings_full_graph/openings_optimized.json';
 
   async loadBook(): Promise<void> {
-    if (this.book) return;
+    if (this.data) return;
     if (this.isLoading && this.loadingPromise) return this.loadingPromise;
 
     this.isLoading = true;
     this.loadingPromise = (async () => {
       try {
-        const res = await fetch('/openings_full_graph/openings_full_graph.json');
+        const res = await fetch(this.JSON_URL);
         if (!res.ok) throw new Error(`Failed to load opening graph: ${res.statusText}`);
-        this.book = await res.json();
-        logger.info('[OpeningGraphService] Book loaded successfully.');
+        this.data = await res.json();
+        logger.info('[OpeningGraphService] Optimized book loaded successfully.');
       } catch (err) {
         logger.error('[OpeningGraphService] Error loading book:', err);
-        this.book = null;
+        this.data = null;
       } finally {
         this.isLoading = false;
         this.loadingPromise = null;
@@ -46,20 +54,8 @@ class OpeningGraphService {
     return this.loadingPromise;
   }
 
-  getMoves(fen: string): { uci: string, name?: string, eco?: string, nextFen: string }[] {
-    if (!this.book) return [];
-
-    const cleanFen = this.toCleanFen(fen);
-    const movesData = this.book[cleanFen];
-
-    if (!movesData) return [];
-
-    return Object.entries(movesData).map(([uci, data]) => ({
-      uci,
-      name: data.n,
-      eco: data.c,
-      nextFen: data.next
-    }));
+  isBookLoaded(): boolean {
+    return !!this.data;
   }
 
   /**
@@ -68,12 +64,24 @@ class OpeningGraphService {
    * Example: "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1"
    *       -> "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq -"
    */
-  private toCleanFen(fen: string): string {
+  toCleanFen(fen: string): string {
     return fen.split(' ').slice(0, 4).join(' ');
   }
 
-  isBookLoaded(): boolean {
-    return !!this.book;
+  getMoves(fen: string): GraphMove[] {
+    if (!this.data || !this.data.graph) return [];
+
+    const cleanFen = this.toCleanFen(fen);
+    const node = this.data.graph[cleanFen];
+
+    if (!node) return [];
+
+    return Object.entries(node).map(([uci, [nameIdx, ecoIdx, nextFen]]) => ({
+      uci,
+      name: nameIdx !== -1 ? (this.data!.names[nameIdx] || null) : null,
+      eco: ecoIdx !== -1 ? (this.data!.ecos[ecoIdx] || null) : null,
+      nextFen
+    }));
   }
 
   private simplifyName(name: string): string {
@@ -81,47 +89,45 @@ class OpeningGraphService {
   }
 
   getMajorOpenings(): MajorOpening[] {
-    if (!this.book) return [];
+    if (!this.data || !this.data.graph) return [];
 
     const openingsMap = new Map<string, MajorOpening>();
     const rootFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -';
 
     // Helper to process a move
-    const processMove = (name: string, eco: string | undefined, moves: string[]) => {
+    const processMove = (name: string | null, eco: string | null, moves: string[]) => {
+      if (!name) return;
       const simpleName = this.simplifyName(name);
       
       // If we haven't seen this opening group yet, add it.
-      // Since we traverse depth 1 then depth 2, we naturally prefer shorter paths (parents).
-      // e.g. "English Opening" (Depth 1) will be added first.
-      // "English Opening: Agincourt" (Depth 2) simplifies to "English Opening" and is skipped.
       if (!openingsMap.has(simpleName)) {
         openingsMap.set(simpleName, {
           name: simpleName, 
-          eco,
+          eco: eco || undefined,
           moves,
           slug: slugify(simpleName)
         });
       }
     };
 
+    // Traverse Depth 1 and 2 to build the catalog
     // Depth 1 (White's first move)
-    const rootMoves = this.book[rootFen];
-    if (rootMoves) {
-      for (const [move1, data1] of Object.entries(rootMoves)) {
-        if (data1.n) {
-          processMove(data1.n, data1.c, [move1]);
-        }
+    const rootNode = this.data.graph[rootFen];
+    if (rootNode) {
+      for (const [move1, [nameIdx1, ecoIdx1, nextFen1]] of Object.entries(rootNode)) {
+        const name1 = nameIdx1 !== -1 ? (this.data.names[nameIdx1] || null) : null;
+        const eco1 = ecoIdx1 !== -1 ? (this.data.ecos[ecoIdx1] || null) : null;
+        
+        processMove(name1, eco1, [move1]);
 
         // Depth 2 (Black's response)
-        if (data1.next) {
-          const nextMoves = this.book[data1.next];
-          if (nextMoves) {
-            for (const [move2, data2] of Object.entries(nextMoves)) {
-              if (data2.n) {
-                processMove(data2.n, data2.c, [move1, move2]);
-              }
+        const node2 = this.data.graph[nextFen1];
+        if (node2) {
+            for (const [move2, [nameIdx2, ecoIdx2, _nextFen2]] of Object.entries(node2)) {
+                const name2 = nameIdx2 !== -1 ? (this.data.names[nameIdx2] || null) : null;
+                const eco2 = ecoIdx2 !== -1 ? (this.data.ecos[ecoIdx2] || null) : null;
+                processMove(name2, eco2, [move1, move2]);
             }
-          }
         }
       }
     }

@@ -25,6 +25,7 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
   const openingName = ref('');
   const currentEco = ref('');
   const isLoading = ref(false);
+  const isProcessingMove = ref(false); // Flag to suppress external fetch triggers (e.g. from View watcher)
   const error = ref<string | null>(null);
   const moveQueue = ref<string[]>([]);
 
@@ -33,23 +34,28 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
   async function initializeSession(color: 'white' | 'black', startMoves: string[] = []) {
     reset();
     playerColor.value = color;
+    isProcessingMove.value = true;
     
-    // Load the graph book if not loaded
-    await openingGraphService.loadBook();
+    try {
+      // Load the graph book if not loaded
+      await openingGraphService.loadBook();
 
-    boardStore.setupPosition('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', color);
-    
-    // Apply setup moves if any
-    for (const move of startMoves) {
-        boardStore.applyUciMove(move);
-    }
+      boardStore.setupPosition('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', color);
+      
+      // Apply setup moves if any
+      for (const move of startMoves) {
+          boardStore.applyUciMove(move);
+      }
 
-    await fetchStats();
+      await fetchStats();
 
-    // If it's not the player's turn, trigger bot
-    // Note: boardStore.turn is 'white' or 'black'
-    if (boardStore.turn !== color) {
-      await triggerBotMove();
+      // If it's not the player's turn, trigger bot
+      // Note: boardStore.turn is 'white' or 'black'
+      if (boardStore.turn !== color) {
+        await triggerBotMove();
+      }
+    } finally {
+      isProcessingMove.value = false;
     }
   }
 
@@ -63,6 +69,7 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
     currentEco.value = '';
     error.value = null;
     isLoading.value = false;
+    isProcessingMove.value = false;
     moveQueue.value = [];
   }
 
@@ -73,15 +80,19 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
       const data = await openingApiService.fetchOpeningStats(boardStore.fen, movesHistoryUci.value);
       if (data) {
         currentStats.value = data;
-        // We prefer the name from the Graph (set during move), but fallback to Lichess if not set?
-        // Actually, let's let Lichess be the fallback if we have nothing.
+        
+        const totalGames = data.white + data.draws + data.black;
+
+        // Name fallback
         if (data.opening && !openingName.value) {
           openingName.value = data.opening.name;
           if (data.opening.eco) currentEco.value = data.opening.eco;
         }
-        if (data.moves.length === 0) {
+
+        // Theory End Conditions
+        if (data.moves.length === 0 || totalGames < 3) {
           if (isGameplay) {
-            logger.info('[OpeningTrainer] Theory ended: No more moves in Lichess DB.');
+            logger.info(`[OpeningTrainer] Theory ended. Moves: ${data.moves.length}, Total Games: ${totalGames}`);
             isTheoryOver.value = true;
             soundService.playSound('game_user_won');
           }
@@ -108,12 +119,27 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
   }
 
   async function handlePlayerMove(moveUci: string) {
+    isProcessingMove.value = true;
     moveQueue.value.push(moveUci);
-    await processMoveQueue();
+    // Process queue handles the rest and clears the flag if needed, 
+    // but processMoveQueue is async, so we await it.
+    try {
+      await processMoveQueue();
+    } catch (e) {
+      logger.error('Error handling player move:', e);
+      isProcessingMove.value = false;
+    }
+    // Note: If bot is triggered, isProcessingMove remains true until bot finishes
   }
 
   async function processMoveQueue() {
-    if (isLoading.value || error.value || !currentStats.value || moveQueue.value.length === 0) return;
+    if (isLoading.value || error.value || !currentStats.value || moveQueue.value.length === 0) {
+        // If queue is empty, we are done processing unless bot needs to move.
+        // But bot move is triggered explicitly below.
+        // If we return here because empty, we might need to reset flag if not bot turn?
+        // Actually, let's manage flag at the top level (handlePlayerMove/triggerBotMove) or carefully here.
+        return; 
+    }
 
     const moveUci = moveQueue.value.shift()!;
     const moveData = currentStats.value.moves.find((m: LichessMove) => m.uci === moveUci);
@@ -124,6 +150,7 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
       isDeviation.value = true;
       soundService.playSound('game_user_won');
       moveQueue.value = []; // Clear queue on deviation
+      isProcessingMove.value = false; // Done
       return;
     }
 
@@ -155,14 +182,18 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
     if (!isTheoryOver.value && !isDeviation.value) {
       logger.info('[OpeningTrainer] Triggering bot move...');
       await triggerBotMove();
+    } else {
+      isProcessingMove.value = false; // Game/Turn sequence ended
     }
   }
 
   async function triggerBotMove() {
+    // Determine if we should proceed
     if (!currentStats.value || currentStats.value.moves.length === 0) {
       logger.info('[OpeningTrainer] Bot cannot move: No moves available.');
       isTheoryOver.value = true;
       soundService.playSound('game_user_won');
+      isProcessingMove.value = false;
       return;
     }
 
@@ -192,6 +223,7 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
       logger.info(`[OpeningTrainer] Bot cannot move: Top ${variability.value} moves have 0 total games.`);
       isTheoryOver.value = true;
       soundService.playSound('game_user_won');
+      isProcessingMove.value = false;
       return;
     }
 
@@ -216,13 +248,21 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
 
     // Apply move to board
     logger.info(`[OpeningTrainer] Bot selected move: ${selectedMove.uci} (${selectedMove.san}) from ${topMoves.length} candidates.`);
+    
+    // Ensure processing flag is true before modifying board
+    isProcessingMove.value = true;
     boardStore.applyUciMove(selectedMove.uci);
 
     // Fetch next position stats
     await fetchStats();
 
-    // Process any queued user moves
-    await processMoveQueue();
+    // Process any queued user moves (if user played extremely fast or pre-move logic exists)
+    // If queue is empty, we are done.
+    if (moveQueue.value.length > 0) {
+        await processMoveQueue();
+    } else {
+        isProcessingMove.value = false; // Turn complete
+    }
   }
 
   function calculateMoveScore(move: LichessMove, allMoves: LichessMove[]): number {
@@ -279,6 +319,7 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
     openingName,
     currentEco,
     isLoading,
+    isProcessingMove,
     error,
     initializeSession,
     handlePlayerMove,
