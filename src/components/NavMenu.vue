@@ -1,218 +1,119 @@
-<!-- src/components/NavMenu.vue -->
 <script setup lang="ts">
-import { ref } from 'vue'
+import { h, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
+import { NMenu, type MenuOption } from 'naive-ui'
 
 const { t } = useI18n()
-const isMenuOpen = ref(false)
 const router = useRouter()
+const route = useRoute()
 
-const props = defineProps({
-  isSidebarCollapsed: {
+defineProps({
+  collapsed: {
     type: Boolean,
-    default: false,
-  },
+    default: false
+  }
 })
 
+const emit = defineEmits(['select'])
 
-const menuItems = [
-  { path: '/', labelKey: 'nav.home', icon: '🏠' },
-  { path: '/tornado', labelKey: 'nav.tornado', icon: '🌪️', group: 'games' },
-  { path: '/finish-him', labelKey: 'nav.finishHim', icon: '🎯', group: 'games' },
-  { path: '/tower', labelKey: 'nav.tower', icon: '🏁', group: 'games' },
-  { path: '/sandbox', labelKey: 'nav.sandbox', icon: '🔬', group: 'games' },
-  { path: '/opening-trainer', labelKey: 'nav.openingTrainer', icon: '📖', group: 'games' },
-  { path: '/records', labelKey: 'nav.leaderboards', icon: '🏆' },
-  { path: '/funclub', labelKey: 'nav.lichessClubs', icon: '🏰' },
-  { path: '/user-cabinet', labelKey: 'nav.userCabinet', icon: '👤' },
-  { path: '/pricing', labelKey: 'nav.pricing', icon: '💰' },
-  { path: '/about', labelKey: 'nav.about', icon: 'ℹ️' },
-]
-
-const toggleMenu = () => {
-  isMenuOpen.value = !isMenuOpen.value
+/**
+ * Рендерит иконку с эмодзи (возвращаем к "красивым иконкам как раньше")
+ */
+function renderEmojiIcon(emoji: string) {
+  return () => h('span', { style: 'font-size: 18px;' }, emoji)
 }
 
-const navigateAndClose = (path: string) => {
-  router.push(path)
-  isMenuOpen.value = false
+const menuOptions: MenuOption[] = [
+  {
+    label: () => t('nav.home'),
+    key: '/',
+    icon: renderEmojiIcon('🏠')
+  },
+  {
+    label: () => t('nav.tornado'),
+    key: '/tornado',
+    icon: renderEmojiIcon('🌪️')
+  },
+  {
+    label: () => t('nav.finishHim'),
+    key: '/finish-him',
+    icon: renderEmojiIcon('🎯')
+  },
+  {
+    label: () => t('nav.tower'),
+    key: '/tower',
+    icon: renderEmojiIcon('🏁')
+  },
+  {
+    label: () => t('nav.sandbox'),
+    key: '/sandbox',
+    icon: renderEmojiIcon('🔬')
+  },
+  {
+    label: () => t('nav.openingTrainer'),
+    key: '/opening-trainer',
+    icon: renderEmojiIcon('📖')
+  },
+  {
+    label: () => t('nav.leaderboards'),
+    key: '/records',
+    icon: renderEmojiIcon('🏆')
+  },
+  {
+    label: () => t('nav.lichessClubs'),
+    key: '/funclub',
+    icon: renderEmojiIcon('🏰')
+  },
+  {
+    label: () => t('nav.userCabinet'),
+    key: '/user-cabinet',
+    icon: renderEmojiIcon('👤')
+  },
+  {
+    label: () => t('nav.pricing'),
+    key: '/pricing',
+    icon: renderEmojiIcon('💰')
+  },
+  {
+    label: () => t('nav.about'),
+    key: '/about',
+    icon: renderEmojiIcon('ℹ️')
+  }
+]
+
+// Determine current active key based on route path
+const activeKey = computed(() => {
+  const path = route.path
+  if (path === '/') return '/'
+
+  // Find match
+  const matched = menuOptions.find(opt => opt.key && path.startsWith(opt.key as string))
+  if (matched) return matched.key as string
+
+  return path
+})
+
+const handleUpdateValue = (key: string) => {
+  router.push(key)
+  emit('select', key)
 }
 </script>
 
 <template>
-  <button class="menu-toggle" @click="toggleMenu">
-    <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M3 18H21V16H3V18ZM3 13H21V11H3V13ZM3 6V8H21V6H3Z" />
-    </svg>
-  </button>
-  <div class="desktop-menu-wrapper">
-    <nav>
-      <template v-for="item in menuItems" :key="item.path">
-        <a @click="navigateAndClose(item.path)" class="nav-item-link" :class="{ collapsed: isSidebarCollapsed }">
-          <span class="nav-item-icon">{{ item.icon }}</span>
-          <span class="nav-item-text">{{ t(item.labelKey) }}</span>
-        </a>
-      </template>
-    </nav>
-  </div>
-
-  <div v-if="isMenuOpen" class="mobile-menu-overlay" @click="toggleMenu">
-    <div class="mobile-menu-wrapper" @click.stop>
-      <nav>
-        <template v-for="item in menuItems" :key="item.path">
-          <a @click="navigateAndClose(item.path)" class="nav-item-link">
-            <span class="nav-item-icon">{{ item.icon }}</span>
-            <span class="nav-item-text">{{ t(item.labelKey) }}</span>
-          </a>
-        </template>
-      </nav>
-    </div>
+  <div class="nav-menu-wrapper">
+    <n-menu :value="activeKey" :collapsed="collapsed" :collapsed-width="64" :collapsed-icon-size="22"
+      :options="menuOptions" @update:value="handleUpdateValue" />
   </div>
 </template>
 
 <style scoped>
-/* Стили для десктопного меню */
-.menu-toggle {
-  display: none;
-}
-
-@media (min-width: 769px) and (orientation: landscape) {
-  nav {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-    padding: 0;
-    width: 100%;
-  }
-}
-
-.desktop-menu-wrapper {
-  display: block;
-}
-
-nav {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 1.25rem;
-  padding: 1rem;
-  background-color: var(--color-bg-secondary);
-}
-
-.nav-item-link {
-  color: var(--color-text-link);
-  text-decoration: none;
-  font-weight: var(--font-weight-normal);
-  transition: color 0.2s ease;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.nav-item-link.collapsed .nav-item-text {
-  display: none;
-}
-
-.nav-item-link.collapsed {
-  justify-content: center;
-}
-
-
-.nav-item-link:hover {
-  color: var(--color-text-link-hover);
-}
-
-.router-link-active {
-  color: var(--color-accent-primary);
-  font-weight: var(--font-weight-bold);
-  text-decoration: underline;
-}
-
-/* Стили для мобильного меню */
-.mobile-menu-overlay {
-  display: none;
-}
-
-.mobile-menu-overlay nav {
-  flex-direction: column;
-  gap: 0;
-  /* Сброс gap для мобильного меню */
-}
-
-.mobile-menu-wrapper {
-  background-color: var(--color-bg-secondary);
-  width: 40%;
-  max-width: 300px;
-  box-shadow: -4px 0 15px rgba(0, 0, 0, 0.2);
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.mobile-menu-wrapper .nav-item-link {
-  padding: 0.5rem 0;
+.nav-menu-wrapper {
   width: 100%;
-  border-bottom: 1px solid var(--color-border);
 }
 
-.mobile-menu-wrapper .nav-item-link:last-child {
-  border-bottom: none;
-}
-
-.mobile-menu-wrapper .game-modes-group-mobile {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-.group-header-mobile {
-  font-size: var(--font-size-xsmall);
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.menu-divider {
-  border: none;
-  border-top: 1px solid var(--color-border);
-  margin: 0.5rem 0;
-}
-
-/* Адаптивность */
-
-@media (max-width: 768px) {
-  .desktop-menu-wrapper {
-    display: none;
-  }
-
-  .menu-toggle {
-    display: block;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 10px;
-    color: var(--color-text-default);
-  }
-
-  .menu-icon {
-    width: 24px;
-    height: 24px;
-  }
-
-  .mobile-menu-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    display: flex;
-    justify-content: flex-end;
-    z-index: 1001;
-  }
+:deep(.n-menu-item-content-header) {
+  font-family: inherit;
+  font-weight: 500;
 }
 </style>

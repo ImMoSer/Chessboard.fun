@@ -7,19 +7,21 @@ import { darkTheme, type GlobalThemeOverrides } from 'naive-ui'
 import NavMenu from './components/NavMenu.vue'
 import SettingsMenu from './components/SettingsMenu.vue'
 import ConfirmationModal from './components/ConfirmationModal.vue'
-import InfoModal from './components/InfoModal.vue' // Импорт InfoModal
+import InfoModal from './components/InfoModal.vue'
 import { useGameStore } from './stores/game.store'
 import { useFinishHimStore } from './stores/finishHim.store'
-import { useUiStore } from './stores/ui.store' // Импорт useUiStore
+import { useUiStore } from './stores/ui.store'
+import { MenuOutline } from '@vicons/ionicons5'
 
 const gameStore = useGameStore()
 const finishHimStore = useFinishHimStore()
-const uiStore = useUiStore() // Инициализация uiStore
+const uiStore = useUiStore()
 const { t } = useI18n()
 const route = useRoute()
 
 const isLandscape = ref(false)
 const isSidebarCollapsed = ref(true)
+const isDrawerOpen = ref(false)
 
 /**
  * Тема Naive UI, настроенная под CSS проекта
@@ -39,10 +41,9 @@ const themeOverrides: GlobalThemeOverrides = {
   },
 }
 
-const toggleSidebar = () => {
-  isSidebarCollapsed.value = !isSidebarCollapsed.value
+const openDrawer = () => {
+  isDrawerOpen.value = true
 }
-
 
 // --- НАЧАЛО ИЗМЕНЕНИЙ: Проверяем, является ли текущая страница страницей для скриншота ---
 const isScreenshotView = computed(() => route.name === 'funclub-latest-battle')
@@ -51,15 +52,9 @@ const isScreenshotView = computed(() => route.name === 'funclub-latest-battle')
 // Обработчик для перезагрузки/закрытия страницы
 const beforeUnloadHandler = (event: BeforeUnloadEvent) => {
   if (gameStore.isGameActive) {
-    // Стандартный способ показать браузерное окно подтверждения
     event.preventDefault()
-    // Chrome требует установки returnValue
     event.returnValue = t('gameplay.confirmExit.browserMessage')
-
-    // Синхронно обновляем локальное состояние
     gameStore.handleGameResignation()
-
-    // Надежно отправляем статистику на сервер в зависимости от режима игры
     if (gameStore.currentGameMode === 'finish-him') {
       finishHimStore.handleUnloadResignation()
     }
@@ -85,173 +80,140 @@ onUnmounted(() => {
   <n-config-provider :theme="darkTheme" :theme-overrides="themeOverrides">
     <n-message-provider>
       <n-dialog-provider>
-        <header v-if="!isScreenshotView" class="app-header" :class="{ 'sidebar-collapsed': isSidebarCollapsed }">
-          <div class="header-content">
-            <div class="top-bar" :class="{ collapsed: isSidebarCollapsed && isLandscape }">
-              <div class="logo">
-                <RouterLink to="/">
-                  <img v-if="isSidebarCollapsed && isLandscape" src="/png/ChessBoard_fun.png" alt="Logo"
-                    class="logo-image-collapsed" />
-                  <img v-else src="/png/1920_Banner.png" alt="Logo" class="logo-image" />
-                </RouterLink>
-              </div>
+        <n-layout has-sider position="absolute" class="root-layout">
+          <!-- Desktop Sidebar (Landscape) -->
+          <n-layout-sider v-if="isLandscape && !isScreenshotView" bordered collapse-mode="width" :collapsed-width="64"
+            :width="260" :collapsed="isSidebarCollapsed" show-trigger class="app-sider"
+            @collapse="isSidebarCollapsed = true" @expand="isSidebarCollapsed = false">
+            <!-- Top Action Bar (Settings) -->
+            <div class="sider-top-bar">
               <SettingsMenu />
             </div>
 
-            <div class="navigation-wrapper">
-              <NavMenu :is-sidebar-collapsed="isSidebarCollapsed" />
+            <div class="sider-header">
+              <RouterLink to="/" class="logo-link">
+                <img :src="isSidebarCollapsed ? '/png/ChessBoard_fun.png' : '/png/1920_Banner.png'" alt="Logo"
+                  :class="isSidebarCollapsed ? 'logo-collapsed' : 'logo-full'" />
+              </RouterLink>
             </div>
-          </div>
-        </header>
-        <button class="sidebar-toggle" @click="toggleSidebar">
-          <img v-if="isSidebarCollapsed" src="/svg/right-arrow.svg" alt="Expand" />
-          <img v-else src="/svg/left-arrow.svg" alt="Collapse" />
-        </button>
 
-        <main id="page-content-wrapper">
-          <RouterView />
-        </main>
+            <NavMenu :collapsed="isSidebarCollapsed" />
+          </n-layout-sider>
 
-        <ConfirmationModal />
-        <InfoModal v-if="uiStore.infoModalKey" />
+          <n-layout class="main-layout-container">
+            <!-- Mobile Header (Portrait) -->
+            <n-layout-header v-if="!isLandscape && !isScreenshotView" bordered class="mobile-header">
+              <n-button quaternary circle @click="openDrawer">
+                <template #icon>
+                  <n-icon>
+                    <MenuOutline />
+                  </n-icon>
+                </template>
+              </n-button>
+
+              <RouterLink to="/" class="mobile-logo">
+                <img src="/png/ChessBoard_fun.png" alt="Logo" height="32" />
+              </RouterLink>
+
+              <SettingsMenu />
+            </n-layout-header>
+
+            <!-- Page Content -->
+            <n-layout-content :content-style="{ height: '100%' }" class="page-content">
+              <RouterView />
+            </n-layout-content>
+          </n-layout>
+
+          <!-- Mobile Menu Drawer (Swipe-out) -->
+          <n-drawer v-model:show="isDrawerOpen" placement="left" :width="280">
+            <n-drawer-content closable class="mobile-drawer-content">
+              <template #header>
+                <n-space align="center">
+                  <img src="/png/ChessBoard_fun.png" alt="Logo" height="30" />
+                  <n-text strong>Chessboard.fun</n-text>
+                </n-space>
+              </template>
+              <NavMenu @select="isDrawerOpen = false" />
+            </n-drawer-content>
+          </n-drawer>
+
+          <ConfirmationModal />
+          <InfoModal v-if="uiStore.infoModalKey" />
+        </n-layout>
       </n-dialog-provider>
     </n-message-provider>
   </n-config-provider>
 </template>
 
-<style scoped>
-.app-header {
-  background-color: var(--color-bg-secondary);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  padding: 0 10px;
+<style>
+/* Global Layout Fixes */
+.root-layout {
+  height: 100vh;
+  background-color: var(--color-bg-primary);
 }
 
-.header-content {
+.main-layout-container {
+  background-color: var(--color-bg-primary);
+}
+
+.app-sider {
+  background-color: var(--color-bg-secondary) !important;
+  z-index: 1000;
+}
+
+.sider-top-bar {
+  padding: 8px 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 0 auto;
-  height: var(--header-height, 50px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.logo-image {
-  height: calc(var(--header-height, 50px) - 20px);
-  width: auto;
-  padding-top: 8px;
+.sider-header {
+  padding: 8px 16px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50px;
 }
 
-.navigation-wrapper {
+.logo-link {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  /* Расстояние между меню и шестеренкой */
+  justify-content: center;
 }
 
-@media (orientation: portrait) {
-  .header-content {
-    justify-content: space-between;
-  }
-
-  .top-bar {
-    display: flex;
-    width: 100%;
-    justify-content: space-between;
-    align-items: center;
-  }
+.logo-full {
+  max-width: 150px;
+  height: auto;
 }
 
-.sidebar-toggle {
-  display: none;
-  /* Hide by default */
-  background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
-  border-left: none;
-  color: var(--color-text-default);
-  cursor: pointer;
-  padding: 0.5rem 0.2rem;
-  position: fixed;
-  top: 50%;
-  left: 260px;
-  /* Default position for expanded */
-  transform: translateY(-50%);
-  z-index: 1100;
-  border-radius: 0 4px 4px 0;
-  transition: left 0.3s ease;
+.logo-collapsed {
+  width: 30px;
+  height: 30px;
 }
 
-.sidebar-toggle img {
-  width: 24px;
-  /* Restored size */
-  height: 24px;
-  /* Restored size */
+.mobile-header {
+  height: 56px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--color-bg-secondary) !important;
+}
+
+.mobile-drawer-content :deep(.n-drawer-header__main) {
+  width: 100%;
+}
+
+.page-content {
+  background-color: var(--color-bg-primary);
+  height: calc(100vh - 56px);
 }
 
 @media (min-width: 769px) and (orientation: landscape) {
-  .app-header {
-    position: fixed;
-    left: 0;
-    top: 0;
+  .page-content {
     height: 100vh;
-    width: 250px;
-    /* Restored width */
-    padding: 1rem;
-    border-right: 1px solid var(--color-border);
-    z-index: 1000;
-    overflow-y: auto;
-    /* Add scroll for smaller heights */
-    transition: width 0.3s ease;
-  }
-
-  .header-content {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 2rem;
-    height: auto;
-  }
-
-  .top-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-  }
-
-  .top-bar.collapsed {
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-  }
-
-  .logo-image-collapsed {
-    width: 40px;
-    height: 40px;
-  }
-
-  #page-content-wrapper {
-    margin-left: 60px;
-    transition: margin-left 0.3s ease;
-  }
-
-  .app-header.sidebar-collapsed {
-    width: 50px;
-    /* Corrected width for collapsed view */
-  }
-
-  .app-header.sidebar-collapsed+#page-content-wrapper {
-    margin-left: 50px;
-    /* Match collapsed width */
-  }
-
-  .sidebar-toggle {
-    display: block;
-    /* Show in landscape */
-  }
-
-  .app-header.sidebar-collapsed~.sidebar-toggle {
-    left: 60px;
-    /* Position for collapsed */
   }
 }
 </style>
