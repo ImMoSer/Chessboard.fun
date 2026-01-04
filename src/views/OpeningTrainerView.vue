@@ -180,18 +180,13 @@ async function handlePlayout() {
           :is-theory-over="openingStore.isTheoryOver"
           :is-deviation="openingStore.isDeviation"
           :is-review-mode="isReviewMode"
+          :is-analysis-active="analysisStore.isPanelVisible"
           @restart="handleRestart"
           @hint="openingStore.hint"
           @toggle-review="toggleReview"
+          @toggle-analysis="analysisStore.isPanelVisible ? analysisStore.hidePanel() : analysisStore.showPanel()"
+          @playout="handlePlayout"
         />
-
-        <div class="game-controls">
-          <button class="btn" :class="{ 'active': analysisStore.isPanelVisible }"
-            @click="analysisStore.isPanelVisible ? analysisStore.hidePanel() : analysisStore.showPanel()">
-            Analysis
-          </button>
-          <button class="btn success" @click="handlePlayout">Playout</button>
-        </div>
       </div>
 
       <AnalysisPanel />
@@ -224,42 +219,6 @@ async function handlePlayout() {
   display: flex;
   flex-direction: column;
   gap: 20px;
-}
-
-.btn-group {
-  display: flex;
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.btn {
-  padding: 10px 20px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  font-weight: bold;
-  background: var(--color-bg-tertiary);
-  color: var(--color-text-primary);
-  transition: all 0.2s;
-}
-
-.btn:hover {
-  background: var(--color-border-hover);
-}
-
-.btn.primary {
-  background: var(--color-accent);
-  color: white;
-}
-
-.btn.success {
-  background: #4caf50;
-  color: white;
-}
-
-.btn.active {
-  background: var(--color-accent);
-  color: white;
 }
 
 .variability-control {

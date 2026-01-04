@@ -8,12 +8,15 @@ defineProps<{
     isTheoryOver: boolean;
     isDeviation: boolean;
     isReviewMode: boolean;
+    isAnalysisActive: boolean;
 }>();
 
 const emit = defineEmits<{
     (e: 'restart'): void;
     (e: 'hint'): void;
     (e: 'toggle-review'): void;
+    (e: 'playout'): void;
+    (e: 'toggle-analysis'): void;
 }>();
 </script>
 
@@ -50,6 +53,12 @@ const emit = defineEmits<{
             <button class="btn" :class="{ 'active': isReviewMode }" @click="emit('toggle-review')">
                 {{ isReviewMode ? 'Hide Theory' : 'Show Theory' }}
             </button>
+            <div class="btn-group">
+                <button class="btn" :class="{ 'active': isAnalysisActive }" @click="emit('toggle-analysis')">
+                    Analysis
+                </button>
+                <button class="btn success" @click="emit('playout')">Playout</button>
+            </div>
         </div>
     </div>
 </template>
@@ -64,80 +73,18 @@ const emit = defineEmits<{
     flex-direction: column;
     gap: 16px;
 }
-
-.opening-name {
-    margin: 0;
-    font-size: 1.1rem;
-    color: var(--color-text-primary);
-    line-height: 1.4;
-}
-
-.eco-code {
-    background: var(--color-bg-tertiary);
-    color: var(--color-text-secondary);
-    padding: 2px 6px;
-    border-radius: 4px;
-    margin-right: 6px;
-    font-size: 0.9rem;
-    font-weight: bold;
-}
-
-.status-badges {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-
-.badge {
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    font-weight: bold;
-    text-transform: uppercase;
-}
-
-.badge.warning {
-    background: #ff9800;
-    color: white;
-}
-
-.badge.error {
-    background: #f44336;
-    color: white;
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    padding: 12px;
-    background: var(--color-bg-tertiary);
-    border-radius: 8px;
-}
-
-.stat-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-}
-
-.stat-label {
-    font-size: 0.7rem;
-    color: var(--color-text-secondary);
-    margin-bottom: 4px;
-}
-
-.stat-value {
-    font-size: 1rem;
-    font-weight: bold;
-    color: var(--color-accent);
-}
-
+/* ... existing styles ... */
 .controls-grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 8px;
+}
+
+.btn-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 4px;
 }
 
 .btn {
@@ -162,5 +109,15 @@ const emit = defineEmits<{
     background: var(--color-accent);
     color: white;
     border-color: var(--color-accent);
+}
+
+.btn.success {
+    background: #4caf50;
+    color: white;
+    border-color: #4caf50;
+}
+
+.btn.success:hover {
+    background: #43a047;
 }
 </style>
