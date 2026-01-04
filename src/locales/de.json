@@ -28,12 +28,10 @@
         "title": "Finish Him",
         "content": "Löse zuerst ein taktisches Rätsel, dann beweise deinen Vorteil im Endspiel gegen die gewählte Engine. Skill-Punkte werden für Siege vergeben und entsprechen der Materialsumme auf dem Brett (♟=1, ♞♝=3, ♜=5, ♛=9). Remis und Niederlagen geben keine Punkte. Die Durchlaufzeit wird ebenfalls für die Bestenliste erfasst."
       },
-
       "tower": {
         "title": "Speedrun",
         "content": "Teste deine Geschwindigkeit und Genauigkeit, indem du eine Serie taktischer Aufgaben gegen die Uhr löst. Die Schwierigkeit reicht vom Kandidatenmeister bis zum Großmeister. Du hast drei Leben für den gesamten Durchlauf. Skill-Punkte entsprechen der Materialsumme aller Positionen der Sitzung (♟=1, ♞♝=3, ♜=5, ♛=9). Werden nur bei vollständigem Durchlauf vergeben."
       },
-
       "tornado": {
         "title": "Tornado",
         "content": "Vier Zeitkontrollen verfügbar: 1+1, 3+2, 5+3 und 10+5 (separate Wertung in jeder). Löse so viele Aufgaben wie möglich innerhalb der Zeitbegrenzung. Wertung wird mit dem Glicko2-System basierend auf Aufgabenschwierigkeit und aufgewendeter Zeit berechnet. Jede gelöste Aufgabe gibt 1 Skill-Punkt."
@@ -44,7 +42,6 @@
         "title": "Finish-Him-Meister",
         "content": "TOP-10 der schnellsten Zeiten im Finish-Him-Modus. Rekorde sind immer an eine bestimmte Aufgabe gebunden. Du kannst versuchen, in jeder deinen Rekord aufzustellen! Nur ein Rekord pro Aufgabe ist möglich."
       },
-
       "towerLeaderboard": {
         "title": "Speedrun-Meister",
         "content": "TOP-10 der schnellsten Zeiten im Speedrun-Modus über die Disziplinen: KM, FM, IM, GM. Rekorde sind an bestimmte Speedruns gebunden. Versuche, deinen Rekord aufzustellen! Nur ein Rekord pro Speedrun ist möglich."
@@ -641,7 +638,7 @@
       "chessEngine": "Schach-Engine: ",
       "chessEngineStack": "`lokal: Stockfish.js + Stockfish.wasm, Server: LCZero + Maia 1900`",
       "api": "API: ",
-      "apiStack": "Lichess API (" 
+      "apiStack": "Lichess API ("
     },
     "contributing": "Wir freuen uns über alle Beiträge zum Projekt! Wenn Sie Ideen, Vorschläge haben oder einen Fehler gefunden haben, erstellen Sie bitte ein `Issue` oder einen `Pull Request`.",
     "licenseAndAcknowledgements": {
@@ -707,7 +704,6 @@
     },
     "footerNote": "Mit ❤️ für Schachbegeisterte überall gemacht"
   },
-
   "tornado": {
     "modes": {
       "bullet": "Bullet (1+1)",
@@ -840,5 +836,44 @@
     "pawnEndgame": "Bauernendspiel",
     "bishopVsKnight": "Läufer vs Springer",
     "rookVsPawns": "Turm vs Bauern"
+  },
+  "openingTrainer": {
+    "header": {
+      "searching": "Suche Theorie...",
+      "bookEnded": "Buch beendet",
+      "deviation": "Abweichung",
+      "accuracy": "Genauigkeit",
+      "winRate": "Winrate",
+      "avgRating": "Schnitt. Rating",
+      "newSession": "Neue Sitzung",
+      "hint": "Hinweis",
+      "hideTheory": "Theorie ausblenden",
+      "showTheory": "Theorie anzeigen",
+      "analysis": "Analyse",
+      "playout": "Playout"
+    },
+    "stats": {
+      "reviewModeOverlay": "Review-Modus, um die Theorie zu sehen",
+      "move": "Zug",
+      "games": "Partien",
+      "winRate": "Winrate (W)",
+      "avgRating": "Schnitt. Rating"
+    },
+    "settings": {
+      "title": "Eröffnungstrainer Einstellungen",
+      "color": "Farbe wählen",
+      "white": "Weiß",
+      "black": "Schwarz",
+      "opponentDb": "Gegner-Datenbank",
+      "masters": "Meister-DB",
+      "lichessPlayers": "Lichess-Spieler",
+      "ratings": "Ratings",
+      "timeControls": "Zeitkontrollen",
+      "selectOpening": "Eröffnung wählen (Optional)",
+      "startPosition": "Startposition (Standard)",
+      "variability": "Variabilität: {value}",
+      "variabilityHint": "Hohe Variabilität bedeutet, dass der Bot öfter weniger populäre Züge spielt.",
+      "startSession": "Sitzung starten"
+    }
   }
 }

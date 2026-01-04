@@ -3,7 +3,6 @@
 import { onMounted, onUnmounted, ref, watch } from 'vue';
 import GameLayout from '../components/GameLayout.vue';
 import OpeningTrainerHeader from '../components/OpeningTrainer/OpeningTrainerHeader.vue';
-import WinrateProgressBar from '../components/OpeningTrainer/WinrateProgressBar.vue';
 import OpeningStatsTable from '../components/OpeningTrainer/OpeningStatsTable.vue';
 import OpeningTrainerSettingsModal from '../components/OpeningTrainer/OpeningTrainerSettingsModal.vue';
 import AnalysisPanel from '../components/AnalysisPanel.vue';
@@ -33,7 +32,7 @@ let navigationDebounce: ReturnType<typeof setTimeout> | null = null;
 // Sync Opening Stats with Board Position (Debounced for Navigation)
 watch(() => boardStore.fen, () => {
   if (navigationDebounce) clearTimeout(navigationDebounce);
-  
+
   navigationDebounce = setTimeout(() => {
     // If the store is processing a game move, it will fetch stats itself.
     // We only fetch here if it's purely navigation (isProcessingMove is false).
@@ -171,22 +170,14 @@ async function handlePlayout() {
 
     <template #left-panel>
       <div class="controls-panel">
-        <OpeningTrainerHeader 
-          :opening-name="openingStore.openingName" 
-          :eco="openingStore.currentEco"
-          :average-popularity="openingStore.averagePopularity"
-          :average-win-rate="openingStore.averageWinRate"
-          :average-rating="openingStore.averageRating"
-          :is-theory-over="openingStore.isTheoryOver"
-          :is-deviation="openingStore.isDeviation"
-          :is-review-mode="isReviewMode"
-          :is-analysis-active="analysisStore.isPanelVisible"
-          @restart="handleRestart"
-          @hint="openingStore.hint"
+        <OpeningTrainerHeader :opening-name="openingStore.openingName" :eco="openingStore.currentEco"
+          :average-popularity="openingStore.averagePopularity" :average-win-rate="openingStore.averageWinRate"
+          :average-rating="openingStore.averageRating" :is-theory-over="openingStore.isTheoryOver"
+          :is-deviation="openingStore.isDeviation" :is-review-mode="isReviewMode"
+          :is-analysis-active="analysisStore.isPanelVisible" @restart="handleRestart" @hint="openingStore.hint"
           @toggle-review="toggleReview"
           @toggle-analysis="analysisStore.isPanelVisible ? analysisStore.hidePanel() : analysisStore.showPanel()"
-          @playout="handlePlayout"
-        />
+          @playout="handlePlayout" />
       </div>
 
       <AnalysisPanel />
@@ -202,9 +193,9 @@ async function handlePlayout() {
 
     <template #right-panel>
       <div v-if="openingStore.currentStats" class="stats-panel">
-        <WinrateProgressBar :white="openingStore.currentStats.white" :draws="openingStore.currentStats.draws"
+        <OpeningStatsTable :moves="openingStore.currentStats.moves" :is-review-mode="isReviewMode"
+          :white="openingStore.currentStats.white" :draws="openingStore.currentStats.draws"
           :black="openingStore.currentStats.black" />
-        <OpeningStatsTable :moves="openingStore.currentStats.moves" :is-review-mode="isReviewMode" />
       </div>
 
       <div v-if="openingStore.error" class="error-msg">

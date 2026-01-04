@@ -1,129 +1,220 @@
 <script setup lang="ts">
+import { computed, h } from 'vue';
 import type { LichessMove } from '../../services/OpeningApiService';
+import { useI18n } from 'vue-i18n';
+import { NDataTable, NText } from 'naive-ui';
+import type { DataTableColumns } from 'naive-ui';
 
-defineProps<{
+const props = defineProps<{
     moves: LichessMove[];
     isReviewMode: boolean;
+    // Current position stats
+    white?: number;
+    draws?: number;
+    black?: number;
 }>();
 
-const formatWR = (move: LichessMove) => {
-    const total = move.white + move.draws + move.black;
-    if (total === 0) return '0%';
-    // Assuming perspective of Whoever is to move?
-    // Actually usually WR is shown as % for White in most tools,
-    // but let's show simple W / D / L or just White Win % for now.
-    return Math.round(((move.white + 0.5 * move.draws) / total) * 100) + '%';
-};
+const { t } = useI18n();
 
 const formatTotal = (total: number) => {
     if (total >= 1000000) return (total / 1000000).toFixed(1) + 'M';
     if (total >= 1000) return (total / 1000).toFixed(1) + 'K';
     return total.toString();
 };
+
+const totalGames = computed(() => (props.white || 0) + (props.draws || 0) + (props.black || 0) || 1);
+const whitePct = computed(() => ((props.white || 0) / totalGames.value) * 100);
+const drawsPct = computed(() => ((props.draws || 0) / totalGames.value) * 100);
+const blackPct = computed(() => ((props.black || 0) / totalGames.value) * 100);
+
+const columns = computed<DataTableColumns<LichessMove>>(() => [
+    {
+        title: t('openingTrainer.stats.move'),
+        key: 'san',
+        width: 80,
+        render(row) {
+            return h(
+                NText,
+                { strong: true, type: 'primary' },
+                { default: () => row.san }
+            );
+        }
+    },
+    {
+        title: t('openingTrainer.stats.games'),
+        key: 'total',
+        width: 80,
+        render(row) {
+            return formatTotal(row.white + row.draws + row.black);
+        }
+    },
+    {
+        title: t('openingTrainer.stats.winRate'),
+        key: 'winrate',
+        render(row) {
+            const total = row.white + row.draws + row.black || 1;
+            const w = (row.white / total) * 100;
+            const d = (row.draws / total) * 100;
+            const b = (row.black / total) * 100;
+
+            return h('div', { class: 'mini-winrate-bar' }, [
+                h('div', { class: 'segment white', style: { width: `${w}%` } }),
+                h('div', { class: 'segment draw', style: { width: `${d}%` } }),
+                h('div', { class: 'segment black', style: { width: `${b}%` } })
+            ]);
+        }
+    },
+    {
+        title: t('openingTrainer.stats.avgRating'),
+        key: 'averageRating',
+        width: 100,
+        render(row) {
+            return row.averageRating || '-';
+        }
+    }
+]);
+
 </script>
 
 <template>
-    <div class="stats-table-wrapper" :class="{ 'blurred': !isReviewMode }">
+    <div class="stats-container" :class="{ 'blurred': !isReviewMode }">
         <div v-if="!isReviewMode" class="overlay">
-            <span>Review mode to see theory</span>
+            <n-text strong depth="1">{{ t('openingTrainer.stats.reviewModeOverlay') }}</n-text>
         </div>
-        <table class="stats-table">
-            <thead>
-                <tr>
-                    <th>Move</th>
-                    <th>Games</th>
-                    <th>Win Rate (W)</th>
-                    <th>Avg. Rating</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="move in moves" :key="move.uci">
-                    <td class="move-cell">{{ move.san }}</td>
-                    <td>{{ formatTotal(move.white + move.draws + move.black) }}</td>
-                    <td :class="calculateColorClass(move)">{{ formatWR(move) }}</td>
-                    <td>{{ move.averageRating }}</td>
-                </tr>
-            </tbody>
-        </table>
+
+        <!-- Global Winrate Bar -->
+        <div v-if="white !== undefined" class="global-winrate">
+            <div class="winrate-labels">
+                <span class="label-white">{{ Math.round(whitePct) }}%</span>
+                <span class="label-draw">{{ Math.round(drawsPct) }}%</span>
+                <span class="label-black">{{ Math.round(blackPct) }}%</span>
+            </div>
+            <div class="winrate-bar-wrapper">
+                <div class="segment white" :style="{ width: whitePct + '%' }"></div>
+                <div class="segment draw" :style="{ width: drawsPct + '%' }"></div>
+                <div class="segment black" :style="{ width: blackPct + '%' }"></div>
+            </div>
+        </div>
+
+        <n-data-table :columns="columns" :data="moves" :pagination="false" :bordered="false" size="small"
+            class="stats-table" />
     </div>
 </template>
 
-<script lang="ts">
-function calculateColorClass(move: LichessMove) {
-    const total = move.white + move.draws + move.black;
-    if (total === 0) return '';
-    const wr = (move.white + 0.5 * move.draws) / total;
-    if (wr >= 0.55) return 'text-success';
-    if (wr <= 0.45) return 'text-danger';
-    return '';
-}
-</script>
-
-<style scoped>
-.stats-table-wrapper {
+<style scoped lang="scss">
+.stats-container {
     position: relative;
-    width: 100%;
-    overflow: hidden;
-    border-radius: 8px;
     background: var(--color-bg-secondary);
+    border-radius: 12px;
     border: 1px solid var(--color-border);
+    overflow: hidden;
+    transition: all 0.3s ease;
 }
 
-.blurred .stats-table {
-    filter: blur(8px);
-    pointer-events: none;
-    opacity: 0.6;
+.blurred {
+
+    .stats-table,
+    .global-winrate {
+        filter: blur(12px);
+        opacity: 0.4;
+        pointer-events: none;
+    }
 }
 
 .overlay {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
+    z-index: 10;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 10;
-    font-weight: bold;
-    color: var(--color-text-primary);
-    text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(4px);
 }
 
-.stats-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.9rem;
-}
-
-.stats-table th,
-.stats-table td {
-    padding: 8px 12px;
-    text-align: left;
+.global-winrate {
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.02);
     border-bottom: 1px solid var(--color-border);
+
+    .winrate-labels {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.75rem;
+        font-weight: 800;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+
+        .label-white {
+            color: #fff;
+            text-shadow: 0 0 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .label-draw {
+            color: #888;
+        }
+
+        .label-black {
+            color: #444;
+        }
+    }
+
+    .winrate-bar-wrapper {
+        display: flex;
+        height: 14px;
+        border-radius: 4px;
+        overflow: hidden;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
 }
 
-.stats-table th {
-    background: var(--color-bg-tertiary);
-    color: var(--color-text-secondary);
-    font-size: 0.75rem;
-    text-transform: uppercase;
+.mini-winrate-bar {
+    display: flex;
+    height: 8px;
+    width: 100%;
+    min-width: 60px;
+    border-radius: 2px;
+    overflow: hidden;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
-.move-cell {
-    font-weight: bold;
-    color: var(--color-accent);
+.segment {
+    height: 100%;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &.white {
+        background: #f0f0f0;
+    }
+
+    &.draw {
+        background: #888888;
+    }
+
+    &.black {
+        background: #262421;
+    }
 }
 
-.text-success {
-    color: #4caf50;
-}
+:deep(.stats-table) {
+    .n-data-table-td {
+        background-color: transparent;
+    }
 
-.text-danger {
-    color: #f44336;
-}
+    .n-data-table-th {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--color-text-secondary);
+        background-color: rgba(255, 255, 255, 0.03);
+    }
 
-.stats-table tr:hover {
-    background: rgba(255, 255, 255, 0.05);
+    .n-data-table-tr:hover {
+        .n-data-table-td {
+            background-color: rgba(255, 255, 255, 0.03) !important;
+        }
+    }
 }
 </style>

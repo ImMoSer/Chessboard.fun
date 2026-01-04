@@ -1,4 +1,18 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n';
+import {
+    NPageHeader, NGrid, NGridItem, NStatistic, NButton, NButtonGroup,
+    NTag, NSpace, NIcon, NCard
+} from 'naive-ui';
+import {
+    RefreshOutline,
+    BulbOutline,
+    EyeOutline,
+    EyeOffOutline,
+    BarChartOutline,
+    PlayOutline
+} from '@vicons/ionicons5';
+
 defineProps<{
     openingName: string;
     eco?: string;
@@ -18,106 +32,167 @@ const emit = defineEmits<{
     (e: 'playout'): void;
     (e: 'toggle-analysis'): void;
 }>();
+
+const { t } = useI18n();
 </script>
 
 <template>
-    <div class="opening-header">
-        <h2 class="opening-name">
-            <span v-if="eco" class="eco-code">{{ eco }}</span>
-            {{ openingName || 'Searching theory...' }}
-        </h2>
+    <n-card class="header-card" :bordered="false">
+        <n-page-header class="opening-header">
+            <template #title>
+                <div class="title-container">
+                    <n-text class="opening-name">
+                        <n-tag v-if="eco" type="info" size="small" round :bordered="false" class="eco-tag">
+                            {{ eco }}
+                        </n-tag>
+                        {{ openingName || t('openingTrainer.header.searching') }}
+                    </n-text>
+                </div>
+            </template>
 
-        <div class="status-badges">
-            <div v-if="isTheoryOver" class="badge warning">Book Ended</div>
-            <div v-if="isDeviation" class="badge error">Deviation</div>
-        </div>
+            <template #extra>
+                <n-space>
+                    <n-tag v-if="isTheoryOver" type="warning" size="small" round uppercase>
+                        {{ t('openingTrainer.header.bookEnded') }}
+                    </n-tag>
+                    <n-tag v-if="isDeviation" type="error" size="small" round uppercase>
+                        {{ t('openingTrainer.header.deviation') }}
+                    </n-tag>
+                </n-space>
+            </template>
 
-        <div class="stats-grid">
-            <div class="stat-item">
-                <span class="stat-label">Accuracy</span>
-                <span class="stat-value">{{ averagePopularity }}%</span>
+            <div class="stats-section">
+                <n-grid :cols="3" :x-gap="12">
+                    <n-grid-item>
+                        <n-statistic :label="t('openingTrainer.header.accuracy')" :value="averagePopularity">
+                            <template #suffix>%</template>
+                        </n-statistic>
+                    </n-grid-item>
+                    <n-grid-item>
+                        <n-statistic :label="t('openingTrainer.header.winRate')" :value="averageWinRate">
+                            <template #suffix>%</template>
+                        </n-statistic>
+                    </n-grid-item>
+                    <n-grid-item>
+                        <n-statistic :label="t('openingTrainer.header.avgRating')" :value="averageRating" />
+                    </n-grid-item>
+                </n-grid>
             </div>
-            <div class="stat-item">
-                <span class="stat-label">Win Rate</span>
-                <span class="stat-value">{{ averageWinRate }}%</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-label">Avg Rating</span>
-                <span class="stat-value">{{ averageRating }}</span>
-            </div>
-        </div>
 
-        <div class="controls-grid">
-            <button class="btn" @click="emit('restart')">New Session</button>
-            <button class="btn" @click="emit('hint')">Hint</button>
-            <button class="btn" :class="{ 'active': isReviewMode }" @click="emit('toggle-review')">
-                {{ isReviewMode ? 'Hide Theory' : 'Show Theory' }}
-            </button>
-            <div class="btn-group">
-                <button class="btn" :class="{ 'active': isAnalysisActive }" @click="emit('toggle-analysis')">
-                    Analysis
-                </button>
-                <button class="btn success" @click="emit('playout')">Playout</button>
-            </div>
-        </div>
-    </div>
+            <template #footer>
+                <div class="controls-section">
+                    <n-space vertical :size="12">
+                        <n-grid :cols="2" :x-gap="8" :y-gap="8">
+                            <n-grid-item>
+                                <n-button block secondary @click="emit('restart')">
+                                    <template #icon><n-icon>
+                                            <RefreshOutline />
+                                        </n-icon></template>
+                                    {{ t('openingTrainer.header.newSession') }}
+                                </n-button>
+                            </n-grid-item>
+                            <n-grid-item>
+                                <n-button block secondary @click="emit('hint')">
+                                    <template #icon><n-icon>
+                                            <BulbOutline />
+                                        </n-icon></template>
+                                    {{ t('openingTrainer.header.hint') }}
+                                </n-button>
+                            </n-grid-item>
+                            <n-grid-item :span="2">
+                                <n-button block :type="isReviewMode ? 'primary' : 'default'" :secondary="!isReviewMode"
+                                    @click="emit('toggle-review')">
+                                    <template #icon>
+                                        <n-icon>
+                                            <component :is="isReviewMode ? EyeOffOutline : EyeOutline" />
+                                        </n-icon>
+                                    </template>
+                                    {{ isReviewMode ? t('openingTrainer.header.hideTheory') :
+                                        t('openingTrainer.header.showTheory') }}
+                                </n-button>
+                            </n-grid-item>
+                        </n-grid>
+
+                        <n-button-group class="action-group">
+                            <n-button class="action-btn" :type="isAnalysisActive ? 'primary' : 'default'"
+                                :secondary="!isAnalysisActive" @click="emit('toggle-analysis')">
+                                <template #icon><n-icon>
+                                        <BarChartOutline />
+                                    </n-icon></template>
+                                {{ t('openingTrainer.header.analysis') }}
+                            </n-button>
+                            <n-button class="action-btn" type="success" secondary @click="emit('playout')">
+                                <template #icon><n-icon>
+                                        <PlayOutline />
+                                    </n-icon></template>
+                                {{ t('openingTrainer.header.playout') }}
+                            </n-button>
+                        </n-button-group>
+                    </n-space>
+                </div>
+            </template>
+        </n-page-header>
+    </n-card>
 </template>
 
-<style scoped>
-.opening-header {
-    padding: 16px;
+<style scoped lang="scss">
+.header-card {
     background: var(--color-bg-secondary);
-    border-radius: 12px;
-    border: 1px solid var(--color-border-hover);
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-/* ... existing styles ... */
-.controls-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 8px;
-}
-
-.btn-group {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-top: 4px;
-}
-
-.btn {
-    padding: 8px 12px;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 0.9rem;
-    background: var(--color-bg-tertiary);
-    color: var(--color-text-primary);
     border: 1px solid var(--color-border);
-    transition: all 0.2s;
+    border-radius: 12px;
 }
 
-.btn:hover {
-    background: var(--color-border-hover);
-    border-color: var(--color-text-secondary);
+.opening-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    line-height: 1.2;
 }
 
-.btn.active {
-    background: var(--color-accent);
-    color: white;
-    border-color: var(--color-accent);
+.eco-tag {
+    font-family: monospace;
+    font-weight: 800;
 }
 
-.btn.success {
-    background: #4caf50;
-    color: white;
-    border-color: #4caf50;
+.stats-section {
+    margin-top: 16px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.btn.success:hover {
-    background: #43a047;
+.controls-section {
+    margin-top: 16px;
+}
+
+.action-group {
+    width: 100%;
+    display: flex;
+
+    .action-btn {
+        flex: 1;
+    }
+}
+
+:deep(.n-statistic) {
+    .n-statistic-label {
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--color-text-secondary);
+    }
+
+    .n-statistic-value__content {
+        font-size: 1.1rem;
+        font-weight: 700;
+    }
+
+    .n-statistic-value__suffix {
+        font-size: 0.8rem;
+        opacity: 0.6;
+    }
 }
 </style>

@@ -1,16 +1,31 @@
-<!-- src/components/OpeningTrainer/OpeningTrainerSettingsModal.vue -->
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useOpeningTrainerStore } from '../../stores/openingTrainer.store';
 import { openingGraphService } from '../../services/OpeningGraphService';
 import type { OpeningDatabaseSource, LichessParams } from '../../services/OpeningApiService';
+import { useI18n } from 'vue-i18n';
+import {
+    NModal, NSpace, NButton, NRadioGroup, NRadioButton,
+    NSelect, NSlider, NText, NCheckboxGroup, NCheckbox,
+    NGrid, NGridItem, NTag, NIcon
+} from 'naive-ui';
+import type { SelectOption } from 'naive-ui';
+import {
+    ColorPaletteOutline,
+    LibraryOutline,
+    FilterOutline,
+    BookOutline,
+    ShuffleOutline,
+    PlayOutline
+} from '@vicons/ionicons5';
 
 const emit = defineEmits(['start', 'close']);
+const { t } = useI18n();
 const openingStore = useOpeningTrainerStore();
 
 const selectedColor = ref<'white' | 'black'>('white');
-const selectedOpening = ref<{ name: string, moves: string[] } | null>(null);
-const majorOpenings = ref<{ name: string, eco?: string, moves: string[] }[]>([]);
+const selectedOpening = ref<string | null>(null);
+const majorOpenings = ref<{ name: string, eco?: string, moves: string[], slug: string }[]>([]);
 
 // Database Settings (Local State)
 const localDbSource = ref<OpeningDatabaseSource>('masters');
@@ -22,46 +37,42 @@ const localLichessParams = ref<LichessParams>({
 const AVAILABLE_RATINGS = [1000, 1200, 1400, 1600, 1800, 2000, 2200, 2500];
 const AVAILABLE_SPEEDS = ['bullet', 'blitz', 'rapid', 'classical'];
 
+const openingOptions = computed<SelectOption[]>(() => {
+    const options: SelectOption[] = [
+        { label: t('openingTrainer.settings.startPosition'), value: 'start' }
+    ];
+    majorOpenings.value.forEach(op => {
+        options.push({
+            label: `${op.eco ? `[${op.eco}] ` : ''}${op.name}`,
+            value: op.slug
+        });
+    });
+    return options;
+});
+
 onMounted(async () => {
     await openingGraphService.loadBook();
-    majorOpenings.value = openingGraphService.getMajorOpenings();
-    
+    majorOpenings.value = openingGraphService.getMajorOpenings() as any;
+
     // Init from store
     selectedColor.value = openingStore.playerColor;
     localDbSource.value = openingStore.dbSource;
-    // Clone objects to avoid reactivity linking until save
     localLichessParams.value = {
         ratings: [...openingStore.lichessParams.ratings],
         speeds: [...openingStore.lichessParams.speeds]
     };
 });
 
-function toggleRating(r: number) {
-    const idx = localLichessParams.value.ratings.indexOf(r);
-    if (idx > -1) localLichessParams.value.ratings.splice(idx, 1);
-    else localLichessParams.value.ratings.push(r);
-}
-
-function toggleSpeed(s: string) {
-    const idx = localLichessParams.value.speeds.indexOf(s);
-    if (idx > -1) localLichessParams.value.speeds.splice(idx, 1);
-    else localLichessParams.value.speeds.push(s);
-}
-
 function startSession() {
     // Save DB settings to store
     openingStore.setDatabaseSource(localDbSource.value);
     if (localDbSource.value === 'lichess') {
-        // Ensure at least one is selected if empty? Or let it be empty (API might default)
-        // Let's rely on API/Store defaults if empty, or just pass what user selected.
-        // Actually, API service handles empty? The service code currently does params?.join(',') || default.
-        // So sending empty arrays will result in empty strings. Let's safeguard defaults if user deselects all.
-        const finalRatings = localLichessParams.value.ratings.length > 0 
-            ? localLichessParams.value.ratings 
+        const finalRatings = localLichessParams.value.ratings.length > 0
+            ? localLichessParams.value.ratings
             : [1600, 1800, 2000, 2200, 2500];
-        
-        const finalSpeeds = localLichessParams.value.speeds.length > 0 
-            ? localLichessParams.value.speeds 
+
+        const finalSpeeds = localLichessParams.value.speeds.length > 0
+            ? localLichessParams.value.speeds
             : ['blitz', 'rapid', 'classical'];
 
         openingStore.setLichessParams({
@@ -70,306 +81,242 @@ function startSession() {
         });
     }
 
-    const moves = selectedOpening.value ? selectedOpening.value.moves : [];
-    // @ts-ignore
-    const slug = selectedOpening.value ? selectedOpening.value.slug : undefined;
-    emit('start', selectedColor.value, moves, slug);
+    const op = majorOpenings.value.find(o => o.slug === selectedOpening.value);
+    const moves = op ? op.moves : [];
+    const slug = selectedOpening.value === 'start' ? undefined : selectedOpening.value;
+    emit('start', selectedColor.value, moves, slug || undefined);
 }
 </script>
 
 <template>
-    <div class="modal-overlay" @click.self="$emit('close')">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Opening Trainer Settings</h2>
-                <button class="close-btn" @click="$emit('close')">&times;</button>
+    <n-modal :show="true" preset="card" style="width: 600px; border-radius: 16px;" class="settings-modal"
+        :title="t('openingTrainer.settings.title')" :bordered="false" @close="$emit('close')">
+        <template #header-extra>
+            <n-icon size="24" color="var(--color-accent)">
+                <BookOutline />
+            </n-icon>
+        </template>
+
+        <n-space vertical :size="24">
+            <!-- 1. Color Selection -->
+            <div class="setting-section">
+                <n-space align="center" :size="12" class="section-title">
+                    <n-icon>
+                        <ColorPaletteOutline />
+                    </n-icon>
+                    <n-text strong>{{ t('openingTrainer.settings.color') }}</n-text>
+                </n-space>
+                <n-radio-group v-model:value="selectedColor" name="color" size="large" expand>
+                    <n-radio-button value="white" class="color-btn-white">
+                        <n-space align="center" justify="center">
+                            <div class="swatch white" />
+                            {{ t('openingTrainer.settings.white') }}
+                        </n-space>
+                    </n-radio-button>
+                    <n-radio-button value="black" class="color-btn-black">
+                        <n-space align="center" justify="center">
+                            <div class="swatch black" />
+                            {{ t('openingTrainer.settings.black') }}
+                        </n-space>
+                    </n-radio-button>
+                </n-radio-group>
             </div>
 
-            <div class="modal-body">
-                <!-- Color -->
-                <div class="setting-group">
-                    <label>Choose Color</label>
-                    <div class="color-selection">
-                        <button class="color-btn white" :class="{ active: selectedColor === 'white' }"
-                            @click="selectedColor = 'white'">
-                            White
-                        </button>
-                        <button class="color-btn black" :class="{ active: selectedColor === 'black' }"
-                            @click="selectedColor = 'black'">
-                            Black
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Database Source -->
-                <div class="setting-group">
-                    <label>Opponent Database</label>
-                    <div class="db-selection">
-                        <button class="db-btn" :class="{ active: localDbSource === 'masters' }"
-                            @click="localDbSource = 'masters'">
-                            Masters DB
-                        </button>
-                        <button class="db-btn" :class="{ active: localDbSource === 'lichess' }"
-                            @click="localDbSource = 'lichess'">
-                            Lichess Players
-                        </button>
-                    </div>
-                </div>
+            <!-- 2. Database Source -->
+            <div class="setting-section">
+                <n-space align="center" :size="12" class="section-title">
+                    <n-icon>
+                        <LibraryOutline />
+                    </n-icon>
+                    <n-text strong>{{ t('openingTrainer.settings.opponentDb') }}</n-text>
+                </n-space>
+                <n-radio-group v-model:value="localDbSource" name="db" size="medium" expand>
+                    <n-radio-button value="masters">{{ t('openingTrainer.settings.masters') }}</n-radio-button>
+                    <n-radio-button value="lichess">{{ t('openingTrainer.settings.lichessPlayers') }}</n-radio-button>
+                </n-radio-group>
 
                 <!-- Lichess Filters -->
-                <div v-if="localDbSource === 'lichess'" class="lichess-filters">
-                    <div class="filter-section">
-                        <label class="sub-label">Ratings</label>
-                        <div class="checkbox-grid">
-                            <div v-for="r in AVAILABLE_RATINGS" :key="r" 
-                                 class="checkbox-item" 
-                                 :class="{ checked: localLichessParams.ratings.includes(r) }"
-                                 @click="toggleRating(r)">
-                                <span class="checkmark">✔</span>
-                                {{ r }}
-                            </div>
-                        </div>
+                <transition name="fade-slide">
+                    <div v-if="localDbSource === 'lichess'" class="filters-container">
+                        <n-grid :cols="2" :x-gap="24">
+                            <n-grid-item>
+                                <n-text depth="3" class="filter-label">{{ t('openingTrainer.settings.ratings')
+                                    }}</n-text>
+                                <n-checkbox-group v-model:value="localLichessParams.ratings">
+                                    <n-grid :cols="2" :y-gap="8">
+                                        <n-grid-item v-for="r in AVAILABLE_RATINGS" :key="r">
+                                            <n-checkbox :value="r" :label="r.toString()" />
+                                        </n-grid-item>
+                                    </n-grid>
+                                </n-checkbox-group>
+                            </n-grid-item>
+                            <n-grid-item>
+                                <n-text depth="3" class="filter-label">{{ t('openingTrainer.settings.timeControls')
+                                    }}</n-text>
+                                <n-checkbox-group v-model:value="localLichessParams.speeds">
+                                    <n-space vertical :size="8">
+                                        <n-checkbox v-for="s in AVAILABLE_SPEEDS" :key="s" :value="s">
+                                            <span style="text-transform: capitalize;">{{ s }}</span>
+                                        </n-checkbox>
+                                    </n-space>
+                                </n-checkbox-group>
+                            </n-grid-item>
+                        </n-grid>
                     </div>
-                    
-                    <div class="filter-section">
-                        <label class="sub-label">Time Control</label>
-                        <div class="checkbox-grid">
-                            <div v-for="s in AVAILABLE_SPEEDS" :key="s" 
-                                 class="checkbox-item"
-                                 :class="{ checked: localLichessParams.speeds.includes(s) }"
-                                 @click="toggleSpeed(s)">
-                                <span class="checkmark">✔</span>
-                                <span class="speed-label">{{ s }}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Opening -->
-                <div class="setting-group">
-                    <label>Select Opening (Optional)</label>
-                    <select v-model="selectedOpening" class="opening-select">
-                        <option :value="null">Start Position (Standard)</option>
-                        <option v-for="op in majorOpenings" :key="op.name" :value="op">
-                            {{ op.eco ? `[${op.eco}] ` : '' }}{{ op.name }}
-                        </option>
-                    </select>
-                </div>
-
-                <!-- Variability -->
-                <div class="setting-group">
-                    <label>Variability: {{ openingStore.variability }}</label>
-                    <input type="range" min="1" max="10" v-model.number="openingStore.variability"
-                        class="variability-slider" />
-                    <p class="hint">Higher variability means the bot plays less popular moves more often.</p>
-                </div>
+                </transition>
             </div>
 
-            <div class="modal-footer">
-                <button class="start-btn" @click="startSession">Start Session</button>
+            <!-- 3. Opening Selection -->
+            <div class="setting-section">
+                <n-space align="center" :size="12" class="section-title">
+                    <n-icon>
+                        <FilterOutline />
+                    </n-icon>
+                    <n-text strong>{{ t('openingTrainer.settings.selectOpening') }}</n-text>
+                </n-space>
+                <n-select v-model:value="selectedOpening" :options="openingOptions" filterable
+                    placeholder="Search opening..." size="large" />
             </div>
-        </div>
-    </div>
+
+            <!-- 4. Variability -->
+            <div class="setting-section">
+                <n-space align="center" justify="space-between" class="section-title">
+                    <n-space align="center" :size="12">
+                        <n-icon>
+                            <ShuffleOutline />
+                        </n-icon>
+                        <n-text strong>{{ t('openingTrainer.settings.variability', { value: openingStore.variability })
+                            }}</n-text>
+                    </n-space>
+                    <n-tag :bordered="false" type="info" size="small">{{ openingStore.variability }} / 10</n-tag>
+                </n-space>
+                <n-slider v-model:value="openingStore.variability" :min="1" :max="10" :step="1" />
+                <n-text depth="3" class="hint-text">
+                    {{ t('openingTrainer.settings.variabilityHint') }}
+                </n-text>
+            </div>
+        </n-space>
+
+        <template #footer>
+            <n-button type="primary" size="large" block secondary strong class="start-btn" @click="startSession">
+                <template #icon>
+                    <n-icon>
+                        <PlayOutline />
+                    </n-icon>
+                </template>
+                {{ t('openingTrainer.settings.startSession') }}
+            </n-button>
+        </template>
+    </n-modal>
 </template>
 
-<style scoped>
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-.modal-content {
+<style scoped lang="scss">
+.settings-modal {
     background: var(--color-bg-secondary);
+}
+
+.setting-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.section-title {
+    font-size: 0.95rem;
+    margin-bottom: 4px;
+    color: var(--color-text-secondary);
+
+    .n-icon {
+        font-size: 1.2rem;
+        color: var(--color-accent);
+    }
+}
+
+.color-btn-white {
+    --n-button-color-active: #fff !important;
+    --n-button-text-color-active: #222 !important;
+}
+
+.color-btn-black {
+    --n-button-color-active: #222 !important;
+    --n-button-text-color-active: #fff !important;
+}
+
+.swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+
+    &.white {
+        background: #fff;
+    }
+
+    &.black {
+        background: #222;
+    }
+}
+
+.filters-container {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 20px;
     border-radius: 12px;
-    width: 500px;
-    max-width: 95%;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
     border: 1px solid var(--color-border);
-    max-height: 90vh;
-    overflow-y: auto;
+    margin-top: 8px;
 }
 
-.modal-header {
-    padding: 20px;
-    border-bottom: 1px solid var(--color-border);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.modal-header h2 {
-    margin: 0;
-    font-size: 1.25rem;
-}
-
-.close-btn {
-    background: none;
-    border: none;
-    font-size: 1.5rem;
-    color: var(--color-text-secondary);
-    cursor: pointer;
-}
-
-.modal-body {
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-.setting-group {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.setting-group label {
-    font-weight: bold;
-    color: var(--color-text-primary);
-}
-
-/* Color & DB Buttons */
-.color-selection, .db-selection {
-    display: flex;
-    gap: 10px;
-}
-
-.color-btn, .db-btn {
-    flex: 1;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid var(--color-border);
-    background: var(--color-bg-primary);
-    color: var(--color-text-secondary);
-    cursor: pointer;
-    font-weight: 500;
-    transition: all 0.2s;
-}
-
-.color-btn.white { background: #e0e0e0; color: #333; }
-.color-btn.black { background: #333; color: #e0e0e0; }
-
-.color-btn.active, .db-btn.active {
-    border-color: var(--color-accent);
-    background: var(--color-accent-transparent, rgba(100, 200, 100, 0.2));
-    color: var(--color-text-primary);
-    box-shadow: 0 0 0 2px var(--color-accent);
-}
-
-/* Lichess Filters */
-.lichess-filters {
-    background: rgba(0, 0, 0, 0.2);
-    padding: 15px;
-    border-radius: 8px;
-    border: 1px solid var(--color-border);
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.sub-label {
-    font-size: 0.9rem;
-    color: var(--color-text-secondary);
-    margin-bottom: 8px;
+.filter-label {
     display: block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
 }
 
-.checkbox-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-}
-
-.checkbox-item {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    padding: 6px;
-    border-radius: 4px;
-    border: 1px solid var(--color-border);
-    background: var(--color-bg-primary);
-    cursor: pointer;
-    font-size: 0.85rem;
-    user-select: none;
-    transition: all 0.15s;
-}
-
-.checkbox-item:hover {
-    background: var(--color-bg-tertiary);
-}
-
-.checkbox-item.checked {
-    border-color: #4caf50;
-    background: rgba(76, 175, 80, 0.1);
-    color: #4caf50;
-    font-weight: bold;
-}
-
-.checkmark {
-    opacity: 0;
+.hint-text {
     font-size: 0.8rem;
-    transition: opacity 0.15s;
-}
-
-.checkbox-item.checked .checkmark {
-    opacity: 1;
-}
-
-.speed-label {
-    text-transform: capitalize;
-}
-
-.opening-select {
-    padding: 10px;
-    border-radius: 8px;
-    background: var(--color-bg-primary);
-    color: var(--color-text-primary);
-    border: 1px solid var(--color-border);
-    font-size: 1rem;
-}
-
-.variability-slider {
-    width: 100%;
-    cursor: pointer;
-    accent-color: var(--color-accent);
-}
-
-.hint {
-    font-size: 0.85rem;
-    color: var(--color-text-secondary);
-    margin: 0;
-}
-
-.modal-footer {
-    padding: 20px;
-    border-top: 1px solid var(--color-border);
-    display: flex;
-    justify-content: flex-end;
+    line-height: 1.4;
+    margin-top: 4px;
 }
 
 .start-btn {
-    width: 100%;
-    padding: 14px;
-    border-radius: 8px;
-    border: none;
-    background: var(--color-accent);
-    color: white;
-    font-weight: bold;
+    height: 52px;
     font-size: 1.1rem;
-    cursor: pointer;
-    transition: background 0.2s;
+    background: var(--color-accent) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 12px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(var(--color-accent-rgb, 100, 200, 100), 0.4);
+    }
+
+    &:active {
+        transform: translateY(0);
+    }
 }
 
-.start-btn:hover {
-    background: var(--color-accent-hover);
+/* Transitions */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+    transition: all 0.3s ease;
+}
+
+.fade-slide-enter-from,
+.fade-slide-leave-to {
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+:deep(.n-radio-button) {
+    --n-button-border-radius: 8px !important;
+}
+
+:deep(.n-select) {
+    .n-base-selection {
+        border-radius: 8px !important;
+    }
 }
 </style>

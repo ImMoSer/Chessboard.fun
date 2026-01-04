@@ -28,12 +28,10 @@
         "title": "Finish Him",
         "content": "First solve a tactical puzzle, then prove your advantage in the endgame against your chosen engine. Skill Points are awarded for wins and equal the sum of material on the board (♟=1, ♞♝=3, ♜=5, ♛=9). Draws and losses give no points. Completion time is also recorded for leaderboards."
       },
-
       "tower": {
         "title": "Speedrun",
         "content": "Test your speed and accuracy by solving a series of tactical puzzles against the clock. Difficulty ranges from Candidate Master to Grandmaster level. You have three lives for the entire run. Skill Points equal the sum of material from all positions in the session (♟=1, ♞♝=3, ♜=5, ♛=9). Only awarded for complete runs."
       },
-
       "tornado": {
         "title": "Tornado",
         "content": "Four time controls available: 1+1, 3+2, 5+3, and 10+5 (separate rating in each). Solve as many puzzles as possible within the time limit. Rating calculated using the Glicko2 system based on puzzle difficulty and time spent. Each solved puzzle awards 1 Skill Point."
@@ -44,7 +42,6 @@
         "title": "Finish Him Masters",
         "content": "TOP-10 fastest times in Finish Him mode. Records are always tied to a specific puzzle. You can try to set your record in any of them! Only one record per puzzle is possible."
       },
-
       "towerLeaderboard": {
         "title": "Speedrun Masters",
         "content": "TOP-10 fastest times in Speedrun mode across disciplines: CM, FM, IM, GM. Records are tied to specific speedruns. Try to set your record! Only one record per speedrun is possible."
@@ -642,7 +639,7 @@
       "chessEngine": "Chess Engine: ",
       "chessEngineStack": "`local: Stockfish.js + Stockfish.wasm, Server: LCZero + Maia 1900`",
       "api": "API: ",
-      "apiStack": "Lichess API (" 
+      "apiStack": "Lichess API ("
     },
     "contributing": "We welcome all contributions to the project! If you have ideas, suggestions, or have found a bug, please create an `issue` or a `pull request`.",
     "licenseAndAcknowledgements": {
@@ -842,5 +839,44 @@
     "pawnEndgame": "Pawn Endgame",
     "bishopVsKnight": "Bishop vs Knight",
     "rookVsPawns": "Rook vs Pawns"
+  },
+  "openingTrainer": {
+    "header": {
+      "searching": "Searching theory...",
+      "bookEnded": "Book Ended",
+      "deviation": "Deviation",
+      "accuracy": "Accuracy",
+      "winRate": "Win Rate",
+      "avgRating": "Avg Rating",
+      "newSession": "New Session",
+      "hint": "Hint",
+      "hideTheory": "Hide Theory",
+      "showTheory": "Show Theory",
+      "analysis": "Analysis",
+      "playout": "Playout"
+    },
+    "stats": {
+      "reviewModeOverlay": "Review mode to see theory",
+      "move": "Move",
+      "games": "Games",
+      "winRate": "Win Rate (W)",
+      "avgRating": "Avg. Rating"
+    },
+    "settings": {
+      "title": "Opening Trainer Settings",
+      "color": "Choose Color",
+      "white": "White",
+      "black": "Black",
+      "opponentDb": "Opponent Database",
+      "masters": "Masters DB",
+      "lichessPlayers": "Lichess Players",
+      "ratings": "Ratings",
+      "timeControls": "Time Controls",
+      "selectOpening": "Select Opening (Optional)",
+      "startPosition": "Start Position (Standard)",
+      "variability": "Variability: {value}",
+      "variabilityHint": "Higher variability means the bot plays less popular moves more often.",
+      "startSession": "Start Session"
+    }
   }
 }
