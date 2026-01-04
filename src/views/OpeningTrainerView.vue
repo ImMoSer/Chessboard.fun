@@ -166,19 +166,26 @@ async function handlePlayout() {
 <template>
   <GameLayout>
     <template #top-info>
-      <OpeningTrainerHeader :opening-name="openingStore.openingName" :eco="openingStore.currentEco"
-        :total-score="openingStore.totalScore" :is-theory-over="openingStore.isTheoryOver"
-        :is-deviation="openingStore.isDeviation" />
+      <!-- Header moved to left panel -->
     </template>
 
     <template #left-panel>
       <div class="controls-panel">
+        <OpeningTrainerHeader 
+          :opening-name="openingStore.openingName" 
+          :eco="openingStore.currentEco"
+          :average-popularity="openingStore.averagePopularity"
+          :average-win-rate="openingStore.averageWinRate"
+          :average-rating="openingStore.averageRating"
+          :is-theory-over="openingStore.isTheoryOver"
+          :is-deviation="openingStore.isDeviation"
+          :is-review-mode="isReviewMode"
+          @restart="handleRestart"
+          @hint="openingStore.hint"
+          @toggle-review="toggleReview"
+        />
+
         <div class="game-controls">
-          <button class="btn" @click="handleRestart">New Session</button>
-          <button class="btn" @click="openingStore.hint">Hint</button>
-          <button class="btn" :class="{ 'active': isReviewMode }" @click="toggleReview">
-            {{ isReviewMode ? 'Hide Theory' : 'Show Theory' }}
-          </button>
           <button class="btn" :class="{ 'active': analysisStore.isPanelVisible }"
             @click="analysisStore.isPanelVisible ? analysisStore.hidePanel() : analysisStore.showPanel()">
             Analysis

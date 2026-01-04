@@ -13,7 +13,7 @@ The service implements a **Unified Data Source** pattern, abstracting difference
 -   **Sources**:
     1.  **Masters DB**:
         -   Endpoint: `POST /api/opening/masters` (Backend Proxy).
-        -   Data: High-quality games from titled players (2200+).
+        -   Data: High-quality games from titled players (2400+).
         -   Structure: Backend response is adapted to match the Lichess format.
     2.  **Lichess Community**:
         -   Endpoint: `https://explorer.lichess.ovh/lichess`.

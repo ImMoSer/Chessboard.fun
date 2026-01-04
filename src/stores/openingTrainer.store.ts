@@ -15,7 +15,7 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
 
   const currentStats = ref<any | null>(null);
   const sessionHistory = ref<SessionMove[]>([]);
-  const totalScore = ref(0);
+  // const totalScore = ref(0); // REMOVED
   const isTheoryOver = ref(false);
   const isDeviation = ref(false);
   const variability = ref(5);
@@ -39,6 +39,28 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
   const lastFetchedConfig = ref<string>('');
 
   const movesHistoryUci = computed(() => sessionHistory.value.map(h => h.moveUci));
+
+  // --- New Computed Stats ---
+  const movesCount = computed(() => sessionHistory.value.length);
+
+  const averagePopularity = computed(() => {
+    if (movesCount.value === 0) return 0;
+    const sum = sessionHistory.value.reduce((acc, m) => acc + m.popularity, 0);
+    return Math.round(sum / movesCount.value);
+  });
+
+  const averageWinRate = computed(() => {
+    if (movesCount.value === 0) return 0;
+    const sum = sessionHistory.value.reduce((acc, m) => acc + m.winRate, 0);
+    return Math.round(sum / movesCount.value);
+  });
+
+  const averageRating = computed(() => {
+    if (movesCount.value === 0) return 0;
+    const sum = sessionHistory.value.reduce((acc, m) => acc + m.rating, 0);
+    return Math.round(sum / movesCount.value);
+  });
+  // --------------------------
 
   async function initializeSession(color: 'white' | 'black', startMoves: string[] = []) {
     reset();
@@ -67,7 +89,7 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
   function reset() {
     currentStats.value = null;
     sessionHistory.value = [];
-    totalScore.value = 0;
+    // totalScore.value = 0; // REMOVED
     isTheoryOver.value = false;
     isDeviation.value = false;
     openingName.value = '';
@@ -194,8 +216,21 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
       return;
     }
 
-    const score = calculateMoveScore(moveData, currentStats.value.moves);
-    totalScore.value += score;
+    // --- New Metrics Calculation ---
+    const allMoves = currentStats.value.moves as LichessMove[];
+    
+    // 1. Popularity (Raw Percentage of total games in this position)
+    const totalGamesInPos = allMoves.reduce((acc, m) => acc + m.white + m.draws + m.black, 0);
+    const moveGames = moveData.white + moveData.draws + moveData.black;
+    const popularity = totalGamesInPos > 0 ? (moveGames / totalGamesInPos) * 100 : 0;
+
+    // 2. WinRate (For player's color)
+    const wins = playerColor.value === 'white' ? moveData.white : moveData.black;
+    const winRateRaw = moveGames > 0 ? ((wins + 0.5 * moveData.draws) / moveGames) * 100 : 0;
+
+    // 3. Average Rating
+    const rating = moveData.averageRating || 0;
+    // -------------------------------
 
     const graphMoves = openingGraphService.getMoves(boardStore.fen);
     const graphMoveData = graphMoves.find(m => m.uci === moveUci);
@@ -210,7 +245,9 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
       moveUci,
       san: moveData.san,
       stats: moveData,
-      score
+      popularity, // Store raw value
+      winRate: winRateRaw, // Store raw value
+      rating // Store raw value
     });
 
     await fetchStats();
@@ -286,23 +323,6 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
     }
   }
 
-  function calculateMoveScore(move: LichessMove, allMoves: LichessMove[]): number {
-    const total = move.white + move.draws + move.black;
-    if (total === 0) return 0;
-    const wins = playerColor.value === 'white' ? move.white : move.black;
-    const wr = (wins + 0.5 * move.draws) / total;
-
-    let points = 0;
-    if (wr >= 0.55) points = 50;
-    else if (wr >= 0.50) points = 30;
-    else if (wr >= 0.45) points = 10;
-    else points = -20;
-
-    const index = allMoves.indexOf(move);
-    if (index >= 0 && index < 3) points += 10;
-    return points;
-  }
-
   function hint() {
     if (!currentStats.value || currentStats.value.moves.length === 0) return;
     const bestMove = currentStats.value.moves[0];
@@ -319,7 +339,11 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
   return {
     currentStats,
     sessionHistory,
-    totalScore,
+    // totalScore, // REMOVED
+    averagePopularity,
+    averageWinRate,
+    averageRating,
+    movesCount,
     isTheoryOver,
     isDeviation,
     variability,

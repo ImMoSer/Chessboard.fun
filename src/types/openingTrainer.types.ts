@@ -6,13 +6,16 @@ export interface SessionMove {
     moveUci: string;
     san: string;
     stats: LichessMove;
-    score: number;
+    // New Metrics
+    popularity: number; // Raw % of total games
+    winRate: number;    // Win % for the player's color
+    rating: number;     // Average rating of players
 }
 
 export interface OpeningTrainerState {
     currentStats: LichessOpeningResponse | null;
     sessionHistory: SessionMove[];
-    totalScore: number;
+    // Removed totalScore in favor of computed averages
     isTheoryOver: boolean;
     isDeviation: boolean;
     variability: number; // Top-N moves for bot
