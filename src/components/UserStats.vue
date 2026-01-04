@@ -5,7 +5,18 @@ import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import type { PuzzlesSolvedToday, TornadoMode } from '@/types/api.types'
+import type { TornadoMode } from '@/types/api.types'
+import {
+  NCard, NStatistic, NGrid, NGridItem, NText, NDivider,
+  NButton, NAvatar, NSpace, NTag, NIcon, NTooltip, NNumberAnimation
+} from 'naive-ui'
+import {
+  WalletOutline,
+  TrendingUpOutline,
+  RibbonOutline,
+  GolfOutline,
+  LockClosedOutline
+} from '@vicons/ionicons5'
 
 const authStore = useAuthStore()
 const { userProfile, isAuthenticated } = storeToRefs(authStore)
@@ -28,15 +39,11 @@ const localResetTimeMessage = computed(() => {
   return t('userCabinet.stats.activity.titleWithTime', { time: localTime })
 })
 
-const activityModes: {
-  key: keyof Omit<PuzzlesSolvedToday, 'total'>
-  label: string
-  icon: string
-}[] = [
-    { key: 'advantage', label: t('nav.finishHim'), icon: '🎯' },
-    { key: 'tower', label: t('nav.tower'), icon: '🏁' },
-    { key: 'tornado', label: t('nav.tornado'), icon: '🌪️' },
-  ]
+const activityModes = [
+  { key: 'advantage' as const, label: t('nav.finishHim'), icon: '🎯' },
+  { key: 'tower' as const, label: t('nav.tower'), icon: '🏁' },
+  { key: 'tornado' as const, label: t('nav.tornado'), icon: '🌪️' },
+]
 
 const tornadoMode = computed(() => {
   if (route.name === 'tornado' && route.params.mode) {
@@ -51,225 +58,268 @@ const tornadoHighScore = computed(() => {
   }
   return null
 })
+
+const tierToPieceMap: Record<string, string> = {
+  Pawn: 'wP.svg',
+  Knight: 'wN.svg',
+  Bishop: 'wB.svg',
+  Rook: 'wR.svg',
+  Queen: 'wQ.svg',
+  King: 'wK.svg',
+  Administrator: 'wK.svg',
+}
+
+const avatarUrl = computed(() => {
+  const tier = userProfile.value?.subscriptionTier
+  if (tier && tierToPieceMap[tier]) {
+    return `/piece/alpha/${tierToPieceMap[tier]}`
+  }
+  return 'https://lichess1.org/assets/images/avatar_default.png'
+})
 </script>
 
 <template>
   <div class="user-stats-container">
     <div v-if="isAuthenticated && userProfile" class="stats-view">
-      <!-- Базовая статистика, отображаемая всегда -->
-      <div class="stats-grid">
-        <div class="stat-item">
-          <span class="stat-label">{{ t('userCabinet.stats.funcoinsLabel') }}</span>
-          <span class="stat-value funcoins">{{ userProfile.FunCoins }}</span>
-        </div>
+      <n-card :bordered="false" size="small" class="profile-card">
+        <n-space vertical :size="16">
+          <!-- Header: Avatar, Name & FunCoins -->
+          <n-space align="center" justify="space-between" :size="12" style="width: 100%">
+            <n-space align="center" :size="12">
+              <n-avatar round size="medium" :src="avatarUrl || undefined"
+                fallback-src="https://lichess1.org/assets/images/avatar_default.png" class="piece-avatar" />
+              <n-space vertical :size="0">
+                <n-text strong class="username">{{ userProfile.username }}</n-text>
+                <n-tag :bordered="false" :type="userProfile.subscriptionTier === 'administrator' ? 'error' : 'warning'"
+                  size="tiny" round uppercase>
+                  {{ userProfile.subscriptionTier }}
+                </n-tag>
+              </n-space>
+            </n-space>
 
-        <!-- Динамическая статистика в зависимости от режима -->
-        <template v-if="route.name === 'finish-him'">
-          <div class="stat-item">
-            <span class="stat-label">{{ t('userCabinet.stats.endgameSkillLabel') }}</span>
-            <span class="stat-value">{{ userProfile.endgame_skill }}</span>
-          </div>
-          <div v-if="userProfile.finishHimRating" class="stat-item">
-            <span class="stat-label">{{ t('userCabinet.stats.finishHimRatingLabel') }}</span>
-            <span class="stat-value">{{ userProfile.finishHimRating.rating }}</span>
-          </div>
-        </template>
+            <n-statistic :label="t('userCabinet.stats.funcoinsLabel')" class="header-funcoins">
+              <template #prefix>
+                <n-icon color="#f0a020">
+                  <WalletOutline />
+                </n-icon>
+              </template>
+              <n-number-animation :from="0" :to="userProfile.FunCoins" />
+            </n-statistic>
+          </n-space>
 
-        <template v-if="tornadoMode && tornadoHighScore !== null">
-          <div class="stat-item">
-            <span class="stat-label">{{ t('tornado.leaderboard.highScore') }} ({{ tornadoMode }})</span>
-            <span class="stat-value">{{ tornadoHighScore }}</span>
-          </div>
-        </template>
-      </div>
+          <n-divider class="mini-divider" />
 
-      <!-- Статистика за сегодня, отображаемая всегда -->
-      <div v-if="userProfile.today_activity" class="today-activity">
-        <h5 class="activity-title">{{ localResetTimeMessage }}</h5>
-
-        <div class="activity-section">
-          <div class="total-stat-item">
-            <span class="stat-label">{{ t('userCabinet.stats.puzzlesSolved') }}</span>
-            <span class="stat-value highlight total">
-              {{ userProfile.today_activity.puzzles_solved_today.total }}
-            </span>
+          <!-- Dynamic Rating (if applicable) -->
+          <div v-if="route.name === 'finish-him'" class="dynamic-rating-row">
+            <n-statistic :label="t('userCabinet.stats.finishHimRatingLabel')">
+              <template #prefix>
+                <n-icon color="#18a058">
+                  <TrendingUpOutline />
+                </n-icon>
+              </template>
+              {{ userProfile.finishHimRating?.rating || '-' }}
+            </n-statistic>
           </div>
-          <div class="details-grid">
-            <div v-for="mode in activityModes" :key="mode.key" class="detail-item">
-              <span class="detail-label">{{ mode.icon }} {{ mode.label }}:</span>
-              <span class="detail-value">{{
-                userProfile.today_activity.puzzles_solved_today[mode.key] ?? 0
-              }}</span>
+          <div v-else-if="tornadoMode && tornadoHighScore !== null" class="dynamic-rating-row">
+            <n-statistic :label="`${t('tornado.leaderboard.highScore')} (${tornadoMode})`">
+              <template #prefix>
+                <n-icon color="#f0a020">
+                  <RibbonOutline />
+                </n-icon>
+              </template>
+              {{ tornadoHighScore }}
+            </n-statistic>
+          </div>
+
+          <!-- Today's Activity Section -->
+          <div v-if="userProfile.today_activity" class="activity-section">
+            <div class="activity-header">
+              <n-text depth="3" class="reset-timer">{{ localResetTimeMessage }}</n-text>
             </div>
-          </div>
-        </div>
 
-        <div class="activity-section">
-          <div class="total-stat-item">
-            <span class="stat-label">{{ t('userCabinet.stats.skillEarned') }}</span>
-            <span class="stat-value highlight total">
-              {{ userProfile.today_activity.skill_earned_today.total }}
-            </span>
+            <n-space vertical :size="16">
+              <!-- Puzzles Solved Today -->
+              <div class="activity-item">
+                <n-space align="center" justify="space-between" class="mb-4">
+                  <n-space align="center" :size="8">
+                    <n-icon size="18" depth="2" color="var(--color-accent)">
+                      <GolfOutline />
+                    </n-icon>
+                    <n-text strong>{{ t('userCabinet.stats.puzzlesSolved') }}</n-text>
+                  </n-space>
+                  <n-text type="primary" strong class="total-value">
+                    {{ userProfile.today_activity.puzzles_solved_today.total }}
+                  </n-text>
+                </n-space>
+                <n-grid :cols="3" :x-gap="8">
+                  <n-grid-item v-for="mode in activityModes" :key="mode.key">
+                    <n-tooltip trigger="hover">
+                      <template #trigger>
+                        <div class="mini-stat-box">
+                          <span class="mode-icon">{{ mode.icon }}</span>
+                          <span class="mode-count">
+                            {{ userProfile.today_activity.puzzles_solved_today[mode.key] ?? 0 }}
+                          </span>
+                        </div>
+                      </template>
+                      {{ mode.label }}
+                    </n-tooltip>
+                  </n-grid-item>
+                </n-grid>
+              </div>
+
+              <!-- Skill Earned Today -->
+              <div class="activity-item">
+                <n-space align="center" justify="space-between" class="mb-4">
+                  <n-space align="center" :size="8">
+                    <n-icon size="18" depth="2" color="#f0a020">
+                      <TrendingUpOutline />
+                    </n-icon>
+                    <n-text strong>{{ t('userCabinet.stats.skillEarned') }}</n-text>
+                  </n-space>
+                  <n-text type="warning" strong class="total-value">
+                    {{ userProfile.today_activity.skill_earned_today.total }}
+                  </n-text>
+                </n-space>
+                <n-grid :cols="3" :x-gap="8">
+                  <n-grid-item v-for="mode in activityModes" :key="mode.key">
+                    <n-tooltip trigger="hover">
+                      <template #trigger>
+                        <div class="mini-stat-box">
+                          <span class="mode-icon">{{ mode.icon }}</span>
+                          <span class="mode-count">
+                            {{ userProfile.today_activity.skill_earned_today[mode.key] ?? 0 }}
+                          </span>
+                        </div>
+                      </template>
+                      {{ mode.label }}
+                    </n-tooltip>
+                  </n-grid-item>
+                </n-grid>
+              </div>
+            </n-space>
           </div>
-          <div class="details-grid">
-            <div v-for="mode in activityModes" :key="mode.key" class="detail-item">
-              <span class="detail-label">{{ mode.icon }} {{ mode.label }}:</span>
-              <span class="detail-value">{{
-                userProfile.today_activity.skill_earned_today[mode.key] ?? 0
-              }}</span>
-            </div>
-          </div>
-        </div>
-      </div>
+        </n-space>
+      </n-card>
     </div>
 
-    <div v-else class="login-view">
-      <h4>{{ t('userCabinet.title') }}</h4>
-      <p>
-        {{ t('userCabinet.loginPrompt') }}
-      </p>
-      <button @click="handleLogin" class="login-button">
-        {{ t('nav.loginWithLichess') }}
-      </button>
+    <div v-else class="login-state">
+      <n-card :bordered="false" class="profile-card login-card" size="small">
+        <n-space vertical align="center" :size="20" class="login-content">
+          <n-icon size="48" depth="3">
+            <LockClosedOutline />
+          </n-icon>
+          <div style="text-align: center">
+            <n-text strong size="large" block class="login-title">{{ t('userCabinet.title') }}</n-text>
+            <n-text depth="3">{{ t('userCabinet.loginPrompt') }}</n-text>
+          </div>
+          <n-button type="primary" size="large" block secondary strong @click="handleLogin">
+            {{ t('nav.loginWithLichess') }}
+          </n-button>
+        </n-space>
+      </n-card>
     </div>
   </div>
 </template>
 
-<style scoped>
-/* Стили без изменений */
+<style scoped lang="scss">
 .user-stats-container {
-  color: var(--color-text-default);
-  padding: 5px;
   height: 100%;
-  display: flex;
-  flex-direction: column;
 }
 
-.stats-view,
-.login-view {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+.profile-card {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
 }
 
-.stats-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 8px;
+.username {
+  font-size: 1.1rem;
+  letter-spacing: 0.5px;
 }
 
-.stat-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: var(--font-size-base);
-  background-color: var(--color-bg-tertiary);
-  padding: 3px 10px;
-  border-radius: 4px;
-}
-
-.stat-label {
-  color: var(--color-text-muted);
-}
-
-.stat-value {
-  font-weight: bold;
-  font-size: var(--font-size-base);
-}
-
-.stat-value.funcoins {
-  color: var(--color-accent-warning);
-}
-
-.today-activity {
-  margin-top: 0px;
-  border-top: 1px dashed var(--color-border-hover);
-  padding-top: 3px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.activity-title {
-  margin: 0;
-  text-align: center;
-  font-size: var(--font-size-small);
-  color: var(--color-text-muted);
+.mini-divider {
+  margin: 4px 0 !important;
+  opacity: 0.3;
 }
 
 .activity-section {
-  background-color: var(--color-bg-tertiary);
-  padding: 8px;
-  border-radius: 4px;
+  margin-top: 4px;
 }
 
-.total-stat-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: var(--font-size-base);
-  padding-bottom: 1px;
-  margin-bottom: 0;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.stat-value.highlight.total {
-  font-size: var(--font-size-large);
-}
-
-.details-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 5px 20px;
-}
-
-.detail-item {
-  display: flex;
-  justify-content: space-between;
-  font-size: var(--font-size-small);
-}
-
-.detail-label {
-  color: var(--color-text-muted);
-}
-
-.detail-value {
-  font-weight: bold;
-}
-
-.stat-value.highlight {
-  color: var(--color-accent-primary);
-}
-
-.login-view {
+.activity-header {
   text-align: center;
+  margin-bottom: 16px;
+}
+
+.reset-timer {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  font-weight: 600;
+}
+
+.mb-4 {
+  margin-bottom: 6px;
+}
+
+.total-value {
+  font-size: 1.3rem;
+  font-weight: 900;
+  font-family: monospace;
+}
+
+.mini-stat-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  flex-grow: 1;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  padding: 8px 4px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: var(--color-border-hover);
+    transform: translateY(-2px);
+  }
+
+  .mode-icon {
+    font-size: 1.2rem;
+    margin-bottom: 4px;
+  }
+
+  .mode-count {
+    font-weight: 800;
+    font-size: 1rem;
+    font-family: monospace;
+  }
 }
 
-.login-view h4 {
-  margin-top: 0;
-  color: var(--color-accent-warning);
+.login-card {
+  padding: 20px 0;
 }
 
-.login-button {
-  background-color: var(--color-accent-primary);
-  color: var(--color-text-dark);
-  border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+.login-title {
+  font-size: 1.4rem;
+  margin-bottom: 4px;
 }
 
-.login-button:hover {
-  background-color: var(--color-accent-primary-hover);
-}
+:deep(.n-statistic) {
+  .n-statistic-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--color-text-secondary);
+    font-weight: 600;
+  }
 
-@media (orientation: portrait) {
-  .board-resizer {
-    display: none;
+  .n-statistic-value__content {
+    font-size: 1.3rem;
+    font-weight: 900;
+    font-family: monospace;
   }
 }
 </style>
