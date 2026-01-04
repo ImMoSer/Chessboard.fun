@@ -8,6 +8,19 @@ import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 import type { EvaluatedLineWithSan } from '@/services/AnalysisService'
 import type { PgnNode } from '@/services/PgnService'
+import {
+  NSwitch, NSelect, NButton, NButtonGroup, NScrollbar,
+  NSpace, NText, NIcon, NCard, NSpin, NTag, NTooltip
+} from 'naive-ui'
+import {
+  ChevronBackOutline,
+  ChevronForwardOutline,
+  PlaySkipBackOutline,
+  PlaySkipForwardOutline,
+  SettingsOutline,
+  BarChartOutline,
+  TerminalOutline
+} from '@vicons/ionicons5'
 
 const analysisStore = useAnalysisStore()
 const boardStore = useBoardStore()
@@ -32,9 +45,16 @@ const pgnRendererComponent = computed(() => {
 
 const formatScore = (line: EvaluatedLineWithSan) => {
   if (line.score.type === 'cp') {
-    return (line.score.value / 100).toFixed(2)
+    const val = line.score.value / 100
+    return (val > 0 ? '+' : '') + val.toFixed(2)
   }
   return t('analysis.mateInShort', { value: Math.abs(line.score.value) })
+}
+
+const getScoreType = (index: number) => {
+  if (index === 0) return 'success'
+  if (index === 1) return 'warning'
+  return 'info'
 }
 
 const formatPv = (line: EvaluatedLineWithSan) => {
@@ -57,10 +77,12 @@ const formatPv = (line: EvaluatedLineWithSan) => {
   return pvString.trim()
 }
 
-const handleThreadsChange = (event: Event) => {
-  const target = event.target as HTMLSelectElement
-  analysisStore.setThreads(Number(target.value))
-}
+const threadOptions = computed(() => {
+  return Array.from({ length: maxThreads.value }, (_, i) => ({
+    label: `${i + 1} ${t('analysis.threads')}`,
+    value: i + 1
+  }))
+})
 
 const handleLineClick = (line: EvaluatedLineWithSan) => {
   const uciMove = line.pvUci[0]
@@ -97,17 +119,19 @@ const PgnRenderer: FunctionalComponent<{ nodes: PgnNode[]; pathPrefix?: string }
   const isCurrent = movePath === currentPath
 
   if (mainlineNode.ply % 2 !== 0) {
-    elements.push(h('span', { class: 'move-number' }, `${Math.ceil(mainlineNode.ply / 2)}. `))
+    elements.push(h(NText, { depth: 3, class: 'move-number' }, { default: () => `${Math.ceil(mainlineNode.ply / 2)}. ` }))
   }
 
   elements.push(
     h(
-      'span',
+      NText,
       {
+        strong: isCurrent,
+        type: isCurrent ? 'primary' : 'default',
         class: { 'pgn-move': true, current: isCurrent },
         onClick: () => handlePgnMoveClick(mainlineNode),
       },
-      mainlineNode.san,
+      { default: () => mainlineNode.san }
     ),
   )
 
@@ -115,9 +139,9 @@ const PgnRenderer: FunctionalComponent<{ nodes: PgnNode[]; pathPrefix?: string }
     variations.forEach((variationNode) => {
       elements.push(
         h('span', { class: 'pgn-variation' }, [
-          ' (',
+          h(NText, { depth: 3 }, { default: () => ' (' }),
           h(PgnRenderer, { nodes: [variationNode], pathPrefix }),
-          ') ',
+          h(NText, { depth: 3 }, { default: () => ') ' }),
         ]),
       )
     })
@@ -133,336 +157,220 @@ const PgnRenderer: FunctionalComponent<{ nodes: PgnNode[]; pathPrefix?: string }
 </script>
 
 <template>
-  <div v-if="isPanelVisible" class="analysis-panel-wrapper">
-    <div class="analysis-controls-container">
-      <div class="control-group">
-        <label class="control-label">{{ t('analysis.engine') }}</label>
-        <label class="toggle-switch">
-          <input
-            type="checkbox"
-            :checked="isAnalysisActive"
-            @change="analysisStore.toggleAnalysis"
-          />
-          <span class="slider round"></span>
-        </label>
-      </div>
-      <div class="control-group">
-        <label class="control-label">{{ t('analysis.threads') }}</label>
-        <!-- <<< НАЧАЛО ИЗМЕНЕНИЙ: Добавлен класс threads-select -->
-        <select
-          class="threads-select"
-          :disabled="!isMultiThreadAvailable"
-          :value="numThreads"
-          @change="handleThreadsChange"
-        >
-          <option v-for="n in maxThreads" :key="n" :value="n">{{ n }}</option>
-        </select>
-        <!-- <<< КОНЕЦ ИЗМЕНЕНИЙ -->
-      </div>
-    </div>
+  <div v-if="isPanelVisible" class="analysis-container">
+    <!-- Top Toolbar -->
+    <n-card class="toolbar-card" :bordered="false" size="small">
+      <n-space align="center" justify="space-between">
+        <n-space align="center" :size="12">
+          <n-icon size="18" color="var(--color-accent)">
+            <BarChartOutline />
+          </n-icon>
+          <n-text strong>{{ t('analysis.engine') }}</n-text>
+          <n-switch :value="isAnalysisActive" size="small" @update:value="analysisStore.toggleAnalysis" />
+        </n-space>
 
-    <div v-if="isAnalysisActive" class="analysis-panel-main-content">
-      <div class="pgn-navigation-controls">
-        <button class="pgn-nav-button" @click="boardStore.navigatePgn('start')">|◀</button>
-        <button class="pgn-nav-button" @click="boardStore.navigatePgn('backward', analysisStore.playerColor)">◀</button>
-        <button class="pgn-nav-button" @click="boardStore.navigatePgn('forward', analysisStore.playerColor)">▶</button>
-        <button class="pgn-nav-button" @click="boardStore.navigatePgn('end')">▶|</button>
-      </div>
+        <n-space align="center" :size="8">
+          <n-icon size="16" depth="3">
+            <TerminalOutline />
+          </n-icon>
+          <n-select class="threads-select" size="small" :disabled="!isMultiThreadAvailable" :value="numThreads"
+            :options="threadOptions" @update:value="analysisStore.setThreads" />
+        </n-space>
+      </n-space>
+    </n-card>
 
-      <div class="analysis-lines-section">
-        <div v-if="isLoading" class="loading-message">{{ t('analysis.loading') }}</div>
-        <div v-else-if="isAnalysisActive && analysisLines.length > 0">
-          <div v-for="(line, index) in analysisLines" :key="line.id" class="analysis-line-entry">
-            <span class="line-depth">{{ line.depth }}</span>
-            <button
-              @click="handleLineClick(line)"
-              :class="[
-                'analysis-score-button',
-                {
-                  'best-line-score': index === 0,
-                  'second-line-score': index === 1,
-                  'third-line-score': index === 2,
-                },
-              ]"
-            >
-              {{ formatScore(line) }}
-            </button>
-            <span class="analysis-pv-text" :title="formatPv(line)">{{ formatPv(line) }}</span>
+    <transition name="fade-slide">
+      <n-space v-if="isAnalysisActive" vertical class="analysis-body" :size="8">
+        <!-- Navigation -->
+        <n-button-group class="nav-group">
+          <n-button secondary @click="boardStore.navigatePgn('start')">
+            <template #icon><n-icon>
+                <PlaySkipBackOutline />
+              </n-icon></template>
+          </n-button>
+          <n-button secondary @click="boardStore.navigatePgn('backward', analysisStore.playerColor)">
+            <template #icon><n-icon>
+                <ChevronBackOutline />
+              </n-icon></template>
+          </n-button>
+          <n-button secondary @click="boardStore.navigatePgn('forward', analysisStore.playerColor)">
+            <template #icon><n-icon>
+                <ChevronForwardOutline />
+              </n-icon></template>
+          </n-button>
+          <n-button secondary @click="boardStore.navigatePgn('end')">
+            <template #icon><n-icon>
+                <PlaySkipForwardOutline />
+              </n-icon></template>
+          </n-button>
+        </n-button-group>
+
+        <!-- Lines -->
+        <div class="lines-wrapper">
+          <div v-if="isLoading" class="loading-state">
+            <n-spin size="small" />
+            <n-text depth="3" italic>{{ t('analysis.loading') }}</n-text>
+          </div>
+
+          <div v-else-if="analysisLines.length > 0" class="lines-list">
+            <div v-for="(line, index) in analysisLines.slice(0, 3)" :key="line.id" class="line-item">
+              <n-text class="line-depth" depth="3">{{ line.depth }}</n-text>
+              <n-button size="tiny" :type="getScoreType(index)" class="score-btn" strong @click="handleLineClick(line)">
+                {{ formatScore(line) }}
+              </n-button>
+              <n-tooltip trigger="hover">
+                <template #trigger>
+                  <n-text class="pv-text" @click="handleLineClick(line)">{{ formatPv(line) }}</n-text>
+                </template>
+                {{ formatPv(line) }}
+              </n-tooltip>
+            </div>
+          </div>
+
+          <div v-else class="empty-state">
+            <n-text depth="3" italic>{{ t('analysis.makeMove') }}</n-text>
           </div>
         </div>
-        <div v-else-if="isAnalysisActive && !isLoading" class="loading-message">
-          {{ t('analysis.makeMove') }}
-        </div>
-      </div>
 
-      <div class="pgn-display-container" @wheel="handlePgnWheelNavigation">
-        <component :is="pgnRendererComponent" :key="pgnTreeVersion" />
-      </div>
-    </div>
+        <!-- PGN Display -->
+        <div class="pgn-wrapper" @wheel="handlePgnWheelNavigation">
+          <n-scrollbar class="pgn-scroll">
+            <div class="pgn-content">
+              <component :is="pgnRendererComponent" :key="pgnTreeVersion" />
+            </div>
+          </n-scrollbar>
+        </div>
+      </n-space>
+    </transition>
   </div>
 </template>
 
-<style scoped>
-.analysis-panel-wrapper {
+<style scoped lang="scss">
+.analysis-container {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 8px;
+  width: 100%;
 }
 
-.analysis-panel-main-content {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  padding: 5px;
-  background-color: var(--color-bg-secondary);
-  border-radius: var(--panel-border-radius);
-  border: 1px solid var(--color-border-hover);
-  flex-grow: 1;
-  min-height: 0;
-}
-
-.pgn-navigation-controls {
-  display: flex;
-  gap: 5px;
-  justify-content: space-between;
-}
-
-.pgn-nav-button {
-  flex-grow: 1;
-  padding: 3px;
-  font-size: var(--font-size-base);
-  background-color: var(--color-bg-tertiary);
+.toolbar-card {
+  background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
-  color: var(--color-text-default);
-  border-radius: var(--panel-border-radius);
-  cursor: pointer;
-  transition:
-    background-color 0.2s,
-    border-color 0.2s;
-}
-.pgn-nav-button:hover:not(:disabled) {
-  background-color: var(--color-border-hover);
-  border-color: var(--color-accent-info);
-}
-.pgn-nav-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  border-radius: 12px;
 }
 
-.analysis-lines-section {
+.threads-select {
+  width: 110px;
+}
+
+.nav-group {
+  width: 100%;
   display: flex;
-  flex-direction: column;
-  gap: 10px;
-  font-size: var(--font-size-small);
-  height: 130px;
+
+  button {
+    flex: 1;
+  }
+}
+
+.lines-wrapper {
+  height: 110px;
+  background: rgba(255, 255, 255, 0.02);
   border: 1px solid var(--color-border);
-  border-radius: var(--panel-border-radius);
-  background-color: var(--color-bg-primary);
-}
-
-.analysis-line-entry {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 3px 5px;
-  border-radius: 4px;
-  background-color: var(--color-bg-tertiary);
-  border: 0.5px solid var(--color-border);
+  border-radius: 8px;
+  padding: 6px;
   overflow: hidden;
-  min-height: 25px;
-  margin: 5px;
 }
 
-.line-depth {
-  font-size: var(--font-size-small);
-  font-weight: bold;
-  color: var(--color-text-muted);
-  min-width: 25px;
-  text-align: center;
-  flex-shrink: 0;
-}
-
-.analysis-score-button {
-  font-family: var(--font-family-primary);
-  font-weight: var(--font-weight-bold);
-  padding: 4px 8px;
-  cursor: pointer;
-  border: 1px solid transparent;
-  border-radius: 10px;
-  color: var(--color-text-dark);
-  min-width: 60px;
-  text-align: center;
-  flex-shrink: 0;
-}
-.best-line-score {
-  background-color: var(--color-accent-success);
-}
-.second-line-score {
-  background-color: var(--color-accent-warning);
-}
-.third-line-score {
-  background-color: var(--color-accent-secondary);
-}
-
-.analysis-pv-text {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  flex-grow: 1;
-  color: var(--color-text-default);
-}
-
-.loading-message {
-  padding: 10px;
-  text-align: center;
-  color: var(--color-text-muted);
-  font-style: italic;
+.loading-state,
+.empty-state {
   height: 100%;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 8px;
 }
 
-.pgn-display-container {
-  background-color: var(--color-bg-primary);
+.lines-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.line-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.03);
+
+  .line-depth {
+    font-family: monospace;
+    font-size: 0.75rem;
+    min-width: 20px;
+    text-align: right;
+  }
+
+  .score-btn {
+    min-width: 54px;
+    border-radius: 6px;
+  }
+
+  .pv-text {
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+
+    &:hover {
+      color: var(--color-accent);
+    }
+  }
+}
+
+.pgn-wrapper {
+  background: rgba(0, 0, 0, 0.2);
   border: 1px solid var(--color-border);
-  border-radius: var(--panel-border-radius);
-  padding: 10px;
-  line-height: 1.8;
-  font-size: var(--font-size-small);
-  flex-grow: 1;
-  height: 200px;
-  overflow-y: auto;
-  user-select: none;
-  white-space: normal;
+  border-radius: 12px;
+  padding: 12px;
+  height: 240px;
+  transition: all 0.3s ease;
+}
+
+.pgn-content {
+  line-height: 2;
+  font-size: 0.95rem;
 }
 
 :deep(.pgn-move) {
   cursor: pointer;
-  padding: 2px 4px;
-  border-radius: 3px;
+  padding: 2px 6px;
+  border-radius: 4px;
   margin: 0 1px;
-  transition: background-color 0.2s ease;
-}
-:deep(.pgn-move.current) {
-  background-color: var(--color-accent-primary);
-  color: var(--color-text-on-accent);
-}
-:deep(.pgn-move:not(.current):hover) {
-  background-color: var(--color-border-hover);
-}
-:deep(.pgn-variation) {
-  color: var(--color-text-muted);
-}
-:deep(.pgn-variation .pgn-move.current) {
-  background-color: var(--color-accent-secondary);
+  transition: all 0.1s ease;
+
+  &:hover:not(.current) {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  &.current {
+    background: var(--color-accent);
+    color: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
 }
 
-.analysis-controls-container {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 15px;
-  padding: 8px;
-  background-color: var(--color-bg-tertiary);
-  border-radius: var(--panel-border-radius);
-  border: 1px solid var(--color-border-hover);
+/* Transitions */
+.fade-slide-enter-active,
+.fade-slide-leave-active {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.control-group {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--color-text-muted);
-}
-
-.control-label {
-  font-size: var(--font-size-small);
-  white-space: nowrap;
-}
-
-.toggle-switch {
-  position: relative;
-  display: inline-block;
-  width: 50px;
-  height: 28px;
-  flex-shrink: 0;
-}
-.toggle-switch input {
+.fade-slide-enter-from,
+.fade-slide-leave-to {
   opacity: 0;
-  width: 0;
-  height: 0;
+  transform: translateY(-8px);
 }
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #555;
-  transition: 0.4s;
-  border-radius: 28px;
-}
-.slider:before {
-  position: absolute;
-  content: '';
-  height: 20px;
-  width: 20px;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  transition: 0.4s;
-  border-radius: 50%;
-}
-input:checked + .slider {
-  background-color: var(--color-accent-success);
-}
-input:disabled + .slider {
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-input:checked + .slider:before {
-  transform: translateX(22px);
-}
-
-/* <<< НАЧАЛО ИЗМЕНЕНИЙ: Удалены старые стили и добавлены новые */
-.threads-select {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  background-color: var(--color-bg-secondary);
-  color: var(--color-text-default);
-  border: 1px solid var(--color-border-hover);
-  border-radius: 5px;
-  padding: 5px 30px 5px 10px;
-  font-family: var(--font-family-primary);
-  font-size: var(--font-size-small);
-  font-weight: var(--font-weight-bold);
-  cursor: pointer;
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
-  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23B5B5B5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-  background-repeat: no-repeat;
-  background-position: right 8px center;
-  background-size: 1em;
-}
-
-.threads-select:hover {
-  border-color: var(--color-accent-primary);
-}
-
-.threads-select:focus {
-  outline: none;
-  border-color: var(--color-accent-primary);
-  box-shadow: 0 0 0 2px rgba(var(--color-accent-primary-rgb), 0.3);
-}
-
-.threads-select:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  background-color: var(--color-bg-tertiary);
-}
-/* <<< КОНЕЦ ИЗМЕНЕНИЙ */
 </style>
