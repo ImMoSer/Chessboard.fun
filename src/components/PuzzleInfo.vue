@@ -8,6 +8,19 @@ import { useTornadoStore } from '../stores/tornado.store'
 import type { GamePuzzle } from '../types/api.types'
 import { getThemeTranslationKey } from '../utils/theme-mapper'
 import ChessboardPreview from './ChessboardPreview.vue'
+import {
+  NCard, NStatistic, NGrid, NGridItem, NText,
+  NSpace, NTag, NIcon, NTable
+} from 'naive-ui'
+import {
+  FlashOutline,
+  TrendingUpOutline,
+  TimeOutline,
+  LayersOutline,
+  StarOutline,
+  ListOutline,
+  BarChartOutline
+} from '@vicons/ionicons5'
 
 const route = useRoute()
 const finishHimStore = useFinishHimStore()
@@ -28,18 +41,19 @@ const activePuzzle = computed<GamePuzzle | null>(() => {
       const currentPos = tower.positions[towerStore.currentPositionIndex]
       if (!currentPos) return null
 
-      // Адаптируем TowerPositionEntry к GamePuzzle-подобному объекту
+      // Use a typed record to access potentially extra properties without the raw "any" linter warning
+      const raw = currentPos as unknown as Record<string, unknown>
       return {
         PuzzleId: `${tower.tower_id}-${towerStore.currentPositionIndex}`,
         FEN_0: currentPos.FEN_0,
         Moves: currentPos.solution_moves || currentPos.Moves,
-        Rating: (currentPos as any).Rating || currentPos.rating, // Устанавливаем обязательное поле
-        rating: (currentPos as any).Rating || currentPos.rating,
+        Rating: (raw.Rating as number) || currentPos.rating,
+        rating: (raw.Rating as number) || currentPos.rating,
         puzzle_theme: currentPos.puzzle_theme,
         fen_final: currentPos.fen_final,
-        bw_value: (currentPos as any).bw_value,
-        engm_type: currentPos.engm_type, // Важно для отображения темы
-        Themes: (currentPos as any).Themes,
+        bw_value: (raw.bw_value as number),
+        engm_type: currentPos.engm_type,
+        Themes: (raw.Themes as string),
       } as GamePuzzle
     }
     return null
@@ -52,13 +66,11 @@ const activeTowerInfo = computed(() => {
   return towerStore.activeTower
 })
 
-// Логика отображения режима башни на основе темы
 const towerModeDisplay = computed(() => {
   if (!activeTowerInfo.value) return ''
   const theme = activeTowerInfo.value.tower_theme
   if (theme === 'mixed_balanced') return t('tower.mode.positional')
   if (theme === 'tactical_mixed') return t('tower.mode.tactical')
-  // Fallback to existing mode or default
   return t(`tower.mode.${activeTowerInfo.value.tower_mode || 'tactical'}`)
 })
 
@@ -69,72 +81,44 @@ const towerSortedResults = computed(() => {
   )
 })
 
-const localizedThemes = computed(() => {
-  if (!activePuzzle.value?.Themes_PG) return ''
-  return activePuzzle.value.Themes_PG.map((theme) =>
-    t(`tacktics.themes.${theme}`, { defaultValue: theme }),
-  ).join(', ')
-})
-
-const tacticalThemes = computed(() => {
+const tacticalThemesList = computed<string[]>(() => {
   const puzzle = activePuzzle.value
-  if (!puzzle) return ''
+  if (!puzzle) return []
 
-  // Priority 1: EngmThemes_PG (Finish Him specific from backend)
   if (puzzle.EngmThemes_PG) {
-    // Format is like "{knightVsPawns}" or "{theme1,theme2}"
-    const cleanThemes = puzzle.EngmThemes_PG.replace(/[{}]/g, '').split(',')
-    return cleanThemes
-      .map((tKey) => {
-        // Trim whitespace just in case
-        const key = tKey.trim()
-        // Try to find translation. The key might need mapping if it differs from ADVANTAGE_THEMES
-        // Assuming keys in EngmThemes_PG match keys in locales or getThemeTranslationKey handles it.
-        // If it's a raw key like "knightVsPawns", we can try `themes.${key}`.
-        return t(`themes.${key}`, { defaultValue: key })
-      })
-      .join(', ')
+    return puzzle.EngmThemes_PG.replace(/[{}]/g, '').split(',').map(t => t.trim())
   }
 
-  // Для Tower и Finish Him используем engm_type как основную тему, если она есть
   if ((route.name === 'tower' || route.meta.game === 'finish-him') && puzzle.engm_type) {
-    const themeKey = getThemeTranslationKey(puzzle.engm_type)
-    return t(`themes.${themeKey}`, { defaultValue: puzzle.engm_type })
+    return [getThemeTranslationKey(puzzle.engm_type)]
   }
 
-  if (puzzle.Themes) return puzzle.Themes.split(' ').join(', ')
-  if (puzzle.puzzle_theme) return puzzle.puzzle_theme.split(' ').join(', ')
-  return ''
+  if (puzzle.Themes) return puzzle.Themes.split(' ')
+  if (puzzle.puzzle_theme) return puzzle.puzzle_theme.split(' ')
+
+  if (route.name === 'tornado' && puzzle.Themes_PG) {
+    return puzzle.Themes_PG
+  }
+
+  return []
 })
 
 const finishHimModeDisplay = computed(() => {
   if (route.meta.game !== 'finish-him' || !finishHimStore.activeMode) return null
   const mode = finishHimStore.activeMode
-  // Simple mapping or translation
   return t(`tornado.modes.${mode}`, { defaultValue: mode })
 })
 
-const endgameTheme = computed(() => {
-  if (!activePuzzle.value?.engm_type) return ''
-  const themeKey = getThemeTranslationKey(activePuzzle.value.engm_type)
-  return t(`themes.${themeKey}`, {
-    defaultValue: activePuzzle.value.engm_type,
-  })
-})
-
 const finalPositionOrientation = computed(() => {
-  // Используем FEN_0 для определения ориентации, чтобы показать позицию со стороны решающего
   if (activePuzzle.value && activePuzzle.value.FEN_0) {
     const turn = activePuzzle.value.FEN_0.split(' ')[1]
-    // Показываем доску со стороны противника того, чей ход в начале
     return turn === 'w' ? 'black' : 'white'
   }
-  // Запасной вариант, если FEN_0 отсутствует, используем старую логику
   if (activePuzzle.value && activePuzzle.value.fen_final) {
     const turn = activePuzzle.value.fen_final.split(' ')[1]
     return turn === 'b' ? 'white' : 'black'
   }
-  return 'white' // По умолчанию
+  return 'white'
 })
 
 const formatTime = (seconds: number | null | undefined): string => {
@@ -154,270 +138,338 @@ const sortedResults = computed(() => {
   return [...results].sort((a, b) => a.time_in_seconds - b.time_in_seconds)
 })
 
-// Список следующих позиций
-// Removed as it is now handled by UpcomingPositions.vue
+const towerPositionLoadedMessage = computed(() => {
+  const tower = activeTowerInfo.value
+  if (!tower) return ''
+  const msg = t('tower.feedback.positionLoaded', {
+    current: towerStore.currentPositionIndex + 1,
+    total: tower.positions.length,
+    towerName: ''
+  })
+  const parts = String(msg).split('|')
+  return (parts[0] || '').trim()
+})
 </script>
 
 <template>
   <div class="puzzle-info-container">
-    <div v-if="activeTowerInfo" class="tower-info-section">
-      <div class="info-grid">
-        <div class="info-item">
-          <span class="label">{{ t('tower.ui.modeLabel') }}:</span>
-          <span class="value">{{ towerModeDisplay }}</span>
-        </div>
-        <div class="info-item">
-          <span class="label">{{ t('tower.ui.averageRating') }}:</span>
-          <span class="value">{{ activeTowerInfo.average_rating }}</span>
-        </div>
-        <div class="info-item">
-          <span class="label">{{ t('tower.ui.skillValue') }}:</span>
-          <span class="value">{{ activeTowerInfo.bw_value_total }}</span>
-        </div>
-      </div>
-    </div>
+    <!-- Tower Overview (Top Section for Tower Mode) -->
+    <transition name="fade">
+      <n-card v-if="activeTowerInfo" class="info-card tower-overview" size="small" :bordered="false">
+        <n-space vertical :size="12">
+          <n-space align="center" :size="8">
+            <n-icon color="var(--color-accent)">
+              <LayersOutline />
+            </n-icon>
+            <n-text strong uppercase depth="3" class="section-title">
+              {{ towerPositionLoadedMessage }}
+            </n-text>
+          </n-space>
 
-    <div v-if="activePuzzle" class="puzzle-details-section">
-      <div class="info-grid">
-        <div v-if="finishHimModeDisplay" class="info-item">
-          <span class="label">{{ t('tower.ui.modeLabel') }}:</span>
-          <span class="value">{{ finishHimModeDisplay }}</span>
-        </div>
+          <n-grid :cols="2" :x-gap="12" :y-gap="8">
+            <n-grid-item>
+              <n-statistic :label="t('tower.ui.modeLabel')">
+                <n-text strong>{{ towerModeDisplay }}</n-text>
+              </n-statistic>
+            </n-grid-item>
+            <n-grid-item>
+              <n-statistic :label="t('tower.ui.averageRating')">
+                <n-text strong>{{ activeTowerInfo.average_rating }}</n-text>
+              </n-statistic>
+            </n-grid-item>
+            <n-grid-item>
+              <n-statistic :label="t('tower.ui.skillValue')">
+                <template #prefix>
+                  <n-icon color="#f0a020">
+                    <FlashOutline />
+                  </n-icon>
+                </template>
+                <n-text strong>{{ activeTowerInfo.bw_value_total }}</n-text>
+              </n-statistic>
+            </n-grid-item>
+          </n-grid>
+        </n-space>
+      </n-card>
+    </transition>
 
-        <div class="info-item">
-          <span class="label">{{ t('tacktics.stats.rating') }}:</span>
-          <span class="value">{{ activePuzzle.engmRating ?? activePuzzle.Rating ?? activePuzzle.rating }}</span>
-        </div>
+    <!-- Current Puzzle Details -->
+    <transition name="fade">
+      <n-card v-if="activePuzzle" class="info-card puzzle-details" size="small" :bordered="false">
+        <n-space vertical :size="16">
+          <!-- Basic Stats Row -->
+          <n-grid :cols="2" :x-gap="12" :y-gap="12">
+            <n-grid-item v-if="finishHimModeDisplay">
+              <n-statistic :label="t('tower.ui.modeLabel')">
+                <n-text strong>{{ finishHimModeDisplay }}</n-text>
+              </n-statistic>
+            </n-grid-item>
 
-        <div v-if="activePuzzle.bw_value" class="info-item">
-          <span class="label">{{ t('puzzleInfo.funValue') }}:</span>
-          <span class="value">{{ activePuzzle.bw_value }}</span>
-        </div>
+            <n-grid-item>
+              <n-statistic :label="t('tacktics.stats.rating')">
+                <template #prefix>
+                  <n-icon color="#18a058">
+                    <TrendingUpOutline />
+                  </n-icon>
+                </template>
+                <n-text strong>{{ activePuzzle.engmRating ?? activePuzzle.Rating ?? activePuzzle.rating }}</n-text>
+              </n-statistic>
+            </n-grid-item>
 
-        <div v-if="tacticalThemes" class="info-item">
-          <span class="label">{{ t('tacktics.stats.theme') }}:</span>
-          <span class="value">{{ tacticalThemes }}</span>
-        </div>
+            <n-grid-item v-if="activePuzzle.bw_value">
+              <n-statistic :label="t('puzzleInfo.funValue')">
+                <template #prefix>
+                  <n-icon color="#f0a020">
+                    <FlashOutline />
+                  </n-icon>
+                </template>
+                <n-text strong>{{ activePuzzle.bw_value }}</n-text>
+              </n-statistic>
+            </n-grid-item>
 
-        <div v-if="activePuzzle.solve_time && route.meta.game !== 'finish-him'" class="info-item">
-          <span class="label">{{ t('puzzleInfo.solveTime') }}:</span>
-          <span class="value">{{ formatTime(activePuzzle.solve_time) }}</span>
-        </div>
+            <n-grid-item v-if="activePuzzle.solve_time && route.meta.game !== 'finish-him'">
+              <n-statistic :label="t('puzzleInfo.solveTime')">
+                <template #prefix>
+                  <n-icon color="var(--color-accent)">
+                    <TimeOutline />
+                  </n-icon>
+                </template>
+                <n-text strong>{{ formatTime(activePuzzle.solve_time) }}</n-text>
+              </n-statistic>
+            </n-grid-item>
 
-        <div v-if="activePuzzle.eval" class="info-item">
-          <span class="label">{{ t('puzzleInfo.evaluation', 'Evaluation') }}:</span>
-          <span class="value">{{ (activePuzzle.eval / 100).toFixed(2) }}</span>
-        </div>
-        <div v-if="activePuzzle.num_pieces" class="info-item">
-          <span class="label">{{ t('puzzleInfo.pieces', 'Pieces') }}:</span>
-          <span class="value">{{ activePuzzle.num_pieces }}</span>
-        </div>
+            <n-grid-item v-if="activePuzzle.eval">
+              <n-statistic :label="t('puzzleInfo.evaluation')">
+                <template #prefix>
+                  <n-icon color="#2080f0">
+                    <BarChartOutline />
+                  </n-icon>
+                </template>
+                <n-text strong>{{ (activePuzzle.eval / 100).toFixed(2) }}</n-text>
+              </n-statistic>
+            </n-grid-item>
 
-        <div v-if="route.name === 'tornado' && localizedThemes" class="info-item">
-          <span class="label">{{ t('tacktics.stats.theme') }}:</span>
-          <span class="value">{{ localizedThemes }}</span>
-        </div>
-      </div>
+            <n-grid-item v-if="activePuzzle.num_pieces">
+              <n-statistic :label="t('puzzleInfo.pieces')">
+                <template #prefix>
+                  <n-icon depth="3">
+                    <ListOutline />
+                  </n-icon>
+                </template>
+                <n-text strong>{{ activePuzzle.num_pieces }}</n-text>
+              </n-statistic>
+            </n-grid-item>
+          </n-grid>
 
-      <div v-if="activePuzzle && activePuzzle.fen_final" class="final-position-preview">
-        <h5 class="final-position-title">{{ t('puzzleInfo.finalPositionTitle') }}</h5>
-        <ChessboardPreview :fen="activePuzzle.fen_final" :orientation="finalPositionOrientation" />
-      </div>
+          <!-- Themes Section -->
+          <n-space vertical :size="8" v-if="tacticalThemesList.length > 0">
+            <n-text depth="3" strong uppercase class="section-subtitle">{{ t('tacktics.stats.theme') }}</n-text>
+            <n-space :size="[4, 4]" wrap>
+              <n-tag v-for="theme in tacticalThemesList" :key="theme" size="small" round :bordered="false" type="info">
+                {{ t(`themes.${theme}`, { defaultValue: t(`tacktics.themes.${theme}`, { defaultValue: theme }) }) }}
+              </n-tag>
+            </n-space>
+          </n-space>
 
-      <div v-if="sortedResults" class="puzzle-leaderboard-container">
-        <h5 class="leaderboard-title">{{ t('puzzleInfo.leaderboardTitle') }}</h5>
-        <table class="puzzle-leaderboard-table">
-          <thead>
-            <tr>
-              <th class="rank">{{ t('puzzleInfo.tableRank') }}</th>
-              <th class="player">{{ t('puzzleInfo.tablePlayer') }}</th>
-              <th class="time">{{ t('puzzleInfo.tableTime') }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(result, index) in sortedResults" :key="result.lichess_id">
-              <td class="rank">{{ index + 1 }}</td>
-              <td class="player">
-                <a :href="`https://lichess.org/@/${result.lichess_id}`" target="_blank" rel="noopener noreferrer">
-                  {{ result.username }}
-                </a>
-              </td>
-              <td class="time">{{ result.time_in_seconds }}s</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+          <!-- Final Position Preview -->
+          <n-card v-if="activePuzzle.fen_final" embedded :bordered="false" class="preview-card" size="small">
+            <n-space vertical align="stretch" :size="8" style="width: 100%">
+              <n-text depth="3" strong uppercase class="preview-title" style="text-align: center">{{
+                t('puzzleInfo.finalPositionTitle') }}</n-text>
+              <div class="chessboard-preview-wrapper">
+                <ChessboardPreview :fen="activePuzzle.fen_final" :orientation="finalPositionOrientation" />
+              </div>
+            </n-space>
+          </n-card>
 
-    <div v-if="activeTowerInfo && towerSortedResults && towerSortedResults.length > 0"
-      class="tower-leaderboard-section">
-      <div class="puzzle-leaderboard-container">
-        <h5 class="leaderboard-title">{{ t('tower.ui.leaderboardTitle') }}</h5>
-        <table class="puzzle-leaderboard-table">
-          <thead>
-            <tr>
-              <th class="rank">{{ t('tower.ui.tableRank') }}</th>
-              <th class="player">{{ t('tower.ui.tablePlayer') }}</th>
-              <th class="time">{{ t('tower.ui.tableTime') }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(result, index) in towerSortedResults" :key="result.lichess_id">
-              <td class="rank">{{ index + 1 }}</td>
-              <td class="player">
-                <a :href="`https://lichess.org/@/${result.lichess_id}`" target="_blank" rel="noopener noreferrer">
-                  {{ result.username }}
-                </a>
-              </td>
-              <td class="time">{{ formatTime(result.time_in_seconds) }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+          <!-- Puzzle Local Leaderboard -->
+          <div v-if="sortedResults" class="leaderboard-section">
+            <n-space align="center" :size="8" class="mb-8">
+              <n-icon color="#f0a020">
+                <StarOutline />
+              </n-icon>
+              <n-text strong uppercase depth="3" class="section-subtitle">{{ t('puzzleInfo.leaderboardTitle')
+              }}</n-text>
+            </n-space>
+            <n-table size="small" :bordered="false" class="minimal-table">
+              <thead>
+                <tr>
+                  <th style="width: 40px">{{ t('puzzleInfo.tableRank') }}</th>
+                  <th>{{ t('puzzleInfo.tablePlayer') }}</th>
+                  <th style="text-align: right">{{ t('puzzleInfo.tableTime') }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(result, index) in sortedResults" :key="result.lichess_id">
+                  <td>
+                    <n-text depth="3">{{ index + 1 }}</n-text>
+                  </td>
+                  <td>
+                    <a :href="`https://lichess.org/@/${result.lichess_id}`" target="_blank" class="player-link">
+                      {{ result.username }}
+                    </a>
+                  </td>
+                  <td style="text-align: right">
+                    <n-text strong>{{ result.time_in_seconds }}s</n-text>
+                  </td>
+                </tr>
+              </tbody>
+            </n-table>
+          </div>
+        </n-space>
+      </n-card>
+    </transition>
+
+    <!-- Tower Session Leaderboard -->
+    <transition name="fade">
+      <n-card v-if="activeTowerInfo && towerSortedResults && towerSortedResults.length > 0"
+        class="info-card tower-leaderboard" size="small" :bordered="false">
+        <n-space vertical :size="12">
+          <n-space align="center" :size="8">
+            <n-icon color="#f0a020">
+              <StarOutline />
+            </n-icon>
+            <n-text strong uppercase depth="3" class="section-title">{{ t('tower.ui.leaderboardTitle') }}</n-text>
+          </n-space>
+
+          <n-table size="small" :bordered="false" class="minimal-table">
+            <thead>
+              <tr>
+                <th style="width: 40px">{{ t('tower.ui.tableRank') }}</th>
+                <th>{{ t('tower.ui.tablePlayer') }}</th>
+                <th style="text-align: right">{{ t('tower.ui.tableTime') }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(result, index) in towerSortedResults" :key="result.lichess_id">
+                <td>
+                  <n-text depth="3">{{ index + 1 }}</n-text>
+                </td>
+                <td>
+                  <a :href="`https://lichess.org/@/${result.lichess_id}`" target="_blank" class="player-link">
+                    {{ result.username }}
+                  </a>
+                </td>
+                <td style="text-align: right">
+                  <n-text strong>{{ formatTime(result.time_in_seconds) }}</n-text>
+                </td>
+              </tr>
+            </tbody>
+          </n-table>
+        </n-space>
+      </n-card>
+    </transition>
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .puzzle-info-container {
-  padding: 10px;
-  border-radius: var(--panel-border-radius);
-  color: var(--color-text-default);
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 12px;
 }
 
-h4 {
-  margin: 0;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--color-border);
-  text-align: center;
-  color: var(--color-accent-warning);
-  font-size: var(--font-size-base);
-}
-
-.info-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 5px;
-}
-
-.info-item {
-  display: flex;
-  justify-content: space-between;
-  font-size: var(--font-size-small);
-}
-
-.label {
-  color: var(--color-text-muted);
-  margin-right: 10px;
-  white-space: nowrap;
-}
-
-.value {
-  font-weight: bold;
-  text-align: right;
-}
-
-.final-position-preview {
-  background-color: var(--color-bg-tertiary);
-  padding: 8px;
-  border-radius: 10px;
-  border: 1px solid var(--color-text-link);
-  margin-top: 10px;
-}
-
-.final-position-title {
-  margin: 0 0 8px 0;
-  font-size: var(--font-size-small);
-  color: var(--color-text-default);
-  text-align: center;
-}
-
-.sorted-pieces-container {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.pieces-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2px;
-  min-height: 2rem;
-  padding: 2px;
-  border-radius: 4px;
-  background-color: rgba(0, 0, 0, 0.1);
-}
-
-.pieces-row.player-pieces {
-  border: 1px solid var(--color-accent-primary);
-}
-
-.pieces-row.bot-pieces {
-  border: 1px solid var(--color-accent-error);
-}
-
-.sorted-piece-icon {
-  height: 1.8rem;
-  width: 1.8rem;
-}
-
-.puzzle-leaderboard-container {
-  background-color: var(--color-bg-tertiary);
+.info-card {
+  background: var(--color-bg-secondary);
   border: 1px solid var(--color-border);
-  border-radius: var(--panel-border-radius);
-  padding: 10px;
-  margin-top: 10px;
+  border-radius: 12px;
+  transition: all 0.3s ease;
 }
 
-.leaderboard-title {
-  margin: 0 0 8px 0;
-  font-size: var(--font-size-small);
-  color: var(--color-text-default);
-  text-align: center;
+.section-title {
+  font-size: 0.75rem;
+  letter-spacing: 1.2px;
 }
 
-.puzzle-leaderboard-table {
+.section-subtitle {
+  font-size: 0.65rem;
+  letter-spacing: 1px;
+}
+
+.preview-card {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  padding: 8px 4px;
+  /* Минимальные отступы для максимального размера доски */
+}
+
+.chessboard-preview-wrapper {
   width: 100%;
-  border-collapse: collapse;
-  font-size: var(--font-size-small);
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.puzzle-leaderboard-table th,
-.puzzle-leaderboard-table td {
-  padding: 6px 8px;
-  text-align: left;
-  border-bottom: 1px solid var(--color-border);
+.shadow-premium {
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 
-.puzzle-leaderboard-table tr:last-child td {
-  border-bottom: none;
+.preview-title {
+  font-size: 0.7rem;
+  letter-spacing: 0.8px;
 }
 
-.puzzle-leaderboard-table th {
-  color: var(--color-text-muted);
-  font-weight: bold;
+.minimal-table {
+  background: transparent;
+
+  th {
+    background: transparent;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    padding: 4px 0;
+  }
+
+  td {
+    background: transparent;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
 }
 
-.puzzle-leaderboard-table .rank {
-  text-align: center;
-  width: 1%;
-  padding-right: 10px;
-}
-
-.puzzle-leaderboard-table .time {
-  text-align: right;
-  font-weight: bold;
-}
-
-.puzzle-leaderboard-table .player a {
-  color: var(--color-text-link);
+.player-link {
+  color: var(--color-accent);
   text-decoration: none;
+  font-size: 0.85rem;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
-.puzzle-leaderboard-table .player a:hover {
-  text-decoration: underline;
+.mb-8 {
+  margin-bottom: 8px;
+}
+
+:deep(.n-statistic) {
+  .n-statistic-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--color-text-secondary);
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  .n-statistic-value {
+    font-size: 1.1rem;
+    font-family: monospace;
+  }
+}
+
+/* Transitions */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(-5px);
 }
 </style>
