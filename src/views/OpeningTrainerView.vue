@@ -38,7 +38,7 @@ watch(() => boardStore.fen, () => {
     // If the store is processing a game move, it will fetch stats itself.
     // We only fetch here if it's purely navigation (isProcessingMove is false).
     if (!openingStore.isLoading && !openingStore.isProcessingMove) {
-      openingStore.fetchStats(false); // isGameplay = false (silent mode)
+      openingStore.fetchStats(false, false, true); // isGameplay = false, force = false, onlyCache = true
     }
   }, 100);
 });

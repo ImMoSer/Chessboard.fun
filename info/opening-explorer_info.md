@@ -2,95 +2,83 @@
 
 ## Overview
 
-The Opening Trainer module allows users to practice chess openings against an opponent powered by a hybrid of local "Academic" theory and Lichess community statistics. Unlike other modes that use Stockfish, this module focuses on theoretical accuracy and "human-like" responses based on move popularity and official opening books.
+The Opening Trainer module allows users to practice chess openings against an opponent powered by a hybrid of local "Academic" theory, Lichess community statistics, and Masters games. Unlike other modes that use Stockfish, this module focuses on theoretical accuracy and "human-like" responses based on move popularity and official opening books.
 
 ## Architecture
 
 ### 1. API Integration (`OpeningApiService.ts`)
 
-- **Endpoint**: `https://explorer.lichess.ovh/lichess`
-- **Parameters**:
-  - `variant`: `standard`
-  - `speeds`: `bullet,blitz,rapid,classical`
-  - `ratings`: `1600,1800,2000,2200,2500`
-  - `moves`: `20` (number of candidates to fetch)
-  - `fen`: Current board position.
-- **Normalization**: Handles Lichess-specific UCI anomalies (e.g., castling `e1h1` -> `e1g1`) to match standard UCI used by the frontend.
-- **Rate Limiting**: Handles `429 Too Many Requests` by surfacing an error state to the UI.
+The service implements a **Unified Data Source** pattern, abstracting differences between the Lichess API and the local Backend Masters API.
+
+-   **Sources**:
+    1.  **Masters DB**:
+        -   Endpoint: `POST /api/opening/masters` (Backend Proxy).
+        -   Data: High-quality games from titled players (2200+).
+        -   Structure: Backend response is adapted to match the Lichess format.
+    2.  **Lichess Community**:
+        -   Endpoint: `https://explorer.lichess.ovh/lichess`.
+        -   Parameters: Customizable `ratings` (1000-2500) and `speeds` (bullet, blitz, rapid, classical).
+        -   Normalization: Handles UCI anomalies (e.g., castling `e1h1` -> `e1g1`).
+
+-   **Request Deduplication**:
+    -   Implements a "Promise Deduplication" pattern.
+    -   If a request for a specific key (FEN + Config) is in-flight, subsequent calls return the *existing* promise instead of creating a new network request. This prevents race conditions between the Store and UI Watchers.
 
 ### 2. Local Opening Graph (`OpeningGraphService.ts`)
 
-- **Source**: `public/openings_full_graph/openings_full_graph.json` (~1.2MB).
-- **Structure**: A recursive map of `Clean FEN (EPD)` to `Move Objects`.
-- **Purpose**: 
-  - Provides "Academic" names and ECO codes for positions.
-  - Defines the "Gold Standard" moves for the bot to prioritize.
-  - Generates a "Major Openings" catalog for the UI.
-- **Opening Slugs**: Implements a slugification system (`src/utils/slugify.ts`) to enable URL-friendly opening names (e.g., `caro-kann_defense`).
+-   **Source**: `public/openings_full_graph/openings_full_graph.json` (~1.2MB).
+-   **Structure**: Recursive map of `Clean FEN (EPD)` to `Move Objects`.
+-   **Purpose**:
+    -   Provides "Academic" names and ECO codes.
+    -   Acts as the "Gold Standard" for bot move selection (prioritizes moves known in the graph).
 
 ### 3. Caching Layer (`OpeningCacheService.ts`)
 
-- **Provider**: Dexie.js (IndexedDB wrapper).
-- **Key**: FEN string.
-- **TTL**: 7 days.
-- **Purpose**: Reduces API pressure and enables snappy transitions.
+-   **Provider**: Dexie.js (IndexedDB wrapper).
+-   **Strategy**: **Composite Keys** are used to prevent data collisions when switching databases or filters.
+    -   **Masters Key**: `masters:<clean_fen>`
+    -   **Lichess Key**: `lichess:<ratings_hash>|<speeds_hash>:<clean_fen>`
+        -   *Note*: Ratings and speeds are sorted strictly to ensure key consistency.
+-   **TTL**: 7 days.
 
 ### 4. State Management (`openingTrainer.store.ts`)
 
-- **Session Initialization**:
-  - Supports starting from any arbitrary sequence of moves (`startMoves`).
-  - Automatically navigates the board to the starting position before the session begins.
-- **Move Selection (Hybrid Logic)**:
-  1. **Academic Priority**: The bot first checks the local `OpeningGraph`. If "Academic Moves" exist for the current position, it restricts its selection to **only** those moves.
-  2. **Lichess Fallback**: If no academic moves are found, it falls back to raw Lichess community stats.
-  3. **Weighted Random**: Within the chosen subset, the bot selects a move using weighted randomness based on popularity, adjusted by the `variability` setting (1-10).
-- **Scoring System**:
-  - **Perspective**: Winrate (WR) is calculated from the player's color perspective.
-  - **Base Points**: Based on WR thresholds (>=55%:+50, >=50%:+30, >=45%:+10, else -20).
-  - **Academic Bonus**: +10 pts if the player makes an "Academic Move" (exists in the graph).
-  - **Popularity Bonus**: +10 pts if the move is in the top 3 Lichess candidates.
-- **Theory Status**: 
-  - `isTheoryOver`: True when no stats are found in Lichess for any candidate.
-  - `isDeviation`: True when the player makes a move not present in Lichess stats.
+-   **Session Configuration**:
+    -   `dbSource`: `'masters'` | `'lichess'`.
+    -   `lichessParams`: Object containing selected `ratings` and `speeds`.
+-   **Move Selection (Hybrid Logic)**:
+    1.  **Fetch Data**: Gets move statistics from the selected source (Masters or Lichess).
+    2.  **Academic Intersection**: Filters these moves against the local `OpeningGraph`.
+    3.  **Weighted Random**: Selects a move from the intersection (or fallback to raw stats) based on popularity and the `variability` setting.
+-   **Optimization**:
+    -   Tracks `lastFetchedFen` and `lastFetchedConfig` to skip redundant fetches.
 
 ### 5. Integration with Core Game Logic
 
-- **`game.store.ts`**:
-  - Mode: `'opening-trainer'`.
-  - Disables Stockfish bot; utilizes `onUserMoveCallback` to trigger the trainer's logic.
-- **Analysis Integration (`analysis.store.ts` & `board.store.ts`)**:
-  - **Overlay Analysis**: Users can toggle the Stockfish Engine (left panel) *during* the session. The `AnalysisStore` is decoupled from "Board Analysis Mode", allowing the user to make moves (gameplay) while seeing live evaluation.
-  - **Smart Navigation**: 
-    - When navigating the PGN history (via buttons or mouse wheel), the system detects the session's player color.
-    - It automatically **skips** the bot's moves, landing only on positions where it is the player's turn to move. This facilitates rapid review of player decisions.
-  - **Synchronized Theory**: The Opening Stats panel (right side) watches the board's FEN (debounced 500ms). When navigating through history, the stats table automatically updates to show theory for the *displayed* position, not just the *current game* position.
-- **Playout Transition**:
-  - Users can jump to a Stockfish game at any time via `/sandbox/play/SF_2200/{color}/{fen}`.
-  - Flag `isNavigatingToPlayout` prevents board reset during transition.
+-   **`game.store.ts`**:
+    -   Mode: `'opening-trainer'`.
+    -   Utilizes `onUserMoveCallback` to trigger the trainer's response logic.
+-   **Smart Navigation (Watcher Optimization)**:
+    -   **Goal**: Prevent API spam when the user scrolls through the game history.
+    -   **Implementation**: The `watch` in `OpeningTrainerView` calls `fetchStats` with `onlyCache: true`.
+    -   **Result**: Navigation updates the stats table *only* if data is already in memory or IndexedDB. It never triggers a network call, preserving quota and bandwidth.
+-   **Analysis Integration**:
+    -   Decoupled `AnalysisStore` allows toggling Stockfish evaluation *during* the trainer session.
+    -   "Smart Navigation" skips bot moves when reviewing history via mouse wheel/buttons.
 
 ## UI Components
 
-- **`OpeningTrainerSettingsModal.vue`**: 
-  - **Color Selection**: White or Black.
-  - **Opening Catalog**: A searchable dropdown of major openings. 
-- **`OpeningTrainerHeader.vue`**: Displays ECO code, Opening name, and total score.
-- **`OpeningTrainerView.vue`**:
-  - **Left Panel**: Contains the **Analysis Panel** (Engine/PGN) and control buttons.
-  - **Right Panel**: Contains `WinrateProgressBar` and `OpeningStatsTable`.
-- **`WinrateProgressBar.vue`**: Visualizes White/Draw/Black win rates.
-- **`OpeningStatsTable.vue`**: Lists available moves with blurring for "Practice Mode".
+-   **`OpeningTrainerSettingsModal.vue`**:
+    -   **Database Selector**: Toggle between "Masters DB" and "Lichess Players".
+    -   **Lichess Filters**: Granular checkboxes for Ratings (1000-2500) and Time Controls (Bullet-Classical).
+    -   **Opening Catalog**: Dropdown to start from specific major openings.
+-   **`OpeningStatsTable.vue`**:
+    -   Displays unified statistics (Moves, Games, Win Rate, Rating).
+    -   Supports "Review Mode" (unblurred) and "Practice Mode" (blurred stats).
+-   **`WinrateProgressBar.vue`**:
+    -   Visualizes the W/D/L ratio for the current position.
 
 ## Navigation & Sharing
 
-- **Route Pattern**: `/opening-trainer/:openingSlug?/:color?`
-- **Dynamic Parameters**: `openingSlug`, `color`.
-- **Auto-Initialization**: Automatic session start based on URL.
-
-## Development Status
-
-- **Academic Base**: Integrated via local JSON.
-- **Analysis Tools**: Fully integrated (Engine, Smart PGN Navigation, Live Theory Sync).
-- **Future**: 
-  - Persistent session history.
-  - "Goal" accuracy tracking.
-  - Custom user opening repertoires.
+-   **Route**: `/opening-trainer/:openingSlug?/:color?`
+-   **Persistence**: Session settings (DB selection) are preserved in the store during the session.
