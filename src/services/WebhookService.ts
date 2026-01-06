@@ -6,9 +6,9 @@ import type {
   GamePuzzle,
   TacticalTrainerStats,
   GetTacticalPuzzleDto,
-  OverallSkillLeaderboardEntry,
-  PersonalOverallSkillResponse,
-  PersonalSkillStreakResponse,
+  OverallSolvedLeaderboardEntry,
+  PersonalOverallSolvedResponse,
+  PersonalSolveStreakResponse,
   LeaderboardApiResponse,
   PersonalActivityStatsResponse,
   GameResultResponse,
@@ -278,24 +278,24 @@ class WebhookServiceController {
 
   public async fetchOverallSkillLeaderboard(
     period: '7' | '14' | '21' | '30',
-  ): Promise<OverallSkillLeaderboardEntry[] | null> {
-    return this._apiRequest<OverallSkillLeaderboardEntry[]>(
+  ): Promise<OverallSolvedLeaderboardEntry[] | null> {
+    return this._apiRequest<OverallSolvedLeaderboardEntry[]>(
       `/n8n-proxy/leaderboards/overall-skill?period=${period}`,
       'GET',
       'fetchOverallSkillLeaderboard',
     )
   }
 
-  public async fetchPersonalOverallSkill(): Promise<PersonalOverallSkillResponse | null> {
-    return this._apiRequest<PersonalOverallSkillResponse>(
+  public async fetchPersonalOverallSkill(): Promise<PersonalOverallSolvedResponse | null> {
+    return this._apiRequest<PersonalOverallSolvedResponse>(
       '/activity/personal/overall-skill',
       'GET',
       'fetchPersonalOverallSkill',
     )
   }
 
-  public async fetchPersonalSkillStreak(): Promise<PersonalSkillStreakResponse | null> {
-    return this._apiRequest<PersonalSkillStreakResponse>(
+  public async fetchPersonalSkillStreak(): Promise<PersonalSolveStreakResponse | null> {
+    return this._apiRequest<PersonalSolveStreakResponse>(
       '/activity/personal/skill-streak',
       'GET',
       'fetchPersonalSkillStreak',

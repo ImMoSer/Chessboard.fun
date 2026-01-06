@@ -167,36 +167,6 @@ const avatarUrl = computed(() => {
                   </n-grid-item>
                 </n-grid>
               </div>
-
-              <!-- Skill Earned Today -->
-              <div class="activity-item">
-                <n-space align="center" justify="space-between" class="mb-4">
-                  <n-space align="center" :size="8">
-                    <n-icon size="18" depth="2" color="#f0a020">
-                      <TrendingUpOutline />
-                    </n-icon>
-                    <n-text strong>{{ t('userCabinet.stats.skillEarned') }}</n-text>
-                  </n-space>
-                  <n-text type="warning" strong class="total-value">
-                    {{ userProfile.today_activity.skill_earned_today.total }}
-                  </n-text>
-                </n-space>
-                <n-grid :cols="3" :x-gap="8">
-                  <n-grid-item v-for="mode in activityModes" :key="mode.key">
-                    <n-tooltip trigger="hover">
-                      <template #trigger>
-                        <div class="mini-stat-box">
-                          <span class="mode-icon">{{ mode.icon }}</span>
-                          <span class="mode-count">
-                            {{ userProfile.today_activity.skill_earned_today[mode.key] ?? 0 }}
-                          </span>
-                        </div>
-                      </template>
-                      {{ mode.label }}
-                    </n-tooltip>
-                  </n-grid-item>
-                </n-grid>
-              </div>
             </n-space>
           </div>
         </n-space>

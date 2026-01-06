@@ -18,7 +18,6 @@ interface ActivityRow {
   mode: 'advantage' | 'tornado'
   requested: number
   solved: number
-  skill: number
 }
 
 const columns: DataTableColumns<ActivityRow> = [
@@ -33,15 +32,7 @@ const columns: DataTableColumns<ActivityRow> = [
     }
   },
   { title: t('records.table.requested'), key: 'requested', align: 'center' },
-  { title: t('records.table.solved'), key: 'solved', align: 'center' },
-  {
-    title: t('records.table.totalSkill'),
-    key: 'skill',
-    align: 'right',
-    render(row) {
-      return h('span', { style: { fontWeight: 'bold', color: 'var(--color-accent-success)' } }, row.skill)
-    }
-  }
+  { title: t('records.table.solved'), key: 'solved', align: 'center' }
 ]
 
 const tableData = computed(() => {
@@ -50,8 +41,7 @@ const tableData = computed(() => {
   return (['advantage', 'tornado'] as const).map(mode => ({
     mode,
     requested: periodData[mode].puzzles_requested,
-    solved: periodData[mode].puzzles_solved,
-    skill: periodData[mode].skill_value
+    solved: periodData[mode].puzzles_solved
   }))
 })
 

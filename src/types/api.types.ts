@@ -241,60 +241,60 @@ export interface WorktableLeaderboards {
 export type SkillPeriod = '7' | '14' | '21' | '30'
 
 export interface LeaderboardApiResponse extends WorktableLeaderboards {
-  overallSkillLeaderboard: OverallSkillLeaderboardEntry[]
-  skillStreakLeaderboard: SkillStreakLeaderboardEntry[]
-  skillStreakMegaLeaderboard: SkillStreakLeaderboardEntry[]
-  topTodayLeaderboard: OverallSkillLeaderboardEntry[]
+  overallSkillLeaderboard: OverallSolvedLeaderboardEntry[]
+  skillStreakLeaderboard: SolveStreakLeaderboardEntry[]
+  skillStreakMegaLeaderboard: SolveStreakLeaderboardEntry[]
+  topTodayLeaderboard: OverallSolvedLeaderboardEntry[]
   tornadoLeaderboard?: { [key in TornadoMode]?: TornadoLeaderboardEntry[] }
 }
 
-export interface SkillByMode {
+export interface SolvedByMode {
   finishHim: number
   tacticalTrainer: number
   tornado: number
 }
 
-export interface OverallSkillLeaderboardEntry {
+export interface OverallSolvedLeaderboardEntry {
   lichess_id: string
   username: string
   subscriptionTier: string
-  total_skill: number
-  skill_by_mode: SkillByMode
+  total_solved: number
+  solved_by_mode: SolvedByMode
 }
 
-export interface SkillStreakLeaderboardEntry {
+export interface SolveStreakLeaderboardEntry {
   lichess_id: string
   username: string
   current_streak: number
   subscriptionTier: string
-  total_skill: number
-  skill_by_mode: SkillByMode
+  total_solved: number
+  solved_by_mode: SolvedByMode
 }
 
-export interface PersonalOverallSkillPeriod {
+export interface PersonalOverallSolvedPeriod {
   lichess_id: string
   username: string
   subscriptionTier: string
-  total_skill: number
-  skill_by_mode: SkillByMode
+  total_solved: number
+  solved_by_mode: SolvedByMode
 }
 
-export type PersonalOverallSkillResponse = Record<
+export type PersonalOverallSolvedResponse = Record<
   '7_days' | '14_days' | '21_days' | '30_days',
-  PersonalOverallSkillPeriod
+  PersonalOverallSolvedPeriod
 >
 
-export interface DailySkillSummary {
+export interface DailySolvedSummary {
   date: string // "YYYY-MM-DD"
-  total_skill: number
-  skill_by_mode: SkillByMode
+  total_solved: number
+  solved_by_mode: SolvedByMode
 }
 
-export interface PersonalSkillStreakResponse {
+export interface PersonalSolveStreakResponse {
   lichess_id: string
   username: string
   current_streak: number
-  daily_summary: DailySkillSummary[]
+  daily_summary: DailySolvedSummary[]
 }
 
 export interface TelegramBindingUrlResponse {
@@ -304,7 +304,6 @@ export interface TelegramBindingUrlResponse {
 export interface ActivityModeStats {
   puzzles_requested: number
   puzzles_solved: number
-  skill_value: number
 }
 
 export interface ActivityPeriodStats {
@@ -350,16 +349,8 @@ export interface PuzzlesSolvedToday {
   total: number
 }
 
-export interface SkillEarnedToday {
-  advantage: number
-  tacticalTrainer: number
-  tornado: number
-  total: number
-}
-
 export interface TodayActivity {
   puzzles_solved_today: PuzzlesSolvedToday
-  skill_earned_today: SkillEarnedToday
 }
 
 export interface UserStatsUpdate {

@@ -4,16 +4,16 @@ import { h, computed, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { DataTableColumns } from 'naive-ui'
 import type {
-  OverallSkillLeaderboardEntry,
-  SkillStreakLeaderboardEntry,
-  SkillByMode,
+  OverallSolvedLeaderboardEntry,
+  SolveStreakLeaderboardEntry,
+  SolvedByMode,
   SkillPeriod,
 } from '@/types/api.types'
 import InfoIcon from '../InfoIcon.vue'
 
 const props = defineProps({
   title: { type: String, required: true },
-  entries: { type: Array as PropType<(OverallSkillLeaderboardEntry | SkillStreakLeaderboardEntry)[]>, required: true },
+  entries: { type: Array as PropType<(OverallSolvedLeaderboardEntry | SolveStreakLeaderboardEntry)[]>, required: true },
   colorClass: { type: String, required: true },
   showStreak: { type: Boolean, default: false },
   showFilter: { type: Boolean, default: false },
@@ -33,7 +33,7 @@ const tierToPieceMap: Record<string, string> = {
   Pawn: 'wP.svg', Knight: 'wN.svg', Bishop: 'wB.svg', Rook: 'wR.svg', Queen: 'wQ.svg', King: 'wK.svg',
 }
 
-const skillModes: { key: keyof SkillByMode; nameKey: string; color: string }[] = [
+const skillModes: { key: keyof SolvedByMode; nameKey: string; color: string }[] = [
   { key: 'finishHim', nameKey: 'userCabinet.stats.modes.finishHim', color: 'var(--color-accent-primary)' },
 
   { key: 'tornado', nameKey: 'nav.tornado', color: 'var(--color-accent-secondary)' },
@@ -59,8 +59,8 @@ const periodOptions = [
   { label: t('userCabinet.stats.periods.month'), value: '30' },
 ]
 
-const columns = computed<DataTableColumns<OverallSkillLeaderboardEntry | SkillStreakLeaderboardEntry>>(() => {
-  const cols: DataTableColumns<OverallSkillLeaderboardEntry | SkillStreakLeaderboardEntry> = [
+const columns = computed<DataTableColumns<OverallSolvedLeaderboardEntry | SolveStreakLeaderboardEntry>>(() => {
+  const cols: DataTableColumns<OverallSolvedLeaderboardEntry | SolveStreakLeaderboardEntry> = [
     { title: t('records.table.rank'), key: 'rank', align: 'center', width: 60, render: (_, index) => index + 1 },
     {
       title: t('records.table.player'),
@@ -84,21 +84,22 @@ const columns = computed<DataTableColumns<OverallSkillLeaderboardEntry | SkillSt
       title: t('records.table.streakDays'),
       key: 'current_streak',
       align: 'center',
-      render: (row) => (row as SkillStreakLeaderboardEntry).current_streak
+      render: (row) => (row as SolveStreakLeaderboardEntry).current_streak
     })
   }
 
   cols.push({
-    title: t('records.table.totalSkill'),
-    key: 'total_skill',
+    title: t('records.table.solved'),
+    key: 'total_solved',
     align: 'right',
     render(row) {
+      const entry = row as OverallSolvedLeaderboardEntry // or SolveStreakLeaderboardEntry, they share total_solved
       return h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '12px' } }, [
-        h('span', { style: { fontWeight: 'bold' } }, row.total_skill),
+        h('span', { style: { fontWeight: 'bold' } }, entry.total_solved),
         h('div', { class: 'skill-progress-bar' },
           skillModes.map(mode => {
-            const val = row.skill_by_mode[mode.key] || 0
-            const width = row.total_skill > 0 ? (val / row.total_skill) * 100 : 0
+            const val = entry.solved_by_mode[mode.key] || 0
+            const width = entry.total_solved > 0 ? (val / entry.total_solved) * 100 : 0
             if (width === 0) return null
             return h('div', {
               class: ['skill-bar-segment', mode.key],
