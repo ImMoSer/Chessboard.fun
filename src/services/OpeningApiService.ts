@@ -160,7 +160,7 @@ class OpeningApiService {
     const url = new URL(this.LICHESS_URL);
     url.searchParams.append('variant', 'standard');
     url.searchParams.append('fen', cleanFen);
-    url.searchParams.append('moves', '25');
+    url.searchParams.append('moves', '20');
     url.searchParams.append('topGames', '0');
     url.searchParams.append('recentGames', '0');
     url.searchParams.append('history', 'false');

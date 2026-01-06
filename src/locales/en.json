@@ -858,9 +858,9 @@
     "stats": {
       "reviewModeOverlay": "Review mode to see theory",
       "move": "Move",
-      "games": "Games",
-      "winRate": "Win Rate (W)",
-      "avgRating": "Avg. Rating"
+      "games": "Games (%)",
+      "winRate": "WinRate",
+      "avgRating": "Rating"
     },
     "settings": {
       "title": "Opening Trainer Settings",

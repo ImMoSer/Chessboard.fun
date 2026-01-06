@@ -855,9 +855,9 @@
     "stats": {
       "reviewModeOverlay": "Review-Modus, um die Theorie zu sehen",
       "move": "Zug",
-      "games": "Partien",
-      "winRate": "Winrate (W)",
-      "avgRating": "Schnitt. Rating"
+      "games": "Games (%)",
+      "winRate": "WinRate",
+      "avgRating": "Rating"
     },
     "settings": {
       "title": "Eröffnungstrainer Einstellungen",

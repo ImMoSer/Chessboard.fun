@@ -859,9 +859,9 @@
     "stats": {
       "reviewModeOverlay": "Режим обзора для просмотра теории",
       "move": "Ход",
-      "games": "Партии",
-      "winRate": "Винрейт (Б)",
-      "avgRating": "Ср. Рейтинг"
+      "games": "Партии (%)",
+      "winRate": "Винрейт",
+      "avgRating": "Рейтинг"
     },
     "settings": {
       "title": "Настройки тренера",
