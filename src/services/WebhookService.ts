@@ -24,6 +24,12 @@ import type {
   UserProfileStatsDto,
   AdvantageMode,
   AdvantageResultDto,
+  TheoryEndingType,
+  TheoryEndingDifficulty,
+  TheoryEndingCategory,
+  TheoryEndingPuzzle,
+  TheoryEndingResultDto,
+  UserTheoryEndingStatsDto,
 } from '../types/api.types'
 
 export class RateLimitError extends Error {
@@ -199,6 +205,35 @@ class WebhookServiceController {
     )
   }
   // --- END ADVANTAGE API ---
+  // --- THEORY ENDINGS API ---
+  public async fetchTheoryPuzzle(
+    type: TheoryEndingType,
+    difficulty: TheoryEndingDifficulty,
+    category: TheoryEndingCategory,
+  ): Promise<TheoryEndingPuzzle | null> {
+    const path = `/theory-endings/puzzle?type=${type}&difficulty=${difficulty}&category=${category}`
+    return this._apiRequest<TheoryEndingPuzzle>(path, 'GET', 'fetchTheoryPuzzle')
+  }
+
+  public async processTheoryResult(
+    dto: TheoryEndingResultDto,
+  ): Promise<GameResultResponse | null> {
+    return this._apiRequest<GameResultResponse>(
+      '/theory-endings/result',
+      'POST',
+      'processTheoryResult',
+      dto,
+    )
+  }
+
+  public async fetchTheoryStats(): Promise<UserTheoryEndingStatsDto | null> {
+    return this._apiRequest<UserTheoryEndingStatsDto>(
+      '/theory-endings/stats',
+      'GET',
+      'fetchTheoryStats',
+    )
+  }
+  // --- END THEORY ENDINGS API ---
 
 
 

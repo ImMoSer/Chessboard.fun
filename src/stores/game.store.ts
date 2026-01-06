@@ -13,7 +13,7 @@ import { useUiStore } from './ui.store'
 import { pgnService } from '../services/PgnService'
 
 export type GamePhase = 'IDLE' | 'LOADING' | 'PLAYING' | 'GAMEOVER'
-export type GameMode = 'finish-him' | 'tornado' | 'sandbox' | 'opening-trainer' | null
+export type GameMode = 'finish-him' | 'tornado' | 'sandbox' | 'opening-trainer' | 'theory' | null
 
 const BOT_MOVE_DELAY_MS = 50
 const FIRST_BOT_MOVE_DELAY_MS = 500
@@ -110,7 +110,7 @@ export const useGameStore = defineStore('game', () => {
       const setup = parseFen(fen).unwrap()
       let humanPlayerColor: ChessgroundColor
 
-      if (mode === 'sandbox' || mode === 'opening-trainer') {
+      if (mode === 'sandbox' || mode === 'opening-trainer' || mode === 'theory') {
         humanPlayerColor = userColor || setup.turn
       } else {
         const botTurnColor = setup.turn

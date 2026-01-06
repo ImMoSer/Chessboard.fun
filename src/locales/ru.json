@@ -92,7 +92,7 @@
     "home": "Главная",
     "openingTrainer": "Дебютный тренажер",
     "finishHim": "Добивание",
-
+    "theoryEndings": "Эндшпиль",
     "sandbox": "Песочница",
     "tacktics": "Тактика",
     "tornado": "Торнадо",
@@ -170,7 +170,7 @@
     "titleV2": "Выберите режим игры",
     "buttons": {
       "finishHim": "Добивание",
-
+      "theoryEndings": "Эндшпиль",
       "tacktics": "Тактика",
       "clubs": "ФанКлуб",
       "leaderboards": "Рейтинги"
@@ -679,7 +679,7 @@
       "title": "Сессия окончена",
       "message": "Ваш финальный рейтинг: {rating}",
       "stats": "Рейтинг: {rating} | Решено: {solved}/{total} | Тема: {theme}",
-      "newSession": "Заново",
+      "retry": "Попробовать снова",
       "exit": "Выйти",
       "mistakes": "Работа над ошибками",
       "sessionEnded": "Сессия завершена. Ваш финальный рейтинг: {rating}"
@@ -830,6 +830,40 @@
       "variability": "Вариативность: {value}",
       "variabilityHint": "Высокая вариативность заставляет бота чаще играть менее популярные ходы.",
       "startSession": "Начать тренировку"
+    }
+  },
+  "theoryEndings": {
+    "selection": {
+      "title": "Теоретические эндшпиля",
+      "subtitle": "Тренируйте классические позиции до совершенства",
+      "typeLabel": "Тип задачи",
+      "difficultyLabel": "Сложность",
+      "categoryLabel": "Категория",
+      "start": "Начать тренировку"
+    },
+    "types": {
+      "win": "Победа",
+      "draw": "Ничья"
+    },
+    "difficulties": {
+      "Novice": "Новичок",
+      "Pro": "Профи",
+      "Master": "Мастер"
+    },
+    "categories": {
+      "pawn": { "name": "Пешечный", "icon": "♟" },
+      "bishop": { "name": "Слоновый", "icon": "♗" },
+      "knight": { "name": "Коневой", "icon": "♘" },
+      "queen": { "name": "Ферзевый", "icon": "♕" },
+      "rookPawn": { "name": "Ладья + Пешка", "icon": "♖♙" },
+      "rookPieces": { "name": "Ладейный", "icon": "♖" },
+      "knightBishop": { "name": "Конь и Слон", "icon": "♘♗" }
+    },
+    "feedback": {
+      "pressNext": "Нажмите 'Играть', чтобы начать.",
+      "win": "Вы победили! Позиция реализована.",
+      "drawSuccess": "Ничья достигнута! Отличная защита.",
+      "loss": "Поражение. Попробуйте еще раз."
     }
   }
 }

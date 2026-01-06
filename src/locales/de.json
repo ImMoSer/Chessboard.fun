@@ -92,7 +92,7 @@
     "home": "Start",
     "openingTrainer": "Eröffnungstrainer",
     "finishHim": "FinishHim",
-
+    "sandbox": "Sandbox",
     "tacktics": "Taktik",
     "tornado": "Tornado",
     "leaderboards": "Bestenlisten",
@@ -826,5 +826,40 @@
       "variabilityHint": "Hohe Variabilität bedeutet, dass der Bot öfter weniger populäre Züge spielt.",
       "startSession": "Sitzung starten"
     }
+  },
+  "theoryEndings": {
+      "selection": {
+        "title": "Theoretische Endspiele",
+        "subtitle": "Meistern Sie klassische Stellungen",
+        "typeLabel": "Aufgabentyp",
+        "difficultyLabel": "Schwierigkeit",
+        "categoryLabel": "Kategorie",
+        "start": "Training starten"
+      },
+      "types": {
+        "win": "Sieg",
+        "draw": "Remis"
+      },
+      "difficulties": {
+        "Novice": "Anfänger",
+        "Pro": "Profi",
+        "Master": "Meister"
+      },
+      "categories": {
+        "pawn": { "name": "Bauern", "icon": "♟" },
+        "bishop": { "name": "Läufer", "icon": "♗" },
+        "knight": { "name": "Springer", "icon": "♘" },
+        "queen": { "name": "Damen", "icon": "♕" },
+        "rookPawn": { "name": "Turm + Bauer", "icon": "♖♙" },
+        "rookPieces": { "name": "Turmendspiele", "icon": "♖" },
+        "knightBishop": { "name": "Springer & Läufer", "icon": "♘♗" }
+      },
+      "feedback": {
+        "pressNext": "Drücken Sie 'Spielen', um zu beginnen.",
+        "win": "Gewonnen! Stellung verwertet.",
+        "drawSuccess": "Remis erreicht! Hervorragende Verteidigung.",
+        "loss": "Niederlage. Versuchen Sie es erneut."
+      }
+
   }
 }

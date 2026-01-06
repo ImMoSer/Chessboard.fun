@@ -92,7 +92,6 @@
     "home": "Home",
     "openingTrainer": "Opening Trainer",
     "finishHim": "FinishHim",
-
     "sandbox": "Sandbox",
     "tacktics": "Tacktics",
     "tornado": "Tornado",
@@ -829,6 +828,40 @@
       "variability": "Variability: {value}",
       "variabilityHint": "Higher variability means the bot plays less popular moves more often.",
       "startSession": "Start Session"
+    }
+  },
+  "theoryEndings": {
+    "selection": {
+      "title": "Theoretical Endgames",
+      "subtitle": "Practice classic positions to perfection",
+      "typeLabel": "Task Type",
+      "difficultyLabel": "Difficulty",
+      "categoryLabel": "Category",
+      "start": "Start Training"
+    },
+    "types": {
+      "win": "Win",
+      "draw": "Draw"
+    },
+    "difficulties": {
+      "Novice": "Novice",
+      "Pro": "Pro",
+      "Master": "Master"
+    },
+    "categories": {
+      "pawn": { "name": "Pawn", "icon": "♟" },
+      "bishop": { "name": "Bishop", "icon": "♗" },
+      "knight": { "name": "Knight", "icon": "♘" },
+      "queen": { "name": "Queen", "icon": "♕" },
+      "rookPawn": { "name": "Rook + Pawn", "icon": "♖♙" },
+      "rookPieces": { "name": "Rook", "icon": "♖" },
+      "knightBishop": { "name": "Knight & Bishop", "icon": "♘♗" }
+    },
+    "feedback": {
+      "pressNext": "Press 'Play' to start.",
+      "win": "You won! Position converted.",
+      "drawSuccess": "Draw achieved! Great defense.",
+      "loss": "Defeat. Try again."
     }
   }
 }

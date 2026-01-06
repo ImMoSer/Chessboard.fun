@@ -117,6 +117,51 @@ export interface AdvantageResultDto {
   wasCorrect: boolean
 }
 // --- END ADVANTAGE MODE ---
+// --- THEORY ENDINGS MODE ---
+export const THEORY_ENDING_CATEGORIES = [
+  'bishop',
+  'knight',
+  'knightBishop',
+  'pawn',
+  'queen',
+  'rookPawn',
+  'rookPieces',
+] as const
+
+export type TheoryEndingCategory = (typeof THEORY_ENDING_CATEGORIES)[number]
+
+export type TheoryEndingDifficulty = 'Novice' | 'Pro' | 'Master'
+
+export type TheoryEndingType = 'win' | 'draw'
+
+export interface TheoryEndingPuzzle extends GamePuzzle {
+  id: string
+  fen: string
+  bw_value: number
+  category: TheoryEndingCategory
+  difficulty: TheoryEndingDifficulty
+  side_to_move: 'white' | 'black'
+  weak_side: 'white' | 'black' | 'even'
+  only_move: boolean
+  type: TheoryEndingType
+}
+
+export interface TheoryEndingResultDto {
+  puzzleId: string
+  wasCorrect: boolean
+}
+
+export interface TheoryEndingStatItem {
+  requested: number
+  success: number
+}
+
+export interface UserTheoryEndingStatsDto {
+  userId: string
+  stats: Record<string, TheoryEndingStatItem>
+  history: string[]
+}
+// --- END THEORY ENDINGS ---
 
 
 
@@ -252,6 +297,7 @@ export interface SolvedByMode {
   finishHim: number
   tacticalTrainer: number
   tornado: number
+  theory: number
 }
 
 export interface OverallSolvedLeaderboardEntry {
@@ -309,6 +355,7 @@ export interface ActivityModeStats {
 export interface ActivityPeriodStats {
   advantage: ActivityModeStats
   tornado: ActivityModeStats
+  theory: ActivityModeStats
 }
 
 export interface PersonalActivityStatsResponse {
@@ -346,6 +393,7 @@ export interface PuzzlesSolvedToday {
   advantage: number
   tacticalTrainer: number
   tornado: number
+  theory: number
   total: number
 }
 
@@ -571,9 +619,14 @@ export interface AdvantageProfileDto {
   themes: AdvantageThemeStatDto[]
 }
 
+export interface TheoryEndingProfileDto {
+  stats: Record<string, { requested: number; success: number }>
+}
+
 
 
 export interface UserProfileStatsDto {
   tornado: TornadoProfileDto
   advantage: AdvantageProfileDto
+  theory: TheoryEndingProfileDto
 }

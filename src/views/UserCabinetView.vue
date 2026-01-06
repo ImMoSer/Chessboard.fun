@@ -8,8 +8,9 @@ import { useUserCabinetStore } from '@/stores/userCabinet.store'
 
 import DetailedAnalytics from '@/components/userCabinet/DetailedAnalytics.vue'
 import UserProfileHeader from '@/components/userCabinet/sections/UserProfileHeader.vue'
-import GlobalActivityStats from '@/components/userCabinet/sections/GlobalActivityStats.vue'
 import TornadoHighScores from '@/components/userCabinet/sections/TornadoHighScores.vue'
+import TheoryEndingStats from '@/components/userCabinet/sections/TheoryEndingStats.vue'
+import GlobalActivityStats from '@/components/userCabinet/sections/GlobalActivityStats.vue'
 
 const { t } = useI18n()
 
@@ -35,11 +36,7 @@ onMounted(() => {
     </n-alert>
 
     <div v-else-if="!isAuthenticated || !userProfile" class="login-prompt">
-      <n-result
-        status="403"
-        :title="t('userCabinet.title')"
-        :description="t('userCabinet.loginPrompt')"
-      >
+      <n-result status="403" :title="t('userCabinet.title')" :description="t('userCabinet.loginPrompt')">
         <template #footer>
           <n-button type="primary" size="large" @click="authStore.login()">
             {{ t('nav.loginWithLichess') }}
@@ -51,11 +48,13 @@ onMounted(() => {
     <div v-else class="user-cabinet-content">
       <n-space vertical size="large">
         <UserProfileHeader />
-        
+
         <TornadoHighScores />
 
         <GlobalActivityStats />
-        
+
+        <TheoryEndingStats />
+
         <DetailedAnalytics />
       </n-space>
     </div>

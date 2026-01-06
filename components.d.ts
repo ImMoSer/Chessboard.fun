@@ -85,6 +85,7 @@ declare module 'vue' {
     SkillLeaderboardTable: typeof import('./src/components/recordsPage/SkillLeaderboardTable.vue')['default']
     StatsCard: typeof import('./src/components/userCabinet/sections/StatsCard.vue')['default']
     TelegramBinding: typeof import('./src/components/userCabinet/sections/TelegramBinding.vue')['default']
+    TheoryEndingStats: typeof import('./src/components/userCabinet/sections/TheoryEndingStats.vue')['default']
     TopInfoPanel: typeof import('./src/components/TopInfoPanel.vue')['default']
     TornadoHighScores: typeof import('./src/components/userCabinet/sections/TornadoHighScores.vue')['default']
     TornadoLeaderboardTable: typeof import('./src/components/recordsPage/TornadoLeaderboardTable.vue')['default']

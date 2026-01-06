@@ -5,6 +5,7 @@ import { useRoute } from 'vue-router'
 import { useFinishHimStore } from '../stores/finishHim.store'
 
 import { useTornadoStore } from '../stores/tornado.store'
+import { useTheoryEndingsStore } from '../stores/theoryEndings.store'
 import type { GamePuzzle } from '../types/api.types'
 import { getThemeTranslationKey } from '../utils/theme-mapper'
 import ChessboardPreview from './ChessboardPreview.vue'
@@ -24,10 +25,12 @@ import {
 const route = useRoute()
 const finishHimStore = useFinishHimStore()
 const tornadoStore = useTornadoStore()
+const theoryStore = useTheoryEndingsStore()
 const { t } = useI18n()
 
 const activeStore = computed(() => {
   if (route.name === 'tornado') return tornadoStore
+  if (route.name?.toString().startsWith('theory-endings')) return theoryStore
   return finishHimStore
 })
 
@@ -54,6 +57,12 @@ const tacticalThemesList = computed<string[]>(() => {
 
   if (route.name === 'tornado' && puzzle.Themes_PG) {
     return puzzle.Themes_PG
+  }
+
+  if (route.name?.toString().startsWith('theory-endings') && puzzle) {
+    // For theory endings, we can show category/difficulty as themes
+    const theoryPuzzle = puzzle as any
+    return [theoryPuzzle.category, theoryPuzzle.difficulty]
   }
 
   return []
@@ -196,7 +205,7 @@ const sortedResults = computed(() => {
                 <StarOutline />
               </n-icon>
               <n-text strong uppercase depth="3" class="section-subtitle">{{ t('puzzleInfo.leaderboardTitle')
-                }}</n-text>
+              }}</n-text>
             </n-space>
             <n-table size="small" :bordered="false" class="minimal-table">
               <thead>

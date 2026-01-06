@@ -135,6 +135,18 @@ const router = createRouter({
       component: FinishHimView,
       meta: { isGame: true, requiresAuth: true, game: 'finish-him' },
     },
+    {
+      path: '/theory-endings',
+      name: 'theory-endings-selection',
+      component: () => import('../views/TheoryEndingSelectionView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/theory-endings/play',
+      name: 'theory-endings-play',
+      component: () => import('../views/TheoryEndingView.vue'),
+      meta: { isGame: true, requiresAuth: true, game: 'theory' },
+    },
   ],
 })
 
@@ -219,6 +231,9 @@ router.afterEach(async (to, from) => {
     useFinishHimStore().reset()
   } else if (fromBaseRoute === 'tornado' && toBaseRoute !== 'tornado' && !isTornadoToMistakes) {
     useTornadoStore().reset()
+  } else if (fromBaseRoute?.startsWith('theory-endings') && !toBaseRoute?.startsWith('theory-endings')) {
+    const { useTheoryEndingsStore } = await import('../stores/theoryEndings.store')
+    useTheoryEndingsStore().reset()
   }
 })
 
