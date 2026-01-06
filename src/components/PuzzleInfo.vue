@@ -260,21 +260,20 @@ const towerPositionLoadedMessage = computed(() => {
             </n-grid-item>
           </n-grid>
 
-          <!-- Themes Section -->
-          <n-space vertical :size="8" v-if="tacticalThemesList.length > 0">
-            <n-text depth="3" strong uppercase class="section-subtitle">{{ t('tacktics.stats.theme') }}</n-text>
-            <n-space :size="[4, 4]" wrap>
-              <n-tag v-for="theme in tacticalThemesList" :key="theme" size="small" round :bordered="false" type="info">
-                {{ t(`themes.${theme}`, { defaultValue: t(`tacktics.themes.${theme}`, { defaultValue: theme }) }) }}
-              </n-tag>
-            </n-space>
-          </n-space>
-
           <!-- Final Position Preview -->
           <n-card v-if="activePuzzle.fen_final" embedded :bordered="false" class="preview-card" size="small">
             <n-space vertical align="stretch" :size="8" style="width: 100%">
-              <n-text depth="3" strong uppercase class="preview-title" style="text-align: center">{{
-                t('puzzleInfo.finalPositionTitle') }}</n-text>
+              <!-- Display Themes instead of Final Position title if themes are present -->
+              <n-space v-if="tacticalThemesList.length > 0" justify="center" :size="[4, 4]" wrap>
+                <n-tag v-for="theme in tacticalThemesList" :key="theme" size="small" round :bordered="false"
+                  type="info">
+                  {{ t(`themes.${theme}`, { defaultValue: t(`tacktics.themes.${theme}`, { defaultValue: theme }) }) }}
+                </n-tag>
+              </n-space>
+              <n-text v-else depth="3" strong uppercase class="preview-title" style="text-align: center">
+                {{ t('puzzleInfo.finalPositionTitle') }}
+              </n-text>
+
               <div class="chessboard-preview-wrapper">
                 <ChessboardPreview :fen="activePuzzle.fen_final" :orientation="finalPositionOrientation" />
               </div>
@@ -395,7 +394,7 @@ const towerPositionLoadedMessage = computed(() => {
 .chessboard-preview-wrapper {
   width: 100%;
   position: relative;
-  border-radius: 8px;
+  border-radius: 1px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
