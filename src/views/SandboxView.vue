@@ -106,7 +106,10 @@ watch(
           localStorage.setItem('redirect_after_login', route.fullPath)
           authStore.login()
         } else {
-          const newParams: any = { engineId: 'SF_2200', fen }
+          const newParams: { engineId: EngineId; fen: string; userColor?: ChessgroundColor } = {
+            engineId: 'SF_2200',
+            fen,
+          }
           if (userColorFromUrl) {
             newParams.userColor = userColorFromUrl
           }

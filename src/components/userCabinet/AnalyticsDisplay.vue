@@ -39,9 +39,11 @@ const sortedStats = computed(() => {
     solved: Math.round((data.attempts * data.accuracy) / 100),
   }))
 
-  return [...statsArray].sort((a: any, b: any) => {
-    const aValue = a[sortKey.value]
-    const bValue = b[sortKey.value]
+  return [...statsArray].sort((a, b) => {
+    const aTyped = a as Record<string, unknown>;
+    const bTyped = b as Record<string, unknown>;
+    const aValue = aTyped[sortKey.value] as number | string;
+    const bValue = bTyped[sortKey.value] as number | string;
     if (aValue < bValue) return sortOrder.value === 'asc' ? -1 : 1
     if (aValue > bValue) return sortOrder.value === 'asc' ? 1 : -1
     return 0
@@ -61,27 +63,18 @@ const chartDataForRadar = computed(() => {
     <div v-if="!stats || stats.length === 0" class="no-data-box">
       <n-empty description="Нет данных для отображения." />
     </div>
-    
+
     <div v-else>
       <n-card class="radar-card" :bordered="false">
-        <RadarChart
-          v-if="sortedStats.length > 0"
-          :chart-data="chartDataForRadar"
-          :dataset-label="t('userCabinet.analyticsTable.rating')"
-        />
+        <RadarChart v-if="sortedStats.length > 0" :chart-data="chartDataForRadar"
+          :dataset-label="t('userCabinet.analyticsTable.rating')" />
       </n-card>
 
       <div class="stats-grid-wrapper">
         <n-grid x-gap="12" y-gap="12" cols="2 m:4 l:5" responsive="screen">
           <n-grid-item v-for="stat in sortedStats" :key="stat.originalTheme">
-            <StatsCard
-              :title="stat.themeLabel"
-              :rating="stat.rating"
-              :accuracy="stat.accuracy"
-              :solved="stat.solved"
-              :attempted="stat.attempts"
-              @click="emit('theme-click', stat.originalTheme)"
-            />
+            <StatsCard :title="stat.themeLabel" :rating="stat.rating" :accuracy="stat.accuracy" :solved="stat.solved"
+              :attempted="stat.attempts" @click="emit('theme-click', stat.originalTheme)" />
           </n-grid-item>
         </n-grid>
       </div>

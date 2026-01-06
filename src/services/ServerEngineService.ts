@@ -59,8 +59,8 @@ class ServerEngineServiceController {
       logger.info(`[ServerEngineService] Received best move: ${bestMove}`);
       return bestMove;
 
-    } catch (error: any) {
-      if (error.name === 'AbortError') {
+    } catch (error: unknown) {
+      if (error instanceof Error && error.name === 'AbortError') {
         logger.error(`[ServerEngineService] Request timed out after ${MOVE_TIMEOUT_MS}ms.`);
       } else {
         logger.error('[ServerEngineService] Failed to fetch move from server:', error);

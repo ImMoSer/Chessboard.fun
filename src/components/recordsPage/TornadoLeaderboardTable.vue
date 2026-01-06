@@ -8,7 +8,7 @@ import InfoIcon from '../InfoIcon.vue'
 
 type TornadoLeaderboards = { [key in TornadoMode]?: TornadoLeaderboardEntry[] }
 
-const props = defineProps({
+defineProps({
   title: { type: String, required: true },
   tornadoData: { type: Object as PropType<TornadoLeaderboards>, required: true },
   colorClass: { type: String, required: true },
@@ -63,7 +63,7 @@ const columns: DataTableColumns<TornadoLeaderboardEntry> = [
         <InfoIcon v-if="infoTopic" :topic="infoTopic" />
       </h3>
     </div>
-    
+
     <div class="modes-container">
       <n-grid cols="1 s:2" x-gap="12" y-gap="12" responsive="screen">
         <n-grid-item v-for="modeDef in TORNADO_DEFINITIONS" :key="modeDef.id">
@@ -71,15 +71,9 @@ const columns: DataTableColumns<TornadoLeaderboardEntry> = [
             <div class="mode-header" :style="{ backgroundColor: modeDef.color }">
               {{ modeDef.name }}
             </div>
-            <n-data-table
-              :columns="columns"
-              :data="tornadoData[modeDef.id] || []"
-              :row-key="(row: TornadoLeaderboardEntry) => row.lichess_id"
-              size="small"
-              striped
-              class="records-table"
-              :max-height="300"
-            />
+            <n-data-table :columns="columns" :data="tornadoData[modeDef.id] || []"
+              :row-key="(row: TornadoLeaderboardEntry) => row.lichess_id" size="small" striped class="records-table"
+              :max-height="300" />
           </div>
         </n-grid-item>
       </n-grid>
@@ -95,9 +89,14 @@ const columns: DataTableColumns<TornadoLeaderboardEntry> = [
   overflow: hidden;
 }
 
-.main-header { padding: 10px; border-bottom: 1px solid var(--color-border-hover); }
+.main-header {
+  padding: 10px;
+  border-bottom: 1px solid var(--color-border-hover);
+}
 
-.tornadoLeaderboard .main-header { background-color: var(--color-accent-error-hover); }
+.tornadoLeaderboard .main-header {
+  background-color: var(--color-accent-error-hover);
+}
 
 .card-title {
   color: var(--color-bg-primary);
@@ -111,7 +110,9 @@ const columns: DataTableColumns<TornadoLeaderboardEntry> = [
   gap: 10px;
 }
 
-.modes-container { padding: 12px; }
+.modes-container {
+  padding: 12px;
+}
 
 .mode-table-wrapper {
   border: 1px solid var(--color-border-hover);

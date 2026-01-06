@@ -8,7 +8,7 @@ import type { TeamBattlePlayedArena, TournamentPlayer } from '../../types/api.ty
 
 const { t } = useI18n()
 
-const props = defineProps({
+defineProps({
   tournaments: {
     type: Array as PropType<TeamBattlePlayedArena[]>,
     required: true,
@@ -24,7 +24,7 @@ const formatDateForUser = (isoDateString: string): string => {
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
     const year = date.getFullYear().toString().slice(-2)
     return `${day}.${month}.${year}`
-  } catch (e) {
+  } catch {
     return isoDateString
   }
 }
@@ -179,15 +179,8 @@ const rowProps = (row: TeamBattlePlayedArena) => {
     <div class="card-header">
       <n-h3 class="card-title">{{ t('clubPage.tournamentHistoryTitle') }}</n-h3>
     </div>
-    <n-data-table
-      v-model:expanded-row-keys="expandedRowKeys"
-      :columns="columns"
-      :data="tournaments"
-      :row-key="(row: TeamBattlePlayedArena) => row.arena_id"
-      :row-props="rowProps"
-      striped
-      class="history-table"
-    />
+    <n-data-table v-model:expanded-row-keys="expandedRowKeys" :columns="columns" :data="tournaments"
+      :row-key="(row: TeamBattlePlayedArena) => row.arena_id" :row-props="rowProps" striped class="history-table" />
   </div>
 </template>
 
@@ -227,7 +220,9 @@ const rowProps = (row: TeamBattlePlayedArena) => {
 }
 
 @media (max-width: 768px) {
-  :deep(.n-data-table-td), :deep(.n-data-table-th) {
+
+  :deep(.n-data-table-td),
+  :deep(.n-data-table-th) {
     font-size: var(--font-size-xsmall);
     padding: 8px 4px;
   }

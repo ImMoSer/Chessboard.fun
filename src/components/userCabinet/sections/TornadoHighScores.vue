@@ -1,6 +1,6 @@
 <!-- src/components/userCabinet/sections/TornadoHighScores.vue -->
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, type Component } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { useAuthStore } from '@/stores/auth.store'
@@ -11,7 +11,7 @@ const { t } = useI18n()
 const authStore = useAuthStore()
 const { userProfile } = storeToRefs(authStore)
 
-const modeMeta: Record<TornadoMode, { color: string; icon: any }> = {
+const modeMeta: Record<TornadoMode, { color: string; icon: Component }> = {
   bullet: { color: 'var(--color-accent-primary)', icon: Flash },
   blitz: { color: 'var(--color-accent-success)', icon: Flash },
   rapid: { color: 'var(--color-accent-warning)', icon: Timer },
@@ -35,7 +35,7 @@ const sortedTornadoScores = computed(() => {
     <template #header>
       <span class="card-header-text">{{ t('userCabinet.stats.tornadoTitle') }}</span>
     </template>
-    
+
     <n-grid :cols="2" :x-gap="12" :y-gap="12">
       <n-grid-item v-for="stat in sortedTornadoScores" :key="stat.mode">
         <div class="score-item" :style="{ borderColor: modeMeta[stat.mode].color }">

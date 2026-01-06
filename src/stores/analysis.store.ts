@@ -33,7 +33,7 @@ export const useAnalysisStore = defineStore('analysis', () => {
   // --- СЛЕЖЕНИЕ ЗА ИЗМЕНЕНИЯМИ ---
   watch(
     () => boardStore.fen,
-    (newFen) => {
+    () => {
       if (isPanelVisible.value && isAnalysisActive.value) {
         startCurrentPositionAnalysis()
       }

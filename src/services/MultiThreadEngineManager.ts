@@ -28,7 +28,7 @@ class MultiThreadEngineManagerController {
   private isInitializing = false
   private initPromise: Promise<void> | null = null
   private resolveInitPromise!: () => void
-  private rejectInitPromise!: (reason?: any) => void
+  private rejectInitPromise!: (reason?: unknown) => void
 
   private commandQueue: string[] = []
   private infiniteAnalysisCallback: AnalysisUpdateCallback | null = null
@@ -77,8 +77,9 @@ class MultiThreadEngineManagerController {
 
       this.initPromise?.then(() => clearTimeout(timeoutId)).catch(() => clearTimeout(timeoutId))
       this.sendCommand('uci')
-    } catch (error: any) {
-      logger.error('[MultiThreadEngineManager] Failed to initialize engine:', error.message, error)
+    } catch (error: unknown) {
+      const errorMsg = error instanceof Error ? error.message : String(error)
+      logger.error('[MultiThreadEngineManager] Failed to initialize engine:', errorMsg, error)
       this.isInitializing = false
       this.initPromise = null
       if (this.rejectInitPromise) this.rejectInitPromise(error)

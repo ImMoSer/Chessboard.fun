@@ -41,9 +41,9 @@ export const useFunclubStore = defineStore('funclub', () => {
       // Затем загружаем отчет по умолчанию
       const report = await webhookService.fetchFunclubTeamBattleReport(selectedPeriod.value)
       teamBattleReport.value = report
-    } catch (e: any) {
+    } catch (e: unknown) {
       logger.error('[FunclubStore] Error initializing page:', e)
-      error.value = e.message || 'Unknown error'
+      error.value = e instanceof Error ? e.message : 'Unknown error'
     } finally {
       isLoading.value = false
     }
@@ -107,9 +107,9 @@ export const useFunclubStore = defineStore('funclub', () => {
       const newReport = await webhookService.fetchFunclubTeamBattleReport(newPeriod)
       teamBattleReport.value = newReport
       logger.info(`[FunclubStore] Successfully loaded report for period ${newPeriod}.`)
-    } catch (e: any) {
+    } catch (e: unknown) {
       logger.error(`[FunclubStore] Error fetching report for period ${newPeriod}:`, e)
-      error.value = e.message || 'Failed to load report'
+      error.value = e instanceof Error ? e.message : 'Failed to load report'
       teamBattleReport.value = null
     } finally {
       isLoading.value = false

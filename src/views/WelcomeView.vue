@@ -1,6 +1,5 @@
 <!-- src/views/WelcomeView.vue -->
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { useI18n } from 'vue-i18n'
 import { changeLang } from '@/services/i18n'
@@ -8,7 +7,6 @@ import { storeToRefs } from 'pinia'
 
 // Инициализируем хранилище, роутер и i18n
 const authStore = useAuthStore()
-const router = useRouter()
 const { t, locale } = useI18n()
 
 // Получаем реактивные свойства из хранилища

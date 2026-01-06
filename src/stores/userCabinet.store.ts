@@ -52,9 +52,9 @@ export const useUserCabinetStore = defineStore('userCabinet', () => {
     try {
       const stats = await webhookService.fetchPersonalActivityStats()
       personalActivityStats.value = stats
-    } catch (e: any) {
-      logger.error('[UserCabinetStore] Error fetching personal activity stats:', e)
-      error.value = e.message || t('errors.unknown')
+    } catch (err: unknown) {
+      logger.error('[UserCabinetStore] Error loading user stats:', err)
+      error.value = err instanceof Error ? err.message : 'Unknown error'
     } finally {
       isPersonalActivityStatsLoading.value = false
     }
@@ -67,9 +67,9 @@ export const useUserCabinetStore = defineStore('userCabinet', () => {
     try {
       const stats = await webhookService.fetchDetailedStats()
       detailedStats.value = stats
-    } catch (e: any) {
+    } catch (e: unknown) {
       logger.error('[UserCabinetStore] Error fetching detailed stats:', e)
-      detailedStatsError.value = e.message || t('errors.unknown')
+      detailedStatsError.value = e instanceof Error ? e.message : t('errors.unknown')
     } finally {
       isDetailedStatsLoading.value = false
     }

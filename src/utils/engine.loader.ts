@@ -1,6 +1,12 @@
 // src/utils/engine.loader.ts
 import logger from './logger'
 
+declare global {
+  interface Window {
+    Stockfish?: () => Promise<EngineController>
+  }
+}
+
 /**
  * Унифицированный интерфейс для контроллера движка Stockfish.
  * Обе версии (многопоточная и однопоточная обертка) будут его реализовывать.
@@ -70,9 +76,9 @@ export function loadMultiThreadEngine(): Promise<EngineController | null> {
     script.async = true
     script.onload = async () => {
       logger.info('[EngineLoader] Multi-threaded loader script loaded.')
-      if (typeof (window as any).Stockfish === 'function') {
+      if (typeof window.Stockfish === 'function') {
         try {
-          const engine = await (window as any).Stockfish()
+          const engine = await window.Stockfish()
           logger.info('[EngineLoader] Multi-threaded Stockfish instance created successfully.')
           resolve(engine as EngineController)
         } catch (error) {

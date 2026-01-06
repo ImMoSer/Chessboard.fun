@@ -9,7 +9,7 @@ import InfoIcon from '../InfoIcon.vue'
 
 type TowerLeaderboards = { [key in TowerId]?: TowerLeaderboardEntry[] }
 
-const props = defineProps({
+defineProps({
   title: { type: String, required: true },
   towerData: { type: Object as PropType<TowerLeaderboards>, required: true },
   colorClass: { type: String, required: true },
@@ -87,7 +87,7 @@ const columns: DataTableColumns<TowerLeaderboardEntry> = [
         <InfoIcon v-if="infoTopic" :topic="infoTopic" />
       </h3>
     </div>
-    
+
     <div class="modes-container">
       <n-grid cols="1 s:2" x-gap="12" y-gap="12" responsive="screen">
         <n-grid-item v-for="towerDef in TOWER_DEFINITIONS" :key="towerDef.id">
@@ -95,15 +95,9 @@ const columns: DataTableColumns<TowerLeaderboardEntry> = [
             <div class="mode-header" :style="{ backgroundColor: towerDef.color }">
               {{ t(towerDef.nameKey) }}
             </div>
-            <n-data-table
-              :columns="columns"
-              :data="towerData[towerDef.id] || []"
-              :row-key="(row: TowerLeaderboardEntry) => row.tower_id + row.lichess_id"
-              size="small"
-              striped
-              class="records-table"
-              :max-height="300"
-            />
+            <n-data-table :columns="columns" :data="towerData[towerDef.id] || []"
+              :row-key="(row: TowerLeaderboardEntry) => row.tower_id + row.lichess_id" size="small" striped
+              class="records-table" :max-height="300" />
           </div>
         </n-grid-item>
       </n-grid>
@@ -119,9 +113,14 @@ const columns: DataTableColumns<TowerLeaderboardEntry> = [
   overflow: hidden;
 }
 
-.main-header { padding: 10px; border-bottom: 1px solid var(--color-border-hover); }
+.main-header {
+  padding: 10px;
+  border-bottom: 1px solid var(--color-border-hover);
+}
 
-.towerLeaderboard .main-header { background-color: var(--color-violett-lichess); }
+.towerLeaderboard .main-header {
+  background-color: var(--color-violett-lichess);
+}
 
 .card-title {
   color: var(--color-bg-primary);
@@ -135,7 +134,9 @@ const columns: DataTableColumns<TowerLeaderboardEntry> = [
   gap: 10px;
 }
 
-.modes-container { padding: 12px; }
+.modes-container {
+  padding: 12px;
+}
 
 .mode-table-wrapper {
   border: 1px solid var(--color-border-hover);

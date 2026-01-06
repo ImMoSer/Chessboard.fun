@@ -10,14 +10,13 @@ import type { EvaluatedLineWithSan } from '@/services/AnalysisService'
 import type { PgnNode } from '@/services/PgnService'
 import {
   NSwitch, NSelect, NButton, NButtonGroup, NScrollbar,
-  NSpace, NText, NIcon, NCard, NSpin, NTag, NTooltip
+  NSpace, NText, NIcon, NCard, NSpin, NTooltip
 } from 'naive-ui'
 import {
   ChevronBackOutline,
   ChevronForwardOutline,
   PlaySkipBackOutline,
   PlaySkipForwardOutline,
-  SettingsOutline,
   BarChartOutline,
   TerminalOutline
 } from '@vicons/ionicons5'
@@ -37,7 +36,6 @@ const {
 } = storeToRefs(analysisStore)
 
 const pgnRendererComponent = computed(() => {
-  const _fenTrigger = boardStore.fen
   const rootNode = pgnService.getRootNode()
   if (!rootNode) return null
   return h(PgnRenderer, { nodes: rootNode.children })

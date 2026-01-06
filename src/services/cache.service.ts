@@ -2,35 +2,20 @@
 
 import logger from '../utils/logger';
 
-/**
- * Defines the structure for an item stored in the cache.
- * @template T The type of the data being stored.
- */
-interface CachedItem<T> {
-  data: T;
-  timestamp: number; // The Unix timestamp (in milliseconds) when the item was stored.
-}
-
 class CacheServiceController {
   /**
    * Retrieves an item from the cache. Caching is disabled.
-   * @param key The unique key for the cache item.
-   * @param ttl The Time-To-Live in milliseconds.
    * @returns Always returns null as caching is disabled.
-   * @template T The expected type of the data.
    */
-  public get<T>(_key: string, _ttl: number): T | null {
+  public get(): unknown {
     // Кэширование на стороне клиента полностью отключено.
     return null;
   }
 
   /**
    * Stores an item in the cache. Caching is disabled.
-   * @param key The unique key for the cache item.
-   * @param data The data to be stored.
-   * @template T The type of the data being stored.
    */
-  public set<T>(_key: string, _data: T): void {
+  public set(): void {
     // Кэширование на стороне клиента полностью отключено.
   }
 

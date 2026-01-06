@@ -1,8 +1,6 @@
 // src/services/WebhookService.ts
 import logger from '../utils/logger'
-import { authService } from './AuthService'
 import type {
-  WebhookSuccessResponse,
   UpdateFinishHimStatsDto,
   GetNewTowerDto,
   SaveTowerRecordDto,
@@ -10,7 +8,6 @@ import type {
   GamePuzzle,
   TacticalTrainerStats,
   TowerData,
-  TelegramBindingUrlResponse,
   GetTacticalPuzzleDto,
   OverallSkillLeaderboardEntry,
   PersonalOverallSkillResponse,
@@ -243,8 +240,8 @@ class WebhookServiceController {
       const status = navigator.sendBeacon(url, blob)
       logger.info(`[WebhookService] sendFinishHimStatsUpdateBeacon status: ${status}`)
       return status
-    } catch (error) {
-      logger.error('[WebhookService] sendFinishHimStatsUpdateBeacon failed:', error)
+    } catch (e: unknown) {
+      logger.error('[WebhookService] sendFinishHimStatsUpdateBeacon failed:', e instanceof Error ? e.message : String(e))
       return false
     }
   }

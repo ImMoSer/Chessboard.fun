@@ -1,11 +1,8 @@
 <!-- src/components/clubPage/ClubStatsTable.vue -->
 <script setup lang="ts">
 import { h, computed, type PropType } from 'vue'
-import { useI18n } from 'vue-i18n'
 import type { DataTableColumns } from 'naive-ui'
 import type { TeamBattlePlayerSummary } from '../../types/api.types'
-
-const { t } = useI18n()
 
 interface TableColumnConfig {
   key: keyof TeamBattlePlayerSummary
@@ -30,7 +27,7 @@ const nColumns = computed<DataTableColumns<TeamBattlePlayerSummary>>(() => {
     align: col.class?.includes('text-right') ? 'right' : (col.class?.includes('text-center') ? 'center' : 'left'),
     render(row) {
       const value = row[col.key]
-      
+
       // Специфическая отрисовка для имени пользователя
       if (col.key === 'username') {
         return h('a', {
@@ -69,15 +66,8 @@ const sortedData = computed(() => {
         <info-icon v-if="infoTopic" :topic="infoTopic" base-path="info.club." color="white" />
       </div>
     </div>
-    <n-data-table
-      :columns="nColumns"
-      :data="sortedData"
-      :row-key="(row: TeamBattlePlayerSummary) => row.lichess_id"
-      size="small"
-      striped
-      class="stats-table"
-      :max-height="400"
-    />
+    <n-data-table :columns="nColumns" :data="sortedData" :row-key="(row: TeamBattlePlayerSummary) => row.lichess_id"
+      size="small" striped class="stats-table" :max-height="400" />
   </div>
 </template>
 
@@ -109,9 +99,17 @@ const sortedData = computed(() => {
 }
 
 /* Цвета заголовков из оригинального CSS */
-.title-color-primary { background-color: var(--color-accent-primary); }
-.title-color-secondary { background-color: var(--color-accent-secondary); }
-.title-color-violet { background-color: var(--color-violett-lichess); }
+.title-color-primary {
+  background-color: var(--color-accent-primary);
+}
+
+.title-color-secondary {
+  background-color: var(--color-accent-secondary);
+}
+
+.title-color-violet {
+  background-color: var(--color-violett-lichess);
+}
 
 .stats-table {
   flex: 1;

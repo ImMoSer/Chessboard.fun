@@ -1,4 +1,4 @@
-<!-- src/components/Chessboard.vue -->
+<!-- src/components/WebChessBoard.vue -->
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch, shallowRef, type PropType } from 'vue'
 import { Chessground } from '@lichess-org/chessground'
@@ -147,14 +147,9 @@ watch([() => props.animationEnabled, () => props.animationDuration], ([enabled, 
 <template>
   <div class="board-wrapper" @wheel.passive="handleWheel">
     <div ref="chessboardRef" class="chessboard"></div>
-    <PromotionDialog
-      v-if="promotionState"
-      :dest="promotionState.dest"
-      :color="promotionState.color"
-      :orientation="orientation"
-      @piece-selected="(role) => emit('complete-promotion', role)"
-      @close="emit('cancel-promotion')"
-    />
+    <PromotionDialog v-if="promotionState" :dest="promotionState.dest" :color="promotionState.color"
+      :orientation="orientation" @piece-selected="(role) => emit('complete-promotion', role)"
+      @close="emit('cancel-promotion')" />
   </div>
 </template>
 

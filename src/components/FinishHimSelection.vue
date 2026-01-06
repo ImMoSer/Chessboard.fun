@@ -5,7 +5,7 @@ import { useFinishHimStore } from '@/stores/finishHim.store'
 import { useGameStore } from '@/stores/game.store'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
-import { ADVANTAGE_THEMES, type AdvantageTheme } from '@/types/api.types'
+import { ADVANTAGE_THEMES } from '@/types/api.types'
 import { getThemeTranslationKey } from '@/utils/theme-mapper'
 
 const finishHimStore = useFinishHimStore()
@@ -61,13 +61,8 @@ onUnmounted(() => {
       <span class="selector-arrow" :class="{ 'is-open': isOpen }">▼</span>
     </button>
     <div v-if="isOpen" class="theme-dropdown">
-      <button
-        v-for="theme in availableThemes"
-        :key="theme"
-        class="theme-item"
-        :class="{ active: theme === selectedTheme }"
-        @click="handleThemeSelect(theme)"
-      >
+      <button v-for="theme in availableThemes" :key="theme" class="theme-item"
+        :class="{ active: theme === selectedTheme }" @click="handleThemeSelect(theme)">
         {{ getThemeName(theme) }}
       </button>
     </div>
@@ -79,7 +74,8 @@ onUnmounted(() => {
   position: relative;
   display: flex;
   /* --- НАЧАЛО ИЗМЕНЕНИЙ --- */
-  justify-content: center; /* Center the button */
+  justify-content: center;
+  /* Center the button */
   /* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
   width: 100%;
 }
@@ -97,10 +93,12 @@ onUnmounted(() => {
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  max-width: 250px; /* Limit width on desktop */
+  max-width: 250px;
+  /* Limit width on desktop */
   transition:
     border-color 0.2s ease,
-    opacity 0.2s ease; /* Added opacity transition */
+    opacity 0.2s ease;
+  /* Added opacity transition */
 }
 
 /* --- НАЧАЛО ИЗМЕНЕНИЙ --- */
@@ -108,6 +106,7 @@ onUnmounted(() => {
   cursor: not-allowed;
   opacity: 0.5;
 }
+
 /* --- КОНЕЦ ИЗМЕНЕНИЙ --- */
 
 .selector-toggle:hover:not(:disabled) {
@@ -144,7 +143,8 @@ onUnmounted(() => {
   border: 1px solid var(--color-border-hover);
   border-radius: var(--panel-border-radius);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-  z-index: 1010; /* Increased z-index */
+  z-index: 1010;
+  /* Increased z-index */
   width: 100%;
   min-width: 280px;
   max-height: 70vh;
@@ -179,9 +179,11 @@ onUnmounted(() => {
 .theme-dropdown::-webkit-scrollbar {
   width: 5px;
 }
+
 .theme-dropdown::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .theme-dropdown::-webkit-scrollbar-thumb {
   background: var(--color-border-hover);
   border-radius: 5px;
@@ -189,19 +191,25 @@ onUnmounted(() => {
 
 @media (orientation: portrait) {
   .selector-toggle {
-    max-width: none; /* Full width on mobile */
+    max-width: none;
+    /* Full width on mobile */
     justify-content: center;
   }
+
   .theme-dropdown {
-    max-width: none; /* Full width on mobile */
+    max-width: none;
+    /* Full width on mobile */
     min-width: 280px;
   }
+
   .selector-text-desktop {
     display: none;
   }
+
   .selector-text-mobile {
     display: block;
   }
+
   .theme-item {
     font-size: var(--font-size-xsmall);
   }

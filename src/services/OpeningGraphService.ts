@@ -98,11 +98,11 @@ class OpeningGraphService {
     const processMove = (name: string | null, eco: string | null, moves: string[]) => {
       if (!name) return;
       const simpleName = this.simplifyName(name);
-      
+
       // If we haven't seen this opening group yet, add it.
       if (!openingsMap.has(simpleName)) {
         openingsMap.set(simpleName, {
-          name: simpleName, 
+          name: simpleName,
           eco: eco || undefined,
           moves,
           slug: slugify(simpleName)
@@ -117,17 +117,17 @@ class OpeningGraphService {
       for (const [move1, [nameIdx1, ecoIdx1, nextFen1]] of Object.entries(rootNode)) {
         const name1 = nameIdx1 !== -1 ? (this.data.names[nameIdx1] || null) : null;
         const eco1 = ecoIdx1 !== -1 ? (this.data.ecos[ecoIdx1] || null) : null;
-        
+
         processMove(name1, eco1, [move1]);
 
         // Depth 2 (Black's response)
         const node2 = this.data.graph[nextFen1];
         if (node2) {
-            for (const [move2, [nameIdx2, ecoIdx2, _nextFen2]] of Object.entries(node2)) {
-                const name2 = nameIdx2 !== -1 ? (this.data.names[nameIdx2] || null) : null;
-                const eco2 = ecoIdx2 !== -1 ? (this.data.ecos[ecoIdx2] || null) : null;
-                processMove(name2, eco2, [move1, move2]);
-            }
+          for (const [move2, [nameIdx2, ecoIdx2]] of Object.entries(node2)) {
+            const name2 = nameIdx2 !== -1 ? (this.data.names[nameIdx2] || null) : null;
+            const eco2 = ecoIdx2 !== -1 ? (this.data.ecos[ecoIdx2] || null) : null;
+            processMove(name2, eco2, [move1, move2]);
+          }
         }
       }
     }

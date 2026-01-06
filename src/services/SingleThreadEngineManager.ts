@@ -28,7 +28,7 @@ export interface AnalysisOptions {
 export type AnalysisUpdateCallback = (lines: EvaluatedLine[], bestMoveUci?: string | null) => void
 
 type AnalysisResolve = (value: AnalysisResult | null) => void
-type AnalysisReject = (reason?: any) => void
+type AnalysisReject = (reason?: unknown) => void
 
 interface PendingRequest {
   resolve: AnalysisResolve
@@ -47,7 +47,7 @@ class SingleThreadEngineManagerController {
   private isInitializing = false
   private initPromise: Promise<void> | null = null
   private resolveInitPromise!: () => void
-  private rejectInitPromise!: (reason?: any) => void
+  private rejectInitPromise!: (reason?: unknown) => void
 
   private commandQueue: string[] = []
   private pendingRequest: PendingRequest | null = null
@@ -85,8 +85,9 @@ class SingleThreadEngineManagerController {
 
       this.initPromise?.then(() => clearTimeout(timeoutId)).catch(() => clearTimeout(timeoutId))
       this.sendCommand('uci')
-    } catch (error: any) {
-      logger.error('[SingleThreadEngineManager] Failed to initialize engine:', error.message, error)
+    } catch (error: unknown) {
+      const errorMsg = error instanceof Error ? error.message : String(error)
+      logger.error('[SingleThreadEngineManager] Failed to initialize engine:', errorMsg, error)
       this.isInitializing = false
       this.initPromise = null
       if (this.rejectInitPromise) this.rejectInitPromise(error)

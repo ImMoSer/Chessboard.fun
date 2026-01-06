@@ -3,8 +3,7 @@
 import { ref } from 'vue'
 import { useTowerStore } from '@/stores/tower.store'
 import { useI18n } from 'vue-i18n'
-import { TOWER_THEMES, type TowerId, type TowerTheme, type TowerMode } from '@/types/api.types'
-import { getThemeTranslationKey } from '@/utils/theme-mapper'
+import { type TowerId, type TowerTheme, type TowerMode } from '@/types/api.types'
 
 const towerStore = useTowerStore()
 const { t } = useI18n()

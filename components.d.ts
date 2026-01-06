@@ -14,7 +14,9 @@ declare module 'vue' {
     AnalysisPanel: typeof import('./src/components/AnalysisPanel.vue')['default']
     AnalyticsDisplay: typeof import('./src/components/userCabinet/AnalyticsDisplay.vue')['default']
     Chessboard: typeof import('./src/components/Chessboard.vue')['default']
+    ChessBoard: typeof import('./src/components/ChessBoard.vue')['default']
     ChessboardPreview: typeof import('./src/components/ChessboardPreview.vue')['default']
+    ChessBoardTemp: typeof import('./src/components/ChessBoardTemp.vue')['default']
     ClubPageHeader: typeof import('./src/components/clubPage/ClubPageHeader.vue')['default']
     ClubPageTabs: typeof import('./src/components/clubPage/ClubPageTabs.vue')['default']
     ClubStatsTable: typeof import('./src/components/clubPage/ClubStatsTable.vue')['default']
@@ -94,6 +96,7 @@ declare module 'vue' {
     UpcomingPositions: typeof import('./src/components/UpcomingPositions.vue')['default']
     UserProfileHeader: typeof import('./src/components/userCabinet/sections/UserProfileHeader.vue')['default']
     UserStats: typeof import('./src/components/UserStats.vue')['default']
+    WebChessBoard: typeof import('./src/components/WebChessBoard.vue')['default']
     WinrateProgressBar: typeof import('./src/components/OpeningTrainer/WinrateProgressBar.vue')['default']
   }
 }

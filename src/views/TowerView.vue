@@ -5,7 +5,6 @@ import { useRoute, useRouter } from 'vue-router'
 import { useTowerStore } from '../stores/tower.store'
 import { useGameStore } from '../stores/game.store'
 import { useControlsStore } from '../stores/controls.store'
-import { useAnalysisStore } from '../stores/analysis.store'
 
 // Layout and Panels
 import GameLayout from '../components/GameLayout.vue'
@@ -26,7 +25,6 @@ import { shareService } from '../services/share.service'
 const towerStore = useTowerStore()
 const gameStore = useGameStore()
 const controlsStore = useControlsStore()
-const analysisStore = useAnalysisStore()
 const route = useRoute()
 const router = useRouter()
 

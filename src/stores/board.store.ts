@@ -41,6 +41,7 @@ export const useBoardStore = defineStore('board', () => {
   const chessPosition = ref(Chess.fromSetup(parseFen(fen.value).unwrap()).unwrap())
 
   const turn = computed(() => chessPosition.value.turn)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const dests = computed<Dests>(() => chessgroundDests(chessPosition.value as any))
   const lastMove = ref<[Key, Key] | undefined>(undefined)
   const isCheck = computed(() => chessPosition.value.isCheck())
@@ -127,6 +128,7 @@ export const useBoardStore = defineStore('board', () => {
     }
 
     const fenBefore = makeFen(chessPosition.value.toSetup())
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const san = makeSan(chessPosition.value as any, move)
     const pieceOnDestBefore = isNormal(move) ? chessPosition.value.board.get(move.to) : undefined
     const turnBeforeMove = chessPosition.value.turn
@@ -333,7 +335,7 @@ export const useBoardStore = defineStore('board', () => {
         // We landed on Bot's turn. Skip it.
         if (move === 'backward') pgnService.navigateBackward()
         else pgnService.navigateForward()
-        
+
         _updateBoardStateFromPgn()
       }
     }

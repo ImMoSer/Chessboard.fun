@@ -30,8 +30,8 @@ const loadDataForLanguage = async () => {
     } else {
       throw new Error(t('latestBattle.errors.noData'))
     }
-  } catch (e: any) {
-    error.value = e.message || t('errors.unknown')
+  } catch (e: unknown) {
+    error.value = e instanceof Error ? e.message : t('errors.unknown')
   } finally {
     isLoading.value = false
   }

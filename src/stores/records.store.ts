@@ -36,9 +36,9 @@ export const useRecordsStore = defineStore('records', () => {
       }
       leaderboards.value = data
       logger.info('[RecordsStore] Combined leaderboards data loaded successfully.')
-    } catch (e: any) {
+    } catch (e: unknown) {
       logger.error('[RecordsStore] Error fetching combined leaderboard data:', e)
-      error.value = e.message || t('records.errors.unknown')
+      error.value = e instanceof Error ? e.message : t('records.errors.unknown')
     } finally {
       isLoading.value = false
     }
@@ -59,9 +59,9 @@ export const useRecordsStore = defineStore('records', () => {
         // Обновляем только часть данных в общем стейте
         leaderboards.value.overallSkillLeaderboard = skillData
       }
-    } catch (e: any) {
+    } catch (e: unknown) {
       logger.error(`[RecordsStore] Error fetching overall skill leaderboard for period ${period}:`, e)
-      error.value = e.message || t('records.errors.dataLoadFailed')
+      error.value = e instanceof Error ? e.message : t('records.errors.dataLoadFailed')
     } finally {
       isSkillLeaderboardLoading.value = false
     }

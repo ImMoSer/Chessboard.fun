@@ -29,6 +29,17 @@ export interface LichessParams {
   speeds: string[];
 }
 
+interface MastersBackendMove {
+  uci: string;
+  san: string;
+  stats: {
+    white: number;
+    draws: number;
+    black: number;
+  };
+  avgElo?: number;
+}
+
 const SPEED_ORDER = ['bullet', 'blitz', 'rapid', 'classical'];
 
 class OpeningApiService {
@@ -133,7 +144,7 @@ class OpeningApiService {
       throw new Error(`Masters API Error: ${response.statusText}`);
     }
 
-    const rawMoves: any[] = await response.json();
+    const rawMoves = (await response.json()) as MastersBackendMove[];
 
     const moves: LichessMove[] = rawMoves.map(m => ({
       uci: m.uci,

@@ -55,7 +55,7 @@ class AnalysisServiceController {
       return
     }
 
-    const analysisUpdateCallback: AnalysisUpdateCallback = (updatedLines, _bestMoveUci) => {
+    const analysisUpdateCallback: AnalysisUpdateCallback = (updatedLines) => {
       //logger.debug('[AnalysisService_CALLBACK]', { updatedLines })
       if (updatedLines.length > 0) {
         const linesWithSan = this.prepareLinesForDisplay(updatedLines, fen)
@@ -128,8 +128,8 @@ class AnalysisServiceController {
           break
         }
       }
-    } catch (e: any) {
-      logger.error('[AnalysisService] Error converting UCI to SAN:', e.message)
+    } catch (e: unknown) {
+      logger.error('[AnalysisService] Error converting UCI to SAN:', e instanceof Error ? e.message : String(e))
       return { pvSan: [], initialFullMoveNumber: 1, initialTurn: 'white' }
     }
 

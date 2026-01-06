@@ -54,9 +54,9 @@ class PgnServiceController {
     try {
       const setup: ChessopsSetup = parseFen(fen).unwrap()
       normalizedFen = makeFen(setup)
-    } catch (e: any) {
+    } catch (e: unknown) {
       logger.error(
-        `[PgnService] Error normalizing FEN "${fen}" in reset: ${e.message}. Using original FEN.`,
+        `[PgnService] Error normalizing FEN "${fen}" in reset: ${e instanceof Error ? e.message : String(e)}. Using original FEN.`,
       )
     }
 
@@ -178,10 +178,9 @@ class PgnServiceController {
       const rootChessPos = Chess.fromSetup(rootSetup).unwrap()
       currentFullMoveNumber = rootChessPos.fullmoves
       isWhiteToMoveInitially = rootChessPos.turn === 'white'
-    } catch (e: any) {
+    } catch (e: unknown) {
       logger.warn(
-        `[PgnService] Could not parse root FEN or create Chess pos for PGN string: ${(e as Error).message
-        }`,
+        `[PgnService] Could not parse root FEN or create Chess pos for PGN string: ${e instanceof Error ? e.message : String(e)}`,
       )
     }
 

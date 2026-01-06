@@ -5,7 +5,7 @@ import { useBoardStore } from '@/stores/board.store'
 import { useGameStore } from '@/stores/game.store'
 import { useAnalysisStore } from '@/stores/analysis.store'
 import { useThemeStore } from '@/stores/theme.store'
-import Chessboard from './Chessboard.vue'
+import WebChessBoard from './WebChessBoard.vue'
 import type { Key } from '@lichess-org/chessground/types'
 import { useBoardResizer } from '../composables/useBoardResizer'
 
@@ -86,14 +86,13 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
 
     <div class="center-column" ref="centerColumnRef">
       <div class="board-aspect-wrapper">
-        <Chessboard :fen="boardStore.fen" :orientation="boardStore.orientation" :turn-color="boardStore.turn"
+        <WebChessBoard :fen="boardStore.fen" :orientation="boardStore.orientation" :turn-color="boardStore.turn"
           :dests="boardStore.dests" :last-move="boardStore.lastMove" :check="boardStore.isCheck"
           :promotion-state="boardStore.promotionState" :drawable-shapes="boardStore.drawableShapes"
           :is-analysis-mode="boardStore.isAnalysisModeActive" :animation-enabled="isAnimationEnabled"
           :animation-duration="themeStore.currentTheme.animationDuration" @user-move="handleUserMove"
-          @check-premove="handleUserMove"
-          @complete-promotion="boardStore.completePromotion" @cancel-promotion="boardStore.cancelPromotion"
-          @wheel-navigate="handleBoardWheel" />
+          @check-premove="handleUserMove" @complete-promotion="boardStore.completePromotion"
+          @cancel-promotion="boardStore.cancelPromotion" @wheel-navigate="handleBoardWheel" />
         <slot name="center-column"></slot>
       </div>
       <div class="board-resizer" @mousedown="startResize"></div>

@@ -1,6 +1,5 @@
 // src/services/sound.service.ts
 import logger from '../utils/logger'
-import { useGameStore } from '../stores/game.store'
 
 // --- НАСТРОЙКИ ---
 const VOICE_VOLUME_KEY = 'user_voice_volume'
@@ -144,7 +143,7 @@ class SoundServiceController {
         this.audioCache.set(path, audio)
         resolve()
       }
-      audio.onerror = (e) => {
+      audio.onerror = () => {
         reject(new Error(`Failed to load audio from '${path}'.`))
       }
       audio.preload = 'auto'
