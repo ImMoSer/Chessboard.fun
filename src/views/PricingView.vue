@@ -81,11 +81,7 @@ const gameCosts = [
     icon: '🎯',
     cost: 10,
   },
-  {
-    name: t('nav.tower'),
-    icon: '🏁',
-    cost: 25,
-  },
+
   {
     name: t('nav.tacktics'),
     icon: '🧩',

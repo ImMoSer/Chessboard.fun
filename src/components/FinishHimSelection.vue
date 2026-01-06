@@ -57,7 +57,7 @@ onUnmounted(() => {
   <div class="finish-him-selection" ref="dropdownRef">
     <button class="selector-toggle" @click="toggleDropdown" :disabled="isGameActive">
       <span class="selector-text-desktop">{{ selectedThemeName }}</span>
-      <span class="selector-text-mobile">{{ t('tower.ui.themeLabel') }}</span>
+      <span class="selector-text-mobile">{{ t('welcome.buttons.tacktics') }}</span>
       <span class="selector-arrow" :class="{ 'is-open': isOpen }">▼</span>
     </button>
     <div v-if="isOpen" class="theme-dropdown">

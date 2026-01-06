@@ -7,7 +7,6 @@ An interactive web platform for chess enthusiasts, offering unique training mode
 ### Training Modes
 
 - **🎯 Finish-Him (Conversion)** - Solve tactical puzzles and prove your advantage in endgames against Stockfish
-- **⚡ Speedrun** - Timed tactical puzzles with difficulty ranging from Candidate Master to Grandmaster
 - **🧠 Automatic Tactical Trainer** - AI-powered personalized training across 25 tactical themes
 
 ### Analysis & Statistics

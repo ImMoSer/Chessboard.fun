@@ -3,7 +3,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import { useFinishHimStore } from '../stores/finishHim.store'
-import { useTowerStore } from '../stores/tower.store'
+
 import { useTornadoStore } from '../stores/tornado.store'
 import type { GamePuzzle } from '../types/api.types'
 import { getThemeTranslationKey } from '../utils/theme-mapper'
@@ -16,7 +16,6 @@ import {
   FlashOutline,
   TrendingUpOutline,
   TimeOutline,
-  LayersOutline,
   StarOutline,
   ListOutline,
   BarChartOutline
@@ -24,62 +23,19 @@ import {
 
 const route = useRoute()
 const finishHimStore = useFinishHimStore()
-const towerStore = useTowerStore()
 const tornadoStore = useTornadoStore()
 const { t } = useI18n()
 
 const activeStore = computed(() => {
-  if (route.name === 'tower') return towerStore
   if (route.name === 'tornado') return tornadoStore
   return finishHimStore
 })
 
 const activePuzzle = computed<GamePuzzle | null>(() => {
-  if (route.name === 'tower') {
-    const tower = towerStore.activeTower
-    if (tower && tower.positions.length > 0) {
-      const currentPos = tower.positions[towerStore.currentPositionIndex]
-      if (!currentPos) return null
-
-      // Use a typed record to access potentially extra properties without the raw "any" linter warning
-      const raw = currentPos as unknown as Record<string, unknown>
-      return {
-        PuzzleId: `${tower.tower_id}-${towerStore.currentPositionIndex}`,
-        FEN_0: currentPos.FEN_0,
-        Moves: currentPos.solution_moves || currentPos.Moves,
-        Rating: (raw.Rating as number) || currentPos.rating,
-        rating: (raw.Rating as number) || currentPos.rating,
-        puzzle_theme: currentPos.puzzle_theme,
-        fen_final: currentPos.fen_final,
-        bw_value: (raw.bw_value as number),
-        engm_type: currentPos.engm_type,
-        Themes: (raw.Themes as string),
-      } as GamePuzzle
-    }
-    return null
-  }
   return (activeStore.value as { activePuzzle: GamePuzzle | null }).activePuzzle
 })
 
-const activeTowerInfo = computed(() => {
-  if (route.name !== 'tower') return null
-  return towerStore.activeTower
-})
 
-const towerModeDisplay = computed(() => {
-  if (!activeTowerInfo.value) return ''
-  const theme = activeTowerInfo.value.tower_theme
-  if (theme === 'mixed_balanced') return t('tower.mode.positional')
-  if (theme === 'tactical_mixed') return t('tower.mode.tactical')
-  return t(`tower.mode.${activeTowerInfo.value.tower_mode || 'tactical'}`)
-})
-
-const towerSortedResults = computed(() => {
-  if (!activeTowerInfo.value || !activeTowerInfo.value.tower_results) return null
-  return [...activeTowerInfo.value.tower_results].sort(
-    (a, b) => a.time_in_seconds - b.time_in_seconds,
-  )
-})
 
 const tacticalThemesList = computed<string[]>(() => {
   const puzzle = activePuzzle.value
@@ -89,7 +45,7 @@ const tacticalThemesList = computed<string[]>(() => {
     return puzzle.EngmThemes_PG.replace(/[{}]/g, '').split(',').map(t => t.trim())
   }
 
-  if ((route.name === 'tower' || route.meta.game === 'finish-him') && puzzle.engm_type) {
+  if (route.meta.game === 'finish-him' && puzzle.engm_type) {
     return [getThemeTranslationKey(puzzle.engm_type)]
   }
 
@@ -138,59 +94,12 @@ const sortedResults = computed(() => {
   return [...results].sort((a, b) => a.time_in_seconds - b.time_in_seconds)
 })
 
-const towerPositionLoadedMessage = computed(() => {
-  const tower = activeTowerInfo.value
-  if (!tower) return ''
-  const msg = t('tower.feedback.positionLoaded', {
-    current: towerStore.currentPositionIndex + 1,
-    total: tower.positions.length,
-    towerName: ''
-  })
-  const parts = String(msg).split('|')
-  return (parts[0] || '').trim()
-})
+
 </script>
 
 <template>
   <div class="puzzle-info-container">
-    <!-- Tower Overview (Top Section for Tower Mode) -->
-    <transition name="fade">
-      <n-card v-if="activeTowerInfo" class="info-card tower-overview" size="small" :bordered="false">
-        <n-space vertical :size="12">
-          <n-space align="center" :size="8">
-            <n-icon color="var(--color-accent)">
-              <LayersOutline />
-            </n-icon>
-            <n-text strong uppercase depth="3" class="section-title">
-              {{ towerPositionLoadedMessage }}
-            </n-text>
-          </n-space>
 
-          <n-grid :cols="2" :x-gap="12" :y-gap="8">
-            <n-grid-item>
-              <n-statistic :label="t('tower.ui.modeLabel')">
-                <n-text strong>{{ towerModeDisplay }}</n-text>
-              </n-statistic>
-            </n-grid-item>
-            <n-grid-item>
-              <n-statistic :label="t('tower.ui.averageRating')">
-                <n-text strong>{{ activeTowerInfo.average_rating }}</n-text>
-              </n-statistic>
-            </n-grid-item>
-            <n-grid-item>
-              <n-statistic :label="t('tower.ui.skillValue')">
-                <template #prefix>
-                  <n-icon color="#f0a020">
-                    <FlashOutline />
-                  </n-icon>
-                </template>
-                <n-text strong>{{ activeTowerInfo.bw_value_total }}</n-text>
-              </n-statistic>
-            </n-grid-item>
-          </n-grid>
-        </n-space>
-      </n-card>
-    </transition>
 
     <!-- Current Puzzle Details -->
     <transition name="fade">
@@ -199,7 +108,7 @@ const towerPositionLoadedMessage = computed(() => {
           <!-- Basic Stats Row -->
           <n-grid :cols="2" :x-gap="12" :y-gap="12">
             <n-grid-item v-if="finishHimModeDisplay">
-              <n-statistic :label="t('tower.ui.modeLabel')">
+              <n-statistic :label="t('userCabinet.stats.modes.all')">
                 <n-text strong>{{ finishHimModeDisplay }}</n-text>
               </n-statistic>
             </n-grid-item>
@@ -287,7 +196,7 @@ const towerPositionLoadedMessage = computed(() => {
                 <StarOutline />
               </n-icon>
               <n-text strong uppercase depth="3" class="section-subtitle">{{ t('puzzleInfo.leaderboardTitle')
-              }}</n-text>
+                }}</n-text>
             </n-space>
             <n-table size="small" :bordered="false" class="minimal-table">
               <thead>
@@ -318,45 +227,7 @@ const towerPositionLoadedMessage = computed(() => {
       </n-card>
     </transition>
 
-    <!-- Tower Session Leaderboard -->
-    <transition name="fade">
-      <n-card v-if="activeTowerInfo && towerSortedResults && towerSortedResults.length > 0"
-        class="info-card tower-leaderboard" size="small" :bordered="false">
-        <n-space vertical :size="12">
-          <n-space align="center" :size="8">
-            <n-icon color="#f0a020">
-              <StarOutline />
-            </n-icon>
-            <n-text strong uppercase depth="3" class="section-title">{{ t('tower.ui.leaderboardTitle') }}</n-text>
-          </n-space>
 
-          <n-table size="small" :bordered="false" class="minimal-table">
-            <thead>
-              <tr>
-                <th style="width: 40px">{{ t('tower.ui.tableRank') }}</th>
-                <th>{{ t('tower.ui.tablePlayer') }}</th>
-                <th style="text-align: right">{{ t('tower.ui.tableTime') }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(result, index) in towerSortedResults" :key="result.lichess_id">
-                <td>
-                  <n-text depth="3">{{ index + 1 }}</n-text>
-                </td>
-                <td>
-                  <a :href="`https://lichess.org/@/${result.lichess_id}`" target="_blank" class="player-link">
-                    {{ result.username }}
-                  </a>
-                </td>
-                <td style="text-align: right">
-                  <n-text strong>{{ formatTime(result.time_in_seconds) }}</n-text>
-                </td>
-              </tr>
-            </tbody>
-          </n-table>
-        </n-space>
-      </n-card>
-    </transition>
   </div>
 </template>
 

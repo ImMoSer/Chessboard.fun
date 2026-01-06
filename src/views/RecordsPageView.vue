@@ -9,7 +9,7 @@ import type { SkillPeriod } from '../types/api.types'
 // Импорт дочерних компонентов
 import SkillLeaderboardTable from '../components/recordsPage/SkillLeaderboardTable.vue'
 import SimpleLeaderboardTable from '../components/recordsPage/SimpleLeaderboardTable.vue'
-import TowerLeaderboardTable from '../components/recordsPage/TowerLeaderboardTable.vue'
+
 // --- НАЧАЛО ИЗМЕНЕНИЙ ---
 import TornadoLeaderboardTable from '../components/recordsPage/TornadoLeaderboardTable.vue'
 // --- КОНЕЦ ИЗМЕНЕНИЙ ---
@@ -31,11 +31,7 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
 
 <template>
   <div class="records-page">
-    <img
-      class="records-page__banner"
-      src="/svg/ChessBoardLeader.svg"
-      :alt="t('records.bannerAlt')"
-    />
+    <img class="records-page__banner" src="/svg/ChessBoardLeader.svg" :alt="t('records.bannerAlt')" />
 
     <div v-if="isLoading" class="loading-message">
       {{ t('common.loading') }}
@@ -48,73 +44,37 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
       <!-- Skill Streak Mega Leaderboard -->
       <SkillLeaderboardTable
         v-if="leaderboards.skillStreakMegaLeaderboard && leaderboards.skillStreakMegaLeaderboard.length > 0"
-        :title="t('records.titles.skillStreakMega')"
-        :entries="leaderboards.skillStreakMegaLeaderboard"
-        color-class="skillStreakMega"
-        :show-streak="true"
-        info-topic="skillStreakMega"
-      />
+        :title="t('records.titles.skillStreakMega')" :entries="leaderboards.skillStreakMegaLeaderboard"
+        color-class="skillStreakMega" :show-streak="true" info-topic="skillStreakMega" />
 
       <!-- Skill Streak Leaderboard -->
       <SkillLeaderboardTable
         v-if="leaderboards.skillStreakLeaderboard && leaderboards.skillStreakLeaderboard.length > 0"
-        :title="t('records.titles.skillStreak')"
-        :entries="leaderboards.skillStreakLeaderboard"
-        color-class="skillStreak"
-        :show-streak="true"
-        info-topic="skillStreak"
-      />
+        :title="t('records.titles.skillStreak')" :entries="leaderboards.skillStreakLeaderboard"
+        color-class="skillStreak" :show-streak="true" info-topic="skillStreak" />
 
       <!-- Top Today Leaderboard -->
-      <SkillLeaderboardTable
-        v-if="leaderboards.topTodayLeaderboard && leaderboards.topTodayLeaderboard.length > 0"
-        :title="t('records.titles.topToday')"
-        :entries="leaderboards.topTodayLeaderboard"
-        color-class="topToday"
-        :show-timer="true"
-        info-topic="topToday"
-      />
+      <SkillLeaderboardTable v-if="leaderboards.topTodayLeaderboard && leaderboards.topTodayLeaderboard.length > 0"
+        :title="t('records.titles.topToday')" :entries="leaderboards.topTodayLeaderboard" color-class="topToday"
+        :show-timer="true" info-topic="topToday" />
 
       <!-- Tornado Leaderboard -->
-      <TornadoLeaderboardTable
-        v-if="leaderboards.tornadoLeaderboard"
-        :title="t('nav.tornado')"
-        :tornado-data="leaderboards.tornadoLeaderboard"
-        color-class="tornadoLeaderboard"
-        info-topic="tornadoLeaderboard"
-      />
+      <TornadoLeaderboardTable v-if="leaderboards.tornadoLeaderboard" :title="t('nav.tornado')"
+        :tornado-data="leaderboards.tornadoLeaderboard" color-class="tornadoLeaderboard"
+        info-topic="tornadoLeaderboard" />
 
-      <!-- Tower Leaderboards -->
-      <TowerLeaderboardTable
-        v-if="leaderboards.towerLeaderboards"
-        :title="t('records.titles.towerLeaderboard')"
-        :tower-data="leaderboards.towerLeaderboards"
-        color-class="towerLeaderboard"
-        info-topic="towerLeaderboard"
-      />
+
 
       <!-- Finish Him Leaderboard -->
-      <SimpleLeaderboardTable
-        v-if="leaderboards.finishHimLeaderboard && leaderboards.finishHimLeaderboard.length > 0"
-        :title="t('records.titles.topFinishHim')"
-        :entries="leaderboards.finishHimLeaderboard"
-        mode="finish-him"
-        color-class="finishHimLeaderboard"
-        info-topic="topFinishHim"
-      />
+      <SimpleLeaderboardTable v-if="leaderboards.finishHimLeaderboard && leaderboards.finishHimLeaderboard.length > 0"
+        :title="t('records.titles.topFinishHim')" :entries="leaderboards.finishHimLeaderboard" mode="finish-him"
+        color-class="finishHimLeaderboard" info-topic="topFinishHim" />
 
       <!-- Overall Skill Leaderboard -->
-      <SkillLeaderboardTable
-        v-if="leaderboards.overallSkillLeaderboard"
-        :title="t('records.titles.overallSkill')"
-        :entries="leaderboards.overallSkillLeaderboard"
-        color-class="overallSkill"
-        :show-filter="true"
-        :is-loading="isSkillLeaderboardLoading"
-        :selected-period="selectedSkillPeriod"
-        info-topic="overallSkill"
-        @period-change="handleSkillPeriodChange"
-      />
+      <SkillLeaderboardTable v-if="leaderboards.overallSkillLeaderboard" :title="t('records.titles.overallSkill')"
+        :entries="leaderboards.overallSkillLeaderboard" color-class="overallSkill" :show-filter="true"
+        :is-loading="isSkillLeaderboardLoading" :selected-period="selectedSkillPeriod" info-topic="overallSkill"
+        @period-change="handleSkillPeriodChange" />
     </div>
   </div>
 </template>
@@ -175,6 +135,7 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
     padding: 10px;
     gap: 15px;
   }
+
   .records-page__banner {
     max-height: 150px;
   }

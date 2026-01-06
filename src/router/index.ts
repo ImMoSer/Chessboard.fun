@@ -6,7 +6,7 @@ import { useUiStore } from '../stores/ui.store'
 import i18n from '../services/i18n'
 import { useAnalysisStore } from '../stores/analysis.store'
 import { useFinishHimStore } from '../stores/finishHim.store'
-import { useTowerStore } from '../stores/tower.store'
+
 import { useAuthStore } from '../stores/auth.store'
 import { useTornadoStore } from '../stores/tornado.store'
 
@@ -15,13 +15,13 @@ import WelcomeView from '../views/WelcomeView.vue'
 import AboutView from '../views/AboutView.vue'
 import PricingView from '../views/PricingView.vue'
 import RecordsPageView from '../views/RecordsPageView.vue'
-import TowerView from '../views/TowerView.vue'
+
 import UserCabinetView from '../views/UserCabinetView.vue'
 import ModeSelectionView from '../views/ModeSelectionView.vue'
 import TornadoView from '../views/TornadoView.vue'
 import TornadoMistakesView from '../views/TornadoMistakesView.vue'
 import FunclubLatestBattleView from '../views/FunclubLatestBattleView.vue'
-import TowerLoader from '../views/TowerLoader.vue'
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -31,13 +31,7 @@ const router = createRouter({
       name: 'welcome',
       component: WelcomeView,
     },
-    {
-      path: '/tower/:difficulty/:theme',
-      name: 'tower-loader',
-      component: TowerLoader,
-      props: true,
-      meta: { requiresAuth: true },
-    },
+
     {
       path: '/sandbox',
       name: 'sandbox-base',
@@ -79,12 +73,7 @@ const router = createRouter({
       component: FinishHimView,
       meta: { isGame: true, requiresAuth: true, game: 'finish-him' },
     },
-    {
-      path: '/tower/:towerId?',
-      name: 'tower',
-      component: TowerView,
-      meta: { isGame: true, requiresAuth: true, game: 'tower' },
-    },
+
     {
       path: '/tornado',
       name: 'tornado-selection',
@@ -226,9 +215,7 @@ router.afterEach(async (to, from) => {
   // Исключение для перехода из режима "Торнадо" на страницу ошибок "Торнадо"
   const isTornadoToMistakes = fromBaseRoute === 'tornado' && toBaseRoute === 'tornado-mistakes'
 
-  if (fromBaseRoute === 'tower' && toBaseRoute !== 'tower') {
-    useTowerStore().reset()
-  } else if (fromBaseRoute === 'finish-him' && toBaseRoute !== 'finish-him') {
+  if (fromBaseRoute === 'finish-him' && toBaseRoute !== 'finish-him') {
     useFinishHimStore().reset()
   } else if (fromBaseRoute === 'tornado' && toBaseRoute !== 'tornado' && !isTornadoToMistakes) {
     useTornadoStore().reset()

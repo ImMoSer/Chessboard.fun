@@ -4,7 +4,7 @@ import type { EngineId, Color as ChessgroundColor } from '@/types/api.types'
 import { useUiStore } from '@/stores/ui.store'
 import i18n from './i18n'
 
-type ShareMode = 'finish-him' | 'tacktics' | 'tower' | 'sandbox'
+type ShareMode = 'finish-him' | 'tacktics' | 'sandbox'
 
 class ShareServiceController {
   /**

@@ -35,7 +35,7 @@ const tierToPieceMap: Record<string, string> = {
 
 const skillModes: { key: keyof SkillByMode; nameKey: string; color: string }[] = [
   { key: 'finishHim', nameKey: 'userCabinet.stats.modes.finishHim', color: 'var(--color-accent-primary)' },
-  { key: 'tower', nameKey: 'userCabinet.stats.modes.tower', color: 'var(--color-violett-lichess)' },
+
   { key: 'tornado', nameKey: 'nav.tornado', color: 'var(--color-accent-secondary)' },
 ]
 
@@ -95,7 +95,7 @@ const columns = computed<DataTableColumns<OverallSkillLeaderboardEntry | SkillSt
     render(row) {
       return h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '12px' } }, [
         h('span', { style: { fontWeight: 'bold' } }, row.total_skill),
-        h('div', { class: 'skill-progress-bar' }, 
+        h('div', { class: 'skill-progress-bar' },
           skillModes.map(mode => {
             const val = row.skill_by_mode[mode.key] || 0
             const width = row.total_skill > 0 ? (val / row.total_skill) * 100 : 0
@@ -123,19 +123,15 @@ const columns = computed<DataTableColumns<OverallSkillLeaderboardEntry | SkillSt
         <InfoIcon v-if="infoTopic" :topic="infoTopic" />
       </h3>
     </div>
-    
+
     <div v-if="showTimer" class="timer-banner">
       {{ localResetTimeMessage }}
     </div>
 
     <n-space vertical class="controls-area" :size="12">
       <div v-if="showFilter" class="filter-row">
-        <n-select
-          :value="selectedPeriod"
-          :options="periodOptions"
-          @update:value="(val: string) => emit('period-change', val as any)"
-          style="width: 200px"
-        />
+        <n-select :value="selectedPeriod" :options="periodOptions"
+          @update:value="(val: string) => emit('period-change', val as any)" style="width: 200px" />
       </div>
 
       <div class="legend-row">
@@ -148,15 +144,8 @@ const columns = computed<DataTableColumns<OverallSkillLeaderboardEntry | SkillSt
       </div>
     </n-space>
 
-    <n-data-table
-      :columns="columns"
-      :data="entries"
-      :loading="isLoading"
-      :row-key="(row: any) => row.lichess_id"
-      size="small"
-      striped
-      class="records-table"
-    />
+    <n-data-table :columns="columns" :data="entries" :loading="isLoading" :row-key="(row: any) => row.lichess_id"
+      size="small" striped class="records-table" />
   </div>
 </template>
 
@@ -170,13 +159,27 @@ const columns = computed<DataTableColumns<OverallSkillLeaderboardEntry | SkillSt
   flex-direction: column;
 }
 
-.card-header { padding: 10px; border-bottom: 1px solid var(--color-border-hover); }
+.card-header {
+  padding: 10px;
+  border-bottom: 1px solid var(--color-border-hover);
+}
 
 /* Цвета из оригинала */
-.skillStreak .card-header { background-color: var(--color-accent-success); }
-.skillStreakMega .card-header { background-color: var(--color-violett-lichess); }
-.topToday .card-header { background-color: var(--color-accent-warning); }
-.overallSkill .card-header { background-color: var(--color-accent-primary); }
+.skillStreak .card-header {
+  background-color: var(--color-accent-success);
+}
+
+.skillStreakMega .card-header {
+  background-color: var(--color-violett-lichess);
+}
+
+.topToday .card-header {
+  background-color: var(--color-accent-warning);
+}
+
+.overallSkill .card-header {
+  background-color: var(--color-accent-primary);
+}
 
 .card-title {
   color: var(--color-bg-primary);
@@ -203,11 +206,27 @@ const columns = computed<DataTableColumns<OverallSkillLeaderboardEntry | SkillSt
   padding: 12px;
 }
 
-.filter-row { display: flex; justify-content: center; }
+.filter-row {
+  display: flex;
+  justify-content: center;
+}
 
-.legend-item { display: flex; align-items: center; gap: 6px; }
-.legend-item .dot { width: 10px; height: 10px; border-radius: 50%; }
-.legend-item .label { font-size: var(--font-size-small); color: var(--color-text-muted); }
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-item .dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.legend-item .label {
+  font-size: var(--font-size-small);
+  color: var(--color-text-muted);
+}
 
 .records-table {
   --n-td-color-striped: var(--color-bg-tertiary);
@@ -234,7 +253,9 @@ const columns = computed<DataTableColumns<OverallSkillLeaderboardEntry | SkillSt
   border: 1px solid var(--color-border-hover);
 }
 
-.skill-bar-segment { height: 100%; }
+.skill-bar-segment {
+  height: 100%;
+}
 
 @media (max-width: 600px) {
   :deep(.skill-progress-bar) {

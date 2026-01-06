@@ -13,7 +13,7 @@ import { useUiStore } from './ui.store'
 import { pgnService } from '../services/PgnService'
 
 export type GamePhase = 'IDLE' | 'LOADING' | 'PLAYING' | 'GAMEOVER'
-export type GameMode = 'finish-him' | 'tower' | 'tornado' | 'sandbox' | 'opening-trainer' | null
+export type GameMode = 'finish-him' | 'tornado' | 'sandbox' | 'opening-trainer' | null
 
 const BOT_MOVE_DELAY_MS = 50
 const FIRST_BOT_MOVE_DELAY_MS = 500

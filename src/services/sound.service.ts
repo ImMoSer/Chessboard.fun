@@ -34,7 +34,7 @@ export type SoundEvent =
   | 'game_user_lost'
   | 'game_tacktics_error'
   | 'game_tacktics_success' // --- НАЧАЛО ИЗМЕНЕНИЙ ---
-  | 'game_tower_win_series'
+
 // --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
 // --- ДИНАМИЧЕСКАЯ ЗАГРУЗКА ЗВУКОВЫХ ПУЛОВ ---
@@ -91,10 +91,7 @@ const soundDefinitions: Record<SoundEvent, { track: SoundTrack; path: string | s
   // --- НАЧАЛО ИЗМЕНЕНИЙ ---
   game_tacktics_success: { track: 'background', path: '/sounds/gameStore/TacticksSuccess.mp3' },
   // --- КОНЕЦ ИЗМЕНЕНИЙ ---
-  game_tower_win_series: {
-    track: 'background',
-    path: createPool('/sounds/gameStore/applaus_backround'),
-  },
+
 }
 
 class SoundServiceController {

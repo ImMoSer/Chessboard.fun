@@ -9,31 +9,7 @@ export type EngineId =
 
 export type Color = 'white' | 'black'
 
-// --- Original types from api.types.ts ---
-export const TOWER_IDS = ['CM', 'FM', 'IM', 'GM'] as const
-export type TowerId = (typeof TOWER_IDS)[number]
 
-export const TOWER_THEMES = [
-  'mix',
-  'rook_and_minor_vs_rook',
-  'rook_endgame',
-  'pawn_endgame',
-  'queens_vs_rooks',
-  'knight_endgame',
-  'bishop_endgame',
-  'rooks_vs_minors',
-  'opposite_color_bishops',
-  'two_rooks_endgame',
-  'queens_vs_minors',
-  'queen_endgame',
-  'knights_vs_bishops',
-  'bishops_vs_knights',
-  'minors_vs_rooks',
-  'vs_queen_disadvantage',
-  'mixed_balanced',
-  'tactical_mixed',
-] as const
-export type TowerTheme = (typeof TOWER_THEMES)[number]
 
 // --- TORNADO MODE ---
 export type TornadoMode = 'bullet' | 'blitz' | 'rapid' | 'classic'
@@ -142,27 +118,7 @@ export interface AdvantageResultDto {
 }
 // --- END ADVANTAGE MODE ---
 
-export interface TowerPositionEntry {
-  FEN_0: string
-  rating: number
-  bot_color: 'w' | 'b'
-  solution_moves: string
-  Moves?: string
-  absoluteIndex?: number
-  fen_final?: string
-  avg_rating?: number
-  engm_rating?: number
-  puzzle_theme?: string
-  engm_type?: string
-}
 
-export interface TowerResultEntry {
-  date?: string
-  username: string
-  time_in_seconds: number
-  lichess_id: string
-  record_timestamp_ms?: number
-}
 
 export type WebhookSuccessResponse<T> = T | null
 
@@ -173,9 +129,7 @@ export interface PuzzleResultEntry {
   record_timestamp_ms: number
 }
 
-export interface GetFinishHimPuzzleDto {
-  engm_type?: TowerTheme
-}
+
 
 export interface UpdateFinishHimStatsDto {
   PuzzleId: string
@@ -184,22 +138,8 @@ export interface UpdateFinishHimStatsDto {
   bw_value: number
 }
 
-export type TowerMode = 'tactical' | 'positional'
 
-export interface GetNewTowerDto {
-  tower_type: TowerId
-  tower_theme: TowerTheme
-  tower_mode?: TowerMode
-}
-export interface SaveTowerRecordDto {
-  username: string
-  tower_id: string
-  tower_type: TowerId
-  time_in_seconds: number
-  isNewRecord?: boolean
-  success: boolean
-  bw_value_total: number
-}
+
 
 export interface SubmitTacticalResultDto {
   PuzzleId: string
@@ -230,7 +170,7 @@ export interface GamePuzzle {
   fen_final?: string
   endgame_results?: PuzzleResultEntry[]
   Themes_PG?: string[]
-  engm_type?: TowerTheme | null
+  engm_type?: AdvantageTheme | null
   difficulty_level?: string | null
   engmRating?: number
   EngmThemes_PG?: string
@@ -250,16 +190,7 @@ export interface TacticalTrainerStats {
   UserStatsUpdate?: UserStatsUpdate
 }
 
-export interface TowerData {
-  tower_id: string
-  tower_type: TowerId
-  tower_theme: TowerTheme
-  tower_mode?: TowerMode
-  bw_value_total: number
-  average_rating: number
-  positions: TowerPositionEntry[]
-  tower_results: TowerResultEntry[] | null
-}
+
 export interface TournamentInfo {
   name: string
   url: string
@@ -292,15 +223,7 @@ export interface FinishHimLeaderboardEntry {
   subscriptionTier?: string
 }
 
-export interface TowerLeaderboardEntry {
-  rank: number
-  tower_id: string
-  username: string
-  best_time: number
-  days_old: number
-  lichess_id: string
-  subscriptionTier?: string
-}
+
 
 export interface TornadoLeaderboardEntry {
   rank: number
@@ -312,7 +235,6 @@ export interface TornadoLeaderboardEntry {
 }
 
 export interface WorktableLeaderboards {
-  towerLeaderboards: { [key in TowerId]?: TowerLeaderboardEntry[] }
   finishHimLeaderboard: FinishHimLeaderboardEntry[]
 }
 
@@ -328,7 +250,6 @@ export interface LeaderboardApiResponse extends WorktableLeaderboards {
 
 export interface SkillByMode {
   finishHim: number
-  tower: number
   tacticalTrainer: number
   tornado: number
 }
@@ -387,7 +308,6 @@ export interface ActivityModeStats {
 }
 
 export interface ActivityPeriodStats {
-  tower: ActivityModeStats
   advantage: ActivityModeStats
   tornado: ActivityModeStats
 }
@@ -421,15 +341,9 @@ export interface LichessUserProfile {
   }
 }
 
-export interface TowerAttempt {
-  versuch: number
-  tower_id: string
-  best_time: number
-}
-export type TowerStats = { [key: string]: TowerAttempt[] }
+
 
 export interface PuzzlesSolvedToday {
-  tower: number
   advantage: number
   tacticalTrainer: number
   tornado: number
@@ -437,7 +351,6 @@ export interface PuzzlesSolvedToday {
 }
 
 export interface SkillEarnedToday {
-  tower: number
   advantage: number
   tacticalTrainer: number
   tornado: number
@@ -667,13 +580,9 @@ export interface AdvantageProfileDto {
   themes: AdvantageThemeStatDto[]
 }
 
-export interface TowerProfileDto {
-  bestTower: string
-  bestTime: number
-}
+
 
 export interface UserProfileStatsDto {
   tornado: TornadoProfileDto
   advantage: AdvantageProfileDto
-  tower: TowerProfileDto
 }

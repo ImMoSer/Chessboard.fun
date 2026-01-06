@@ -3,7 +3,7 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useFinishHimStore } from '@/stores/finishHim.store'
-import { useTowerStore } from '@/stores/tower.store'
+
 import { useTornadoStore } from '@/stores/tornado.store'
 import { useControlsStore } from '@/stores/controls.store'
 import FinishHimSelection from '@/components/FinishHimSelection.vue'
@@ -14,14 +14,11 @@ const { t } = useI18n()
 
 const route = useRoute()
 const finishHimStore = useFinishHimStore()
-const towerStore = useTowerStore()
 const tornadoStore = useTornadoStore()
 useControlsStore()
 
 const formattedTimer = computed(() => {
-  if (route.name === 'tower') {
-    return towerStore.formattedTimer
-  }
+
   if (route.name === 'tornado') {
     return tornadoStore.formattedTimer
   }
@@ -58,28 +55,23 @@ const containerClass = computed(() => {
     </div>
 
     <!-- Селектор тем для FinishHim -->
-    <FinishHimSelection
-      v-if="
-        route.name === 'finish-him' ||
-        route.name === 'finish-him-play' ||
-        route.name === 'finish-him-puzzle'
-      "
-    />
+    <FinishHimSelection v-if="
+      route.name === 'finish-him' ||
+      route.name === 'finish-him-play' ||
+      route.name === 'finish-him-puzzle'
+    " />
 
-    <div
-      v-if="
-        [
-          'finish-him',
-          'finish-him-play',
-          'finish-him-puzzle',
-          'tower',
-          'sandbox',
-          'sandbox-with-engine',
-          'sandbox-with-engine-and-color',
-        ].includes(route.name as string)
-      "
-      class="engine-selector-container"
-    >
+    <div v-if="
+      [
+        'finish-him',
+        'finish-him-play',
+        'finish-him-puzzle',
+
+        'sandbox',
+        'sandbox-with-engine',
+        'sandbox-with-engine-and-color',
+      ].includes(route.name as string)
+    " class="engine-selector-container">
       <img src="/buttons/robot.svg" alt="Select Engine" class="robot-icon" />
       <EngineSelector />
     </div>

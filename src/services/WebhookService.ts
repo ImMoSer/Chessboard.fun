@@ -2,12 +2,9 @@
 import logger from '../utils/logger'
 import type {
   UpdateFinishHimStatsDto,
-  GetNewTowerDto,
-  SaveTowerRecordDto,
   SubmitTacticalResultDto,
   GamePuzzle,
   TacticalTrainerStats,
-  TowerData,
   GetTacticalPuzzleDto,
   OverallSkillLeaderboardEntry,
   PersonalOverallSkillResponse,
@@ -15,7 +12,6 @@ import type {
   LeaderboardApiResponse,
   PersonalActivityStatsResponse,
   GameResultResponse,
-  GetFinishHimPuzzleDto,
   TornadoMode,
   TornadoNextPuzzleDto,
   TornadoEndSessionDto,
@@ -204,16 +200,7 @@ class WebhookServiceController {
   }
   // --- END ADVANTAGE API ---
 
-  public async fetchPuzzle(dto?: GetFinishHimPuzzleDto): Promise<GamePuzzle | null> {
-    return this._apiRequest<GamePuzzle>('/n8n-proxy/puzzles/finish-him', 'POST', 'fetchPuzzle', dto)
-  }
-  public async fetchPuzzleById(puzzleId: string): Promise<GamePuzzle | null> {
-    return this._apiRequest<GamePuzzle>(
-      `/n8n-proxy/puzzles/finish-him/${puzzleId}`,
-      'GET',
-      'fetchPuzzleById',
-    )
-  }
+
 
   public async sendFinishHimStatsUpdate(
     dto: UpdateFinishHimStatsDto,
@@ -246,20 +233,7 @@ class WebhookServiceController {
     }
   }
 
-  public async fetchNewTower(dto: GetNewTowerDto): Promise<TowerData | null> {
-    return this._apiRequest<TowerData>('/n8n-proxy/towers/new', 'POST', 'fetchNewTower', dto)
-  }
-  public async fetchTowerById(towerId: string): Promise<TowerData | null> {
-    return this._apiRequest<TowerData>(`/n8n-proxy/towers/${towerId}`, 'GET', 'fetchTowerById')
-  }
-  public async sendTowerRecord(dto: SaveTowerRecordDto): Promise<GameResultResponse | null> {
-    return this._apiRequest<GameResultResponse>(
-      '/n8n-proxy/towers/record',
-      'POST',
-      'sendTowerRecord',
-      dto,
-    )
-  }
+
 
   public async fetchTacticalPuzzle(dto: GetTacticalPuzzleDto): Promise<GamePuzzle | null> {
     return this._apiRequest<GamePuzzle>(

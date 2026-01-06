@@ -36,10 +36,7 @@ const handleChangeLang = (lang: 'en' | 'ru' | 'de') => {
           <span class="mode-button-icon">🎯</span>
           <span class="mode-button-text">{{ t('welcome.buttons.finishHim') }}</span>
         </router-link>
-        <router-link class="mode-button" to="/tower">
-          <span class="mode-button-icon">🏁</span>
-          <span class="mode-button-text">{{ t('welcome.buttons.tower') }}</span>
-        </router-link>
+
         <router-link class="mode-button" to="/user-cabinet">
           <span class="mode-button-icon">👤</span>
           <span class="mode-button-text">{{ t('nav.userCabinet') }}</span>

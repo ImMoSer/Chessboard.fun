@@ -28,10 +28,7 @@
         "title": "Finish Him",
         "content": "Löse zuerst ein taktisches Rätsel, dann beweise deinen Vorteil im Endspiel gegen die gewählte Engine. Skill-Punkte werden für Siege vergeben und entsprechen der Materialsumme auf dem Brett (♟=1, ♞♝=3, ♜=5, ♛=9). Remis und Niederlagen geben keine Punkte. Die Durchlaufzeit wird ebenfalls für die Bestenliste erfasst."
       },
-      "tower": {
-        "title": "Speedrun",
-        "content": "Teste deine Geschwindigkeit und Genauigkeit, indem du eine Serie taktischer Aufgaben gegen die Uhr löst. Die Schwierigkeit reicht vom Kandidatenmeister bis zum Großmeister. Du hast drei Leben für den gesamten Durchlauf. Skill-Punkte entsprechen der Materialsumme aller Positionen der Sitzung (♟=1, ♞♝=3, ♜=5, ♛=9). Werden nur bei vollständigem Durchlauf vergeben."
-      },
+
       "tornado": {
         "title": "Tornado",
         "content": "Vier Zeitkontrollen verfügbar: 1+1, 3+2, 5+3 und 10+5 (separate Wertung in jeder). Löse so viele Aufgaben wie möglich innerhalb der Zeitbegrenzung. Wertung wird mit dem Glicko2-System basierend auf Aufgabenschwierigkeit und aufgewendeter Zeit berechnet. Jede gelöste Aufgabe gibt 1 Skill-Punkt."
@@ -42,13 +39,10 @@
         "title": "Finish-Him-Meister",
         "content": "TOP-10 der schnellsten Zeiten im Finish-Him-Modus. Rekorde sind immer an eine bestimmte Aufgabe gebunden. Du kannst versuchen, in jeder deinen Rekord aufzustellen! Nur ein Rekord pro Aufgabe ist möglich."
       },
-      "towerLeaderboard": {
-        "title": "Speedrun-Meister",
-        "content": "TOP-10 der schnellsten Zeiten im Speedrun-Modus über die Disziplinen: KM, FM, IM, GM. Rekorde sind an bestimmte Speedruns gebunden. Versuche, deinen Rekord aufzustellen! Nur ein Rekord pro Speedrun ist möglich."
-      },
+
       "overallSkill": {
         "title": "Gesamt-Skill-Wertung",
-        "content": "Gesamt-Skill-Punkte über alle Spielmodi für den gewählten Zeitraum: Woche, 14 Tage, 21 Tage oder Monat. Skill-Punkte entsprechen der Materialsumme (♟=1, ♞♝=3, ♜=5, ♛=9) in den Modi Finish Him und Speedrun. Im Tornado-Modus gibt jede Aufgabe 1 Punkt. Nur Siege zählen."
+        "content": "Gesamt-Skill-Punkte über alle Spielmodi für den gewählten Zeitraum: Woche, 14 Tage, 21 Tage oder Monat. Skill-Punkte entsprechen der Materialsumme (♟=1, ♞♝=3, ♜=5, ♛=9) im Modus Finish Him. Im Tornado-Modus gibt jede Aufgabe 1 Punkt. Nur Siege zählen."
       },
       "skillStreak": {
         "title": "Tägliche Serien-Wertung",
@@ -98,7 +92,7 @@
     "home": "Start",
     "openingTrainer": "Eröffnungstrainer",
     "finishHim": "FinishHim",
-    "tower": "Speedrun",
+
     "tacktics": "Taktik",
     "tornado": "Tornado",
     "leaderboards": "Bestenlisten",
@@ -175,7 +169,7 @@
     "titleV2": "Wählen Sie einen Spielmodus",
     "buttons": {
       "finishHim": "FinishHim",
-      "tower": "Speedrun",
+
       "tacktics": "Taktik",
       "clubs": "FunClub",
       "leaderboards": "Bestenlisten"
@@ -198,47 +192,7 @@
       "puzzleNotFound": "Aufgabe mit der ID {puzzleId} wurde nicht gefunden oder ist nicht verfügbar."
     }
   },
-  "tower": {
-    "names": {
-      "CM": "CM",
-      "FM": "FM",
-      "IM": "IM",
-      "GM": "GM"
-    },
-    "feedback": {
-      "selectTowerAndStart": "Wählen Sie einen Speedrun, um zu beginnen.",
-      "loadingTower": "Lade {towerName}...",
-      "positionLoaded": "Stellung {current}/{total} | {towerName}",
-      "positionWon": "Stellung geschafft!",
-      "towerCompleted": "Speedrun {towerName} in {time} abgeschlossen!",
-      "positionFailedWithLives": "Versuch fehlgeschlagen. Sie haben noch {lives} Leben.",
-      "gameOver": "Game Over. Sie haben keine Leben mehr."
-    },
-    "mode": {
-      "tactical": "Taktisch",
-      "positional": "Positionell",
-      "mix": "Gemischt"
-    },
-    "ui": {
-      "modeLabel": "Modus",
-      "upcomingPositionsTitle": "Nächste Stellungen",
-      "leaderboardTitle": "Bestenliste",
-      "themeLabel": "Thema",
-      "livesLabel": "Leben",
-      "averageRating": "Durchschnitts-Wertung",
-      "skillValue": "Skill-Punkte",
-      "tableRank": "#",
-      "tablePlayer": "Spieler",
-      "tableTime": "Bestzeit"
-    },
-    "confirm": {
-      "restartWithPenalty": "Sind Sie sicher, dass Sie die aktuelle Position neu starten möchten? Dies kostet ein Leben."
-    },
-    "error": {
-      "towerNotFound": "Der angeforderte Speedrun konnte nicht gefunden werden.",
-      "noPositionsInTower": "Keine Stellungen für den angeforderten Turm gefunden."
-    }
-  },
+
   "tacktics": {
     "feedback": {
       "getReady": "Drücken Sie 'Spielen', um zu starten.",
@@ -321,7 +275,7 @@
     "bannerAlt": "Bestenlisten-Banner",
     "titles": {
       "topFinishHim": "Meister der FinishHim",
-      "towerLeaderboard": "Speedrun-Meister",
+
       "overallSkill": "Gesamter Skill",
       "skillStreak": "+100 jeden Tag",
       "skillStreakMega": "Tornado +300 jeden Tag",
@@ -493,12 +447,11 @@
       "modes": {
         "all": "Modus",
         "finishHim": "FinishHim",
-        "tower": "Speedrun",
+
         "tacticalTrainer": "Taktik"
       },
       "noData": "Keine Daten für den ausgewählten Zeitraum verfügbar.",
-      "towerTitle": "Speedrun-Statistik",
-      "bestTime": "Bestzeit",
+
       "attempts": "Versuche",
       "puzzle": "Aufgabe"
     },
@@ -595,8 +548,6 @@
     "modes": {
       "conversionTitle": "Finish-Him: ",
       "conversion": "Ein einzigartiger Modus, in dem Sie zuerst eine taktische Aufgabe lösen und dann Ihren Vorteil im Endspiel gegen die Stockfish-Engine beweisen müssen.",
-      "speedrunTitle": "Speedrun: ",
-      "speedrun": "Testen Sie Ihre Geschwindigkeit und Genauigkeit, indem Sie eine Reihe von zeitgesteuerten taktischen Aufgaben lösen. Die Schwierigkeit der Türme reicht vom Kandidatenmeister- bis zum Großmeisterniveau.",
       "automaticTacticalTrainerTitle": "Automatischer Taktiktrainer: ",
       "automaticTacticalTrainer": "Im Gegensatz zu Standardtrainern verwandelt unser intelligentes System das Lösen von Aufgaben in einen personalisierten Weg zur Meisterschaft. Es analysiert Ihr Profil anhand von 25 taktischen Themen (Gabel, Fesselung, Abzugsangriff usw.), identifiziert Ihre schwächsten Bereiche und wählt automatisch die Aufgabe aus, die Ihnen im Moment am meisten nützt. Nach jeder Antwort wird Ihre Bewertung für dieses Thema sofort aktualisiert, um sicherzustellen, dass die nächste Aufgabe perfekt zu Ihrem aktuellen Fähigkeitsniveau passt.",
       "botSelectionTitle": "Auswahl des Schach-Bots: ",

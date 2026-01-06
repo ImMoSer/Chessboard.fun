@@ -17,59 +17,45 @@ const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
     <h2>{{ t('about.sections.mainModesTitle') }}</h2>
     <ul>
       <li>
-        <strong>{{ t('about.modes.conversionTitle') }}</strong
-        >{{ t('about.modes.conversion') }}
+        <strong>{{ t('about.modes.conversionTitle') }}</strong>{{ t('about.modes.conversion') }}
+      </li>
+
+      <li>
+        <strong>{{ t('about.modes.automaticTacticalTrainerTitle') }}</strong>{{
+          t('about.modes.automaticTacticalTrainer') }}
       </li>
       <li>
-        <strong>{{ t('about.modes.speedrunTitle') }}</strong
-        >{{ t('about.modes.speedrun') }}
+        <strong>{{ t('about.modes.lichessClubsTitle') }}</strong>{{ t('about.modes.lichessClubs') }}
       </li>
       <li>
-        <strong>{{ t('about.modes.automaticTacticalTrainerTitle') }}</strong
-        >{{ t('about.modes.automaticTacticalTrainer') }}
+        <strong>{{ t('about.modes.userCabinetTitle') }}</strong>{{ t('about.modes.userCabinet') }}
       </li>
       <li>
-        <strong>{{ t('about.modes.lichessClubsTitle') }}</strong
-        >{{ t('about.modes.lichessClubs') }}
-      </li>
-      <li>
-        <strong>{{ t('about.modes.userCabinetTitle') }}</strong
-        >{{ t('about.modes.userCabinet') }}
-      </li>
-      <li>
-        <strong>{{ t('about.modes.analysisPanelTitle') }}</strong
-        >{{ t('about.modes.analysisPanel') }}
+        <strong>{{ t('about.modes.analysisPanelTitle') }}</strong>{{ t('about.modes.analysisPanel') }}
       </li>
     </ul>
 
     <h2>{{ t('about.sections.keyFeaturesTitle') }}</h2>
     <ul>
       <li>
-        <strong>{{ t('about.features.lichessIntegrationTitle') }}</strong
-        >{{ t('about.features.lichessIntegration') }}
+        <strong>{{ t('about.features.lichessIntegrationTitle') }}</strong>{{ t('about.features.lichessIntegration') }}
       </li>
       <li>
-        <strong>{{ t('about.features.advancedStatsTitle') }}</strong
-        >{{ t('about.features.advancedStats') }}
+        <strong>{{ t('about.features.advancedStatsTitle') }}</strong>{{ t('about.features.advancedStats') }}
       </li>
       <li>
-        <strong>{{ t('about.features.puzzleDatabaseTitle') }}</strong
-        >{{ t('about.features.puzzleDatabase')
-        }}<a href="https://database.lichess.org/#puzzles" target="_blank" rel="noopener noreferrer"
-          >https://database.lichess.org/#puzzles</a
-        >
+        <strong>{{ t('about.features.puzzleDatabaseTitle') }}</strong>{{ t('about.features.puzzleDatabase')
+        }}<a href="https://database.lichess.org/#puzzles" target="_blank"
+          rel="noopener noreferrer">https://database.lichess.org/#puzzles</a>
       </li>
       <li>
-        <strong>{{ t('about.features.modernUITitle') }}</strong
-        >{{ t('about.features.modernUI') }}
+        <strong>{{ t('about.features.modernUITitle') }}</strong>{{ t('about.features.modernUI') }}
       </li>
       <li>
-        <strong>{{ t('about.features.localizationTitle') }}</strong
-        >{{ t('about.features.localization') }}
+        <strong>{{ t('about.features.localizationTitle') }}</strong>{{ t('about.features.localization') }}
       </li>
       <li>
-        <strong>{{ t('about.modes.botSelectionTitle') }}</strong
-        >{{ t('about.modes.botSelectionIntro') }}
+        <strong>{{ t('about.modes.botSelectionTitle') }}</strong>{{ t('about.modes.botSelectionIntro') }}
         <ul class="bot-list">
           <li><strong>'Stockfish 2500'</strong>{{ t('about.modes.bots.stockfish_2500') }}</li>
           <li><strong>'MoZeR 2200+'</strong>{{ t('about.modes.bots.mozer_2200') }}</li>
@@ -82,31 +68,24 @@ const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
     <h2>{{ t('about.sections.techStackTitle') }}</h2>
     <ul>
       <li>
-        <strong>{{ t('about.techStack.frontend') }}</strong
-        >{{ t('about.techStack.frontendStack') }}
+        <strong>{{ t('about.techStack.frontend') }}</strong>{{ t('about.techStack.frontendStack') }}
       </li>
       <li>
-        <strong>{{ t('about.techStack.backend') }}</strong
-        >{{ t('about.techStack.backendStack') }}
+        <strong>{{ t('about.techStack.backend') }}</strong>{{ t('about.techStack.backendStack') }}
       </li>
       <li>
-        <strong>{{ t('about.techStack.chessLogic') }}</strong
-        >{{ t('about.techStack.chessLogicStack') }}
+        <strong>{{ t('about.techStack.chessLogic') }}</strong>{{ t('about.techStack.chessLogicStack') }}
       </li>
       <li>
-        <strong>{{ t('about.techStack.boardRendering') }}</strong
-        >{{ t('about.techStack.boardRenderingStack') }}
+        <strong>{{ t('about.techStack.boardRendering') }}</strong>{{ t('about.techStack.boardRenderingStack') }}
       </li>
       <li>
-        <strong>{{ t('about.techStack.chessEngine') }}</strong
-        >{{ t('about.techStack.chessEngineStack') }}
+        <strong>{{ t('about.techStack.chessEngine') }}</strong>{{ t('about.techStack.chessEngineStack') }}
       </li>
       <li>
-        <strong>{{ t('about.techStack.api') }}</strong
-        >{{ t('about.techStack.apiStack')
-        }}<a href="https://lichess.org/api" target="_blank" rel="noopener noreferrer"
-          >https://lichess.org/api</a
-        >{{ t('common.closingParenthesis') }}
+        <strong>{{ t('about.techStack.api') }}</strong>{{ t('about.techStack.apiStack')
+        }}<a href="https://lichess.org/api" target="_blank" rel="noopener noreferrer">https://lichess.org/api</a>{{
+          t('common.closingParenthesis') }}
       </li>
     </ul>
 
@@ -132,12 +111,8 @@ const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
       <li>{{ t('about.licenseAndAcknowledgements.stockfish.projectSourceCode') }}</li>
       <li>
         {{ t('about.licenseAndAcknowledgements.stockfish.licenseText') }}
-        <a
-          href="https://www.gnu.org/licenses/gpl-3.0.html"
-          target="_blank"
-          rel="noopener noreferrer"
-          >https://www.gnu.org/licenses/gpl-3.0.html</a
-        >{{ t('common.period') }}
+        <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank"
+          rel="noopener noreferrer">https://www.gnu.org/licenses/gpl-3.0.html</a>{{ t('common.period') }}
       </li>
     </ul>
     <p>{{ t('about.licenseAndAcknowledgements.stockfish.gratitude') }}</p>
@@ -149,17 +124,17 @@ const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
       <li>
         <a href="https://www.maiachess.com/" target="_blank" rel="noopener noreferrer">{{
           t('about.licenseAndAcknowledgements.maia.links.website')
-        }}</a>
+          }}</a>
       </li>
       <li>
         <a href="https://github.com/CSSLab/maia-chess" target="_blank" rel="noopener noreferrer">{{
           t('about.licenseAndAcknowledgements.maia.links.github')
-        }}</a>
+          }}</a>
       </li>
       <li>
         <a href="https://lichess.org/@/maia9" target="_blank" rel="noopener noreferrer">{{
           t('about.licenseAndAcknowledgements.maia.links.lichessBot')
-        }}</a>
+          }}</a>
       </li>
     </ul>
 
@@ -170,12 +145,12 @@ const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
       <li>
         <a href="https://lczero.org/" target="_blank" rel="noopener noreferrer">{{
           t('about.licenseAndAcknowledgements.lcZero.links.website')
-        }}</a>
+          }}</a>
       </li>
       <li>
         <a href="https://github.com/LeelaChessZero/lc0" target="_blank" rel="noopener noreferrer">{{
           t('about.licenseAndAcknowledgements.lcZero.links.github')
-        }}</a>
+          }}</a>
       </li>
     </ul>
 
@@ -214,16 +189,11 @@ const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
         <p>{{ t('about.author.bioPart2') }}</p>
         <p>{{ t('about.author.bioPart3') }}</p>
         <div class="support-button-container">
-          <a
-            class="support-button"
-            href="https://coff.ee/chessboard.fun"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a class="support-button" href="https://coff.ee/chessboard.fun" target="_blank" rel="noopener noreferrer">
             <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
               <path
-                d="M18.5 3H6c-1.1 0-2 .9-2 2v5.71c0 3.38 2.72 6.13 6.1 6.28H14v-2.28c-2.23-.14-4-1.99-4-4.28V5h10v3h2V5c0-1.1-.9-2-2-2zm-2 13h-4c-1.1 0-2 .9-2 2v2h8v-2c0-1.1-.9-2-2-2z"
-              ></path>
+                d="M18.5 3H6c-1.1 0-2 .9-2 2v5.71c0 3.38 2.72 6.13 6.1 6.28H14v-2.28c-2.23-.14-4-1.99-4-4.28V5h10v3h2V5c0-1.1-.9-2-2-2zm-2 13h-4c-1.1 0-2 .9-2 2v2h8v-2c0-1.1-.9-2-2-2z">
+              </path>
             </svg>
             {{ t('about.author.supportButtonText') }}
           </a>
@@ -236,9 +206,8 @@ const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
     <div class="contact-info">
       <p>
         {{ t('about.contact.telegram') }}{{ t('about.contact.separator')
-        }}<a href="https://t.me/Chessboard_fun" target="_blank" rel="noopener noreferrer"
-          >https://t.me/Chessboard.fun</a
-        >
+        }}<a href="https://t.me/Chessboard_fun" target="_blank"
+          rel="noopener noreferrer">https://t.me/Chessboard.fun</a>
       </p>
       <p>
         {{ t('about.contact.email') }}{{ t('about.contact.separator')
@@ -246,12 +215,8 @@ const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
       </p>
       <p>
         {{ t('about.contact.github') }}{{ t('about.contact.separator')
-        }}<a
-          href="https://github.com/ImMoSer/Chessboard.fun"
-          target="_blank"
-          rel="noopener noreferrer"
-          >https://github.com/ImMoSer/Chessboard.fun</a
-        >
+        }}<a href="https://github.com/ImMoSer/Chessboard.fun" target="_blank"
+          rel="noopener noreferrer">https://github.com/ImMoSer/Chessboard.fun</a>
       </p>
     </div>
 
@@ -320,6 +285,7 @@ const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
   color: var(--color-text-link);
   text-decoration: none;
 }
+
 .about-page-container a:hover {
   text-decoration: underline;
 }
@@ -334,6 +300,7 @@ const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
   margin-bottom: 8px;
   padding-left: 10px;
 }
+
 .bot-list {
   margin-top: 10px;
   padding-left: 25px;

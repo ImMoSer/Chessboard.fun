@@ -41,11 +41,6 @@ const menuOptions: MenuOption[] = [
     icon: renderEmojiIcon('🎯')
   },
   {
-    label: () => t('nav.tower'),
-    key: '/tower',
-    icon: renderEmojiIcon('🏁')
-  },
-  {
     label: () => t('nav.sandbox'),
     key: '/sandbox',
     icon: renderEmojiIcon('🔬')

@@ -15,7 +15,7 @@ const {
 } = storeToRefs(userCabinetStore)
 
 interface ActivityRow {
-  mode: 'advantage' | 'tower' | 'tornado'
+  mode: 'advantage' | 'tornado'
   requested: number
   solved: number
   skill: number
@@ -26,11 +26,9 @@ const columns: DataTableColumns<ActivityRow> = [
     title: t('userCabinet.stats.modes.all'),
     key: 'mode',
     render(row) {
-      const label = row.mode === 'tornado' 
-        ? t('nav.tornado') 
-        : row.mode === 'advantage' 
-          ? t('nav.finishHim') // В ru.json "Добивание"
-          : t(`userCabinet.stats.modes.${row.mode}`)
+      const label = row.mode === 'tornado'
+        ? t('nav.tornado')
+        : t('nav.finishHim')
       return h('span', { style: { fontWeight: 'bold' } }, label)
     }
   },
@@ -49,7 +47,7 @@ const columns: DataTableColumns<ActivityRow> = [
 const tableData = computed(() => {
   if (!personalActivityStats.value) return []
   const periodData = personalActivityStats.value[selectedActivityPeriod.value]
-  return (['advantage', 'tower', 'tornado'] as const).map(mode => ({
+  return (['advantage', 'tornado'] as const).map(mode => ({
     mode,
     requested: periodData[mode].puzzles_requested,
     solved: periodData[mode].puzzles_solved,
@@ -67,26 +65,15 @@ const handlePeriodChange = (period: string) => {
     <template #header>
       <span class="card-header-text">{{ t('userCabinet.stats.global.title') }}</span>
     </template>
-    
-    <n-tabs 
-      type="segment" 
-      :value="selectedActivityPeriod" 
-      @update:value="handlePeriodChange"
-      class="activity-tabs"
-    >
+
+    <n-tabs type="segment" :value="selectedActivityPeriod" @update:value="handlePeriodChange" class="activity-tabs">
       <n-tab-pane name="daily" :tab="t('userCabinet.stats.periods.day')" />
       <n-tab-pane name="weekly" :tab="t('userCabinet.stats.periods.week')" />
       <n-tab-pane name="monthly" :tab="t('userCabinet.stats.periods.month')" />
     </n-tabs>
 
-    <n-data-table
-      :loading="isPersonalActivityStatsLoading"
-      :columns="columns"
-      :data="tableData"
-      :row-key="(row: ActivityRow) => row.mode"
-      striped
-      class="activity-table"
-    />
+    <n-data-table :loading="isPersonalActivityStatsLoading" :columns="columns" :data="tableData"
+      :row-key="(row: ActivityRow) => row.mode" striped class="activity-table" />
   </n-card>
 </template>
 
