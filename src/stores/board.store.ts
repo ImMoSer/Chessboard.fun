@@ -83,13 +83,11 @@ export const useBoardStore = defineStore('board', () => {
   function _playSoundsForMove(
     move: ChessopsMove,
     pieceOnDestBefore: ChessopsPiece | undefined,
-    turnBeforeMove: ChessopsColor,
   ): void {
     // Enable sounds for Study Mode (Analysis Mode)
     // if (isAnalysisModeActive.value) return
 
     const gameStatus = getGameStatus()
-    const wasPlayerTurn = turnBeforeMove === orientation.value
 
     if (isNormal(move) && move.promotion) {
       soundService.playSound('board_promote')
@@ -140,7 +138,6 @@ export const useBoardStore = defineStore('board', () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const san = makeSan(chessPosition.value as any, move)
     const pieceOnDestBefore = isNormal(move) ? chessPosition.value.board.get(move.to) : undefined
-    const turnBeforeMove = chessPosition.value.turn
 
     chessPosition.value.play(move)
     const fenAfter = makeFen(chessPosition.value.toSetup())
@@ -160,7 +157,7 @@ export const useBoardStore = defineStore('board', () => {
       logger.info(`[_applyUciMove] Node added successfully. ID: ${node.id}`)
     }
 
-    _playSoundsForMove(move, pieceOnDestBefore, turnBeforeMove)
+    _playSoundsForMove(move, pieceOnDestBefore)
     // Verify sync
     _updateBoardStateFromPgn()
     return true

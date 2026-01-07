@@ -395,6 +395,18 @@ class PgnServiceController {
     // logger.debug(`[PgnService] Navigated to start (ply 0). Path: "${this.currentPath}"`)
   }
 
+  public navigateToEnd(): void {
+    let target = this.rootNode
+    let path = ''
+    while (target.children.length > 0) {
+      target = target.children[0]!
+      path += target.id
+    }
+    this.currentNode = target
+    this.currentPath = path
+    treeVersion.value++
+  }
+
   public promoteToVariantMainline(node: PgnNode): void {
     const parent = node.parent
     if (!parent) return
@@ -413,14 +425,14 @@ class PgnServiceController {
     let current: PgnNode | undefined = node
     let changed = false
     while (current && current.parent) {
-      const parent = current.parent
-      const index = parent.children.indexOf(current)
+      const p: PgnNode = current.parent
+      const index = p.children.indexOf(current)
       if (index > 0) {
-        parent.children.splice(index, 1)
-        parent.children.unshift(current)
+        p.children.splice(index, 1)
+        p.children.unshift(current)
         changed = true
       }
-      current = parent
+      current = p
     }
 
     if (changed) {
