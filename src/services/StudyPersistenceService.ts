@@ -1,13 +1,15 @@
 import { type StudyChapter } from '@/stores/study.store';
 import { type PgnNode } from '@/services/PgnService';
 import { studyDb } from '@/db/StudyDatabase';
+import { toRaw } from 'vue';
 
 class StudyPersistenceService {
   /**
    * Prepares a chapter for storage by removing circular parent references
    */
   private cleanNodeForStorage(node: PgnNode): PgnNode {
-    const cleaned: PgnNode = { ...node };
+    const rawNode = toRaw(node);
+    const cleaned: PgnNode = { ...rawNode };
     delete cleaned.parent;
     if (cleaned.children) {
       cleaned.children = cleaned.children.map((child: PgnNode) => this.cleanNodeForStorage(child));
@@ -29,16 +31,33 @@ class StudyPersistenceService {
     }
   }
 
+  private saveTimeouts = new Map<string, any>();
+
   async saveChapter(chapter: StudyChapter): Promise<void> {
-    try {
-      const cleanedChapter: StudyChapter = {
-        ...chapter,
-        root: this.cleanNodeForStorage(chapter.root)
-      };
-      await studyDb.chapters.put(cleanedChapter);
-    } catch (error) {
-      console.error('[StudyPersistenceService] Error saving chapter:', error);
+    // Throttle saving for the same chapter
+    if (this.saveTimeouts.has(chapter.id)) {
+      clearTimeout(this.saveTimeouts.get(chapter.id));
     }
+
+    return new Promise((resolve) => {
+      const timeout = setTimeout(async () => {
+        this.saveTimeouts.delete(chapter.id);
+        try {
+          const rawChapter = toRaw(chapter);
+          const cleanedChapter: StudyChapter = {
+            ...rawChapter,
+            root: this.cleanNodeForStorage(rawChapter.root)
+          };
+          await studyDb.chapters.put(cleanedChapter);
+          resolve();
+        } catch (error) {
+          console.error('[StudyPersistenceService] Error saving chapter:', error);
+          resolve();
+        }
+      }, 1000); // 1 second throttle
+
+      this.saveTimeouts.set(chapter.id, timeout);
+    });
   }
 
   async getAllChapters(): Promise<StudyChapter[]> {

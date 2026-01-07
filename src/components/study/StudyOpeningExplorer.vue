@@ -4,10 +4,16 @@ import { openingApiService, type LichessOpeningResponse } from '@/services/Openi
 import { pgnService, pgnTreeVersion } from '@/services/PgnService';
 import OpeningStatsTable from '../OpeningTrainer/OpeningStatsTable.vue';
 import { NButton, NButtonGroup } from 'naive-ui';
+import { useBoardStore } from '@/stores/board.store';
 
 const stats = ref<LichessOpeningResponse | null>(null);
 const loading = ref(false);
 const source = ref<'masters' | 'lichess'>('lichess');
+const boardStore = useBoardStore();
+
+const handleSelectMove = (uci: string) => {
+    boardStore.applyUciMove(uci);
+};
 
 const fetchStats = async () => {
     loading.value = true;
@@ -52,6 +58,7 @@ onMounted(() => {
             :white="stats.white"
             :draws="stats.draws"
             :black="stats.black"
+            @select-move="handleSelectMove"
         />
 
         <div v-if="!loading && !stats" class="empty-state">

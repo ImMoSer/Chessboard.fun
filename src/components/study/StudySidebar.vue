@@ -3,10 +3,12 @@ import { useStudyStore, type StudyChapter } from '@/stores/study.store'
 import { ref, nextTick } from 'vue'
 import { loadComplexTestPgn } from '@/utils/testPgn'
 import { pgnService } from '@/services/PgnService'
+import { useUiStore } from '@/stores/ui.store'
 
 import { pgnParserService } from '@/services/PgnParserService'
 
 const studyStore = useStudyStore()
+const uiStore = useUiStore()
 const showInput = ref(false)
 const showImport = ref(false)
 const newChapterName = ref('')
@@ -78,6 +80,16 @@ const cancelEdit = () => {
     editingId.value = null
 }
 
+const confirmDelete = async (chapter: StudyChapter) => {
+    const result = await uiStore.showConfirmation(
+        'Delete Chapter',
+        `Are you sure you want to delete "${chapter.name}"? This action cannot be undone.`
+    )
+    if (result === 'confirm') {
+        studyStore.deleteChapter(chapter.id)
+    }
+}
+
 const downloadChapter = (chapter: StudyChapter) => {
     const currentRoot = pgnService.getRootNode();
     const currentPath = pgnService.getCurrentPath();
@@ -146,7 +158,7 @@ const loadTest = () => {
                     <div class="chapter-actions">
                         <button @click.stop="downloadChapter(chapter)" class="download-btn" title="Download PGN">💾</button>
                         <button @click.stop="startEdit(chapter)" class="edit-btn" title="Rename">✏️</button>
-                        <button @click.stop="studyStore.deleteChapter(chapter.id)" class="delete-btn" title="Delete">×</button>
+                        <button @click.stop="confirmDelete(chapter)" class="delete-btn" title="Delete">×</button>
                     </div>
                 </template>
             </li>

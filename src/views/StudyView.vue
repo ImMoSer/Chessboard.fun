@@ -5,6 +5,7 @@ import StudySidebar from '@/components/study/StudySidebar.vue'
 import StudyTree from '@/components/study/StudyTree.vue'
 import StudyControls from '@/components/study/StudyControls.vue'
 import StudyOpeningExplorer from '@/components/study/StudyOpeningExplorer.vue'
+import EngineLines from '@/components/Analysis/EngineLines.vue'
 import { useBoardStore } from '@/stores/board.store'
 import { useStudyStore } from '@/stores/study.store'
 
@@ -18,6 +19,7 @@ const analysisStore = useAnalysisStore()
 
 onMounted(async () => {
     boardStore.setAnalysisMode(true)
+    await analysisStore.showPanel() // Initialize analysis (threads, etc.) and set visible flag for watcher
     await studyStore.initialize()
 })
 
@@ -50,7 +52,10 @@ watch(() => analysisStore.analysisLines, (lines) => {
         </template>
 
         <template #left-panel>
-            <StudySidebar />
+            <div class="left-panel-content">
+                <StudySidebar class="sidebar-component" />
+                <StudyOpeningExplorer class="explorer-component" />
+            </div>
         </template>
 
         <!-- Center is auto-filled by GameLayout with WebChessBoard -->
@@ -58,13 +63,32 @@ watch(() => analysisStore.analysisLines, (lines) => {
         <template #right-panel>
             <div class="right-panel-content">
                 <StudyTree />
-                <StudyOpeningExplorer />
+                <EngineLines />
             </div>
         </template>
     </GameLayout>
 </template>
 
 <style scoped>
+.left-panel-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 10px;
+}
+
+.sidebar-component {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.explorer-component {
+    flex-shrink: 0;
+    max-height: 40%;
+    overflow-y: auto;
+}
+
 .right-panel-content {
     display: flex;
     flex-direction: column;

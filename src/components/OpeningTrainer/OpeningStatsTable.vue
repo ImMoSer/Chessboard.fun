@@ -15,8 +15,21 @@ const props = defineProps<{
   black?: number;
 }>();
 
+const emit = defineEmits<{
+  (e: 'select-move', uci: string): void
+}>();
+
 const { t } = useI18n();
 const boardStore = useBoardStore();
+
+const rowProps = (row: LichessMove) => {
+  return {
+    style: 'cursor: pointer;',
+    onClick: () => {
+      emit('select-move', row.uci);
+    }
+  };
+};
 
 const formatTotal = (total: number) => {
   if (total >= 1000000) return (total / 1000000).toFixed(1) + 'M';
@@ -112,7 +125,7 @@ const columns = computed<DataTableColumns<LichessMove>>(() => [
     </div>
 
     <n-data-table :columns="columns" :data="moves" :pagination="false" :bordered="false" size="small"
-      class="stats-table" />
+      class="stats-table" :row-props="rowProps" />
   </div>
 </template>
 

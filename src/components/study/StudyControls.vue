@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { useBoardStore } from '@/stores/board.store'
 import { pgnService } from '@/services/PgnService'
-import { useAnalysisStore } from '@/stores/analysis.store'
 
 const boardStore = useBoardStore()
-const analysisStore = useAnalysisStore()
 
 const handleFlip = () => {
     boardStore.flipBoard()
@@ -15,13 +13,19 @@ const handlePrev = () => boardStore.navigatePgn('backward')
 const handleNext = () => boardStore.navigatePgn('forward')
 const handleEnd = () => boardStore.navigatePgn('end')
 
-const handleToggleAnalysis = () => {
-    analysisStore.toggleAnalysis()
-}
-
 const handleDelete = () => {
     pgnService.deleteCurrentNode()
     boardStore.syncBoardWithPgn()
+}
+
+const handleCopyFen = () => {
+    const fen = pgnService.getCurrentNavigatedFen()
+    navigator.clipboard.writeText(fen)
+}
+
+const handleCopyPgn = () => {
+    const pgn = pgnService.getFullPgn({})
+    navigator.clipboard.writeText(pgn)
 }
 </script>
 
@@ -29,7 +33,8 @@ const handleDelete = () => {
     <div class="study-controls">
         <div class="control-group">
             <button @click="handleFlip" title="Flip Board">🔄</button>
-            <button @click="handleToggleAnalysis" :class="{ active: analysisStore.isAnalysisActive }" title="Toggle Analysis">📊</button>
+            <button @click="handleCopyFen" title="Copy FEN">📋 FEN</button>
+            <button @click="handleCopyPgn" title="Copy PGN">📋 PGN</button>
         </div>
 
         <div class="control-group navigation">
@@ -70,6 +75,13 @@ button {
     padding: 5px 10px;
     cursor: pointer;
     font-size: 1.1em;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+button[title*="Copy"] {
+    font-size: 0.9em;
 }
 
 button:hover {

@@ -5,89 +5,33 @@ import { useAnalysisStore } from '@/stores/analysis.store'
 import { useBoardStore } from '@/stores/board.store'
 import { pgnService, pgnTreeVersion } from '@/services/PgnService'
 import { storeToRefs } from 'pinia'
-import { useI18n } from 'vue-i18n'
-import type { EvaluatedLineWithSan } from '@/services/AnalysisService'
-import type { PgnNode } from '@/services/PgnService'
 import {
-  NSwitch, NSelect, NButton, NButtonGroup, NScrollbar,
-  NSpace, NText, NIcon, NCard, NSpin, NTooltip
+  NButton, NButtonGroup, NScrollbar,
+  NSpace, NText
 } from 'naive-ui'
 import {
   ChevronBackOutline,
   ChevronForwardOutline,
   PlaySkipBackOutline,
-  PlaySkipForwardOutline,
-  BarChartOutline,
-  TerminalOutline
+  PlaySkipForwardOutline
 } from '@vicons/ionicons5'
+import EngineLines from '@/components/Analysis/EngineLines.vue'
+import type { PgnNode } from '@/services/PgnService'
 
 const analysisStore = useAnalysisStore()
 const boardStore = useBoardStore()
-const { t } = useI18n()
 
 const {
   isPanelVisible,
   isAnalysisActive,
-  isLoading,
-  analysisLines,
-  isMultiThreadAvailable,
-  maxThreads,
-  numThreads,
 } = storeToRefs(analysisStore)
+
 
 const pgnRendererComponent = computed(() => {
   const rootNode = pgnService.getRootNode()
   if (!rootNode) return null
   return h(PgnRenderer, { nodes: rootNode.children })
 })
-
-const formatScore = (line: EvaluatedLineWithSan) => {
-  if (line.score.type === 'cp') {
-    const val = line.score.value / 100
-    return (val > 0 ? '+' : '') + val.toFixed(2)
-  }
-  return t('analysis.mateInShort', { value: Math.abs(line.score.value) })
-}
-
-const getScoreType = (index: number) => {
-  if (index === 0) return 'success'
-  if (index === 1) return 'warning'
-  return 'info'
-}
-
-const formatPv = (line: EvaluatedLineWithSan) => {
-  let pvString = ''
-  let currentMoveNumber = line.initialFullMoveNumber
-  let turnForPv = line.initialTurn
-  line.pvSan.forEach((san, sanIndex) => {
-    if (turnForPv === 'white') {
-      pvString += `${currentMoveNumber}. ${san} `
-    } else if (sanIndex === 0) {
-      pvString += `${currentMoveNumber}...${san} `
-    } else {
-      pvString += `${san} `
-    }
-    if (turnForPv === 'black') {
-      currentMoveNumber++
-    }
-    turnForPv = turnForPv === 'white' ? 'black' : 'white'
-  })
-  return pvString.trim()
-}
-
-const threadOptions = computed(() => {
-  return Array.from({ length: maxThreads.value }, (_, i) => ({
-    label: `${i + 1} ${t('analysis.threads')}`,
-    value: i + 1
-  }))
-})
-
-const handleLineClick = (line: EvaluatedLineWithSan) => {
-  const uciMove = line.pvUci[0]
-  if (uciMove) {
-    boardStore.applyUciMove(uciMove)
-  }
-}
 
 const handlePgnMoveClick = (node: PgnNode) => {
   boardStore.navigateToNode(node)
@@ -156,26 +100,7 @@ const PgnRenderer: FunctionalComponent<{ nodes: PgnNode[]; pathPrefix?: string }
 
 <template>
   <div v-if="isPanelVisible" class="analysis-container">
-    <!-- Top Toolbar -->
-    <n-card class="toolbar-card" :bordered="false" size="small">
-      <n-space align="center" justify="space-between">
-        <n-space align="center" :size="12">
-          <n-icon size="18" color="var(--color-accent)">
-            <BarChartOutline />
-          </n-icon>
-          <n-text strong>{{ t('analysis.engine') }}</n-text>
-          <n-switch :value="isAnalysisActive" size="small" @update:value="analysisStore.toggleAnalysis" />
-        </n-space>
-
-        <n-space align="center" :size="8">
-          <n-icon size="16" depth="3">
-            <TerminalOutline />
-          </n-icon>
-          <n-select class="threads-select" size="small" :disabled="!isMultiThreadAvailable" :value="numThreads"
-            :options="threadOptions" @update:value="analysisStore.setThreads" />
-        </n-space>
-      </n-space>
-    </n-card>
+    <EngineLines />
 
     <transition name="fade-slide">
       <n-space v-if="isAnalysisActive" vertical class="analysis-body" :size="8">
@@ -202,33 +127,6 @@ const PgnRenderer: FunctionalComponent<{ nodes: PgnNode[]; pathPrefix?: string }
               </n-icon></template>
           </n-button>
         </n-button-group>
-
-        <!-- Lines -->
-        <div class="lines-wrapper">
-          <div v-if="isLoading" class="loading-state">
-            <n-spin size="small" />
-            <n-text depth="3" italic>{{ t('analysis.loading') }}</n-text>
-          </div>
-
-          <div v-else-if="analysisLines.length > 0" class="lines-list">
-            <div v-for="(line, index) in analysisLines.slice(0, 3)" :key="line.id" class="line-item">
-              <n-text class="line-depth" depth="3">{{ line.depth }}</n-text>
-              <n-button size="tiny" :type="getScoreType(index)" class="score-btn" strong @click="handleLineClick(line)">
-                {{ formatScore(line) }}
-              </n-button>
-              <n-tooltip trigger="hover">
-                <template #trigger>
-                  <n-text class="pv-text" @click="handleLineClick(line)">{{ formatPv(line) }}</n-text>
-                </template>
-                {{ formatPv(line) }}
-              </n-tooltip>
-            </div>
-          </div>
-
-          <div v-else class="empty-state">
-            <n-text depth="3" italic>{{ t('analysis.makeMove') }}</n-text>
-          </div>
-        </div>
 
         <!-- PGN Display -->
         <div class="pgn-wrapper" @wheel="handlePgnWheelNavigation">

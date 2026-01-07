@@ -1,7 +1,8 @@
 import { Chess } from 'chessops/chess';
 import { parseFen, makeFen } from 'chessops/fen';
 import { parseSan } from 'chessops/san';
-import { makeUci } from 'chessops/util';
+import { makeUci, parseUci } from 'chessops/util';
+import { scalachessCharPair } from 'chessops/compat';
 import { type PgnNode } from './PgnService';
 
 export interface ImportResult {
@@ -101,8 +102,11 @@ export class PgnParserService {
 
             let nextNode = currentNode.children.find(c => c.san === token);
             if (!nextNode) {
+              const moveData = parseUci(uci);
+              const nodeId = moveData ? scalachessCharPair(moveData) : uci + Math.random().toString(36).substr(2, 4);
+
               nextNode = {
-                id: uci + Math.random().toString(36).substr(2, 4),
+                id: nodeId,
                 ply: currentNode.ply + 1,
                 fenBefore: fen,
                 fenAfter: fenAfter,

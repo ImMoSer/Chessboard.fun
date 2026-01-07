@@ -1,6 +1,6 @@
 <!-- src/components/GameLayout.vue -->
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue' // --- ИЗМЕНЕНИЕ: Добавлен watch
+import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
 import { useBoardStore } from '@/stores/board.store'
 import { useGameStore } from '@/stores/game.store'
 import { useAnalysisStore } from '@/stores/analysis.store'
@@ -62,6 +62,31 @@ const handleBoardWheel = (direction: 'up' | 'down') => {
     }
   }
 }
+
+const handleKeyDown = (event: KeyboardEvent) => {
+  if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) {
+    // Don't navigate if user is typing in an input or textarea
+    if (['INPUT', 'TEXTAREA'].includes((event.target as HTMLElement).tagName)) {
+      return
+    }
+
+    event.preventDefault()
+
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+      boardStore.navigatePgn('backward')
+    } else if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+      boardStore.navigatePgn('forward')
+    }
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', handleKeyDown)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeyDown)
+})
 </script>
 
 <template>
