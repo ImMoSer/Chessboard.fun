@@ -855,9 +855,9 @@
       "bishop": { "name": "Слоновый", "icon": "♗" },
       "knight": { "name": "Коневой", "icon": "♘" },
       "queen": { "name": "Ферзевый", "icon": "♕" },
-      "rookPawn": { "name": "Ладья + Пешка", "icon": "♖♙" },
-      "rookPieces": { "name": "Ладейный", "icon": "♖" },
-      "knightBishop": { "name": "Конь и Слон", "icon": "♘♗" }
+      "rookPawn": { "name": "Ладья & Пешка", "icon": "♖♙" },
+      "rookPieces": { "name": "Качество", "icon": "♖♘♗" },
+      "knightBishop": { "name": "Конь & Слон", "icon": "♘♗" }
     },
     "feedback": {
       "pressNext": "Нажмите 'Играть', чтобы начать.",

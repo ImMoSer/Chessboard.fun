@@ -93,6 +93,7 @@
     "openingTrainer": "Opening Trainer",
     "finishHim": "FinishHim",
     "sandbox": "Sandbox",
+    "theoryEndings": "Endgames",
     "tacktics": "Tacktics",
     "tornado": "Tornado",
     "leaderboards": "LeaderBoards",
@@ -169,7 +170,7 @@
     "titleV2": "Select a Game Mode",
     "buttons": {
       "finishHim": "Finish Him",
-
+      "theoryEndings": "Endgames",
       "tacktics": "Tacktics",
       "clubs": "FunClub",
       "leaderboards": "Leaderboards"
@@ -853,8 +854,8 @@
       "bishop": { "name": "Bishop", "icon": "♗" },
       "knight": { "name": "Knight", "icon": "♘" },
       "queen": { "name": "Queen", "icon": "♕" },
-      "rookPawn": { "name": "Rook + Pawn", "icon": "♖♙" },
-      "rookPieces": { "name": "Rook", "icon": "♖" },
+      "rookPawn": { "name": "Rook & Pawn", "icon": "♖♙" },
+      "rookPieces": { "name": "Exchange", "icon": "♖♘♗" },
       "knightBishop": { "name": "Knight & Bishop", "icon": "♘♗" }
     },
     "feedback": {

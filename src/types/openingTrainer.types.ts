@@ -8,6 +8,7 @@ export interface SessionMove {
     stats: LichessMove;
     // New Metrics
     popularity: number; // Raw % of total games
+    accuracy: number;   // Success % (Relative to best move or Book)
     winRate: number;    // Win % for the player's color
     rating: number;     // Average rating of players
 }

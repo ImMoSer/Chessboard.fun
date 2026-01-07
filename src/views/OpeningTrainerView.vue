@@ -171,7 +171,7 @@ async function handlePlayout() {
     <template #left-panel>
       <div class="controls-panel">
         <OpeningTrainerHeader :opening-name="openingStore.openingName" :eco="openingStore.currentEco"
-          :average-popularity="openingStore.averagePopularity" :average-win-rate="openingStore.averageWinRate"
+          :average-accuracy="openingStore.averageAccuracy" :average-win-rate="openingStore.averageWinRate"
           :average-rating="openingStore.averageRating" :is-theory-over="openingStore.isTheoryOver"
           :is-deviation="openingStore.isDeviation" :is-review-mode="isReviewMode"
           :is-analysis-active="analysisStore.isPanelVisible" @restart="handleRestart" @hint="openingStore.hint"

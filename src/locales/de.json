@@ -93,6 +93,7 @@
     "openingTrainer": "Eröffnungstrainer",
     "finishHim": "FinishHim",
     "sandbox": "Sandbox",
+    "theoryEndings": "Endspiel",
     "tacktics": "Taktik",
     "tornado": "Tornado",
     "leaderboards": "Bestenlisten",
@@ -169,7 +170,7 @@
     "titleV2": "Wählen Sie einen Spielmodus",
     "buttons": {
       "finishHim": "FinishHim",
-
+      "theoryEndings": "Endspiel",
       "tacktics": "Taktik",
       "clubs": "FunClub",
       "leaderboards": "Bestenlisten"
@@ -850,8 +851,8 @@
         "bishop": { "name": "Läufer", "icon": "♗" },
         "knight": { "name": "Springer", "icon": "♘" },
         "queen": { "name": "Damen", "icon": "♕" },
-        "rookPawn": { "name": "Turm + Bauer", "icon": "♖♙" },
-        "rookPieces": { "name": "Turmendspiele", "icon": "♖" },
+        "rookPawn": { "name": "Turm & Bauer", "icon": "♖♙" },
+        "rookPieces": { "name": "Qualität", "icon": "♖♘♗" },
         "knightBishop": { "name": "Springer & Läufer", "icon": "♘♗" }
       },
       "feedback": {

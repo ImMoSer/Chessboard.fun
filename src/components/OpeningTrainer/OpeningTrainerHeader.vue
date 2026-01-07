@@ -16,7 +16,7 @@ import {
 defineProps<{
     openingName: string;
     eco?: string;
-    averagePopularity: number;
+    averageAccuracy: number;
     averageWinRate: number;
     averageRating: number;
     isTheoryOver: boolean;
@@ -64,7 +64,7 @@ const { t } = useI18n();
             <div class="stats-section">
                 <n-grid :cols="3" :x-gap="12">
                     <n-grid-item>
-                        <n-statistic :label="t('openingTrainer.header.accuracy')" :value="averagePopularity">
+                        <n-statistic :label="t('openingTrainer.header.accuracy')" :value="averageAccuracy">
                             <template #suffix>%</template>
                         </n-statistic>
                     </n-grid-item>

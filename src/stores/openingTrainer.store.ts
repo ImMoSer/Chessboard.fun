@@ -41,9 +41,9 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
   // --- New Computed Stats ---
   const movesCount = computed(() => sessionHistory.value.length);
 
-  const averagePopularity = computed(() => {
+  const averageAccuracy = computed(() => {
     if (movesCount.value === 0) return 0;
-    const sum = sessionHistory.value.reduce((acc, m) => acc + m.popularity, 0);
+    const sum = sessionHistory.value.reduce((acc, m) => acc + (m.accuracy ?? m.popularity), 0);
     return Math.round(sum / movesCount.value);
   });
 
@@ -218,19 +218,31 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
     const allMoves = currentStats.value.moves as LichessMove[];
 
     // 1. Popularity (Raw Percentage of total games in this position)
-    const totalGamesInPos = allMoves.reduce((acc, m) => acc + m.white + m.draws + m.black, 0);
+    const totalGamesInPos = (currentStats.value.white + currentStats.value.draws + currentStats.value.black) || 1;
     const moveGames = moveData.white + moveData.draws + moveData.black;
-    const popularity = totalGamesInPos > 0 ? (moveGames / totalGamesInPos) * 100 : 0;
+    const popularity = (moveGames / totalGamesInPos) * 100;
 
-    // 2. WinRate (For player's color)
+    // 2. Accuracy (Success Rate)
+    // Formula: 100% if Academic (in Book) or Most Popular.
+    // Otherwise Relative to Most Popular.
+    const graphMoves = openingGraphService.getMoves(boardStore.fen);
+    const isAcademic = graphMoves.some(gm => gm.uci === moveUci);
+
+    const maxGames = Math.max(...allMoves.map(m => m.white + m.draws + m.black));
+    let accuracy = maxGames > 0 ? (moveGames / maxGames) * 100 : 0;
+
+    if (isAcademic) {
+      accuracy = 100; // Moves from the Academic Graph are always 100% accurate
+    }
+
+    // 3. WinRate (For player's color)
     const wins = playerColor.value === 'white' ? moveData.white : moveData.black;
     const winRateRaw = moveGames > 0 ? ((wins + 0.5 * moveData.draws) / moveGames) * 100 : 0;
 
-    // 3. Average Rating
+    // 4. Average Rating
     const rating = moveData.averageRating || 0;
     // -------------------------------
 
-    const graphMoves = openingGraphService.getMoves(boardStore.fen);
     const graphMoveData = graphMoves.find(m => m.uci === moveUci);
 
     if (graphMoveData) {
@@ -244,6 +256,7 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
       san: moveData.san,
       stats: moveData,
       popularity, // Store raw value
+      accuracy,   // Store success value
       winRate: winRateRaw, // Store raw value
       rating // Store raw value
     });
@@ -339,7 +352,7 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
     currentStats,
     sessionHistory,
     // totalScore, // REMOVED
-    averagePopularity,
+    averageAccuracy,
     averageWinRate,
     averageRating,
     movesCount,
