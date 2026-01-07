@@ -1,11 +1,43 @@
 <script setup lang="ts">
-import { useStudyStore } from '@/stores/study.store'
-import { ref } from 'vue'
+import { useStudyStore, type StudyChapter } from '@/stores/study.store'
+import { ref, nextTick } from 'vue'
 import { loadComplexTestPgn } from '@/utils/testPgn'
+import { pgnService } from '@/services/PgnService'
+
+import { pgnParserService } from '@/services/PgnParserService'
 
 const studyStore = useStudyStore()
 const showInput = ref(false)
+const showImport = ref(false)
 const newChapterName = ref('')
+const pgnInput = ref('')
+const editingId = ref<string | null>(null)
+const handleImport = () => {
+    if (pgnInput.value.trim()) {
+        try {
+            const { tags, root } = pgnParserService.parse(pgnInput.value);
+            let name = tags['Event'] || 'Imported Chapter';
+            if (tags['White'] && tags['Black']) {
+                name = `${tags['White']} - ${tags['Black']}`;
+            }
+            const chapterId = studyStore.createChapter(name);
+            const chapter = studyStore.chapters.find(c => c.id === chapterId);
+            if (chapter) {
+                chapter.root = root;
+                chapter.tags = tags;
+                studyStore.setActiveChapter(chapterId);
+            }
+            pgnInput.value = '';
+            showImport.value = false;
+        } catch (e) {
+            alert('Failed to parse PGN');
+            console.error(e);
+        }
+    }
+}
+const editName = ref('')
+const nameInput = ref<HTMLInputElement | null>(null)
+const editInput = ref<HTMLInputElement | null>(null)
 
 const handleCreate = () => {
     if (newChapterName.value.trim()) {
@@ -15,8 +47,56 @@ const handleCreate = () => {
     }
 }
 
+const toggleCreate = async () => {
+    showInput.value = !showInput.value
+    if (showInput.value) {
+        await nextTick()
+        nameInput.value?.focus()
+    }
+}
+
 const selectChapter = (id: string) => {
+    if (editingId.value === id) return
     studyStore.setActiveChapter(id)
+}
+
+const startEdit = async (chapter: StudyChapter) => {
+    editingId.value = chapter.id
+    editName.value = chapter.name
+    await nextTick()
+    editInput.value?.focus()
+}
+
+const finishEdit = () => {
+    if (editingId.value && editName.value.trim()) {
+        studyStore.updateChapterMetadata(editingId.value, { name: editName.value.trim() })
+    }
+    editingId.value = null
+}
+
+const cancelEdit = () => {
+    editingId.value = null
+}
+
+const downloadChapter = (chapter: StudyChapter) => {
+    const currentRoot = pgnService.getRootNode();
+    const currentPath = pgnService.getCurrentPath();
+
+    pgnService.setRoot(chapter.root);
+    const pgn = pgnService.getFullPgn(chapter.tags);
+
+    // Restore
+    pgnService.setRoot(currentRoot, currentPath);
+
+    const blob = new Blob([pgn], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${chapter.name.replace(/\s+/g, '_')}.pgn`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 }
 
 const loadTest = () => {
@@ -30,25 +110,45 @@ const loadTest = () => {
             <h3>Chapters</h3>
             <div class="header-actions">
                 <button @click="loadTest" class="test-btn" title="Load Test PGN">🧪</button>
-                <button @click="showInput = !showInput" class="add-btn" title="New Chapter">+</button>
+                <button @click="showImport = !showImport; showInput = false" class="import-btn" title="Import PGN">📥</button>
+                <button @click="toggleCreate(); showImport = false" class="add-btn" title="New Chapter">+</button>
             </div>
         </div>
 
         <div v-if="showInput" class="new-chapter-form">
-            <input v-model="newChapterName" placeholder="Chapter Name" @keyup.enter="handleCreate" ref="nameInput"
-                autofocus />
+            <input v-model="newChapterName" placeholder="Chapter Name" @keyup.enter="handleCreate" @blur="showInput = false"
+                ref="nameInput" />
+        </div>
+
+        <div v-if="showImport" class="import-pgn-form">
+            <textarea v-model="pgnInput" placeholder="Paste PGN here..." rows="5"></textarea>
+            <div class="form-actions">
+                <button @click="handleImport" class="submit-btn highlight">Load PGN</button>
+                <button @click="showImport = false" class="cancel-btn">Cancel</button>
+            </div>
         </div>
 
         <ul class="chapter-list">
             <li v-for="(chapter, index) in studyStore.chapters" :key="chapter.id"
-                :class="{ active: studyStore.activeChapterId === chapter.id }" @click="selectChapter(chapter.id)">
-                <div class="chapter-info">
-                    <span class="chapter-num">{{ index + 1 }}</span>
-                    <span class="chapter-name">{{ chapter.name }}</span>
+                :class="{ active: studyStore.activeChapterId === chapter.id, editing: editingId === chapter.id }"
+                @click="selectChapter(chapter.id)">
+
+                <div v-if="editingId === chapter.id" class="edit-wrapper">
+                    <input v-model="editName" @keyup.enter="finishEdit" @keyup.esc="cancelEdit" @blur="finishEdit"
+                        ref="editInput" />
                 </div>
-                <div class="chapter-actions">
-                    <button @click.stop="studyStore.deleteChapter(chapter.id)" class="delete-btn">×</button>
-                </div>
+
+                <template v-else>
+                    <div class="chapter-info">
+                        <span class="chapter-num">{{ index + 1 }}</span>
+                        <span class="chapter-name" :title="chapter.name">{{ chapter.name }}</span>
+                    </div>
+                    <div class="chapter-actions">
+                        <button @click.stop="downloadChapter(chapter)" class="download-btn" title="Download PGN">💾</button>
+                        <button @click.stop="startEdit(chapter)" class="edit-btn" title="Rename">✏️</button>
+                        <button @click.stop="studyStore.deleteChapter(chapter.id)" class="delete-btn" title="Delete">×</button>
+                    </div>
+                </template>
             </li>
         </ul>
     </div>
@@ -77,7 +177,8 @@ const loadTest = () => {
 }
 
 .add-btn,
-.test-btn {
+.test-btn,
+.import-btn {
     background: none;
     border: none;
     color: var(--color-text-primary);
@@ -88,8 +189,49 @@ const loadTest = () => {
 }
 
 .add-btn:hover,
-.test-btn:hover {
+.test-btn:hover,
+.import-btn:hover {
     opacity: 1;
+}
+
+.import-pgn-form {
+    padding: 10px;
+    background: var(--color-bg-secondary);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.import-pgn-form textarea {
+    width: 100%;
+    background: var(--color-bg-primary);
+    border: 1px solid var(--color-border);
+    color: white;
+    padding: 8px;
+    font-family: monospace;
+    font-size: 0.85em;
+    resize: vertical;
+    margin-bottom: 10px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.submit-btn,
+.cancel-btn {
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg-tertiary);
+    color: white;
+}
+
+.submit-btn.highlight {
+    background: var(--color-accent-primary);
+    border-color: var(--color-accent-primary);
 }
 
 .test-btn {
@@ -146,16 +288,60 @@ const loadTest = () => {
     text-overflow: ellipsis;
 }
 
-.delete-btn {
+.chapter-actions {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.chapter-list li:hover .chapter-actions,
+.chapter-list li.active .chapter-actions {
+    opacity: 1;
+}
+
+.delete-btn,
+.edit-btn,
+.download-btn {
     background: none;
     border: none;
     color: inherit;
-    opacity: 0.5;
+    opacity: 0.6;
     cursor: pointer;
+    font-size: 0.9em;
+    padding: 2px 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.delete-btn {
     font-size: 1.2em;
 }
 
-.delete-btn:hover {
+.delete-btn:hover,
+.edit-btn:hover,
+.download-btn:hover {
     opacity: 1;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+}
+
+.edit-wrapper {
+    width: 100%;
+}
+
+.edit-wrapper input {
+    width: 100%;
+    background: var(--color-bg-primary);
+    border: 1px solid var(--color-accent-primary);
+    color: white;
+    padding: 2px 4px;
+    font-size: 0.9em;
+}
+
+.chapter-list li.editing {
+    background: var(--color-bg-secondary);
 }
 </style>

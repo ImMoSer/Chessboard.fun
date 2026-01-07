@@ -18,6 +18,7 @@ export interface PgnNode {
   children: PgnNode[]
   comment?: string | undefined
   eval?: number | undefined
+  nag?: number | undefined
 }
 
 export interface NewNodeData {
@@ -234,6 +235,63 @@ class PgnServiceController {
       pgn += (pgn.length > 0 ? ' ' : '') + this.gameResult
     }
     return pgn.trim()
+  }
+
+  public getFullPgn(tags: Record<string, string>): string {
+    let pgn = ''
+    for (const [key, value] of Object.entries(tags)) {
+      pgn += `[${key} "${value}"]\n`
+    }
+    if (Object.keys(tags).length > 0) pgn += '\n'
+
+    const rootSetup = parseFen(this.rootNode.fenAfter).unwrap()
+    const isWhiteToMoveInitially = rootSetup.turn === 'white'
+    const initialFullMoveNumber = rootSetup.fullmoves
+
+    pgn += this.renderTree(this.rootNode, isWhiteToMoveInitially, initialFullMoveNumber, false)
+    pgn += ` ${this.gameResult}`
+    return pgn.trim()
+  }
+
+  private renderTree(
+    node: PgnNode,
+    isWhiteToMove: boolean,
+    fullMoveNumber: number,
+    forceMoveNumber: boolean,
+  ): string {
+    if (node.children.length === 0) return ''
+
+    const mainLine = node.children[0]
+    if (!mainLine) return ''
+    const variations = node.children.slice(1)
+
+    const nextFullMove = isWhiteToMove ? fullMoveNumber : fullMoveNumber + 1
+    const nextTurn = !isWhiteToMove
+
+    let pgn = ''
+
+    // 1. Render mainline move
+    if (isWhiteToMove || forceMoveNumber) {
+      pgn += `${fullMoveNumber}${isWhiteToMove ? '.' : '...'} `
+    }
+    pgn += mainLine.san
+    if (mainLine.nag) pgn += ` $${mainLine.nag}`
+    if (mainLine.comment) pgn += ` {${mainLine.comment}}`
+
+    // 2. Render variations (siblings of mainline)
+    for (const variation of variations) {
+      pgn += ` (${fullMoveNumber}${isWhiteToMove ? '.' : '...'} ${variation.san}${variation.nag ? ` $${variation.nag}` : ''}${variation.comment ? ` {${variation.comment}}` : ''}`
+      const varContinuation = this.renderTree(variation, nextTurn, nextFullMove, false)
+      if (varContinuation) pgn += ' ' + varContinuation
+      pgn += `)`
+    }
+
+    // 3. Render mainline continuation
+    // forceMoveNumber is true if we had variations, because they "break" the flow
+    const continuation = this.renderTree(mainLine, nextTurn, nextFullMove, variations.length > 0)
+    if (continuation) pgn += ' ' + continuation
+
+    return pgn
   }
 
   public getCurrentNode(): PgnNode {
@@ -469,9 +527,16 @@ class PgnServiceController {
     }
   }
 
-  public updateNode(node: PgnNode, data: Partial<Pick<PgnNode, 'comment' | 'eval'>>): void {
+  public deleteCurrentNode(): void {
+    if (this.currentNode !== this.rootNode) {
+      this.deleteNode(this.currentNode)
+    }
+  }
+
+  public updateNode(node: PgnNode, data: Partial<Pick<PgnNode, 'comment' | 'eval' | 'nag'>>): void {
     if (data.comment !== undefined) node.comment = data.comment
     if (data.eval !== undefined) node.eval = data.eval
+    if (data.nag !== undefined) node.nag = data.nag
     treeVersion.value++
   }
 

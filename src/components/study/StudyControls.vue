@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { useBoardStore } from '@/stores/board.store'
 import { pgnService } from '@/services/PgnService'
+import { useAnalysisStore } from '@/stores/analysis.store'
 
 const boardStore = useBoardStore()
+const analysisStore = useAnalysisStore()
 
 const handleFlip = () => {
     boardStore.flipBoard()
@@ -13,14 +15,13 @@ const handlePrev = () => boardStore.navigatePgn('backward')
 const handleNext = () => boardStore.navigatePgn('forward')
 const handleEnd = () => boardStore.navigatePgn('end')
 
+const handleToggleAnalysis = () => {
+    analysisStore.toggleAnalysis()
+}
+
 const handleDelete = () => {
-    const node = pgnService.getCurrentNode()
-    if (node.parent) {
-        // Logic to delete node? PgnService needs delete method.
-        // For now just undo or ignore.
-        // impl: pgnService.deleteCurrentNode()
-        console.warn("Delete not implemented yet on service")
-    }
+    pgnService.deleteCurrentNode()
+    boardStore.syncBoardWithPgn()
 }
 </script>
 
@@ -28,6 +29,7 @@ const handleDelete = () => {
     <div class="study-controls">
         <div class="control-group">
             <button @click="handleFlip" title="Flip Board">🔄</button>
+            <button @click="handleToggleAnalysis" :class="{ active: analysisStore.isAnalysisActive }" title="Toggle Analysis">📊</button>
         </div>
 
         <div class="control-group navigation">
@@ -39,7 +41,7 @@ const handleDelete = () => {
 
         <div class="control-group actions">
             <!-- Placeholder for edit actions -->
-            <button @click="handleDelete" title="Delete Move (Not Impl)" disabled>🗑️</button>
+            <button @click="handleDelete" title="Delete Move">🗑️</button>
         </div>
     </div>
 </template>
@@ -72,6 +74,11 @@ button {
 
 button:hover {
     background: var(--color-bg-primary);
+}
+
+button.active {
+    background: var(--color-accent-primary);
+    color: white;
 }
 
 button:disabled {

@@ -4,31 +4,43 @@ import GameLayout from '@/components/GameLayout.vue'
 import StudySidebar from '@/components/study/StudySidebar.vue'
 import StudyTree from '@/components/study/StudyTree.vue'
 import StudyControls from '@/components/study/StudyControls.vue'
+import StudyOpeningExplorer from '@/components/study/StudyOpeningExplorer.vue'
 import { useBoardStore } from '@/stores/board.store'
 import { useStudyStore } from '@/stores/study.store'
 
+import { watch } from 'vue'
+import { useAnalysisStore } from '@/stores/analysis.store'
+import { pgnService } from '@/services/PgnService'
+
 const boardStore = useBoardStore()
 const studyStore = useStudyStore()
+const analysisStore = useAnalysisStore()
 
-onMounted(() => {
+onMounted(async () => {
     boardStore.setAnalysisMode(true)
-    // Ensure we have a chapter
-    if (!studyStore.activeChapterId) {
-        if (studyStore.chapters.length > 0) {
-            const first = studyStore.chapters[0]
-            if (first) studyStore.setActiveChapter(first.id)
-        } else {
-            studyStore.createChapter('Chapter 1')
-        }
-    } else {
-        // Re-sync board to active chapter just in case
-        studyStore.setActiveChapter(studyStore.activeChapterId)
-    }
+    await studyStore.initialize()
 })
 
 onUnmounted(() => {
     boardStore.setAnalysisMode(false)
+    analysisStore.resetAnalysisState()
 })
+
+// Auto-update node evaluation from engine
+watch(() => analysisStore.analysisLines, (lines) => {
+    if (analysisStore.isAnalysisActive && lines.length > 0) {
+        const topMove = lines[0];
+        const currentNode = pgnService.getCurrentNode();
+        if (topMove && currentNode && currentNode.id !== '__ROOT__') {
+            // Convert score to centipawns or mate value
+            let scoreVal = topMove.score.value;
+            if (topMove.score.type === 'mate') {
+                scoreVal = topMove.score.value > 0 ? 100000 + topMove.score.value : -100000 - topMove.score.value;
+            }
+            pgnService.updateNode(currentNode, { eval: scoreVal });
+        }
+    }
+}, { deep: true });
 </script>
 
 <template>
@@ -44,7 +56,23 @@ onUnmounted(() => {
         <!-- Center is auto-filled by GameLayout with WebChessBoard -->
 
         <template #right-panel>
-            <StudyTree />
+            <div class="right-panel-content">
+                <StudyTree />
+                <StudyOpeningExplorer />
+            </div>
         </template>
     </GameLayout>
 </template>
+
+<style scoped>
+.right-panel-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+:deep(.study-tree) {
+    flex: 1;
+    overflow-y: auto;
+}
+</style>

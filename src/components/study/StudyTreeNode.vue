@@ -3,6 +3,7 @@ import { computed, ref, nextTick } from 'vue'
 import type { PgnNode } from '@/services/PgnService'
 import { pgnService, pgnTreeVersion } from '@/services/PgnService'
 import { useBoardStore } from '@/stores/board.store'
+import { NDropdown, NModal, NInput } from 'naive-ui'
 
 const props = withDefaults(defineProps<{
   node: PgnNode
@@ -56,6 +57,19 @@ const showDropdown = ref(false)
 const x = ref(0)
 const y = ref(0)
 
+const nagMap: Record<number, string> = {
+  1: '!',
+  2: '?',
+  3: '!!',
+  4: '??',
+  5: '!?',
+  6: '?!',
+  14: '±',
+  15: '∓',
+  18: '+-',
+  19: '-+'
+}
+
 const dropdownOptions = computed(() => [
   {
     label: 'Promote Variation',
@@ -66,6 +80,23 @@ const dropdownOptions = computed(() => [
     label: 'Make Mainline',
     key: 'promote-mainline',
     disabled: isOnLevelZero.value
+  },
+  {
+    label: 'Glyphs',
+    key: 'glyphs',
+    children: [
+      { label: 'None', key: 'nag-0' },
+      { label: '! (Good Move)', key: 'nag-1' },
+      { label: '? (Mistake)', key: 'nag-2' },
+      { label: '!! (Brilliant)', key: 'nag-3' },
+      { label: '?? (Blunder)', key: 'nag-4' },
+      { label: '!? (Interesting)', key: 'nag-5' },
+      { label: '?! (Dubious)', key: 'nag-6' },
+      { label: '± (White is Better)', key: 'nag-14' },
+      { label: '∓ (Black is Better)', key: 'nag-15' },
+      { label: '+- (White is Winning)', key: 'nag-18' },
+      { label: '-+ (Black is Winning)', key: 'nag-19' },
+    ]
   },
   {
     label: 'Comment',
@@ -110,6 +141,9 @@ const handleSelect = (key: string) => {
     boardStore.syncBoardWithPgn()
   } else if (key === 'comment') {
     openCommentModal()
+  } else if (key.startsWith('nag-')) {
+    const nag = parseInt(key.replace('nag-', ''))
+    pgnService.updateNode(props.node, { nag: nag || undefined })
   }
 }
 
@@ -124,6 +158,23 @@ const openCommentModal = () => {
 
 const saveComment = () => {
   pgnService.updateNode(props.node, { comment: commentText.value })
+}
+
+// --- eval formatting ---
+const formatEval = (val: number) => {
+    if (Math.abs(val) > 10000) {
+        // Mate
+        const moves = Math.abs(val) - 100000;
+        return (val > 0 ? '#' : '-#') + moves;
+    }
+    const cp = val / 100;
+    return (cp > 0 ? '+' : '') + cp.toFixed(1);
+}
+
+const getEvalClass = (val: number) => {
+    if (val > 0.5) return 'pos-white';
+    if (val < -0.5) return 'pos-black';
+    return '';
 }
 </script>
 
@@ -144,8 +195,9 @@ export default {
         @click.stop="activateNode" @contextmenu="handleContextMenu">
         <span v-if="moveNumber" class="move-index">{{ moveNumber }}</span>
         <span class="san-text">{{ node.san }}</span>
+        <span v-if="node.nag" class="nag-text">{{ nagMap[node.nag] }}</span>
         <span v-if="node.comment" class="comment-indicator" :title="node.comment">💬</span>
-        <span v-if="node.eval" class="eval-tag">{{ node.eval }}</span>
+        <span v-if="node.eval !== undefined" class="eval-tag" :class="getEvalClass(node.eval)">{{ formatEval(node.eval) }}</span>
       </span>
     </template>
 
@@ -256,10 +308,23 @@ export default {
   opacity: 0.7;
 }
 
+.nag-text {
+    font-weight: bold;
+    color: var(--color-accent-primary);
+}
+
 .eval-tag {
   font-size: 0.7em;
   background: #444;
   padding: 1px 3px;
   border-radius: 2px;
+}
+
+.pos-white {
+    color: #4cd137;
+}
+
+.pos-black {
+    color: #ff4757;
 }
 </style>
