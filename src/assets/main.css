@@ -92,16 +92,16 @@ body {
   --font-size-xxlarge: 2.2rem;
 
     /* Font sizes PGN lines*/
-  --font-size-pgn_mainline: 0.9rem;
-  --font-size-pgn_secondline: 0.7rem;
-  --font-size-pgn_thirdline: 0.6rem;
-  --font-size-pgn_fourthline: 0.5rem;
+  --font-size-pgn_mainline: 1.1rem;
+  --font-size-pgn_secondline: 0.95rem;
+  --font-size-pgn_thirdline: 0.9rem;
+  --font-size-pgn_fourthline: 0.85rem;
 
    /* Colors PGN lines*/
-  --color-pgn_mainline: #C62828;
+  --color-pgn_mainline: #0B8ACB;
   --color-pgn_secondline: #FF6B6B;
-  --color-pgn_thirdline: #ffd700;
-  --color-pgn_fourthline: #0B8ACB;
+  --color-pgn_thirdline: #C62828;
+  --color-pgn_fourthline: #FFB300;
 
 }
 
