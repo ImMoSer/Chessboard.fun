@@ -48,7 +48,7 @@ onMounted(() => {
       check: props.check,
       lastMove: props.lastMove,
       movable: {
-        free: props.isAnalysisMode,
+        free: false,
         color: props.isAnalysisMode ? 'both' : props.orientation,
         dests: props.dests,
         showDests: true,
@@ -116,7 +116,7 @@ watch([() => props.dests, () => props.turnColor, () => props.isAnalysisMode], ([
     movable: {
       color: isAnalysis ? 'both' : props.orientation,
       dests: dests,
-      free: isAnalysis
+      free: false
     }
   })
 })

@@ -62,6 +62,10 @@ const handleChangeLang = (lang: 'en' | 'ru' | 'de') => {
           <span class="mode-button-icon">📖</span>
           <span class="mode-button-text">{{ t('nav.openingTrainer') }}</span>
         </router-link>
+        <router-link class="mode-button" to="/study">
+          <span class="mode-button-icon">🎓</span>
+          <span class="mode-button-text">{{ t('welcome.buttons.study') }}</span>
+        </router-link>
       </div>
 
       <div v-if="!isAuthenticated" class="login-section">

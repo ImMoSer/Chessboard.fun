@@ -147,6 +147,12 @@ const router = createRouter({
       component: () => import('../views/TheoryEndingView.vue'),
       meta: { isGame: true, requiresAuth: true, game: 'theory' },
     },
+    {
+      path: '/study',
+      name: 'study',
+      component: () => import('../views/StudyView.vue'),
+      meta: { isGame: true, game: 'study', requiresAuth: true }, // Optional requiresAuth
+    },
   ],
 })
 

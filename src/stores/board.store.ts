@@ -63,6 +63,10 @@ export const useBoardStore = defineStore('board', () => {
     }
   }
 
+  function syncBoardWithPgn() {
+    _updateBoardStateFromPgn()
+  }
+
   function setupPosition(newFen: string, newOrientation?: ChessgroundColor) {
     try {
       if (newOrientation) {
@@ -81,7 +85,8 @@ export const useBoardStore = defineStore('board', () => {
     pieceOnDestBefore: ChessopsPiece | undefined,
     turnBeforeMove: ChessopsColor,
   ): void {
-    if (isAnalysisModeActive.value) return
+    // Enable sounds for Study Mode (Analysis Mode)
+    // if (isAnalysisModeActive.value) return
 
     const gameStatus = getGameStatus()
     const wasPlayerTurn = turnBeforeMove === orientation.value
@@ -98,6 +103,7 @@ export const useBoardStore = defineStore('board', () => {
 
     if (gameStore.currentGameMode !== 'tornado') {
       if (gameStatus.isGameOver && gameStatus.outcome) {
+        // ... (keep existing logic)
         switch (gameStatus.outcome.reason) {
           case 'checkmate':
             soundService.playSound('board_checkmate')
@@ -115,15 +121,18 @@ export const useBoardStore = defineStore('board', () => {
             soundService.playSound('board_draw_insufficient_material')
             break
         }
-      } else if (gameStatus.isCheck && !wasPlayerTurn) {
-        soundService.playSound('board_bot_checks_player')
+      } else if (gameStatus.isCheck) {
+        // In study mode, just play check sound if check
+        soundService.playSound('board_bot_checks_player') // reusing this sound for generic check
       }
     }
   }
 
   function _applyUciMove(uci: string): boolean {
+    logger.info(`[_applyUciMove] Attempting to apply UCI: ${uci}`)
     const move = parseUciMove(uci)
     if (!move || !chessPosition.value.isLegal(move)) {
+      logger.error(`[_applyUciMove] Illegal move or parse error for UCI: ${uci}`)
       return false
     }
 
@@ -141,8 +150,18 @@ export const useBoardStore = defineStore('board', () => {
       lastMove.value = [uci.slice(0, 2) as Key, uci.slice(2, 4) as Key]
     }
 
-    pgnService.addNode({ san, uci, fenBefore, fenAfter })
+    logger.info(`[_applyUciMove] Move played. Adding to PGN. FenBefore: ${fenBefore}, FenAfter: ${fenAfter}`)
+    const node = pgnService.addNode({ san, uci, fenBefore, fenAfter })
+    if (!node) {
+      logger.error(`[_applyUciMove] Failed to add node to PGN tree.`)
+      // Revert board? No, visual board is already updated mostly?
+      // Actually, if we fail to add to tree, we should probably warn user.
+    } else {
+      logger.info(`[_applyUciMove] Node added successfully. ID: ${node.id}`)
+    }
+
     _playSoundsForMove(move, pieceOnDestBefore, turnBeforeMove)
+    // Verify sync
     _updateBoardStateFromPgn()
     return true
   }
@@ -193,6 +212,8 @@ export const useBoardStore = defineStore('board', () => {
     }
   }
 
+  // ... (keep existing methods)
+
   async function handleAnalysisMove({
     orig,
     dest,
@@ -200,6 +221,7 @@ export const useBoardStore = defineStore('board', () => {
     orig: Key
     dest: Key
   }): Promise<string | null> {
+    logger.info(`[handleAnalysisMove] Request: ${orig}-${dest}`)
     const fromSq = parseSquare(orig)
     const toSq = parseSquare(dest)
     if (fromSq === undefined || toSq === undefined) return null
@@ -232,11 +254,15 @@ export const useBoardStore = defineStore('board', () => {
     } else {
       const uci = makeUci({ from: fromSq, to: toSq })
       const move = parseUciMove(uci)
+
+      // Check legality before applying.
       if (move && chessPosition.value.isLegal(move)) {
+        logger.info(`[handleAnalysisMove] Move legal: ${uci}`)
         _applyUciMove(uci)
         return uci
       } else {
-        _updateBoardStateFromPgn()
+        logger.warn(`[handleAnalysisMove] Move illegal or invalid: ${uci}`)
+        _updateBoardStateFromPgn() // Revert visual board to legally known state
         return null
       }
     }
@@ -387,5 +413,6 @@ export const useBoardStore = defineStore('board', () => {
     navigateToNode,
     setAnalysisMode,
     resetBoardState,
+    syncBoardWithPgn,
   }
 })

@@ -101,6 +101,7 @@
     "lichessClubs": "Clubs",
     "pricing": "Preise",
     "about": "Über uns",
+    "study": "Studie",
     "login": "Anmelden",
     "logout": "Abmelden",
     "loginWithLichess": "Mit Lichess anmelden"
@@ -173,7 +174,8 @@
       "theoryEndings": "Endspiel",
       "tacktics": "Taktik",
       "clubs": "FunClub",
-      "leaderboards": "Bestenlisten"
+      "leaderboards": "Bestenlisten",
+      "study": "Studie"
     },
     "loginPrompt": "Oder melden Sie sich an, um alle Funktionen zu nutzen:"
   },

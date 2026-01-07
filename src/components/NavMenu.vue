@@ -71,6 +71,11 @@ const menuOptions: MenuOption[] = [
     icon: renderEmojiIcon('💰')
   },
   {
+    label: () => t('nav.study'),
+    key: '/study',
+    icon: renderEmojiIcon('🎓')
+  },
+  {
     label: () => t('nav.about'),
     key: '/about',
     icon: renderEmojiIcon('ℹ️')

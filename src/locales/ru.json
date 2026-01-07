@@ -101,6 +101,7 @@
     "lichessClubs": "ФанКлуб",
     "pricing": "Тарифы",
     "about": "О нас",
+    "study": "Студия",
     "login": "Войти",
     "logout": "Выйти",
     "loginWithLichess": "Войти через Lichess"
@@ -173,7 +174,8 @@
       "theoryEndings": "Эндшпиль",
       "tacktics": "Тактика",
       "clubs": "ФанКлуб",
-      "leaderboards": "Рейтинги"
+      "leaderboards": "Рейтинги",
+      "study": "Студия"
     },
     "loginPrompt": "Или войдите, чтобы получить доступ ко всем функциям:"
   },

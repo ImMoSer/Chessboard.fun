@@ -78,13 +78,30 @@ class PgnServiceController {
     )
   }
 
+  public setRoot(root: PgnNode, currentPath: string = ''): void {
+    this.rootNode = root
+    this.currentNode = root
+    this.currentPath = ''
+
+    // reset game result or store it in PgnNode if needed?
+    // For now assume logic handles result separately or it's not part of the tree node properly.
+
+    if (currentPath) {
+      this.navigateToPath(currentPath)
+    }
+
+    treeVersion.value++
+    logger.info(`[PgnService] Root swapped.`)
+  }
+
   public addNode(data: NewNodeData): PgnNode | null {
     const parentNode = this.currentNode
 
     if (parentNode.fenAfter !== data.fenBefore) {
       logger.error(
-        `[PgnService] FEN mismatch: parent.fenAfter (${parentNode.fenAfter}) !== newNode.fenBefore (${data.fenBefore}). Cannot add node.`,
+        `[PgnService] FEN mismatch in addNode: parent.fenAfter (${parentNode.fenAfter}) !== newNode.fenBefore (${data.fenBefore}).`,
       )
+      // This is often why the second move fails if parentNode wasn't updated or fenBefore is wrong
       return null
     }
 
@@ -394,6 +411,58 @@ class PgnServiceController {
       treeVersion.value++
     }
     // logger.debug( `[PgnService] Navigated to end (ply ${this.currentNode.ply}). Path: "${this.currentPath}"`, )   )
+  }
+
+  public promoteToMainline(node: PgnNode): void {
+    const parent = node.parent
+    if (!parent) return
+
+    const index = parent.children.indexOf(node)
+    if (index > 0) {
+      // Move to index 0
+      parent.children.splice(index, 1)
+      parent.children.unshift(node)
+      treeVersion.value++
+      logger.info(`[PgnService] Promoted node ${node.san} (ply ${node.ply}) to mainline.`)
+    }
+  }
+
+  public deleteNode(node: PgnNode): void {
+    const parent = node.parent
+    if (!parent) return // Cannot delete root
+
+    const index = parent.children.indexOf(node)
+    if (index !== -1) {
+      parent.children.splice(index, 1)
+
+      // If we deleted the current node or one of its ancestors, navigate to parent
+      let N: PgnNode | undefined = this.currentNode
+      let isAncestorOfCurrent = false
+      while (N) {
+        if (N === node) {
+          isAncestorOfCurrent = true
+          break
+        }
+        N = N.parent
+      }
+
+      if (isAncestorOfCurrent) {
+        this.navigateToNode(parent)
+      }
+
+      treeVersion.value++
+      logger.info(`[PgnService] Deleted node ${node.san} (ply ${node.ply}) and its subtree.`)
+    }
+  }
+
+  public updateNode(node: PgnNode, data: Partial<Pick<PgnNode, 'comment' | 'eval'>>): void {
+    if (data.comment !== undefined) node.comment = data.comment
+    if (data.eval !== undefined) node.eval = data.eval
+    treeVersion.value++
+  }
+
+  public getGameResult(): string {
+    return this.gameResult
   }
 
   public canNavigateBackward(): boolean {
