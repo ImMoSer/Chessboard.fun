@@ -8,8 +8,10 @@ const props = withDefaults(defineProps<{
   node: PgnNode
   forceNumber?: boolean
   depth?: number
+  mode?: 'all' | 'san' | 'continuation'
 }>(), {
-  depth: 0
+  depth: 0,
+  mode: 'all'
 })
 
 const boardStore = useBoardStore()
@@ -136,7 +138,8 @@ export default {
     <n-dropdown trigger="manual" :show="showDropdown" :options="dropdownOptions" :x="x" :y="y"
       @clickoutside="showDropdown = false" @select="handleSelect" />
 
-    <template v-if="node.id !== '__ROOT__'">
+    <!-- 1. The move itself (SAN) -->
+    <template v-if="node.id !== '__ROOT__' && mode !== 'continuation'">
       <span class="move-san" :class="[depthClass, { active: isActive, 'has-comment': !!node.comment }]"
         @click.stop="activateNode" @contextmenu="handleContextMenu">
         <span v-if="moveNumber" class="move-index">{{ moveNumber }}</span>
@@ -146,16 +149,24 @@ export default {
       </span>
     </template>
 
-    <StudyTreeNode v-if="mainlineChild" :node="mainlineChild" :depth="depth"
-      :force-number="variations.length > 0 || !!node.comment" />
+    <!-- 2. Children section (Next moves) -->
+    <template v-if="mode !== 'san' && mainlineChild">
+      <!-- A. Render the next move's SAN -->
+      <StudyTreeNode :node="mainlineChild" mode="san" :depth="depth" />
 
-    <div v-if="variations.length > 0" class="variations-container">
-      <div v-for="variant in variations" :key="variant.id" class="variation-line">
-        <span class="variation-brace">(</span>
-        <StudyTreeNode :node="variant" :depth="depth + 1" :force-number="true" />
-        <span class="variation-brace">)</span>
+      <!-- B. Render alternatives to that next move -->
+      <div v-if="variations.length > 0" class="variations-container">
+        <div v-for="variant in variations" :key="variant.id" class="variation-line">
+          <span class="variation-brace">(</span>
+          <StudyTreeNode :node="variant" mode="all" :depth="depth + 1" :force-number="true" />
+          <span class="variation-brace">)</span>
+        </div>
       </div>
-    </div>
+
+      <!-- C. Render the continuation of the next move -->
+      <StudyTreeNode :node="mainlineChild" mode="continuation" :depth="depth"
+        :force-number="variations.length > 0 || !!mainlineChild.comment" />
+    </template>
 
     <n-modal v-model:show="showCommentModal" preset="dialog" title="Edit Comment" positive-text="Save"
       negative-text="Cancel" @positive-click="saveComment">
