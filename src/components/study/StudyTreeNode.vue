@@ -137,6 +137,9 @@ export default {
             </span>
         </template>
 
+        <StudyTreeNode v-if="mainlineChild" :node="mainlineChild"
+            :force-number="variations.length > 0 || !!node.comment" />
+
         <div v-if="variations.length > 0" class="variations-container">
             <div v-for="variant in variations" :key="variant.id" class="variation-line">
                 <span class="variation-brace">(</span>
@@ -144,9 +147,6 @@ export default {
                 <span class="variation-brace">)</span>
             </div>
         </div>
-
-        <StudyTreeNode v-if="mainlineChild" :node="mainlineChild"
-            :force-number="variations.length > 0 || !!node.comment" />
 
         <n-modal v-model:show="showCommentModal" preset="dialog" title="Edit Comment" positive-text="Save"
             negative-text="Cancel" @positive-click="saveComment">
