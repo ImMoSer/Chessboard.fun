@@ -47,9 +47,14 @@ const y = ref(0)
 
 const dropdownOptions = computed(() => [
     {
-        label: 'Promote to Mainline',
-        key: 'promote',
+        label: 'Promote Variation',
+        key: 'promote-variant',
         disabled: !props.node.parent || props.node.parent.children[0] === props.node
+    },
+    {
+        label: 'Make Mainline',
+        key: 'promote-mainline',
+        disabled: isOnLevelZero.value
     },
     {
         label: 'Comment',
@@ -61,6 +66,15 @@ const dropdownOptions = computed(() => [
         disabled: props.node.id === '__ROOT__'
     }
 ])
+
+const isOnLevelZero = computed(() => {
+    let current: PgnNode | undefined = props.node
+    while (current && current.parent) {
+        if (current.parent.children[0] !== current) return false
+        current = current.parent
+    }
+    return true
+})
 
 const handleContextMenu = (e: MouseEvent) => {
     if (props.node.id === '__ROOT__') return
@@ -76,7 +90,9 @@ const handleContextMenu = (e: MouseEvent) => {
 
 const handleSelect = (key: string) => {
     showDropdown.value = false
-    if (key === 'promote') {
+    if (key === 'promote-variant') {
+        pgnService.promoteToVariantMainline(props.node)
+    } else if (key === 'promote-mainline') {
         pgnService.promoteToMainline(props.node)
     } else if (key === 'delete') {
         pgnService.deleteNode(props.node)
@@ -111,17 +127,21 @@ export default {
         <n-dropdown trigger="manual" :show="showDropdown" :options="dropdownOptions" :x="x" :y="y"
             @clickoutside="showDropdown = false" @select="handleSelect" />
 
-        <span class="move-san" :class="{ active: isActive, 'has-comment': !!node.comment }" @click.stop="activateNode"
-            @contextmenu="handleContextMenu">
-            <span v-if="moveNumber" class="move-index">{{ moveNumber }}</span>
-            <span class="san-text">{{ node.san }}</span>
-            <span v-if="node.comment" class="comment-indicator" :title="node.comment">💬</span>
-            <span v-if="node.eval" class="eval-tag">{{ node.eval }}</span>
-        </span>
+        <template v-if="node.id !== '__ROOT__'">
+            <span class="move-san" :class="{ active: isActive, 'has-comment': !!node.comment }"
+                @click.stop="activateNode" @contextmenu="handleContextMenu">
+                <span v-if="moveNumber" class="move-index">{{ moveNumber }}</span>
+                <span class="san-text">{{ node.san }}</span>
+                <span v-if="node.comment" class="comment-indicator" :title="node.comment">💬</span>
+                <span v-if="node.eval" class="eval-tag">{{ node.eval }}</span>
+            </span>
+        </template>
 
         <div v-if="variations.length > 0" class="variations-container">
             <div v-for="variant in variations" :key="variant.id" class="variation-line">
+                <span class="variation-brace">(</span>
                 <StudyTreeNode :node="variant" :force-number="true" />
+                <span class="variation-brace">)</span>
             </div>
         </div>
 
@@ -183,6 +203,12 @@ export default {
 
 .variation-line {
     margin-bottom: 4px;
+}
+
+.variation-brace {
+    opacity: 0.5;
+    margin: 0 2px;
+    font-weight: normal;
 }
 
 .comment-indicator {

@@ -395,25 +395,7 @@ class PgnServiceController {
     // logger.debug(`[PgnService] Navigated to start (ply 0). Path: "${this.currentPath}"`)
   }
 
-  public navigateToEnd(): void {
-    let N: PgnNode = this.currentNode
-    while (N.children.length > 0) {
-      const nextNode = N.children[0]
-      if (nextNode) {
-        N = nextNode
-      } else {
-        break
-      }
-    }
-    if (this.currentNode !== N) {
-      this.currentNode = N
-      this.currentPath = this.buildPath(this.currentNode)
-      treeVersion.value++
-    }
-    // logger.debug( `[PgnService] Navigated to end (ply ${this.currentNode.ply}). Path: "${this.currentPath}"`, )   )
-  }
-
-  public promoteToMainline(node: PgnNode): void {
+  public promoteToVariantMainline(node: PgnNode): void {
     const parent = node.parent
     if (!parent) return
 
@@ -423,7 +405,27 @@ class PgnServiceController {
       parent.children.splice(index, 1)
       parent.children.unshift(node)
       treeVersion.value++
-      logger.info(`[PgnService] Promoted node ${node.san} (ply ${node.ply}) to mainline.`)
+      logger.info(`[PgnService] Promoted node ${node.san} (ply ${node.ply}) to its variant mainline.`)
+    }
+  }
+
+  public promoteToMainline(node: PgnNode): void {
+    let current: PgnNode | undefined = node
+    let changed = false
+    while (current && current.parent) {
+      const parent = current.parent
+      const index = parent.children.indexOf(current)
+      if (index > 0) {
+        parent.children.splice(index, 1)
+        parent.children.unshift(current)
+        changed = true
+      }
+      current = parent
+    }
+
+    if (changed) {
+      treeVersion.value++
+      logger.info(`[PgnService] Promoted node ${node.san} (ply ${node.ply}) to absolute mainline.`)
     }
   }
 

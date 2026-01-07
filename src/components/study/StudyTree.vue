@@ -4,12 +4,10 @@ import { pgnService, pgnTreeVersion } from '@/services/PgnService'
 import StudyTreeNode from './StudyTreeNode.vue'
 
 // Re-compute root children when tree version changes
-const rootChildren = computed(() => {
-    // Access to trigger dependency
+const rootNode = computed(() => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const v = pgnTreeVersion.value
-    const root = pgnService.getRootNode()
-    return [...root.children]
+    return pgnService.getRootNode()
 })
 
 const gameResult = computed(() => {
@@ -23,20 +21,12 @@ const gameResult = computed(() => {
 <template>
     <div class="study-tree-container">
         <div class="tree-content">
-            <div v-if="rootChildren.length === 0" class="empty-tree">
+            <div v-if="!rootNode" class="empty-tree">
                 <p>Start moving on the board to create lines!</p>
             </div>
 
             <div v-else>
-                <div v-for="(child, i) in rootChildren" :key="child.id">
-                    <div v-if="i === 0">
-                        <!-- Mainline start -->
-                        <StudyTreeNode :node="child" :force-number="true" />
-                    </div>
-                    <div v-else class="root-variation">
-                        <StudyTreeNode :node="child" :force-number="true" />
-                    </div>
-                </div>
+                <StudyTreeNode :node="rootNode" />
             </div>
 
             <div class="game-result">

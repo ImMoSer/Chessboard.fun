@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useStudyStore } from '@/stores/study.store'
 import { ref } from 'vue'
+import { loadComplexTestPgn } from '@/utils/testPgn'
 
 const studyStore = useStudyStore()
 const showInput = ref(false)
@@ -17,13 +18,20 @@ const handleCreate = () => {
 const selectChapter = (id: string) => {
     studyStore.setActiveChapter(id)
 }
+
+const loadTest = () => {
+    loadComplexTestPgn()
+}
 </script>
 
 <template>
     <div class="study-sidebar">
         <div class="chapters-header">
             <h3>Chapters</h3>
-            <button @click="showInput = !showInput" class="add-btn" title="New Chapter">+</button>
+            <div class="header-actions">
+                <button @click="loadTest" class="test-btn" title="Load Test PGN">🧪</button>
+                <button @click="showInput = !showInput" class="add-btn" title="New Chapter">+</button>
+            </div>
         </div>
 
         <div v-if="showInput" class="new-chapter-form">
@@ -62,12 +70,30 @@ const selectChapter = (id: string) => {
     border-bottom: 1px solid var(--color-border, #444);
 }
 
-.add-btn {
+.header-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.add-btn,
+.test-btn {
     background: none;
     border: none;
     color: var(--color-text-primary);
-    font-size: 1.5em;
+    font-size: 1.2em;
     cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.add-btn:hover,
+.test-btn:hover {
+    opacity: 1;
+}
+
+.test-btn {
+    font-size: 1em;
 }
 
 .new-chapter-form {
