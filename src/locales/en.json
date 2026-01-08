@@ -454,10 +454,12 @@
       },
       "modes": {
         "all": "Mode",
-        "finishHim": "FinishHim",
+        "tornado": "Tornado",
+        "advantage": "Advantage",
         "theory": "Theory",
         "tacticalTrainer": "Tactics"
       },
+      "today": "Today",
       "noData": "No data available for the selected period.",
 
       "attempts": "attempts",
@@ -485,6 +487,7 @@
     "analyticsTable": {
       "theme": "Theme",
       "rating": "Rating",
+      "accuracy": "Accuracy",
       "solved_attempted": "Solved/Attempted",
       "accuracy_percent": "Accuracy %"
     }

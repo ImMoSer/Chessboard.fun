@@ -455,10 +455,12 @@
       },
       "modes": {
         "all": "Режим",
-        "finishHim": "Добивание",
+        "tornado": "Торнадо",
+        "advantage": "Добивание",
         "theory": "Теория",
         "tacticalTrainer": "Тактика"
       },
+      "today": "За сегодня",
       "noData": "Нет данных за выбранный период.",
 
       "attempts": "попытки",
@@ -486,6 +488,7 @@
     "analyticsTable": {
       "theme": "Тема",
       "rating": "Рейтинг",
+      "accuracy": "Точность",
       "solved_attempted": "Решено/Попыток",
       "accuracy_percent": "Точность %"
     }

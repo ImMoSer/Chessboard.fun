@@ -19,8 +19,22 @@ const currentStats = computed(() => {
   switch (activeTab.value) {
     case 'Tornado':
       return detailedStats.value.tornado.themes
-    case 'Endgame':
+    case 'Advantage':
       return detailedStats.value.advantage.themes
+    case 'Theory':
+      return Object.entries(detailedStats.value.theory.stats).map(([key, val]) => {
+        const [type, diff, cat] = key.split('/')
+        return {
+          theme: key,
+          category: cat,
+          difficulty: diff,
+          type,
+          attempts: val.requested,
+          solved: val.success,
+          accuracy: val.requested > 0 ? Math.round((val.success / val.requested) * 100) : 0,
+          rating: 0 // Theory doesn't have rating
+        }
+      })
     default:
       return []
   }
@@ -46,22 +60,25 @@ function handleThemeClick(theme: string) {
     <div v-if="isDetailedStatsLoading" class="state-box">
       <n-spin size="large" />
     </div>
-    
+
     <n-alert v-else-if="detailedStatsError" type="error" class="error-alert">
       {{ detailedStatsError }}
     </n-alert>
-    
+
     <div v-else-if="detailedStats">
       <n-tabs v-model:value="activeTab" type="segment" animated>
         <n-tab-pane name="Tornado" tab="Tornado">
           <AnalyticsDisplay :stats="currentStats" @theme-click="handleThemeClick" />
         </n-tab-pane>
-        <n-tab-pane name="Endgame" tab="Endgame">
+        <n-tab-pane name="Advantage" :tab="t('nav.finishHim')">
           <AnalyticsDisplay :stats="currentStats" @theme-click="handleThemeClick" />
+        </n-tab-pane>
+        <n-tab-pane name="Theory" :tab="t('userCabinet.stats.modes.theory')">
+          <AnalyticsDisplay mode="theory" :stats="currentStats" @theme-click="handleThemeClick" />
         </n-tab-pane>
       </n-tabs>
     </div>
-    
+
     <n-empty v-else :description="t('common.noData')" />
   </n-card>
 </template>

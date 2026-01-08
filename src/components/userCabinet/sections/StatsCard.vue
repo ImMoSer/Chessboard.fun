@@ -7,7 +7,7 @@ const { t } = useI18n()
 
 const props = defineProps({
   title: { type: String, required: true },
-  rating: { type: Number, required: true },
+  rating: { type: Number, default: 0 },
   accuracy: { type: Number, required: true },
   solved: { type: Number, required: true },
   attempted: { type: Number, required: true },
@@ -27,21 +27,16 @@ const accuracyStatus = computed(() => {
         <span class="card-title">{{ title }}</span>
       </n-ellipsis>
     </template>
-    
+
     <div class="card-body">
-      <n-statistic :label="t('userCabinet.analyticsTable.rating')" :value="rating">
+      <n-statistic v-if="rating > 0" :label="t('userCabinet.analyticsTable.rating')" :value="rating">
         <template #prefix>📈</template>
       </n-statistic>
+      <div v-else class="rating-placeholder"></div>
 
       <div class="accuracy-box">
-        <n-progress
-          type="circle"
-          :percentage="accuracy"
-          :status="accuracyStatus"
-          :stroke-width="10"
-          :show-indicator="true"
-          size="small"
-        />
+        <n-progress type="circle" :percentage="accuracy" :status="accuracyStatus" :stroke-width="10"
+          :show-indicator="true" size="small" />
         <n-text depth="3" class="attempts-text">
           {{ solved }} / {{ attempted }}
         </n-text>

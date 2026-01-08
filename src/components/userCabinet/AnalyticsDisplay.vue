@@ -24,6 +24,10 @@ const props = defineProps({
     type: Array as PropType<ThemeDisplayStat[]>,
     default: () => [],
   },
+  mode: {
+    type: String as PropType<'tornado' | 'advantage' | 'theory'>,
+    default: 'tornado',
+  },
 })
 
 const sortKey = ref('rating')
@@ -32,12 +36,22 @@ const sortOrder = ref<'asc' | 'desc'>('desc')
 const sortedStats = computed(() => {
   if (!props.stats || props.stats.length === 0) return []
 
-  const statsArray = props.stats.map((data) => ({
-    ...data,
-    themeLabel: t('themes.' + getThemeTranslationKey(data.theme)),
-    originalTheme: data.theme,
-    solved: Math.round((data.attempts * data.accuracy) / 100),
-  }))
+  const statsArray = props.stats.map((data: any) => {
+    let label = ''
+    if (props.mode === 'theory') {
+      label = `${t('theoryEndings.categories.' + data.category + '.name')} (${t('theoryEndings.types.' + data.type)})`
+    } else {
+      label = t('themes.' + getThemeTranslationKey(data.theme))
+    }
+
+    return {
+      ...data,
+      themeLabel: label,
+      originalTheme: data.theme,
+      solved: Math.round((data.attempts * data.accuracy) / 100),
+      displayValue: props.mode === 'theory' ? data.accuracy : data.rating
+    }
+  })
 
   return [...statsArray].sort((a, b) => {
     const aTyped = a as Record<string, unknown>;
@@ -53,7 +67,7 @@ const sortedStats = computed(() => {
 const chartDataForRadar = computed(() => {
   return sortedStats.value.map((s) => ({
     name: s.themeLabel,
-    value: s.rating,
+    value: s.displayValue,
   }))
 })
 </script>
@@ -67,7 +81,7 @@ const chartDataForRadar = computed(() => {
     <div v-else>
       <n-card class="radar-card" :bordered="false">
         <RadarChart v-if="sortedStats.length > 0" :chart-data="chartDataForRadar"
-          :dataset-label="t('userCabinet.analyticsTable.rating')" />
+          :dataset-label="props.mode === 'theory' ? t('userCabinet.analyticsTable.accuracy') : t('userCabinet.analyticsTable.rating')" />
       </n-card>
 
       <div class="stats-grid-wrapper">

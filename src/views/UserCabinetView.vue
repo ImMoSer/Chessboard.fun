@@ -9,7 +9,6 @@ import { useUserCabinetStore } from '@/stores/userCabinet.store'
 import DetailedAnalytics from '@/components/userCabinet/DetailedAnalytics.vue'
 import UserProfileHeader from '@/components/userCabinet/sections/UserProfileHeader.vue'
 import TornadoHighScores from '@/components/userCabinet/sections/TornadoHighScores.vue'
-import TheoryEndingStats from '@/components/userCabinet/sections/TheoryEndingStats.vue'
 import GlobalActivityStats from '@/components/userCabinet/sections/GlobalActivityStats.vue'
 
 const { t } = useI18n()
@@ -52,8 +51,6 @@ onMounted(() => {
         <TornadoHighScores />
 
         <GlobalActivityStats />
-
-        <TheoryEndingStats />
 
         <DetailedAnalytics />
       </n-space>

@@ -15,7 +15,7 @@ const {
 } = storeToRefs(userCabinetStore)
 
 interface ActivityRow {
-  mode: 'advantage' | 'tornado'
+  mode: 'advantage' | 'tornado' | 'theory'
   requested: number
   solved: number
 }
@@ -25,10 +25,9 @@ const columns: DataTableColumns<ActivityRow> = [
     title: t('userCabinet.stats.modes.all'),
     key: 'mode',
     render(row) {
-      const label = row.mode === 'tornado'
-        ? t('nav.tornado')
-        : t('nav.finishHim')
-      return h('span', { style: { fontWeight: 'bold' } }, label)
+      if (row.mode === 'tornado') return h('span', { style: { fontWeight: 'bold' } }, t('nav.tornado'))
+      if (row.mode === 'advantage') return h('span', { style: { fontWeight: 'bold' } }, t('nav.finishHim'))
+      return h('span', { style: { fontWeight: 'bold' } }, t('userCabinet.stats.modes.theory'))
     }
   },
   { title: t('records.table.requested'), key: 'requested', align: 'center' },
@@ -38,7 +37,7 @@ const columns: DataTableColumns<ActivityRow> = [
 const tableData = computed(() => {
   if (!personalActivityStats.value) return []
   const periodData = personalActivityStats.value[selectedActivityPeriod.value]
-  return (['advantage', 'tornado'] as const).map(mode => ({
+  return (['advantage', 'tornado', 'theory'] as const).map(mode => ({
     mode,
     requested: periodData[mode].puzzles_requested,
     solved: periodData[mode].puzzles_solved
