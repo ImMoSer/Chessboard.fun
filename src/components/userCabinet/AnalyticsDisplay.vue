@@ -39,7 +39,10 @@ const sortedStats = computed(() => {
   const statsArray = props.stats.map((data: any) => {
     let label = ''
     if (props.mode === 'theory') {
-      label = `${t('theoryEndings.categories.' + data.category + '.name')} (${t('theoryEndings.types.' + data.type)})`
+      const category = t('theoryEndings.categories.' + data.category + '.name')
+      const type = t('theoryEndings.types.' + data.type)
+      const diff = t('theoryEndings.difficulties.' + data.difficulty.toLowerCase())
+      label = `${category} - ${diff} (${type})`
     } else {
       label = t('themes.' + getThemeTranslationKey(data.theme))
     }

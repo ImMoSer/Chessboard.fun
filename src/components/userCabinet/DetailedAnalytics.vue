@@ -68,13 +68,13 @@ function handleThemeClick(theme: string) {
     <div v-else-if="detailedStats">
       <n-tabs v-model:value="activeTab" type="segment" animated>
         <n-tab-pane name="Tornado" tab="Tornado">
-          <AnalyticsDisplay :stats="currentStats" @theme-click="handleThemeClick" />
+          <AnalyticsDisplay :stats="currentStats" mode="tornado" @theme-click="handleThemeClick" />
         </n-tab-pane>
         <n-tab-pane name="Advantage" :tab="t('nav.finishHim')">
-          <AnalyticsDisplay :stats="currentStats" @theme-click="handleThemeClick" />
+          <AnalyticsDisplay :stats="currentStats" mode="advantage" @theme-click="handleThemeClick" />
         </n-tab-pane>
         <n-tab-pane name="Theory" :tab="t('userCabinet.stats.modes.theory')">
-          <AnalyticsDisplay mode="theory" :stats="currentStats" @theme-click="handleThemeClick" />
+          <AnalyticsDisplay :stats="currentStats" mode="theory" @theme-click="handleThemeClick" />
         </n-tab-pane>
       </n-tabs>
     </div>

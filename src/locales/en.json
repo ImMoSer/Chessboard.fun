@@ -463,7 +463,8 @@
       "noData": "No data available for the selected period.",
 
       "attempts": "attempts",
-      "puzzle": "Puzzle"
+      "puzzle": "Puzzle",
+      "theoryThemes": "Endgame Themes"
     },
     "clubs": {
       "activityTitle": "Club Activity",

@@ -456,7 +456,8 @@
       "noData": "Keine Daten für den ausgewählten Zeitraum verfügbar.",
 
       "attempts": "Versuche",
-      "puzzle": "Aufgabe"
+      "puzzle": "Aufgabe",
+      "theoryThemes": "Endspielthemen"
     },
     "clubs": {
       "activityTitle": "Club-Aktivität",

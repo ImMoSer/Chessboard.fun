@@ -28,6 +28,7 @@
     "stockfish-nnue.wasm": "1.0.0-1946a675.smolnet",
     "stockfish.js": "^10.0.2",
     "vue": "^3.5.25",
+    "vue-data-ui": "^3.10.5",
     "vue-echarts": "^8.0.1",
     "vue-i18n": "^11.2.2",
     "vue-router": "^4.6.3"

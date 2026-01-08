@@ -10,6 +10,7 @@ import DetailedAnalytics from '@/components/userCabinet/DetailedAnalytics.vue'
 import UserProfileHeader from '@/components/userCabinet/sections/UserProfileHeader.vue'
 import TornadoHighScores from '@/components/userCabinet/sections/TornadoHighScores.vue'
 import GlobalActivityStats from '@/components/userCabinet/sections/GlobalActivityStats.vue'
+import TheoryStackbarChart from '@/components/userCabinet/sections/TheoryStackbarChart.vue'
 
 const { t } = useI18n()
 
@@ -17,7 +18,7 @@ const authStore = useAuthStore()
 const { userProfile, isAuthenticated } = storeToRefs(authStore)
 
 const userCabinetStore = useUserCabinetStore()
-const { isLoading, error } = storeToRefs(userCabinetStore)
+const { isLoading, error, detailedStats } = storeToRefs(userCabinetStore)
 
 onMounted(() => {
   userCabinetStore.initializePage()
@@ -53,6 +54,8 @@ onMounted(() => {
         <GlobalActivityStats />
 
         <DetailedAnalytics />
+
+        <TheoryStackbarChart v-if="detailedStats && detailedStats.theory" :stats="detailedStats.theory.stats" />
       </n-space>
     </div>
   </div>
