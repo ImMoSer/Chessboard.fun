@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import GameLayout from '@/components/GameLayout.vue'
 import StudySidebar from '@/components/study/StudySidebar.vue'
 import StudyTree from '@/components/study/StudyTree.vue'
@@ -16,6 +16,7 @@ import { pgnService } from '@/services/PgnService'
 const boardStore = useBoardStore()
 const studyStore = useStudyStore()
 const analysisStore = useAnalysisStore()
+const isSidebarCollapsed = ref(false)
 
 onMounted(async () => {
     boardStore.setAnalysisMode(true)
@@ -53,8 +54,15 @@ watch(() => analysisStore.analysisLines, (lines) => {
 
         <template #left-panel>
             <div class="left-panel-content">
-                <StudySidebar class="sidebar-component" />
-                <StudyOpeningExplorer class="explorer-component" />
+                <StudySidebar 
+                    class="sidebar-component" 
+                    :collapsed="isSidebarCollapsed" 
+                    @toggle="isSidebarCollapsed = !isSidebarCollapsed" 
+                />
+                <StudyOpeningExplorer 
+                    class="explorer-component" 
+                    :class="{ 'expanded': isSidebarCollapsed }" 
+                />
             </div>
         </template>
 
@@ -87,6 +95,12 @@ watch(() => analysisStore.analysisLines, (lines) => {
     flex-shrink: 0;
     max-height: 40%;
     overflow-y: auto;
+    transition: all 0.3s ease;
+}
+
+.explorer-component.expanded {
+    flex: 1;
+    max-height: 100%;
 }
 
 .right-panel-content {

@@ -4,6 +4,7 @@ import { pgnService, type PgnNode, pgnTreeVersion } from '@/services/PgnService'
 import { useBoardStore } from './board.store';
 import { parseFen, makeFen } from 'chessops/fen';
 import { studyPersistenceService } from '@/services/StudyPersistenceService';
+import { pgnParserService } from '@/services/PgnParserService';
 
 export interface StudyChapter {
     id: string;
@@ -97,6 +98,35 @@ export const useStudyStore = defineStore('study', () => {
         return id;
     }
 
+    function createChapterFromPgn(pgn: string, nameOverride?: string) {
+        try {
+            const { tags, root } = pgnParserService.parse(pgn);
+            
+            let name = nameOverride || tags['Event'] || 'Imported Chapter';
+            if (!nameOverride && tags['White'] && tags['Black']) {
+                 name = `${tags['White']} - ${tags['Black']}`;
+            }
+
+            const id = generateId();
+            const newChapter: StudyChapter = {
+                id,
+                name,
+                root,
+                tags: { ...tags, Event: name },
+                savedPath: ''
+            };
+
+            chapters.value.push(newChapter);
+            studyPersistenceService.saveChapter(newChapter);
+            
+            setActiveChapter(id);
+            return id;
+        } catch (e) {
+            console.error('Failed to create chapter from PGN', e);
+            throw e; 
+        }
+    }
+
     async function deleteChapter(id: string) {
         const index = chapters.value.findIndex(c => c.id === id);
         if (index !== -1) {
@@ -161,6 +191,7 @@ export const useStudyStore = defineStore('study', () => {
         isInitialized,
         initialize,
         createChapter,
+        createChapterFromPgn,
         deleteChapter,
         setActiveChapter,
         updateChapterMetadata

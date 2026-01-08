@@ -6,7 +6,7 @@ import { useFinishHimStore } from '../stores/finishHim.store'
 
 import { useTornadoStore } from '../stores/tornado.store'
 import { useTheoryEndingsStore } from '../stores/theoryEndings.store'
-import type { GamePuzzle } from '../types/api.types'
+import type { GamePuzzle, TheoryEndingPuzzle } from '../types/api.types'
 import { getThemeTranslationKey } from '../utils/theme-mapper'
 import ChessboardPreview from './ChessboardPreview.vue'
 import {
@@ -61,7 +61,7 @@ const tacticalThemesList = computed<string[]>(() => {
 
   if (route.name?.toString().startsWith('theory-endings') && puzzle) {
     // For theory endings, we can show category/difficulty as themes
-    const theoryPuzzle = puzzle as any
+    const theoryPuzzle = puzzle as unknown as TheoryEndingPuzzle
     return [theoryPuzzle.category, theoryPuzzle.difficulty]
   }
 

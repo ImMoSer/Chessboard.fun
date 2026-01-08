@@ -31,7 +31,7 @@ class StudyPersistenceService {
     }
   }
 
-  private saveTimeouts = new Map<string, any>();
+  private saveTimeouts = new Map<string, ReturnType<typeof setTimeout>>();
 
   async saveChapter(chapter: StudyChapter): Promise<void> {
     // Throttle saving for the same chapter
