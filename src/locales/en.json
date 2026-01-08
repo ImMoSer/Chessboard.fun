@@ -483,14 +483,17 @@
       "summaryHeader": "Activity Summary"
     },
     "detailedAnalytics": {
-      "title": "Detailed Analytics"
+      "title": "Detailed Analytics",
+      "tornadoStats": "Tornado Themes Analysis"
     },
     "analyticsTable": {
       "theme": "Theme",
       "rating": "Rating",
       "accuracy": "Accuracy",
       "solved_attempted": "Solved/Attempted",
-      "accuracy_percent": "Accuracy %"
+      "accuracy_percent": "Accuracy %",
+      "themeDistribution": "Theme Distribution",
+      "byAttempts": "by attempts"
     }
   },
   "pricing": {

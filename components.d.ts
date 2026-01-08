@@ -86,6 +86,7 @@ declare module 'vue' {
     TheoryStackbarChart: typeof import('./src/components/userCabinet/sections/TheoryStackbarChart.vue')['default']
     TimedModeLeaderboardTable: typeof import('./src/components/recordsPage/TimedModeLeaderboardTable.vue')['default']
     TopInfoPanel: typeof import('./src/components/TopInfoPanel.vue')['default']
+    TornadoDetailedStats: typeof import('./src/components/userCabinet/sections/TornadoDetailedStats.vue')['default']
     TornadoHighScores: typeof import('./src/components/userCabinet/sections/TornadoHighScores.vue')['default']
     TornadoStats: typeof import('./src/components/TornadoStats.vue')['default']
     TournamentHistoryTable: typeof import('./src/components/clubPage/TournamentHistoryTable.vue')['default']

@@ -484,14 +484,17 @@
       "summaryHeader": "Сводка активности"
     },
     "detailedAnalytics": {
-      "title": "Детальная аналитика"
+      "title": "Детальная аналитика",
+      "tornadoStats": "Анализ тем Торнадо"
     },
     "analyticsTable": {
       "theme": "Тема",
       "rating": "Рейтинг",
       "accuracy": "Точность",
       "solved_attempted": "Решено/Попыток",
-      "accuracy_percent": "Точность %"
+      "accuracy_percent": "Точность %",
+      "themeDistribution": "Распределение тем",
+      "byAttempts": "по попыткам"
     }
   },
   "pricing": {

@@ -2,23 +2,19 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useUserCabinetStore } from '@/stores/userCabinet.store'
 import AnalyticsDisplay from './AnalyticsDisplay.vue'
 
 const { t } = useI18n()
-const router = useRouter()
 const userCabinetStore = useUserCabinetStore()
 const { detailedStats, isDetailedStatsLoading, detailedStatsError } = storeToRefs(userCabinetStore)
 
-const activeTab = ref('Tornado')
+const activeTab = ref('Advantage')
 
 const currentStats = computed(() => {
   if (!detailedStats.value) return []
   switch (activeTab.value) {
-    case 'Tornado':
-      return detailedStats.value.tornado.themes
     case 'Advantage':
       return detailedStats.value.advantage.themes
     case 'Theory':
@@ -40,14 +36,8 @@ const currentStats = computed(() => {
   }
 })
 
-function handleThemeClick(theme: string) {
-  if (activeTab.value === 'Tornado') {
-    router.push({
-      name: 'tornado',
-      params: { mode: 'classic' },
-      query: { theme },
-    })
-  }
+function handleThemeClick() {
+  // Not used for now as Tornado moved out
 }
 </script>
 
@@ -67,9 +57,6 @@ function handleThemeClick(theme: string) {
 
     <div v-else-if="detailedStats">
       <n-tabs v-model:value="activeTab" type="segment" animated>
-        <n-tab-pane name="Tornado" tab="Tornado">
-          <AnalyticsDisplay :stats="currentStats" mode="tornado" @theme-click="handleThemeClick" />
-        </n-tab-pane>
         <n-tab-pane name="Advantage" :tab="t('nav.finishHim')">
           <AnalyticsDisplay :stats="currentStats" mode="advantage" @theme-click="handleThemeClick" />
         </n-tab-pane>

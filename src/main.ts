@@ -1,5 +1,6 @@
 // src/main.ts
 import './assets/main.css'
+import 'vue-data-ui/style.css'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
@@ -8,7 +9,6 @@ import router from './router'
 import i18n from './services/i18n'
 
 import { useAuthStore } from './stores/auth.store'
-import { useThemeStore } from './stores/theme.store'
 import { analysisService } from './services/AnalysisService'
 
 async function initializeApp() {
@@ -21,8 +21,6 @@ async function initializeApp() {
 
   const authStore = useAuthStore()
   await authStore.initialize()
-
-  const themeStore = useThemeStore()
 
   await analysisService.initialize()
 

@@ -26,7 +26,7 @@ const themes = ['pawn', 'queen', 'bishop', 'knight', 'rookPawn', 'rookPieces', '
 // Difficulties
 const difficulties = ['Novice', 'Pro', 'Master']
 
-const config = ref<VueUiStackbarConfig>({
+const config = computed<VueUiStackbarConfig>(() => ({
   style: {
     chart: {
       backgroundColor: '#2A2A2A',
@@ -50,7 +50,7 @@ const config = ref<VueUiStackbarConfig>({
         y: {
           axisColor: '#5A5A5A',
           axisName: {
-            text: t('userCabinet.stats.attempts'),
+            text: '', // Removed "Versuche" label
             color: '#CCCCCC'
           },
           axisLabels: {
@@ -112,9 +112,9 @@ const config = ref<VueUiStackbarConfig>({
     }
   },
   userOptions: {
-    show: false
+    show: true
   }
-} as VueUiStackbarConfig)
+}))
 
 const seriesColors = {
   Novice: '#42b883', // Vue green
@@ -152,9 +152,6 @@ const dataset = computed<VueUiStackbarDatasetItem[]>(() => {
           </n-button>
         </n-button-group>
       </div>
-      <div class="chart-info">
-        <span class="info-label">{{ t('userCabinet.stats.attempts') }}</span>
-      </div>
     </div>
 
     <div class="chart-wrapper">
@@ -168,22 +165,25 @@ const dataset = computed<VueUiStackbarDatasetItem[]>(() => {
   width: 100%;
   background-color: #2A2A2A;
   border-radius: 12px;
-  padding: 24px;
+  padding: 20px;
   margin-top: 24px;
   border: 1px solid var(--color-border);
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .chart-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   margin-bottom: 24px;
 }
 
 .header-left {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
 }
 
 .theory-title {
@@ -197,14 +197,19 @@ const dataset = computed<VueUiStackbarDatasetItem[]>(() => {
 .chart-wrapper {
   width: 100%;
   min-height: 450px;
-}
-
-.info-label {
-  color: #CCCCCC;
-  font-size: 0.9rem;
+  overflow: hidden;
 }
 
 :deep(.vue-ui-stackbar) {
+  width: 100% !important;
   font-family: var(--font-family-primary) !important;
+}
+
+@media (max-width: 600px) {
+  .header-left {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
 }
 </style>
