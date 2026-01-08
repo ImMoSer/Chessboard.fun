@@ -87,6 +87,7 @@ declare module 'vue' {
     StudyTree: typeof import('./src/components/study/StudyTree.vue')['default']
     StudyTreeNode: typeof import('./src/components/study/StudyTreeNode.vue')['default']
     TheoryEndingStats: typeof import('./src/components/userCabinet/sections/TheoryEndingStats.vue')['default']
+    TimedModeLeaderboardTable: typeof import('./src/components/recordsPage/TimedModeLeaderboardTable.vue')['default']
     TopInfoPanel: typeof import('./src/components/TopInfoPanel.vue')['default']
     TornadoHighScores: typeof import('./src/components/userCabinet/sections/TornadoHighScores.vue')['default']
     TornadoLeaderboardTable: typeof import('./src/components/recordsPage/TornadoLeaderboardTable.vue')['default']

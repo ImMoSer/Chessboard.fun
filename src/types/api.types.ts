@@ -198,6 +198,15 @@ export interface GetTacticalPuzzleDto {
   tactical_level: TacticalLevel
 }
 
+export interface AdvantageLeaderboardEntry {
+  rank: number
+  username: string
+  lichess_id: string
+  score: number
+  days_old: number
+  subscriptionTier?: string
+}
+
 export interface GamePuzzle {
   PuzzleId: string
   FEN_0: string
@@ -281,6 +290,7 @@ export interface TornadoLeaderboardEntry {
 
 export interface WorktableLeaderboards {
   finishHimLeaderboard: FinishHimLeaderboardEntry[]
+  advantageLeaderboard?: { [key in TornadoMode]?: AdvantageLeaderboardEntry[] }
 }
 
 export type SkillPeriod = '7' | '14' | '21' | '30'
@@ -294,7 +304,7 @@ export interface LeaderboardApiResponse extends WorktableLeaderboards {
 }
 
 export interface SolvedByMode {
-  finishHim: number
+  advantage: number
   tacticalTrainer: number
   tornado: number
   theory: number
@@ -305,6 +315,7 @@ export interface OverallSolvedLeaderboardEntry {
   username: string
   subscriptionTier: string
   total_solved: number
+  total_score?: number
   solved_by_mode: SolvedByMode
 }
 

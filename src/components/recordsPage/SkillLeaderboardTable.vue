@@ -34,9 +34,9 @@ const tierToPieceMap: Record<string, string> = {
 }
 
 const skillModes: { key: keyof SolvedByMode; nameKey: string; color: string }[] = [
-  { key: 'finishHim', nameKey: 'userCabinet.stats.modes.finishHim', color: 'var(--color-accent-primary)' },
-
+  { key: 'advantage', nameKey: 'userCabinet.stats.modes.finishHim', color: 'var(--color-accent-primary)' },
   { key: 'tornado', nameKey: 'nav.tornado', color: 'var(--color-accent-secondary)' },
+  { key: 'theory', nameKey: 'userCabinet.stats.modes.theory', color: 'var(--color-violett-lichess)' },
 ]
 
 const getSubscriptionIcon = (tier?: string) => {
@@ -61,10 +61,12 @@ const periodOptions = [
 
 const columns = computed<DataTableColumns<OverallSolvedLeaderboardEntry | SolveStreakLeaderboardEntry>>(() => {
   const cols: DataTableColumns<OverallSolvedLeaderboardEntry | SolveStreakLeaderboardEntry> = [
-    { title: t('records.table.rank'), key: 'rank', align: 'center', width: 60, render: (_, index) => index + 1 },
+    { title: t('records.table.rank'), key: 'rank', align: 'center', width: 50, render: (_, index) => index + 1 },
     {
       title: t('records.table.player'),
       key: 'username',
+      minWidth: 200,
+      ellipsis: { tooltip: true },
       render(row) {
         const icon = getSubscriptionIcon(row.subscriptionTier)
         return h('div', { style: { display: 'flex', alignItems: 'center' } }, [
@@ -93,9 +95,12 @@ const columns = computed<DataTableColumns<OverallSolvedLeaderboardEntry | SolveS
     key: 'total_solved',
     align: 'right',
     render(row) {
-      const entry = row as OverallSolvedLeaderboardEntry // or SolveStreakLeaderboardEntry, they share total_solved
-      return h('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '12px' } }, [
-        h('span', { style: { fontWeight: 'bold' } }, entry.total_solved),
+      const entry = row as OverallSolvedLeaderboardEntry
+      return h('div', { class: 'solved-column-wrapper' }, [
+        h('div', { class: 'score-solved-row' }, [
+          entry.total_score !== undefined ? h('span', { class: 'total-score' }, entry.total_score) : null,
+          h('span', { class: 'total-solved' }, entry.total_solved)
+        ]),
         h('div', { class: 'skill-progress-bar' },
           skillModes.map(mode => {
             const val = entry.solved_by_mode[mode.key] || 0
@@ -237,11 +242,13 @@ const columns = computed<DataTableColumns<OverallSolvedLeaderboardEntry | SolveS
   background-color: var(--color-bg-tertiary) !important;
   color: var(--color-text-muted) !important;
   font-family: var(--font-family-primary);
+  white-space: nowrap;
 }
 
 :deep(.n-data-table-td) {
   font-family: var(--font-family-primary);
-  font-size: var(--font-size-base);
+  font-size: 1.05rem;
+  padding: 12px 8px !important;
 }
 
 :deep(.skill-progress-bar) {
@@ -262,5 +269,35 @@ const columns = computed<DataTableColumns<OverallSolvedLeaderboardEntry | SolveS
   :deep(.skill-progress-bar) {
     width: 60px;
   }
+}
+
+.solved-column-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.score-solved-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.total-score {
+  font-weight: 900;
+  font-size: 1.2rem;
+  color: var(--color-accent-warning);
+  text-shadow: 0 0 10px rgba(255, 179, 0, 0.2);
+}
+
+.total-solved {
+  color: var(--color-text-muted);
+  font-size: 0.9em;
+}
+
+.total-solved::after {
+  content: " ✓";
+  opacity: 0.7;
 }
 </style>

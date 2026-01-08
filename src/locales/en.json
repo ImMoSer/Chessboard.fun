@@ -276,9 +276,13 @@
   },
   "records": {
     "bannerAlt": "Leaderboards Banner",
+    "sections": {
+      "hot": "HOT 🔥",
+      "competitive": "COMPETITIVE MODES 🏆",
+      "hallOfFame": "HALL OF FAME 🏛️"
+    },
     "titles": {
       "topFinishHim": "Finish Him Masters",
-
       "overallSkill": "Overall Skill",
       "skillStreak": "+100 everyday",
       "skillStreakMega": "Tornado +300 Every Day",
@@ -291,6 +295,7 @@
       "challenge": "Challenge",
       "daysOld": "Days",
       "totalSkill": "Skill",
+      "score": "Score",
       "streakDays": "Days",
       "action": "Action",
       "requested": "Requested",
@@ -450,7 +455,7 @@
       "modes": {
         "all": "Mode",
         "finishHim": "FinishHim",
-
+        "theory": "Theory",
         "tacticalTrainer": "Tactics"
       },
       "noData": "No data available for the selected period.",

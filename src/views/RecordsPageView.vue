@@ -8,11 +8,7 @@ import type { SkillPeriod } from '../types/api.types'
 
 // Импорт дочерних компонентов
 import SkillLeaderboardTable from '../components/recordsPage/SkillLeaderboardTable.vue'
-import SimpleLeaderboardTable from '../components/recordsPage/SimpleLeaderboardTable.vue'
-
-// --- НАЧАЛО ИЗМЕНЕНИЙ ---
-import TornadoLeaderboardTable from '../components/recordsPage/TornadoLeaderboardTable.vue'
-// --- КОНЕЦ ИЗМЕНЕНИЙ ---
+import TimedModeLeaderboardTable from '../components/recordsPage/TimedModeLeaderboardTable.vue'
 
 const recordsStore = useRecordsStore()
 const { t } = useI18n()
@@ -41,40 +37,56 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
     </div>
 
     <div v-else-if="leaderboards" class="records-page__grid">
-      <!-- Skill Streak Mega Leaderboard -->
-      <SkillLeaderboardTable
-        v-if="leaderboards.skillStreakMegaLeaderboard && leaderboards.skillStreakMegaLeaderboard.length > 0"
-        :title="t('records.titles.skillStreakMega')" :entries="leaderboards.skillStreakMegaLeaderboard"
-        color-class="skillStreakMega" :show-streak="true" info-topic="skillStreakMega" />
 
-      <!-- Skill Streak Leaderboard -->
-      <SkillLeaderboardTable
-        v-if="leaderboards.skillStreakLeaderboard && leaderboards.skillStreakLeaderboard.length > 0"
-        :title="t('records.titles.skillStreak')" :entries="leaderboards.skillStreakLeaderboard"
-        color-class="skillStreak" :show-streak="true" info-topic="skillStreak" />
+      <!-- СЕКЦИЯ: HOT (Activity & Streaks) -->
+      <section class="records-section">
+        <h2 class="section-divider">{{ t('records.sections.hot') }}</h2>
+        <div class="section-grid">
+          <!-- Skill Streak Mega Leaderboard -->
+          <SkillLeaderboardTable
+            v-if="leaderboards.skillStreakMegaLeaderboard && leaderboards.skillStreakMegaLeaderboard.length > 0"
+            :title="t('records.titles.skillStreakMega')" :entries="leaderboards.skillStreakMegaLeaderboard"
+            color-class="skillStreakMega" :show-streak="true" info-topic="skillStreakMega" />
 
-      <!-- Top Today Leaderboard -->
-      <SkillLeaderboardTable v-if="leaderboards.topTodayLeaderboard && leaderboards.topTodayLeaderboard.length > 0"
-        :title="t('records.titles.topToday')" :entries="leaderboards.topTodayLeaderboard" color-class="topToday"
-        :show-timer="true" info-topic="topToday" />
+          <!-- Top Today Leaderboard -->
+          <SkillLeaderboardTable v-if="leaderboards.topTodayLeaderboard && leaderboards.topTodayLeaderboard.length > 0"
+            :title="t('records.titles.topToday')" :entries="leaderboards.topTodayLeaderboard" color-class="topToday"
+            :show-timer="true" info-topic="topToday" />
 
-      <!-- Tornado Leaderboard -->
-      <TornadoLeaderboardTable v-if="leaderboards.tornadoLeaderboard" :title="t('nav.tornado')"
-        :tornado-data="leaderboards.tornadoLeaderboard" color-class="tornadoLeaderboard"
-        info-topic="tornadoLeaderboard" />
+          <!-- Skill Streak Leaderboard -->
+          <SkillLeaderboardTable
+            v-if="leaderboards.skillStreakLeaderboard && leaderboards.skillStreakLeaderboard.length > 0"
+            :title="t('records.titles.skillStreak')" :entries="leaderboards.skillStreakLeaderboard"
+            color-class="skillStreak" :show-streak="true" info-topic="skillStreak" />
+        </div>
+      </section>
 
+      <!-- СЕКЦИЯ: COMPETITIVE (Modes) -->
+      <section class="records-section">
+        <h2 class="section-divider">{{ t('records.sections.competitive') }}</h2>
+        <div class="section-grid">
+          <!-- Tornado Leaderboard -->
+          <TimedModeLeaderboardTable v-if="leaderboards.tornadoLeaderboard" :title="t('nav.tornado')"
+            :data="leaderboards.tornadoLeaderboard" mode="tornado" color-class="tornadoLeaderboard"
+            info-topic="tornadoLeaderboard" />
 
+          <!-- Advantage Leaderboard -->
+          <TimedModeLeaderboardTable v-if="leaderboards.advantageLeaderboard" title="Advantage Leaderboard"
+            :data="leaderboards.advantageLeaderboard" mode="advantage" color-class="advantageLeaderboard"
+            info-topic="topFinishHim" />
+        </div>
+      </section>
 
-      <!-- Finish Him Leaderboard -->
-      <SimpleLeaderboardTable v-if="leaderboards.finishHimLeaderboard && leaderboards.finishHimLeaderboard.length > 0"
-        :title="t('records.titles.topFinishHim')" :entries="leaderboards.finishHimLeaderboard" mode="finish-him"
-        color-class="finishHimLeaderboard" info-topic="topFinishHim" />
+      <!-- СЕКЦИЯ: HALL OF FAME (Overall) -->
+      <section class="records-section">
+        <h2 class="section-divider">{{ t('records.sections.hallOfFame') }}</h2>
+        <!-- Overall Skill Leaderboard -->
+        <SkillLeaderboardTable v-if="leaderboards.overallSkillLeaderboard" :title="t('records.titles.overallSkill')"
+          :entries="leaderboards.overallSkillLeaderboard" color-class="overallSkill" :show-filter="true"
+          :is-loading="isSkillLeaderboardLoading" :selected-period="selectedSkillPeriod" info-topic="overallSkill"
+          @period-change="handleSkillPeriodChange" />
+      </section>
 
-      <!-- Overall Skill Leaderboard -->
-      <SkillLeaderboardTable v-if="leaderboards.overallSkillLeaderboard" :title="t('records.titles.overallSkill')"
-        :entries="leaderboards.overallSkillLeaderboard" color-class="overallSkill" :show-filter="true"
-        :is-loading="isSkillLeaderboardLoading" :selected-period="selectedSkillPeriod" info-topic="overallSkill"
-        @period-change="handleSkillPeriodChange" />
     </div>
   </div>
 </template>
@@ -89,8 +101,8 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
   display: flex;
   flex-direction: column;
   gap: 25px;
-  width: 90vw;
-  max-width: 900px;
+  width: 95vw;
+  max-width: 1400px;
   margin: 20px auto;
 }
 
@@ -123,10 +135,59 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
 }
 
 .records-page__grid {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+.records-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.section-divider {
+  font-size: 1.4rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--color-text-muted);
+  border-bottom: 2px solid var(--color-border);
+  padding-bottom: 12px;
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.section-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+
+.section-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 25px;
-  align-items: start;
+}
+
+@media (min-width: 800px) {
+  .records-page {
+    max-width: 800px;
+    /* Слегка уменьшим для лучшей читаемости в одну колонку */
+  }
+
+  .section-grid {
+    grid-template-columns: 1fr;
+    /* Одна колонка для всех таблиц */
+  }
+
+  /* Отключаем многоколоночность для всех секций */
+  .records-section .section-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 768px) {
