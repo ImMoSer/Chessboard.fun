@@ -36,8 +36,12 @@
     },
     "leaderboards": {
       "topFinishHim": {
-        "title": "Finish Him Masters",
-        "content": "TOP-10 fastest times in Finish Him mode. Records are always tied to a specific puzzle. You can try to set your record in any of them! Only one record per puzzle is possible."
+        "title": "Finish Him Records",
+        "content": "Player rankings by points earned in the 'Finish Him' mode. Points are awarded for each successfully completed task. You can switch between themes to see the leaders in each category."
+      },
+      "theoryLeaderboard": {
+        "title": "Theory Records",
+        "content": "Player rankings by points earned in theoretical endgames. You can switch between themes to see the leaders in each category."
       },
 
       "overallSkill": {
@@ -297,7 +301,9 @@
       "overallSkill": "Overall Skill",
       "skillStreak": "+100 everyday",
       "skillStreakMega": "Tornado +300 Every Day",
-      "topToday": "Top Today"
+      "topToday": "Top Today",
+      "advantageLeaderboard": "Advantage Records",
+      "theoryLeaderboard": "Theory Records"
     },
     "table": {
       "rank": "#",

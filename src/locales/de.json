@@ -36,8 +36,12 @@
     },
     "leaderboards": {
       "topFinishHim": {
-        "title": "Finish-Him-Meister",
-        "content": "TOP-10 der schnellsten Zeiten im Finish-Him-Modus. Rekorde sind immer an eine bestimmte Aufgabe gebunden. Du kannst versuchen, in jeder deinen Rekord aufzustellen! Nur ein Rekord pro Aufgabe ist möglich."
+        "title": "Finish-Him-Rekorde",
+        "content": "Rangliste der Spieler nach den im Modus 'Finish Him' verdienten Punkten. Punkte werden für jede erfolgreich abgeschlossene Aufgabe vergeben. Sie können zwischen den Themen wechseln, um die Führenden in jeder Kategorie zu sehen."
+      },
+      "theoryLeaderboard": {
+        "title": "Theorie-Rekorde",
+        "content": "Rangliste der Spieler nach den in theoretischen Endspielen verdienten Punkten. Sie können zwischen den Themen wechseln, um die Führenden in jeder Kategorie zu sehen."
       },
 
       "overallSkill": {
@@ -289,11 +293,12 @@
     "bannerAlt": "Bestenlisten-Banner",
     "titles": {
       "topFinishHim": "Meister der FinishHim",
-
       "overallSkill": "Gesamter Skill",
       "skillStreak": "+100 jeden Tag",
       "skillStreakMega": "Tornado +300 jeden Tag",
-      "topToday": "Top des Tages"
+      "topToday": "Top des Tages",
+      "advantageLeaderboard": "Vorteils-Rekorde",
+      "theoryLeaderboard": "Theorie-Rekorde"
     },
     "table": {
       "rank": "#",

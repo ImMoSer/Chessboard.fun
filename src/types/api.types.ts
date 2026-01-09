@@ -283,7 +283,8 @@ export interface TornadoLeaderboardEntry {
 
 export interface WorktableLeaderboards {
   finishHimLeaderboard: FinishHimLeaderboardEntry[]
-  advantageLeaderboard?: { [key in TornadoMode]?: AdvantageLeaderboardEntry[] }
+  advantageLeaderboard?: Record<string, AdvantageLeaderboardEntry[]>
+  theoryLeaderboard?: Record<string, AdvantageLeaderboardEntry[]>
 }
 
 export type SkillPeriod = '7' | '14' | '21' | '30'

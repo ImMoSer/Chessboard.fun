@@ -1,0 +1,624 @@
+/api/n8n-proxy/leaderboards:
+
+{
+    "tornadoLeaderboard": {
+        "bullet": [
+            {
+                "rank": 1,
+                "username": "VALID_ALL",
+                "lichess_id": "valid_all",
+                "highScore": 1419,
+                "days_old": 0,
+                "subscriptionTier": "Bishop"
+            },
+            {
+                "rank": 2,
+                "username": "ChessNinja",
+                "lichess_id": "chess_ninja",
+                "highScore": 29,
+                "days_old": 0,
+                "subscriptionTier": "Pawn"
+            }
+        ],
+        "blitz": [
+            {
+                "rank": 1,
+                "username": "DeepBlue2",
+                "lichess_id": "deep_blue_2",
+                "highScore": 16,
+                "days_old": 4,
+                "subscriptionTier": "Pawn"
+            },
+            {
+                "rank": 2,
+                "username": "GM_Flex",
+                "lichess_id": "grandmaster_flex",
+                "highScore": 13,
+                "days_old": 2,
+                "subscriptionTier": "Pawn"
+            },
+            {
+                "rank": 3,
+                "username": "ChessNinja",
+                "lichess_id": "chess_ninja",
+                "highScore": 9,
+                "days_old": 2,
+                "subscriptionTier": "Pawn"
+            }
+        ],
+        "rapid": [
+            {
+                "rank": 1,
+                "username": "VALID_ALL",
+                "lichess_id": "valid_all",
+                "highScore": 58,
+                "days_old": 4,
+                "subscriptionTier": "Bishop"
+            },
+            {
+                "rank": 2,
+                "username": "ChessNinja",
+                "lichess_id": "chess_ninja",
+                "highScore": 12,
+                "days_old": 6,
+                "subscriptionTier": "Pawn"
+            },
+            {
+                "rank": 3,
+                "username": "PawnStar",
+                "lichess_id": "pawn_star",
+                "highScore": 12,
+                "days_old": 5,
+                "subscriptionTier": "Pawn"
+            },
+            {
+                "rank": 4,
+                "username": "DeepBlue2",
+                "lichess_id": "deep_blue_2",
+                "highScore": 9,
+                "days_old": 2,
+                "subscriptionTier": "Pawn"
+            }
+        ],
+        "classic": [
+            {
+                "rank": 1,
+                "username": "ChessNinja",
+                "lichess_id": "chess_ninja",
+                "highScore": 22,
+                "days_old": 1,
+                "subscriptionTier": "Pawn"
+            },
+            {
+                "rank": 2,
+                "username": "DeepBlue2",
+                "lichess_id": "deep_blue_2",
+                "highScore": 10,
+                "days_old": 4,
+                "subscriptionTier": "Pawn"
+            }
+        ]
+    },
+    "advantageLeaderboard": {
+        "pawn": [
+            {
+                "rank": 1,
+                "username": "DeepBlue2",
+                "lichess_id": "deep_blue_2",
+                "score": 6,
+                "days_old": 0,
+                "subscriptionTier": "Pawn"
+            },
+            {
+                "rank": 2,
+                "username": "PawnStar",
+                "lichess_id": "pawn_star",
+                "score": 5,
+                "days_old": 0,
+                "subscriptionTier": "Pawn"
+            },
+            {
+                "rank": 3,
+                "username": "VALID_ALL",
+                "lichess_id": "valid_all",
+                "score": 3,
+                "days_old": 0,
+                "subscriptionTier": "Bishop"
+            }
+        ],
+        "knight": [
+            {
+                "rank": 1,
+                "username": "VALID_ALL",
+                "lichess_id": "valid_all",
+                "score": 6,
+                "days_old": 0,
+                "subscriptionTier": "Bishop"
+            },
+            {
+                "rank": 2,
+                "username": "DeepBlue2",
+                "lichess_id": "deep_blue_2",
+                "score": 3,
+                "days_old": 0,
+                "subscriptionTier": "Pawn"
+            },
+            {
+                "rank": 3,
+                "username": "ChessNinja",
+                "lichess_id": "chess_ninja",
+                "score": 2,
+                "days_old": 0,
+                "subscriptionTier": "Pawn"
+            }
+        ],
+        "bishop": [
+            {
+                "rank": 1,
+                "username": "GM_Flex",
+                "lichess_id": "grandmaster_flex",
+                "score": 18,
+                "days_old": 0,
+                "subscriptionTier": "Pawn"
+            },
+            {
+                "rank": 2,
+                "username": "PawnStar",
+                "lichess_id": "pawn_star",
+                "score": 6,
+                "days_old": 0,
+                "subscriptionTier": "Pawn"
+            }
+        ],
+        "rookPawn": [
+            {
+                "rank": 1,
+                "username": "DeepBlue2",
+                "lichess_id": "deep_blue_2",
+                "score": 19,
+                "days_old": 0,
+                "subscriptionTier": "Pawn"
+            },
+            {
+                "rank": 2,
+                "username": "PawnStar",
+                "lichess_id": "pawn_star",
+                "score": 10,
+                "days_old": 0,
+                "subscriptionTier": "Pawn"
+            },
+            {
+                "rank": 3,
+                "username": "VALID_ALL",
+                "lichess_id": "valid_all",
+                "score": 6,
+                "days_old": 0,
+                "subscriptionTier": "Bishop"
+            },
+            {
+                "rank": 4,
+                "username": "GM_Flex",
+                "lichess_id": "grandmaster_flex",
+                "score": 4,
+                "days_old": 0,
+                "subscriptionTier": "Pawn"
+            }
+        ],
+        "queen": [
+            {
+                "rank": 1,
+                "username": "ChessNinja",
+                "lichess_id": "chess_ninja",
+                "score": 4,
+                "days_old": 0,
+                "subscriptionTier": "Pawn"
+            }
+        ],
+        "knightBishop": [
+            {
+                "rank": 1,
+                "username": "DeepBlue2",
+                "lichess_id": "deep_blue_2",
+                "score": 10,
+                "days_old": 0,
+                "subscriptionTier": "Pawn"
+            }
+        ],
+        "rookPieces": [
+            {
+                "rank": 1,
+                "username": "ChessNinja",
+                "lichess_id": "chess_ninja",
+                "score": 15,
+                "days_old": 0,
+                "subscriptionTier": "Pawn"
+            },
+            {
+                "rank": 2,
+                "username": "PawnStar",
+                "lichess_id": "pawn_star",
+                "score": 8,
+                "days_old": 0,
+                "subscriptionTier": "Pawn"
+            }
+        ],
+        "queenPieces": [
+            {
+                "rank": 1,
+                "username": "VALID_ALL",
+                "lichess_id": "valid_all",
+                "score": 13,
+                "days_old": 0,
+                "subscriptionTier": "Bishop"
+            }
+        ],
+        "expert": [
+            {
+                "rank": 1,
+                "username": "VALID_ALL",
+                "lichess_id": "valid_all",
+                "score": 5,
+                "days_old": 0,
+                "subscriptionTier": "Bishop"
+            },
+            {
+                "rank": 2,
+                "username": "PawnStar",
+                "lichess_id": "pawn_star",
+                "score": 4,
+                "days_old": 0,
+                "subscriptionTier": "Pawn"
+            }
+        ]
+    },
+    "theoryLeaderboard": {
+        "bishop": [
+            {
+                "rank": 1,
+                "username": "VALID_ALL",
+                "lichess_id": "valid_all",
+                "score": 13,
+                "days_old": 0,
+                "subscriptionTier": "Bishop"
+            },
+            {
+                "rank": 2,
+                "username": "DeepBlue2",
+                "lichess_id": "deep_blue_2",
+                "score": 13,
+                "days_old": 0,
+                "subscriptionTier": "Pawn"
+            },
+            {
+                "rank": 3,
+                "username": "PawnStar",
+                "lichess_id": "pawn_star",
+                "score": 8,
+                "days_old": 0,
+                "subscriptionTier": "Pawn"
+            },
+            {
+                "rank": 4,
+                "username": "GM_Flex",
+                "lichess_id": "grandmaster_flex",
+                "score": 7,
+                "days_old": 0,
+                "subscriptionTier": "Pawn"
+            }
+        ],
+        "knight": [
+            {
+                "rank": 1,
+                "username": "VALID_ALL",
+                "lichess_id": "valid_all",
+                "score": 7,
+                "days_old": 0,
+                "subscriptionTier": "Bishop"
+            },
+            {
+                "rank": 2,
+                "username": "ChessNinja",
+                "lichess_id": "chess_ninja",
+                "score": 1,
+                "days_old": 0,
+                "subscriptionTier": "Pawn"
+            }
+        ],
+        "knightBishop": [
+            {
+                "rank": 1,
+                "username": "VALID_ALL",
+                "lichess_id": "valid_all",
+                "score": 10,
+                "days_old": 0,
+                "subscriptionTier": "Bishop"
+            },
+            {
+                "rank": 2,
+                "username": "ChessNinja",
+                "lichess_id": "chess_ninja",
+                "score": 8,
+                "days_old": 0,
+                "subscriptionTier": "Pawn"
+            },
+            {
+                "rank": 3,
+                "username": "GM_Flex",
+                "lichess_id": "grandmaster_flex",
+                "score": 7,
+                "days_old": 0,
+                "subscriptionTier": "Pawn"
+            },
+            {
+                "rank": 4,
+                "username": "PawnStar",
+                "lichess_id": "pawn_star",
+                "score": 3,
+                "days_old": 0,
+                "subscriptionTier": "Pawn"
+            }
+        ],
+        "pawn": [
+            {
+                "rank": 1,
+                "username": "ChessNinja",
+                "lichess_id": "chess_ninja",
+                "score": 21,
+                "days_old": 0,
+                "subscriptionTier": "Pawn"
+            },
+            {
+                "rank": 2,
+                "username": "VALID_ALL",
+                "lichess_id": "valid_all",
+                "score": 14,
+                "days_old": 0,
+                "subscriptionTier": "Bishop"
+            },
+            {
+                "rank": 3,
+                "username": "PawnStar",
+                "lichess_id": "pawn_star",
+                "score": 8,
+                "days_old": 0,
+                "subscriptionTier": "Pawn"
+            }
+        ],
+        "queen": [
+            {
+                "rank": 1,
+                "username": "PawnStar",
+                "lichess_id": "pawn_star",
+                "score": 8,
+                "days_old": 0,
+                "subscriptionTier": "Pawn"
+            },
+            {
+                "rank": 2,
+                "username": "DeepBlue2",
+                "lichess_id": "deep_blue_2",
+                "score": 7,
+                "days_old": 0,
+                "subscriptionTier": "Pawn"
+            },
+            {
+                "rank": 3,
+                "username": "GM_Flex",
+                "lichess_id": "grandmaster_flex",
+                "score": 1,
+                "days_old": 0,
+                "subscriptionTier": "Pawn"
+            }
+        ],
+        "rookPawn": [
+            {
+                "rank": 1,
+                "username": "PawnStar",
+                "lichess_id": "pawn_star",
+                "score": 6,
+                "days_old": 0,
+                "subscriptionTier": "Pawn"
+            },
+            {
+                "rank": 2,
+                "username": "DeepBlue2",
+                "lichess_id": "deep_blue_2",
+                "score": 5,
+                "days_old": 0,
+                "subscriptionTier": "Pawn"
+            }
+        ],
+        "rookPieces": [
+            {
+                "rank": 1,
+                "username": "GM_Flex",
+                "lichess_id": "grandmaster_flex",
+                "score": 13,
+                "days_old": 0,
+                "subscriptionTier": "Pawn"
+            },
+            {
+                "rank": 2,
+                "username": "ChessNinja",
+                "lichess_id": "chess_ninja",
+                "score": 3,
+                "days_old": 0,
+                "subscriptionTier": "Pawn"
+            },
+            {
+                "rank": 3,
+                "username": "PawnStar",
+                "lichess_id": "pawn_star",
+                "score": 2,
+                "days_old": 0,
+                "subscriptionTier": "Pawn"
+            }
+        ]
+    },
+    "overallSkillLeaderboard": [
+        {
+            "lichess_id": "valid_all",
+            "username": "VALID_ALL",
+            "subscriptionTier": "Bishop",
+            "total_solved": 4448,
+            "total_score": 8833,
+            "solved_by_mode": {
+                "tornado": 2890,
+                "advantage": 777,
+                "theory": 781
+            }
+        },
+        {
+            "lichess_id": "pawn_star",
+            "username": "PawnStar",
+            "subscriptionTier": "Pawn",
+            "total_solved": 801,
+            "total_score": 1489,
+            "solved_by_mode": {
+                "tornado": 226,
+                "advantage": 296,
+                "theory": 279
+            }
+        },
+        {
+            "lichess_id": "grandmaster_flex",
+            "username": "GM_Flex",
+            "subscriptionTier": "Pawn",
+            "total_solved": 681,
+            "total_score": 1389,
+            "solved_by_mode": {
+                "tornado": 208,
+                "advantage": 195,
+                "theory": 278
+            }
+        },
+        {
+            "lichess_id": "chess_ninja",
+            "username": "ChessNinja",
+            "subscriptionTier": "Pawn",
+            "total_solved": 596,
+            "total_score": 1207,
+            "solved_by_mode": {
+                "tornado": 218,
+                "advantage": 150,
+                "theory": 228
+            }
+        },
+        {
+            "lichess_id": "deep_blue_2",
+            "username": "DeepBlue2",
+            "subscriptionTier": "Pawn",
+            "total_solved": 611,
+            "total_score": 1137,
+            "solved_by_mode": {
+                "tornado": 161,
+                "advantage": 243,
+                "theory": 207
+            }
+        }
+    ],
+    "skillStreakLeaderboard": [
+        {
+            "lichess_id": "valid_all",
+            "username": "VALID_ALL",
+            "subscriptionTier": "Bishop",
+            "current_streak": 35,
+            "total_solved": 20016,
+            "solved_by_mode": {
+                "tornado": 13006,
+                "advantage": 3518,
+                "theory": 3492
+            }
+        },
+        {
+            "lichess_id": "chess_ninja",
+            "username": "ChessNinja",
+            "subscriptionTier": "Pawn",
+            "current_streak": 1,
+            "total_solved": 105,
+            "solved_by_mode": {
+                "tornado": 48,
+                "advantage": 30,
+                "theory": 27
+            }
+        }
+    ],
+    "skillStreakMegaLeaderboard": [
+        {
+            "lichess_id": "valid_all",
+            "username": "VALID_ALL",
+            "subscriptionTier": "Bishop",
+            "current_streak": 35,
+            "total_solved": 20016,
+            "solved_by_mode": {
+                "tornado": 13006,
+                "advantage": 3518,
+                "theory": 3492
+            }
+        }
+    ],
+    "topTodayLeaderboard": [
+        {
+            "lichess_id": "valid_all",
+            "username": "VALID_ALL",
+            "subscriptionTier": "Bishop",
+            "total_solved": 572,
+            "total_score": 954,
+            "solved_by_mode": {
+                "tornado": 372,
+                "advantage": 98,
+                "theory": 102
+            }
+        },
+        {
+            "lichess_id": "grandmaster_flex",
+            "username": "GM_Flex",
+            "subscriptionTier": "Pawn",
+            "total_solved": 85,
+            "total_score": 185,
+            "solved_by_mode": {
+                "tornado": 34,
+                "advantage": 0,
+                "theory": 51
+            }
+        },
+        {
+            "lichess_id": "chess_ninja",
+            "username": "ChessNinja",
+            "subscriptionTier": "Pawn",
+            "total_solved": 81,
+            "total_score": 147,
+            "solved_by_mode": {
+                "tornado": 48,
+                "advantage": 17,
+                "theory": 16
+            }
+        },
+        {
+            "lichess_id": "pawn_star",
+            "username": "PawnStar",
+            "subscriptionTier": "Pawn",
+            "total_solved": 47,
+            "total_score": 111,
+            "solved_by_mode": {
+                "tornado": 0,
+                "advantage": 23,
+                "theory": 24
+            }
+        },
+        {
+            "lichess_id": "deep_blue_2",
+            "username": "DeepBlue2",
+            "subscriptionTier": "Pawn",
+            "total_solved": 19,
+            "total_score": 22,
+            "solved_by_mode": {
+                "tornado": 0,
+                "advantage": 19,
+                "theory": 0
+            }
+        }
+    ]
+}
+
+

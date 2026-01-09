@@ -1,13 +1,14 @@
 <!-- src/views/RecordsPageView.vue -->
 <script setup lang="ts">
+import { storeToRefs } from 'pinia'
 import { onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRecordsStore } from '../stores/records.store'
-import { storeToRefs } from 'pinia'
 import type { SkillPeriod } from '../types/api.types'
 
 // Импорт дочерних компонентов
 import SkillLeaderboardTable from '../components/recordsPage/SkillLeaderboardTable.vue'
+import ThematicLeaderboardTable from '../components/recordsPage/ThematicLeaderboardTable.vue'
 import TimedModeLeaderboardTable from '../components/recordsPage/TimedModeLeaderboardTable.vue'
 
 const recordsStore = useRecordsStore()
@@ -71,9 +72,13 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
             info-topic="tornadoLeaderboard" />
 
           <!-- Advantage Leaderboard -->
-          <TimedModeLeaderboardTable v-if="leaderboards.advantageLeaderboard" title="Advantage Leaderboard"
-            :data="leaderboards.advantageLeaderboard" mode="advantage" color-class="advantageLeaderboard"
-            info-topic="topFinishHim" />
+          <ThematicLeaderboardTable v-if="leaderboards.advantageLeaderboard"
+            :title="t('records.titles.advantageLeaderboard')" :data="leaderboards.advantageLeaderboard"
+            color-class="advantageLeaderboard" info-topic="topFinishHim" />
+
+          <!-- Theory Leaderboard -->
+          <ThematicLeaderboardTable v-if="leaderboards.theoryLeaderboard" :title="t('records.titles.theoryLeaderboard')"
+            :data="leaderboards.theoryLeaderboard" color-class="theoryLeaderboard" info-topic="theoryLeaderboard" />
         </div>
       </section>
 
