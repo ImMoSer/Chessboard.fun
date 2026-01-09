@@ -1,9 +1,9 @@
 <!-- src/views/WelcomeView.vue -->
 <script setup lang="ts">
-import { useAuthStore } from '@/stores/auth.store'
-import { useI18n } from 'vue-i18n'
 import { changeLang } from '@/services/i18n'
+import { useAuthStore } from '@/stores/auth.store'
 import { storeToRefs } from 'pinia'
+import { useI18n } from 'vue-i18n'
 
 // Инициализируем хранилище, роутер и i18n
 const authStore = useAuthStore()
@@ -29,7 +29,7 @@ const handleChangeLang = (lang: 'en' | 'ru' | 'de') => {
 <template>
   <div class="welcome-page-container">
     <div class="welcome-content">
-      <img class="welcome-logo" src="/png/1920_Banner.png" :alt="t('app.title')" />
+      <img class="welcome-logo" src="/jpg/mainLogo_bg_101014.jpg" :alt="t('app.title')" />
 
       <div class="mode-selection-container">
         <router-link class="mode-button" to="/finish-him">
@@ -161,7 +161,30 @@ const handleChangeLang = (lang: 'en' | 'ru' | 'de') => {
 .welcome-logo {
   max-width: 100%;
   height: auto;
-  border-radius: 5px;
+  border-radius: 20px;
+  box-shadow: 0 0 20px rgba(0, 191, 255, 0.6),
+    0 0 40px rgba(0, 0, 255, 0.4),
+    inset 0 0 15px rgba(0, 191, 255, 0.5);
+  animation: blue-flame-pulse 2s infinite ease-in-out;
+  border: 1px solid rgba(0, 191, 255, 0.3);
+}
+
+@keyframes blue-flame-pulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 15px rgba(0, 191, 255, 0.6),
+      0 0 30px rgba(0, 0, 255, 0.4),
+      inset 0 0 10px rgba(0, 191, 255, 0.5);
+    transform: scale(1);
+  }
+
+  50% {
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.8),
+      0 0 50px rgba(30, 144, 255, 0.6),
+      inset 0 0 20px rgba(0, 191, 255, 0.6);
+    transform: scale(1.005);
+  }
 }
 
 .welcome-title {

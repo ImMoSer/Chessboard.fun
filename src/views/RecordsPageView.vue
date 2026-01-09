@@ -28,7 +28,7 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
 
 <template>
   <div class="records-page">
-    <img class="records-page__banner" src="/svg/ChessBoardLeader.svg" :alt="t('records.bannerAlt')" />
+    <img class="records-page__banner" src="/jpg/ChessBoardLeader_bg_101014.jpg" :alt="t('records.bannerAlt')" />
 
     <div v-if="isLoading" class="loading-message">
       {{ t('common.loading') }}
@@ -116,9 +116,31 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
   height: auto;
   object-fit: cover;
   max-height: 200px;
-  border-radius: var(--panel-border-radius);
+  border-radius: 20px;
   align-self: center;
-  max-width: 900px;
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.6),
+    0 0 40px rgba(255, 69, 0, 0.4),
+    inset 0 0 15px rgba(255, 0, 0, 0.5);
+  animation: flame-pulse 2s infinite ease-in-out;
+  border: 1px solid rgba(255, 69, 0, 0.3);
+}
+
+@keyframes flame-pulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.6),
+      0 0 30px rgba(255, 69, 0, 0.4),
+      inset 0 0 10px rgba(255, 0, 0, 0.5);
+    transform: scale(1);
+  }
+
+  50% {
+    box-shadow: 0 0 25px rgba(255, 0, 0, 0.8),
+      0 0 50px rgba(255, 140, 0, 0.6),
+      inset 0 0 20px rgba(255, 69, 0, 0.6);
+    transform: scale(1.005);
+  }
 }
 
 .records-page__error-message,

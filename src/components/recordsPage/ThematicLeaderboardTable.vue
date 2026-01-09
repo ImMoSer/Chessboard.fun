@@ -75,7 +75,7 @@ const columns = computed<DataTableColumns<AdvantageLeaderboardEntry>>(() => [
     render(row) {
       const icon = getSubscriptionIcon(row.subscriptionTier)
       return h('div', { style: { display: 'flex', alignItems: 'center' } }, [
-        icon ? h('img', { src: icon, style: { height: '22px', marginRight: '6px' } }) : null,
+        icon ? h('img', { src: icon, style: { height: '25px', marginRight: '5px' } }) : null,
         h('n-a', {
           href: `https://lichess.org/@/${row.lichess_id}`,
           target: '_blank',
@@ -146,16 +146,16 @@ const swiperModules = [Navigation, Mousewheel, FreeMode]
 <style scoped>
 .records-card {
   background-color: var(--color-bg-secondary);
-  border-radius: 16px;
+  border-radius: 5px;
   border: 1px solid var(--color-border-hover);
   overflow: hidden;
-  margin-bottom: 24px;
+  margin-bottom: 10px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   transition: transform 0.2s ease;
 }
 
 .main-header {
-  padding: 16px 24px;
+  padding: 12px 14px;
   border-bottom: 1px solid var(--color-border-hover);
 }
 
@@ -185,7 +185,7 @@ const swiperModules = [Navigation, Mousewheel, FreeMode]
 
 /* Category Ribbon Styling */
 .category-ribbon {
-  margin-bottom: 24px;
+  margin-bottom: 12px;
   position: relative;
   padding: 0 5px;
   /* More space for swiper arrows */
@@ -202,9 +202,9 @@ const swiperModules = [Navigation, Mousewheel, FreeMode]
 
 .theme-button {
   min-width: 56px;
-  height: 56px;
-  padding: 0 12px;
-  border-radius: 12px;
+  height: 45px;
+  padding: 0 5px;
+  border-radius: 5px;
   background-color: var(--color-bg-tertiary);
   border: 1px solid var(--color-border);
   display: flex;
@@ -259,7 +259,7 @@ const swiperModules = [Navigation, Mousewheel, FreeMode]
 
 .table-container {
   border: 1px solid var(--color-border-hover);
-  border-radius: 12px;
+  border-radius: 5px;
   overflow: hidden;
   background-color: var(--color-bg-primary);
 }
