@@ -19,9 +19,15 @@ export interface ThemeDisplayStat {
   accuracy: number
 }
 
+export interface TheoryStat extends ThemeDisplayStat {
+  category: string
+  type: string
+  difficulty: string
+}
+
 const props = defineProps({
   stats: {
-    type: Array as PropType<ThemeDisplayStat[]>,
+    type: Array as PropType<(ThemeDisplayStat | TheoryStat)[]>,
     default: () => [],
   },
   mode: {
@@ -36,12 +42,13 @@ const sortOrder = ref<'asc' | 'desc'>('desc')
 const sortedStats = computed(() => {
   if (!props.stats || props.stats.length === 0) return []
 
-  const statsArray = props.stats.map((data: any) => {
+  const statsArray = props.stats.map((data) => {
     let label = ''
     if (props.mode === 'theory') {
-      const category = t('theoryEndings.categories.' + data.category + '.name')
-      const type = t('theoryEndings.types.' + data.type)
-      const diff = t('theoryEndings.difficulties.' + data.difficulty.toLowerCase())
+      const theoryData = data as TheoryStat
+      const category = t('theoryEndings.categories.' + theoryData.category + '.name')
+      const type = t('theoryEndings.types.' + theoryData.type)
+      const diff = t('theoryEndings.difficulties.' + theoryData.difficulty.toLowerCase())
       label = `${category} - ${diff} (${type})`
     } else {
       label = t('themes.' + getThemeTranslationKey(data.theme))

@@ -494,7 +494,8 @@
       "solved_attempted": "Решено/Попыток",
       "accuracy_percent": "Точность %",
       "themeDistribution": "Распределение тем",
-      "byAttempts": "по попыткам"
+      "byAttempts": "по попыткам",
+      "byRating": "по рейтингу"
     }
   },
   "pricing": {

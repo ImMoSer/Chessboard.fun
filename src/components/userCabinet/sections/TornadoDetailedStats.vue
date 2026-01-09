@@ -30,7 +30,7 @@ const circlePackConfig = ref({
         fontSize: 20,
         bold: true,
         textAlign: "center" as 'left' | 'center' | 'right',
-        subtitle: { color: "#A1A1A1", text: t('userCabinet.analyticsTable.byAttempts'), fontSize: 14, bold: false }
+        subtitle: { color: "#A1A1A1", text: t('userCabinet.analyticsTable.byRating'), fontSize: 14, bold: false }
       },
       width: 800,
       height: 600,
@@ -72,7 +72,7 @@ const getThemeColor = (index: number) => {
 const circlePackDataset = computed(() => {
   return props.themes.map((tStat, index) => ({
     name: t('themes.' + getThemeTranslationKey(tStat.theme)),
-    value: tStat.attempts,
+    value: tStat.rating,
     color: getThemeColor(index)
   }))
 })

@@ -493,7 +493,8 @@
       "solved_attempted": "Solved/Attempted",
       "accuracy_percent": "Accuracy %",
       "themeDistribution": "Theme Distribution",
-      "byAttempts": "by attempts"
+      "byAttempts": "by attempts",
+      "byRating": "by rating"
     }
   },
   "pricing": {
