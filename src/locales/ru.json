@@ -831,11 +831,11 @@
     "queen": "Ферзевый",
     "bishop": "Слоновый",
     "knight": "Коневой",
-    "rookPawn": "Ладья и пешка",
-    "rookPieces": "Ладьи и фигуры",
-    "queenPieces": "Ферзь и фигуры",
+    "rookPawn": "Ладья & пешка",
+    "rookPieces": "Ладьи & фигуры",
+    "queenPieces": "Ферзь & фигуры",
     "knightBishop": "Конь и слон",
-    "expert": "Королевская дисциплина"
+    "expert": "Эксперт"
   },
   "openingTrainer": {
     "header": {

@@ -6,7 +6,6 @@ import { storeToRefs } from 'pinia'
 import { useAuthStore } from '@/stores/auth.store'
 import { useUserCabinetStore } from '@/stores/userCabinet.store'
 
-import DetailedAnalytics from '@/components/userCabinet/DetailedAnalytics.vue'
 import UserProfileHeader from '@/components/userCabinet/sections/UserProfileHeader.vue'
 import TornadoHighScores from '@/components/userCabinet/sections/TornadoHighScores.vue'
 import GlobalActivityStats from '@/components/userCabinet/sections/GlobalActivityStats.vue'
@@ -55,9 +54,11 @@ onMounted(() => {
 
         <GlobalActivityStats />
 
-        <DetailedAnalytics />
+        <TheoryStackbarChart v-if="detailedStats && detailedStats.advantage" :stats="detailedStats.advantage.stats"
+          mode="advantage" />
 
-        <TheoryStackbarChart v-if="detailedStats && detailedStats.theory" :stats="detailedStats.theory.stats" />
+        <TheoryStackbarChart v-if="detailedStats && detailedStats.theory" :stats="detailedStats.theory.stats"
+          mode="theory" />
       </n-space>
     </div>
   </div>

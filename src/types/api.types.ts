@@ -623,6 +623,7 @@ export interface AdvantageThemeStatDto {
 
 export interface AdvantageProfileDto {
   themes: AdvantageThemeStatDto[]
+  stats: Record<string, { requested: number; success: number }>
 }
 
 export interface TheoryEndingProfileDto {

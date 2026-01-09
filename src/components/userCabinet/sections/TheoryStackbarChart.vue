@@ -16,13 +16,47 @@ const props = defineProps({
   stats: {
     type: Object as PropType<Record<string, TheoryStatValue>>,
     required: true,
+  },
+  mode: {
+    type: String as PropType<'theory' | 'advantage'>,
+    default: 'theory',
   }
 })
 
 const activeType = ref<'win' | 'draw'>('win')
 
-// Themes available in the dataset
-const themes = ['pawn', 'queen', 'bishop', 'knight', 'rookPawn', 'rookPieces', 'knightBishop']
+// Dynamically extract themes from stats keys
+const currentThemes = computed(() => {
+  const themes = new Set<string>()
+  const prefix = props.mode === 'theory' ? activeType.value : 'win'
+  
+  Object.keys(props.stats).forEach(key => {
+    // Key format: "type/difficulty/theme"
+    if (key.startsWith(`${prefix}/`)) {
+      const parts = key.split('/')
+      const theme = parts[2]
+      if (parts.length === 3 && theme) {
+        themes.add(theme)
+      }
+    }
+  })
+
+  // Sort themes for consistent display
+  // We can provide a default order for known themes and put others at the end
+  const preferredOrder = [
+    'pawn', 'knight', 'bishop', 'rookPawn', 'rookPieces', 'knightBishop', 'queen', 'queenPieces', 'expert'
+  ]
+  
+  return Array.from(themes).sort((a, b) => {
+    const indexA = preferredOrder.indexOf(a)
+    const indexB = preferredOrder.indexOf(b)
+    if (indexA !== -1 && indexB !== -1) return indexA - indexB
+    if (indexA !== -1) return -1
+    if (indexB !== -1) return 1
+    return a.localeCompare(b)
+  })
+})
+
 // Difficulties
 const difficulties = ['Novice', 'Pro', 'Master']
 
@@ -44,7 +78,12 @@ const config = computed<VueUiStackbarConfig>(() => ({
           },
           timeLabels: {
             color: '#CCCCCC',
-            values: themes.map(theme => t(`theoryEndings.categories.${theme}.name`))
+            values: currentThemes.value.map(theme => {
+              // Try theoryEndings first, then global themes
+              const key = `theoryEndings.categories.${theme}.name`
+              const translated = t(key)
+              return translated !== key ? translated : t(`themes.${theme}`)
+            })
           }
         },
         y: {
@@ -124,8 +163,9 @@ const seriesColors = {
 
 const dataset = computed<VueUiStackbarDatasetItem[]>(() => {
   return difficulties.map(diff => {
-    const seriesData = themes.map(theme => {
-      const key = `${activeType.value}/${diff}/${theme}`
+    const seriesData = currentThemes.value.map(theme => {
+      const type = props.mode === 'theory' ? activeType.value : 'win'
+      const key = `${type}/${diff}/${theme}`
       return props.stats[key]?.requested || 0
     })
 
@@ -139,11 +179,13 @@ const dataset = computed<VueUiStackbarDatasetItem[]>(() => {
 </script>
 
 <template>
-  <div class="theory-chart-standalone">
+  <div class="theory-chart-standalone" :class="`mode-${mode}`">
     <div class="chart-header">
       <div class="header-left">
-        <h3 class="theory-title">{{ t('userCabinet.stats.modes.theory') }}</h3>
-        <n-button-group>
+        <h3 class="theory-title">
+          {{ props.mode === 'theory' ? t('userCabinet.stats.modes.theory') : t('userCabinet.stats.modes.advantage') }}
+        </h3>
+        <n-button-group v-if="mode === 'theory'">
           <n-button :type="activeType === 'win' ? 'primary' : 'default'" @click="activeType = 'win'" size="small">
             {{ t('theoryEndings.types.win') }}
           </n-button>
@@ -172,11 +214,12 @@ const dataset = computed<VueUiStackbarDatasetItem[]>(() => {
   overflow: hidden;
 }
 
-.chart-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
+.mode-advantage .theory-title {
+  color: var(--color-accent-primary);
+}
+
+.mode-theory .theory-title {
+  color: var(--color-accent-secondary);
 }
 
 .header-left {
