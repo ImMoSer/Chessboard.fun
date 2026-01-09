@@ -319,6 +319,7 @@ export interface SolveStreakLeaderboardEntry {
   current_streak: number
   subscriptionTier: string
   total_solved: number
+  total_score?: number
   solved_by_mode: SolvedByMode
 }
 

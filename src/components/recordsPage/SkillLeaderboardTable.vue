@@ -1,14 +1,14 @@
 <!-- src/components/recordsPage/SkillLeaderboardTable.vue -->
 <script setup lang="ts">
-import { h, computed, type PropType } from 'vue'
-import { useI18n } from 'vue-i18n'
-import type { DataTableColumns } from 'naive-ui'
 import type {
   OverallSolvedLeaderboardEntry,
+  SkillPeriod,
   SolveStreakLeaderboardEntry,
   SolvedByMode,
-  SkillPeriod,
 } from '@/types/api.types'
+import type { DataTableColumns } from 'naive-ui'
+import { computed, h, type PropType } from 'vue'
+import { useI18n } from 'vue-i18n'
 import InfoIcon from '../InfoIcon.vue'
 
 const props = defineProps({
@@ -91,28 +91,30 @@ const columns = computed<DataTableColumns<OverallSolvedLeaderboardEntry | SolveS
   }
 
   cols.push({
-    title: t('records.table.solved'),
-    key: 'total_solved',
+    title: t('records.table.score'),
+    key: 'total_score',
     align: 'right',
+    width: 140,
     render(row) {
-      const entry = row as OverallSolvedLeaderboardEntry
+      const entry = row as OverallSolvedLeaderboardEntry | SolveStreakLeaderboardEntry
+      const score = entry.total_score !== undefined ? entry.total_score : entry.total_solved
+
       return h('div', { class: 'solved-column-wrapper' }, [
-        h('div', { class: 'score-solved-row' }, [
-          entry.total_score !== undefined ? h('span', { class: 'total-score' }, entry.total_score) : null,
-          h('span', { class: 'total-solved' }, entry.total_solved)
-        ]),
-        h('div', { class: 'skill-progress-bar' },
+        h('span', { class: 'total-score' }, score),
+        entry.solved_by_mode && (entry.total_score || 0) > 0 ? h('div', { class: 'skill-progress-bar' },
           skillModes.map(mode => {
             const val = entry.solved_by_mode[mode.key] || 0
-            const width = entry.total_solved > 0 ? (val / entry.total_solved) * 100 : 0
-            if (width === 0) return null
+            const total = entry.total_score || entry.total_solved || 1 // Fallback to avoid div by zero
+            const width = (val / total) * 100
+
+            if (width <= 0) return null
             return h('div', {
               class: ['skill-bar-segment', mode.key],
               style: { width: `${width}%`, backgroundColor: mode.color },
               title: `${t(mode.nameKey)}: ${val}`
             })
           })
-        )
+        ) : null
       ])
     }
   })
@@ -278,11 +280,6 @@ const columns = computed<DataTableColumns<OverallSolvedLeaderboardEntry | SolveS
   gap: 4px;
 }
 
-.score-solved-row {
-  display: flex;
-  align-items: baseline;
-  gap: 12px;
-}
 
 .total-score {
   font-weight: 900;

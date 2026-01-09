@@ -895,10 +895,10 @@
       "Master": "Мастер"
     },
     "categories": {
-      "pawn": { "name": "Пешечный", "icon": "♟" },
-      "bishop": { "name": "Слоновый", "icon": "♗" },
-      "knight": { "name": "Коневой", "icon": "♘" },
-      "queen": { "name": "Ферзевый", "icon": "♕" },
+      "pawn": { "name": "Пешечный", "icon": "♔♟" },
+      "bishop": { "name": "Слоновый", "icon": "♗♙" },
+      "knight": { "name": "Коневой", "icon": "♘♙" },
+      "queen": { "name": "Ферзевый", "icon": "♕♙" },
       "rookPawn": { "name": "Ладья & Пешка", "icon": "♖♙" },
       "rookPieces": { "name": "Качество", "icon": "♖♘♗" },
       "knightBishop": { "name": "Конь & Слон", "icon": "♘♗" },

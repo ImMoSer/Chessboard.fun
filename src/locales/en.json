@@ -897,10 +897,10 @@
       "Master": "Master"
     },
     "categories": {
-      "pawn": { "name": "Pawn", "icon": "♟" },
-      "bishop": { "name": "Bishop", "icon": "♗" },
-      "knight": { "name": "Knight", "icon": "♘" },
-      "queen": { "name": "Queen", "icon": "♕" },
+      "pawn": { "name": "King & Pawn", "icon": "♔♟" },
+      "bishop": { "name": "Bishop", "icon": "♗♙" },
+      "knight": { "name": "Knight", "icon": "♘♙" },
+      "queen": { "name": "Queen", "icon": "♕♙" },
       "rookPawn": { "name": "Rook & Pawn", "icon": "♖♙" },
       "rookPieces": { "name": "Exchange", "icon": "♖♘♗" },
       "knightBishop": { "name": "Knight & Bishop", "icon": "♘♗" },

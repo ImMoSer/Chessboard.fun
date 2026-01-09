@@ -178,9 +178,9 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
   gap: 25px;
 }
 
-@media (min-width: 800px) {
+@media (min-width: 1200px) {
   .records-page {
-    max-width: 800px;
+    max-width: 1200px;
     /* Слегка уменьшим для лучшей читаемости в одну колонку */
   }
 

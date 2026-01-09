@@ -881,10 +881,10 @@
         "Master": "Meister"
       },
       "categories": {
-        "pawn": { "name": "Bauern", "icon": "♟" },
-        "bishop": { "name": "Läufer", "icon": "♗" },
-        "knight": { "name": "Springer", "icon": "♘" },
-        "queen": { "name": "Damen", "icon": "♕" },
+        "pawn": { "name": "König & Bauer", "icon": "♔♟" },
+        "bishop": { "name": "Läufer", "icon": "♗♙" },
+        "knight": { "name": "Springer", "icon": "♘♙" },
+        "queen": { "name": "Damen", "icon": "♕♙" },
         "rookPawn": { "name": "Turm & Bauer", "icon": "♖♙" },
         "rookPieces": { "name": "Qualität", "icon": "♖♘♗" },
         "knightBishop": { "name": "Springer & Läufer", "icon": "♘♗" },

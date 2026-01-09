@@ -5,6 +5,13 @@ import { computed, h, ref, watch, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
 import InfoIcon from '../InfoIcon.vue'
 
+// Swiper imports
+import 'swiper/css'
+import 'swiper/css/free-mode'
+import 'swiper/css/navigation'
+import { FreeMode, Mousewheel, Navigation } from 'swiper/modules'
+import { Swiper, SwiperSlide } from 'swiper/vue'
+
 const props = defineProps({
   title: { type: String, required: true },
   data: { type: Object as PropType<Record<string, AdvantageLeaderboardEntry[]>>, required: true },
@@ -13,7 +20,6 @@ const props = defineProps({
 })
 
 const { t, te } = useI18n()
-const currentShift = ref(0)
 const activeTab = ref('')
 
 const availableThemes = computed(() => {
@@ -34,18 +40,6 @@ watch(availableThemes, (newThemes) => {
     activeTab.value = newThemes[0] ?? ''
   }
 }, { immediate: true })
-
-const maxShift = computed(() => {
-  return Math.max(0, availableThemes.value.length - 3)
-})
-
-const scrollTabs = (direction: 'left' | 'right') => {
-  if (direction === 'left') {
-    currentShift.value = Math.max(0, currentShift.value - 1)
-  } else {
-    currentShift.value = Math.min(maxShift.value, currentShift.value + 1)
-  }
-}
 
 const tierToPieceMap: Record<string, string> = {
   Pawn: 'wP.svg', Knight: 'wN.svg', Bishop: 'wB.svg', Rook: 'wR.svg', Queen: 'wQ.svg', King: 'wK.svg',
@@ -97,51 +91,49 @@ const columns = computed<DataTableColumns<AdvantageLeaderboardEntry>>(() => [
     render(row) {
       return h('span', { class: 'mode-score-value' }, row.score)
     }
-  },
-  { title: t('records.table.daysOld'), key: 'days_old', align: 'right', render: (row) => `${row.days_old}d` }
+  }
 ])
+
+const swiperModules = [Navigation, Mousewheel, FreeMode]
 </script>
 
 <template>
   <div class="records-card" :class="colorClass">
-    <!-- Header with centered title and arrows -->
+    <!-- Header: Pure and Simple -->
     <div class="card-header main-header">
-      <div class="header-controls">
-        <button v-if="availableThemes.length > 3" class="nav-arrow" :disabled="currentShift === 0"
-          @click="scrollTabs('left')">◀</button>
-
-        <h3 class="card-title">
-          {{ title }}
-          <InfoIcon v-if="infoTopic" :topic="infoTopic" />
-        </h3>
-
-        <button v-if="availableThemes.length > 3" class="nav-arrow" :disabled="currentShift === maxShift"
-          @click="scrollTabs('right')">▶</button>
-      </div>
+      <h3 class="card-title">
+        {{ title }}
+        <InfoIcon v-if="infoTopic" :topic="infoTopic" />
+      </h3>
     </div>
 
     <div class="modes-container">
-      <!-- Carousel Window for Tabs -->
-      <div class="tabs-carousel-window" v-if="availableThemes.length > 0">
-        <n-tabs v-model:value="activeTab" type="segment" animated class="custom-thematic-tabs">
-          <n-tab-pane v-for="theme in availableThemes" :key="theme" :name="theme" :tab="theme">
-            <template #tab>
-              <n-tooltip trigger="hover">
-                <template #trigger>
-                  <div class="icon-tab-content">
-                    <span class="icon-glyph">{{ getThemeIcon(theme) || getThemeLabel(theme) }}</span>
-                  </div>
-                </template>
-                {{ getThemeLabel(theme) }}
-              </n-tooltip>
-            </template>
+      <!-- Category Selection Ribbon using Swiper -->
+      <div class="category-ribbon" v-if="availableThemes.length > 0">
+        <swiper :modules="swiperModules" :slides-per-view="'auto'" :space-between="16" :navigation="true"
+          :mousewheel="{ forceToAxis: true }" :free-mode="true" class="category-swiper">
+          <swiper-slide v-for="theme in availableThemes" :key="theme" class="theme-slide">
+            <n-tooltip trigger="hover">
+              <template #trigger>
+                <div class="theme-button" :class="{
+                  active: activeTab === theme,
+                  'is-composite': (getThemeIcon(theme) || '').length > 1
+                }" @click="activeTab = theme">
+                  <span class="theme-icon">{{ getThemeIcon(theme) || getThemeLabel(theme) }}</span>
+                </div>
+              </template>
+              {{ getThemeLabel(theme) }}
+            </n-tooltip>
+          </swiper-slide>
+        </swiper>
+      </div>
 
-            <div class="table-container">
-              <n-data-table :columns="columns" :data="props.data[theme] || []" :row-key="(row: any) => row.lichess_id"
-                size="small" striped class="records-table" :max-height="400" />
-            </div>
-          </n-tab-pane>
-        </n-tabs>
+      <!-- Active Table View -->
+      <div class="table-view-container" v-if="activeTab && props.data[activeTab]">
+        <div class="table-container">
+          <n-data-table :columns="columns" :data="props.data[activeTab] || []" :row-key="(row: any) => row.lichess_id"
+            size="small" striped class="records-table" :max-height="400" />
+        </div>
       </div>
 
       <div v-if="availableThemes.length === 0" class="no-data">
@@ -154,192 +146,192 @@ const columns = computed<DataTableColumns<AdvantageLeaderboardEntry>>(() => [
 <style scoped>
 .records-card {
   background-color: var(--color-bg-secondary);
-  border-radius: 12px;
+  border-radius: 16px;
   border: 1px solid var(--color-border-hover);
   overflow: hidden;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
 }
 
 .main-header {
-  padding: 12px 20px;
+  padding: 16px 24px;
   border-bottom: 1px solid var(--color-border-hover);
 }
 
-.header-controls {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 20px;
-}
-
 .advantageLeaderboard .main-header {
-  background-color: var(--color-accent-secondary-hover);
+  background: linear-gradient(135deg, var(--color-accent-secondary-hover), var(--color-accent-secondary));
 }
 
 .theoryLeaderboard .main-header {
-  background-color: var(--color-accent-warning-hover);
+  background: linear-gradient(135deg, var(--color-accent-warning-hover), var(--color-accent-warning));
 }
 
 .card-title {
   color: var(--color-bg-primary);
-  font-size: 1.25rem;
+  font-size: 1.3rem;
   margin: 0;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.nav-arrow {
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: var(--color-bg-primary);
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  cursor: pointer;
+  font-weight: 800;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s;
-  font-size: 0.75rem;
-}
-
-.nav-arrow:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.4);
-  transform: scale(1.1);
-}
-
-.nav-arrow:disabled {
-  opacity: 0.2;
-  cursor: not-allowed;
+  gap: 12px;
+  letter-spacing: 0.5px;
 }
 
 .modes-container {
-  padding: 16px;
+  padding: 20px 12px;
 }
 
-/* CAROUSEL FIXED WINDOW */
-.tabs-carousel-window {
-  width: 100%;
-  max-width: 300px;
-  /* 3 tablets of 100px */
-  margin: 0 auto;
-  overflow: hidden;
-  /* This hides the other tabs */
+/* Category Ribbon Styling */
+.category-ribbon {
+  margin-bottom: 24px;
   position: relative;
-  padding-bottom: 5px;
+  padding: 0 40px;
+  /* More space for swiper arrows */
 }
 
-.icon-tab-content {
+.category-swiper {
+  padding: 4px 0;
+}
+
+.theme-slide {
+  width: auto !important;
+  /* Allow slides to fit content */
+}
+
+.theme-button {
+  min-width: 56px;
+  height: 56px;
+  padding: 0 12px;
+  border-radius: 12px;
+  background-color: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  height: 100%;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--color-text-default);
+  white-space: nowrap;
 }
 
-.icon-glyph {
-  font-size: 1.5rem;
+.theme-button:hover {
+  border-color: var(--color-accent-primary);
+  background-color: var(--color-bg-secondary);
+  transform: translateY(-2px);
+}
+
+.theme-button.active {
+  background-color: var(--color-accent-primary);
+  border-color: var(--color-accent-primary);
+  color: white;
+  box-shadow: 0 4px 12px rgba(var(--color-accent-primary-rgb), 0.3);
+}
+
+.theme-icon {
+  font-size: 2rem;
   line-height: 1;
 }
 
+/* Scale down composite icons (e.g. Rook + Pieces) */
+.theme-button.is-composite .theme-icon {
+  font-size: 1.5rem;
+  letter-spacing: -2px;
+  /* Pull glyphs closer */
+}
+
+.table-view-container {
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .table-container {
-  margin-top: 16px;
   border: 1px solid var(--color-border-hover);
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
+  background-color: var(--color-bg-primary);
 }
 
 .mode-score-value {
-  font-weight: 700;
+  font-weight: 800;
   color: var(--color-accent-warning);
-  font-family: monospace;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.1rem;
 }
 
 .no-data {
   text-align: center;
-  padding: 30px;
+  padding: 40px;
   color: var(--color-text-muted);
+  font-style: italic;
 }
 
-/* NAIVE UI OVERRIDES */
-
-/* Force NAV to shift but keep PANE static */
-:deep(.n-tabs-nav) {
-  transform: translateX(calc(-1 * v-bind(currentShift) * 100px)) !important;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  background: transparent !important;
-  border: none !important;
-}
-
-:deep(.n-tabs-nav-scroll-content) {
-  display: flex !important;
-  flex-wrap: nowrap !important;
-  width: max-content !important;
-  gap: 0 !important;
-}
-
-:deep(.n-tabs-tab) {
-  width: 100px !important;
-  /* EXACT width for robust calculation */
-  min-width: 100px !important;
-  flex: 0 0 100px !important;
-  justify-content: center !important;
-  border: 1px solid var(--color-border) !important;
-  border-radius: 8px !important;
-  margin: 0 4px !important;
-  /* Visual gap within the 100px window? No, 100px is the anchor */
-  /* Let's adjust to 100px total including margin */
-  width: 92px !important;
-  margin: 0 4px !important;
+/* Swiper custom overrides */
+:deep(.swiper-button-next),
+:deep(.swiper-button-prev) {
+  width: 24px;
+  height: 24px;
+  background: var(--color-bg-tertiary);
+  border-radius: 50%;
+  color: var(--color-text-default);
+  top: 50%;
+  margin-top: -12px;
   transition: all 0.2s;
+  border: 1px solid var(--color-border);
 }
 
-:deep(.n-tabs-tab--active) {
+:deep(.swiper-button-next:after),
+:deep(.swiper-button-prev:after) {
+  font-size: 10px;
+  font-weight: bold;
+}
+
+:deep(.swiper-button-next:hover),
+:deep(.swiper-button-prev:hover) {
+  background: var(--color-accent-primary);
+  color: white;
+}
+
+:deep(.swiper-button-disabled) {
+  opacity: 0 !important;
+  pointer-events: none;
+}
+
+:deep(.swiper-button-prev) {
+  left: -5px;
+}
+
+:deep(.swiper-button-next) {
+  right: -5px;
+}
+
+/* Naive UI Styling */
+:deep(.n-data-table-th) {
   background-color: var(--color-bg-tertiary) !important;
-  border-color: var(--color-border-hover) !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  color: var(--color-text-muted) !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
 }
 
-/* Ensure the table doesn't shift with the nav */
-:deep(.custom-thematic-tabs) {
-  display: flex;
-  flex-direction: column;
+:deep(.n-data-table-td) {
+  padding: 12px 8px !important;
 }
 
-:deep(.n-tabs-pane-wrapper) {
-  /* Break out of the 300px window to show full table */
-  width: calc(100vw - 64px);
-  /* Based on page padding */
-  max-width: 1200px;
-  position: relative;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-@media (min-width: 1200px) {
-  :deep(.n-tabs-pane-wrapper) {
-    width: 100%;
-    left: 0;
-    transform: none;
-  }
-}
-
-@media (max-width: 600px) {
-  .tabs-carousel-window {
-    max-width: 270px;
-    /* 3 tabs of 90px */
-  }
-
-  :deep(.n-tabs-nav) {
-    transform: translateX(calc(-1 * v-bind(currentShift) * 90px)) !important;
-  }
-
-  :deep(.n-tabs-tab) {
-    width: 82px !important;
-    margin: 0 4px !important;
-    flex: 0 0 82px !important;
-  }
+:deep(.records-table) {
+  --n-td-color-striped: rgba(255, 255, 255, 0.02);
 }
 </style>
