@@ -88,29 +88,20 @@ export interface TornadoEndResponse {
 export type AdvantageMode = TornadoMode // Reuse TornadoMode as they share the same 'time control' concept
 
 export const ADVANTAGE_THEMES = [
-  'opColBishopPlus',
-  'twoMinorsVsRook',
-  'queenVsBishop',
-  'queenVsKnight',
-  'queenVsQueen',
-  'queenVsPawns',
-  'rookVsKnight',
-  'queenVsRook',
-  'knightVsKnight',
-  'opColBishop',
-  'rookVsRook',
-  'bishopVsBishop',
-  'bishopVsPawns',
-  'complexEndgame',
-  'rookVsBishop',
-  'knightVsPawns',
-  'knightVsBishop',
-  'pawnEndgame',
-  'bishopVsKnight',
-  'rookVsPawns',
+  'pawn',
+  'queen',
+  'bishop',
+  'knight',
+  'rookPawn',
+  'rookPieces',
+  'queenPieces',
+  'knightBishop',
+  'expert',
 ] as const
 
 export type AdvantageTheme = (typeof ADVANTAGE_THEMES)[number]
+
+export type AdvantageDifficulty = 'Novice' | 'Pro' | 'Master'
 
 export interface AdvantageResultDto {
   puzzleId: string
@@ -228,6 +219,8 @@ export interface GamePuzzle {
   difficulty_level?: string | null
   engmRating?: number
   EngmThemes_PG?: string
+  difficulty?: string
+  engmMap?: string
 }
 
 export interface TacticalThemeStat {

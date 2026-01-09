@@ -1,22 +1,22 @@
 // src/stores/theoryEndings.store.ts
-import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import { useGameStore } from './game.store'
-import { useBoardStore, type GameEndOutcome } from './board.store'
-import { webhookService } from '../services/WebhookService'
+import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import i18n from '../services/i18n'
+import { soundService } from '../services/sound.service'
+import { InsufficientFunCoinsError, webhookService } from '../services/WebhookService'
 import type {
+    TheoryEndingCategory,
+    TheoryEndingDifficulty,
     TheoryEndingPuzzle,
     TheoryEndingType,
-    TheoryEndingDifficulty,
-    TheoryEndingCategory,
 } from '../types/api.types'
 import logger from '../utils/logger'
-import { soundService } from '../services/sound.service'
-import { useAuthStore } from './auth.store'
-import { useRouter } from 'vue-router'
-import { useUiStore } from './ui.store'
-import i18n from '../services/i18n'
 import { useAnalysisStore } from './analysis.store'
+import { useAuthStore } from './auth.store'
+import { useBoardStore, type GameEndOutcome } from './board.store'
+import { useGameStore } from './game.store'
+import { useUiStore } from './ui.store'
 
 const t = i18n.global.t
 
@@ -171,8 +171,26 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
 
             feedbackMessage.value = t('finishHim.feedback.yourTurn')
         } catch (error) {
-            logger.error('[TheoryEndingsStore] Failed to load puzzle:', error)
-            feedbackMessage.value = t('finishHim.feedback.loadFailed')
+            if (error instanceof InsufficientFunCoinsError) {
+                const e = error as InsufficientFunCoinsError
+                const confirmed = await uiStore.showConfirmation(
+                    t('pricing.insufficientCoins.title'),
+                    t('pricing.insufficientCoins.message', {
+                        required: e.required,
+                        available: e.available,
+                    }) + '\n\n' + t('pricing.insufficientCoins.subMessage'),
+                    {
+                        confirmText: t('pricing.insufficientCoins.goToPricing'),
+                        cancelText: t('common.close'),
+                    },
+                )
+                if (confirmed === 'confirm') {
+                    router.push('/pricing')
+                }
+            } else {
+                logger.error('[TheoryEndingsStore] Failed to load puzzle:', error)
+                feedbackMessage.value = t('finishHim.feedback.loadFailed')
+            }
             gameStore.setGamePhase('IDLE')
         }
     }

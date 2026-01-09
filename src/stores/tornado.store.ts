@@ -1,16 +1,16 @@
 // src/stores/tornado.store.ts
-import { ref, computed } from 'vue'
+import { soundService } from '@/services/sound.service'
 import { defineStore } from 'pinia'
-import { useGameStore } from './game.store'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useUiStore } from './ui.store'
-import { webhookService } from '../services/WebhookService'
+import i18n from '../services/i18n'
+import { InsufficientFunCoinsError, webhookService } from '../services/WebhookService'
 import type { GamePuzzle, ThemeRating, TornadoNextPuzzleDto } from '../types/api.types'
 import { type TornadoMode } from '../types/api.types'
 import logger from '../utils/logger'
 import { useAuthStore } from './auth.store'
-import { soundService } from '@/services/sound.service'
-import i18n from '../services/i18n'
+import { useGameStore } from './game.store'
+import { useUiStore } from './ui.store'
 
 export type { TornadoMode } from '../types/api.types'
 
@@ -205,8 +205,26 @@ export const useTornadoStore = defineStore('tornado', () => {
         throw new Error(t('tornado.feedback.loadingFailed'))
       }
     } catch (error) {
-      logger.error('[TornadoStore] Failed to start session:', error)
-      feedbackMessage.value = t('tornado.feedback.startFailed')
+      if (error instanceof InsufficientFunCoinsError) {
+        const e = error as InsufficientFunCoinsError
+        const confirmed = await uiStore.showConfirmation(
+          t('pricing.insufficientCoins.title'),
+          t('pricing.insufficientCoins.message', {
+            required: e.required,
+            available: e.available,
+          }) + '\n\n' + t('pricing.insufficientCoins.subMessage'),
+          {
+            confirmText: t('pricing.insufficientCoins.goToPricing'),
+            cancelText: t('common.close'),
+          },
+        )
+        if (confirmed === 'confirm') {
+          router.push('/pricing')
+        }
+      } else {
+        logger.error('[TornadoStore] Failed to start session:', error)
+        feedbackMessage.value = t('tornado.feedback.startFailed')
+      }
       isSessionActive.value = false
     }
   }

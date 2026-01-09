@@ -2,19 +2,18 @@
 <script setup lang="ts">
 import { onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { shareService } from '../services/share.service'
+import { useAnalysisStore } from '../stores/analysis.store'
+import { useControlsStore } from '../stores/controls.store'
 import { useFinishHimStore } from '../stores/finishHim.store'
 import { useGameStore } from '../stores/game.store'
-import { useControlsStore } from '../stores/controls.store'
-import { useAnalysisStore } from '../stores/analysis.store'
-import { shareService } from '../services/share.service'
-import type { AdvantageMode } from '@/types/api.types'
 
-import GameLayout from '../components/GameLayout.vue'
-import ControlPanel from '../components/ControlPanel.vue'
-import TopInfoPanel from '../components/TopInfoPanel.vue'
-import PuzzleInfo from '../components/PuzzleInfo.vue'
-import UserStats from '../components/UserStats.vue'
 import AnalysisPanel from '../components/AnalysisPanel.vue'
+import ControlPanel from '../components/ControlPanel.vue'
+import GameLayout from '../components/GameLayout.vue'
+import PuzzleInfo from '../components/PuzzleInfo.vue'
+import TopInfoPanel from '../components/TopInfoPanel.vue'
+import UserStats from '../components/UserStats.vue'
 
 const finishHimStore = useFinishHimStore()
 const gameStore = useGameStore()
@@ -26,19 +25,17 @@ const router = useRouter()
 onMounted(() => {
   finishHimStore.initialize()
   const puzzleId = route.params.puzzleId as string | undefined
-  const mode = route.params.mode as AdvantageMode | undefined
   const fen = route.params.fen as string | undefined
   const color = route.params.color as 'white' | 'black' | undefined
 
   if (fen && color) {
     finishHimStore.startPlayoutFromFen(fen.replace(/_/g, ' '), color)
-  } else if (mode) {
-    finishHimStore.setMode(mode)
-    finishHimStore.loadNewPuzzle()
   } else if (puzzleId) {
     finishHimStore.loadNewPuzzle(puzzleId)
+  } else if (finishHimStore.selectedTheme) {
+    finishHimStore.loadNewPuzzle()
   } else {
-    // If accessed without mode or puzzleId, redirect to selection
+    // If accessed without parameters, redirect to selection
     router.push('/finish-him')
   }
 })

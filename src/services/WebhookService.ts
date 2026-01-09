@@ -1,36 +1,35 @@
 // src/services/WebhookService.ts
-import logger from '../utils/logger'
 import type {
-  UpdateFinishHimStatsDto,
-  SubmitTacticalResultDto,
+  AdvantageResultDto,
+  FunclubMeta,
   GamePuzzle,
-  TacticalTrainerStats,
+  GameResultResponse,
   GetTacticalPuzzleDto,
+  LatestTeamBattleReport,
+  LeaderboardApiResponse,
   OverallSolvedLeaderboardEntry,
+  PersonalActivityStatsResponse,
   PersonalOverallSolvedResponse,
   PersonalSolveStreakResponse,
-  LeaderboardApiResponse,
-  PersonalActivityStatsResponse,
-  GameResultResponse,
-  TornadoMode,
-  TornadoNextPuzzleDto,
-  TornadoEndSessionDto,
-  TornadoStartResponse,
-  TornadoNextResponse,
-  TornadoEndResponse,
-  FunclubMeta,
+  SubmitTacticalResultDto,
+  TacticalTrainerStats,
   TeamBattleReport,
-  LatestTeamBattleReport,
-  UserProfileStatsDto,
-  AdvantageMode,
-  AdvantageResultDto,
-  TheoryEndingType,
-  TheoryEndingDifficulty,
   TheoryEndingCategory,
+  TheoryEndingDifficulty,
   TheoryEndingPuzzle,
   TheoryEndingResultDto,
-  UserTheoryEndingStatsDto,
+  TheoryEndingType,
+  TornadoEndResponse,
+  TornadoEndSessionDto,
+  TornadoMode,
+  TornadoNextPuzzleDto,
+  TornadoNextResponse,
+  TornadoStartResponse,
+  UpdateFinishHimStatsDto,
+  UserProfileStatsDto,
+  UserTheoryEndingStatsDto
 } from '../types/api.types'
+import logger from '../utils/logger'
 
 export class RateLimitError extends Error {
   public cooldownSeconds: number
@@ -42,9 +41,13 @@ export class RateLimitError extends Error {
 }
 
 export class InsufficientFunCoinsError extends Error {
-  constructor(message: string) {
+  public required: number
+  public available: number
+  constructor(message: string, required: number = 0, available: number = 0) {
     super(message)
     this.name = 'InsufficientFunCoinsError'
+    this.required = required
+    this.available = available
   }
 }
 
@@ -93,7 +96,11 @@ class WebhookServiceController {
 
       if (response.status === 403) {
         const errorData = await response.json()
-        throw new InsufficientFunCoinsError(errorData.message || 'Forbidden')
+        throw new InsufficientFunCoinsError(
+          errorData.message || 'Forbidden',
+          errorData.required || 0,
+          errorData.available || 0,
+        )
       }
 
       if (!response.ok) {
@@ -176,21 +183,25 @@ class WebhookServiceController {
 
   // --- ADVANTAGE API ---
   public async fetchAdvantagePuzzle(
-    mode: AdvantageMode,
     theme?: string,
+    difficulty?: string,
   ): Promise<GamePuzzle | null> {
-    const path = theme
-      ? `/advantage/start/${mode}?theme=${theme}`
-      : `/advantage/start/${mode}`
+    let path = '/advantage/start'
+    const params = new URLSearchParams()
+    if (theme && theme !== 'auto') params.append('theme', theme)
+    if (difficulty) params.append('difficulty', difficulty)
+
+    if (params.toString()) {
+      path += `?${params.toString()}`
+    }
     return this._apiRequest<GamePuzzle>(path, 'GET', 'fetchAdvantagePuzzle')
   }
 
   public async processAdvantageResult(
-    mode: AdvantageMode,
     dto: AdvantageResultDto,
   ): Promise<GameResultResponse | null> {
     return this._apiRequest<GameResultResponse>(
-      `/advantage/result/${mode}`,
+      '/advantage/result',
       'POST',
       'processAdvantageResult',
       dto,

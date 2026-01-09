@@ -191,8 +191,19 @@
       "loss": "Sie haben verloren!",
       "loadFailed": "Aufgabe konnte nicht geladen werden."
     },
+    "selection": {
+      "title": "Finish Him",
+      "subtitle": "Beweise deinen Vorteil gegen den Engine",
+      "themeLabel": "Endspiel-Thema"
+    },
     "error": {
       "puzzleNotFound": "Aufgabe mit der ID {puzzleId} wurde nicht gefunden oder ist nicht verfügbar."
+    },
+    "stats": {
+      "mode": "Modus",
+      "theme": "Thema",
+      "rating": "Unser Rating",
+      "evaluation": "Unsere Bewertung"
     }
   },
 
@@ -537,6 +548,12 @@
     "costs": {
       "title": "Kosten der Spielmodi",
       "funcoinLabel": "FunCoins"
+    },
+    "insufficientCoins": {
+      "title": "Unzureichende FunCoins",
+      "message": "Der Start dieses Spiels erfordert {required} FunCoins. Sie haben derzeit: {available}.",
+      "subMessage": "Weitere Informationen zum Aufladen Ihres Guthabens finden Sie auf der Preis-Seite.",
+      "goToPricing": "Zu den Preisen"
     }
   },
   "about": {
@@ -755,7 +772,7 @@
     }
   },
   "themes": {
-    "auto": "Automatisch (Intelligente Auswahl)",
+    "auto": "Automatisch",
     "fork": "Gabel",
     "pin": "Fesselung",
     "attraction": "Hinlenkung",
@@ -790,7 +807,16 @@
     "knightVsBishop": "Springer vs Läufer",
     "pawnEndgame": "Bauernendspiel",
     "bishopVsKnight": "Läufer vs Springer",
-    "rookVsPawns": "Turm vs Bauern"
+    "rookVsPawns": "Turm vs Bauern",
+    "pawn": "Bauern",
+    "queen": "Damen",
+    "bishop": "Läufer",
+    "knight": "Springer",
+    "rookPawn": "Turm & Bauer",
+    "rookPieces": "Türme & Figuren",
+    "queenPieces": "Dame & Figuren",
+    "knightBishop": "Springer & Läufer",
+    "expert": "Königsdisziplin"
   },
   "openingTrainer": {
     "header": {
@@ -856,7 +882,8 @@
         "queen": { "name": "Damen", "icon": "♕" },
         "rookPawn": { "name": "Turm & Bauer", "icon": "♖♙" },
         "rookPieces": { "name": "Qualität", "icon": "♖♘♗" },
-        "knightBishop": { "name": "Springer & Läufer", "icon": "♘♗" }
+        "knightBishop": { "name": "Springer & Läufer", "icon": "♘♗" },
+        "queenPieces": { "name": "Dame & Figuren", "icon": "♕♘♗" }
       },
       "feedback": {
         "pressNext": "Drücken Sie 'Spielen', um zu beginnen.",

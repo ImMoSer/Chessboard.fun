@@ -1,26 +1,26 @@
 // src/router/index.ts
-import { createRouter, createWebHistory } from 'vue-router'
 import { watch } from 'vue'
-import { useGameStore } from '../stores/game.store'
-import { useUiStore } from '../stores/ui.store'
+import { createRouter, createWebHistory } from 'vue-router'
 import i18n from '../services/i18n'
 import { useAnalysisStore } from '../stores/analysis.store'
 import { useFinishHimStore } from '../stores/finishHim.store'
+import { useGameStore } from '../stores/game.store'
+import { useUiStore } from '../stores/ui.store'
 
 import { useAuthStore } from '../stores/auth.store'
 import { useTornadoStore } from '../stores/tornado.store'
 
-import FinishHimView from '../views/FinishHimView.vue'
-import WelcomeView from '../views/WelcomeView.vue'
 import AboutView from '../views/AboutView.vue'
+import FinishHimView from '../views/FinishHimView.vue'
 import PricingView from '../views/PricingView.vue'
 import RecordsPageView from '../views/RecordsPageView.vue'
+import WelcomeView from '../views/WelcomeView.vue'
 
-import UserCabinetView from '../views/UserCabinetView.vue'
-import ModeSelectionView from '../views/ModeSelectionView.vue'
-import TornadoView from '../views/TornadoView.vue'
-import TornadoMistakesView from '../views/TornadoMistakesView.vue'
 import FunclubLatestBattleView from '../views/FunclubLatestBattleView.vue'
+import ModeSelectionView from '../views/ModeSelectionView.vue'
+import TornadoMistakesView from '../views/TornadoMistakesView.vue'
+import TornadoView from '../views/TornadoView.vue'
+import UserCabinetView from '../views/UserCabinetView.vue'
 
 
 const router = createRouter({
@@ -58,17 +58,17 @@ const router = createRouter({
     {
       path: '/finish-him',
       name: 'finish-him-selection',
-      component: ModeSelectionView,
+      component: () => import('../views/AdvantageSelectionView.vue'),
       meta: { requiresAuth: true, gameMode: 'finish-him' },
     },
     {
-      path: '/finish-him/:mode(bullet|blitz|rapid|classic)',
+      path: '/finish-him/play',
       name: 'finish-him-play',
       component: FinishHimView,
       meta: { isGame: true, requiresAuth: true, game: 'finish-him' },
     },
     {
-      path: '/finish-him/:puzzleId',
+      path: '/finish-him/play/:puzzleId',
       name: 'finish-him-puzzle',
       component: FinishHimView,
       meta: { isGame: true, requiresAuth: true, game: 'finish-him' },

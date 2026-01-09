@@ -1,28 +1,26 @@
 <!-- src/components/TopInfoPanel.vue -->
 <script setup lang="ts">
+
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { useFinishHimStore } from '@/stores/finishHim.store'
 
-import { useTornadoStore } from '@/stores/tornado.store'
-import { useControlsStore } from '@/stores/controls.store'
-import FinishHimSelection from '@/components/FinishHimSelection.vue'
 import EngineSelector from '@/components/EngineSelector.vue'
+import { useControlsStore } from '@/stores/controls.store'
+import { useTornadoStore } from '@/stores/tornado.store'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 
 const route = useRoute()
-const finishHimStore = useFinishHimStore()
+
 const tornadoStore = useTornadoStore()
 useControlsStore()
 
 const formattedTimer = computed(() => {
-
   if (route.name === 'tornado') {
     return tornadoStore.formattedTimer
   }
-  return finishHimStore.formattedTimer
+  return '--:--'
 })
 
 const containerClass = computed(() => {
@@ -41,9 +39,9 @@ const containerClass = computed(() => {
 
 <template>
   <div class="top-info-panel-container" :class="containerClass">
-    <!-- Таймер для всех режимов, кроме выбора Торнадо -->
-    <div v-if="route.name !== 'tornado-selection'" class="timer-container">
-      <div v-if="route.name === 'tornado'" class="tornado-info-container">
+    <!-- Таймер для Торнадо -->
+    <div v-if="route.name === 'tornado'" class="timer-container">
+      <div class="tornado-info-container">
         <span v-if="tornadoStore.sessionTheme" class="session-theme-label">
           {{ t('tornado.ui.themeLabel') }}: {{ t('themes.' + tornadoStore.sessionTheme) }}
         </span>
@@ -54,16 +52,10 @@ const containerClass = computed(() => {
       {{ formattedTimer }}
     </div>
 
-    <!-- Селектор тем для FinishHim -->
-    <FinishHimSelection v-if="
-      route.name === 'finish-him' ||
-      route.name === 'finish-him-play' ||
-      route.name === 'finish-him-puzzle'
-    " />
+
 
     <div v-if="
       [
-        'finish-him',
         'finish-him-play',
         'finish-him-puzzle',
 
@@ -120,7 +112,8 @@ const containerClass = computed(() => {
   color: var(--color-accent-success);
 }
 
-.tornado-info-container {
+.tornado-info-container,
+.advantage-info-container {
   display: flex;
   align-items: center;
   gap: 15px;

@@ -4,29 +4,37 @@ import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import { useFinishHimStore } from '../stores/finishHim.store'
 
-import { useTornadoStore } from '../stores/tornado.store'
+import {
+  BarChartOutline,
+  FlashOutline,
+  ListOutline,
+  StarOutline,
+  TimeOutline,
+  TrendingUpOutline
+} from '@vicons/ionicons5'
+import {
+  NCard,
+  NGrid, NGridItem,
+  NIcon,
+  NSpace,
+  NStatistic,
+  NTable,
+  NTag,
+  NText
+} from 'naive-ui'
 import { useTheoryEndingsStore } from '../stores/theoryEndings.store'
+import { useTornadoStore } from '../stores/tornado.store'
 import type { GamePuzzle, TheoryEndingPuzzle } from '../types/api.types'
 import { getThemeTranslationKey } from '../utils/theme-mapper'
 import ChessboardPreview from './ChessboardPreview.vue'
-import {
-  NCard, NStatistic, NGrid, NGridItem, NText,
-  NSpace, NTag, NIcon, NTable
-} from 'naive-ui'
-import {
-  FlashOutline,
-  TrendingUpOutline,
-  TimeOutline,
-  StarOutline,
-  ListOutline,
-  BarChartOutline
-} from '@vicons/ionicons5'
 
 const route = useRoute()
 const finishHimStore = useFinishHimStore()
 const tornadoStore = useTornadoStore()
 const theoryStore = useTheoryEndingsStore()
 const { t } = useI18n()
+
+const isFinishHim = computed(() => route.meta.game === 'finish-him')
 
 const activeStore = computed(() => {
   if (route.name === 'tornado') return tornadoStore
@@ -48,8 +56,9 @@ const tacticalThemesList = computed<string[]>(() => {
     return puzzle.EngmThemes_PG.replace(/[{}]/g, '').split(',').map(t => t.trim())
   }
 
-  if (route.meta.game === 'finish-him' && puzzle.engm_type) {
-    return [getThemeTranslationKey(puzzle.engm_type)]
+  if (route.meta.game === 'finish-him') {
+    if (puzzle.engmMap) return [puzzle.engmMap]
+    if (puzzle.engm_type) return [getThemeTranslationKey(puzzle.engm_type)]
   }
 
   if (puzzle.Themes) return puzzle.Themes.split(' ')
@@ -69,9 +78,16 @@ const tacticalThemesList = computed<string[]>(() => {
 })
 
 const finishHimModeDisplay = computed(() => {
-  if (route.meta.game !== 'finish-him' || !finishHimStore.activeMode) return null
-  const mode = finishHimStore.activeMode
-  return t(`tornado.modes.${mode}`, { defaultValue: mode })
+  if (route.meta.game !== 'finish-him') return null
+  const difficulty = finishHimStore.selectedDifficulty
+  return t(`theoryEndings.difficulties.${difficulty}`, { defaultValue: difficulty })
+})
+
+const finishHimThemeDisplay = computed(() => {
+  if (route.meta.game !== 'finish-him' || !activePuzzle.value) return null
+  const theme = activePuzzle.value.engmMap || finishHimStore.selectedTheme
+  if (!theme || theme === 'auto') return t('themes.auto')
+  return t(`themes.${theme}`, { defaultValue: theme })
 })
 
 const finalPositionOrientation = computed(() => {
@@ -116,66 +132,106 @@ const sortedResults = computed(() => {
         <n-space vertical :size="16">
           <!-- Basic Stats Row -->
           <n-grid :cols="2" :x-gap="12" :y-gap="12">
-            <n-grid-item v-if="finishHimModeDisplay">
-              <n-statistic :label="t('userCabinet.stats.modes.all')">
-                <n-text strong>{{ finishHimModeDisplay }}</n-text>
-              </n-statistic>
-            </n-grid-item>
+            <!-- Order for Finish Him: Mode, Theme, Rating, Eval -->
+            <template v-if="isFinishHim">
+              <n-grid-item>
+                <n-statistic :label="t('finishHim.stats.mode')">
+                  <n-text strong>{{ finishHimModeDisplay }}</n-text>
+                </n-statistic>
+              </n-grid-item>
 
-            <n-grid-item>
-              <n-statistic :label="t('tacktics.stats.rating')">
-                <template #prefix>
-                  <n-icon color="#18a058">
-                    <TrendingUpOutline />
-                  </n-icon>
-                </template>
-                <n-text strong>{{ activePuzzle.engmRating ?? activePuzzle.Rating ?? activePuzzle.rating }}</n-text>
-              </n-statistic>
-            </n-grid-item>
+              <n-grid-item>
+                <n-statistic :label="t('finishHim.stats.theme')">
+                  <n-text strong>{{ finishHimThemeDisplay }}</n-text>
+                </n-statistic>
+              </n-grid-item>
 
-            <n-grid-item v-if="activePuzzle.bw_value">
-              <n-statistic :label="t('puzzleInfo.funValue')">
-                <template #prefix>
-                  <n-icon color="#f0a020">
-                    <FlashOutline />
-                  </n-icon>
-                </template>
-                <n-text strong>{{ activePuzzle.bw_value }}</n-text>
-              </n-statistic>
-            </n-grid-item>
+              <n-grid-item>
+                <n-statistic :label="t('finishHim.stats.rating')">
+                  <template #prefix>
+                    <n-icon color="#18a058">
+                      <TrendingUpOutline />
+                    </n-icon>
+                  </template>
+                  <n-text strong>{{ activePuzzle.engmRating }}</n-text>
+                </n-statistic>
+              </n-grid-item>
 
-            <n-grid-item v-if="activePuzzle.solve_time && route.meta.game !== 'finish-him'">
-              <n-statistic :label="t('puzzleInfo.solveTime')">
-                <template #prefix>
-                  <n-icon color="var(--color-accent)">
-                    <TimeOutline />
-                  </n-icon>
-                </template>
-                <n-text strong>{{ formatTime(activePuzzle.solve_time) }}</n-text>
-              </n-statistic>
-            </n-grid-item>
+              <n-grid-item>
+                <n-statistic :label="t('finishHim.stats.evaluation')">
+                  <template #prefix>
+                    <n-icon color="#2080f0">
+                      <BarChartOutline />
+                    </n-icon>
+                  </template>
+                  <n-text strong>{{ activePuzzle.eval }}</n-text>
+                </n-statistic>
+              </n-grid-item>
+            </template>
 
-            <n-grid-item v-if="activePuzzle.eval">
-              <n-statistic :label="t('puzzleInfo.evaluation')">
-                <template #prefix>
-                  <n-icon color="#2080f0">
-                    <BarChartOutline />
-                  </n-icon>
-                </template>
-                <n-text strong>{{ (activePuzzle.eval / 100).toFixed(2) }}</n-text>
-              </n-statistic>
-            </n-grid-item>
+            <!-- Standard Layout for other modes -->
+            <template v-else>
+              <n-grid-item v-if="finishHimModeDisplay">
+                <n-statistic :label="t('userCabinet.stats.modes.all')">
+                  <n-text strong>{{ finishHimModeDisplay }}</n-text>
+                </n-statistic>
+              </n-grid-item>
 
-            <n-grid-item v-if="activePuzzle.num_pieces">
-              <n-statistic :label="t('puzzleInfo.pieces')">
-                <template #prefix>
-                  <n-icon depth="3">
-                    <ListOutline />
-                  </n-icon>
-                </template>
-                <n-text strong>{{ activePuzzle.num_pieces }}</n-text>
-              </n-statistic>
-            </n-grid-item>
+              <n-grid-item>
+                <n-statistic :label="t('tacktics.stats.rating')">
+                  <template #prefix>
+                    <n-icon color="#18a058">
+                      <TrendingUpOutline />
+                    </n-icon>
+                  </template>
+                  <n-text strong>{{ activePuzzle.engmRating ?? activePuzzle.Rating ?? activePuzzle.rating }}</n-text>
+                </n-statistic>
+              </n-grid-item>
+
+              <n-grid-item v-if="activePuzzle.bw_value">
+                <n-statistic :label="t('puzzleInfo.funValue')">
+                  <template #prefix>
+                    <n-icon color="#f0a020">
+                      <FlashOutline />
+                    </n-icon>
+                  </template>
+                  <n-text strong>{{ activePuzzle.bw_value }}</n-text>
+                </n-statistic>
+              </n-grid-item>
+
+              <n-grid-item v-if="activePuzzle.solve_time">
+                <n-statistic :label="t('puzzleInfo.solveTime')">
+                  <template #prefix>
+                    <n-icon color="var(--color-accent)">
+                      <TimeOutline />
+                    </n-icon>
+                  </template>
+                  <n-text strong>{{ formatTime(activePuzzle.solve_time) }}</n-text>
+                </n-statistic>
+              </n-grid-item>
+
+              <n-grid-item v-if="activePuzzle.eval">
+                <n-statistic :label="t('puzzleInfo.evaluation')">
+                  <template #prefix>
+                    <n-icon color="#2080f0">
+                      <BarChartOutline />
+                    </n-icon>
+                  </template>
+                  <n-text strong>{{ (activePuzzle.eval / 100).toFixed(2) }}</n-text>
+                </n-statistic>
+              </n-grid-item>
+
+              <n-grid-item v-if="activePuzzle.num_pieces">
+                <n-statistic :label="t('puzzleInfo.pieces')">
+                  <template #prefix>
+                    <n-icon depth="3">
+                      <ListOutline />
+                    </n-icon>
+                  </template>
+                  <n-text strong>{{ activePuzzle.num_pieces }}</n-text>
+                </n-statistic>
+              </n-grid-item>
+            </template>
           </n-grid>
 
           <!-- Final Position Preview -->
@@ -205,7 +261,7 @@ const sortedResults = computed(() => {
                 <StarOutline />
               </n-icon>
               <n-text strong uppercase depth="3" class="section-subtitle">{{ t('puzzleInfo.leaderboardTitle')
-              }}</n-text>
+                }}</n-text>
             </n-space>
             <n-table size="small" :bordered="false" class="minimal-table">
               <thead>

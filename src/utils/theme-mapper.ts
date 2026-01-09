@@ -42,6 +42,15 @@ export const THEME_KEY_MAP: Record<string, string> = {
   pawnEndgame: 'pawnEndgame',
   bishopVsKnight: 'bishopVsKnight',
   rookVsPawns: 'rookVsPawns',
+  pawn: 'pawn',
+  queen: 'queen',
+  bishop: 'bishop',
+  knight: 'knight',
+  rookPawn: 'rookPawn',
+  rookPieces: 'rookPieces',
+  queenPieces: 'queenPieces',
+  knightBishop: 'knightBishop',
+  expert: 'expert',
 }
 
 export const getThemeTranslationKey = (theme: string): string => {

@@ -185,14 +185,24 @@
       "pressNext": "Нажмите 'Играть', чтобы начать.",
       "yourTurn": "Ваш ход! Найдите правильное продолжение.",
       "yourTurnPlayout": "Ваш ход! Найдите лучшие ходы для победы.",
-      "timeUp": "Время вышло! Фаза розыгрыша проиграна.",
       "resigned": "Вы сдались.",
       "win": "Вы победили!",
       "loss": "Вы проиграли!",
       "loadFailed": "Не удалось загрузить задачу."
     },
+    "selection": {
+      "title": "Добивание",
+      "subtitle": "Реализуйте преимущество против движка",
+      "themeLabel": "Тема эндшпиля"
+    },
     "error": {
       "puzzleNotFound": "Задача с ID {puzzleId} не найдена или недоступна."
+    },
+    "stats": {
+      "mode": "Режим",
+      "theme": "Тема",
+      "rating": "Наш рейтинг",
+      "evaluation": "Наша оценка"
     }
   },
 
@@ -550,6 +560,12 @@
     "costs": {
       "title": "Стоимость режимов игры",
       "funcoinLabel": "FunCoins"
+    },
+    "insufficientCoins": {
+      "title": "Недостаточно FunCoins",
+      "message": "Для начала игры требуется {required} FunCoins. У вас сейчас: {available}.",
+      "subMessage": "Вы можете узнать о способах пополнения баланса на странице тарифов.",
+      "goToPricing": "К тарифам"
     }
   },
   "about": {
@@ -771,7 +787,7 @@
     }
   },
   "themes": {
-    "auto": "Автоматически (Умный подбор)",
+    "auto": "Автоматически",
     "fork": "Вилка",
     "pin": "Связка",
     "attraction": "Завлечение",
@@ -805,8 +821,15 @@
     "knightVsPawns": "Конь против пешек",
     "knightVsBishop": "Конь против Слона",
     "pawnEndgame": "Пешечный эндшпиль",
-    "bishopVsKnight": "Слон против Коня",
-    "rookVsPawns": "Ладья против пешек"
+    "pawn": "Пешечный",
+    "queen": "Ферзевый",
+    "bishop": "Слоновый",
+    "knight": "Коневой",
+    "rookPawn": "Ладья и пешка",
+    "rookPieces": "Ладьи и фигуры",
+    "queenPieces": "Ферзь и фигуры",
+    "knightBishop": "Конь и слон",
+    "expert": "Королевская дисциплина"
   },
   "openingTrainer": {
     "header": {
@@ -872,7 +895,8 @@
       "queen": { "name": "Ферзевый", "icon": "♕" },
       "rookPawn": { "name": "Ладья & Пешка", "icon": "♖♙" },
       "rookPieces": { "name": "Качество", "icon": "♖♘♗" },
-      "knightBishop": { "name": "Конь & Слон", "icon": "♘♗" }
+      "knightBishop": { "name": "Конь & Слон", "icon": "♘♗" },
+      "queenPieces": { "name": "Ферзь & Фигуры", "icon": "♕♘♗" }
     },
     "feedback": {
       "pressNext": "Нажмите 'Играть', чтобы начать.",

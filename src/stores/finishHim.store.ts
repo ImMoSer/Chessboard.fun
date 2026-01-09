@@ -1,133 +1,47 @@
 // src/stores/finishHim.store.ts
-import { ref, computed, watch } from 'vue'
 import { defineStore } from 'pinia'
-import { useGameStore } from './game.store'
-import { useBoardStore, type GameEndOutcome } from './board.store'
-import { webhookService } from '../services/WebhookService'
+import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import i18n from '../services/i18n'
+import { soundService } from '../services/sound.service'
+import { InsufficientFunCoinsError, webhookService } from '../services/WebhookService'
 import type {
-  GamePuzzle,
-  AdvantageMode,
+  AdvantageDifficulty,
   AdvantageResultDto,
+  GamePuzzle,
 } from '../types/api.types'
 import logger from '../utils/logger'
-import { soundService } from '../services/sound.service'
-import { useAuthStore } from './auth.store'
-import { useRouter } from 'vue-router'
-import { useUiStore } from './ui.store'
-import i18n from '../services/i18n'
 import { useAnalysisStore } from './analysis.store'
+import { useAuthStore } from './auth.store'
+import { useBoardStore, type GameEndOutcome } from './board.store'
+import { useGameStore } from './game.store'
+import { useUiStore } from './ui.store'
 
 const t = i18n.global.t
 
-const timeControls: Record<AdvantageMode, { initial: number; increment: number }> = {
-  bullet: { initial: 1 * 60 * 1000, increment: 1 * 1000 },
-  blitz: { initial: 3 * 60 * 1000, increment: 2 * 1000 },
-  rapid: { initial: 5 * 60 * 1000, increment: 3 * 1000 },
-  classic: { initial: 10 * 60 * 1000, increment: 5 * 1000 },
-}
+
 
 export const useFinishHimStore = defineStore('finishHim', () => {
+  const uiStore = useUiStore()
+  const router = useRouter()
   const gameStore = useGameStore()
   const boardStore = useBoardStore()
   const authStore = useAuthStore()
-  const router = useRouter()
-  const uiStore = useUiStore()
   const analysisStore = useAnalysisStore()
 
   const activePuzzle = ref<GamePuzzle | null>(null)
-  const activeMode = ref<AdvantageMode | null>(null)
-  const outplayTimeRemainingMs = ref<number | null>(null)
-  const timerId = ref<number | null>(null)
   const feedbackMessage = ref(t('finishHim.feedback.pressNext'))
 
-  const selectedTheme = ref<string>('auto') // Default theme
+  const selectedTheme = ref<string>('auto')
+  const selectedDifficulty = ref<AdvantageDifficulty>('Novice')
 
   const isProcessingGameOver = ref(false)
 
-  const tenSecondsWarningPlayed = ref(false)
-
-  const eightSecondsWarningPlayed = ref(false)
-
-  watch(
-    () => gameStore.userMovesCount,
-    (count) => {
-      if (
-        count > 0 &&
-        activeMode.value &&
-        outplayTimeRemainingMs.value !== null &&
-        gameStore.isGameActive
-      ) {
-        if (outplayTimeRemainingMs.value > 10000) {
-          const increment = timeControls[activeMode.value].increment
-          outplayTimeRemainingMs.value += increment
-        }
-      }
-    },
-  )
-
   function reset() {
-    _clearTimer()
     activePuzzle.value = null
-    outplayTimeRemainingMs.value = null
     feedbackMessage.value = t('finishHim.feedback.pressNext')
     isProcessingGameOver.value = false
-    tenSecondsWarningPlayed.value = false
-    eightSecondsWarningPlayed.value = false
-    // activeMode.value = null // Don't reset mode on simple reset, maybe?
-    // User might want to play next puzzle in same mode.
-    // Only reset mode if explicitly leaving the mode context.
-    // For now, let's keep it.
     logger.info('[FinishHimStore] Local state has been reset.')
-  }
-
-  function setMode(mode: AdvantageMode) {
-    activeMode.value = mode
-  }
-
-  const formattedTimer = computed(() => {
-    if (outplayTimeRemainingMs.value === null) return '00:00'
-    const totalSeconds = Math.ceil(outplayTimeRemainingMs.value / 1000)
-    const minutes = Math.floor(totalSeconds / 60)
-    const seconds = totalSeconds % 60
-    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
-  })
-
-  function _clearTimer() {
-    if (timerId.value) {
-      clearInterval(timerId.value)
-      timerId.value = null
-    }
-  }
-
-  function _startTimer() {
-    _clearTimer()
-    if (outplayTimeRemainingMs.value === null) return
-
-    tenSecondsWarningPlayed.value = false
-    eightSecondsWarningPlayed.value = false
-
-    logger.info('[FinishHimStore] Playout started. Starting timer.')
-    feedbackMessage.value = t('finishHim.feedback.yourTurnPlayout')
-
-    timerId.value = window.setInterval(() => {
-      if (outplayTimeRemainingMs.value !== null) {
-        outplayTimeRemainingMs.value -= 1000
-
-        if (outplayTimeRemainingMs.value <= 10000 && !tenSecondsWarningPlayed.value) {
-          soundService.playSound('board_timer_10s')
-          tenSecondsWarningPlayed.value = true
-        }
-        if (outplayTimeRemainingMs.value <= 8000 && !eightSecondsWarningPlayed.value) {
-          soundService.playSound('board_timer_8s')
-          eightSecondsWarningPlayed.value = true
-        }
-
-        if (outplayTimeRemainingMs.value <= 0) {
-          soundService.playSound('board_timer_times_up')
-          _handleGameOver(false, { winner: undefined, reason: 'timeout' })
-        }
-      }
-    }, 1000)
   }
 
   function _checkWinCondition(outcome?: GameEndOutcome): boolean {
@@ -142,7 +56,6 @@ export const useFinishHimStore = defineStore('finishHim', () => {
     }
     isProcessingGameOver.value = true
 
-    _clearTimer()
     gameStore.setGamePhase('GAMEOVER')
 
     if (isWin) {
@@ -151,9 +64,7 @@ export const useFinishHimStore = defineStore('finishHim', () => {
     } else {
       soundService.playSound('game_user_lost')
       const reason = outcome?.reason
-      if (reason === 'timeout') {
-        feedbackMessage.value = t('finishHim.feedback.timeUp')
-      } else if (reason === 'stalemate') {
+      if (reason === 'stalemate') {
         feedbackMessage.value = t('gameplay.gameOver.stalemate')
       } else if (reason === 'resign') {
         feedbackMessage.value = t('finishHim.feedback.resigned')
@@ -171,7 +82,6 @@ export const useFinishHimStore = defineStore('finishHim', () => {
   async function _updateAndSendStats(isWin: boolean) {
     const user = authStore.userProfile
     const puzzle = activePuzzle.value
-    const mode = activeMode.value || 'classic' // Fallback to classic if mode lost
 
     if (!user || !puzzle) {
       logger.info('[FinishHimStore] User not logged in or no active puzzle. Stats not sent.')
@@ -184,7 +94,7 @@ export const useFinishHimStore = defineStore('finishHim', () => {
     }
 
     try {
-      const response = await webhookService.processAdvantageResult(mode, dto)
+      const response = await webhookService.processAdvantageResult(dto)
       if (response && response.UserStatsUpdate) {
         logger.info('[FinishHimStore] Stats sent and UserStatsUpdate received.')
         authStore.updateUserStats(response.UserStatsUpdate)
@@ -213,7 +123,6 @@ export const useFinishHimStore = defineStore('finishHim', () => {
 
     gameStore.setGamePhase('LOADING')
     feedbackMessage.value = t('common.loading')
-    _clearTimer()
 
     try {
       let puzzle: GamePuzzle | null = null
@@ -221,39 +130,44 @@ export const useFinishHimStore = defineStore('finishHim', () => {
       if (puzzleId) {
         puzzle = await webhookService.fetchAdvantagePuzzleById(puzzleId)
       } else {
-        if (!activeMode.value) {
-          throw new Error('Mode not selected for Finish Him')
-        }
-        const themeParam = selectedTheme.value === 'auto' ? undefined : selectedTheme.value
-        puzzle = await webhookService.fetchAdvantagePuzzle(activeMode.value, themeParam)
+        puzzle = await webhookService.fetchAdvantagePuzzle(selectedTheme.value, selectedDifficulty.value)
       }
 
       if (!puzzle) throw new Error('Puzzle data is null')
 
       activePuzzle.value = puzzle
 
-      // Logic: solve_time is critical for Finish Him
-      // Update: Use selected mode's time control if available
-      if (activeMode.value) {
-        outplayTimeRemainingMs.value = timeControls[activeMode.value].initial
-      } else {
-        const solveTimeSeconds = puzzle.solve_time ?? 300
-        outplayTimeRemainingMs.value = solveTimeSeconds * 1000
-      }
-
       gameStore.setupPuzzle(
         puzzle.FEN_0,
         puzzle.Moves.split(' '),
         _handleGameOver,
         _checkWinCondition,
-        _startTimer,
+        () => { }, // No timer start callback
         'finish-him',
       )
 
       feedbackMessage.value = t('finishHim.feedback.yourTurn')
     } catch (error) {
-      logger.error('[FinishHimStore] Failed to load puzzle:', error)
-      feedbackMessage.value = t('finishHim.feedback.loadFailed')
+      if (error instanceof InsufficientFunCoinsError) {
+        const e = error as InsufficientFunCoinsError
+        const confirmed = await uiStore.showConfirmation(
+          t('pricing.insufficientCoins.title'),
+          t('pricing.insufficientCoins.message', {
+            required: e.required,
+            available: e.available,
+          }) + '\n\n' + t('pricing.insufficientCoins.subMessage'),
+          {
+            confirmText: t('pricing.insufficientCoins.goToPricing'),
+            cancelText: t('common.close'),
+          },
+        )
+        if (confirmed === 'confirm') {
+          router.push('/pricing')
+        }
+      } else {
+        logger.error('[FinishHimStore] Failed to load puzzle:', error)
+        feedbackMessage.value = t('finishHim.feedback.loadFailed')
+      }
       gameStore.setGamePhase('IDLE')
     }
   }
@@ -262,22 +176,22 @@ export const useFinishHimStore = defineStore('finishHim', () => {
     isProcessingGameOver.value = false
     gameStore.setGamePhase('LOADING')
     feedbackMessage.value = t('finishHim.feedback.yourTurnPlayout')
-    _clearTimer()
-
-    // Default time control for playout from opening: 5 min + 3 sec (Rapid)
-    outplayTimeRemainingMs.value = timeControls.rapid.initial
-    activeMode.value = 'rapid'
 
     gameStore.setupPuzzle(
       fen,
       [], // No scenario moves, just playout
       _handleGameOver,
       _checkWinCondition,
-      _startTimer,
+      () => { }, // No timer
       'finish-him',
       undefined,
       color,
     )
+  }
+
+  function setParams(theme: string, difficulty: AdvantageDifficulty) {
+    selectedTheme.value = theme
+    selectedDifficulty.value = difficulty
   }
 
   async function setThemeAndLoadPuzzle(theme: string) {
@@ -334,21 +248,14 @@ export const useFinishHimStore = defineStore('finishHim', () => {
     if (!activePuzzle.value || !authStore.userProfile) {
       return
     }
-    // Beacon replacement if possible, or just skip if not critical
-    // Ideally we should try to send failure.
-    // For now, we omit it as Beacon for JSON with custom DTO is complex without Blob support in backend
-    // and WebhookService.sendFinishHimStatsUpdateBeacon was custom.
-    // We can assume the user just abandoned the game.
   }
 
   return {
     gamePhase: computed(() => gameStore.gamePhase),
     activePuzzle,
-    activeMode,
-    outplayTimeRemainingMs,
-    formattedTimer,
     feedbackMessage,
     selectedTheme,
+    selectedDifficulty,
     initialize,
     loadNewPuzzle,
     startPlayoutFromFen,
@@ -356,7 +263,7 @@ export const useFinishHimStore = defineStore('finishHim', () => {
     handleRestart,
     handleExit,
     reset,
-    setMode,
+    setParams,
     setThemeAndLoadPuzzle,
     handleUnloadResignation,
   }

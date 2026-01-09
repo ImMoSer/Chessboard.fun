@@ -191,8 +191,19 @@
       "loss": "You lost!",
       "loadFailed": "Failed to load puzzle."
     },
+    "selection": {
+      "title": "Finish Him",
+      "subtitle": "Realize your advantage against the engine",
+      "themeLabel": "Endgame Theme"
+    },
     "error": {
       "puzzleNotFound": "Puzzle with ID {puzzleId} was not found or is unavailable."
+    },
+    "stats": {
+      "mode": "Mode",
+      "theme": "Theme",
+      "rating": "Our Rating",
+      "evaluation": "Our Evaluation"
     }
   },
 
@@ -549,6 +560,12 @@
     "costs": {
       "title": "Game Mode Costs",
       "funcoinLabel": "FunCoins"
+    },
+    "insufficientCoins": {
+      "title": "Insufficient FunCoins",
+      "message": "Starting this game requires {required} FunCoins. You currently have: {available}.",
+      "subMessage": "You can learn more about how to top up your balance on the pricing page.",
+      "goToPricing": "Go to Pricing"
     }
   },
   "about": {
@@ -770,7 +787,7 @@
     }
   },
   "themes": {
-    "auto": "Automatic (Smart Selection)",
+    "auto": "Automatic",
     "fork": "Fork",
     "pin": "Pin",
     "attraction": "Attraction",
@@ -805,7 +822,16 @@
     "knightVsBishop": "Knight vs Bishop",
     "pawnEndgame": "Pawn Endgame",
     "bishopVsKnight": "Bishop vs Knight",
-    "rookVsPawns": "Rook vs Pawns"
+    "rookVsPawns": "Rook vs Pawns",
+    "pawn": "Pawn",
+    "queen": "Queen",
+    "bishop": "Bishop",
+    "knight": "Knight",
+    "rookPawn": "Rook & Pawn",
+    "rookPieces": "Rooks & Pieces",
+    "queenPieces": "Queen & Pieces",
+    "knightBishop": "Knight & Bishop",
+    "expert": "Expert Discipline"
   },
   "openingTrainer": {
     "header": {
@@ -871,7 +897,8 @@
       "queen": { "name": "Queen", "icon": "♕" },
       "rookPawn": { "name": "Rook & Pawn", "icon": "♖♙" },
       "rookPieces": { "name": "Exchange", "icon": "♖♘♗" },
-      "knightBishop": { "name": "Knight & Bishop", "icon": "♘♗" }
+      "knightBishop": { "name": "Knight & Bishop", "icon": "♘♗" },
+      "queenPieces": { "name": "Queen & Pieces", "icon": "♕♘♗" }
     },
     "feedback": {
       "pressNext": "Press 'Play' to start.",

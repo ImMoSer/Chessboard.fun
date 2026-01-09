@@ -1,11 +1,9 @@
-<!-- src/views/TheoryEndingSelectionView.vue -->
+<!-- src/views/AdvantageSelectionView.vue -->
 <script setup lang="ts">
-import { useTheoryEndingsStore } from '@/stores/theoryEndings.store'
+import { useFinishHimStore } from '@/stores/finishHim.store'
 import {
-    THEORY_ENDING_CATEGORIES,
-    type TheoryEndingCategory,
-    type TheoryEndingDifficulty,
-    type TheoryEndingType,
+    type AdvantageDifficulty,
+    type AdvantageTheme
 } from '@/types/api.types'
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -13,45 +11,45 @@ import { useRouter } from 'vue-router'
 
 const { t } = useI18n()
 const router = useRouter()
-const theoryStore = useTheoryEndingsStore()
+const finishHimStore = useFinishHimStore()
 
-const selectedType = ref<TheoryEndingType>('win')
-const selectedDifficulty = ref<TheoryEndingDifficulty>('Novice')
-const selectedCategory = ref<TheoryEndingCategory>('pawn')
+const selectedDifficulty = ref<AdvantageDifficulty>('Novice')
+const selectedTheme = ref<AdvantageTheme | 'auto'>('auto')
 
-const difficultyLevels: TheoryEndingDifficulty[] = ['Novice', 'Pro', 'Master']
-const types: TheoryEndingType[] = ['win', 'draw']
+const difficultyLevels: AdvantageDifficulty[] = ['Novice', 'Pro', 'Master']
+
+const themesWithIcons: { key: AdvantageTheme | 'auto', icon?: string, isSvg?: boolean }[] = [
+    { key: 'auto' },
+    { key: 'pawn' },
+    { key: 'knight' },
+    { key: 'bishop' },
+    { key: 'rookPawn' },
+    { key: 'queen' },
+    { key: 'knightBishop' },
+    { key: 'rookPieces' },
+    { key: 'queenPieces' },
+    { key: 'expert', icon: '/svg/crown-svgrepo-com.svg', isSvg: true },
+]
 
 function handleStart() {
-    theoryStore.setParams(selectedType.value, selectedDifficulty.value, selectedCategory.value)
+    finishHimStore.setParams(selectedTheme.value, selectedDifficulty.value)
     router.push({
-        name: 'theory-endings-play',
+        name: 'finish-him-play',
     })
 }
 
 onMounted(() => {
-    theoryStore.reset()
+    finishHimStore.reset()
 })
 </script>
 
 <template>
-    <div class="theory-selection-container">
+    <div class="advantage-selection-container">
         <div class="glass-panel selection-card">
-            <h1 class="title">{{ t('theoryEndings.selection.title') }}</h1>
-            <p class="subtitle">{{ t('theoryEndings.selection.subtitle') }}</p>
+            <h1 class="title">{{ t('finishHim.selection.title') }}</h1>
+            <p class="subtitle">{{ t('finishHim.selection.subtitle') }}</p>
 
             <div class="selection-sections">
-                <!-- Type Selection -->
-                <div class="section">
-                    <label class="section-label">{{ t('theoryEndings.selection.typeLabel') }}</label>
-                    <div class="toggle-group">
-                        <button v-for="type in types" :key="type" class="toggle-btn"
-                            :class="{ active: selectedType === type }" @click="selectedType = type">
-                            {{ t(`theoryEndings.types.${type}`) }}
-                        </button>
-                    </div>
-                </div>
-
                 <!-- Difficulty Selection -->
                 <div class="section">
                     <label class="section-label">{{ t('theoryEndings.selection.difficultyLabel') }}</label>
@@ -63,14 +61,17 @@ onMounted(() => {
                     </div>
                 </div>
 
-                <!-- Category Selection -->
+                <!-- Theme Selection -->
                 <div class="section">
-                    <label class="section-label">{{ t('theoryEndings.selection.categoryLabel') }}</label>
+                    <label class="section-label">{{ t('finishHim.selection.themeLabel') }}</label>
                     <div class="category-grid">
-                        <button v-for="cat in THEORY_ENDING_CATEGORIES" :key="cat" class="category-btn"
-                            :class="{ active: selectedCategory === cat }" @click="selectedCategory = cat">
-                            <span class="cat-icon">{{ t(`theoryEndings.categories.${cat}.icon`) }}</span>
-                            <span class="cat-name">{{ t(`theoryEndings.categories.${cat}.name`) }}</span>
+                        <button v-for="theme in themesWithIcons" :key="theme.key" class="category-btn"
+                            :class="{ active: selectedTheme === theme.key }" @click="selectedTheme = theme.key">
+                            <span v-if="!theme.isSvg" class="cat-icon">
+                                {{ t(`theoryEndings.categories.${theme.key}.icon`, theme.key === 'auto' ? '✨' : '') }}
+                            </span>
+                            <img v-else :src="theme.icon" class="cat-icon-svg" alt="icon" />
+                            <span class="cat-name">{{ t(`themes.${theme.key}`) }}</span>
                         </button>
                     </div>
                 </div>
@@ -86,7 +87,7 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.theory-selection-container {
+.advantage-selection-container {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -96,7 +97,7 @@ onMounted(() => {
 
 .selection-card {
     width: 100%;
-    max-width: 600px;
+    max-width: 650px;
     padding: 40px;
     text-align: center;
     background: rgba(255, 255, 255, 0.05);
@@ -106,16 +107,18 @@ onMounted(() => {
 }
 
 .title {
-    font-size: 2rem;
+    font-size: 2.5rem;
     margin-bottom: 10px;
-    color: var(--color-accent-primary);
+    color: var(--color-accent-warning);
     font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
 .subtitle {
     color: var(--color-text-secondary);
     margin-bottom: 30px;
-    font-size: 1rem;
+    font-size: 1.1rem;
 }
 
 .selection-sections {
@@ -142,15 +145,15 @@ onMounted(() => {
 
 .toggle-group {
     display: flex;
-    background: rgba(0, 0, 0, 0.2);
-    padding: 4px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 6px;
     border-radius: 12px;
-    gap: 4px;
+    gap: 6px;
 }
 
 .toggle-btn {
     flex: 1;
-    padding: 10px;
+    padding: 12px;
     border: none;
     background: transparent;
     color: var(--color-text-secondary);
@@ -161,15 +164,15 @@ onMounted(() => {
 }
 
 .toggle-btn.active {
-    background: var(--color-accent-primary);
+    background: var(--color-accent-warning);
     color: var(--color-text-dark);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .category-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-    gap: 10px;
+    gap: 12px;
 }
 
 .category-btn {
@@ -180,31 +183,39 @@ onMounted(() => {
     padding: 15px;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
+    border-radius: 15px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .category-btn:hover {
     background: rgba(255, 255, 255, 0.08);
-    transform: translateY(-2px);
+    transform: translateY(-4px);
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
 .category-btn.active {
-    background: rgba(var(--color-accent-primary-rgb), 0.15);
-    border-color: var(--color-accent-primary);
+    background: rgba(var(--color-accent-warning-rgb), 0.15);
+    border-color: var(--color-accent-warning);
+    box-shadow: 0 0 15px rgba(var(--color-accent-warning-rgb), 0.2);
 }
 
 .cat-icon {
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     color: white;
-    text-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.cat-icon-svg {
+    width: 32px;
+    height: 32px;
+    filter: brightness(0) invert(1) drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));
 }
 
 .cat-name {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     color: var(--color-text-default);
-    font-weight: 500;
+    font-weight: 600;
 }
 
 .actions {
@@ -213,22 +224,23 @@ onMounted(() => {
 
 .start-btn {
     width: 100%;
-    padding: 15px;
+    padding: 18px;
     border: none;
-    border-radius: 12px;
-    background: linear-gradient(135deg, var(--color-accent-primary), var(--color-accent-secondary));
+    border-radius: 15px;
+    background: linear-gradient(135deg, var(--color-accent-warning), #ffa000);
     color: var(--color-text-dark);
-    font-size: 1.1rem;
+    font-size: 1.25rem;
     font-weight: 800;
     cursor: pointer;
     transition: all 0.3s ease;
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 3px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
 .start-btn:hover {
-    transform: scale(1.02);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    transform: scale(1.02) translateY(-2px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
 }
 
 @media (max-width: 480px) {
