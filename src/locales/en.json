@@ -477,8 +477,10 @@
         "tacticalTrainer": "Tactics"
       },
       "today": "Today",
-      "noData": "No data available for the selected period.",
-
+      "noData": "No data for the selected period.",
+      
+      "success": "Success",
+      "accuracy": "Accuracy",
       "attempts": "attempts",
       "puzzle": "Puzzle",
       "theoryThemes": "Endgame Themes"

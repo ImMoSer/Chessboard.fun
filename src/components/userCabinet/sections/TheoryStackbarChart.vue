@@ -118,8 +118,43 @@ const config = computed<VueUiStackbarConfig>(() => ({
         backgroundColor: '#2A2A2A',
         color: '#CCCCCC',
         borderColor: '#5A5A5A',
-        backgroundOpacity: 70,
-        roundingValue: 0
+        backgroundOpacity: 90,
+        roundingValue: 0,
+        customFormat: (data: { seriesIndex?: number; plotIndex?: number }) => {
+          const { seriesIndex, plotIndex } = data
+          if (seriesIndex === undefined || plotIndex === undefined) return ''
+
+          const theme = currentThemes.value[plotIndex]
+          const diff = difficulties[seriesIndex]
+          const type = props.mode === 'theory' ? activeType.value : 'win'
+          const key = `${type}/${diff}/${theme}`
+          
+          const stat = props.stats[key]
+          if (!stat) return ''
+
+          const accuracy = stat.requested > 0 
+            ? Math.round((stat.success / stat.requested) * 100) 
+            : 0
+
+          const themeName = t(`theoryEndings.categories.${theme}.name`)
+          const diffName = t(`theoryEndings.difficulties.${diff}`)
+
+          return `
+            <div style="padding: 8px; font-family: inherit;">
+              <div style="font-weight: bold; margin-bottom: 4px; border-bottom: 1px solid #5A5A5A; padding-bottom: 4px;">
+                ${themeName} (${diffName})
+              </div>
+              <div style="display: flex; justify-content: space-between; gap: 20px;">
+                <span>${t('userCabinet.stats.success')}:</span>
+                <span style="font-weight: bold; color: #42b883;">${stat.success} / ${stat.requested}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; gap: 20px; margin-top: 4px;">
+                <span>${t('userCabinet.stats.accuracy')}:</span>
+                <span style="font-weight: bold; color: ${accuracy > 70 ? '#42b883' : '#f39c12'};">${accuracy}%</span>
+              </div>
+            </div>
+          `
+        }
       },
       bars: {
         gap: 12,

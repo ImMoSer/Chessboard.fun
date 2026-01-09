@@ -469,11 +469,14 @@
 
         "tacticalTrainer": "Taktik"
       },
-      "noData": "Keine Daten für den ausgewählten Zeitraum verfügbar.",
+      "today": "Heute",
+      "noData": "Keine Daten für den gewählten Zeitraum.",
 
+      "success": "Erfolg",
+      "accuracy": "Genauigkeit",
       "attempts": "Versuche",
-      "puzzle": "Aufgabe",
-      "theoryThemes": "Endspielthemen"
+      "puzzle": "Rätsel",
+      "theoryThemes": "Endspiel-Themen"
     },
     "clubs": {
       "activityTitle": "Club-Aktivität",
