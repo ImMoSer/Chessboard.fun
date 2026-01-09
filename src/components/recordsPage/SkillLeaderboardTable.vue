@@ -29,6 +29,14 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 
+// Настройки ширины колонок для удобного редактирования
+const COLUMN_WIDTHS = {
+  rank: 25,
+  player: 180,
+  streak: 50,
+  score: 50 // Теперь это минимальная ширина для колонки с баром
+}
+
 const tierToPieceMap: Record<string, string> = {
   Pawn: 'wP.svg', Knight: 'wN.svg', Bishop: 'wB.svg', Rook: 'wR.svg', Queen: 'wQ.svg', King: 'wK.svg',
 }
@@ -61,11 +69,11 @@ const periodOptions = [
 
 const columns = computed<DataTableColumns<OverallSolvedLeaderboardEntry | SolveStreakLeaderboardEntry>>(() => {
   const cols: DataTableColumns<OverallSolvedLeaderboardEntry | SolveStreakLeaderboardEntry> = [
-    { title: t('records.table.rank'), key: 'rank', align: 'center', width: 50, render: (_, index) => index + 1 },
+    { title: t('records.table.rank'), key: 'rank', align: 'center', width: COLUMN_WIDTHS.rank, render: (_, index) => index + 1 },
     {
       title: t('records.table.player'),
       key: 'username',
-      minWidth: 200,
+      width: COLUMN_WIDTHS.player,
       ellipsis: { tooltip: true },
       render(row) {
         const icon = getSubscriptionIcon(row.subscriptionTier)
@@ -86,6 +94,7 @@ const columns = computed<DataTableColumns<OverallSolvedLeaderboardEntry | SolveS
       title: t('records.table.streakDays'),
       key: 'current_streak',
       align: 'center',
+      width: COLUMN_WIDTHS.streak,
       render: (row) => (row as SolveStreakLeaderboardEntry).current_streak
     })
   }
@@ -94,7 +103,7 @@ const columns = computed<DataTableColumns<OverallSolvedLeaderboardEntry | SolveS
     title: t('records.table.score'),
     key: 'total_score',
     align: 'right',
-    width: 140,
+    minWidth: COLUMN_WIDTHS.score,
     render(row) {
       const entry = row as OverallSolvedLeaderboardEntry | SolveStreakLeaderboardEntry
       const score = entry.total_score !== undefined ? entry.total_score : entry.total_solved
@@ -160,7 +169,7 @@ const columns = computed<DataTableColumns<OverallSolvedLeaderboardEntry | SolveS
 <style scoped>
 .records-card {
   background-color: var(--color-bg-secondary);
-  border-radius: 12px;
+  border-radius: 5px;
   border: 1px solid var(--color-border-hover);
   overflow: hidden;
   display: flex;
@@ -255,10 +264,10 @@ const columns = computed<DataTableColumns<OverallSolvedLeaderboardEntry | SolveS
 
 :deep(.skill-progress-bar) {
   display: flex;
-  width: 150px;
-  height: 12px;
+  width: 100%;
+  height: 24px;
   background-color: var(--color-bg-primary);
-  border-radius: 6px;
+  border-radius: 5px;
   overflow: hidden;
   border: 1px solid var(--color-border-hover);
 }
@@ -269,7 +278,7 @@ const columns = computed<DataTableColumns<OverallSolvedLeaderboardEntry | SolveS
 
 @media (max-width: 600px) {
   :deep(.skill-progress-bar) {
-    width: 60px;
+    max-width: 60vw;
   }
 }
 
@@ -277,7 +286,8 @@ const columns = computed<DataTableColumns<OverallSolvedLeaderboardEntry | SolveS
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 4px;
+  gap: 6px;
+  width: 100%;
 }
 
 

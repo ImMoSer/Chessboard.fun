@@ -107,7 +107,7 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
   flex-direction: column;
   gap: 25px;
   width: 95vw;
-  max-width: 1400px;
+  max-width: 1000px;
   margin: 20px auto;
 }
 
@@ -178,22 +178,6 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
   gap: 25px;
 }
 
-@media (min-width: 1200px) {
-  .records-page {
-    max-width: 1200px;
-    /* Слегка уменьшим для лучшей читаемости в одну колонку */
-  }
-
-  .section-grid {
-    grid-template-columns: 1fr;
-    /* Одна колонка для всех таблиц */
-  }
-
-  /* Отключаем многоколоночность для всех секций */
-  .records-section .section-grid {
-    grid-template-columns: 1fr;
-  }
-}
 
 @media (max-width: 768px) {
   .records-page {

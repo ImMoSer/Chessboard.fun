@@ -187,7 +187,7 @@ const swiperModules = [Navigation, Mousewheel, FreeMode]
 .category-ribbon {
   margin-bottom: 24px;
   position: relative;
-  padding: 0 40px;
+  padding: 0 5px;
   /* More space for swiper arrows */
 }
 
