@@ -1,9 +1,26 @@
 <!-- src/components/userCabinet/sections/TheoryStackbarChart.vue -->
 <script setup lang="ts">
 import { ref, computed, type PropType } from 'vue'
-import { VueUiStackbar, type VueUiStackbarConfig, type VueUiStackbarDatasetItem } from 'vue-data-ui'
-import 'vue-data-ui/style.css'
 import { useI18n } from 'vue-i18n'
+import { use } from 'echarts/core'
+import { CanvasRenderer } from 'echarts/renderers'
+import { BarChart } from 'echarts/charts'
+import {
+  GridComponent,
+  TooltipComponent,
+  LegendComponent,
+  TitleComponent
+} from 'echarts/components'
+import VChart from 'vue-echarts'
+
+use([
+  CanvasRenderer,
+  BarChart,
+  GridComponent,
+  TooltipComponent,
+  LegendComponent,
+  TitleComponent
+])
 
 const { t } = useI18n()
 
@@ -24,25 +41,28 @@ const props = defineProps({
 })
 
 const activeType = ref<'win' | 'draw'>('win')
+const difficulties = ['Novice', 'Pro', 'Master'] as const
 
-// Dynamically extract themes from stats keys
+const seriesColors = {
+  Novice: '#42b883', // Vue green
+  Pro: '#35495e',    // Vue dark blue
+  Master: '#f39c12'  // Orange
+}
+
+// Extract unique themes from keys
 const currentThemes = computed(() => {
   const themes = new Set<string>()
   const prefix = props.mode === 'theory' ? activeType.value : 'win'
   
-  Object.keys(props.stats).forEach(key => {
-    // Key format: "type/difficulty/theme"
-    if (key.startsWith(`${prefix}/`)) {
-      const parts = key.split('/')
-      const theme = parts[2]
-      if (parts.length === 3 && theme) {
-        themes.add(theme)
-      }
-    }
-  })
-
-  // Sort themes for consistent display
-  // We can provide a default order for known themes and put others at the end
+      Object.keys(props.stats).forEach(key => {
+        const parts = key.split('/')
+        if (parts.length === 3 && parts[0] === prefix) {
+          const theme = parts[2]
+          if (theme) {
+            themes.add(theme)
+          }
+        }
+      })
   const preferredOrder = [
     'pawn', 'knight', 'bishop', 'rookPawn', 'rookPieces', 'knightBishop', 'queen', 'queenPieces', 'expert'
   ]
@@ -57,160 +77,112 @@ const currentThemes = computed(() => {
   })
 })
 
-// Difficulties
-const difficulties = ['Novice', 'Pro', 'Master']
+const option = computed(() => {
+  const themes = currentThemes.value
+  const prefix = props.mode === 'theory' ? activeType.value : 'win'
 
-const config = computed<VueUiStackbarConfig>(() => ({
-  style: {
-    chart: {
+  return {
+    backgroundColor: 'transparent',
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'shadow'
+      },
       backgroundColor: '#2A2A2A',
-      color: '#CCCCCC',
-      fontFamily: 'inherit',
-      zoom: {
-        show: false
-      },
-      grid: {
-        x: {
-          axisColor: '#5A5A5A',
-          axisName: {
-            text: t('userCabinet.stats.theoryThemes'),
-            color: '#CCCCCC'
-          },
-          timeLabels: {
-            color: '#CCCCCC',
-            values: currentThemes.value.map(theme => {
-              // Try theoryEndings first, then global themes
-              const key = `theoryEndings.categories.${theme}.name`
-              const translated = t(key)
-              return translated !== key ? translated : t(`themes.${theme}`)
-            })
-          }
-        },
-        y: {
-          axisColor: '#5A5A5A',
-          axisName: {
-            text: '', // Removed "Versuche" label
-            color: '#CCCCCC'
-          },
-          axisLabels: {
-            color: '#CCCCCC'
-          }
-        }
-      },
-      highlighter: {
-        color: '#FFFFFF',
-        opacity: 5
-      },
-      legend: {
-        backgroundColor: '#2A2A2A',
-        color: '#CCCCCC',
-        fontSize: 14
-      },
-      title: {
-        text: '',
-        color: '#CCCCCC',
-        textAlign: 'left',
-        subtitle: {
-          text: ''
-        }
-      },
-      tooltip: {
-        backgroundColor: '#2A2A2A',
-        color: '#CCCCCC',
-        borderColor: '#5A5A5A',
-        backgroundOpacity: 90,
-        roundingValue: 0,
-        customFormat: (data: { seriesIndex?: number; plotIndex?: number }) => {
-          const { seriesIndex, plotIndex } = data
-          if (seriesIndex === undefined || plotIndex === undefined) return ''
-
-          const theme = currentThemes.value[plotIndex]
-          const diff = difficulties[seriesIndex]
-          const type = props.mode === 'theory' ? activeType.value : 'win'
-          const key = `${type}/${diff}/${theme}`
-          
+      borderColor: '#5A5A5A',
+      textStyle: { color: '#CCCCCC' },
+      formatter: (params: any) => {
+        const theme = themes[params[0].dataIndex]
+        const themeKey = `theoryEndings.categories.${theme}.name`
+        const translatedTheme = t(themeKey)
+        const themeName = translatedTheme !== themeKey ? translatedTheme : t(`themes.${theme}`)
+        
+        let html = `<div style="padding: 4px; min-width: 150px;">
+                      <b style="color: #FFFFFF; display: block; margin-bottom: 8px; border-bottom: 1px solid #5A5A5A; padding-bottom: 4px;">${themeName}</b>`
+        
+        params.forEach((item: any) => {
+          const diff = item.seriesName
+          const key = `${prefix}/${diff}/${theme}`
           const stat = props.stats[key]
-          if (!stat) return ''
-
-          const accuracy = stat.requested > 0 
-            ? Math.round((stat.success / stat.requested) * 100) 
-            : 0
-
-          const themeName = t(`theoryEndings.categories.${theme}.name`)
-          const diffName = t(`theoryEndings.difficulties.${diff}`)
-
-          return `
-            <div style="padding: 8px; font-family: inherit;">
-              <div style="font-weight: bold; margin-bottom: 4px; border-bottom: 1px solid #5A5A5A; padding-bottom: 4px;">
-                ${themeName} (${diffName})
-              </div>
-              <div style="display: flex; justify-content: space-between; gap: 20px;">
-                <span>${t('userCabinet.stats.success')}:</span>
-                <span style="font-weight: bold; color: #42b883;">${stat.success} / ${stat.requested}</span>
-              </div>
-              <div style="display: flex; justify-content: space-between; gap: 20px; margin-top: 4px;">
-                <span>${t('userCabinet.stats.accuracy')}:</span>
-                <span style="font-weight: bold; color: ${accuracy > 70 ? '#42b883' : '#f39c12'};">${accuracy}%</span>
-              </div>
-            </div>
-          `
-        }
-      },
-      bars: {
-        gap: 12,
-        borderRadius: 4,
-        totalValues: {
-          show: true,
-          color: '#CCCCCC',
-          fontSize: 16,
-          offsetY: -10
-        },
-        dataLabels: {
-          show: true,
-          color: '#CCCCCC'
-        }
+          if (stat && stat.requested > 0) {
+            const accuracy = Math.round((stat.success / stat.requested) * 100)
+            html += `
+              <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                <span style="color: ${item.color}; font-weight: bold;">${t(`theoryEndings.difficulties.${diff}`)}:</span>
+                <span style="color: #FFF;">${stat.success}/${stat.requested} (${accuracy}%)</span>
+              </div>`
+          }
+        })
+        return html + '</div>'
       }
-    }
-  },
-  table: {
-    show: false,
-    th: {
-      backgroundColor: '#2A2A2A',
-      color: '#CCCCCC',
-      outline: 'none'
     },
-    td: {
-      backgroundColor: '#2A2A2A',
-      color: '#CCCCCC',
-      outline: 'none'
-    }
-  },
-  userOptions: {
-    show: true
-  }
-}))
-
-const seriesColors = {
-  Novice: '#42b883', // Vue green
-  Pro: '#35495e',    // Vue dark blue
-  Master: '#f39c12'  // Orange
-}
-
-const dataset = computed<VueUiStackbarDatasetItem[]>(() => {
-  return difficulties.map(diff => {
-    const seriesData = currentThemes.value.map(theme => {
-      const type = props.mode === 'theory' ? activeType.value : 'win'
-      const key = `${type}/${diff}/${theme}`
-      return props.stats[key]?.requested || 0
-    })
-
-    return {
+    legend: {
+      data: difficulties.map(d => t(`theoryEndings.difficulties.${d}`)),
+      textStyle: { color: '#CCCCCC' },
+      bottom: 0
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '10%',
+      top: '5%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      data: themes.map(theme => {
+        const themeKey = `theoryEndings.categories.${theme}.name`
+        const translatedTheme = t(themeKey)
+        return translatedTheme !== themeKey ? translatedTheme : t(`themes.${theme}`)
+      }),
+      axisLabel: {
+        color: '#CCCCCC',
+        interval: 0,
+        rotate: themes.length > 6 ? 30 : 0
+      },
+      axisLine: { lineStyle: { color: '#5A5A5A' } }
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: { color: '#CCCCCC' },
+      axisLine: { lineStyle: { color: '#5A5A5A' } },
+      splitLine: { lineStyle: { color: '#444' } }
+    },
+    series: difficulties.map(diff => ({
       name: t(`theoryEndings.difficulties.${diff}`),
-      series: seriesData,
-      color: seriesColors[diff as keyof typeof seriesColors]
-    }
-  })
+      type: 'bar',
+      stack: 'total',
+      label: {
+        show: true,
+        formatter: (params: any) => {
+          return params.value > 0 ? params.value : ''
+        },
+        color: '#fff',
+        fontSize: 10
+      },
+      emphasis: {
+        focus: 'self'
+      },
+      itemStyle: {
+        color: seriesColors[diff]
+      },
+      data: themes.map(theme => {
+        const key = `${prefix}/${diff}/${theme}`
+        return props.stats[key]?.success || 0
+      })
+    }))
+  }
 })
+
+const onChartClick = (params: any) => {
+  // ECharts returns seriesName (difficulty) and name (theme label)
+  // We need to find the raw theme ID from the label or use dataIndex
+  const themeId = currentThemes.value[params.dataIndex]
+  const difficultyId = difficulties[params.seriesIndex] // difficulties order matches series order
+
+  console.log(`[ECharts Click] Mode: ${props.mode}, Type: ${activeType.value}, Theme: ${themeId}, Difficulty: ${difficultyId}`)
+  // emit('startTraining', { mode: props.mode, type: activeType.value, theme: themeId, difficulty: difficultyId })
+}
 </script>
 
 <template>
@@ -232,7 +204,7 @@ const dataset = computed<VueUiStackbarDatasetItem[]>(() => {
     </div>
 
     <div class="chart-wrapper">
-      <VueUiStackbar :config="config" :dataset="dataset" />
+      <v-chart class="chart" :option="option" @click="onChartClick" autoresize />
     </div>
   </div>
 </template>
@@ -246,7 +218,6 @@ const dataset = computed<VueUiStackbarDatasetItem[]>(() => {
   margin-top: 24px;
   border: 1px solid var(--color-border);
   box-sizing: border-box;
-  overflow: hidden;
 }
 
 .mode-advantage .theory-title {
@@ -262,11 +233,11 @@ const dataset = computed<VueUiStackbarDatasetItem[]>(() => {
   align-items: center;
   gap: 24px;
   flex-wrap: wrap;
+  margin-bottom: 16px;
 }
 
 .theory-title {
   margin: 0;
-  color: var(--color-accent-secondary);
   font-family: var(--font-family-primary);
   font-size: 1.5rem;
   font-weight: bold;
@@ -274,13 +245,12 @@ const dataset = computed<VueUiStackbarDatasetItem[]>(() => {
 
 .chart-wrapper {
   width: 100%;
-  min-height: 450px;
-  overflow: hidden;
+  height: 450px;
 }
 
-:deep(.vue-ui-stackbar) {
-  width: 100% !important;
-  font-family: var(--font-family-primary) !important;
+.chart {
+  width: 100%;
+  height: 100%;
 }
 
 @media (max-width: 600px) {
