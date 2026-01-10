@@ -63,26 +63,36 @@ onMounted(() => {
 
         <ActivityChart />
         
-        <!-- Tornado Stats Section -->
-        <ThemeRoseChart 
-          v-if="detailedStats && detailedStats.tornado"
-          v-model:activeMode="selectedTornadoMode"
-          :modes="['bullet', 'blitz', 'rapid', 'classic']"
-          :themes="currentTornadoThemes" 
-          :title="t('userCabinet.stats.modes.tornado')"
-        />
+        <div class="charts-grid">
+          <!-- Tornado Stats Section -->
+          <ThemeRoseChart 
+            v-if="detailedStats && detailedStats.tornado"
+            v-model:activeMode="selectedTornadoMode"
+            :modes="['bullet', 'blitz', 'rapid', 'classic']"
+            :themes="currentTornadoThemes" 
+            :title="t('userCabinet.stats.modes.tornado')"
+          />
 
-        <ThemeRoseChart 
-          v-if="detailedStats && detailedStats.advantage" 
-          :themes="detailedStats.advantage.themes" 
-          :title="t('userCabinet.stats.modes.advantage')" 
-        />
+          <ThemeRoseChart 
+            v-if="detailedStats && detailedStats.advantage" 
+            :themes="detailedStats.advantage.themes" 
+            :title="t('userCabinet.stats.modes.advantage')" 
+          />
+        </div>
 
-        <TheoryStackbarChart v-if="detailedStats && detailedStats.advantage" :stats="detailedStats.advantage.stats"
-          mode="advantage" />
+        <div class="charts-grid">
+          <TheoryStackbarChart 
+            v-if="detailedStats && detailedStats.advantage" 
+            :stats="detailedStats.advantage.stats"
+            mode="advantage" 
+          />
 
-        <TheoryStackbarChart v-if="detailedStats && detailedStats.theory" :stats="detailedStats.theory.stats"
-          mode="theory" />
+          <TheoryStackbarChart 
+            v-if="detailedStats && detailedStats.theory" 
+            :stats="detailedStats.theory.stats"
+            mode="theory" 
+          />
+        </div>
       </n-space>
     </div>
   </div>
@@ -91,8 +101,22 @@ onMounted(() => {
 <style scoped>
 .user-cabinet-container {
   padding: 24px;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 20px auto;
+}
+
+.charts-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+@media (min-width: 1200px) {
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
 }
 
 .state-container {
