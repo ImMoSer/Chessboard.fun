@@ -1,11 +1,11 @@
 <!-- src/components/userCabinet/sections/UserProfileHeader.vue -->
 <script setup lang="ts">
-import { computed, type Component } from 'vue'
 import { useAuthStore } from '@/stores/auth.store'
-import { storeToRefs } from 'pinia'
-import { useI18n } from 'vue-i18n'
 import type { TornadoMode } from '@/types/api.types'
-import { Flash, Timer, Calendar } from '@vicons/ionicons5'
+import { Calendar, Flash, Timer } from '@vicons/ionicons5'
+import { storeToRefs } from 'pinia'
+import { computed, type Component } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 const authStore = useAuthStore()
@@ -67,29 +67,28 @@ const tornadoScores = computed(() => {
     <div class="header-main-grid">
       <!-- Left side: User Profile Info -->
       <div class="profile-basic-info">
-        <div class="header-flex">
-          <div class="avatar-container">
-            <n-avatar round :size="80" :src="avatarUrl"
-              fallback-src="https://lichess1.org/assets/images/avatar_default.png" class="user-avatar" />
-          </div>
-
-          <div class="user-main-info">
-            <n-h1 class="username">{{ userProfile.username }}</n-h1>
-            <n-space size="small" align="center" wrap>
-              <n-tag :type="getTierType(userProfile.subscriptionTier)" round size="small">
-                {{ userProfile.subscriptionTier }}
-              </n-tag>
-              <n-text depth="3" class="expire-date">
-                {{ formatTierExpireDate(userProfile.TierExpire) }}
-              </n-text>
-            </n-space>
-          </div>
+        <div class="avatar-container">
+          <!-- KEEP CLEAR: No elements should be placed directly under the avatar -->
+          <n-avatar round :size="150" :src="avatarUrl"
+            fallback-src="https://lichess1.org/assets/images/avatar_default.png" class="user-avatar" />
         </div>
 
-        <div class="funcoins-stat">
-          <n-statistic :label="t('userCabinet.stats.funcoinsLabel')" :value="userProfile.FunCoins">
-            <template #prefix>🪙</template>
-          </n-statistic>
+        <div class="user-main-info">
+          <n-h1 class="username">{{ userProfile.username }}</n-h1>
+          <n-space size="small" align="center" wrap class="tier-info">
+            <n-tag :type="getTierType(userProfile.subscriptionTier)" round size="small">
+              {{ userProfile.subscriptionTier }}
+            </n-tag>
+            <n-text depth="3" class="expire-date">
+              {{ formatTierExpireDate(userProfile.TierExpire) }}
+            </n-text>
+          </n-space>
+
+          <div class="funcoins-stat">
+            <n-statistic :label="t('userCabinet.stats.funcoinsLabel')" :value="userProfile.FunCoins">
+              <template #prefix>🪙</template>
+            </n-statistic>
+          </div>
         </div>
       </div>
 
@@ -128,22 +127,21 @@ const tornadoScores = computed(() => {
 
 .profile-basic-info {
   display: flex;
-  flex-direction: column;
-}
-
-.header-flex {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 16px;
+  align-items: flex-start;
+  gap: 24px;
 }
 
 .avatar-container {
-  background-color: var(--color-bg-primary);
-  padding: 4px;
-  border-radius: 50%;
-  border: 2px solid var(--color-border-hover);
-  line-height: 0;
+
+  padding: 10px;
+  border-radius: 20%;
+  border: 1px solid var(--color-blue-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  box-sizing: border-box;
 }
 
 .user-avatar {
@@ -151,14 +149,22 @@ const tornadoScores = computed(() => {
 }
 
 .user-main-info {
-  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  min-height: 170px;
 }
 
 .username {
-  margin: 0 0 4px 0 !important;
+  margin: 0 0 8px 0 !important;
   font-family: var(--font-family-primary);
   color: var(--color-accent-primary);
-  font-size: 1.8rem;
+  font-size: 2.2rem;
+}
+
+.tier-info {
+  margin-bottom: 12px;
 }
 
 .expire-date {
@@ -166,7 +172,7 @@ const tornadoScores = computed(() => {
 }
 
 .funcoins-stat {
-  margin-top: auto;
+  margin-top: 4px;
 }
 
 .section-title {
@@ -217,5 +223,3 @@ const tornadoScores = computed(() => {
   font-weight: bold;
 }
 </style>
-
-
