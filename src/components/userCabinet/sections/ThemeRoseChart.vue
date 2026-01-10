@@ -11,6 +11,7 @@ import {
 } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
 import VChart from 'vue-echarts'
+import { ExpandOutline } from '@vicons/ionicons5'
 
 use([
   CanvasRenderer,
@@ -53,6 +54,7 @@ const emit = defineEmits<{
 }>()
 
 const viewMode = ref<'rating' | 'accuracy'>('rating')
+const showModal = ref(false)
 
 const formatMode = (mode: string) => {
   return mode.charAt(0).toUpperCase() + mode.slice(1)
@@ -142,7 +144,14 @@ const onChartClick = (params: any) => {
 <template>
   <div class="theme-rose-container">
     <div class="chart-header">
-      <h3 class="chart-title">{{ title }}</h3>
+      <div class="header-left-group">
+        <h3 class="chart-title">{{ title }}</h3>
+        <n-button quaternary circle size="small" @click="showModal = true" class="zoom-btn">
+          <template #icon>
+            <n-icon :component="ExpandOutline" />
+          </template>
+        </n-button>
+      </div>
       <n-radio-group v-model:value="viewMode" size="small">
         <n-radio-button value="rating">{{ t('userCabinet.analyticsTable.rating') }}</n-radio-button>
         <n-radio-button value="accuracy">{{ t('userCabinet.analyticsTable.accuracy') }}</n-radio-button>
@@ -164,6 +173,32 @@ const onChartClick = (params: any) => {
         </n-radio-button>
       </n-radio-group>
     </div>
+
+    <!-- Zoom Modal -->
+    <n-modal v-model:show="showModal" preset="card" class="zoom-modal" :title="title" style="width: 90vw; max-width: 1200px;">
+      <div class="modal-content">
+        <div class="modal-controls">
+           <n-radio-group v-model:value="viewMode" size="medium">
+            <n-radio-button value="rating">{{ t('userCabinet.analyticsTable.rating') }}</n-radio-button>
+            <n-radio-button value="accuracy">{{ t('userCabinet.analyticsTable.accuracy') }}</n-radio-button>
+          </n-radio-group>
+
+          <n-radio-group 
+            v-if="modes.length > 0"
+            :value="activeMode" 
+            @update:value="emit('update:activeMode', $event)"
+            size="medium"
+          >
+            <n-radio-button v-for="mode in modes" :key="mode" :value="mode">
+              {{ formatMode(mode) }}
+            </n-radio-button>
+          </n-radio-group>
+        </div>
+        <div class="modal-chart-wrapper">
+          <v-chart class="chart" :option="option" autoresize />
+        </div>
+      </div>
+    </n-modal>
   </div>
 </template>
 
@@ -188,12 +223,22 @@ const onChartClick = (params: any) => {
   gap: 16px;
 }
 
+.header-left-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .chart-title {
   margin: 0;
   color: var(--color-accent-primary);
   font-family: var(--font-family-primary);
   font-size: 1.25rem;
   font-weight: 600;
+}
+
+.zoom-btn {
+  color: var(--color-text-muted);
 }
 
 .chart-wrapper {
@@ -210,5 +255,29 @@ const onChartClick = (params: any) => {
   display: flex;
   justify-content: center;
   margin-top: 10px;
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.modal-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.modal-chart-wrapper {
+  width: 100%;
+  height: 70vh;
+  min-height: 500px;
+}
+
+:deep(.zoom-modal) {
+  background-color: var(--color-bg-tertiary);
 }
 </style>

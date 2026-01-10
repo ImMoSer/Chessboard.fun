@@ -12,6 +12,7 @@ import {
   TitleComponent
 } from 'echarts/components'
 import VChart from 'vue-echarts'
+import { ExpandOutline } from '@vicons/ionicons5'
 
 use([
   CanvasRenderer,
@@ -41,6 +42,7 @@ const props = defineProps({
 })
 
 const activeType = ref<'win' | 'draw'>('win')
+const showModal = ref(false)
 const difficulties = ['Novice', 'Pro', 'Master'] as const
 
 const seriesColors = {
@@ -54,15 +56,16 @@ const currentThemes = computed(() => {
   const themes = new Set<string>()
   const prefix = props.mode === 'theory' ? activeType.value : 'win'
   
-      Object.keys(props.stats).forEach(key => {
-        const parts = key.split('/')
-        if (parts.length === 3 && parts[0] === prefix) {
-          const theme = parts[2]
-          if (theme) {
-            themes.add(theme)
-          }
-        }
-      })
+  Object.keys(props.stats).forEach(key => {
+    const parts = key.split('/')
+    if (parts.length === 3 && parts[0] === prefix) {
+      const theme = parts[2]
+      if (theme) {
+        themes.add(theme)
+      }
+    }
+  })
+  
   const preferredOrder = [
     'pawn', 'knight', 'bishop', 'rookPawn', 'rookPieces', 'knightBishop', 'queen', 'queenPieces', 'expert'
   ]
@@ -178,13 +181,9 @@ const option = computed(() => {
 })
 
 const onChartClick = (params: any) => {
-  // ECharts returns seriesName (difficulty) and name (theme label)
-  // We need to find the raw theme ID from the label or use dataIndex
   const themeId = currentThemes.value[params.dataIndex]
-  const difficultyId = difficulties[params.seriesIndex] // difficulties order matches series order
-
+  const difficultyId = difficulties[params.seriesIndex]
   console.log(`[ECharts Click] Mode: ${props.mode}, Type: ${activeType.value}, Theme: ${themeId}, Difficulty: ${difficultyId}`)
-  // emit('startTraining', { mode: props.mode, type: activeType.value, theme: themeId, difficulty: difficultyId })
 }
 </script>
 
@@ -192,9 +191,16 @@ const onChartClick = (params: any) => {
   <div class="theory-chart-standalone" :class="`mode-${mode}`">
     <div class="chart-header">
       <div class="header-left">
-        <h3 class="theory-title">
-          {{ props.mode === 'theory' ? t('userCabinet.stats.modes.theory') : t('userCabinet.stats.modes.advantage') }}
-        </h3>
+        <div class="title-group">
+          <h3 class="theory-title">
+            {{ props.mode === 'theory' ? t('userCabinet.stats.modes.theory') : t('userCabinet.stats.modes.advantage') }}
+          </h3>
+          <n-button quaternary circle size="small" @click="showModal = true" class="zoom-btn">
+            <template #icon>
+              <n-icon :component="ExpandOutline" />
+            </template>
+          </n-button>
+        </div>
         <n-button-group v-if="mode === 'theory'">
           <n-button :type="activeType === 'win' ? 'primary' : 'default'" @click="activeType = 'win'" size="small">
             {{ t('theoryEndings.types.win') }}
@@ -209,6 +215,24 @@ const onChartClick = (params: any) => {
     <div class="chart-wrapper">
       <v-chart class="chart" :option="option" @click="onChartClick" autoresize />
     </div>
+
+    <!-- Zoom Modal -->
+    <n-modal v-model:show="showModal" preset="card" class="zoom-modal" 
+      :title="props.mode === 'theory' ? t('userCabinet.stats.modes.theory') : t('userCabinet.stats.modes.advantage')" 
+      style="width: 90vw; max-width: 1200px;"
+    >
+      <div class="modal-content">
+        <div class="modal-controls" v-if="mode === 'theory'">
+          <n-radio-group v-model:value="activeType" size="medium">
+            <n-radio-button value="win">{{ t('theoryEndings.types.win') }}</n-radio-button>
+            <n-radio-button value="draw">{{ t('theoryEndings.types.draw') }}</n-radio-button>
+          </n-radio-group>
+        </div>
+        <div class="modal-chart-wrapper">
+          <v-chart class="chart" :option="option" autoresize />
+        </div>
+      </div>
+    </n-modal>
   </div>
 </template>
 
@@ -231,12 +255,21 @@ const onChartClick = (params: any) => {
   color: var(--color-accent-secondary);
 }
 
+.chart-header {
+  margin-bottom: 16px;
+}
+
 .header-left {
   display: flex;
   align-items: center;
   gap: 24px;
   flex-wrap: wrap;
-  margin-bottom: 16px;
+}
+
+.title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .theory-title {
@@ -244,6 +277,10 @@ const onChartClick = (params: any) => {
   font-family: var(--font-family-primary);
   font-size: 1.5rem;
   font-weight: bold;
+}
+
+.zoom-btn {
+  color: var(--color-text-muted);
 }
 
 .chart-wrapper {
@@ -256,11 +293,32 @@ const onChartClick = (params: any) => {
   height: 100%;
 }
 
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.modal-controls {
+  display: flex;
+  justify-content: center;
+}
+
+.modal-chart-wrapper {
+  width: 100%;
+  height: 70vh;
+  min-height: 500px;
+}
+
 @media (max-width: 600px) {
   .header-left {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
   }
+}
+
+:deep(.zoom-modal) {
+  background-color: var(--color-bg-tertiary);
 }
 </style>

@@ -27,11 +27,6 @@ const currentTornadoThemes = computed(() => {
   return detailedStats.value.tornado.modes[selectedTornadoMode.value] || []
 })
 
-const currentTornadoHighScore = computed(() => {
-  if (!detailedStats.value?.tornado?.highScores) return 0
-  return detailedStats.value.tornado.highScores[selectedTornadoMode.value] || 0
-})
-
 onMounted(() => {
   userCabinetStore.initializePage()
 })
