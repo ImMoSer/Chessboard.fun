@@ -503,7 +503,8 @@
     },
     "detailedAnalytics": {
       "title": "Detailed Analytics",
-      "tornadoStats": "Tornado Themes Analysis"
+      "tornadoStats": "Tornado Themes Analysis",
+      "bestScore": "Best Score"
     },
     "analyticsTable": {
       "theme": "Theme",

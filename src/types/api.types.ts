@@ -611,7 +611,12 @@ export interface TornadoProfileDto {
     rapid: number
     classic: number
   }
-  themes: TornadoThemeStatDto[]
+  modes: {
+    bullet: TornadoThemeStatDto[]
+    blitz: TornadoThemeStatDto[]
+    rapid: TornadoThemeStatDto[]
+    classic: TornadoThemeStatDto[]
+  }
 }
 
 export interface AdvantageThemeStatDto {

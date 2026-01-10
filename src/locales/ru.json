@@ -503,7 +503,8 @@
     },
     "detailedAnalytics": {
       "title": "Детальная аналитика",
-      "tornadoStats": "Анализ тем Торнадо"
+      "tornadoStats": "Анализ тем Торнадо",
+      "bestScore": "Лучший результат"
     },
     "analyticsTable": {
       "theme": "Тема",

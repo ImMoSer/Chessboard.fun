@@ -37,10 +37,26 @@ const props = defineProps({
   title: {
     type: String,
     required: true
+  },
+  modes: {
+    type: Array as PropType<string[]>,
+    default: () => []
+  },
+  activeMode: {
+    type: String,
+    default: ''
   }
 })
 
+const emit = defineEmits<{
+  (e: 'update:activeMode', value: string): void
+}>()
+
 const viewMode = ref<'rating' | 'accuracy'>('rating')
+
+const formatMode = (mode: string) => {
+  return mode.charAt(0).toUpperCase() + mode.slice(1)
+}
 
 const chartData = computed(() => {
   return props.themes.map(item => {
@@ -132,8 +148,21 @@ const onChartClick = (params: any) => {
         <n-radio-button value="accuracy">{{ t('userCabinet.analyticsTable.accuracy') }}</n-radio-button>
       </n-radio-group>
     </div>
+
     <div class="chart-wrapper">
       <v-chart class="chart" :option="option" @click="onChartClick" autoresize />
+    </div>
+
+    <div v-if="modes.length > 0" class="chart-footer">
+      <n-radio-group 
+        :value="activeMode" 
+        @update:value="emit('update:activeMode', $event)"
+        size="small"
+      >
+        <n-radio-button v-for="mode in modes" :key="mode" :value="mode">
+          {{ formatMode(mode) }}
+        </n-radio-button>
+      </n-radio-group>
     </div>
   </div>
 </template>
@@ -146,15 +175,17 @@ const onChartClick = (params: any) => {
   padding: 20px;
   border: 1px solid var(--color-border);
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
 .chart-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 16px;
 }
 
 .chart-title {
@@ -162,6 +193,7 @@ const onChartClick = (params: any) => {
   color: var(--color-accent-primary);
   font-family: var(--font-family-primary);
   font-size: 1.25rem;
+  font-weight: 600;
 }
 
 .chart-wrapper {
@@ -172,5 +204,11 @@ const onChartClick = (params: any) => {
 .chart {
   width: 100%;
   height: 100%;
+}
+
+.chart-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
 }
 </style>

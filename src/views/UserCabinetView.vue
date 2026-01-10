@@ -1,10 +1,11 @@
 <!-- src/views/UserCabinetView.vue -->
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { storeToRefs } from 'pinia'
 import { useAuthStore } from '@/stores/auth.store'
 import { useUserCabinetStore } from '@/stores/userCabinet.store'
+import type { TornadoMode } from '@/types/api.types'
 
 import UserProfileHeader from '@/components/userCabinet/sections/UserProfileHeader.vue'
 import ActivityChart from '@/components/userCabinet/sections/ActivityChart.vue'
@@ -18,6 +19,18 @@ const { userProfile, isAuthenticated } = storeToRefs(authStore)
 
 const userCabinetStore = useUserCabinetStore()
 const { isLoading, error, detailedStats } = storeToRefs(userCabinetStore)
+
+const selectedTornadoMode = ref<TornadoMode>('blitz')
+
+const currentTornadoThemes = computed(() => {
+  if (!detailedStats.value?.tornado?.modes) return []
+  return detailedStats.value.tornado.modes[selectedTornadoMode.value] || []
+})
+
+const currentTornadoHighScore = computed(() => {
+  if (!detailedStats.value?.tornado?.highScores) return 0
+  return detailedStats.value.tornado.highScores[selectedTornadoMode.value] || 0
+})
 
 onMounted(() => {
   userCabinetStore.initializePage()
@@ -50,10 +63,13 @@ onMounted(() => {
 
         <ActivityChart />
         
+        <!-- Tornado Stats Section -->
         <ThemeRoseChart 
-          v-if="detailedStats && detailedStats.tornado" 
-          :themes="detailedStats.tornado.themes" 
-          :title="t('userCabinet.detailedAnalytics.tornadoStats')" 
+          v-if="detailedStats && detailedStats.tornado"
+          v-model:activeMode="selectedTornadoMode"
+          :modes="['bullet', 'blitz', 'rapid', 'classic']"
+          :themes="currentTornadoThemes" 
+          :title="t('userCabinet.stats.modes.tornado')"
         />
 
         <ThemeRoseChart 
