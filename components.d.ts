@@ -11,6 +11,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    ActivityChart: typeof import('./src/components/userCabinet/sections/ActivityChart.vue')['default']
     AnalysisPanel: typeof import('./src/components/AnalysisPanel.vue')['default']
     AnalyticsDisplay: typeof import('./src/components/userCabinet/AnalyticsDisplay.vue')['default']
     ChapterTemplateModal: typeof import('./src/components/study/ChapterTemplateModal.vue')['default']

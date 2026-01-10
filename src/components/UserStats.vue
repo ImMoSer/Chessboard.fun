@@ -12,7 +12,6 @@ import {
 } from 'naive-ui'
 import {
   WalletOutline,
-  TrendingUpOutline,
   RibbonOutline,
   GolfOutline,
   LockClosedOutline
@@ -110,17 +109,7 @@ const avatarUrl = computed(() => {
           <n-divider class="mini-divider" />
 
           <!-- Dynamic Rating (if applicable) -->
-          <div v-if="route.name === 'finish-him'" class="dynamic-rating-row">
-            <n-statistic :label="t('userCabinet.stats.finishHimRatingLabel')">
-              <template #prefix>
-                <n-icon color="#18a058">
-                  <TrendingUpOutline />
-                </n-icon>
-              </template>
-              {{ userProfile.finishHimRating?.rating || '-' }}
-            </n-statistic>
-          </div>
-          <div v-else-if="tornadoMode && tornadoHighScore !== null" class="dynamic-rating-row">
+          <div v-if="tornadoMode && tornadoHighScore !== null" class="dynamic-rating-row">
             <n-statistic :label="`${t('tornado.leaderboard.highScore')} (${tornadoMode})`">
               <template #prefix>
                 <n-icon color="#f0a020">

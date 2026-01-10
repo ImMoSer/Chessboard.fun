@@ -7,8 +7,7 @@ import { useAuthStore } from '@/stores/auth.store'
 import { useUserCabinetStore } from '@/stores/userCabinet.store'
 
 import UserProfileHeader from '@/components/userCabinet/sections/UserProfileHeader.vue'
-import TornadoHighScores from '@/components/userCabinet/sections/TornadoHighScores.vue'
-import GlobalActivityStats from '@/components/userCabinet/sections/GlobalActivityStats.vue'
+import ActivityChart from '@/components/userCabinet/sections/ActivityChart.vue'
 import TheoryStackbarChart from '@/components/userCabinet/sections/TheoryStackbarChart.vue'
 import ThemeRoseChart from '@/components/userCabinet/sections/ThemeRoseChart.vue'
 
@@ -49,15 +48,13 @@ onMounted(() => {
       <n-space vertical size="large">
         <UserProfileHeader />
 
-        <TornadoHighScores />
+        <ActivityChart />
         
         <ThemeRoseChart 
           v-if="detailedStats && detailedStats.tornado" 
           :themes="detailedStats.tornado.themes" 
           :title="t('userCabinet.detailedAnalytics.tornadoStats')" 
         />
-
-        <GlobalActivityStats />
 
         <ThemeRoseChart 
           v-if="detailedStats && detailedStats.advantage" 
