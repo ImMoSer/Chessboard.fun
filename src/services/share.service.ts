@@ -1,10 +1,10 @@
 // src/services/share.service.ts
-import logger from '../utils/logger'
-import type { EngineId, Color as ChessgroundColor } from '@/types/api.types'
 import { useUiStore } from '@/stores/ui.store'
+import type { Color as ChessgroundColor, EngineId } from '@/types/api.types'
+import logger from '../utils/logger'
 import i18n from './i18n'
 
-type ShareMode = 'finish-him' | 'tacktics' | 'sandbox'
+type ShareMode = 'finish-him' | 'tornado' | 'sandbox' | 'theory-endings'
 
 class ShareServiceController {
   /**
@@ -69,16 +69,22 @@ class ShareServiceController {
   public async share(
     mode: ShareMode,
     id: string,
-    engineId?: EngineId,
-    userColor?: ChessgroundColor,
+    options?: {
+      engineId?: EngineId
+      userColor?: ChessgroundColor
+      theoryType?: 'win' | 'draw'
+    },
   ): Promise<void> {
     const t = i18n.global.t
     let url = `${window.location.origin}/${mode}/${id}`
-    if (mode === 'sandbox') {
-      if (engineId && userColor) {
-        url = `${window.location.origin}/sandbox/play/${engineId}/${userColor}/${id}`
-      } else if (engineId) {
-        url = `${window.location.origin}/sandbox/play/${engineId}/${id}`
+
+    if (mode === 'theory-endings' && options?.theoryType) {
+      url = `${window.location.origin}/theory-endings/${options.theoryType}/${id}`
+    } else if (mode === 'sandbox') {
+      if (options?.engineId && options?.userColor) {
+        url = `${window.location.origin}/sandbox/play/${options.engineId}/${options.userColor}/${id}`
+      } else if (options?.engineId) {
+        url = `${window.location.origin}/sandbox/play/${options.engineId}/${id}`
       } else {
         url = `${window.location.origin}/sandbox/play/${id}`
       }

@@ -77,6 +77,13 @@ onMounted(() => {
                 </div>
             </div>
 
+            <div class="section engine-section">
+                <label class="section-label">{{ t('engine.select') }}</label>
+                <div class="engine-selector-wrapper">
+                    <EngineSelector />
+                </div>
+            </div>
+
             <div class="actions">
                 <button class="start-btn" @click="handleStart">
                     {{ t('theoryEndings.selection.start') }}
@@ -213,9 +220,28 @@ onMounted(() => {
 }
 
 .cat-name {
-    font-size: 0.85rem;
     color: var(--color-text-default);
     font-weight: 600;
+}
+
+.engine-section {
+    margin-top: -10px;
+    margin-bottom: 20px;
+}
+
+.engine-selector-wrapper {
+    width: 100%;
+    max-width: 100%;
+}
+
+.engine-selector-wrapper :deep(.engine-selector) {
+    max-width: 100%;
+}
+
+.engine-selector-wrapper :deep(.selector-toggle) {
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
 }
 
 .actions {

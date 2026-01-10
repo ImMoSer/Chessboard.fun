@@ -73,6 +73,13 @@ const router = createRouter({
       component: FinishHimView,
       meta: { isGame: true, requiresAuth: true, game: 'finish-him' },
     },
+    {
+      path: '/finish-him/:puzzleId',
+      redirect: (to) => ({
+        name: 'finish-him-puzzle',
+        params: { puzzleId: to.params.puzzleId },
+      }),
+    },
 
     {
       path: '/tornado',
@@ -142,10 +149,17 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
-      path: '/theory-endings/play',
+      path: '/theory-endings/play/:type?/:puzzleId?',
       name: 'theory-endings-play',
       component: () => import('../views/TheoryEndingView.vue'),
       meta: { isGame: true, requiresAuth: true, game: 'theory' },
+    },
+    {
+      path: '/theory-endings/:type(win|draw)/:puzzleId',
+      redirect: (to) => ({
+        name: 'theory-endings-play',
+        params: { type: to.params.type, puzzleId: to.params.puzzleId },
+      }),
     },
     {
       path: '/study',

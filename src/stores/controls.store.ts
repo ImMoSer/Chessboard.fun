@@ -1,6 +1,6 @@
 // src/stores/controls.store.ts
-import { ref } from 'vue'
 import { defineStore } from 'pinia'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import type { EngineId } from '../types/api.types'
 import logger from '../utils/logger'
@@ -32,8 +32,8 @@ export const useControlsStore = defineStore('controls', () => {
     } catch (error) {
       logger.error('[ControlsStore] Failed to load engine from localStorage', error)
     }
-    logger.info('[ControlsStore] No saved engine found, setting default: MOZER_1900')
-    return 'MOZER_1900'
+    logger.info('[ControlsStore] No saved engine found, setting default: MOZER_2000')
+    return 'MOZER_2000'
   }
 
   const selectedEngine = ref<EngineId>(loadSavedEngine())
@@ -117,7 +117,7 @@ export const useControlsStore = defineStore('controls', () => {
   }
 
   function setSandboxEngine() {
-    setEngine('SF_2200')
+    setEngine('MOZER_2000')
   }
 
   return {

@@ -1,5 +1,6 @@
 <!-- src/views/TheoryEndingSelectionView.vue -->
 <script setup lang="ts">
+import EngineSelector from '@/components/EngineSelector.vue'
 import { useTheoryEndingsStore } from '@/stores/theoryEndings.store'
 import {
     THEORY_ENDING_CATEGORIES,
@@ -26,6 +27,7 @@ function handleStart() {
     theoryStore.setParams(selectedType.value, selectedDifficulty.value, selectedCategory.value)
     router.push({
         name: 'theory-endings-play',
+        params: { type: selectedType.value }
     })
 }
 
@@ -60,6 +62,14 @@ onMounted(() => {
                             :class="{ active: selectedDifficulty === diff }" @click="selectedDifficulty = diff">
                             {{ t(`theoryEndings.difficulties.${diff}`) }}
                         </button>
+                    </div>
+                </div>
+
+                <!-- Engine Selection -->
+                <div class="section">
+                    <label class="section-label">{{ t('engine.title') || 'Engine' }}</label>
+                    <div class="engine-selector-wrapper">
+                        <EngineSelector />
                     </div>
                 </div>
 
@@ -130,6 +140,16 @@ onMounted(() => {
     flex-direction: column;
     gap: 12px;
     text-align: left;
+}
+
+.engine-selector-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.engine-selector-wrapper :deep(.engine-selector) {
+    max-width: 100%;
 }
 
 .section-label {

@@ -111,7 +111,7 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
         }
     }
 
-    async function loadNewPuzzle(puzzleId?: string) {
+    async function loadNewPuzzle(type?: TheoryEndingType, puzzleId?: string) {
         isProcessingGameOver.value = false
 
         if (analysisStore.isPanelVisible) {
@@ -124,27 +124,28 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
         try {
             let puzzle: TheoryEndingPuzzle | null = null
 
-            if (puzzleId) {
-                // We might want a fetchById although not strictly requested, it's good for restart
-                // For now, if puzzleId is passed, we just use the current activePuzzle if its ID matches
-                if (activePuzzle.value && activePuzzle.value.id === puzzleId) {
-                    puzzle = activePuzzle.value
-                } else {
-                    // Ideally call fetchById, but for now we skip this or implement in WebhookService
-                    // Let's assume we always have parameters if no puzzleId
-                }
+            if (puzzleId && type) {
+                puzzle = await webhookService.fetchTheoryPuzzleById(type, puzzleId)
             }
 
             if (!puzzle) {
-                if (!activeType.value || !activeDifficulty.value || !activeCategory.value) {
+                // If no specific puzzleId, use selection params
+                const targetType = type || activeType.value
+                const targetDifficulty = activeDifficulty.value
+                const targetCategory = activeCategory.value
+
+                if (!targetType || !targetDifficulty || !targetCategory) {
                     throw new Error('Params not selected for Theory Endings')
                 }
-                puzzle = await webhookService.fetchTheoryPuzzle(activeType.value, activeDifficulty.value, activeCategory.value)
+                puzzle = await webhookService.fetchTheoryPuzzle(targetType, targetDifficulty, targetCategory)
             }
 
             if (!puzzle) throw new Error('Puzzle data is null')
 
             activePuzzle.value = puzzle
+            activeType.value = puzzle.type // Ensure store state matches loaded puzzle type
+            activeDifficulty.value = puzzle.difficulty
+            activeCategory.value = puzzle.category
 
             // Determine human color
             let humanColor: 'white' | 'black'
@@ -220,10 +221,10 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
                 )
                 if (confirmed) {
                     gameStore.handleGameResignation()
-                    await loadNewPuzzle(activePuzzle.value.id)
+                    await loadNewPuzzle(activeType.value!, activePuzzle.value.id)
                 }
             } else {
-                await loadNewPuzzle(activePuzzle.value.id)
+                await loadNewPuzzle(activeType.value!, activePuzzle.value.id)
             }
         }
     }

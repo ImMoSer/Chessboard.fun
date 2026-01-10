@@ -20,22 +20,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import GameLayout from '../components/GameLayout.vue'
-import ControlPanel from '../components/ControlPanel.vue'
-import AnalysisPanel from '../components/AnalysisPanel.vue'
-import TopInfoPanel from '../components/TopInfoPanel.vue'
-import { useGameStore } from '../stores/game.store'
-import { useControlsStore } from '../stores/controls.store'
-import { useBoardStore } from '../stores/board.store'
-import { useAnalysisStore } from '../stores/analysis.store'
-import { shareService } from '../services/share.service'
-import { useAuthStore } from '@/stores/auth.store'
-import { useUiStore } from '@/stores/ui.store'
 import { isServerEngine } from '@/services/GameplayService'
 import i18n from '@/services/i18n'
-import type { EngineId, Color as ChessgroundColor } from '@/types/api.types'
+import { useAuthStore } from '@/stores/auth.store'
+import { useUiStore } from '@/stores/ui.store'
+import type { Color as ChessgroundColor, EngineId } from '@/types/api.types'
+import { ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import AnalysisPanel from '../components/AnalysisPanel.vue'
+import ControlPanel from '../components/ControlPanel.vue'
+import GameLayout from '../components/GameLayout.vue'
+import TopInfoPanel from '../components/TopInfoPanel.vue'
+import { shareService } from '../services/share.service'
+import { useAnalysisStore } from '../stores/analysis.store'
+import { useBoardStore } from '../stores/board.store'
+import { useControlsStore } from '../stores/controls.store'
+import { useGameStore } from '../stores/game.store'
 
 const route = useRoute()
 const router = useRouter()
@@ -163,7 +163,7 @@ watch(
         const urlFen = boardStore.fen.replace(/ /g, '_')
         const engineId = controlsStore.selectedEngine
         const userColor = route.params.userColor as ChessgroundColor | undefined
-        shareService.share('sandbox', urlFen, engineId, userColor)
+        shareService.share('sandbox', urlFen, { engineId, userColor })
       },
     })
   },

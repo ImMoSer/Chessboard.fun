@@ -244,6 +244,13 @@ class WebhookServiceController {
       'fetchTheoryStats',
     )
   }
+  public async fetchTheoryPuzzleById(
+    type: TheoryEndingType,
+    puzzleId: string,
+  ): Promise<TheoryEndingPuzzle | null> {
+    const path = `/theory-endings/puzzle/${type}/${puzzleId}`
+    return this._apiRequest<TheoryEndingPuzzle>(path, 'GET', 'fetchTheoryPuzzleById')
+  }
   // --- END THEORY ENDINGS API ---
 
 

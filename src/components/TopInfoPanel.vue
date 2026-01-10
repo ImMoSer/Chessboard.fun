@@ -56,9 +56,6 @@ const containerClass = computed(() => {
 
     <div v-if="
       [
-        'finish-him-play',
-        'finish-him-puzzle',
-
         'sandbox',
         'sandbox-with-engine',
         'sandbox-with-engine-and-color',
