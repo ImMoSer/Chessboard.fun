@@ -1,9 +1,9 @@
 <!-- src/components/userCabinet/sections/UserProfileHeader.vue -->
 <script setup lang="ts">
+import { useAuthStore } from '@/stores/auth.store'
+import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { storeToRefs } from 'pinia'
-import { useAuthStore } from '@/stores/auth.store'
 
 const { t } = useI18n()
 const authStore = useAuthStore()
@@ -109,7 +109,7 @@ const modeColors = {
 
 <style scoped>
 .header-card {
-  background-color: var(--color-bg-secondary);
+  background-color: var(--color-bg-tertiary);
   border-radius: 12px;
   border: 1px solid var(--color-border-hover);
 }
@@ -193,7 +193,7 @@ const modeColors = {
 }
 
 .today-progress-bar {
-  height: 10px;
+  height: 16px;
   background-color: var(--color-bg-primary);
   border-radius: 5px;
   overflow: hidden;

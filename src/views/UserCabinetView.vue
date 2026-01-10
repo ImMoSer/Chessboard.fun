@@ -10,7 +10,7 @@ import UserProfileHeader from '@/components/userCabinet/sections/UserProfileHead
 import TornadoHighScores from '@/components/userCabinet/sections/TornadoHighScores.vue'
 import GlobalActivityStats from '@/components/userCabinet/sections/GlobalActivityStats.vue'
 import TheoryStackbarChart from '@/components/userCabinet/sections/TheoryStackbarChart.vue'
-import TornadoDetailedStats from '@/components/userCabinet/sections/TornadoDetailedStats.vue'
+import ThemeRoseChart from '@/components/userCabinet/sections/ThemeRoseChart.vue'
 
 const { t } = useI18n()
 
@@ -50,9 +50,20 @@ onMounted(() => {
         <UserProfileHeader />
 
         <TornadoHighScores />
-        <TornadoDetailedStats v-if="detailedStats && detailedStats.tornado" :themes="detailedStats.tornado.themes" />
+        
+        <ThemeRoseChart 
+          v-if="detailedStats && detailedStats.tornado" 
+          :themes="detailedStats.tornado.themes" 
+          :title="t('userCabinet.detailedAnalytics.tornadoStats')" 
+        />
 
         <GlobalActivityStats />
+
+        <ThemeRoseChart 
+          v-if="detailedStats && detailedStats.advantage" 
+          :themes="detailedStats.advantage.themes" 
+          :title="t('userCabinet.stats.modes.advantage')" 
+        />
 
         <TheoryStackbarChart v-if="detailedStats && detailedStats.advantage" :stats="detailedStats.advantage.stats"
           mode="advantage" />

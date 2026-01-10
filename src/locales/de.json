@@ -890,10 +890,10 @@
         "queen": { "name": "Damen", "icon": "♕♙" },
         "rookPawn": { "name": "Turm & Bauer", "icon": "♖♙" },
         "rookPieces": { "name": "Qualität", "icon": "♖♘♗" },
-        "knightBishop": { "name": "Springer & Läufer", "icon": "♘♗" },
-        "queenPieces": { "name": "Dame & Figuren", "icon": "♕♘♗" }
-      },
-      "feedback": {
+              "knightBishop": { "name": "Springer & Läufer", "icon": "♘♗" },
+              "queenPieces": { "name": "Dame & Figuren", "icon": "♕♘♗" },
+              "expert": { "name": "Experte", "icon": "🎓" }
+            },      "feedback": {
         "pressNext": "Drücken Sie 'Spielen', um zu beginnen.",
         "win": "Gewonnen! Stellung verwertet.",
         "drawSuccess": "Remis erreicht! Hervorragende Verteidigung.",

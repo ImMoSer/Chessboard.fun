@@ -599,8 +599,8 @@ export interface LatestTeamBattleReport {
 
 export interface TornadoThemeStatDto {
   theme: string
-  attempts: number
-  accuracy: number
+  success: number
+  requested: number
   rating: number
 }
 
@@ -617,8 +617,8 @@ export interface TornadoProfileDto {
 export interface AdvantageThemeStatDto {
   theme: string
   rating: number
-  attempts: number
-  accuracy: number
+  success: number
+  requested: number
 }
 
 export interface AdvantageProfileDto {

@@ -88,7 +88,7 @@ const option = computed(() => {
       axisPointer: {
         type: 'shadow'
       },
-      backgroundColor: '#2A2A2A',
+      backgroundColor: '#2a2a2e', // Matching --color-bg-tertiary
       borderColor: '#5A5A5A',
       textStyle: { color: '#CCCCCC' },
       formatter: (params: any) => {
@@ -212,7 +212,7 @@ const onChartClick = (params: any) => {
 <style scoped>
 .theory-chart-standalone {
   width: 100%;
-  background-color: #2A2A2A;
+  background-color: var(--color-bg-tertiary);
   border-radius: 12px;
   padding: 20px;
   margin-top: 24px;

@@ -906,7 +906,8 @@
       "rookPawn": { "name": "Rook & Pawn", "icon": "♖♙" },
       "rookPieces": { "name": "Exchange", "icon": "♖♘♗" },
       "knightBishop": { "name": "Knight & Bishop", "icon": "♘♗" },
-      "queenPieces": { "name": "Queen & Pieces", "icon": "♕♘♗" }
+      "queenPieces": { "name": "Queen & Pieces", "icon": "♕♘♗" },
+      "expert": { "name": "Expert Level", "icon": "🎓" }
     },
     "feedback": {
       "pressNext": "Press 'Play' to start.",
