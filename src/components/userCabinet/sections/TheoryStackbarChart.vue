@@ -89,6 +89,8 @@ const option = computed(() => {
         type: 'shadow'
       },
       appendTo: 'body',
+      confine: true,
+      triggerOn: 'mousemove|click',
       backgroundColor: '#2a2a2e', // Matching --color-bg-tertiary
       borderColor: '#5A5A5A',
       textStyle: { color: '#CCCCCC' },
