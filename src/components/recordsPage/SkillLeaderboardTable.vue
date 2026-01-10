@@ -1,15 +1,32 @@
 <!-- src/components/recordsPage/SkillLeaderboardTable.vue -->
 <script setup lang="ts">
+import { computed, type PropType } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { use } from 'echarts/core'
+import { CanvasRenderer } from 'echarts/renderers'
+import { BarChart } from 'echarts/charts'
+import {
+  GridComponent,
+  TooltipComponent,
+  LegendComponent,
+  TitleComponent
+} from 'echarts/components'
+import VChart from 'vue-echarts'
 import type {
   OverallSolvedLeaderboardEntry,
   SkillPeriod,
   SolveStreakLeaderboardEntry,
-  SolvedByMode,
 } from '@/types/api.types'
-import type { DataTableColumns } from 'naive-ui'
-import { computed, h, type PropType } from 'vue'
-import { useI18n } from 'vue-i18n'
 import InfoIcon from '../InfoIcon.vue'
+
+use([
+  CanvasRenderer,
+  BarChart,
+  GridComponent,
+  TooltipComponent,
+  LegendComponent,
+  TitleComponent
+])
 
 const props = defineProps({
   title: { type: String, required: true },
@@ -29,36 +46,11 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 
-// Настройки ширины колонок для удобного редактирования
-const COLUMN_WIDTHS = {
-  rank: 25,
-  player: 180,
-  streak: 50,
-  score: 50 // Теперь это минимальная ширина для колонки с баром
-}
-
-const tierToPieceMap: Record<string, string> = {
-  Pawn: 'wP.svg', Knight: 'wN.svg', Bishop: 'wB.svg', Rook: 'wR.svg', Queen: 'wQ.svg', King: 'wK.svg',
-}
-
-const skillModes: { key: keyof SolvedByMode; nameKey: string; color: string }[] = [
-  { key: 'advantage', nameKey: 'userCabinet.stats.modes.finishHim', color: 'var(--color-accent-primary)' },
-  { key: 'tornado', nameKey: 'nav.tornado', color: 'var(--color-accent-secondary)' },
-  { key: 'theory', nameKey: 'userCabinet.stats.modes.theory', color: 'var(--color-violett-lichess)' },
-]
-
-const getSubscriptionIcon = (tier?: string) => {
-  if (!tier || !tierToPieceMap[tier]) return null
-  return `/piece/alpha/${tierToPieceMap[tier]}`
-}
-
-const localResetTimeMessage = computed(() => {
-  if (!props.showTimer) return ''
-  const now = new Date()
-  const tomorrowUTC = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1))
-  const localTime = tomorrowUTC.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
-  return t('userCabinet.stats.activity.titleWithTime', { time: localTime })
-})
+const skillModes = [
+  { key: 'advantage', nameKey: 'userCabinet.stats.modes.advantage', color: '#42b883' }, // Green
+  { key: 'tornado', nameKey: 'userCabinet.stats.modes.tornado', color: '#f39c12' },   // Orange
+  { key: 'theory', nameKey: 'userCabinet.stats.modes.theory', color: '#9b59b6' },     // Purple
+] as const
 
 const periodOptions = [
   { label: t('userCabinet.stats.periods.week'), value: '7' },
@@ -67,69 +59,117 @@ const periodOptions = [
   { label: t('userCabinet.stats.periods.month'), value: '30' },
 ]
 
-const columns = computed<DataTableColumns<OverallSolvedLeaderboardEntry | SolveStreakLeaderboardEntry>>(() => {
-  const cols: DataTableColumns<OverallSolvedLeaderboardEntry | SolveStreakLeaderboardEntry> = [
-    { title: t('records.table.rank'), key: 'rank', align: 'center', width: COLUMN_WIDTHS.rank, render: (_, index) => index + 1 },
-    {
-      title: t('records.table.player'),
-      key: 'username',
-      width: COLUMN_WIDTHS.player,
-      ellipsis: { tooltip: true },
-      render(row) {
-        const icon = getSubscriptionIcon(row.subscriptionTier)
-        return h('div', { style: { display: 'flex', alignItems: 'center' } }, [
-          icon ? h('img', { src: icon, style: { height: '24px', marginRight: '8px' } }) : null,
-          h('n-a', {
-            href: `https://lichess.org/@/${row.lichess_id}`,
-            target: '_blank',
-            style: { fontWeight: 'bold' }
-          }, row.username)
-        ])
+const chartOption = computed(() => {
+  const displayEntries = [...props.entries].slice(0, 20).reverse()
+  
+  return {
+    backgroundColor: 'transparent',
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'shadow' },
+      appendTo: 'body',
+      confine: true,
+      triggerOn: 'mousemove|click', // Better for touch devices
+      backgroundColor: '#2a2a2e',
+      borderColor: '#5A5A5A',
+      textStyle: { color: '#CCCCCC' },
+      formatter: (params: any) => {
+        const entry = displayEntries[params[0].dataIndex]
+        if (!entry) return ''
+        
+        let html = `<div style="padding: 4px; min-width: 150px;">
+                      <b style="color: #FFFFFF; display: block; margin-bottom: 8px; border-bottom: 1px solid #5A5A5A; padding-bottom: 4px;">${entry.username}</b>`
+        
+        params.forEach((item: any) => {
+          if (item.value > 0) {
+            html += `
+              <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                <span style="color: ${item.color}; font-weight: bold;">${item.seriesName}:</span>
+                <span style="color: #FFF; margin-left: 12px;">${item.value}</span>
+              </div>`
+          }
+        })
+        const total = (entry as any).total_score !== undefined ? (entry as any).total_score : (entry as any).total_solved
+        html += `<div style="margin-top: 8px; border-top: 1px solid #5A5A5A; padding-top: 4px; text-align: right;">
+                   <b>Total: ${total}</b>
+                 </div></div>`
+        return html
       }
-    }
-  ]
-
-  if (props.showStreak) {
-    cols.push({
-      title: t('records.table.streakDays'),
-      key: 'current_streak',
-      align: 'center',
-      width: COLUMN_WIDTHS.streak,
-      render: (row) => (row as SolveStreakLeaderboardEntry).current_streak
-    })
+    },
+    grid: {
+      left: '3%',
+      right: '12%', // Extra space for labels at the end
+      bottom: '3%',
+      top: '5%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'value',
+      show: false, // Hide X axis for a cleaner look
+      splitLine: { show: false }
+    },
+    yAxis: {
+      type: 'category',
+      triggerEvent: true, // Enables click events on axis labels
+      data: displayEntries.map((e, idx) => {
+        const rank = props.entries.length - (displayEntries.length - 1 - idx)
+        const streak = props.showStreak && 'current_streak' in e ? ` (${e.current_streak}🔥)` : ''
+        return `${rank}. ${e.username}${streak}`
+      }),
+      axisLabel: {
+        color: '#CCC',
+        fontSize: 12,
+        fontWeight: 'bold'
+      },
+      axisLine: { show: false },
+      axisTick: { show: false }
+    },
+    series: skillModes.map((mode, modeIdx) => ({
+      name: t(mode.nameKey),
+      type: 'bar',
+      stack: 'total',
+      barWidth: 24, // Fixed bar thickness
+      itemStyle: {
+        color: mode.color
+      },
+      label: {
+        show: modeIdx === skillModes.length - 1, // Show only on the last segment (the end of the bar)
+        position: 'right',
+        distance: 10,
+        color: '#f39c12',
+        fontWeight: 'bold',
+        fontSize: 14,
+        formatter: (params: any) => {
+          const entry = displayEntries[params.dataIndex]
+          if (!entry) return ''
+          return (entry as any).total_score !== undefined ? (entry as any).total_score : (entry as any).total_solved
+        }
+      },
+      data: displayEntries.map(e => (e.solved_by_mode ? e.solved_by_mode[mode.key] || 0 : 0))
+    }))
   }
-
-  cols.push({
-    title: t('records.table.score'),
-    key: 'total_score',
-    align: 'right',
-    minWidth: COLUMN_WIDTHS.score,
-    render(row) {
-      const entry = row as OverallSolvedLeaderboardEntry | SolveStreakLeaderboardEntry
-      const score = entry.total_score !== undefined ? entry.total_score : entry.total_solved
-
-      return h('div', { class: 'solved-column-wrapper' }, [
-        h('span', { class: 'total-score' }, score),
-        entry.solved_by_mode && (entry.total_score || 0) > 0 ? h('div', { class: 'skill-progress-bar' },
-          skillModes.map(mode => {
-            const val = entry.solved_by_mode[mode.key] || 0
-            const total = entry.total_score || entry.total_solved || 1 // Fallback to avoid div by zero
-            const width = (val / total) * 100
-
-            if (width <= 0) return null
-            return h('div', {
-              class: ['skill-bar-segment', mode.key],
-              style: { width: `${width}%`, backgroundColor: mode.color },
-              title: `${t(mode.nameKey)}: ${val}`
-            })
-          })
-        ) : null
-      ])
-    }
-  })
-
-  return cols
 })
+
+// Dynamic height calculation: 45px per entry + 40px padding
+const dynamicHeight = computed(() => {
+  const count = Math.max(props.entries.length, 1)
+  const displayCount = Math.min(count, 20)
+  return `${displayCount * 45 + 40}px`
+})
+
+const onChartClick = (params: any) => {
+  // Only redirect if clicking on the Y-axis labels (username)
+  // or if explicitly clicking on the name part of the data
+  if (params.componentType === 'yAxis' || params.componentType === 'series') {
+    const entry = [...props.entries].slice(0, 20).reverse()[params.dataIndex]
+    
+    // On mobile, first touch shows tooltip. 
+    // We can decide to only redirect if clicking the Y-axis (the name)
+    if (params.componentType === 'yAxis' && entry && entry.lichess_id) {
+      window.open(`https://lichess.org/@/${entry.lichess_id}`, '_blank')
+    }
+  }
+}
 </script>
 
 <template>
@@ -139,10 +179,6 @@ const columns = computed<DataTableColumns<OverallSolvedLeaderboardEntry | SolveS
         {{ title }}
         <InfoIcon v-if="infoTopic" :topic="infoTopic" />
       </h3>
-    </div>
-
-    <div v-if="showTimer" class="timer-banner">
-      {{ localResetTimeMessage }}
     </div>
 
     <n-space vertical class="controls-area" :size="12">
@@ -161,46 +197,40 @@ const columns = computed<DataTableColumns<OverallSolvedLeaderboardEntry | SolveS
       </div>
     </n-space>
 
-    <n-data-table :columns="columns" :data="entries" :loading="isLoading" :row-key="(row: any) => row.lichess_id"
-      size="small" striped class="records-table" />
+    <div class="chart-container" :class="{ 'is-loading': isLoading }" :style="{ height: dynamicHeight }">
+      <v-chart v-if="entries.length > 0" class="chart" :option="chartOption" @click="onChartClick" autoresize />
+      <n-empty v-else :description="t('userCabinet.stats.noData')" />
+      <div v-if="isLoading" class="loading-overlay">
+        <n-spin size="large" />
+      </div>
+    </div>
   </div>
 </template>
 
 <style scoped>
 .records-card {
   background-color: var(--color-bg-secondary);
-  border-radius: 5px;
+  border-radius: 8px;
   border: 1px solid var(--color-border-hover);
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  transition: all 0.3s ease;
 }
 
 .card-header {
-  padding: 10px;
+  padding: 12px;
   border-bottom: 1px solid var(--color-border-hover);
 }
 
-/* Цвета из оригинала */
-.skillStreak .card-header {
-  background-color: var(--color-accent-success);
-}
-
-.skillStreakMega .card-header {
-  background-color: var(--color-violett-lichess);
-}
-
-.topToday .card-header {
-  background-color: var(--color-accent-warning);
-}
-
-.overallSkill .card-header {
-  background-color: var(--color-accent-primary);
-}
+.skillStreak .card-header { background-color: var(--color-accent-success); }
+.skillStreakMega .card-header { background-color: var(--color-violett-lichess); }
+.topToday .card-header { background-color: var(--color-accent-warning); }
+.overallSkill .card-header { background-color: var(--color-accent-primary); }
 
 .card-title {
   color: var(--color-bg-primary);
-  font-size: var(--font-size-large);
+  font-size: 1.2rem;
   margin: 0;
   text-align: center;
   font-weight: bold;
@@ -210,22 +240,9 @@ const columns = computed<DataTableColumns<OverallSolvedLeaderboardEntry | SolveS
   gap: 10px;
 }
 
-.timer-banner {
-  text-align: center;
-  font-size: var(--font-size-small);
-  color: var(--color-text-muted);
-  background-color: var(--color-bg-tertiary);
-  padding: 4px;
-}
-
 .controls-area {
   background-color: var(--color-bg-tertiary);
   padding: 12px;
-}
-
-.filter-row {
-  display: flex;
-  justify-content: center;
 }
 
 .legend-item {
@@ -241,70 +258,37 @@ const columns = computed<DataTableColumns<OverallSolvedLeaderboardEntry | SolveS
 }
 
 .legend-item .label {
-  font-size: var(--font-size-small);
+  font-size: 0.85rem;
   color: var(--color-text-muted);
 }
 
-.records-table {
-  --n-td-color-striped: var(--color-bg-tertiary);
-}
-
-:deep(.n-data-table-th) {
-  background-color: var(--color-bg-tertiary) !important;
-  color: var(--color-text-muted) !important;
-  font-family: var(--font-family-primary);
-  white-space: nowrap;
-}
-
-:deep(.n-data-table-td) {
-  font-family: var(--font-family-primary);
-  font-size: 1.05rem;
-  padding: 12px 8px !important;
-}
-
-:deep(.skill-progress-bar) {
-  display: flex;
+.chart-container {
   width: 100%;
-  height: 24px;
-  background-color: var(--color-bg-primary);
-  border-radius: 5px;
-  overflow: hidden;
-  border: 1px solid var(--color-border-hover);
+  position: relative;
+  background-color: var(--color-bg-secondary);
+  padding: 10px 0;
 }
 
-.skill-bar-segment {
+.chart {
+  width: 100%;
   height: 100%;
 }
 
-@media (max-width: 600px) {
-  :deep(.skill-progress-bar) {
-    max-width: 60vw;
-  }
-}
-
-.solved-column-wrapper {
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 6px;
-  width: 100%;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
 }
 
-
-.total-score {
-  font-weight: 900;
-  font-size: 1.2rem;
-  color: var(--color-accent-warning);
-  text-shadow: 0 0 10px rgba(255, 179, 0, 0.2);
-}
-
-.total-solved {
-  color: var(--color-text-muted);
-  font-size: 0.9em;
-}
-
-.total-solved::after {
-  content: " ✓";
-  opacity: 0.7;
+.is-loading {
+  filter: blur(1px);
+  pointer-events: none;
 }
 </style>

@@ -88,6 +88,7 @@ const option = computed(() => {
       axisPointer: {
         type: 'shadow'
       },
+      appendTo: 'body',
       backgroundColor: '#2a2a2e', // Matching --color-bg-tertiary
       borderColor: '#5A5A5A',
       textStyle: { color: '#CCCCCC' },
