@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { computed, ref, nextTick } from 'vue'
 import type { PgnNode } from '@/services/PgnService'
 import { pgnService, pgnTreeVersion } from '@/services/PgnService'
 import { useBoardStore } from '@/stores/board.store'
-import { NDropdown, NModal, NInput } from 'naive-ui'
+import { NDropdown, NInput, NModal } from 'naive-ui'
+import { computed, nextTick, ref } from 'vue'
 
 const props = withDefaults(defineProps<{
   node: PgnNode
@@ -147,6 +147,50 @@ const handleSelect = (key: string) => {
   }
 }
 
+const toggleCollapse = () => {
+  pgnService.toggleNodeCollapse(props.node)
+}
+
+const showToggleDropdown = ref(false)
+const tx = ref(0)
+const ty = ref(0)
+
+const handleToggleContextMenu = (e: MouseEvent) => {
+  e.preventDefault()
+  e.stopPropagation()
+  showToggleDropdown.value = false
+  nextTick().then(() => {
+    showToggleDropdown.value = true
+    tx.value = e.clientX
+    ty.value = e.clientY
+  })
+}
+
+const toggleOptions = [
+  { label: 'Collapse ALL variants', key: 'collapse-global' },
+  { label: 'Expand ALL variants', key: 'expand-global' },
+  { label: 'Collapse this branch', key: 'collapse-all' },
+  { label: 'Expand this branch', key: 'expand-all' }
+]
+
+const handleToggleSelect = (key: string) => {
+  showToggleDropdown.value = false
+  if (key === 'collapse-global') {
+    pgnService.setCollapseGlobal(true)
+  } else if (key === 'expand-global') {
+    pgnService.setCollapseGlobal(false)
+  } else if (key === 'collapse-all') {
+    pgnService.setCollapseRecursive(props.node, true)
+  } else if (key === 'expand-all') {
+    pgnService.setCollapseRecursive(props.node, false)
+  }
+}
+
+const isCollapsed = computed(() => {
+  const v = pgnTreeVersion.value
+  return props.node.isCollapsed
+})
+
 // --- comment modal logic ---
 const showCommentModal = ref(false)
 const commentText = ref('')
@@ -162,19 +206,19 @@ const saveComment = () => {
 
 // --- eval formatting ---
 const formatEval = (val: number) => {
-    if (Math.abs(val) > 10000) {
-        // Mate
-        const moves = Math.abs(val) - 100000;
-        return (val > 0 ? '#' : '-#') + moves;
-    }
-    const cp = val / 100;
-    return (cp > 0 ? '+' : '') + cp.toFixed(1);
+  if (Math.abs(val) > 10000) {
+    // Mate
+    const moves = Math.abs(val) - 100000;
+    return (val > 0 ? '#' : '-#') + moves;
+  }
+  const cp = val / 100;
+  return (cp > 0 ? '+' : '') + cp.toFixed(1);
 }
 
 const getEvalClass = (val: number) => {
-    if (val > 0.5) return 'pos-white';
-    if (val < -0.5) return 'pos-black';
-    return '';
+  if (val > 0.5) return 'pos-white';
+  if (val < -0.5) return 'pos-black';
+  return '';
 }
 </script>
 
@@ -197,7 +241,8 @@ export default {
         <span class="san-text">{{ node.san }}</span>
         <span v-if="node.nag" class="nag-text">{{ nagMap[node.nag] }}</span>
         <span v-if="node.comment" class="comment-indicator" :title="node.comment">💬</span>
-        <span v-if="node.eval !== undefined" class="eval-tag" :class="getEvalClass(node.eval)">{{ formatEval(node.eval) }}</span>
+        <span v-if="node.eval !== undefined" class="eval-tag" :class="getEvalClass(node.eval)">{{ formatEval(node.eval)
+        }}</span>
       </span>
     </template>
 
@@ -208,10 +253,17 @@ export default {
 
       <!-- B. Render alternatives to that next move -->
       <div v-if="variations.length > 0" class="variations-container">
-        <div v-for="variant in variations" :key="variant.id" class="variation-line">
-          <span class="variation-brace">(</span>
-          <StudyTreeNode :node="variant" mode="all" :depth="depth + 1" :force-number="true" />
-          <span class="variation-brace">)</span>
+        <n-dropdown trigger="manual" :show="showToggleDropdown" :options="toggleOptions" :x="tx" :y="ty"
+          @clickoutside="showToggleDropdown = false" @select="handleToggleSelect" />
+        <button class="collapse-toggle" @click.stop="toggleCollapse" @contextmenu="handleToggleContextMenu">
+          {{ isCollapsed ? '+' : '-' }}
+        </button>
+        <div v-show="!isCollapsed" class="variations-list">
+          <div v-for="variant in variations" :key="variant.id" class="variation-line">
+            <span class="variation-brace">(</span>
+            <StudyTreeNode :node="variant" mode="all" :depth="depth + 1" :force-number="true" />
+            <span class="variation-brace">)</span>
+          </div>
         </div>
       </div>
 
@@ -284,13 +336,39 @@ export default {
 }
 
 .variations-container {
+  display: inline-flex;
+  align-items: flex-start;
+  margin: 0 4px;
+  vertical-align: middle;
+}
+
+.collapse-toggle {
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  border-radius: 3px;
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  cursor: pointer;
+  margin-right: 4px;
+  margin-top: 2px;
+  transition: all 0.2s;
+}
+
+.collapse-toggle:hover {
+  background: var(--color-accent-primary);
+  color: white;
+}
+
+.variations-list {
   display: flex;
   flex-direction: column;
-  margin-top: 4px;
-  margin-bottom: 4px;
-  padding-left: 8px;
+  padding-left: 4px;
   border-left: 2px solid var(--color-border-hover, #444);
-  margin-left: 4px;
 }
 
 .variation-line {
@@ -309,8 +387,8 @@ export default {
 }
 
 .nag-text {
-    font-weight: bold;
-    color: var(--color-accent-primary);
+  font-weight: bold;
+  color: var(--color-accent-primary);
 }
 
 .eval-tag {
@@ -321,10 +399,10 @@ export default {
 }
 
 .pos-white {
-    color: #4cd137;
+  color: #4cd137;
 }
 
 .pos-black {
-    color: #ff4757;
+  color: #ff4757;
 }
 </style>

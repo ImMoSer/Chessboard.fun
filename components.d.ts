@@ -81,6 +81,7 @@ declare module 'vue' {
     SimpleLeaderboardTable: typeof import('./src/components/recordsPage/SimpleLeaderboardTable.vue')['default']
     SkillLeaderboardTable: typeof import('./src/components/recordsPage/SkillLeaderboardTable.vue')['default']
     StatsCard: typeof import('./src/components/userCabinet/sections/StatsCard.vue')['default']
+    StudyCandidateMoves: typeof import('./src/components/study/StudyCandidateMoves.vue')['default']
     StudyControls: typeof import('./src/components/study/StudyControls.vue')['default']
     StudyOpeningExplorer: typeof import('./src/components/study/StudyOpeningExplorer.vue')['default']
     StudySidebar: typeof import('./src/components/study/StudySidebar.vue')['default']

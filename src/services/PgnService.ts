@@ -1,11 +1,11 @@
 // src/services/PgnService.ts
-import { ref, readonly } from 'vue'
-import logger from '../utils/logger'
-import { scalachessCharPair } from 'chessops/compat'
-import { parseUci } from 'chessops/util'
-import { parseFen, makeFen } from 'chessops/fen'
-import { Chess } from 'chessops/chess'
 import type { Setup as ChessopsSetup } from 'chessops'
+import { Chess } from 'chessops/chess'
+import { scalachessCharPair } from 'chessops/compat'
+import { makeFen, parseFen } from 'chessops/fen'
+import { parseUci } from 'chessops/util'
+import { readonly, ref } from 'vue'
+import logger from '../utils/logger'
 
 export interface PgnNode {
   id: string
@@ -19,6 +19,7 @@ export interface PgnNode {
   comment?: string | undefined
   eval?: number | undefined
   nag?: number | undefined
+  isCollapsed?: boolean | undefined
 }
 
 export interface NewNodeData {
@@ -537,6 +538,33 @@ class PgnServiceController {
     if (data.comment !== undefined) node.comment = data.comment
     if (data.eval !== undefined) node.eval = data.eval
     if (data.nag !== undefined) node.nag = data.nag
+    treeVersion.value++
+  }
+
+  public toggleNodeCollapse(node: PgnNode): void {
+    node.isCollapsed = !node.isCollapsed
+    treeVersion.value++
+  }
+
+  public setCollapseRecursive(node: PgnNode, state: boolean): void {
+    const traverse = (n: PgnNode) => {
+      if (n.children.length > 1) {
+        n.isCollapsed = state
+      }
+      n.children.forEach(traverse)
+    }
+    traverse(node)
+    treeVersion.value++
+  }
+
+  public setCollapseGlobal(state: boolean): void {
+    const traverse = (n: PgnNode) => {
+      if (n.children.length > 1) {
+        n.isCollapsed = state
+      }
+      n.children.forEach(traverse)
+    }
+    traverse(this.rootNode)
     treeVersion.value++
   }
 

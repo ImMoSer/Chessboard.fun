@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
+import EngineLines from '@/components/Analysis/EngineLines.vue'
 import GameLayout from '@/components/GameLayout.vue'
-import StudySidebar from '@/components/study/StudySidebar.vue'
-import StudyTree from '@/components/study/StudyTree.vue'
 import StudyControls from '@/components/study/StudyControls.vue'
 import StudyOpeningExplorer from '@/components/study/StudyOpeningExplorer.vue'
-import EngineLines from '@/components/Analysis/EngineLines.vue'
+import StudySidebar from '@/components/study/StudySidebar.vue'
+import StudyTree from '@/components/study/StudyTree.vue'
 import { useBoardStore } from '@/stores/board.store'
 import { useStudyStore } from '@/stores/study.store'
+import { onMounted, onUnmounted, ref } from 'vue'
 
-import { watch } from 'vue'
-import { useAnalysisStore } from '@/stores/analysis.store'
 import { pgnService } from '@/services/PgnService'
+import { useAnalysisStore } from '@/stores/analysis.store'
+import { watch } from 'vue'
 
 const boardStore = useBoardStore()
 const studyStore = useStudyStore()
@@ -54,15 +54,9 @@ watch(() => analysisStore.analysisLines, (lines) => {
 
         <template #left-panel>
             <div class="left-panel-content">
-                <StudySidebar 
-                    class="sidebar-component" 
-                    :collapsed="isSidebarCollapsed" 
-                    @toggle="isSidebarCollapsed = !isSidebarCollapsed" 
-                />
-                <StudyOpeningExplorer 
-                    class="explorer-component" 
-                    :class="{ 'expanded': isSidebarCollapsed }" 
-                />
+                <StudySidebar class="sidebar-component" :collapsed="isSidebarCollapsed"
+                    @toggle="isSidebarCollapsed = !isSidebarCollapsed" />
+                <StudyOpeningExplorer class="explorer-component" :class="{ 'expanded': isSidebarCollapsed }" />
             </div>
         </template>
 

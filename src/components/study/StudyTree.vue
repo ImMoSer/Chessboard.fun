@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import { pgnService, pgnTreeVersion } from '@/services/PgnService'
+import { computed } from 'vue'
+import StudyCandidateMoves from './StudyCandidateMoves.vue'
 import StudyTreeNode from './StudyTreeNode.vue'
 
 // Re-compute root children when tree version changes
@@ -33,17 +34,32 @@ const gameResult = computed(() => {
                 {{ gameResult }}
             </div>
         </div>
+        <div class="sticky-candidates">
+            <StudyCandidateMoves />
+        </div>
     </div>
 </template>
 
 <style scoped>
 .study-tree-container {
     height: 100%;
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
     background: var(--color-bg-secondary);
-    padding: 10px;
+    padding: 0;
     font-family: 'Noto Sans', sans-serif;
     color: var(--color-text-primary, #ccc);
+}
+
+.tree-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+}
+
+.sticky-candidates {
+    flex-shrink: 0;
+    border-top: 1px solid var(--color-border);
 }
 
 .empty-tree {
