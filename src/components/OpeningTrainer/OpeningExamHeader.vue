@@ -2,6 +2,7 @@
 import {
     BulbOutline,
     Heart,
+    HeartOutline,
     PlayOutline,
     RefreshOutline,
     TrophyOutline

@@ -90,11 +90,11 @@ async function startSession(color: 'white' | 'black', moves: string[] = [], slug
 
     if (slug) {
         router.replace({
-            name: 'opening-exam',
+            name: 'opening-sparring',
             params: { openingSlug: slug, color: `for_${color}` }
         });
     } else {
-        router.replace({ name: 'opening-exam' });
+        router.replace({ name: 'opening-sparring' });
     }
 
     gameStore.setupPuzzle(

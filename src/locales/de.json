@@ -20,6 +20,7 @@
     "close": "Schließen"
   },
   "engine": {
+    "title": "Sparring-Partner",
     "select": "Sparring partner"
   },
   "info": {
@@ -96,7 +97,7 @@
     "home": "Start",
     "openingTrainer": "Eröffnungstrainer",
     "openingTraining": "Eröffnungstraining",
-    "openingExam": "Eröffnungsprüfung",
+    "openingExam": "Sparring",
     "finishHim": "FinishHim",
     "sandbox": "Sandbox",
     "theoryEndings": "Endspiel",
@@ -107,7 +108,7 @@
     "lichessClubs": "Clubs",
     "pricing": "Preise",
     "about": "Über uns",
-    "study": "Studie",
+    "study": "Repertoire",
     "login": "Anmelden",
     "logout": "Abmelden",
     "loginWithLichess": "Mit Lichess anmelden"
@@ -182,8 +183,8 @@
       "clubs": "FunClub",
       "leaderboards": "Bestenlisten",
       "openingTraining": "Training",
-      "openingExam": "Prüfung",
-      "study": "Studie"
+      "openingSparring": "Sparring",
+      "study": "Repertoire"
     },
     "loginPrompt": "Oder melden Sie sich an, um alle Funktionen zu nutzen:"
   },
@@ -295,6 +296,11 @@
   },
   "records": {
     "bannerAlt": "Bestenlisten-Banner",
+    "sections": {
+      "hot": "HOT 🔥",
+      "competitive": "KOMPETITIVE MODI 🏆",
+      "hallOfFame": "RUHMESHALLE 🏛️"
+    },
     "titles": {
       "topFinishHim": "Meister der FinishHim",
       "overallSkill": "Gesamter Skill",
@@ -311,6 +317,7 @@
       "challenge": "Aufgabe",
       "daysOld": "Tage",
       "totalSkill": "Skill",
+      "score": "Punktestand",
       "streakDays": "Tage",
       "action": "Aktion",
       "requested": "Angefordert",
@@ -469,8 +476,9 @@
       },
       "modes": {
         "all": "Modus",
-        "finishHim": "FinishHim",
-
+        "tornado": "Tornado",
+        "advantage": "Vorteil",
+        "theory": "Theorie",
         "tacticalTrainer": "Taktik"
       },
       "today": "Heute",
@@ -504,6 +512,7 @@
     "analyticsTable": {
       "theme": "Thema",
       "rating": "Wertung",
+      "accuracy": "Genauigkeit",
       "solved_attempted": "Gelöst/Versucht",
       "accuracy_percent": "Genauigkeit %"
     }
@@ -871,6 +880,7 @@
       "startPosition": "Startposition (Standard)",
       "variability": "Variabilität: {value}",
       "variabilityHint": "Hohe Variabilität bedeutet, dass der Bot öfter weniger populäre Züge spielt.",
+      "engineHint": "Wählen Sie die Engine für den Ausspielmodus.",
       "startSession": "Sitzung starten"
     }
   },
@@ -892,22 +902,23 @@
         "Pro": "Profi",
         "Master": "Meister"
       },
-      "categories": {
-        "pawn": { "name": "König & Bauer", "icon": "♔♟" },
-        "bishop": { "name": "Läufer", "icon": "♗♙" },
-        "knight": { "name": "Springer", "icon": "♘♙" },
-        "queen": { "name": "Damen", "icon": "♕♙" },
-        "rookPawn": { "name": "Turm & Bauer", "icon": "♖♙" },
-        "rookPieces": { "name": "Qualität", "icon": "♖♘♗" },
-              "knightBishop": { "name": "Springer & Läufer", "icon": "♘♗" },
-              "queenPieces": { "name": "Dame & Figuren", "icon": "♕♘♗" },
-              "expert": { "name": "Experte", "icon": "🎓" }
-            },      "feedback": {
-        "pressNext": "Drücken Sie 'Spielen', um zu beginnen.",
-        "win": "Gewonnen! Stellung verwertet.",
-        "drawSuccess": "Remis erreicht! Hervorragende Verteidigung.",
-        "loss": "Niederlage. Versuchen Sie es erneut."
-      }
-
+    "categories": {
+      "auto": { "name": "Automatisch", "icon": "✨" },
+      "pawn": { "name": "König & Bauer", "icon": "♔♟" },
+      "bishop": { "name": "Läufer", "icon": "♗♙" },
+      "knight": { "name": "Springer", "icon": "♘♙" },
+      "queen": { "name": "Damen", "icon": "♕♙" },
+      "rookPawn": { "name": "Turm & Bauer", "icon": "♖♙" },
+      "rookPieces": { "name": "Qualität", "icon": "♖♘♗" },
+      "knightBishop": { "name": "Springer & Läufer", "icon": "♘♗" },
+      "queenPieces": { "name": "Dame & Figuren", "icon": "♕♘♗" },
+      "expert": { "name": "Experte", "icon": "🎓" }
+    },
+    "feedback": {
+      "pressNext": "Drücken Sie 'Spielen', um zu beginnen.",
+      "win": "Gewonnen! Stellung verwertet.",
+      "drawSuccess": "Remis erreicht! Hervorragende Verteidigung.",
+      "loss": "Niederlage. Versuchen Sie es erneut."
+    }
   }
 }

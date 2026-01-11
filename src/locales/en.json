@@ -20,6 +20,7 @@
     "close": "Close"
   },
   "engine": {
+    "title": "Sparring Partner",
     "select": "Sparring partner"
   },
   "info": {
@@ -96,8 +97,8 @@
     "home": "Home",
     "openingTrainer": "Opening Trainer",
     "openingTraining": "Opening Training",
-    "openingExam": "Opening Exam",
-    "finishHim": "FinishHim",
+    "openingExam": "Sparring",
+    "finishHim": "Finish Him",
     "sandbox": "Sandbox",
     "theoryEndings": "Endgames",
     "tacktics": "Tacktics",
@@ -107,7 +108,7 @@
     "lichessClubs": "FunClub",
     "pricing": "Pricing",
     "about": "About",
-    "study": "Study",
+    "study": "Repertoire",
     "login": "Login",
     "logout": "Logout",
     "loginWithLichess": "Login with Lichess"
@@ -181,9 +182,9 @@
       "tacktics": "Tacktics",
       "clubs": "FunClub",
       "leaderboards": "Leaderboards",
-      "openingTraining": "Training",
-      "openingExam": "Exam",
-      "study": "Study"
+      "openingTraining": "Open Training",
+      "openingSparring": "Open Sparring",
+      "study": "Repertoire"
     },
     "loginPrompt": "Or log in to access all features:"
   },
@@ -887,6 +888,7 @@
       "startPosition": "Start Position (Standard)",
       "variability": "Variability: {value}",
       "variabilityHint": "Higher variability means the bot plays less popular moves more often.",
+      "engineHint": "Choose the engine for playout mode.",
       "startSession": "Start Session"
     }
   },
@@ -909,6 +911,7 @@
       "Master": "Master"
     },
     "categories": {
+      "auto": { "name": "Automatic", "icon": "✨" },
       "pawn": { "name": "King & Pawn", "icon": "♔♟" },
       "bishop": { "name": "Bishop", "icon": "♗♙" },
       "knight": { "name": "Knight", "icon": "♘♙" },

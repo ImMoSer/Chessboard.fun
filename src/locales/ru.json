@@ -20,6 +20,7 @@
     "close": "Закрыть"
   },
   "engine": {
+    "title": "Спарринг партнер",
     "select": "Спарринг партнер"
   },
   "info": {
@@ -96,8 +97,9 @@
     "home": "Главная",
     "openingTrainer": "Дебютный тренер",
     "openingTraining": "Тренировка дебютов",
-    "openingExam": "Экзамен по дебютам",
-    "study": "Обучение",
+    "openingExam": "Спарринг",
+    "finishHim": "Добивание",
+    "study": "Репертуар",
     "theoryEndings": "Эндшпиль",
     "sandbox": "Песочница",
     "tacktics": "Тактика",
@@ -179,10 +181,10 @@
       "theoryEndings": "Эндшпиль",
       "tacktics": "Тактика",
       "clubs": "ФанКлуб",
-      "leaderboards": "Таблица лидеров",
+      "leaderboards": "Рекорды",
       "openingTraining": "Тренировка",
-      "openingExam": "Экзамен",
-      "study": "Обучение"
+      "openingSparring": "Спарринг",
+      "study": "Репертуар"
     },
     "loginPrompt": "Или войдите, чтобы получить доступ ко всем функциям:"
   },
@@ -884,6 +886,7 @@
       "startPosition": "Начальная позиция",
       "variability": "Вариативность: {value}",
       "variabilityHint": "Высокая вариативность заставляет бота чаще играть менее популярные ходы.",
+      "engineHint": "Выберите движок для режима розыгрыша.",
       "startSession": "Начать тренировку"
     }
   },
@@ -906,6 +909,7 @@
       "Master": "Мастер"
     },
     "categories": {
+      "auto": { "name": "Автоматически", "icon": "✨" },
       "pawn": { "name": "Пешечный", "icon": "♔♟" },
       "bishop": { "name": "Слоновый", "icon": "♗♙" },
       "knight": { "name": "Коневой", "icon": "♘♙" },

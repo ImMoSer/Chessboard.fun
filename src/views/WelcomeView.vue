@@ -33,42 +33,48 @@ const handleChangeLang = (lang: 'en' | 'ru' | 'de') => {
 
       <div class="mode-selection-container">
         <router-link class="mode-button" to="/finish-him">
-          <span class="mode-button-icon">🎯</span>
+          <span class="mode-button-icon">🔨</span>
           <span class="mode-button-text">{{ t('welcome.buttons.finishHim') }}</span>
         </router-link>
 
-        <router-link class="mode-button" to="/theory-endings">
-          <span class="mode-button-icon">📚</span>
-          <span class="mode-button-text">{{ t('welcome.buttons.theoryEndings') }}</span>
-        </router-link>
-
-        <router-link class="mode-button" to="/user-cabinet">
-          <span class="mode-button-icon">👤</span>
-          <span class="mode-button-text">{{ t('nav.userCabinet') }}</span>
-        </router-link>
         <router-link class="mode-button" to="/tornado">
           <span class="mode-button-icon">🌪️</span>
           <span class="mode-button-text">{{ t('nav.tornado') }}</span>
         </router-link>
-        <router-link class="mode-button" to="/funclub">
-          <span class="mode-button-icon">🏰</span>
-          <span class="mode-button-text">{{ t('welcome.buttons.clubs') }}</span>
+
+        <router-link class="mode-button" to="/theory-endings">
+          <span class="mode-button-icon">♔♟</span>
+          <span class="mode-button-text">{{ t('welcome.buttons.theoryEndings') }}</span>
         </router-link>
-        <router-link class="mode-button" to="/records">
-          <span class="mode-button-icon">🏆</span>
-          <span class="mode-button-text">{{ t('welcome.buttons.leaderboards') }}</span>
-        </router-link>
+
         <router-link class="mode-button training-btn" to="/opening-training">
-          <span class="mode-button-icon">🏫</span>
+          <span class="mode-button-icon">🏋️</span>
           <span class="mode-button-text">{{ t('welcome.buttons.openingTraining') }}</span>
         </router-link>
-        <router-link class="mode-button exam-btn" to="/opening-exam">
-          <span class="mode-button-icon">🏆</span>
-          <span class="mode-button-text">{{ t('welcome.buttons.openingExam') }}</span>
+
+        <router-link class="mode-button exam-btn" to="/opening-sparring">
+          <span class="mode-button-icon">🥊🥊</span>
+          <span class="mode-button-text">{{ t('welcome.buttons.openingSparring') }}</span>
         </router-link>
+
         <router-link class="mode-button" to="/study">
           <span class="mode-button-icon">🎓</span>
           <span class="mode-button-text">{{ t('welcome.buttons.study') }}</span>
+        </router-link>
+
+        <router-link class="mode-button" to="/user-cabinet">
+          <span class="mode-button-icon">🗄️</span>
+          <span class="mode-button-text">{{ t('nav.userCabinet') }}</span>
+        </router-link>
+
+        <router-link class="mode-button" to="/funclub">
+          <span class="mode-button-icon">🎭</span>
+          <span class="mode-button-text">{{ t('welcome.buttons.clubs') }}</span>
+        </router-link>
+
+        <router-link class="mode-button" to="/records">
+          <span class="mode-button-icon">🏆</span>
+          <span class="mode-button-text">{{ t('welcome.buttons.leaderboards') }}</span>
         </router-link>
       </div>
 
@@ -199,7 +205,7 @@ const handleChangeLang = (lang: 'en' | 'ru' | 'de') => {
 
 .mode-selection-container {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   width: 100%;
   margin-top: 20px;

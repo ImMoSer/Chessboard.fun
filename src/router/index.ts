@@ -137,10 +137,10 @@ const router = createRouter({
       meta: { isGame: true, game: 'opening-training' },
     },
     {
-      path: '/opening-exam/:openingSlug?/:color?',
-      name: 'opening-exam',
+      path: '/opening-sparring/:openingSlug?/:color?',
+      name: 'opening-sparring',
       component: () => import('../views/OpeningExamView.vue'),
-      meta: { isGame: true, game: 'opening-exam' },
+      meta: { isGame: true, game: 'opening-sparring' },
     },
     {
       path: '/opening-trainer/:openingSlug?/:color?',
