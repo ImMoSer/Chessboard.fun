@@ -1,22 +1,22 @@
 <!-- src/components/AnalysisPanel.vue -->
 <script setup lang="ts">
-import { computed, h, type FunctionalComponent } from 'vue'
+import EngineLines from '@/components/Analysis/EngineLines.vue'
+import type { PgnNode } from '@/services/PgnService'
+import { pgnService, pgnTreeVersion } from '@/services/PgnService'
 import { useAnalysisStore } from '@/stores/analysis.store'
 import { useBoardStore } from '@/stores/board.store'
-import { pgnService, pgnTreeVersion } from '@/services/PgnService'
-import { storeToRefs } from 'pinia'
-import {
-  NButton, NButtonGroup, NScrollbar,
-  NSpace, NText
-} from 'naive-ui'
 import {
   ChevronBackOutline,
   ChevronForwardOutline,
   PlaySkipBackOutline,
   PlaySkipForwardOutline
 } from '@vicons/ionicons5'
-import EngineLines from '@/components/Analysis/EngineLines.vue'
-import type { PgnNode } from '@/services/PgnService'
+import {
+  NButton, NButtonGroup, NScrollbar,
+  NSpace, NText
+} from 'naive-ui'
+import { storeToRefs } from 'pinia'
+import { computed, h, type FunctionalComponent } from 'vue'
 
 const analysisStore = useAnalysisStore()
 const boardStore = useBoardStore()

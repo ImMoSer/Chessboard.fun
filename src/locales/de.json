@@ -95,6 +95,8 @@
   "nav": {
     "home": "Start",
     "openingTrainer": "Eröffnungstrainer",
+    "openingTraining": "Eröffnungstraining",
+    "openingExam": "Eröffnungsprüfung",
     "finishHim": "FinishHim",
     "sandbox": "Sandbox",
     "theoryEndings": "Endspiel",
@@ -179,6 +181,8 @@
       "tacktics": "Taktik",
       "clubs": "FunClub",
       "leaderboards": "Bestenlisten",
+      "openingTraining": "Training",
+      "openingExam": "Prüfung",
       "study": "Studie"
     },
     "loginPrompt": "Oder melden Sie sich an, um alle Funktionen zu nutzen:"

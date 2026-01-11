@@ -131,10 +131,23 @@ const router = createRouter({
       component: RecordsPageView,
     },
     {
+      path: '/opening-training/:openingSlug?/:color?',
+      name: 'opening-training',
+      component: () => import('../views/OpeningTrainingView.vue'),
+      meta: { isGame: true, game: 'opening-training' },
+    },
+    {
+      path: '/opening-exam/:openingSlug?/:color?',
+      name: 'opening-exam',
+      component: () => import('../views/OpeningExamView.vue'),
+      meta: { isGame: true, game: 'opening-exam' },
+    },
+    {
       path: '/opening-trainer/:openingSlug?/:color?',
-      name: 'opening-trainer',
-      component: () => import('../views/OpeningTrainerView.vue'),
-      meta: { isGame: true, game: 'opening-trainer' },
+      redirect: (to) => ({
+        name: 'opening-training',
+        params: to.params
+      })
     },
     {
       path: '/finish-him/playout/:color/:fen',

@@ -94,8 +94,10 @@
   },
   "nav": {
     "home": "Главная",
-    "openingTrainer": "Дебютный тренажер",
-    "finishHim": "Добивание",
+    "openingTrainer": "Дебютный тренер",
+    "openingTraining": "Тренировка дебютов",
+    "openingExam": "Экзамен по дебютам",
+    "study": "Обучение",
     "theoryEndings": "Эндшпиль",
     "sandbox": "Песочница",
     "tacktics": "Тактика",
@@ -105,7 +107,6 @@
     "lichessClubs": "ФанКлуб",
     "pricing": "Тарифы",
     "about": "О нас",
-    "study": "Студия",
     "login": "Войти",
     "logout": "Выйти",
     "loginWithLichess": "Войти через Lichess"
@@ -178,8 +179,10 @@
       "theoryEndings": "Эндшпиль",
       "tacktics": "Тактика",
       "clubs": "ФанКлуб",
-      "leaderboards": "Рейтинги",
-      "study": "Студия"
+      "leaderboards": "Таблица лидеров",
+      "openingTraining": "Тренировка",
+      "openingExam": "Экзамен",
+      "study": "Обучение"
     },
     "loginPrompt": "Или войдите, чтобы получить доступ ко всем функциям:"
   },

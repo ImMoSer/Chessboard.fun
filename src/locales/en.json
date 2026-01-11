@@ -95,6 +95,8 @@
   "nav": {
     "home": "Home",
     "openingTrainer": "Opening Trainer",
+    "openingTraining": "Opening Training",
+    "openingExam": "Opening Exam",
     "finishHim": "FinishHim",
     "sandbox": "Sandbox",
     "theoryEndings": "Endgames",
@@ -179,6 +181,8 @@
       "tacktics": "Tacktics",
       "clubs": "FunClub",
       "leaderboards": "Leaderboards",
+      "openingTraining": "Training",
+      "openingExam": "Exam",
       "study": "Study"
     },
     "loginPrompt": "Or log in to access all features:"

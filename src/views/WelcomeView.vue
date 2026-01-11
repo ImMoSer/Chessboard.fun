@@ -58,9 +58,13 @@ const handleChangeLang = (lang: 'en' | 'ru' | 'de') => {
           <span class="mode-button-icon">🏆</span>
           <span class="mode-button-text">{{ t('welcome.buttons.leaderboards') }}</span>
         </router-link>
-        <router-link class="mode-button" to="/opening-trainer">
-          <span class="mode-button-icon">📖</span>
-          <span class="mode-button-text">{{ t('nav.openingTrainer') }}</span>
+        <router-link class="mode-button training-btn" to="/opening-training">
+          <span class="mode-button-icon">🏫</span>
+          <span class="mode-button-text">{{ t('welcome.buttons.openingTraining') }}</span>
+        </router-link>
+        <router-link class="mode-button exam-btn" to="/opening-exam">
+          <span class="mode-button-icon">🏆</span>
+          <span class="mode-button-text">{{ t('welcome.buttons.openingExam') }}</span>
         </router-link>
         <router-link class="mode-button" to="/study">
           <span class="mode-button-icon">🎓</span>
@@ -235,6 +239,16 @@ const handleChangeLang = (lang: 'en' | 'ru' | 'de') => {
 .mode-button-text {
   line-height: 1.1;
   font-size: var(--font-size-xlarge);
+}
+
+.training-btn:hover {
+  border-color: var(--color-accent-info) !important;
+  color: var(--color-accent-info) !important;
+}
+
+.exam-btn:hover {
+  border-color: var(--color-accent-warning) !important;
+  color: var(--color-accent-warning) !important;
 }
 
 .login-section {
