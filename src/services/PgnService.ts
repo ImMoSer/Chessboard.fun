@@ -572,6 +572,16 @@ class PgnServiceController {
     return this.gameResult
   }
 
+  public getMainlineNodes(): PgnNode[] {
+    const nodes: PgnNode[] = []
+    let current = this.rootNode
+    while (current.children.length > 0) {
+      current = current.children[0]!
+      nodes.push(current)
+    }
+    return nodes
+  }
+
   public canNavigateBackward(): boolean {
     return !!this.currentNode.parent
   }

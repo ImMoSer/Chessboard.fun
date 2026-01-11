@@ -4,6 +4,7 @@ import EngineLines from '@/components/Analysis/EngineLines.vue'
 import type { PgnNode } from '@/services/PgnService'
 import { pgnService, pgnTreeVersion } from '@/services/PgnService'
 import { useAnalysisStore } from '@/stores/analysis.store'
+import { useRetroAnalysisStore } from '@/stores/retroAnalysis.store'
 import { useBoardStore } from '@/stores/board.store'
 import {
   ChevronBackOutline,
@@ -12,13 +13,16 @@ import {
   PlaySkipForwardOutline
 } from '@vicons/ionicons5'
 import {
-  NButton, NButtonGroup, NScrollbar,
+  NButton, NButtonGroup, NIcon, NScrollbar,
   NSpace, NText
 } from 'naive-ui'
 import { storeToRefs } from 'pinia'
 import { computed, h, type FunctionalComponent } from 'vue'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const analysisStore = useAnalysisStore()
+const retroStore = useRetroAnalysisStore()
 const boardStore = useBoardStore()
 
 const {
@@ -26,6 +30,35 @@ const {
   isAnalysisActive,
 } = storeToRefs(analysisStore)
 
+const selectedRetroStep = computed(() => {
+  const node = pgnService.getCurrentNode()
+  if (!node || !retroStore.report) return null
+  
+  const step = retroStore.report.steps.find(s => s.ply === node.ply - 1)
+  if (!step) return null
+
+  // Показываем детали только если цвет хода совпадает с цветом игрока
+  const isPlayerMove = (node.ply % 2 !== 0 && retroStore.report.playerColor === 'white') ||
+                       (node.ply % 2 === 0 && retroStore.report.playerColor === 'black')
+                       
+  return isPlayerMove ? step : null
+})
+
+const CLASSIFICATION_SYMBOLS: Record<string, string> = {
+  blunder: '??',
+  mistake: '?',
+  inaccuracy: '?!',
+  brilliant: '!!',
+  great: '!',
+}
+
+const CLASSIFICATION_TYPES: Record<string, 'error' | 'warning' | 'info' | 'success' | 'default'> = {
+  blunder: 'error',
+  mistake: 'warning',
+  inaccuracy: 'warning',
+  brilliant: 'success',
+  great: 'success',
+}
 
 const pgnRendererComponent = computed(() => {
   const rootNode = pgnService.getRootNode()
@@ -46,6 +79,11 @@ const handlePgnWheelNavigation = (event: WheelEvent) => {
   }
 }
 
+const formatScore = (score: number) => {
+  const val = (score / 100).toFixed(1)
+  return score > 0 ? `+${val}` : val
+}
+
 const PgnRenderer: FunctionalComponent<{ nodes: PgnNode[]; pathPrefix?: string }> = (props) => {
   const { nodes, pathPrefix = '' } = props
   if (!nodes || nodes.length === 0) return []
@@ -60,21 +98,44 @@ const PgnRenderer: FunctionalComponent<{ nodes: PgnNode[]; pathPrefix?: string }
   const movePath = pathPrefix + mainlineNode.id
   const isCurrent = movePath === currentPath
 
+  // Ретроанализ: ищем данные для текущего полухода
+  const stepIdx = mainlineNode.ply - 1
+  const retroStep = retroStore.report?.steps.find(s => s.ply === stepIdx)
+  
+  const isPlayerMove = retroStore.report && (
+    (mainlineNode.ply % 2 !== 0 && retroStore.report.playerColor === 'white') ||
+    (mainlineNode.ply % 2 === 0 && retroStore.report.playerColor === 'black')
+  )
+
+  const marker = (retroStep && isPlayerMove) ? CLASSIFICATION_SYMBOLS[retroStep.classification] : null
+  const markerType = (retroStep && isPlayerMove) ? CLASSIFICATION_TYPES[retroStep.classification] : 'default'
+
   if (mainlineNode.ply % 2 !== 0) {
     elements.push(h(NText, { depth: 3, class: 'move-number' }, { default: () => `${Math.ceil(mainlineNode.ply / 2)}. ` }))
   }
 
   elements.push(
-    h(
-      NText,
-      {
-        strong: isCurrent,
-        type: isCurrent ? 'primary' : 'default',
-        class: { 'pgn-move': true, current: isCurrent },
-        onClick: () => handlePgnMoveClick(mainlineNode),
-      },
-      { default: () => mainlineNode.san }
-    ),
+    h('span', { class: 'pgn-move-container' }, [
+      h(
+        NText,
+        {
+          strong: isCurrent,
+          type: isCurrent ? 'primary' : 'default',
+          class: { 'pgn-move': true, current: isCurrent },
+          onClick: () => handlePgnMoveClick(mainlineNode),
+        },
+        { default: () => mainlineNode.san }
+      ),
+      marker ? h(
+        NText,
+        {
+          type: markerType,
+          class: 'pgn-marker',
+          strong: true
+        },
+        { default: () => marker }
+      ) : null
+    ])
   )
 
   if (variations.length > 0) {
@@ -101,6 +162,28 @@ const PgnRenderer: FunctionalComponent<{ nodes: PgnNode[]; pathPrefix?: string }
 <template>
   <div v-if="isPanelVisible" class="analysis-container">
     <EngineLines />
+
+    <transition name="fade-slide">
+      <div v-if="selectedRetroStep" class="retro-details-card">
+        <n-space justify="space-between" align="center">
+          <n-text strong :type="CLASSIFICATION_TYPES[selectedRetroStep.classification]">
+            {{ CLASSIFICATION_SYMBOLS[selectedRetroStep.classification] }} 
+            {{ t(`retroAnalysis.${selectedRetroStep.classification}`) }}
+          </n-text>
+          <n-text depth="3" class="score-diff">
+            {{ formatScore(selectedRetroStep.score) }} 
+            <span class="loss-text">(-{{ (selectedRetroStep.loss / 100).toFixed(1) }})</span>
+          </n-text>
+        </n-space>
+        
+        <div class="advice-text">
+            {{ t('retroAnalysis.bestWas') }} 
+            <n-button text type="primary" strong @click="boardStore.applyUciMove(selectedRetroStep.bestMoveUci)">
+                {{ selectedRetroStep.bestMoveSan }}
+            </n-button>
+        </div>
+      </div>
+    </transition>
 
     <transition name="fade-slide">
       <n-space v-if="isAnalysisActive" vertical class="analysis-body" :size="8">
@@ -147,6 +230,32 @@ const PgnRenderer: FunctionalComponent<{ nodes: PgnNode[]; pathPrefix?: string }
   flex-direction: column;
   gap: 8px;
   width: 100%;
+}
+
+.retro-details-card {
+    background: rgba(var(--color-accent-rgb, 100, 100, 255), 0.1);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-left: 4px solid var(--color-accent);
+}
+
+.score-diff {
+    font-family: monospace;
+    font-size: 0.9rem;
+}
+
+.loss-text {
+    color: var(--color-error);
+    font-weight: bold;
+}
+
+.advice-text {
+    font-size: 0.9rem;
 }
 
 .toolbar-card {
@@ -236,8 +345,24 @@ const PgnRenderer: FunctionalComponent<{ nodes: PgnNode[]; pathPrefix?: string }
 }
 
 .pgn-content {
-  line-height: 2;
+  line-height: 2.2;
   font-size: 0.95rem;
+}
+
+.pgn-move-container {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+}
+
+.pgn-marker {
+  font-size: 0.75rem;
+  margin-left: -2px;
+  margin-right: 4px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0 4px;
+  border-radius: 4px;
+  line-height: 1.2;
 }
 
 :deep(.pgn-move) {

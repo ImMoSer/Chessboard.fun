@@ -3,6 +3,7 @@
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import AnalysisPanel from '../components/AnalysisPanel.vue';
+import RetroAnalysisModal from '../components/RetroAnalysisModal.vue';
 import GameLayout from '../components/GameLayout.vue';
 import OpeningExamHeader from '../components/OpeningTrainer/OpeningExamHeader.vue';
 import OpeningExamSettingsModal from '../components/OpeningTrainer/OpeningExamSettingsModal.vue';
@@ -10,15 +11,19 @@ import OpeningStatsTable from '../components/OpeningTrainer/OpeningStatsTable.vu
 import i18n from '../services/i18n';
 import { openingGraphService } from '../services/OpeningGraphService';
 import { useAnalysisStore } from '../stores/analysis.store';
+import { useRetroAnalysisStore } from '../stores/retroAnalysis.store';
 import { useGameStore } from '../stores/game.store';
 import { useOpeningExamStore } from '../stores/openingExam.store';
 import { useUiStore } from '../stores/ui.store';
+import { BarChartOutline } from '@vicons/ionicons5';
+import { NButton, NIcon } from 'naive-ui';
 
 const t = i18n.global.t;
 const openingStore = useOpeningExamStore();
 const gameStore = useGameStore();
 const uiStore = useUiStore();
 const analysisStore = useAnalysisStore();
+const retroStore = useRetroAnalysisStore();
 const router = useRouter();
 const route = useRoute();
 
@@ -145,9 +150,15 @@ async function handlePlayout() {
                     :is-deviation="openingStore.isDeviation" :is-playout-mode="openingStore.isPlayoutMode"
                     :lives="openingStore.lives" @restart="handleRestart" @hint="openingStore.hint"
                     @playout="handlePlayout" />
+                
+                <n-button v-if="isExamEnding" block type="primary" secondary size="large" @click="retroStore.openModal" class="retro-btn">
+                    <template #icon><n-icon><BarChartOutline /></n-icon></template>
+                    {{ t('retroAnalysis.button', 'Ретроанализ партии') }}
+                </n-button>
             </div>
             <AnalysisPanel v-if="isExamEnding" />
             <OpeningExamSettingsModal v-if="isSettingsModalOpen" @start="startSession" @close="() => { }" />
+            <RetroAnalysisModal />
         </template>
 
         <template #center-column>
@@ -175,7 +186,13 @@ async function handlePlayout() {
 .controls-panel {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 16px;
+}
+
+.retro-btn {
+    border-radius: 12px;
+    height: 48px;
+    font-weight: 600;
 }
 
 .loader-overlay {

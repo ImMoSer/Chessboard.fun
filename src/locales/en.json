@@ -17,7 +17,8 @@
     "closingParenthesis": ")",
     "period": ".",
     "periodAndSpace": ". ",
-    "close": "Close"
+    "close": "Close",
+    "stop": "Stop"
   },
   "engine": {
     "title": "Sparring Partner",
@@ -933,5 +934,27 @@
       "drawSuccess": "Draw achieved! Great defense.",
       "loss": "Defeat. Try again."
     }
+  },
+  "retroAnalysis": {
+    "title": "Retro Game Analysis",
+    "button": "Retro Game Analysis",
+    "description": "Configure engine power for deep backward analysis of the entire game.",
+    "threads": "Threads",
+    "hash": "Hash (MB)",
+    "depth": "Depth",
+    "movetime": "Move time (ms)",
+    "run": "Run Analysis",
+    "analyzing": "Analyzing move {current} of {total}",
+    "accuracy": "Game Accuracy",
+    "blunders": "Blunders",
+    "mistakes": "Mistakes",
+    "inaccuracies": "Inaccuracies",
+    "reanalyze": "Reconfigure",
+    "bestWas": "Best was:",
+    "blunder": "Blunder",
+    "mistake": "Mistake",
+    "inaccuracy": "Inaccuracy",
+    "brilliant": "Brilliant",
+    "great": "Great move"
   }
 }

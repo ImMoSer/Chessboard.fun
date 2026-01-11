@@ -79,6 +79,7 @@ declare module 'vue' {
     PromotionDialog: typeof import('./src/components/PromotionDialog.vue')['default']
     PuzzleInfo: typeof import('./src/components/PuzzleInfo.vue')['default']
     RadarChart: typeof import('./src/components/userCabinet/sections/RadarChart.vue')['default']
+    RetroAnalysisModal: typeof import('./src/components/RetroAnalysisModal.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SettingsMenu: typeof import('./src/components/SettingsMenu.vue')['default']

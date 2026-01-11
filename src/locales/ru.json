@@ -17,7 +17,8 @@
     "closingParenthesis": ")",
     "period": ".",
     "periodAndSpace": ". ",
-    "close": "Закрыть"
+    "close": "Закрыть",
+    "stop": "Стоп"
   },
   "engine": {
     "title": "Спарринг партнер",
@@ -931,5 +932,27 @@
       "drawSuccess": "Ничья достигнута! Отличная защита.",
       "loss": "Поражение. Попробуйте еще раз."
     }
+  },
+  "retroAnalysis": {
+    "title": "Ретроанализ партии",
+    "button": "Ретроанализ партии",
+    "description": "Настройте мощность движка для глубокого анализа всей партии в обратном порядке.",
+    "threads": "Потоки (Threads)",
+    "hash": "Хэш (Hash, MB)",
+    "depth": "Глубина (Depth)",
+    "movetime": "Время на ход (ms)",
+    "run": "Запустить анализ",
+    "analyzing": "Анализ хода {current} из {total}",
+    "accuracy": "Точность партии",
+    "blunders": "Зевки",
+    "mistakes": "Ошибки",
+    "inaccuracies": "Неточности",
+    "reanalyze": "Перенастроить",
+    "bestWas": "Лучше было:",
+    "blunder": "Зевок",
+    "mistake": "Ошибка",
+    "inaccuracy": "Неточность",
+    "brilliant": "Блестяще",
+    "great": "Отличный ход"
   }
 }
