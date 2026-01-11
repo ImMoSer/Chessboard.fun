@@ -1,19 +1,19 @@
 <!-- src/views/OpeningTrainerView.vue -->
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch } from 'vue';
-import GameLayout from '../components/GameLayout.vue';
-import OpeningTrainerHeader from '../components/OpeningTrainer/OpeningTrainerHeader.vue';
-import OpeningStatsTable from '../components/OpeningTrainer/OpeningStatsTable.vue';
-import OpeningTrainerSettingsModal from '../components/OpeningTrainer/OpeningTrainerSettingsModal.vue';
+import { useRoute, useRouter } from 'vue-router';
 import AnalysisPanel from '../components/AnalysisPanel.vue';
-import { useOpeningTrainerStore } from '../stores/openingTrainer.store';
-import { useBoardStore } from '../stores/board.store';
-import { useGameStore } from '../stores/game.store';
-import { useUiStore } from '../stores/ui.store';
-import { useAnalysisStore } from '../stores/analysis.store';
-import { useRouter, useRoute } from 'vue-router';
+import GameLayout from '../components/GameLayout.vue';
+import OpeningStatsTable from '../components/OpeningTrainer/OpeningStatsTable.vue';
+import OpeningTrainerHeader from '../components/OpeningTrainer/OpeningTrainerHeader.vue';
+import OpeningTrainerSettingsModal from '../components/OpeningTrainer/OpeningTrainerSettingsModal.vue';
 import i18n from '../services/i18n';
 import { openingGraphService } from '../services/OpeningGraphService';
+import { useAnalysisStore } from '../stores/analysis.store';
+import { useBoardStore } from '../stores/board.store';
+import { useGameStore } from '../stores/game.store';
+import { useOpeningTrainerStore } from '../stores/openingTrainer.store';
+import { useUiStore } from '../stores/ui.store';
 
 const t = i18n.global.t;
 const openingStore = useOpeningTrainerStore();
@@ -143,21 +143,28 @@ async function handleRestart() {
   }
 }
 
-function toggleReview() {
-  isReviewMode.value = !isReviewMode.value;
-}
+// Automatically handle analysis panel based on session mode
+watch(
+  () => openingStore.sessionMode,
+  (newMode) => {
+    if (newMode === 'game') {
+      analysisStore.hidePanel();
+      isReviewMode.value = false;
+    } else {
+      analysisStore.showPanel();
+      isReviewMode.value = true;
+    }
+  },
+  { immediate: true }
+);
 
 async function handlePlayout() {
   const confirmed = await uiStore.showConfirmation(
     'Start Playout?',
-    'Continue this position against Stockfish?'
+    'Continue this position against the selected engine right here?'
   );
   if (confirmed) {
-    isNavigatingToPlayout.value = true;
-    const fen = boardStore.fen.replace(/ /g, '_');
-    const color = openingStore.playerColor;
-    // Redirect to Sandbox with default engine SF_2200
-    router.push(`/sandbox/play/SF_2200/${color}/${fen}`);
+    openingStore.startPlayout();
   }
 }
 </script>
@@ -174,10 +181,11 @@ async function handlePlayout() {
           :average-accuracy="openingStore.averageAccuracy" :average-win-rate="openingStore.averageWinRate"
           :average-rating="openingStore.averageRating" :is-theory-over="openingStore.isTheoryOver"
           :is-deviation="openingStore.isDeviation" :is-review-mode="isReviewMode"
-          :is-analysis-active="analysisStore.isPanelVisible" @restart="handleRestart" @hint="openingStore.hint"
-          @toggle-review="toggleReview"
+          :is-analysis-active="analysisStore.isPanelVisible" :is-playout-mode="openingStore.isPlayoutMode"
+          :session-mode="openingStore.sessionMode" @restart="handleRestart" @hint="openingStore.hint"
           @toggle-analysis="analysisStore.isPanelVisible ? analysisStore.hidePanel() : analysisStore.showPanel()"
           @playout="handlePlayout" />
+
       </div>
 
       <AnalysisPanel />
@@ -192,14 +200,23 @@ async function handlePlayout() {
     </template>
 
     <template #right-panel>
-      <div v-if="openingStore.currentStats" class="stats-panel">
-        <OpeningStatsTable :moves="openingStore.currentStats.moves" :is-review-mode="isReviewMode"
+      <div v-if="openingStore.sessionMode === 'training'" class="stats-table-wrapper">
+        <OpeningStatsTable v-if="openingStore.currentStats" :moves="openingStore.currentStats.moves"
           :white="openingStore.currentStats.white" :draws="openingStore.currentStats.draws"
-          :black="openingStore.currentStats.black" />
-      </div>
+          :black="openingStore.currentStats.black" :is-review-mode="isReviewMode"
+          @select-move="m => openingStore.handlePlayerMove(m)" />
 
-      <div v-if="openingStore.error" class="error-msg">
-        {{ openingStore.error }}
+        <div v-if="openingStore.error" class="error-msg">
+          {{ openingStore.error }}
+        </div>
+
+        <transition name="fade">
+          <div v-if="!isReviewMode" class="review-overlay">
+            <n-button type="primary" secondary @click="isReviewMode = true">
+              {{ t('openingTrainer.stats.reviewModeOverlay') }}
+            </n-button>
+          </div>
+        </transition>
       </div>
     </template>
   </GameLayout>

@@ -20,7 +20,7 @@
     "close": "Close"
   },
   "engine": {
-    "select": "Choose Engine"
+    "select": "Sparring partner"
   },
   "info": {
     "modes": {
@@ -855,7 +855,12 @@
       "hideTheory": "Hide Theory",
       "showTheory": "Show Theory",
       "analysis": "Analysis",
-      "playout": "Playout"
+      "playout": "Playout",
+      "mode": {
+        "label": "Mode",
+        "game": "Game",
+        "training": "Training"
+      }
     },
     "stats": {
       "reviewModeOverlay": "Review mode to see theory",
@@ -869,9 +874,9 @@
       "color": "Choose Color",
       "white": "White",
       "black": "Black",
-      "opponentDb": "Opponent Database",
+      "opponentDb": "Opponent DB",
       "masters": "Masters DB",
-      "lichessPlayers": "Lichess Players",
+      "lichessPlayers": "Lichess DB",
       "ratings": "Ratings",
       "timeControls": "Time Controls",
       "selectOpening": "Select Opening (Optional)",

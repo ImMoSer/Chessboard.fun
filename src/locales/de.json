@@ -20,7 +20,7 @@
     "close": "Schließen"
   },
   "engine": {
-    "select": "Engine auswählen"
+    "select": "Sparring partner"
   },
   "info": {
     "modes": {
@@ -839,7 +839,12 @@
       "hideTheory": "Theorie ausblenden",
       "showTheory": "Theorie anzeigen",
       "analysis": "Analyse",
-      "playout": "Playout"
+      "playout": "Ausspielen",
+      "mode": {
+        "label": "Modus",
+        "game": "Spiel",
+        "training": "Training"
+      }
     },
     "stats": {
       "reviewModeOverlay": "Review-Modus, um die Theorie zu sehen",

@@ -1,13 +1,14 @@
 // src/stores/openingTrainer.store.ts
-import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
-import { openingApiService, type LichessMove, type OpeningDatabaseSource, type LichessParams, type LichessOpeningResponse } from '../services/OpeningApiService';
-import { openingGraphService } from '../services/OpeningGraphService';
-import { type SessionMove } from '../types/openingTrainer.types';
-import { useBoardStore } from './board.store';
 import type { Key } from '@lichess-org/chessground/types';
-import logger from '../utils/logger';
+import { defineStore } from 'pinia';
+import { computed, ref } from 'vue';
+import { openingApiService, type LichessMove, type LichessOpeningResponse, type LichessParams, type OpeningDatabaseSource } from '../services/OpeningApiService';
+import { openingGraphService } from '../services/OpeningGraphService';
 import { soundService } from '../services/sound.service';
+import { type SessionMove } from '../types/openingTrainer.types';
+import logger from '../utils/logger';
+import { useBoardStore } from './board.store';
+import { useGameStore } from './game.store';
 
 export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
   const boardStore = useBoardStore();
@@ -23,6 +24,8 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
   const currentEco = ref('');
   const isLoading = ref(false);
   const isProcessingMove = ref(false);
+  const isPlayoutMode = ref(false);
+  const sessionMode = ref<'game' | 'training'>('training');
   const error = ref<string | null>(null);
   const moveQueue = ref<string[]>([]);
 
@@ -95,6 +98,8 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
     error.value = null;
     isLoading.value = false;
     isProcessingMove.value = false;
+    isPlayoutMode.value = false;
+    sessionMode.value = 'training';
     moveQueue.value = [];
     lastFetchedFen.value = '';
     lastFetchedConfig.value = '';
@@ -116,7 +121,7 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
 
   function generateConfigHash(): string {
     if (dbSource.value === 'masters') return 'masters';
-    return `lichess:${lichessParams.value.ratings.slice().sort().join(',')}|${lichessParams.value.speeds.slice().sort().join(',')}`;
+    return `lichess:${lichessParams.value.ratings.slice().sort().join(',')}| ${lichessParams.value.speeds.slice().sort().join(',')} `;
   }
 
   async function fetchStats(isGameplay = true, force = false, onlyCache = false) {
@@ -157,7 +162,7 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
 
         if (data.moves.length === 0) {
           if (isGameplay) {
-            logger.info(`[OpeningTrainer] Theory ended (${dbSource.value}).`);
+            logger.info(`[OpeningTrainer] Theory ended(${dbSource.value}).`);
             isTheoryOver.value = true;
             soundService.playSound('game_user_won');
           }
@@ -348,6 +353,19 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
     }, 2000);
   }
 
+  function startPlayout() {
+    isPlayoutMode.value = true;
+    const gameStore = useGameStore();
+
+    // Change game mode to sandbox to enable bot responses in GameStore
+    gameStore.currentGameMode = 'sandbox';
+
+    // Reset session history since we are entering a different phase
+    // or we can keep it for statistics, but technically the "opening training" part is over
+    soundService.playSound('game_play_out_start');
+    logger.info('[OpeningTrainer] Switched to Playout Mode.');
+  }
+
   return {
     currentStats,
     sessionHistory,
@@ -364,6 +382,8 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
     currentEco,
     isLoading,
     isProcessingMove,
+    isPlayoutMode,
+    sessionMode,
     error,
     dbSource,
     lichessParams,
@@ -373,6 +393,7 @@ export const useOpeningTrainerStore = defineStore('openingTrainer', () => {
     handlePlayerMove,
     fetchStats,
     reset,
-    hint
+    hint,
+    startPlayout
   };
 });

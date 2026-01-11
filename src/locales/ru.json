@@ -20,7 +20,7 @@
     "close": "Закрыть"
   },
   "engine": {
-    "select": "Выберите движок"
+    "select": "Спарринг партнер"
   },
   "info": {
     "modes": {
@@ -842,18 +842,23 @@
   },
   "openingTrainer": {
     "header": {
-      "searching": "Поиск теории...",
+      "accuracy": "Точность",
+      "analysis": "Анализ",
+      "avgRating": "Ср. Рейтинг",
       "bookEnded": "Книга окончена",
       "deviation": "Отклонение",
-      "accuracy": "Точность",
-      "winRate": "Винрейт",
-      "avgRating": "Ср. Рейтинг",
-      "newSession": "Новая сессия",
-      "hint": "Подсказка",
       "hideTheory": "Скрыть теорию",
+      "hint": "Подсказка",
+      "mode": {
+        "label": "Режим",
+        "game": "Игра",
+        "training": "Тренер"
+      },
+      "newSession": "Новая сессия",
+      "playout": "Розыгрыш",
+      "searching": "Поиск теории...",
       "showTheory": "Показать теорию",
-      "analysis": "Анализ",
-      "playout": "Розыгрыш"
+      "winRate": "Винрейт"
     },
     "stats": {
       "reviewModeOverlay": "Режим обзора для просмотра теории",
