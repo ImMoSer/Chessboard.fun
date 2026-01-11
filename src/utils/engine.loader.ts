@@ -37,12 +37,12 @@ const ENGINE_CONFIGS: Record<EngineProfile, EngineConfig> = {
   },
 }
 
-export function loadSingleThreadEngine(profile: EngineProfile = 'lite'): Promise<EngineController> {
-  const config = ENGINE_CONFIGS[profile]
-  logger.info(`[EngineLoader] Loading single-threaded engine (${profile}) from ${config.loaderPath}`)
+export function loadSingleThreadEngine(_profile: EngineProfile = 'lite'): Promise<EngineController> {
+  const loaderPath = '/stockfish_single/stockfish.js'
+  logger.info(`[EngineLoader] Loading single-threaded engine from ${loaderPath}`)
   return new Promise((resolve, reject) => {
     try {
-      const worker = new Worker(config.loaderPath)
+      const worker = new Worker(loaderPath)
 
       const engineWrapper: EngineController = {
         postMessage(command: string) {
