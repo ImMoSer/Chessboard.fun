@@ -158,7 +158,12 @@
     "threads": "Ядра",
     "loading": "Загрузка анализа...",
     "mateInShort": "M{value}",
-    "makeMove": "Сделайте ход для анализа."
+    "makeMove": "Сделайте ход для анализа.",
+    "profile": "Движок",
+    "profiles": {
+      "lite": "Lite (12MB)",
+      "pro": "Pro (48MB)"
+    }
   },
   "puzzleInfo": {
     "title": "О задаче",

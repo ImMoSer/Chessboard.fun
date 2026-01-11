@@ -1,6 +1,6 @@
 // src/services/SingleThreadEngineManager.ts
+import { loadSingleThreadEngine, type EngineController, type EngineProfile } from '../utils/engine.loader'
 import logger from '../utils/logger'
-import { loadSingleThreadEngine, type EngineController } from '../utils/engine.loader'
 
 // --- Интерфейсы ---
 export interface ScoreInfo {
@@ -49,9 +49,10 @@ class SingleThreadEngineManagerController {
   private resolveInitPromise!: () => void
   private rejectInitPromise!: (reason?: unknown) => void
 
-  private commandQueue: string[] = []
-  private pendingRequest: PendingRequest | null = null
+  private currentProfile: EngineProfile = 'lite'
   private infiniteAnalysisCallback: AnalysisUpdateCallback | null = null
+  private pendingRequest: PendingRequest | null = null
+  private commandQueue: string[] = []
 
   constructor() {
     logger.info('[SingleThreadEngineManager] Service created.')
@@ -72,7 +73,7 @@ class SingleThreadEngineManagerController {
 
   private async _initEngine(): Promise<void> {
     try {
-      this.engine = await loadSingleThreadEngine()
+      this.engine = await loadSingleThreadEngine(this.currentProfile)
       this.engine.addMessageListener((message: string) => this.handleEngineMessage(message))
 
       const timeoutId = setTimeout(() => {
@@ -260,6 +261,26 @@ class SingleThreadEngineManagerController {
   public async setOption(name: string, value: string | number): Promise<void> {
     await this.ensureReady()
     this.sendCommand(`setoption name ${name} value ${value}`)
+  }
+
+  public async setProfile(profile: EngineProfile): Promise<void> {
+    if (this.currentProfile === profile && this.engine) return
+
+    logger.info(`[SingleThreadEngineManager] Switching profile to ${profile}`)
+    this.currentProfile = profile
+
+    if (this.engine) {
+      if (this.engine.terminate) this.engine.terminate()
+      this.engine = null
+      this.isReady = false
+      this.isInitializing = false
+    }
+
+    return this.ensureReady()
+  }
+
+  public getProfile(): EngineProfile {
+    return this.currentProfile
   }
 }
 

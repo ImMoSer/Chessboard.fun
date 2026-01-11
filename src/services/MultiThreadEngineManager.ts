@@ -1,6 +1,6 @@
 // src/services/MultiThreadEngineManager.ts
+import { loadMultiThreadEngine, type EngineController, type EngineProfile } from '../utils/engine.loader'
 import logger from '../utils/logger'
-import { loadMultiThreadEngine, type EngineController } from '../utils/engine.loader'
 
 // --- Интерфейсы для анализа ---
 export interface ScoreInfo {
@@ -27,6 +27,7 @@ class MultiThreadEngineManagerController {
   private isReady = false
   private isInitializing = false
   private initPromise: Promise<void> | null = null
+  private currentProfile: EngineProfile = 'lite'
   private resolveInitPromise!: () => void
   private rejectInitPromise!: (reason?: unknown) => void
 
@@ -52,7 +53,7 @@ class MultiThreadEngineManagerController {
 
   private async _initEngine(): Promise<void> {
     try {
-      const loadedEngine = await loadMultiThreadEngine()
+      const loadedEngine = await loadMultiThreadEngine(this.currentProfile)
 
       if (!loadedEngine) {
         this.isSupported = false
@@ -104,7 +105,6 @@ class MultiThreadEngineManagerController {
   }
 
   private handleEngineMessage(message: string): void {
-    // <<< ИЗМЕНЕНИЕ: Логирование сырых данных от движка
     // logger.debug(`[RAW_ENGINE_MSG] ${message}`)
     // logger.debug(`[MultiThreadEngineManager] Received: ${message}`)
     const parts = message.split(' ')
@@ -203,7 +203,30 @@ class MultiThreadEngineManagerController {
   }
 
   public getMaxThreads(): number {
-    return this.isSupported ? navigator.hardwareConcurrency || 16 : 1
+    // navigator.hardwareConcurrency возвращает общее количество логических процессоров.
+    // Обычно рекомендуется использовать на 1-2 меньше для отзывчивости интерфейса,
+    // но Stockfish эффективно масштабируется.
+    return Math.max(1, (navigator.hardwareConcurrency || 4))
+  }
+
+  public async setProfile(profile: EngineProfile): Promise<void> {
+    if (this.currentProfile === profile && this.engine) return
+
+    logger.info(`[MultiThreadEngineManager] Switching profile to ${profile}`)
+    this.currentProfile = profile
+
+    if (this.engine) {
+      if (this.engine.terminate) this.engine.terminate()
+      this.engine = null
+      this.isReady = false
+      this.isInitializing = false
+    }
+
+    return this.ensureReady()
+  }
+
+  public getProfile(): EngineProfile {
+    return this.currentProfile
   }
 }
 

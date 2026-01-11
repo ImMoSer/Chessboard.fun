@@ -1,13 +1,14 @@
 // src/services/AnalysisService.ts
-import logger from '../utils/logger'
-import { multiThreadEngineManager } from './MultiThreadEngineManager'
-import { singleThreadEngineManager } from './SingleThreadEngineManager'
 import { Chess } from 'chessops/chess'
 import { parseFen } from 'chessops/fen'
-import { parseUci } from 'chessops/util'
 import { makeSan } from 'chessops/san'
 import type { Color as ChessopsColor } from 'chessops/types'
-import type { EvaluatedLine, AnalysisUpdateCallback } from './MultiThreadEngineManager'
+import { parseUci } from 'chessops/util'
+import type { EngineProfile } from '../utils/engine.loader'
+import logger from '../utils/logger'
+import type { AnalysisUpdateCallback, EvaluatedLine } from './MultiThreadEngineManager'
+import { multiThreadEngineManager } from './MultiThreadEngineManager'
+import { singleThreadEngineManager } from './SingleThreadEngineManager'
 
 export interface EvaluatedLineWithSan extends EvaluatedLine {
   pvSan: string[]
@@ -28,16 +29,16 @@ class AnalysisServiceController {
     logger.info('[AnalysisService] Created.')
   }
 
-  public async initialize() {
+  public async initialize(profile: EngineProfile = 'lite') {
     // Инициализация происходит один раз при старте приложения
-    await multiThreadEngineManager.ensureReady()
+    await multiThreadEngineManager.setProfile(profile)
     if (multiThreadEngineManager.isMultiThreadingSupported()) {
       this.activeEngineManager = multiThreadEngineManager
-      logger.info('[AnalysisService] Initialized with Multi-Threaded Engine.')
+      logger.info(`[AnalysisService] Initialized with Multi-Threaded Engine (${profile}).`)
     } else {
-      await singleThreadEngineManager.ensureReady()
+      await singleThreadEngineManager.setProfile(profile)
       this.activeEngineManager = singleThreadEngineManager
-      logger.info('[AnalysisService] Initialized with Single-Threaded Engine (fallback).')
+      logger.info(`[AnalysisService] Initialized with Single-Threaded Engine fallback (${profile}).`)
     }
   }
 
@@ -82,6 +83,20 @@ class AnalysisServiceController {
     } else {
       logger.warn(`[AnalysisService] Cannot set threads for single-threaded engine.`)
     }
+  }
+
+  public async setEngineProfile(profile: EngineProfile) {
+    if (this.activeEngineManager) {
+      const wasAnalyzing = (this.activeEngineManager as any).infiniteAnalysisCallback !== null
+      const currentFen = wasAnalyzing ? (this.activeEngineManager as any).currentFen : null // Hypothetical
+
+      await this.activeEngineManager.setProfile(profile)
+      logger.info(`[AnalysisService] Engine profile switched to ${profile}`)
+    }
+  }
+
+  public getEngineProfile(): EngineProfile {
+    return this.activeEngineManager ? (this.activeEngineManager as any).getProfile() : 'lite'
   }
 
   private prepareLinesForDisplay(lines: EvaluatedLine[], fen: string): EvaluatedLineWithSan[] {

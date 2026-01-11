@@ -1,17 +1,25 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import type { EvaluatedLineWithSan } from '@/services/AnalysisService'
 import { useAnalysisStore } from '@/stores/analysis.store'
 import { useBoardStore } from '@/stores/board.store'
-import { storeToRefs } from 'pinia'
-import { useI18n } from 'vue-i18n'
-import type { EvaluatedLineWithSan } from '@/services/AnalysisService'
 import {
-  NSwitch, NSelect, NSpace, NText, NIcon, NCard, NSpin, NTooltip, NButton
-} from 'naive-ui'
-import {
-  BarChartOutline,
-  TerminalOutline
+    BarChartOutline,
+    HardwareChipOutline,
+    TerminalOutline
 } from '@vicons/ionicons5'
+import {
+    NButton,
+    NCard,
+    NIcon,
+    NSelect, NSpace,
+    NSpin,
+    NSwitch,
+    NText,
+    NTooltip
+} from 'naive-ui'
+import { storeToRefs } from 'pinia'
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const analysisStore = useAnalysisStore()
 const boardStore = useBoardStore()
@@ -24,6 +32,7 @@ const {
   isMultiThreadAvailable,
   maxThreads,
   numThreads,
+  engineProfile,
 } = storeToRefs(analysisStore)
 
 const formatScore = (line: EvaluatedLineWithSan) => {
@@ -62,10 +71,15 @@ const formatPv = (line: EvaluatedLineWithSan) => {
 
 const threadOptions = computed(() => {
   return Array.from({ length: maxThreads.value }, (_, i) => ({
-    label: `${i + 1} ${t('analysis.threads')}`,
+    label: `${i + 1}`,
     value: i + 1
   }))
 })
+
+const profileOptions = computed(() => [
+  { label: t('analysis.profiles.lite'), value: 'lite' },
+  { label: t('analysis.profiles.pro'), value: 'pro' }
+])
 
 const handleLineClick = (line: EvaluatedLineWithSan) => {
   const uciMove = line.pvUci[0]
@@ -89,9 +103,25 @@ const handleLineClick = (line: EvaluatedLineWithSan) => {
         </n-space>
 
         <n-space align="center" :size="8">
-          <n-icon size="16" depth="3">
-            <TerminalOutline />
-          </n-icon>
+          <n-tooltip trigger="hover">
+            <template #trigger>
+              <n-icon size="16" depth="3" class="toolbar-icon">
+                <HardwareChipOutline />
+              </n-icon>
+            </template>
+            {{ t('analysis.profile') }}
+          </n-tooltip>
+          <n-select class="profile-select" size="small" :value="engineProfile" :options="profileOptions"
+            @update:value="analysisStore.setEngineProfile" />
+
+          <n-tooltip trigger="hover">
+            <template #trigger>
+              <n-icon size="16" depth="3" class="toolbar-icon">
+                <TerminalOutline />
+              </n-icon>
+            </template>
+            {{ t('analysis.threads') }}
+          </n-tooltip>
           <n-select class="threads-select" size="small" :disabled="!isMultiThreadAvailable" :value="numThreads"
             :options="threadOptions" @update:value="analysisStore.setThreads" />
         </n-space>
@@ -142,8 +172,16 @@ const handleLineClick = (line: EvaluatedLineWithSan) => {
   border-radius: 12px;
 }
 
+.profile-select {
+  width: 95px;
+}
+
 .threads-select {
-  width: 110px;
+  width: 60px;
+}
+
+.toolbar-icon {
+  cursor: help;
 }
 
 .lines-wrapper {

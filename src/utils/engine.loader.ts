@@ -17,19 +17,32 @@ export interface EngineController {
   terminate?(): void
 }
 
-const MULTI_THREAD_LOADER_PATH = '/stockfish_wasm/stockfish.js'
-const SINGLE_THREAD_WORKER_PATH = '/stockfish_single/stockfish.js'
+export type EngineProfile = 'lite' | 'pro'
 
-/**
- * Загружает и инициализирует однопоточную версию движка Stockfish.
- * Эта версия гарантированно работает во всех средах, включая Telegram Mini App.
- * @returns {Promise<EngineController>} Промис, который разрешается контроллером движка.
- */
-export function loadSingleThreadEngine(): Promise<EngineController> {
-  logger.info(`[EngineLoader] Loading single-threaded engine from ${SINGLE_THREAD_WORKER_PATH}`)
+interface EngineConfig {
+  loaderPath: string
+  networkPath?: string
+  networkFilename?: string
+}
+
+const ENGINE_CONFIGS: Record<EngineProfile, EngineConfig> = {
+  lite: {
+    loaderPath: '/stockfish_nnue/stockfish.js',
+    networkPath: '/stockfish_nnue/nn-4fd273888b72.nnue',
+    networkFilename: 'nn-4fd273888b72.nnue',
+  },
+  pro: {
+    loaderPath: '/stockfish_nnue_big/stockfish.js',
+    // Big engine has embedded network nn-ac5605a608d6.nnue
+  },
+}
+
+export function loadSingleThreadEngine(profile: EngineProfile = 'lite'): Promise<EngineController> {
+  const config = ENGINE_CONFIGS[profile]
+  logger.info(`[EngineLoader] Loading single-threaded engine (${profile}) from ${config.loaderPath}`)
   return new Promise((resolve, reject) => {
     try {
-      const worker = new Worker(SINGLE_THREAD_WORKER_PATH)
+      const worker = new Worker(config.loaderPath)
 
       const engineWrapper: EngineController = {
         postMessage(command: string) {
@@ -62,17 +75,18 @@ export function loadSingleThreadEngine(): Promise<EngineController> {
  * Возвращает null, если среда не поддерживает многопоточность (crossOriginIsolated = false).
  * @returns {Promise<EngineController | null>} Промис, который разрешается контроллером движка или null.
  */
-export function loadMultiThreadEngine(): Promise<EngineController | null> {
+export function loadMultiThreadEngine(profile: EngineProfile = 'lite'): Promise<EngineController | null> {
   const isCrossOriginIsolated = window.crossOriginIsolated
   if (!isCrossOriginIsolated) {
     logger.warn(`[EngineLoader] Multi-threaded engine not supported: crossOriginIsolated is false.`)
     return Promise.resolve(null)
   }
 
-  logger.info(`[EngineLoader] Loading multi-threaded engine from ${MULTI_THREAD_LOADER_PATH}`)
+  const config = ENGINE_CONFIGS[profile]
+  logger.info(`[EngineLoader] Loading multi-threaded engine (${profile}) from ${config.loaderPath}`)
   return new Promise((resolve, reject) => {
     const script = document.createElement('script')
-    script.src = MULTI_THREAD_LOADER_PATH
+    script.src = config.loaderPath
     script.async = true
     script.onload = async () => {
       logger.info('[EngineLoader] Multi-threaded loader script loaded.')
@@ -80,6 +94,40 @@ export function loadMultiThreadEngine(): Promise<EngineController | null> {
         try {
           const engine = await window.Stockfish()
           logger.info('[EngineLoader] Multi-threaded Stockfish instance created successfully.')
+
+          // Загружаем NNUE сеть, если она указана в конфиге
+          if (config.networkPath && config.networkFilename) {
+            try {
+              logger.info(`[EngineLoader] Fetching NNUE network from ${config.networkPath}...`)
+              const response = await fetch(config.networkPath)
+              if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
+
+              const buffer = await response.arrayBuffer()
+              const uint8Array = new Uint8Array(buffer)
+              const FS = (engine as any).FS
+
+              if (FS) {
+                const filename = `/${config.networkFilename}`
+                FS.writeFile(filename, uint8Array)
+
+                // Проверка наличия файла
+                try {
+                  const stat = FS.stat(filename)
+                  logger.info(`[EngineLoader] NNUE file verified in FS: ${filename}, size: ${stat.size}`)
+                } catch (e) {
+                  logger.error(`[EngineLoader] NNUE file verification failed: ${filename}`)
+                }
+
+                engine.postMessage(`setoption name EvalFile value ${filename}`)
+                logger.info(`[EngineLoader] NNUE network option set: ${filename}`)
+              } else {
+                logger.warn('[EngineLoader] Emscripten FS not found on engine instance.')
+              }
+            } catch (nnueError) {
+              logger.error(`[EngineLoader] Failed to load/init NNUE network (${profile}):`, nnueError)
+            }
+          }
+
           resolve(engine as EngineController)
         } catch (error) {
           logger.error('[EngineLoader] Error initializing multi-threaded Stockfish instance.', error)
@@ -92,7 +140,7 @@ export function loadMultiThreadEngine(): Promise<EngineController | null> {
       }
     }
     script.onerror = () => {
-      reject(new Error(`[EngineLoader] Failed to load script: ${MULTI_THREAD_LOADER_PATH}`))
+      reject(new Error(`[EngineLoader] Failed to load script: ${config.loaderPath}`))
     }
     document.head.appendChild(script)
   })

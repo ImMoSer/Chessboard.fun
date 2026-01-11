@@ -158,7 +158,12 @@
     "threads": "Threads",
     "loading": "Loading analysis...",
     "mateInShort": "M{value}",
-    "makeMove": "Make a move to see analysis."
+    "makeMove": "Make a move to see analysis.",
+    "profile": "Engine",
+    "profiles": {
+      "lite": "Lite (12MB)",
+      "pro": "Pro (48MB)"
+    }
   },
   "puzzleInfo": {
     "title": "Puzzle Info",
