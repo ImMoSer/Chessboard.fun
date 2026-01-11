@@ -69,6 +69,7 @@ declare module 'vue' {
     NTag: typeof import('naive-ui')['NTag']
     NText: typeof import('naive-ui')['NText']
     NTooltip: typeof import('naive-ui')['NTooltip']
+    OpeningExamHeader: typeof import('./src/components/OpeningTrainer/OpeningExamHeader.vue')['default']
     OpeningExamSettingsModal: typeof import('./src/components/OpeningTrainer/OpeningExamSettingsModal.vue')['default']
     OpeningStatsTable: typeof import('./src/components/OpeningTrainer/OpeningStatsTable.vue')['default']
     OpeningTrainerHeader: typeof import('./src/components/OpeningTrainer/OpeningTrainerHeader.vue')['default']

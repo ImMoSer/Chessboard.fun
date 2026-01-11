@@ -94,7 +94,7 @@ function startSession() {
 </script>
 
 <template>
-    <n-modal :show="true" preset="card" :style="{ width: '920px', borderRadius: '16px' }" class="settings-modal"
+    <n-modal :show="true" preset="card" :style="{ width: '560px', borderRadius: '16px' }" class="settings-modal"
         :title="t('nav.openingTraining')" :bordered="false" @close="$emit('close')">
         <template #header-extra>
             <n-icon size="24" color="var(--color-accent)">
@@ -103,44 +103,38 @@ function startSession() {
         </template>
 
         <div class="modal-body-layout">
-            <n-grid :cols="24" :x-gap="32" :y-gap="24">
-                <!-- Main Column: Primary Controls (Span 10/24) -->
-                <n-grid-item :span="10">
-                    <n-space vertical :size="24">
-                        <!-- 1. Color Selection -->
-                        <div class="setting-section">
-                            <n-space align="center" :size="12" class="section-title">
-                                <n-icon>
-                                    <ColorPaletteOutline />
-                                </n-icon>
-                                <n-text strong>{{ t('openingTrainer.settings.color') }}</n-text>
-                            </n-space>
-                            <n-radio-group v-model:value="selectedColor" name="color" size="large" expand>
-                                <n-radio-button value="white" class="color-btn-white">
-                                    <n-space align="center" justify="center" :wrap="false">
-                                        <div class="swatch white" />
-                                        {{ t('openingTrainer.settings.white') }}
-                                    </n-space>
-                                </n-radio-button>
-                                <n-radio-button value="black" class="color-btn-black">
-                                    <n-space align="center" justify="center" :wrap="false">
-                                        <div class="swatch black" />
-                                        {{ t('openingTrainer.settings.black') }}
-                                    </n-space>
-                                </n-radio-button>
-                            </n-radio-group>
-                        </div>
-
-                        <n-text depth="3" class="hint-text">
-                            {{ t('openingTrainer.settings.lichessPlayers') }} (Lichess DB)
-                        </n-text>
+            <n-space vertical :size="32">
+                <!-- 1. Color Selection & DB Context -->
+                <div class="setting-section">
+                    <n-space align="center" :size="12" class="section-title">
+                        <n-icon>
+                            <ColorPaletteOutline />
+                        </n-icon>
+                        <n-text strong>{{ t('openingTrainer.settings.color') }}</n-text>
                     </n-space>
-                </n-grid-item>
+                    <n-radio-group v-model:value="selectedColor" name="color" size="large" expand>
+                        <n-radio-button value="white" class="color-btn-white">
+                            <n-space align="center" justify="center" :wrap="false">
+                                <div class="swatch white" />
+                                {{ t('openingTrainer.settings.white') }}
+                            </n-space>
+                        </n-radio-button>
+                        <n-radio-button value="black" class="color-btn-black">
+                            <n-space align="center" justify="center" :wrap="false">
+                                <div class="swatch black" />
+                                {{ t('openingTrainer.settings.black') }}
+                            </n-space>
+                        </n-radio-button>
+                    </n-radio-group>
+                    <n-text depth="3" class="hint-text">
+                        {{ t('openingTrainer.settings.lichessPlayers') }} (Lichess DB)
+                    </n-text>
+                </div>
 
-                <!-- Lichess Settings Panel (Middle Area) -->
-                <n-grid-item :span="14">
-                    <div class="lichess-params-panel">
-                        <n-space vertical :size="24">
+                <!-- 2. Lichess Settings Panel (Ratings & Speeds) -->
+                <div class="lichess-params-compact">
+                    <n-grid :cols="2" :x-gap="24">
+                        <n-grid-item>
                             <!-- Ratings -->
                             <div class="filter-group">
                                 <n-space align="center" :size="12" class="section-title">
@@ -150,16 +144,17 @@ function startSession() {
                                     <n-text strong>{{ t('openingTrainer.settings.ratings') }}</n-text>
                                 </n-space>
                                 <n-checkbox-group v-model:value="localLichessParams.ratings">
-                                    <n-grid :cols="2" :y-gap="12" :x-gap="12">
-                                        <n-grid-item v-for="r in AVAILABLE_RATINGS" :key="r">
-                                            <n-checkbox :value="r" class="filter-checkbox">
-                                                <n-text>{{ r }}</n-text>
-                                            </n-checkbox>
-                                        </n-grid-item>
-                                    </n-grid>
+                                    <n-space vertical :size="8">
+                                        <n-checkbox v-for="r in AVAILABLE_RATINGS" :key="r" :value="r"
+                                            class="filter-checkbox-compact">
+                                            {{ r }}
+                                        </n-checkbox>
+                                    </n-space>
                                 </n-checkbox-group>
                             </div>
+                        </n-grid-item>
 
+                        <n-grid-item>
                             <!-- Time Controls -->
                             <div class="filter-group">
                                 <n-space align="center" :size="12" class="section-title">
@@ -169,74 +164,62 @@ function startSession() {
                                     <n-text strong>{{ t('openingTrainer.settings.timeControls') }}</n-text>
                                 </n-space>
                                 <n-checkbox-group v-model:value="localLichessParams.speeds">
-                                    <n-grid :cols="2" :y-gap="12" :x-gap="12">
-                                        <n-grid-item v-for="s in AVAILABLE_SPEEDS" :key="s">
-                                            <n-checkbox :value="s" class="filter-checkbox">
-                                                <span style="text-transform: capitalize;">{{ s }}</span>
-                                            </n-checkbox>
-                                        </n-grid-item>
-                                    </n-grid>
+                                    <n-space vertical :size="8">
+                                        <n-checkbox v-for="s in AVAILABLE_SPEEDS" :key="s" :value="s"
+                                            class="filter-checkbox-compact">
+                                            <span style="text-transform: capitalize;">{{ s }}</span>
+                                        </n-checkbox>
+                                    </n-space>
                                 </n-checkbox-group>
                             </div>
-                        </n-space>
-                    </div>
-                </n-grid-item>
+                        </n-grid-item>
+                    </n-grid>
+                </div>
 
-                <!-- Full Width Bottom Sections -->
-                <n-grid-item :span="24">
-                    <n-space vertical :size="24">
-                        <!-- 3. Opening Selection -->
-                        <div class="setting-section">
-                            <n-space align="center" :size="12" class="section-title">
-                                <n-icon>
-                                    <FilterOutline />
-                                </n-icon>
-                                <n-text strong>{{ t('openingTrainer.settings.selectOpening') }}</n-text>
-                            </n-space>
-                            <n-select v-model:value="selectedOpening" :options="openingOptions" filterable
-                                placeholder="Search opening..." size="large" />
-                        </div>
-
-                        <!-- 4. Variability -->
-                        <div class="setting-section">
-                            <n-space align="center" justify="space-between" class="section-title">
-                                <n-space align="center" :size="12">
-                                    <n-icon>
-                                        <ShuffleOutline />
-                                    </n-icon>
-                                    <n-text strong>{{ t('openingTrainer.settings.variability', {
-                                        value:
-                                        openingStore.variability
-                                        })
-                                        }}</n-text>
-                                </n-space>
-                                <n-tag :bordered="false" type="info" size="small">{{ openingStore.variability }} /
-                                    7</n-tag>
-                            </n-space>
-                            <n-slider v-model:value="openingStore.variability" :min="3" :max="7" :step="1" />
-                            <n-text depth="3" class="hint-text">
-                                {{ t('openingTrainer.settings.variabilityHint') }}
-                            </n-text>
-                        </div>
-
-                        <!-- 5. Opponent Engine -->
-                        <div class="setting-section">
-                            <n-space align="center" :size="12" class="section-title">
-                                <n-icon>
-                                    <PlayOutline />
-                                </n-icon>
-                                <n-text strong>{{ t('engine.select') }}</n-text>
-                            </n-space>
-                            <div class="engine-selector-wrapper">
-                                <EngineSelector />
-                            </div>
-                            <n-text depth="3" class="hint-text">
-                                {{ t('openingTrainer.settings.engineHint', 'Choose the engine for playout mode.') }}
-                            </n-text>
-                        </div>
+                <!-- 3. Opening Selection -->
+                <div class="setting-section">
+                    <n-space align="center" :size="12" class="section-title">
+                        <n-icon>
+                            <FilterOutline />
+                        </n-icon>
+                        <n-text strong>{{ t('openingTrainer.settings.selectOpening') }}</n-text>
                     </n-space>
-                </n-grid-item>
-            </n-grid>
+                    <n-select v-model:value="selectedOpening" :options="openingOptions" filterable
+                        placeholder="Search opening..." size="large" />
+                </div>
+
+                <!-- 4. Variability -->
+                <div class="setting-section">
+                    <n-space align="center" justify="space-between" class="section-title">
+                        <n-space align="center" :size="12">
+                            <n-icon>
+                                <ShuffleOutline />
+                            </n-icon>
+                            <n-text strong>{{ t('openingTrainer.settings.variability', {
+                                value: openingStore.variability
+                            }) }}</n-text>
+                        </n-space>
+                        <n-tag :bordered="false" type="info" size="small">{{ openingStore.variability }} / 7</n-tag>
+                    </n-space>
+                    <n-slider v-model:value="openingStore.variability" :min="3" :max="7" :step="1" />
+                    <n-text depth="3" class="hint-text">
+                        {{ t('openingTrainer.settings.variabilityHint') }}
+                    </n-text>
+                </div>
+
+                <!-- 5. Opponent Engine -->
+                <div class="setting-section">
+                    <n-space align="center" :size="12" class="section-title">
+                        <n-icon>
+                            <PlayOutline />
+                        </n-icon>
+                        <n-text strong>{{ t('engine.select') }}</n-text>
+                    </n-space>
+                    <div class="engine-selector-wrapper">
+                        <EngineSelector />
+                    </div>
+                </div>
+            </n-space>
         </div>
 
         <template #footer>
@@ -263,52 +246,21 @@ function startSession() {
     transition: all 0.4s ease;
 }
 
-.lichess-params-panel {
-    background: rgba(255, 255, 255, 0.03);
-    padding: 24px;
+.lichess-params-compact {
+    background: rgba(var(--color-accent-rgb), 0.03);
+    padding: 16px;
     border-radius: 12px;
-    border: 1px dashed rgba(var(--color-accent-rgb), 0.3);
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    animation: fadeIn 0.4s ease;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    border: 1px solid rgba(var(--color-accent-rgb), 0.1);
 }
 
 .filter-group {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
 }
 
-.filter-checkbox {
-    background: rgba(255, 255, 255, 0.03);
-    padding: 10px 14px;
-    border-radius: 8px;
-    border: 1px solid transparent;
-    width: 100%;
-    transition: all 0.2s ease;
-
-    &:hover {
-        background: rgba(255, 255, 255, 0.06);
-        border-color: var(--color-accent);
-    }
-
-    &.n-checkbox--checked {
-        border-color: var(--color-accent);
-        background: rgba(var(--color-accent-rgb), 0.1);
-    }
+.filter-checkbox-compact {
+    font-size: 0.9rem;
 }
 
 .setting-section {

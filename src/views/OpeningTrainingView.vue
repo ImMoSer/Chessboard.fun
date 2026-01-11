@@ -148,10 +148,9 @@ async function handlePlayout() {
                 <OpeningTrainerHeader :opening-name="openingStore.openingName" :eco="openingStore.currentEco"
                     :average-accuracy="openingStore.averageAccuracy" :average-win-rate="openingStore.averageWinRate"
                     :average-rating="openingStore.averageRating" :is-theory-over="openingStore.isTheoryOver"
-                    :is-deviation="openingStore.isDeviation" :is-review-mode="true"
-                    :is-analysis-active="analysisStore.isPanelVisible" :is-playout-mode="openingStore.isPlayoutMode"
-                    session-mode="training" @restart="handleRestart" @hint="openingStore.hint"
-                    @toggle-analysis="analysisStore.isPanelVisible ? analysisStore.hidePanel() : analysisStore.showPanel()"
+                    :is-deviation="openingStore.isDeviation" :is-analysis-active="analysisStore.isPanelVisible"
+                    :is-playout-mode="openingStore.isPlayoutMode" @restart="handleRestart" @hint="openingStore.hint"
+                    @toggle-analysis="analysisStore.isPanelVisible ? analysisStore.hidePanel() : analysisStore.showPanel(true)"
                     @playout="handlePlayout" />
             </div>
             <AnalysisPanel />

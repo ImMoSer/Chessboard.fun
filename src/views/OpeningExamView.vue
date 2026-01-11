@@ -4,9 +4,9 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import AnalysisPanel from '../components/AnalysisPanel.vue';
 import GameLayout from '../components/GameLayout.vue';
+import OpeningExamHeader from '../components/OpeningTrainer/OpeningExamHeader.vue';
 import OpeningExamSettingsModal from '../components/OpeningTrainer/OpeningExamSettingsModal.vue';
 import OpeningStatsTable from '../components/OpeningTrainer/OpeningStatsTable.vue';
-import OpeningTrainerHeader from '../components/OpeningTrainer/OpeningTrainerHeader.vue';
 import i18n from '../services/i18n';
 import { openingGraphService } from '../services/OpeningGraphService';
 import { useAnalysisStore } from '../stores/analysis.store';
@@ -30,7 +30,7 @@ const isExamEnding = computed(() => openingStore.isTheoryOver || openingStore.is
 // Automatically handle analysis panel in Exam mode
 watch(isExamEnding, (isEnding) => {
     if (isEnding) {
-        analysisStore.showPanel();
+        analysisStore.showPanel(true);
     } else {
         analysisStore.hidePanel();
     }
@@ -139,13 +139,11 @@ async function handlePlayout() {
     <GameLayout>
         <template #left-panel>
             <div class="controls-panel">
-                <OpeningTrainerHeader :opening-name="openingStore.openingName" :eco="openingStore.currentEco"
+                <OpeningExamHeader :opening-name="openingStore.openingName" :eco="openingStore.currentEco"
                     :average-accuracy="openingStore.averageAccuracy" :average-win-rate="openingStore.averageWinRate"
                     :average-rating="openingStore.averageRating" :is-theory-over="openingStore.isTheoryOver"
-                    :is-deviation="openingStore.isDeviation" :is-review-mode="isExamEnding"
-                    :is-analysis-active="analysisStore.isPanelVisible" :is-playout-mode="openingStore.isPlayoutMode"
-                    :lives="openingStore.lives" session-mode="game" @restart="handleRestart" @hint="openingStore.hint"
-                    @toggle-analysis="analysisStore.isPanelVisible ? analysisStore.hidePanel() : analysisStore.showPanel()"
+                    :is-deviation="openingStore.isDeviation" :is-playout-mode="openingStore.isPlayoutMode"
+                    :lives="openingStore.lives" @restart="handleRestart" @hint="openingStore.hint"
                     @playout="handlePlayout" />
             </div>
             <AnalysisPanel v-if="isExamEnding" />

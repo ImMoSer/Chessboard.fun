@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import {
   BulbOutline,
-  Heart,
   PlayOutline,
   RefreshOutline,
   SchoolOutline,
-  TrophyOutline
+  SearchOutline
 } from '@vicons/ionicons5';
 import {
   NButton,
@@ -28,11 +27,8 @@ defineProps<{
   averageRating: number;
   isTheoryOver: boolean;
   isDeviation: boolean;
-  isReviewMode: boolean;
   isAnalysisActive: boolean;
   isPlayoutMode?: boolean;
-  sessionMode: 'game' | 'training';
-  lives?: number;
 }>();
 
 const emit = defineEmits<{
@@ -61,24 +57,13 @@ const { t } = useI18n();
 
       <template #extra>
         <n-space align="center">
-          <!-- Lives Display (Hearts) -->
-          <div v-if="lives !== undefined" class="lives-container">
-            <n-space :size="4">
-              <n-icon v-for="i in 3" :key="i" size="20" :color="i <= lives ? '#f44336' : 'rgba(244, 67, 54, 0.2)'"
-                class="heart-icon" :class="{ 'lost': i > lives }">
-                <Heart v-if="i <= lives" />
-                <HeartOutline v-else />
-              </n-icon>
-            </n-space>
-          </div>
-
-          <n-tag :type="sessionMode === 'game' ? 'warning' : 'info'" size="small" round uppercase>
+          <n-tag type="info" size="small" round uppercase>
             <template #icon>
               <n-icon>
-                <component :is="sessionMode === 'game' ? TrophyOutline : SchoolOutline" />
+                <SchoolOutline />
               </n-icon>
             </template>
-            {{ sessionMode === 'game' ? t('nav.openingExam') : t('nav.openingTraining') }}
+            {{ t('nav.openingTraining') }}
           </n-tag>
           <n-tag v-if="isTheoryOver" type="warning" size="small" round uppercase>
             {{ t('openingTrainer.header.bookEnded') }}
@@ -123,8 +108,7 @@ const { t } = useI18n();
                 </n-button>
               </n-grid-item>
               <n-grid-item>
-                <n-button block secondary @click="emit('hint')"
-                  :disabled="isPlayoutMode || (sessionMode === 'game' && (lives === undefined || lives <= 0))">
+                <n-button block secondary @click="emit('hint')" :disabled="isPlayoutMode">
                   <template #icon><n-icon>
                       <BulbOutline />
                     </n-icon></template>
@@ -133,12 +117,26 @@ const { t } = useI18n();
               </n-grid-item>
             </n-grid>
 
-            <n-button class="playout-btn" type="success" secondary @click="emit('playout')" :disabled="isPlayoutMode">
-              <template #icon><n-icon>
-                  <PlayOutline />
-                </n-icon></template>
-              {{ t('openingTrainer.header.playout') }}
-            </n-button>
+            <n-grid :cols="2" :x-gap="8">
+              <n-grid-item>
+                <n-button block secondary @click="emit('toggle-analysis')"
+                  :type="isAnalysisActive ? 'primary' : 'default'">
+                  <template #icon><n-icon>
+                      <SearchOutline />
+                    </n-icon></template>
+                  {{ t('openingTrainer.header.analysis') }}
+                </n-button>
+              </n-grid-item>
+              <n-grid-item>
+                <n-button block class="playout-btn" type="success" secondary @click="emit('playout')"
+                  :disabled="isPlayoutMode">
+                  <template #icon><n-icon>
+                      <PlayOutline />
+                    </n-icon></template>
+                  {{ t('openingTrainer.header.playout') }}
+                </n-button>
+              </n-grid-item>
+            </n-grid>
           </n-space>
         </div>
       </template>
@@ -177,22 +175,6 @@ const { t } = useI18n();
 
 .controls-section {
   margin-top: 16px;
-}
-
-.lives-container {
-  padding: 4px 8px;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 20px;
-}
-
-.heart-icon {
-  transition: all 0.3s ease;
-  filter: drop-shadow(0 0 5px rgba(244, 67, 54, 0.2));
-
-  &.lost {
-    filter: none;
-    opacity: 0.3;
-  }
 }
 
 .playout-btn {
