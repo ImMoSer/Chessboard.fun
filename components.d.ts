@@ -87,6 +87,7 @@ declare module 'vue' {
     StatsCard: typeof import('./src/components/userCabinet/sections/StatsCard.vue')['default']
     StudyCandidateMoves: typeof import('./src/components/study/StudyCandidateMoves.vue')['default']
     StudyControls: typeof import('./src/components/study/StudyControls.vue')['default']
+    StudyLayout: typeof import('./src/components/study/StudyLayout.vue')['default']
     StudyOpeningExplorer: typeof import('./src/components/study/StudyOpeningExplorer.vue')['default']
     StudySidebar: typeof import('./src/components/study/StudySidebar.vue')['default']
     StudyTree: typeof import('./src/components/study/StudyTree.vue')['default']

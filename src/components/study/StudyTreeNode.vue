@@ -242,7 +242,7 @@ export default {
         <span v-if="node.nag" class="nag-text">{{ nagMap[node.nag] }}</span>
         <span v-if="node.comment" class="comment-indicator" :title="node.comment">💬</span>
         <span v-if="node.eval !== undefined" class="eval-tag" :class="getEvalClass(node.eval)">{{ formatEval(node.eval)
-        }}</span>
+          }}</span>
       </span>
     </template>
 
@@ -286,13 +286,20 @@ export default {
 
 .move-san {
   cursor: pointer;
-  padding: 2px 4px;
+  padding: 1px 1px;
+  /* Отступы вокруг каждого хода (внутренние) */
   border-radius: 3px;
   margin-right: 2px;
   display: inline-flex;
   align-items: baseline;
   gap: 2px;
   color: var(--color-text-primary, #e0e0e0);
+
+  /* --- ТОЧЕЧНАЯ НАСТРОЙКА ХОДА --- */
+  letter-spacing: -0.015em;
+  /* Межбуквенный интервал конкретно для хода */
+  word-spacing: 0.5px;
+  /* Расстояние между номером хода и SAN (например 1. e4) */
 }
 
 .pgn-lvl-main {
@@ -372,7 +379,8 @@ export default {
 }
 
 .variation-line {
-  margin-bottom: 4px;
+  margin-bottom: 2px;
+  /* Вертикальный отступ между вариациями в списке */
 }
 
 .variation-brace {
