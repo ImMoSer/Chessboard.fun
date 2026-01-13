@@ -1,8 +1,8 @@
 // src/services/GameplayService.ts
-import logger from '../utils/logger'
-import { singleThreadEngineManager } from './SingleThreadEngineManager' // <-- ИЗМЕНЕНО
-import { serverEngineService } from './ServerEngineService'
-import type { EngineId } from '../types/api.types'
+import type { EngineId } from '../types/api.types';
+import logger from '../utils/logger';
+import { serverEngineService } from './ServerEngineService';
+import { singleThreadEngineManager } from './SingleThreadEngineManager'; // <-- ИЗМЕНЕНО
 
 type EngineType = 'local' | 'server'
 
@@ -20,7 +20,7 @@ const FALLBACK_TIMEOUT_MS = 1500
 
 // --- НОВАЯ КОНФИГУРАЦИЯ ДВИЖКОВ ---
 export const engineConfigs: Record<EngineId, EngineConfig> = {
-  SF_2200: { type: 'local', depth: 12, contempt: 100 },
+  SF_2200: { type: 'local', depth: 10, contempt: 100 },
   MOZER_1900: { type: 'server', model: 'maia_1900', fallback: true },
   MOZER_2000: { type: 'server', model: 'mozer_2000', fallback: true },
   maia_2200: { type: 'server', model: 'maia_2200', fallback: true },

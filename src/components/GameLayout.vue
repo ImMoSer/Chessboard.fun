@@ -1,13 +1,13 @@
 <!-- src/components/GameLayout.vue -->
 <script setup lang="ts">
-import { computed, ref, watch, onMounted, onUnmounted } from 'vue'
+import { useAnalysisStore } from '@/stores/analysis.store'
 import { useBoardStore } from '@/stores/board.store'
 import { useGameStore } from '@/stores/game.store'
-import { useAnalysisStore } from '@/stores/analysis.store'
 import { useThemeStore } from '@/stores/theme.store'
-import WebChessBoard from './WebChessBoard.vue'
 import type { Key } from '@lichess-org/chessground/types'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useBoardResizer } from '../composables/useBoardResizer'
+import WebChessBoard from './WebChessBoard.vue'
 
 const centerColumnRef = ref<HTMLElement | null>(null)
 
@@ -54,11 +54,11 @@ const handleUserMove = ({ orig, dest }: { orig: Key; dest: Key }) => {
 }
 
 const handleBoardWheel = (direction: 'up' | 'down') => {
-  if (analysisStore.isAnalysisActive) {
+  if (analysisStore.isAnalysisActive || boardStore.isAnalysisModeActive) { // Разрешаем скролл и в режиме анализа
     if (direction === 'up') {
-      boardStore.navigatePgn('backward', analysisStore.playerColor)
+      boardStore.navigatePgn('backward') // Убираем analysisStore.playerColor, navigationPgn сам разберется
     } else {
-      boardStore.navigatePgn('forward', analysisStore.playerColor)
+      boardStore.navigatePgn('forward')
     }
   }
 }
@@ -131,7 +131,7 @@ onUnmounted(() => {
 
 <style scoped>
 .game-layout {
-  --side-panel-width: 350px;
+  --side-panel-width: 50vh;
   --top-bottom-height: 5vh;
 
   display: grid;
@@ -320,7 +320,7 @@ onUnmounted(() => {
     width: 100%;
     margin: 0;
     min-height: 50px;
-    max-height: 1000px;
+
     flex-shrink: 0;
     overflow-y: auto;
     -ms-overflow-style: none;

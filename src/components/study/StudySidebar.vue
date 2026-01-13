@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { useStudyStore, type StudyChapter } from '@/stores/study.store'
-import { ref, nextTick } from 'vue'
 import { pgnService } from '@/services/PgnService'
+import { useStudyStore, type StudyChapter } from '@/stores/study.store'
 import { useUiStore } from '@/stores/ui.store'
+import { nextTick, ref } from 'vue'
 import ChapterTemplateModal from './ChapterTemplateModal.vue'
 
 import { pgnParserService } from '@/services/PgnParserService'
@@ -182,6 +182,7 @@ const downloadChapter = (chapter: StudyChapter) => {
 <style scoped>
 .study-sidebar {
   height: auto;
+  max-height: 300px;
   display: flex;
   flex-direction: column;
   color: var(--color-text-primary, #ccc);

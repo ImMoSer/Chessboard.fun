@@ -1,12 +1,11 @@
 // vite.config.ts
-import { fileURLToPath, URL } from 'node:url'
-import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import { viteStaticCopy } from 'vite-plugin-static-copy'
-import VueDevTools from 'vite-plugin-vue-devtools'
+import { fileURLToPath, URL } from 'node:url'
 import AutoImport from 'unplugin-auto-import/vite'
-import Components from 'unplugin-vue-components/vite'
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
+import Components from 'unplugin-vue-components/vite'
+import { defineConfig } from 'vite'
+import VueDevTools from 'vite-plugin-vue-devtools'
 
 export default defineConfig({
   plugins: [
@@ -31,12 +30,7 @@ export default defineConfig({
       resolvers: [NaiveUiResolver()],
     }),
 
-    viteStaticCopy({
-      targets: [
-        { src: 'public/stockfish_wasm/*', dest: 'stockfish_wasm' },
-        { src: 'public/stockfish_single/*', dest: 'stockfish_single' },
-      ],
-    }),
+
 
     // 🔥 Включаем Vue Devtools
     VueDevTools(),

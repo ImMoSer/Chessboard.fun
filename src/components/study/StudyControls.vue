@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { useBoardStore } from '@/stores/board.store'
 import { pgnService } from '@/services/PgnService'
+import { useBoardStore } from '@/stores/board.store'
+import { useMessage } from 'naive-ui'
 
 const boardStore = useBoardStore()
+const message = useMessage()
 
 const handleFlip = () => {
     boardStore.flipBoard()
@@ -21,11 +23,13 @@ const handleDelete = () => {
 const handleCopyFen = () => {
     const fen = pgnService.getCurrentNavigatedFen()
     navigator.clipboard.writeText(fen)
+    message.success('FEN copied!')
 }
 
 const handleCopyPgn = () => {
     const pgn = pgnService.getFullPgn({})
     navigator.clipboard.writeText(pgn)
+    message.success('PGN copied!')
 }
 </script>
 
