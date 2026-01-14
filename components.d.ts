@@ -76,6 +76,7 @@ declare module 'vue' {
     OpeningTrainerSettingsModal: typeof import('./src/components/OpeningTrainer/OpeningTrainerSettingsModal.vue')['default']
     OpeningTrainingSettingsModal: typeof import('./src/components/OpeningTrainer/OpeningTrainingSettingsModal.vue')['default']
     PlayerStatsDetail: typeof import('./src/components/clubPage/PlayerStatsDetail.vue')['default']
+    PracticalStats: typeof import('./src/components/userCabinet/sections/PracticalStats.vue')['default']
     PromotionDialog: typeof import('./src/components/PromotionDialog.vue')['default']
     PuzzleInfo: typeof import('./src/components/PuzzleInfo.vue')['default']
     RadarChart: typeof import('./src/components/userCabinet/sections/RadarChart.vue')['default']

@@ -4,7 +4,7 @@ import type { Color as ChessgroundColor, EngineId } from '@/types/api.types'
 import logger from '../utils/logger'
 import i18n from './i18n'
 
-type ShareMode = 'finish-him' | 'tornado' | 'sandbox' | 'theory-endings'
+type ShareMode = 'finish-him' | 'tornado' | 'sandbox' | 'theory-endings' | 'practical-chess'
 
 class ShareServiceController {
   /**

@@ -180,6 +180,18 @@ const router = createRouter({
       component: () => import('../views/StudyView.vue'),
       meta: { isGame: true, game: 'study', requiresAuth: true }, // Optional requiresAuth
     },
+    {
+      path: '/practical-chess',
+      name: 'practical-chess',
+      component: () => import('../views/PracticalChessSelectionView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/practical-chess/play/:id?',
+      name: 'practical-chess-play',
+      component: () => import('../views/PracticalChessView.vue'),
+      meta: { isGame: true, requiresAuth: true, game: 'practical-chess' },
+    },
   ],
 })
 
@@ -267,6 +279,9 @@ router.afterEach(async (to, from) => {
   } else if (fromBaseRoute?.startsWith('theory-endings') && !toBaseRoute?.startsWith('theory-endings')) {
     const { useTheoryEndingsStore } = await import('../stores/theoryEndings.store')
     useTheoryEndingsStore().reset()
+  } else if (fromBaseRoute?.startsWith('practical-chess') && !toBaseRoute?.startsWith('practical-chess')) {
+    const { usePracticalChessStore } = await import('../stores/practicalChess.store')
+    usePracticalChessStore().reset()
   }
 })
 

@@ -253,6 +253,43 @@ class WebhookServiceController {
   }
   // --- END THEORY ENDINGS API ---
 
+  // --- PRACTICAL CHESS API ---
+  public async fetchPracticalPuzzle(
+    category: string,
+    difficulty: string,
+  ): Promise<any | null> {
+    const path = `/practical-chess/${category}/puzzle?difficulty=${difficulty}`
+    return this._apiRequest<any>(path, 'GET', 'fetchPracticalPuzzle')
+  }
+
+  public async processPracticalResult(
+    category: string,
+    dto: { puzzleId: string; wasCorrect: boolean },
+  ): Promise<GameResultResponse | null> {
+    return this._apiRequest<GameResultResponse>(
+      `/practical-chess/${category}/process-result`,
+      'POST',
+      'processPracticalResult',
+      dto,
+    )
+  }
+
+  public async fetchPracticalStats(): Promise<any | null> {
+    return this._apiRequest<any>(
+      '/practical-chess/stats',
+      'GET',
+      'fetchPracticalStats',
+    )
+  }
+
+  public async fetchPracticalPuzzleById(
+    id: string,
+  ): Promise<any | null> {
+    const path = `/practical-chess/puzzle/${id}`
+    return this._apiRequest<any>(path, 'GET', 'fetchPracticalPuzzleById')
+  }
+  // --- END PRACTICAL CHESS API ---
+
 
 
   public async sendFinishHimStatsUpdate(

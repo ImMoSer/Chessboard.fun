@@ -79,6 +79,11 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
           <!-- Theory Leaderboard -->
           <ThematicLeaderboardTable v-if="leaderboards.theoryLeaderboard" :title="t('records.titles.theoryLeaderboard')"
             :data="leaderboards.theoryLeaderboard" color-class="theoryLeaderboard" info-topic="theoryLeaderboard" />
+
+          <!-- Practical Leaderboard -->
+          <ThematicLeaderboardTable v-if="leaderboards.practicalLeaderboard"
+            :title="t('records.titles.practicalLeaderboard')" :data="leaderboards.practicalLeaderboard"
+            color-class="practicalLeaderboard" info-topic="practicalLeaderboard" />
         </div>
       </section>
 

@@ -1,19 +1,19 @@
 // src/stores/game.store.ts
-import { ref } from 'vue'
-import { defineStore } from 'pinia'
-import { useBoardStore, type GameEndOutcome } from './board.store'
-import { useAnalysisStore } from './analysis.store'
-import { gameplayService } from '../services/GameplayService'
-import type { Key, Color as ChessgroundColor } from '@lichess-org/chessground/types'
+import type { Color as ChessgroundColor, Key } from '@lichess-org/chessground/types'
 import { parseFen } from 'chessops/fen'
-import logger from '../utils/logger'
-import { useControlsStore } from './controls.store'
-import { soundService } from '../services/sound.service'
-import { useUiStore } from './ui.store'
+import { defineStore } from 'pinia'
+import { ref } from 'vue'
+import { gameplayService } from '../services/GameplayService'
 import { pgnService } from '../services/PgnService'
+import { soundService } from '../services/sound.service'
+import logger from '../utils/logger'
+import { useAnalysisStore } from './analysis.store'
+import { useBoardStore, type GameEndOutcome } from './board.store'
+import { useControlsStore } from './controls.store'
+import { useUiStore } from './ui.store'
 
 export type GamePhase = 'IDLE' | 'LOADING' | 'PLAYING' | 'GAMEOVER'
-export type GameMode = 'finish-him' | 'tornado' | 'sandbox' | 'opening-trainer' | 'theory' | null
+export type GameMode = 'finish-him' | 'tornado' | 'sandbox' | 'opening-trainer' | 'theory' | 'practical-chess' | null
 
 const BOT_MOVE_DELAY_MS = 50
 const FIRST_BOT_MOVE_DELAY_MS = 500

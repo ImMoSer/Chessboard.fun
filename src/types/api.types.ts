@@ -154,6 +154,39 @@ export interface UserTheoryEndingStatsDto {
 }
 // --- END THEORY ENDINGS ---
 
+// --- PRACTICAL CHESS MODE ---
+export const PRACTICAL_CHESS_CATEGORIES = [
+  'extra-pawn',
+  'BlackOrWhite',
+] as const
+
+export type PracticalChessCategory = (typeof PRACTICAL_CHESS_CATEGORIES)[number]
+
+export type PracticalChessDifficulty = 'Novice' | 'Pro' | 'Master'
+
+export interface PracticalChessPuzzle extends GamePuzzle {
+  puzzle_id: string
+  fen_0: string
+  winner: 'white' | 'black'
+  difficulty: PracticalChessDifficulty
+  bw_value?: number
+  count_pieces?: number
+  eval?: number
+  category: PracticalChessCategory
+}
+
+export interface PracticalChessResultDto {
+  puzzleId: string
+  wasCorrect: boolean
+}
+
+export interface PracticalChessStatItem {
+  puzzles_attempted: number
+  puzzles_solved: number
+  category: PracticalChessCategory
+}
+// --- END PRACTICAL CHESS ---
+
 
 
 export type WebhookSuccessResponse<T> = T | null
@@ -285,6 +318,7 @@ export interface WorktableLeaderboards {
   finishHimLeaderboard: FinishHimLeaderboardEntry[]
   advantageLeaderboard?: Record<string, AdvantageLeaderboardEntry[]>
   theoryLeaderboard?: Record<string, AdvantageLeaderboardEntry[]>
+  practicalLeaderboard?: Record<string, AdvantageLeaderboardEntry[]>
 }
 
 export type SkillPeriod = '7' | '14' | '21' | '30'
@@ -302,6 +336,7 @@ export interface SolvedByMode {
   tacticalTrainer: number
   tornado: number
   theory: number
+  'practical-chess': number
 }
 
 export interface OverallSolvedLeaderboardEntry {
@@ -362,6 +397,7 @@ export interface ActivityPeriodStats {
   advantage: ActivityModeStats
   tornado: ActivityModeStats
   theory: ActivityModeStats
+  'practical-chess': ActivityModeStats
 }
 
 export interface PersonalActivityStatsResponse {
@@ -400,6 +436,7 @@ export interface PuzzlesSolvedToday {
   tacticalTrainer: number
   tornado: number
   theory: number
+  'practical-chess': number
   total: number
 }
 
@@ -635,10 +672,15 @@ export interface TheoryEndingProfileDto {
   stats: Record<string, { requested: number; success: number }>
 }
 
+export interface PracticalChessProfileDto {
+  stats: PracticalChessStatItem[]
+}
+
 
 
 export interface UserProfileStatsDto {
   tornado: TornadoProfileDto
   advantage: AdvantageProfileDto
   theory: TheoryEndingProfileDto
+  practical: PracticalChessProfileDto
 }

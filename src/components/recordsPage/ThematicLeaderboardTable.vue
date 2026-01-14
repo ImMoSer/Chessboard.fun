@@ -58,6 +58,7 @@ const getThemeLabel = (theme: string) => {
 
 const getThemeIcon = (theme: string) => {
   if (te(`theoryEndings.categories.${theme}.icon`)) return t(`theoryEndings.categories.${theme}.icon`)
+  if (te(`practicalChess.categories.${theme}.icon`)) return t(`practicalChess.categories.${theme}.icon`)
   const fallbacks: Record<string, string> = {
     expert: '⭐', pawn: '♟', knight: '♞', bishop: '♝', rook: '♜', queen: '♛', king: '♚',
     rookPawn: '♖♙', rookPieces: '♖♘♗', knightBishop: '♘♗', queenPieces: '♕♘♗'
@@ -165,6 +166,10 @@ const swiperModules = [Navigation, Mousewheel, FreeMode]
 
 .theoryLeaderboard .main-header {
   background: linear-gradient(135deg, var(--color-accent-warning-hover), var(--color-accent-warning));
+}
+
+.practicalLeaderboard .main-header {
+  background: linear-gradient(135deg, var(--color-accent-primary-hover), var(--color-accent-primary));
 }
 
 .card-title {

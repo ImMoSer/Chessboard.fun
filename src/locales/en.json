@@ -101,6 +101,7 @@
     "finishHim": "Finish Him",
     "sandbox": "Sandbox",
     "theoryEndings": "Endgames",
+    "practicalChess": "Practical",
     "tacktics": "Tacktics",
     "tornado": "Tornado",
     "leaderboards": "LeaderBoards",
@@ -184,6 +185,7 @@
     "buttons": {
       "finishHim": "Finish Him",
       "theoryEndings": "Endgames",
+      "practicalChess": "Practical",
       "tacktics": "Tacktics",
       "clubs": "FunClub",
       "leaderboards": "Leaderboards",
@@ -313,7 +315,8 @@
       "skillStreakMega": "Tornado +300 Every Day",
       "topToday": "Top Today",
       "advantageLeaderboard": "Advantage Records",
-      "theoryLeaderboard": "Theory Records"
+      "theoryLeaderboard": "Theory Records",
+      "practicalLeaderboard": "Practical Records"
     },
     "table": {
       "rank": "#",
@@ -932,6 +935,25 @@
       "win": "You won! Position converted.",
       "drawSuccess": "Draw achieved! Great defense.",
       "loss": "Defeat. Try again."
+    },
+    "practicalChess": {
+      "selection": {
+        "title": "Practical Chess",
+        "subtitle": "Develop skills in converting advantages and defending typical situations.",
+        "difficultyLabel": "Difficulty",
+        "categoryLabel": "Category",
+        "start": "Start Training"
+      },
+      "categories": {
+        "extra-pawn": {
+          "name": "Extra Pawn",
+          "icon": "♟️"
+        },
+        "BlackOrWhite": {
+          "name": "Black or White",
+          "icon": "🌓"
+        }
+      }
     }
   }
 }

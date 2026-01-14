@@ -47,6 +47,11 @@ const handleChangeLang = (lang: 'en' | 'ru' | 'de') => {
           <span class="mode-button-text">{{ t('welcome.buttons.theoryEndings') }}</span>
         </router-link>
 
+        <router-link class="mode-button" to="/practical-chess">
+          <span class="mode-button-icon">♟️</span>
+          <span class="mode-button-text">{{ t('welcome.buttons.practicalChess') }}</span>
+        </router-link>
+
         <router-link class="mode-button training-btn" to="/opening-training">
           <span class="mode-button-icon">🏋️</span>
           <span class="mode-button-text">{{ t('welcome.buttons.openingTraining') }}</span>

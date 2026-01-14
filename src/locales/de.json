@@ -101,6 +101,7 @@
     "finishHim": "FinishHim",
     "sandbox": "Sandbox",
     "theoryEndings": "Endspiel",
+    "practicalChess": "Praxis",
     "tacktics": "Taktik",
     "tornado": "Tornado",
     "leaderboards": "Bestenlisten",
@@ -184,6 +185,7 @@
     "buttons": {
       "finishHim": "FinishHim",
       "theoryEndings": "Endspiel",
+      "practicalChess": "Praxis",
       "tacktics": "Taktik",
       "clubs": "FunClub",
       "leaderboards": "Bestenlisten",

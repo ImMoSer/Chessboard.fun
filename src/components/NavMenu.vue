@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { h, computed } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { useRouter, useRoute } from 'vue-router'
 import { NMenu, type MenuOption } from 'naive-ui'
+import { computed, h } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRoute, useRouter } from 'vue-router'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -39,6 +39,11 @@ const menuOptions: MenuOption[] = [
     label: () => t('nav.finishHim'),
     key: '/finish-him',
     icon: renderEmojiIcon('🎯')
+  },
+  {
+    label: () => t('nav.practicalChess'),
+    key: '/practical-chess',
+    icon: renderEmojiIcon('♟️')
   },
   {
     label: () => t('nav.sandbox'),

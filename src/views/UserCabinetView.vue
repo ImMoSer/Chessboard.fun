@@ -1,16 +1,17 @@
 <!-- src/views/UserCabinetView.vue -->
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { storeToRefs } from 'pinia'
 import { useAuthStore } from '@/stores/auth.store'
 import { useUserCabinetStore } from '@/stores/userCabinet.store'
 import type { TornadoMode } from '@/types/api.types'
+import { storeToRefs } from 'pinia'
+import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
-import UserProfileHeader from '@/components/userCabinet/sections/UserProfileHeader.vue'
 import ActivityChart from '@/components/userCabinet/sections/ActivityChart.vue'
-import TheoryStackbarChart from '@/components/userCabinet/sections/TheoryStackbarChart.vue'
+import PracticalStats from '@/components/userCabinet/sections/PracticalStats.vue'
 import ThemeRoseChart from '@/components/userCabinet/sections/ThemeRoseChart.vue'
+import TheoryStackbarChart from '@/components/userCabinet/sections/TheoryStackbarChart.vue'
+import UserProfileHeader from '@/components/userCabinet/sections/UserProfileHeader.vue'
 
 const { t } = useI18n()
 
@@ -57,36 +58,25 @@ onMounted(() => {
         <UserProfileHeader />
 
         <ActivityChart />
-        
+
         <div class="charts-grid">
           <!-- Tornado Stats Section -->
-          <ThemeRoseChart 
-            v-if="detailedStats && detailedStats.tornado"
-            v-model:activeMode="selectedTornadoMode"
-            :modes="['bullet', 'blitz', 'rapid', 'classic']"
-            :themes="currentTornadoThemes" 
-            :title="t('userCabinet.stats.modes.tornado')"
-          />
+          <ThemeRoseChart v-if="detailedStats && detailedStats.tornado" v-model:activeMode="selectedTornadoMode"
+            :modes="['bullet', 'blitz', 'rapid', 'classic']" :themes="currentTornadoThemes"
+            :title="t('userCabinet.stats.modes.tornado')" />
 
-          <ThemeRoseChart 
-            v-if="detailedStats && detailedStats.advantage" 
-            :themes="detailedStats.advantage.themes" 
-            :title="t('userCabinet.stats.modes.advantage')" 
-          />
+          <ThemeRoseChart v-if="detailedStats && detailedStats.advantage" :themes="detailedStats.advantage.themes"
+            :title="t('userCabinet.stats.modes.advantage')" />
         </div>
 
         <div class="charts-grid">
-          <TheoryStackbarChart 
-            v-if="detailedStats && detailedStats.advantage" 
-            :stats="detailedStats.advantage.stats"
-            mode="advantage" 
-          />
+          <TheoryStackbarChart v-if="detailedStats && detailedStats.advantage" :stats="detailedStats.advantage.stats"
+            mode="advantage" />
 
-          <TheoryStackbarChart 
-            v-if="detailedStats && detailedStats.theory" 
-            :stats="detailedStats.theory.stats"
-            mode="theory" 
-          />
+          <TheoryStackbarChart v-if="detailedStats && detailedStats.theory" :stats="detailedStats.theory.stats"
+            mode="theory" />
+
+          <PracticalStats v-if="detailedStats && detailedStats.practical" :stats="detailedStats.practical.stats" />
         </div>
       </n-space>
     </div>
