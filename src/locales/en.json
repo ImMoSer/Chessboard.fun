@@ -884,6 +884,27 @@
       },
       "material_equality": {
         "icon": "⚖️"
+      },
+      "bishops": {
+        "icon": "♗♗"
+      },
+      "knights": {
+        "icon": "♘♘"
+      },
+      "pawns": {
+        "icon": "♙♙"
+      },
+      "queens": {
+        "icon": "♕♕"
+      },
+      "rooks": {
+        "icon": "♖♖"
+      },
+      "exchange": {
+        "icon": "⇄"
+      },
+      "knight_vs_bishop": {
+        "icon": "♘♗"
       }
     }
   }

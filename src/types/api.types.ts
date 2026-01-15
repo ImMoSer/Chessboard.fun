@@ -158,6 +158,13 @@ export interface UserTheoryEndingStatsDto {
 export const PRACTICAL_CHESS_CATEGORIES = [
   'extra_pawn',
   'material_equality',
+  'bishops',
+  'knights',
+  'pawns',
+  'queens',
+  'rooks',
+  'exchange',
+  'knight_vs_bishop',
 ] as const
 
 export type PracticalChessCategory = (typeof PRACTICAL_CHESS_CATEGORIES)[number]
@@ -184,6 +191,14 @@ export interface PracticalChessStatItem {
   puzzles_attempted: number
   puzzles_solved: number
   category: PracticalChessCategory
+}
+
+export interface PracticalStats {
+  user_id: string
+  category: PracticalChessCategory
+  difficulty: PracticalChessDifficulty
+  puzzles_solved: number
+  puzzles_attempted: number
 }
 // --- END PRACTICAL CHESS ---
 

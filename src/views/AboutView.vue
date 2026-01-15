@@ -1,6 +1,6 @@
 <!-- src/views/AboutView.vue -->
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
+import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n()
 const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
@@ -84,8 +84,7 @@ const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
       </li>
       <li>
         <strong>{{ t('about.techStack.api') }}</strong>{{ t('about.techStack.apiStack')
-        }}<a href="https://lichess.org/api" target="_blank" rel="noopener noreferrer">https://lichess.org/api</a>{{
-          t('common.closingParenthesis') }}
+        }}<a href="https://lichess.org/api" target="_blank" rel="noopener noreferrer">https://lichess.org/api</a>)
       </li>
     </ul>
 
@@ -101,7 +100,7 @@ const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
     <p>
       {{ t('about.licenseAndAcknowledgements.stockfish.text1') }}
       <strong>Stockfish</strong>{{ t('about.licenseAndAcknowledgements.stockfish.text2') }}
-      <strong>GPLv3</strong>{{ t('common.period') }}
+      <strong>GPLv3</strong>.
     </p>
     <p class="licensing-note">
       <strong>{{ t('about.licenseAndAcknowledgements.stockfish.gplNoteTitle') }}</strong>
@@ -112,7 +111,7 @@ const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
       <li>
         {{ t('about.licenseAndAcknowledgements.stockfish.licenseText') }}
         <a href="https://www.gnu.org/licenses/gpl-3.0.html" target="_blank"
-          rel="noopener noreferrer">https://www.gnu.org/licenses/gpl-3.0.html</a>{{ t('common.period') }}
+          rel="noopener noreferrer">https://www.gnu.org/licenses/gpl-3.0.html</a>.
       </li>
     </ul>
     <p>{{ t('about.licenseAndAcknowledgements.stockfish.gratitude') }}</p>
@@ -124,17 +123,17 @@ const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
       <li>
         <a href="https://www.maiachess.com/" target="_blank" rel="noopener noreferrer">{{
           t('about.licenseAndAcknowledgements.maia.links.website')
-          }}</a>
+        }}</a>
       </li>
       <li>
         <a href="https://github.com/CSSLab/maia-chess" target="_blank" rel="noopener noreferrer">{{
           t('about.licenseAndAcknowledgements.maia.links.github')
-          }}</a>
+        }}</a>
       </li>
       <li>
         <a href="https://lichess.org/@/maia9" target="_blank" rel="noopener noreferrer">{{
           t('about.licenseAndAcknowledgements.maia.links.lichessBot')
-          }}</a>
+        }}</a>
       </li>
     </ul>
 
@@ -145,12 +144,12 @@ const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
       <li>
         <a href="https://lczero.org/" target="_blank" rel="noopener noreferrer">{{
           t('about.licenseAndAcknowledgements.lcZero.links.website')
-          }}</a>
+        }}</a>
       </li>
       <li>
         <a href="https://github.com/LeelaChessZero/lc0" target="_blank" rel="noopener noreferrer">{{
           t('about.licenseAndAcknowledgements.lcZero.links.github')
-          }}</a>
+        }}</a>
       </li>
     </ul>
 
