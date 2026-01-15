@@ -1,6 +1,7 @@
 <!-- src/components/userCabinet/sections/PracticalStats.vue -->
 <script setup lang="ts">
 import type { PracticalChessStatItem } from '@/types/api.types'
+import { getThemeTranslationKey } from '@/utils/theme-mapper'
 import type { PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -21,7 +22,7 @@ defineProps({
             <div v-for="stat in stats" :key="stat.category" class="stat-card">
                 <div class="cat-info">
                     <span class="cat-icon">{{ t(`practicalChess.categories.${stat.category}.icon`) }}</span>
-                    <span class="cat-name">{{ t(`practicalChess.categories.${stat.category}.name`) }}</span>
+                    <span class="cat-name">{{ t(`chess.themes.${getThemeTranslationKey(stat.category)}`) }}</span>
                 </div>
                 <div class="stat-values">
                     <div class="stat-item">

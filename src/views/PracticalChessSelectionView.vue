@@ -7,6 +7,7 @@ import {
     type PracticalChessCategory,
     type PracticalChessDifficulty,
 } from '@/types/api.types'
+import { getThemeTranslationKey } from '@/utils/theme-mapper'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
@@ -60,7 +61,7 @@ function handleStart() {
                         <button v-for="cat in PRACTICAL_CHESS_CATEGORIES" :key="cat" class="category-btn"
                             :class="{ active: selectedCategory === cat }" @click="selectedCategory = cat">
                             <span class="cat-icon">{{ t(`practicalChess.categories.${cat}.icon`) }}</span>
-                            <span class="cat-name">{{ t(`practicalChess.categories.${cat}.name`) }}</span>
+                            <span class="cat-name">{{ t(`chess.themes.${getThemeTranslationKey(cat)}`) }}</span>
                         </button>
                     </div>
                 </div>

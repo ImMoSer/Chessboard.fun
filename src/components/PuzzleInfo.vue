@@ -5,22 +5,22 @@ import { useRoute } from 'vue-router'
 import { useFinishHimStore } from '../stores/finishHim.store'
 
 import {
-    BarChartOutline,
-    FlashOutline,
-    ListOutline,
-    StarOutline,
-    TimeOutline,
-    TrendingUpOutline
+  BarChartOutline,
+  FlashOutline,
+  ListOutline,
+  StarOutline,
+  TimeOutline,
+  TrendingUpOutline
 } from '@vicons/ionicons5'
 import {
-    NCard,
-    NGrid, NGridItem,
-    NIcon,
-    NSpace,
-    NStatistic,
-    NTable,
-    NTag,
-    NText
+  NCard,
+  NGrid, NGridItem,
+  NIcon,
+  NSpace,
+  NStatistic,
+  NTable,
+  NTag,
+  NText
 } from 'naive-ui'
 import { useTheoryEndingsStore } from '../stores/theoryEndings.store'
 import { useTornadoStore } from '../stores/tornado.store'
@@ -52,6 +52,11 @@ const tacticalThemesList = computed<string[]>(() => {
   const puzzle = activePuzzle.value
   if (!puzzle) return []
 
+  // 1. Unified theme_key from backend (preferred)
+  if ((puzzle as any).theme_key) return [(puzzle as any).theme_key]
+  if ((puzzle as any).meta?.theme_key) return [(puzzle as any).meta.theme_key]
+
+  // 2. Legacy/Specific formats
   if (puzzle.EngmThemes_PG) {
     return puzzle.EngmThemes_PG.replace(/[{}]/g, '').split(',').map(t => t.trim())
   }
@@ -69,7 +74,6 @@ const tacticalThemesList = computed<string[]>(() => {
   }
 
   if (route.name?.toString().startsWith('theory-endings') && puzzle) {
-    // For theory endings, we can show category/difficulty as themes
     const theoryPuzzle = puzzle as unknown as TheoryEndingPuzzle
     return [theoryPuzzle.category, theoryPuzzle.difficulty]
   }
@@ -261,7 +265,7 @@ const sortedResults = computed(() => {
                 <StarOutline />
               </n-icon>
               <n-text strong uppercase depth="3" class="section-subtitle">{{ t('puzzleInfo.leaderboardTitle')
-                }}</n-text>
+              }}</n-text>
             </n-space>
             <n-table size="small" :bordered="false" class="minimal-table">
               <thead>

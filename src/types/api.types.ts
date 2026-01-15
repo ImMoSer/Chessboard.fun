@@ -233,6 +233,7 @@ export interface AdvantageLeaderboardEntry {
 
 export interface GamePuzzle {
   PuzzleId: string
+  id?: string
   FEN_0: string
   Moves: string
   Rating: number
@@ -254,6 +255,11 @@ export interface GamePuzzle {
   EngmThemes_PG?: string
   difficulty?: string
   engmMap?: string
+  theme_key?: string
+  meta?: {
+    theme_key: string
+    [key: string]: any
+  }
 }
 
 export interface TacticalThemeStat {

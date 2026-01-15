@@ -47,9 +47,6 @@
     "notAvailable": "N/A",
     "linkCopied": "Link copied to clipboard!",
     "copyFailed": "Could not copy link.",
-    "closingParenthesis": ")",
-    "period": ".",
-    "periodAndSpace": ". ",
     "close": "Close"
   },
   "engine": {
@@ -854,40 +851,38 @@
       "Master": "Master"
     },
     "categories": {
-      "auto": { "name": "Automatic", "icon": "✨" },
-      "pawn_endgame": { "name": "King & Pawn", "icon": "♔♟" },
-      "bishop_endgame": { "name": "Bishop", "icon": "♗♙" },
-      "knight_endgame": { "name": "Knight", "icon": "♘♙" },
-      "queen_endgame": { "name": "Queen", "icon": "♕♙" },
-      "rook_pawn_endgame": { "name": "Rook & Pawn", "icon": "♖♙" },
-      "rook_pieces_endgame": { "name": "Exchange", "icon": "♖♘♗" },
-      "knight_vs_bishop": { "name": "Knight & Bishop", "icon": "♘♗" },
-      "queen_pieces_endgame": { "name": "Queen & Pieces", "icon": "♕♘♗" },
-      "expert_endgame": { "name": "Expert Level", "icon": "🎓" }
+      "auto": { "icon": "✨" },
+      "pawn_endgame": { "icon": "♔♟" },
+      "bishop_endgame": { "icon": "♗♙" },
+      "knight_endgame": { "icon": "♘♙" },
+      "queen_endgame": { "icon": "♕♙" },
+      "rook_pawn_endgame": { "icon": "♖♙" },
+      "rook_pieces_endgame": { "icon": "♖♘♗" },
+      "knight_vs_bishop": { "icon": "♘♗" },
+      "queen_pieces_endgame": { "icon": "♕♘♗" },
+      "expert_endgame": { "icon": "🎓" }
     },
     "feedback": {
       "pressNext": "Press 'Play' to start.",
       "win": "You won! Position converted.",
       "drawSuccess": "Draw achieved! Great defense.",
       "loss": "Defeat. Try again."
+    }
+  },
+  "practicalChess": {
+    "selection": {
+      "title": "Practical Chess",
+      "subtitle": "Develop skills in converting advantages and defending typical situations.",
+      "difficultyLabel": "Difficulty",
+      "categoryLabel": "Category",
+      "start": "Start Training"
     },
-    "practicalChess": {
-      "selection": {
-        "title": "Practical Chess",
-        "subtitle": "Develop skills in converting advantages and defending typical situations.",
-        "difficultyLabel": "Difficulty",
-        "categoryLabel": "Category",
-        "start": "Start Training"
+    "categories": {
+      "extra_pawn": {
+        "icon": "➕♟"
       },
-      "categories": {
-        "extra_pawn": {
-          "name": "Extra Pawn",
-          "icon": "♟️"
-        },
-        "material_equality": {
-          "name": "Material Equality",
-          "icon": "🌓"
-        }
+      "material_equality": {
+        "icon": "⚖️"
       }
     }
   }

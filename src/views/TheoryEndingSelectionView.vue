@@ -8,6 +8,7 @@ import {
     type TheoryEndingDifficulty,
     type TheoryEndingType,
 } from '@/types/api.types'
+import { getThemeTranslationKey } from '@/utils/theme-mapper'
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
@@ -80,7 +81,7 @@ onMounted(() => {
                         <button v-for="cat in THEORY_ENDING_CATEGORIES" :key="cat" class="category-btn"
                             :class="{ active: selectedCategory === cat }" @click="selectedCategory = cat">
                             <span class="cat-icon">{{ t(`theoryEndings.categories.${cat}.icon`) }}</span>
-                            <span class="cat-name">{{ t(`theoryEndings.categories.${cat}.name`) }}</span>
+                            <span class="cat-name">{{ t(`chess.themes.${getThemeTranslationKey(cat)}`) }}</span>
                         </button>
                     </div>
                 </div>

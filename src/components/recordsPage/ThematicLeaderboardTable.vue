@@ -53,9 +53,7 @@ const getSubscriptionIcon = (tier?: string) => {
 
 const getThemeLabel = (theme: string) => {
   const key = getThemeTranslationKey(theme)
-  if (te(`chess.themes.${key}`)) return t(`chess.themes.${key}`)
-  if (te(`theoryEndings.categories.${key}.name`)) return t(`theoryEndings.categories.${key}.name`)
-  return theme
+  return t(`chess.themes.${key}`, { defaultValue: theme })
 }
 
 const getThemeIcon = (theme: string) => {

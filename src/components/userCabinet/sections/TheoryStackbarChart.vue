@@ -4,10 +4,10 @@ import { getThemeTranslationKey } from '@/utils/theme-mapper'
 import { ExpandOutline } from '@vicons/ionicons5'
 import { BarChart } from 'echarts/charts'
 import {
-    GridComponent,
-    LegendComponent,
-    TitleComponent,
-    TooltipComponent
+  GridComponent,
+  LegendComponent,
+  TitleComponent,
+  TooltipComponent
 } from 'echarts/components'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
@@ -101,9 +101,7 @@ const option = computed(() => {
       formatter: (params: any) => {
         const theme = themes[params[0].dataIndex]
         if (!theme) return ''
-        const themeKey = `theoryEndings.categories.${theme}.name`
-        const translatedTheme = t(themeKey)
-        const themeName = translatedTheme !== themeKey ? translatedTheme : t(`chess.themes.${getThemeTranslationKey(theme)}`)
+        const themeName = t(`chess.themes.${getThemeTranslationKey(theme)}`, { defaultValue: theme })
 
         let html = `<div style="padding: 4px; min-width: 150px;">
                       <b style="color: #FFFFFF; display: block; margin-bottom: 8px; border-bottom: 1px solid #5A5A5A; padding-bottom: 4px;">${themeName}</b>`
@@ -221,8 +219,7 @@ const onChartClick = (params: any) => {
     <!-- Zoom Modal -->
     <n-modal v-model:show="showModal" preset="card" class="zoom-modal"
       :title="props.mode === 'theory' ? t('userCabinet.stats.modes.theory') : t('userCabinet.stats.modes.advantage')"
-      style="width: 90vw; max-width: 1200px;"
-    >
+      style="width: 90vw; max-width: 1200px;">
       <div class="modal-content">
         <div class="modal-controls" v-if="mode === 'theory'">
           <n-radio-group v-model:value="activeType" size="medium">

@@ -46,7 +46,7 @@ const sortedStats = computed(() => {
     let label = ''
     if (props.mode === 'theory') {
       const theoryData = data as TheoryStat
-      const category = t('theoryEndings.categories.' + theoryData.category + '.name')
+      const category = t('chess.themes.' + getThemeTranslationKey(theoryData.category))
       const type = t('theoryEndings.types.' + theoryData.type)
       const diff = t('theoryEndings.difficulties.' + theoryData.difficulty.toLowerCase())
       label = `${category} - ${diff} (${type})`
