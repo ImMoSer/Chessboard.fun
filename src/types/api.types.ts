@@ -156,8 +156,8 @@ export interface UserTheoryEndingStatsDto {
 
 // --- PRACTICAL CHESS MODE ---
 export const PRACTICAL_CHESS_CATEGORIES = [
-  'extra-pawn',
-  'BlackOrWhite',
+  'extra_pawn',
+  'material_equality',
 ] as const
 
 export type PracticalChessCategory = (typeof PRACTICAL_CHESS_CATEGORIES)[number]
