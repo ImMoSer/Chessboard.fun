@@ -149,7 +149,7 @@ const containerClass = computed(() => {
 }
 
 .puzzle-title-label {
-  font-size: var(--font-size-xlarge);
+  font-size: var(--font-size-large);
   font-weight: 800;
   color: var(--color-accent-primary);
   text-transform: uppercase;

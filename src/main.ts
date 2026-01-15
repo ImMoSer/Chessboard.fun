@@ -1,15 +1,14 @@
 // src/main.ts
-import './assets/main.css'
 import 'vue-data-ui/style.css'
+import './assets/main.css'
 
-import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import i18n from './services/i18n'
 
 import { useAuthStore } from './stores/auth.store'
-import { analysisService } from './services/AnalysisService'
 
 async function initializeApp() {
   const app = createApp(App)
@@ -21,8 +20,6 @@ async function initializeApp() {
 
   const authStore = useAuthStore()
   await authStore.initialize()
-
-  await analysisService.initialize()
 
   // --- НАЧАЛО ИЗМЕНЕНИЙ: Логика редиректа после входа ---
   if (authStore.isAuthenticated) {
