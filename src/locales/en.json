@@ -406,7 +406,8 @@
       "score": "Score",
       "performance": "Perf.",
       "arenaRank": "ArenaRank",
-      "cronePlayer": "Contributed to the tournament standings"
+      "cronePlayer": "Contributed to the tournament standings",
+      "totalMedals": "Total"
     },
     "details": {
       "medalsTitle": "Medals",

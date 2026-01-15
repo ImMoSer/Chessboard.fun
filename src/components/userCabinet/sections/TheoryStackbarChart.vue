@@ -137,9 +137,7 @@ const option = computed(() => {
     xAxis: {
       type: 'category',
       data: themes.map(theme => {
-        const themeKey = `theoryEndings.categories.${theme}.name`
-        const translatedTheme = t(themeKey)
-        return translatedTheme !== themeKey ? translatedTheme : t(`chess.themes.${getThemeTranslationKey(theme)}`)
+        return t(`chess.themes.${getThemeTranslationKey(theme)}`)
       }),
       axisLabel: {
         color: '#CCCCCC',

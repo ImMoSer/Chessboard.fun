@@ -69,7 +69,8 @@ onMounted(() => {
                         <button v-for="theme in themesWithIcons" :key="theme.key" class="category-btn"
                             :class="{ active: selectedTheme === theme.key }" @click="selectedTheme = theme.key">
                             <span v-if="!theme.isSvg" class="cat-icon">
-                                {{ t(`theoryEndings.categories.${theme.key}.icon`, theme.key === 'auto' ? '✨' : '') }}
+                                {{ t(`theoryEndings.categories.${getThemeTranslationKey(theme.key)}.icon`, theme.key ===
+                                'auto' ? '✨' : '') }}
                             </span>
                             <img v-else :src="theme.icon" class="cat-icon-svg" alt="icon" />
                             <span class="cat-name">{{ t(`chess.themes.${getThemeTranslationKey(theme.key)}`) }}</span>

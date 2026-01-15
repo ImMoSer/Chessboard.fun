@@ -53,6 +53,13 @@ export const THEME_KEY_MAP: Record<string, string> = {
   bishopEndgame: 'bishop_endgame',
   rookEndgame: 'rook_endgame',
   queenEndgame: 'queen_endgame',
+
+  // Plural forms used in leaderboards
+  pawns: 'pawn_endgame',
+  knights: 'knight_endgame',
+  bishops: 'bishop_endgame',
+  rooks: 'rook_endgame',
+  queens: 'queen_endgame',
 }
 
 export const getThemeTranslationKey = (theme: string): string => {

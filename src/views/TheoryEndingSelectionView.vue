@@ -80,7 +80,8 @@ onMounted(() => {
                     <div class="category-grid">
                         <button v-for="cat in THEORY_ENDING_CATEGORIES" :key="cat" class="category-btn"
                             :class="{ active: selectedCategory === cat }" @click="selectedCategory = cat">
-                            <span class="cat-icon">{{ t(`theoryEndings.categories.${cat}.icon`) }}</span>
+                            <span class="cat-icon">{{ t(`theoryEndings.categories.${getThemeTranslationKey(cat)}.icon`)
+                                }}</span>
                             <span class="cat-name">{{ t(`chess.themes.${getThemeTranslationKey(cat)}`) }}</span>
                         </button>
                     </div>
