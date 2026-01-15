@@ -8,7 +8,6 @@ import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import ActivityChart from '@/components/userCabinet/sections/ActivityChart.vue'
-import PracticalStats from '@/components/userCabinet/sections/PracticalStats.vue'
 import ThemeRoseChart from '@/components/userCabinet/sections/ThemeRoseChart.vue'
 import TheoryStackbarChart from '@/components/userCabinet/sections/TheoryStackbarChart.vue'
 import UserProfileHeader from '@/components/userCabinet/sections/UserProfileHeader.vue'
@@ -76,7 +75,8 @@ onMounted(() => {
           <TheoryStackbarChart v-if="detailedStats && detailedStats.theory" :stats="detailedStats.theory.stats"
             mode="theory" />
 
-          <PracticalStats v-if="detailedStats && detailedStats.practical" :stats="detailedStats.practical.stats" />
+          <TheoryStackbarChart v-if="detailedStats && detailedStats.practical" :stats="detailedStats.practical.stats"
+            mode="practical" />
         </div>
       </n-space>
     </div>

@@ -694,7 +694,7 @@ export interface TheoryEndingProfileDto {
 }
 
 export interface PracticalChessProfileDto {
-  stats: PracticalChessStatItem[]
+  stats: Record<string, { requested: number; success: number }>
 }
 
 

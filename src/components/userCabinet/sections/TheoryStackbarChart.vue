@@ -4,10 +4,10 @@ import { getThemeTranslationKey } from '@/utils/theme-mapper'
 import { ExpandOutline } from '@vicons/ionicons5'
 import { BarChart } from 'echarts/charts'
 import {
-  GridComponent,
-  LegendComponent,
-  TitleComponent,
-  TooltipComponent
+    GridComponent,
+    LegendComponent,
+    TitleComponent,
+    TooltipComponent
 } from 'echarts/components'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
@@ -37,7 +37,7 @@ const props = defineProps({
     required: true,
   },
   mode: {
-    type: String as PropType<'theory' | 'advantage'>,
+    type: String as PropType<'theory' | 'advantage' | 'practical'>,
     default: 'theory',
   }
 })
@@ -68,7 +68,8 @@ const currentThemes = computed(() => {
   })
 
   const preferredOrder = [
-    'pawn', 'knight', 'bishop', 'rookPawn', 'rookPieces', 'knightBishop', 'queen', 'queenPieces', 'expert'
+    'pawn', 'knight', 'bishop', 'rookPawn', 'rookPieces', 'knightBishop', 'queen', 'queenPieces', 'expert',
+    'extra_pawn', 'material_equality', 'bishops', 'knights', 'pawns', 'queens', 'rooks', 'exchange', 'knight_vs_bishop'
   ]
 
   return Array.from(themes).sort((a, b) => {
@@ -191,7 +192,11 @@ const onChartClick = (params: any) => {
       <div class="header-left">
         <div class="title-group">
           <h3 class="theory-title">
-            {{ props.mode === 'theory' ? t('userCabinet.stats.modes.theory') : t('userCabinet.stats.modes.advantage') }}
+            {{
+              mode === 'theory' ? t('userCabinet.stats.modes.theory') :
+              mode === 'advantage' ? t('userCabinet.stats.modes.advantage') :
+              t('userCabinet.stats.modes.practical')
+            }}
           </h3>
           <n-button quaternary circle size="small" @click="showModal = true" class="zoom-btn">
             <template #icon>
@@ -216,7 +221,7 @@ const onChartClick = (params: any) => {
 
     <!-- Zoom Modal -->
     <n-modal v-model:show="showModal" preset="card" class="zoom-modal"
-      :title="props.mode === 'theory' ? t('userCabinet.stats.modes.theory') : t('userCabinet.stats.modes.advantage')"
+      :title="mode === 'theory' ? t('userCabinet.stats.modes.theory') : mode === 'advantage' ? t('userCabinet.stats.modes.advantage') : t('userCabinet.stats.modes.practical')"
       style="width: 90vw; max-width: 1200px;">
       <div class="modal-content">
         <div class="modal-controls" v-if="mode === 'theory'">
@@ -244,7 +249,8 @@ const onChartClick = (params: any) => {
   box-sizing: border-box;
 }
 
-.mode-advantage .theory-title {
+.mode-advantage .theory-title,
+.mode-practical .theory-title {
   color: var(--color-accent-primary);
 }
 
