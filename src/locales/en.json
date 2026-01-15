@@ -844,7 +844,8 @@
     },
     "types": {
       "win": "Win",
-      "draw": "Draw"
+      "draw": "Draw",
+      "advantage": "Advantage"
     },
     "difficulties": {
       "Novice": "Novice",
