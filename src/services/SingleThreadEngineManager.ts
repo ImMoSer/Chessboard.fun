@@ -73,7 +73,7 @@ class SingleThreadEngineManagerController {
 
   private async _initEngine(): Promise<void> {
     try {
-      this.engine = await loadSingleThreadEngine(this.currentProfile)
+      this.engine = await loadSingleThreadEngine()
       this.engine.addMessageListener((message: string) => this.handleEngineMessage(message))
 
       const timeoutId = setTimeout(() => {

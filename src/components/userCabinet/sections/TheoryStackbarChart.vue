@@ -1,18 +1,19 @@
 <!-- src/components/userCabinet/sections/TheoryStackbarChart.vue -->
 <script setup lang="ts">
-import { ref, computed, type PropType } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { use } from 'echarts/core'
-import { CanvasRenderer } from 'echarts/renderers'
+import { getThemeTranslationKey } from '@/utils/theme-mapper'
+import { ExpandOutline } from '@vicons/ionicons5'
 import { BarChart } from 'echarts/charts'
 import {
-  GridComponent,
-  TooltipComponent,
-  LegendComponent,
-  TitleComponent
+    GridComponent,
+    LegendComponent,
+    TitleComponent,
+    TooltipComponent
 } from 'echarts/components'
+import { use } from 'echarts/core'
+import { CanvasRenderer } from 'echarts/renderers'
+import { computed, ref, type PropType } from 'vue'
 import VChart from 'vue-echarts'
-import { ExpandOutline } from '@vicons/ionicons5'
+import { useI18n } from 'vue-i18n'
 
 use([
   CanvasRenderer,
@@ -55,7 +56,7 @@ const seriesColors = {
 const currentThemes = computed(() => {
   const themes = new Set<string>()
   const prefix = props.mode === 'theory' ? activeType.value : 'win'
-  
+
   Object.keys(props.stats).forEach(key => {
     const parts = key.split('/')
     if (parts.length === 3 && parts[0] === prefix) {
@@ -65,11 +66,11 @@ const currentThemes = computed(() => {
       }
     }
   })
-  
+
   const preferredOrder = [
     'pawn', 'knight', 'bishop', 'rookPawn', 'rookPieces', 'knightBishop', 'queen', 'queenPieces', 'expert'
   ]
-  
+
   return Array.from(themes).sort((a, b) => {
     const indexA = preferredOrder.indexOf(a)
     const indexB = preferredOrder.indexOf(b)
@@ -99,13 +100,14 @@ const option = computed(() => {
       textStyle: { color: '#CCCCCC' },
       formatter: (params: any) => {
         const theme = themes[params[0].dataIndex]
+        if (!theme) return ''
         const themeKey = `theoryEndings.categories.${theme}.name`
         const translatedTheme = t(themeKey)
-        const themeName = translatedTheme !== themeKey ? translatedTheme : t(`themes.${theme}`)
-        
+        const themeName = translatedTheme !== themeKey ? translatedTheme : t(`chess.themes.${getThemeTranslationKey(theme)}`)
+
         let html = `<div style="padding: 4px; min-width: 150px;">
                       <b style="color: #FFFFFF; display: block; margin-bottom: 8px; border-bottom: 1px solid #5A5A5A; padding-bottom: 4px;">${themeName}</b>`
-        
+
         params.forEach((item: any) => {
           const diff = item.seriesName
           const key = `${prefix}/${diff}/${theme}`
@@ -139,7 +141,7 @@ const option = computed(() => {
       data: themes.map(theme => {
         const themeKey = `theoryEndings.categories.${theme}.name`
         const translatedTheme = t(themeKey)
-        return translatedTheme !== themeKey ? translatedTheme : t(`themes.${theme}`)
+        return translatedTheme !== themeKey ? translatedTheme : t(`chess.themes.${getThemeTranslationKey(theme)}`)
       }),
       axisLabel: {
         color: '#CCCCCC',
@@ -217,8 +219,8 @@ const onChartClick = (params: any) => {
     </div>
 
     <!-- Zoom Modal -->
-    <n-modal v-model:show="showModal" preset="card" class="zoom-modal" 
-      :title="props.mode === 'theory' ? t('userCabinet.stats.modes.theory') : t('userCabinet.stats.modes.advantage')" 
+    <n-modal v-model:show="showModal" preset="card" class="zoom-modal"
+      :title="props.mode === 'theory' ? t('userCabinet.stats.modes.theory') : t('userCabinet.stats.modes.advantage')"
       style="width: 90vw; max-width: 1200px;"
     >
       <div class="modal-content">

@@ -1,10 +1,10 @@
 <!-- src/components/userCabinet/AnalyticsDisplay.vue -->
 <script setup lang="ts">
-import { ref, computed, type PropType } from 'vue'
+import { getThemeTranslationKey } from '@/utils/theme-mapper'
+import { computed, ref, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
 import RadarChart from './sections/RadarChart.vue'
 import StatsCard from './sections/StatsCard.vue'
-import { getThemeTranslationKey } from '@/utils/theme-mapper'
 
 const { t } = useI18n()
 
@@ -51,7 +51,7 @@ const sortedStats = computed(() => {
       const diff = t('theoryEndings.difficulties.' + theoryData.difficulty.toLowerCase())
       label = `${category} - ${diff} (${type})`
     } else {
-      label = t('themes.' + getThemeTranslationKey(data.theme))
+      label = t('chess.themes.' + getThemeTranslationKey(data.theme))
     }
 
     return {

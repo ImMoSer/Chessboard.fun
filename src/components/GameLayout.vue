@@ -131,7 +131,8 @@ onUnmounted(() => {
 
 <style scoped>
 .game-layout {
-  --side-panel-width: 50vh;
+  --left-panel-width: 0.3fr;
+  --right-panel-width: 0.5fr;
   --top-bottom-height: 5vh;
 
   display: grid;
@@ -139,7 +140,7 @@ onUnmounted(() => {
   max-width: 100vw;
 
   grid-template-rows: var(--top-bottom-height) var(--board-side);
-  grid-template-columns: var(--side-panel-width) var(--board-side) var(--side-panel-width);
+  grid-template-columns: var(--left-panel-width) var(--board-side) var(--right-panel-width);
 
   grid-template-areas:
     'top-left top-info top-right'

@@ -7,6 +7,7 @@ import { useRoute } from 'vue-router'
 import EngineSelector from '@/components/EngineSelector.vue'
 import { useControlsStore } from '@/stores/controls.store'
 import { useTornadoStore } from '@/stores/tornado.store'
+import { getThemeTranslationKey } from '@/utils/theme-mapper'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
@@ -43,7 +44,7 @@ const containerClass = computed(() => {
     <div v-if="route.name === 'tornado'" class="timer-container">
       <div class="tornado-info-container">
         <span v-if="tornadoStore.sessionTheme" class="session-theme-label">
-          {{ t('tornado.ui.themeLabel') }}: {{ t('themes.' + tornadoStore.sessionTheme) }}
+          {{ t('tornado.ui.themeLabel') }}: {{ t('chess.themes.' + getThemeTranslationKey(tornadoStore.sessionTheme)) }}
         </span>
         <span class="session-rating-label">
           {{ t('tornado.ui.ratingLabel') }}: {{ tornadoStore.sessionRating }}

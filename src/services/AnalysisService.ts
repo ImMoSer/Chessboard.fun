@@ -87,9 +87,6 @@ class AnalysisServiceController {
 
   public async setEngineProfile(profile: EngineProfile) {
     if (this.activeEngineManager) {
-      const wasAnalyzing = (this.activeEngineManager as any).infiniteAnalysisCallback !== null
-      const currentFen = wasAnalyzing ? (this.activeEngineManager as any).currentFen : null // Hypothetical
-
       await this.activeEngineManager.setProfile(profile)
       logger.info(`[AnalysisService] Engine profile switched to ${profile}`)
     }

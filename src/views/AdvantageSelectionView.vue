@@ -5,6 +5,7 @@ import {
     type AdvantageDifficulty,
     type AdvantageTheme
 } from '@/types/api.types'
+import { getThemeTranslationKey } from '@/utils/theme-mapper'
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
@@ -71,7 +72,7 @@ onMounted(() => {
                                 {{ t(`theoryEndings.categories.${theme.key}.icon`, theme.key === 'auto' ? '✨' : '') }}
                             </span>
                             <img v-else :src="theme.icon" class="cat-icon-svg" alt="icon" />
-                            <span class="cat-name">{{ t(`themes.${theme.key}`) }}</span>
+                            <span class="cat-name">{{ t(`chess.themes.${getThemeTranslationKey(theme.key)}`) }}</span>
                         </button>
                     </div>
                 </div>

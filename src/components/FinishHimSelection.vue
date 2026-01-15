@@ -1,12 +1,12 @@
 <!-- src/components/FinishHimSelection.vue -->
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useFinishHimStore } from '@/stores/finishHim.store'
 import { useGameStore } from '@/stores/game.store'
-import { useI18n } from 'vue-i18n'
-import { storeToRefs } from 'pinia'
 import { ADVANTAGE_THEMES } from '@/types/api.types'
 import { getThemeTranslationKey } from '@/utils/theme-mapper'
+import { storeToRefs } from 'pinia'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const finishHimStore = useFinishHimStore()
 const gameStore = useGameStore()
@@ -20,7 +20,7 @@ const dropdownRef = ref<HTMLElement | null>(null)
 const availableThemes: string[] = ['auto', ...ADVANTAGE_THEMES]
 
 const selectedThemeName = computed(() => {
-  return t(`themes.${getThemeTranslationKey(selectedTheme.value)}`)
+  return t(`chess.themes.${getThemeTranslationKey(selectedTheme.value)}`)
 })
 
 const toggleDropdown = () => {
@@ -41,7 +41,7 @@ const handleClickOutside = (event: MouseEvent) => {
 }
 
 const getThemeName = (theme: string) => {
-  return t(`themes.${getThemeTranslationKey(theme)}`)
+  return t(`chess.themes.${getThemeTranslationKey(theme)}`)
 }
 
 onMounted(() => {

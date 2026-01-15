@@ -5,22 +5,22 @@ import { useRoute } from 'vue-router'
 import { useFinishHimStore } from '../stores/finishHim.store'
 
 import {
-  BarChartOutline,
-  FlashOutline,
-  ListOutline,
-  StarOutline,
-  TimeOutline,
-  TrendingUpOutline
+    BarChartOutline,
+    FlashOutline,
+    ListOutline,
+    StarOutline,
+    TimeOutline,
+    TrendingUpOutline
 } from '@vicons/ionicons5'
 import {
-  NCard,
-  NGrid, NGridItem,
-  NIcon,
-  NSpace,
-  NStatistic,
-  NTable,
-  NTag,
-  NText
+    NCard,
+    NGrid, NGridItem,
+    NIcon,
+    NSpace,
+    NStatistic,
+    NTable,
+    NTag,
+    NText
 } from 'naive-ui'
 import { useTheoryEndingsStore } from '../stores/theoryEndings.store'
 import { useTornadoStore } from '../stores/tornado.store'
@@ -86,8 +86,8 @@ const finishHimModeDisplay = computed(() => {
 const finishHimThemeDisplay = computed(() => {
   if (route.meta.game !== 'finish-him' || !activePuzzle.value) return null
   const theme = activePuzzle.value.engmMap || finishHimStore.selectedTheme
-  if (!theme || theme === 'auto') return t('themes.auto')
-  return t(`themes.${theme}`, { defaultValue: theme })
+  if (!theme || theme === 'auto') return t('chess.themes.auto')
+  return t(`chess.themes.${getThemeTranslationKey(theme)}`, { defaultValue: theme })
 })
 
 const finalPositionOrientation = computed(() => {
@@ -241,7 +241,7 @@ const sortedResults = computed(() => {
               <n-space v-if="tacticalThemesList.length > 0" justify="center" :size="[4, 4]" wrap>
                 <n-tag v-for="theme in tacticalThemesList" :key="theme" size="small" round :bordered="false"
                   type="info">
-                  {{ t(`themes.${theme}`, { defaultValue: t(`tacktics.themes.${theme}`, { defaultValue: theme }) }) }}
+                  {{ t(`chess.themes.${getThemeTranslationKey(theme)}`, { defaultValue: theme }) }}
                 </n-tag>
               </n-space>
               <n-text v-else depth="3" strong uppercase class="preview-title" style="text-align: center">

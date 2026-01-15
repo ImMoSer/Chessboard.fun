@@ -37,7 +37,7 @@ const ENGINE_CONFIGS: Record<EngineProfile, EngineConfig> = {
   },
 }
 
-export function loadSingleThreadEngine(_profile: EngineProfile = 'lite'): Promise<EngineController> {
+export function loadSingleThreadEngine(): Promise<EngineController> {
   const loaderPath = '/stockfish_single/stockfish.js'
   logger.info(`[EngineLoader] Loading single-threaded engine from ${loaderPath}`)
   return new Promise((resolve, reject) => {
@@ -114,7 +114,7 @@ export function loadMultiThreadEngine(profile: EngineProfile = 'lite'): Promise<
                 try {
                   const stat = FS.stat(filename)
                   logger.info(`[EngineLoader] NNUE file verified in FS: ${filename}, size: ${stat.size}`)
-                } catch (e) {
+                } catch {
                   logger.error(`[EngineLoader] NNUE file verification failed: ${filename}`)
                 }
 

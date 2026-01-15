@@ -1,17 +1,18 @@
 <!-- src/components/userCabinet/sections/ThemeRoseChart.vue -->
 <script setup lang="ts">
-import { ref, computed, type PropType } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { use } from 'echarts/core'
+import { getThemeTranslationKey } from '@/utils/theme-mapper'
+import { ExpandOutline } from '@vicons/ionicons5'
 import { PieChart } from 'echarts/charts'
 import {
-  TooltipComponent,
-  LegendComponent,
-  TitleComponent
+    LegendComponent,
+    TitleComponent,
+    TooltipComponent
 } from 'echarts/components'
+import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
+import { computed, ref, type PropType } from 'vue'
 import VChart from 'vue-echarts'
-import { ExpandOutline } from '@vicons/ionicons5'
+import { useI18n } from 'vue-i18n'
 
 use([
   CanvasRenderer,
@@ -85,8 +86,8 @@ const option = computed(() => {
       formatter: (params: any) => {
         const data = params.data.raw as ThemeStat
         const accuracy = data.requested > 0 ? Math.round((data.success / data.requested) * 100) : 0
-        const themeName = t(`themes.${data.theme}`)
-        
+        const themeName = t(`chess.themes.${getThemeTranslationKey(data.theme)}`)
+
         return `
           <div style="padding: 4px; min-width: 140px;">
             <b style="color: #FFFFFF; display: block; margin-bottom: 8px; border-bottom: 1px solid #5A5A5A; padding-bottom: 4px;">${themeName}</b>
@@ -120,7 +121,7 @@ const option = computed(() => {
           show: true,
           color: '#CCCCCC',
           formatter: (params: any) => {
-            const themeName = t(`themes.${params.name}`)
+            const themeName = t(`chess.themes.${getThemeTranslationKey(params.name)}`)
             return themeName.length > 10 ? themeName.slice(0, 8) + '..' : themeName
           }
         },
@@ -163,8 +164,8 @@ const onChartClick = (params: any) => {
     </div>
 
     <div v-if="modes.length > 0" class="chart-footer">
-      <n-radio-group 
-        :value="activeMode" 
+      <n-radio-group
+        :value="activeMode"
         @update:value="emit('update:activeMode', $event)"
         size="small"
       >
@@ -183,9 +184,9 @@ const onChartClick = (params: any) => {
             <n-radio-button value="accuracy">{{ t('userCabinet.analyticsTable.accuracy') }}</n-radio-button>
           </n-radio-group>
 
-          <n-radio-group 
+          <n-radio-group
             v-if="modes.length > 0"
-            :value="activeMode" 
+            :value="activeMode"
             @update:value="emit('update:activeMode', $event)"
             size="medium"
           >

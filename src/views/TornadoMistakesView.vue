@@ -1,17 +1,17 @@
 <!-- src/views/TornadoMistakesView.vue -->
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
-import { onBeforeRouteLeave, useRouter } from 'vue-router'
-import { useGameStore } from '@/stores/game.store'
-import { useAnalysisStore } from '@/stores/analysis.store'
-import { useUiStore } from '@/stores/ui.store'
-import { useI18n } from 'vue-i18n'
-import GameLayout from '@/components/GameLayout.vue'
 import AnalysisPanel from '@/components/AnalysisPanel.vue'
 import ChessboardPreview from '@/components/ChessboardPreview.vue'
-import type { GamePuzzle } from '@/types/api.types'
+import GameLayout from '@/components/GameLayout.vue'
 import { soundService } from '@/services/sound.service'
+import { useAnalysisStore } from '@/stores/analysis.store'
+import { useGameStore } from '@/stores/game.store'
+import { useUiStore } from '@/stores/ui.store'
+import type { GamePuzzle } from '@/types/api.types'
 import { getThemeTranslationKey } from '@/utils/theme-mapper'
+import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { onBeforeRouteLeave, useRouter } from 'vue-router'
 
 // --- CONSTANTS ---
 const MISTAKES_STORAGE_KEY = 'tornado_mistakes'
@@ -59,7 +59,7 @@ const formattedThemes = computed(() => {
   return themesList
     .map((theme) => {
       const key = getThemeTranslationKey(theme)
-      return t(`themes.${key}`)
+      return t(`chess.themes.${key}`)
     })
     .join(', ')
 })

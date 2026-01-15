@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { AdvantageLeaderboardEntry } from '@/types/api.types'
+import { getThemeTranslationKey } from '@/utils/theme-mapper'
 import type { DataTableColumns } from 'naive-ui'
 import { computed, h, ref, watch, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -51,19 +52,21 @@ const getSubscriptionIcon = (tier?: string) => {
 }
 
 const getThemeLabel = (theme: string) => {
-  if (te(`theoryEndings.categories.${theme}.name`)) return t(`theoryEndings.categories.${theme}.name`)
-  if (te(`themes.${theme}`)) return t(`themes.${theme}`)
+  const key = getThemeTranslationKey(theme)
+  if (te(`chess.themes.${key}`)) return t(`chess.themes.${key}`)
+  if (te(`theoryEndings.categories.${key}.name`)) return t(`theoryEndings.categories.${key}.name`)
   return theme
 }
 
 const getThemeIcon = (theme: string) => {
-  if (te(`theoryEndings.categories.${theme}.icon`)) return t(`theoryEndings.categories.${theme}.icon`)
-  if (te(`practicalChess.categories.${theme}.icon`)) return t(`practicalChess.categories.${theme}.icon`)
+  const key = getThemeTranslationKey(theme)
+  if (te(`theoryEndings.categories.${key}.icon`)) return t(`theoryEndings.categories.${key}.icon`)
+  if (te(`practicalChess.categories.${key}.icon`)) return t(`practicalChess.categories.${key}.icon`)
   const fallbacks: Record<string, string> = {
     expert: '⭐', pawn: '♟', knight: '♞', bishop: '♝', rook: '♜', queen: '♛', king: '♚',
-    rookPawn: '♖♙', rookPieces: '♖♘♗', knightBishop: '♘♗', queenPieces: '♕♘♗'
+    rook_pawn_endgame: '♖♙', rook_pieces_endgame: '♖♘♗', knight_vs_bishop: '♘♗', queen_pieces_endgame: '♕♘♗'
   }
-  return fallbacks[theme] || ''
+  return fallbacks[key] || ''
 }
 
 const columns = computed<DataTableColumns<AdvantageLeaderboardEntry>>(() => [
