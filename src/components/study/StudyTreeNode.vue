@@ -204,6 +204,29 @@ const saveComment = () => {
   pgnService.updateNode(props.node, { comment: commentText.value })
 }
 
+// --- comment parsing ---
+const parsedComment = computed(() => {
+  if (!props.node.comment) return null;
+  const comment = props.node.comment;
+
+  // Look for N:..., W:..., D:... (Hero moves)
+  const statsMatch = comment.match(/N:(\d+),\s*W:(\d+)%,\s*D:(\d+)%/);
+  // Look for P:... (Opponent moves)
+  const probMatch = comment.match(/P:(\d+)%/);
+
+  let cleanComment = comment;
+  if (statsMatch) cleanComment = cleanComment.replace(statsMatch[0], '').trim();
+  if (probMatch) cleanComment = cleanComment.replace(probMatch[0], '').trim();
+
+  return {
+    n: statsMatch ? statsMatch[1] : null,
+    w: statsMatch ? statsMatch[2] : null,
+    d: statsMatch ? statsMatch[3] : null,
+    p: probMatch ? probMatch[1] : null,
+    text: cleanComment
+  };
+});
+
 // --- eval formatting ---
 const formatEval = (val: number) => {
   if (Math.abs(val) > 10000) {
@@ -240,9 +263,23 @@ export default {
         <span v-if="moveNumber" class="move-index">{{ moveNumber }}</span>
         <span class="san-text">{{ node.san }}</span>
         <span v-if="node.nag" class="nag-text">{{ nagMap[node.nag] }}</span>
-        <span v-if="node.comment" class="comment-indicator" :title="node.comment">💬</span>
-        <span v-if="node.eval !== undefined" class="eval-tag" :class="getEvalClass(node.eval)">{{ formatEval(node.eval)
-          }}</span>
+
+        <!-- Repertoire Stats -->
+        <template v-if="parsedComment">
+          <span v-if="parsedComment.p" class="stat-badge prob" title="Opponent Probability">
+            {{ parsedComment.p }}%
+          </span>
+          <span v-if="parsedComment.w" class="stat-badge win" :title="`Games in DB. Draw: ${parsedComment.d}%`">
+            {{ parsedComment.w }}%
+          </span>
+        </template>
+
+        <span v-if="parsedComment?.text" class="comment-indicator" :title="parsedComment.text">💬</span>
+        <span v-else-if="node.comment && !parsedComment" class="comment-indicator" :title="node.comment">💬</span>
+
+        <span v-if="node.eval !== undefined" class="eval-tag" :class="getEvalClass(node.eval)">
+          {{ formatEval(node.eval) }}
+        </span>
       </span>
     </template>
 
@@ -412,5 +449,28 @@ export default {
 
 .pos-black {
   color: #ff4757;
+}
+
+.stat-badge {
+  font-size: 0.65em;
+  font-weight: bold;
+  padding: 0px 3px;
+  border-radius: 3px;
+  margin: 0 1px;
+  display: inline-block;
+  line-height: normal;
+  vertical-align: middle;
+}
+
+.stat-badge.win {
+  background: rgba(76, 209, 55, 0.2);
+  color: #4cd137;
+  border: 1px solid rgba(76, 209, 55, 0.3);
+}
+
+.stat-badge.prob {
+  background: rgba(0, 168, 255, 0.1);
+  color: #00a8ff;
+  border: 1px solid rgba(0, 168, 255, 0.3);
 }
 </style>

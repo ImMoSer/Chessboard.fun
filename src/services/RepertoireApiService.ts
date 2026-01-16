@@ -1,20 +1,23 @@
 // src/services/RepertoireApiService.ts
 import logger from '../utils/logger';
 
+export type RepertoireStyle = 'master' | 'wall' | 'hustler' | 'constrictor' | 'dictator';
+export type RepertoireProfile = 'amateur' | 'club' | 'master';
+
 export interface RepertoireParams {
     start_fen?: string;
     start_pgn?: string;
     color: 'white' | 'black';
-    profile: 'amateur' | 'club' | 'master';
+    profile: RepertoireProfile;
 }
 
 class RepertoireApiService {
     private readonly BACKEND_URL = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:3000/api';
 
-    async generateSharpRepertoire(params: RepertoireParams): Promise<string | null> {
+    async generateRepertoire(style: RepertoireStyle, params: RepertoireParams): Promise<string | null> {
         try {
-            logger.info(`[RepertoireApiService] Requesting sharp repertoire:`, params);
-            const response = await fetch(`${this.BACKEND_URL}/opening/repertoire/sharp`, {
+            logger.info(`[RepertoireApiService] Requesting ${style} repertoire:`, params);
+            const response = await fetch(`${this.BACKEND_URL}/opening/repertoire/${style}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -24,14 +27,15 @@ class RepertoireApiService {
             });
 
             if (!response.ok) {
-                throw new Error(`Repertoire API Error: ${response.statusText}`);
+                const errorData = await response.json().catch(() => ({}));
+                throw new Error(errorData.message || `Repertoire API Error: ${response.statusText}`);
             }
 
             const data = await response.json();
             return data.pgn;
         } catch (error) {
             logger.error(`[RepertoireApiService] Error generating repertoire:`, error);
-            return null;
+            throw error; // Let the component handle the error message
         }
     }
 
