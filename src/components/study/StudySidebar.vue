@@ -51,9 +51,11 @@ const editName = ref('')
 const nameInput = ref<HTMLInputElement | null>(null)
 const editInput = ref<HTMLInputElement | null>(null)
 
+const selectedColor = ref<'white' | 'black'>('white')
+
 const handleCreate = () => {
   if (newChapterName.value.trim()) {
-    studyStore.createChapter(newChapterName.value)
+    studyStore.createChapter(newChapterName.value, undefined, selectedColor.value)
     newChapterName.value = ''
     showInput.value = false
   }
@@ -141,8 +143,17 @@ const downloadChapter = (chapter: StudyChapter) => {
     <ChapterTemplateModal v-if="!collapsed" v-model:show="showTemplateModal" />
 
     <div v-if="showInput && !collapsed" class="new-chapter-form">
-      <input v-model="newChapterName" placeholder="Chapter Name" @keyup.enter="handleCreate" @blur="showInput = false"
-        ref="nameInput" />
+      <input v-model="newChapterName" placeholder="Chapter Name" @keyup.enter="handleCreate" ref="nameInput" />
+      <div class="color-selector">
+        <button :class="{ active: selectedColor === 'white' }" @click="selectedColor = 'white'"
+          title="Repertoire for White">White</button>
+        <button :class="{ active: selectedColor === 'black' }" @click="selectedColor = 'black'"
+          title="Repertoire for Black">Black</button>
+      </div>
+      <div class="form-actions">
+        <button @click="handleCreate" class="submit-btn highlight">Create</button>
+        <button @click="showInput = false" class="cancel-btn">Cancel</button>
+      </div>
     </div>
 
     <div v-if="showImport && !collapsed" class="import-pgn-form">
@@ -283,6 +294,29 @@ const downloadChapter = (chapter: StudyChapter) => {
   background: var(--color-bg-primary);
   border: 1px solid var(--color-border);
   color: white;
+  margin-bottom: 8px;
+}
+
+.color-selector {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 8px;
+}
+
+.color-selector button {
+  flex: 1;
+  padding: 4px;
+  background: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  color: white;
+  cursor: pointer;
+  font-size: 0.8em;
+  border-radius: 4px;
+}
+
+.color-selector button.active {
+  background: var(--color-accent-primary);
+  border-color: var(--color-accent-primary);
 }
 
 .chapter-list {

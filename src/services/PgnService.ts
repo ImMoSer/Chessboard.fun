@@ -572,6 +572,49 @@ class PgnServiceController {
     return this.gameResult
   }
 
+  public mergeSubtree(target: PgnNode, source: PgnNode): void {
+    let changed = false;
+    const merge = (t: PgnNode, s: PgnNode) => {
+      for (const sChild of s.children) {
+        let tChild = t.children.find((c) => c.uci === sChild.uci)
+        if (!tChild) {
+          tChild = {
+            id: sChild.id,
+            ply: t.ply + 1,
+            fenBefore: t.fenAfter,
+            fenAfter: sChild.fenAfter,
+            san: sChild.san,
+            uci: sChild.uci,
+            parent: t,
+            children: [],
+            comment: sChild.comment,
+            nag: sChild.nag,
+            eval: sChild.eval,
+          }
+          t.children.push(tChild)
+          changed = true
+        } else {
+          // Merge metadata if present in source but not in target
+          if (sChild.comment && !tChild.comment) {
+            tChild.comment = sChild.comment
+            changed = true
+          }
+          if (sChild.nag && !tChild.nag) {
+            tChild.nag = sChild.nag
+            changed = true
+          }
+        }
+        merge(tChild, sChild)
+      }
+    }
+
+    merge(target, source)
+    if (changed) {
+      treeVersion.value++
+      logger.info(`[PgnService] Subtree merged into ply ${target.ply}`)
+    }
+  }
+
   public canNavigateBackward(): boolean {
     return !!this.currentNode.parent
   }

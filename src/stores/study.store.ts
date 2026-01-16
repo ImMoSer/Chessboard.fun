@@ -1,10 +1,10 @@
-import { defineStore } from 'pinia';
-import { ref, computed, watch } from 'vue';
-import { pgnService, type PgnNode, pgnTreeVersion } from '@/services/PgnService';
-import { useBoardStore } from './board.store';
-import { parseFen, makeFen } from 'chessops/fen';
-import { studyPersistenceService } from '@/services/StudyPersistenceService';
 import { pgnParserService } from '@/services/PgnParserService';
+import { pgnService, pgnTreeVersion, type PgnNode } from '@/services/PgnService';
+import { studyPersistenceService } from '@/services/StudyPersistenceService';
+import { makeFen, parseFen } from 'chessops/fen';
+import { defineStore } from 'pinia';
+import { computed, ref, watch } from 'vue';
+import { useBoardStore } from './board.store';
 
 export interface StudyChapter {
     id: string;
@@ -12,6 +12,7 @@ export interface StudyChapter {
     root: PgnNode; // The reference to the tree
     tags: Record<string, string>;
     savedPath: string; // To restore cursor location
+    color?: 'white' | 'black';
 }
 
 export const useStudyStore = defineStore('study', () => {
@@ -42,16 +43,12 @@ export const useStudyStore = defineStore('study', () => {
             } else if (chapters.value.length > 0) {
                 setActiveChapter(chapters.value[0]!.id);
             }
-        } else {
-            // Create default chapter if none exist
-            const id = createChapter('Chapter 1');
-            setActiveChapter(id);
         }
 
         isInitialized.value = true;
     }
 
-    function createChapter(name: string = 'New Chapter', startFen: string = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1') {
+    function createChapter(name: string = 'New Chapter', startFen: string = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', color?: 'white' | 'black') {
         let normalizedFen = startFen;
         try {
             const setup = parseFen(startFen).unwrap();
@@ -79,10 +76,11 @@ export const useStudyStore = defineStore('study', () => {
                 Event: name,
                 Site: 'Chess App Study',
                 Date: new Date().toISOString().split('T')[0] ?? '',
-                White: 'Player',
-                Black: 'Opponent'
+                White: color === 'white' ? 'Player' : 'Opponent',
+                Black: color === 'black' ? 'Player' : 'Opponent'
             },
-            savedPath: ''
+            savedPath: '',
+            color
         };
 
         chapters.value.push(newChapter);
@@ -98,13 +96,15 @@ export const useStudyStore = defineStore('study', () => {
         return id;
     }
 
-    function createChapterFromPgn(pgn: string, nameOverride?: string) {
+    function createChapterFromPgn(pgn: string, nameOverride?: string, colorOverride?: 'white' | 'black') {
         try {
             const { tags, root } = pgnParserService.parse(pgn);
-            
+
+            const color = colorOverride || (tags['White'] === 'Player' ? 'white' : tags['Black'] === 'Player' ? 'black' : undefined);
+
             let name = nameOverride || tags['Event'] || 'Imported Chapter';
             if (!nameOverride && tags['White'] && tags['Black']) {
-                 name = `${tags['White']} - ${tags['Black']}`;
+                name = `${tags['White']} - ${tags['Black']}`;
             }
 
             const id = generateId();
@@ -113,17 +113,18 @@ export const useStudyStore = defineStore('study', () => {
                 name,
                 root,
                 tags: { ...tags, Event: name },
-                savedPath: ''
+                savedPath: '',
+                color
             };
 
             chapters.value.push(newChapter);
             studyPersistenceService.saveChapter(newChapter);
-            
+
             setActiveChapter(id);
             return id;
         } catch (e) {
             console.error('Failed to create chapter from PGN', e);
-            throw e; 
+            throw e;
         }
     }
 
@@ -139,7 +140,6 @@ export const useStudyStore = defineStore('study', () => {
                     if (next) setActiveChapter(next.id);
                 } else {
                     activeChapterId.value = null;
-                    createChapter(); // Always ensure at least one chapter
                 }
             }
         }
