@@ -2,7 +2,7 @@
 import type { Key } from '@lichess-org/chessground/types';
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
-import { openingApiService, type LichessMove, type LichessOpeningResponse, type LichessParams, type OpeningDatabaseSource } from '../services/OpeningApiService';
+import { openingApiService, type LichessMastersParams, type LichessMove, type LichessOpeningResponse, type LichessParams, type OpeningDatabaseSource } from '../services/OpeningApiService';
 import { openingGraphService } from '../services/OpeningGraphService';
 import { soundService } from '../services/sound.service';
 import { type SessionMove } from '../types/openingTrainer.types';
@@ -34,6 +34,12 @@ export const useOpeningExamStore = defineStore('openingExam', () => {
     const lichessParams = ref<LichessParams>({
         ratings: [1800, 2000, 2200, 2500],
         speeds: ['blitz', 'rapid', 'classical']
+    });
+    const lichessMastersParams = ref({
+        since: 1952,
+        until: new Date().getFullYear(),
+        moves: 12,
+        topGames: 10
     });
 
     // Request deduplication tracking
@@ -100,8 +106,27 @@ export const useOpeningExamStore = defineStore('openingExam', () => {
         lives.value = 3; // Reset lives
     }
 
+    function setLichessParams(params: Partial<LichessParams>) {
+        lichessParams.value = { ...lichessParams.value, ...params };
+        fetchStats(false, true); // Force refresh
+    }
+
+    function setLichessMastersParams(params: LichessMastersParams) {
+        lichessMastersParams.value = { ...lichessMastersParams.value, ...params };
+        fetchStats(false, true); // Force refresh
+    }
+
+    function setDbSource(source: OpeningDatabaseSource) {
+        dbSource.value = source;
+        fetchStats(false, true); // Force refresh
+    }
+
     function generateConfigHash(): string {
-        return 'masters';
+        if (dbSource.value === 'masters') {
+            const m = lichessMastersParams.value;
+            return `masters:${m.since}:${m.until}:${m.topGames}`;
+        }
+        return `lichess:${lichessParams.value.ratings.slice().sort().join(',')}|${lichessParams.value.speeds.slice().sort().join(',')}`;
     }
 
     async function fetchStats(isGameplay = true, force = false, onlyCache = false) {
@@ -115,10 +140,11 @@ export const useOpeningExamStore = defineStore('openingExam', () => {
         isLoading.value = true;
         error.value = null;
         try {
+            const params = dbSource.value === 'masters' ? lichessMastersParams.value : lichessParams.value;
             const data = await openingApiService.getStats(
                 currentFen,
                 dbSource.value,
-                lichessParams.value,
+                params,
                 { onlyCache }
             );
 
@@ -313,7 +339,12 @@ export const useOpeningExamStore = defineStore('openingExam', () => {
         isPlayoutMode,
         error,
         dbSource,
+        lichessParams,
+        lichessMastersParams,
         lives,
+        setLichessParams,
+        setLichessMastersParams,
+        setDbSource,
         initializeSession,
         handlePlayerMove,
         fetchStats,

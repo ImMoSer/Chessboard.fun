@@ -1,8 +1,8 @@
 // src/services/OpeningApiService.ts
 import logger from '../utils/logger';
-import { openingCacheService } from './OpeningCacheService';
+import { openingCacheService, type CacheSource } from './OpeningCacheService';
 
-export type OpeningDatabaseSource = 'lichess' | 'masters';
+export type OpeningDatabaseSource = 'lichess' | 'masters' | 'backend';
 
 export interface LichessMove {
   uci: string;
@@ -11,6 +11,16 @@ export interface LichessMove {
   draws: number;
   black: number;
   averageRating: number;
+}
+
+export interface LichessTopGame {
+  uci: string;
+  id: string;
+  winner: 'white' | 'black' | 'draw' | null;
+  white: { name: string; rating: number };
+  black: { name: string; rating: number };
+  year: number;
+  month: string;
 }
 
 export interface LichessOpeningResponse {
@@ -25,11 +35,19 @@ export interface LichessOpeningResponse {
     eco: string;
     name: string;
   };
+  topGames?: LichessTopGame[];
 }
 
 export interface LichessParams {
   ratings: number[];
   speeds: string[];
+}
+
+export interface LichessMastersParams {
+  since?: number;
+  until?: number;
+  moves?: number;
+  topGames?: number;
 }
 
 interface MastersMove {
@@ -39,8 +57,6 @@ interface MastersMove {
   score: number;
   draw: number;
   avElo: number;
-  len?: number;
-  mat?: number;
 }
 
 interface MastersResponse {
@@ -49,27 +65,15 @@ interface MastersResponse {
     avgScore: number;
     avgDraw: number;
     avgElo: number;
-    avgLen?: number;
-    avgMat?: number;
   };
   moves: MastersMove[];
-}
-
-interface MastersBackendMove {
-  uci: string;
-  san: string;
-  stats: {
-    white: number;
-    draws: number;
-    black: number;
-  };
-  avgElo?: number;
 }
 
 const SPEED_ORDER = ['bullet', 'blitz', 'rapid', 'classical'];
 
 class OpeningApiService {
   private readonly LICHESS_URL = 'https://explorer.lichess.ovh/lichess';
+  private readonly LICHESS_MASTERS_URL = 'https://explorer.lichess.ovh/masters';
   private readonly BACKEND_URL = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:3000/api';
 
   // Stores in-flight requests to prevent duplicate network calls
@@ -79,31 +83,40 @@ class OpeningApiService {
     return fen.split(' ').slice(0, 4).join(' ');
   }
 
-  private getCacheKey(cleanFen: string, source: OpeningDatabaseSource, params?: LichessParams): string {
+  private getCacheKey(cleanFen: string, source: OpeningDatabaseSource, params?: LichessParams | LichessMastersParams): string {
     if (source === 'masters') {
-      return `masters:${cleanFen}`;
+      const p = params as LichessMastersParams;
+      const mastersKey = `masters:${p?.since || 'default'}-${p?.until || 'default'}:${p?.moves || '12'}`;
+      return `${mastersKey}:${cleanFen}`;
     }
-    // Params are assumed to be sorted by getStats before calling this
-    const ratingsKey = params?.ratings.join(',') || 'default';
-    const speedsKey = params?.speeds.join(',') || 'default';
+    if (source === 'backend') {
+      return `backend:${cleanFen}`;
+    }
+
+    // Default Lichess Amateur
+    const p = params as LichessParams;
+    const ratingsKey = p?.ratings.join(',') || 'default';
+    const speedsKey = p?.speeds.join(',') || 'default';
     return `lichess:${ratingsKey}|${speedsKey}:${cleanFen}`;
   }
 
   async getStats(
     fen: string,
     source: OpeningDatabaseSource = 'masters',
-    params?: LichessParams,
+    params?: LichessParams | LichessMastersParams,
     options: { onlyCache?: boolean } = {}
   ): Promise<LichessOpeningResponse | null> {
     const cleanFen = this.toCleanFen(fen);
 
     // Sort params strictly to ensure consistent Cache Keys and URL order
     if (params && source === 'lichess') {
-      params.ratings.sort((a, b) => a - b);
-      params.speeds.sort((a, b) => SPEED_ORDER.indexOf(a) - SPEED_ORDER.indexOf(b));
+      const p = params as LichessParams;
+      p.ratings.sort((a, b) => a - b);
+      p.speeds.sort((a, b) => SPEED_ORDER.indexOf(a) - SPEED_ORDER.indexOf(b));
     }
 
     const cacheKey = this.getCacheKey(cleanFen, source, params);
+    const cacheSource: CacheSource = source === 'masters' ? 'lichessMasters' : 'lichess';
 
     // 1. Check Memory Cache (In-flight requests)
     if (this.activeRequests.has(cacheKey)) {
@@ -112,9 +125,9 @@ class OpeningApiService {
     }
 
     // 2. Check Persistent Cache (IndexedDB)
-    const cached = await openingCacheService.getCachedStats(cacheKey);
+    const cached = await openingCacheService.getCachedStats(cacheKey, cacheSource);
     if (cached) {
-      logger.info(`[OpeningApiService] [CACHE HIT] Found data for: ${cacheKey}`);
+      logger.info(`[OpeningApiService] [CACHE HIT] Found data for: ${cacheKey} in ${cacheSource}`);
       return source === 'lichess' ? this.normalizeLichessData(cached) : cached;
     }
 
@@ -130,16 +143,19 @@ class OpeningApiService {
         let result: LichessOpeningResponse | null = null;
 
         if (source === 'masters') {
-          logger.info(`[OpeningApiService] [NETWORK] Fetching Masters for FEN: ${cleanFen}`);
-          result = await this.fetchFromMasters(cleanFen);
+          logger.info(`[OpeningApiService] [NETWORK] Fetching Lichess Masters for FEN: ${cleanFen}`);
+          result = await this.fetchFromLichessMasters(cleanFen, params as LichessMastersParams);
+        } else if (source === 'backend') {
+          logger.info(`[OpeningApiService] [NETWORK] Fetching Backend Masters for FEN: ${cleanFen}`);
+          result = await this.fetchFromBackendMasters(cleanFen);
         } else {
           await new Promise(resolve => setTimeout(resolve, 300));
-          result = await this.fetchFromLichess(cleanFen, params);
+          result = await this.fetchFromLichess(cleanFen, params as LichessParams);
         }
 
         if (result) {
-          await openingCacheService.cacheStats(cacheKey, [], result);
-          logger.info(`[OpeningApiService] [NETWORK SUCCESS] Cached new data for: ${cacheKey}`);
+          await openingCacheService.cacheStats(cacheKey, [], result, cacheSource);
+          logger.info(`[OpeningApiService] [NETWORK SUCCESS] Cached new data for: ${cacheKey} in ${cacheSource}`);
         }
 
         return result;
@@ -156,7 +172,47 @@ class OpeningApiService {
     return requestPromise;
   }
 
-  private async fetchFromMasters(cleanFen: string): Promise<LichessOpeningResponse | null> {
+  private async fetchFromLichessMasters(cleanFen: string, params?: LichessMastersParams): Promise<LichessOpeningResponse | null> {
+    const url = new URL(this.LICHESS_MASTERS_URL);
+    url.searchParams.append('fen', cleanFen);
+    url.searchParams.append('moves', (params?.moves || 12).toString());
+    url.searchParams.append('topGames', (params?.topGames || 15).toString());
+    if (params?.since) url.searchParams.append('since', params.since.toString());
+    if (params?.until) url.searchParams.append('until', params.until.toString());
+
+    const response = await fetch(url.toString(), {
+      headers: { 'Accept': 'application/json' }
+    });
+
+    if (response.status === 429) throw new Error('429');
+    if (!response.ok) throw new Error(`Lichess Masters API Error: ${response.statusText}`);
+
+    const data = await response.json();
+
+    // Normalize format
+    const result: LichessOpeningResponse = {
+      white: data.white,
+      draws: data.draws,
+      black: data.black,
+      moves: data.moves.map((m: any) => ({
+        uci: m.uci,
+        san: m.san,
+        white: m.white,
+        draws: m.draws,
+        black: m.black,
+        averageRating: m.averageRating || 0
+      })),
+      topGames: data.topGames
+    };
+
+    if (data.opening) {
+      result.opening = data.opening;
+    }
+
+    return this.normalizeLichessData(result);
+  }
+
+  private async fetchFromBackendMasters(cleanFen: string): Promise<LichessOpeningResponse | null> {
     const response = await fetch(`${this.BACKEND_URL}/opening/masters`, {
       method: 'POST',
       headers: {
@@ -166,20 +222,11 @@ class OpeningApiService {
       body: JSON.stringify({ fen: cleanFen })
     });
 
-    if (!response.ok) {
-      throw new Error(`Masters API Error: ${response.statusText}`);
-    }
-
+    if (!response.ok) throw new Error(`Backend Masters API Error: ${response.statusText}`);
     const data = (await response.json()) as MastersResponse;
 
-    // Map new Masters format to LichessOpeningResponse but preserve new fields
     const moves: LichessMove[] = data.moves.map(m => {
-      // Calculate white/draws/black counts from n, score and draw if needed by old logic
-      // although it's better to use n, score, draw directly.
-      // score is (W + 0.5D) / N * 100
-      // draw is D / N * 100
       const d = (m.draw / 100) * m.n;
-      // score/100 * n = W + 0.5D => W = score/100 * n - 0.5D
       const w = (m.score / 100) * m.n - 0.5 * d;
       const b = m.n - w - d;
 
@@ -213,24 +260,17 @@ class OpeningApiService {
     url.searchParams.append('recentGames', '0');
     url.searchParams.append('history', 'false');
 
-    // Params are already sorted in getStats
     const ratings = params?.ratings.join(',') || '1000,1200,1400,1600,1800,2000,2200,2500';
     const speeds = params?.speeds.join(',') || 'bullet,blitz,rapid,classical';
 
     url.searchParams.append('ratings', ratings);
     url.searchParams.append('speeds', speeds);
 
-    logger.info(`[OpeningApiService] [NETWORK] Requesting Lichess URL: ${url.toString()}`);
-
     const response = await fetch(url.toString(), {
       headers: { 'Accept': 'application/json' }
     });
 
-    if (response.status === 429) {
-      logger.warn('[OpeningApiService] [LICHESS 429] Rate limited');
-      throw new Error('429');
-    }
-
+    if (response.status === 429) throw new Error('429');
     if (!response.ok) throw new Error(`Lichess API Error: ${response.statusText}`);
 
     const data: LichessOpeningResponse = await response.json();

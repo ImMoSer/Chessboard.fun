@@ -4,9 +4,9 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import AnalysisPanel from '../components/AnalysisPanel.vue';
 import GameLayout from '../components/GameLayout.vue';
+import LichessOpeningExplorer from '../components/OpeningTrainer/LichessOpeningExplorer.vue';
 import OpeningExamHeader from '../components/OpeningTrainer/OpeningExamHeader.vue';
 import OpeningExamSettingsModal from '../components/OpeningTrainer/OpeningExamSettingsModal.vue';
-import OpeningStatsTable from '../components/OpeningTrainer/OpeningStatsTable.vue';
 import i18n from '../services/i18n';
 import { openingGraphService } from '../services/OpeningGraphService';
 import { useAnalysisStore } from '../stores/analysis.store';
@@ -158,12 +158,7 @@ async function handlePlayout() {
 
         <template #right-panel>
             <div class="stats-table-wrapper">
-                <OpeningStatsTable v-if="openingStore.currentStats" :moves="openingStore.currentStats.moves"
-                    :white="openingStore.currentStats.white" :draws="openingStore.currentStats.draws"
-                    :black="openingStore.currentStats.black" :avg-elo="openingStore.currentStats.avgElo"
-                    :avg-draw="openingStore.currentStats.avgDraw" :avg-score="openingStore.currentStats.avgScore"
-                    :is-review-mode="isExamEnding" :blurred="!isExamEnding"
-                    @select-move="m => openingStore.handlePlayerMove(m)" />
+                <LichessOpeningExplorer mode="exam" :blurred="!isExamEnding" />
 
                 <div v-if="openingStore.error" class="error-msg">
                     {{ openingStore.error }}

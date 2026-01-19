@@ -70,8 +70,8 @@ body {
   --color-text-dark: #101014;
 
   /* Ссылки */
-  --color-text-link: var(--color-accent-primary);
-  --color-text-link-hover: var(--color-accent-primary-hover);
+  --color-text-link: var(--color-blue-base);
+  --color-text-link-hover: #60cdff;
 
   /* --- PGN Tree Visualization (Ice Depth Theme) --- */
   /* Эти цвета идеально ложатся на холодный фон Naive UI */

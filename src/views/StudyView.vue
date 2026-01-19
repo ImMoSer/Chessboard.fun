@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import EngineLines from '@/components/Analysis/EngineLines.vue'
+import LichessOpeningExplorer from '@/components/OpeningTrainer/LichessOpeningExplorer.vue'
 import StudyControls from '@/components/study/StudyControls.vue'
 import StudyLayout from '@/components/study/StudyLayout.vue'
-import StudyOpeningExplorer from '@/components/study/StudyOpeningExplorer.vue'
 import StudySidebar from '@/components/study/StudySidebar.vue'
 import StudyTree from '@/components/study/StudyTree.vue'
 import { useBoardStore } from '@/stores/board.store'
@@ -75,7 +75,7 @@ watch(() => analysisStore.analysisLines, (lines) => {
       <div class="left-panel-content" @mouseenter="cancelAutoCollapseTimer" @mouseleave="startAutoCollapseTimer">
         <StudySidebar class="sidebar-component" :collapsed="isSidebarCollapsed"
           @toggle="isSidebarCollapsed = !isSidebarCollapsed" />
-        <StudyOpeningExplorer class="explorer-component" :class="{ 'expanded': isSidebarCollapsed }" />
+        <LichessOpeningExplorer mode="study" class="explorer-component" :class="{ 'expanded': isSidebarCollapsed }" />
       </div>
     </template>
 
@@ -107,8 +107,8 @@ watch(() => analysisStore.analysisLines, (lines) => {
 .explorer-component {
   flex-shrink: 0;
   max-height: 40%;
-  overflow-y: auto;
   transition: all 0.3s ease;
+  display: flex;
 }
 
 .explorer-component.expanded {

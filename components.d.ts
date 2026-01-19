@@ -29,6 +29,7 @@ declare module 'vue' {
     InfoIcon: typeof import('./src/components/InfoIcon.vue')['default']
     InfoModal: typeof import('./src/components/InfoModal.vue')['default']
     LatestBattleReport: typeof import('./src/components/clubPage/LatestBattleReport.vue')['default']
+    LichessOpeningExplorer: typeof import('./src/components/OpeningTrainer/LichessOpeningExplorer.vue')['default']
     MedalStandingsTable: typeof import('./src/components/clubPage/MedalStandingsTable.vue')['default']
     NA: typeof import('naive-ui')['NA']
     NAlert: typeof import('naive-ui')['NAlert']

@@ -4,7 +4,7 @@ import { onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import AnalysisPanel from '../components/AnalysisPanel.vue';
 import GameLayout from '../components/GameLayout.vue';
-import OpeningStatsTable from '../components/OpeningTrainer/OpeningStatsTable.vue';
+import LichessOpeningExplorer from '../components/OpeningTrainer/LichessOpeningExplorer.vue';
 import OpeningTrainerHeader from '../components/OpeningTrainer/OpeningTrainerHeader.vue';
 import OpeningTrainingSettingsModal from '../components/OpeningTrainer/OpeningTrainingSettingsModal.vue';
 import i18n from '../services/i18n';
@@ -165,11 +165,7 @@ async function handlePlayout() {
 
         <template #right-panel>
             <div class="stats-table-wrapper">
-                <OpeningStatsTable v-if="openingStore.currentStats" :moves="openingStore.currentStats.moves"
-                    :white="openingStore.currentStats.white" :draws="openingStore.currentStats.draws"
-                    :black="openingStore.currentStats.black" :avg-elo="openingStore.currentStats.avgElo"
-                    :avg-draw="openingStore.currentStats.avgDraw" :avg-score="openingStore.currentStats.avgScore"
-                    :is-review-mode="true" @select-move="m => openingStore.handlePlayerMove(m)" />
+                <LichessOpeningExplorer mode="training" />
 
                 <div v-if="openingStore.error" class="error-msg">
                     {{ openingStore.error }}

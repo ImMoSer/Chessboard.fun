@@ -9,13 +9,20 @@ export interface OpeningStats {
   timestamp: number;
 }
 
+export type CacheSource = 'lichess' | 'masters' | 'lichessMasters';
+
 export class OpeningDatabase extends Dexie {
   openings!: Table<OpeningStats>;
+  lichessMasters!: Table<OpeningStats>;
 
   constructor() {
     super('OpeningDatabase');
     this.version(1).stores({
-      openings: 'fen, timestamp' // Use FEN as primary key
+      openings: 'fen, timestamp'
+    });
+    this.version(2).stores({
+      openings: 'fen, timestamp',
+      lichessMasters: 'fen, timestamp' // New table for Lichess Masters
     });
   }
 }
@@ -25,39 +32,47 @@ export const db = new OpeningDatabase();
 class OpeningCacheService {
   private readonly CACHE_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days
 
-  async getCachedStats(fen: string): Promise<LichessOpeningResponse | null> {
+  private getTable(source: CacheSource): Table<OpeningStats> {
+    if (source === 'lichessMasters') return db.lichessMasters;
+    return db.openings;
+  }
+
+  async getCachedStats(fen: string, source: CacheSource = 'lichess'): Promise<LichessOpeningResponse | null> {
     try {
-      const record = await db.openings.get(fen);
+      const table = this.getTable(source);
+      const record = await table.get(fen);
       if (record) {
         const now = Date.now();
         if (now - record.timestamp < this.CACHE_TTL) {
           return record.data;
         } else {
           // Cleanup expired record
-          await db.openings.delete(fen);
+          await table.delete(fen);
         }
       }
     } catch (error) {
-      console.error('[OpeningCacheService] Error reading from cache:', error);
+      console.error(`[OpeningCacheService] Error reading from cache (${source}):`, error);
     }
     return null;
   }
 
-  async cacheStats(fen: string, history: string[], data: LichessOpeningResponse): Promise<void> {
+  async cacheStats(fen: string, history: string[], data: LichessOpeningResponse, source: CacheSource = 'lichess'): Promise<void> {
     try {
-      await db.openings.put({
+      const table = this.getTable(source);
+      await table.put({
         fen,
         history,
         data,
         timestamp: Date.now()
       });
     } catch (error) {
-      console.error('[OpeningCacheService] Error writing to cache:', error);
+      console.error(`[OpeningCacheService] Error writing to cache (${source}):`, error);
     }
   }
 
   async clearCache(): Promise<void> {
     await db.openings.clear();
+    await db.lichessMasters.clear();
   }
 }
 
