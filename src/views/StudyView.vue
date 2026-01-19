@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import EngineLines from '@/components/Analysis/EngineLines.vue'
 import LichessOpeningExplorer from '@/components/OpeningTrainer/LichessOpeningExplorer.vue'
+import MozerBook from '@/components/OpeningTrainer/MozerBook.vue'
 import StudyControls from '@/components/study/StudyControls.vue'
 import StudyLayout from '@/components/study/StudyLayout.vue'
 import StudySidebar from '@/components/study/StudySidebar.vue'
@@ -18,6 +19,7 @@ const studyStore = useStudyStore()
 const analysisStore = useAnalysisStore()
 const isSidebarCollapsed = ref(true) // По умолчанию свернута
 const autoCollapseTimer = ref<ReturnType<typeof setTimeout> | null>(null)
+const explorerMode = ref<'lichess' | 'mozer'>('mozer')
 
 const startAutoCollapseTimer = () => {
   cancelAutoCollapseTimer()
@@ -75,7 +77,15 @@ watch(() => analysisStore.analysisLines, (lines) => {
       <div class="left-panel-content" @mouseenter="cancelAutoCollapseTimer" @mouseleave="startAutoCollapseTimer">
         <StudySidebar class="sidebar-component" :collapsed="isSidebarCollapsed"
           @toggle="isSidebarCollapsed = !isSidebarCollapsed" />
-        <LichessOpeningExplorer mode="study" class="explorer-component" :class="{ 'expanded': isSidebarCollapsed }" />
+
+        <div class="explorer-container" :class="{ 'expanded': isSidebarCollapsed }">
+          <div class="explorer-toggle">
+            <button :class="{ active: explorerMode === 'mozer' }" @click="explorerMode = 'mozer'">MozerBook</button>
+            <button :class="{ active: explorerMode === 'lichess' }" @click="explorerMode = 'lichess'">Lichess</button>
+          </div>
+          <MozerBook v-if="explorerMode === 'mozer'" class="explorer-component" />
+          <LichessOpeningExplorer v-else mode="study" class="explorer-component" />
+        </div>
       </div>
     </template>
 
@@ -104,16 +114,50 @@ watch(() => analysisStore.analysisLines, (lines) => {
   overflow: hidden;
 }
 
-.explorer-component {
+
+.explorer-container {
   flex-shrink: 0;
-  max-height: 40%;
+  max-height: 45%;
   transition: all 0.3s ease;
   display: flex;
+  flex-direction: column;
 }
 
-.explorer-component.expanded {
+.explorer-container.expanded {
   flex: 1;
   max-height: 100%;
+}
+
+.explorer-toggle {
+  display: flex;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-bottom: none;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  overflow: hidden;
+}
+
+.explorer-toggle button {
+  flex: 1;
+  padding: 6px;
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 0.75rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.explorer-toggle button.active {
+  background: var(--color-accent);
+  color: white;
+}
+
+.explorer-component {
+  flex: 1;
+  min-height: 0;
 }
 
 .right-panel-content {

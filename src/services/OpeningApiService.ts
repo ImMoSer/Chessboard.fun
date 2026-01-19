@@ -50,6 +50,31 @@ export interface LichessMastersParams {
   topGames?: number;
 }
 
+// MozerBook Specific Types
+export interface MozerBookMove {
+  san: string;
+  uci: string;
+  w: number;
+  d: number;
+  l: number;
+  av: number;
+  perf: number;
+  nag: number;
+  name?: string;
+  eco?: string;
+}
+
+export interface MozerBookResponse {
+  summary: {
+    w: number;
+    d: number;
+    l: number;
+    av: number;
+    perf: number;
+  } | null;
+  moves: MozerBookMove[];
+}
+
 interface MastersMove {
   san: string;
   uci: string;
@@ -249,6 +274,38 @@ class OpeningApiService {
       avgDraw: data.summary.avgDraw,
       avgScore: data.summary.avgScore
     };
+  }
+
+  async getMozerBookStats(fen: string): Promise<MozerBookResponse | null> {
+    const cleanFen = this.toCleanFen(fen);
+
+    // 1. Check persistent cache
+    const cached = await openingCacheService.getCachedStats(cleanFen, 'mozerBook');
+    if (cached) {
+      return cached;
+    }
+
+    try {
+      const response = await fetch(`${this.BACKEND_URL}/opening/masters`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ fen: cleanFen })
+      });
+
+      if (!response.ok) throw new Error(`MozerBook API Error: ${response.statusText}`);
+      const data = await response.json();
+
+      // 2. Save to cache
+      await openingCacheService.cacheStats(cleanFen, [], data, 'mozerBook');
+
+      return data;
+    } catch (error) {
+      logger.error(`[OpeningApiService] MozerBook error:`, error);
+      return null;
+    }
   }
 
   private async fetchFromLichess(cleanFen: string, params?: LichessParams): Promise<LichessOpeningResponse | null> {

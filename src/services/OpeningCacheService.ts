@@ -5,15 +5,16 @@ import { type LichessOpeningResponse } from './OpeningApiService';
 export interface OpeningStats {
   fen: string;
   history: string[]; // UCI moves
-  data: LichessOpeningResponse; // Raw response from Lichess
+  data: LichessOpeningResponse | any; // Raw response from Lichess or backend
   timestamp: number;
 }
 
-export type CacheSource = 'lichess' | 'masters' | 'lichessMasters';
+export type CacheSource = 'lichess' | 'masters' | 'lichessMasters' | 'mozerBook';
 
 export class OpeningDatabase extends Dexie {
   openings!: Table<OpeningStats>;
   lichessMasters!: Table<OpeningStats>;
+  mozerBook!: Table<OpeningStats>;
 
   constructor() {
     super('OpeningDatabase');
@@ -22,7 +23,12 @@ export class OpeningDatabase extends Dexie {
     });
     this.version(2).stores({
       openings: 'fen, timestamp',
-      lichessMasters: 'fen, timestamp' // New table for Lichess Masters
+      lichessMasters: 'fen, timestamp'
+    });
+    this.version(3).stores({
+      openings: 'fen, timestamp',
+      lichessMasters: 'fen, timestamp',
+      mozerBook: 'fen, timestamp'
     });
   }
 }
@@ -34,10 +40,11 @@ class OpeningCacheService {
 
   private getTable(source: CacheSource): Table<OpeningStats> {
     if (source === 'lichessMasters') return db.lichessMasters;
+    if (source === 'mozerBook') return db.mozerBook;
     return db.openings;
   }
 
-  async getCachedStats(fen: string, source: CacheSource = 'lichess'): Promise<LichessOpeningResponse | null> {
+  async getCachedStats(fen: string, source: CacheSource = 'lichess'): Promise<any | null> {
     try {
       const table = this.getTable(source);
       const record = await table.get(fen);
@@ -46,7 +53,6 @@ class OpeningCacheService {
         if (now - record.timestamp < this.CACHE_TTL) {
           return record.data;
         } else {
-          // Cleanup expired record
           await table.delete(fen);
         }
       }
@@ -56,7 +62,7 @@ class OpeningCacheService {
     return null;
   }
 
-  async cacheStats(fen: string, history: string[], data: LichessOpeningResponse, source: CacheSource = 'lichess'): Promise<void> {
+  async cacheStats(fen: string, history: string[], data: any, source: CacheSource = 'lichess'): Promise<void> {
     try {
       const table = this.getTable(source);
       await table.put({
@@ -73,6 +79,7 @@ class OpeningCacheService {
   async clearCache(): Promise<void> {
     await db.openings.clear();
     await db.lichessMasters.clear();
+    await db.mozerBook.clear();
   }
 }
 
