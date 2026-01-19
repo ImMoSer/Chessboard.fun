@@ -82,6 +82,20 @@ const calculateScore = (move: MozerBookMove | { w: number, d: number, l: number 
   return ((whiteWins + move.d * 0.5) / total) * 100;
 };
 
+const getBarWidths = (move: MozerBookMove | { w: number, d: number, l: number }) => {
+  const total = move.w + move.d + move.l;
+  if (total === 0) return { w: 0, d: 0, l: 0 };
+
+  const whiteWins = turn.value === 'white' ? move.w : move.l;
+  const blackWins = turn.value === 'black' ? move.w : move.l;
+
+  return {
+    w: (whiteWins / total) * 100,
+    d: (move.d / total) * 100,
+    l: (blackWins / total) * 100
+  };
+};
+
 const formatMove = (move: MozerBookMove) => {
   const prefix = turn.value === 'white' ? `${fullMoveNumber.value}.` : `${fullMoveNumber.value}...`;
   return `${prefix}${move.san}${getNagSymbol(move.nag)}`;
@@ -100,23 +114,8 @@ const formatMove = (move: MozerBookMove) => {
           <LeafOutline />
         </n-icon>
         <span class="book-title">MozerBook</span>
-      </div>
-      <div class="header-stats" v-if="stats?.summary">
-        <div class="col-n">{{ stats.summary.w + stats.summary.d + stats.summary.l }}</div>
-        <div class="col-pct header-pct">
-          <div class="score-bar-container mini">
-            <div class="score-bar-green" :style="{ width: calculateScore(stats.summary) + '%' }">
-            </div>
-            <div class="score-bar-grey" :style="{ width: (100 - calculateScore(stats.summary)) + '%' }">
-            </div>
-            <div class="mid-line-static"></div>
-            <span class="score-textMini">{{ calculateScore(stats.summary).toFixed(1) }}</span>
-          </div>
-        </div>
-        <div class="col-draw">{{ (stats.summary.d / (stats.summary.w + stats.summary.d + stats.summary.l) *
-          100).toFixed(1) }}</div>
-        <div class="col-av">{{ Math.round(stats.summary.av) }}</div>
-        <div class="col-perf">{{ Math.round(stats.summary.perf) }}</div>
+        <span class="header-n" v-if="stats?.summary"> (N={{ stats.summary.w + stats.summary.d + stats.summary.l
+          }})</span>
       </div>
     </div>
 
@@ -153,8 +152,9 @@ const formatMove = (move: MozerBookMove) => {
 
         <div class="col-pct cell-pct">
           <div class="score-bar-container">
-            <div class="score-bar-green" :style="{ width: calculateScore(move) + '%' }"></div>
-            <div class="score-bar-grey" :style="{ width: (100 - calculateScore(move)) + '%' }"></div>
+            <div class="score-bar-green" :style="{ width: getBarWidths(move).w + '%' }"></div>
+            <div class="score-bar-grey" :style="{ width: getBarWidths(move).d + '%' }"></div>
+            <div class="score-bar-red" :style="{ width: getBarWidths(move).l + '%' }"></div>
             <div class="mid-line-static"></div>
             <span class="score-text">{{ calculateScore(move).toFixed(1) }}</span>
           </div>
@@ -259,50 +259,17 @@ const formatMove = (move: MozerBookMove) => {
 .header-main {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 }
 
 .tree-icon {
   color: #2e7d32;
 }
 
-.header-stats {
-  display: flex;
-  align-items: center;
-  text-align: right;
-  gap: 0;
-  font-size: 11px;
-}
-
-.header-stats>div {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-}
-
-.header-stats .col-n {
-  width: 60px;
-  padding-right: 8px;
-}
-
-.header-stats .header-pct {
-  width: 80px;
-  padding: 0 4px;
-}
-
-.header-stats .col-draw {
-  width: 45px;
-  padding-right: 4px;
-}
-
-.header-stats .col-av {
-  width: 40px;
-  padding-right: 4px;
-}
-
-.header-stats .col-perf {
-  width: 40px;
-  padding-right: 8px;
+.header-n {
+  font-size: 12px;
+  font-weight: normal;
+  opacity: 0.7;
 }
 
 .score-bar-container.mini {
@@ -423,7 +390,13 @@ const formatMove = (move: MozerBookMove) => {
 }
 
 .score-bar-grey {
-  background: #616161;
+  background: #7E57C2;
+  height: 100%;
+  flex-shrink: 0;
+}
+
+.score-bar-red {
+  background: #f44336;
   height: 100%;
   flex-shrink: 0;
 }
@@ -480,7 +453,7 @@ const formatMove = (move: MozerBookMove) => {
 }
 
 .bar.draw {
-  background: #757575;
+  background: #7E57C2;
 }
 
 .bar.black {
