@@ -1,6 +1,6 @@
 // src/services/OpeningApiService.ts
-import { openingCacheService } from './OpeningCacheService';
 import logger from '../utils/logger';
+import { openingCacheService } from './OpeningCacheService';
 
 export type OpeningDatabaseSource = 'lichess' | 'masters';
 
@@ -18,6 +18,9 @@ export interface LichessOpeningResponse {
   draws: number;
   black: number;
   moves: LichessMove[];
+  avgElo?: number;
+  avgDraw?: number;
+  avgScore?: number;
   opening?: {
     eco: string;
     name: string;
@@ -27,6 +30,29 @@ export interface LichessOpeningResponse {
 export interface LichessParams {
   ratings: number[];
   speeds: string[];
+}
+
+interface MastersMove {
+  san: string;
+  uci: string;
+  n: number;
+  score: number;
+  draw: number;
+  avElo: number;
+  len?: number;
+  mat?: number;
+}
+
+interface MastersResponse {
+  summary: {
+    totalGames: number;
+    avgScore: number;
+    avgDraw: number;
+    avgElo: number;
+    avgLen?: number;
+    avgMat?: number;
+  };
+  moves: MastersMove[];
 }
 
 interface MastersBackendMove {
@@ -144,26 +170,37 @@ class OpeningApiService {
       throw new Error(`Masters API Error: ${response.statusText}`);
     }
 
-    const rawMoves = (await response.json()) as MastersBackendMove[];
+    const data = (await response.json()) as MastersResponse;
 
-    const moves: LichessMove[] = rawMoves.map(m => ({
-      uci: m.uci,
-      san: m.san,
-      white: m.stats.white,
-      draws: m.stats.draws,
-      black: m.stats.black,
-      averageRating: m.avgElo || 2500
-    }));
+    // Map new Masters format to LichessOpeningResponse but preserve new fields
+    const moves: LichessMove[] = data.moves.map(m => {
+      // Calculate white/draws/black counts from n, score and draw if needed by old logic
+      // although it's better to use n, score, draw directly.
+      // score is (W + 0.5D) / N * 100
+      // draw is D / N * 100
+      const d = (m.draw / 100) * m.n;
+      // score/100 * n = W + 0.5D => W = score/100 * n - 0.5D
+      const w = (m.score / 100) * m.n - 0.5 * d;
+      const b = m.n - w - d;
 
-    const totalWhite = moves.reduce((sum, m) => sum + m.white, 0);
-    const totalDraws = moves.reduce((sum, m) => sum + m.draws, 0);
-    const totalBlack = moves.reduce((sum, m) => sum + m.black, 0);
+      return {
+        uci: m.uci,
+        san: m.san,
+        white: Math.round(w),
+        draws: Math.round(d),
+        black: Math.round(b),
+        averageRating: Math.round(m.avElo)
+      };
+    });
 
     return {
-      white: totalWhite,
-      draws: totalDraws,
-      black: totalBlack,
-      moves: moves
+      white: Math.round((data.summary.avgScore / 100) * data.summary.totalGames - 0.5 * (data.summary.avgDraw / 100) * data.summary.totalGames),
+      draws: Math.round((data.summary.avgDraw / 100) * data.summary.totalGames),
+      black: Math.round(data.summary.totalGames - ((data.summary.avgScore / 100) * data.summary.totalGames + 0.5 * (data.summary.avgDraw / 100) * data.summary.totalGames)),
+      moves: moves,
+      avgElo: data.summary.avgElo,
+      avgDraw: data.summary.avgDraw,
+      avgScore: data.summary.avgScore
     };
   }
 

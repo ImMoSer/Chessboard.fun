@@ -160,7 +160,9 @@ async function handlePlayout() {
             <div class="stats-table-wrapper">
                 <OpeningStatsTable v-if="openingStore.currentStats" :moves="openingStore.currentStats.moves"
                     :white="openingStore.currentStats.white" :draws="openingStore.currentStats.draws"
-                    :black="openingStore.currentStats.black" :is-review-mode="isExamEnding" :blurred="!isExamEnding"
+                    :black="openingStore.currentStats.black" :avg-elo="openingStore.currentStats.avgElo"
+                    :avg-draw="openingStore.currentStats.avgDraw" :avg-score="openingStore.currentStats.avgScore"
+                    :is-review-mode="isExamEnding" :blurred="!isExamEnding"
                     @select-move="m => openingStore.handlePlayerMove(m)" />
 
                 <div v-if="openingStore.error" class="error-msg">

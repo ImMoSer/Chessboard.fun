@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
 import { openingApiService, type LichessOpeningResponse } from '@/services/OpeningApiService';
 import { pgnService, pgnTreeVersion } from '@/services/PgnService';
-import OpeningStatsTable from '../OpeningTrainer/OpeningStatsTable.vue';
-import { NButton, NButtonGroup } from 'naive-ui';
 import { useBoardStore } from '@/stores/board.store';
+import { NButton, NButtonGroup } from 'naive-ui';
+import { onMounted, ref, watch } from 'vue';
+import OpeningStatsTable from '../OpeningTrainer/OpeningStatsTable.vue';
 
 const stats = ref<LichessOpeningResponse | null>(null);
 const loading = ref(false);
@@ -51,15 +51,9 @@ onMounted(() => {
             Loading stats...
         </div>
 
-        <OpeningStatsTable
-            v-if="stats"
-            :moves="stats.moves"
-            :isReviewMode="true"
-            :white="stats.white"
-            :draws="stats.draws"
-            :black="stats.black"
-            @select-move="handleSelectMove"
-        />
+        <OpeningStatsTable v-if="stats" :moves="stats.moves" :isReviewMode="true" :white="stats.white"
+            :draws="stats.draws" :black="stats.black" :avg-elo="stats.avgElo" :avg-draw="stats.avgDraw"
+            :avg-score="stats.avgScore" @select-move="handleSelectMove" />
 
         <div v-if="!loading && !stats" class="empty-state">
             No statistics available for this position.
@@ -93,7 +87,8 @@ onMounted(() => {
     text-transform: uppercase;
 }
 
-.loading-state, .empty-state {
+.loading-state,
+.empty-state {
     padding: 20px;
     text-align: center;
     color: var(--color-text-secondary);
