@@ -18,7 +18,7 @@ export const useMozerBookStore = defineStore('mozerBook', () => {
     // but we also watch pgnTreeVersion for structural changes.
     const currentFen = computed(() => {
         // Ensuring computed tracks changes
-        pgnTreeVersion.value;
+        void pgnTreeVersion.value;
         return boardStore.fen || pgnService.getCurrentNavigatedFen();
     });
 
