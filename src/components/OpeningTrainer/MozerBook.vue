@@ -3,9 +3,10 @@ import { InformationCircleOutline, LeafOutline } from '@vicons/ionicons5';
 import { NIcon, NSpin, NText } from 'naive-ui';
 import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { pgnTreeVersion } from '../../services/PgnService';
+import { pgnService, pgnTreeVersion } from '../../services/PgnService';
 import { useBoardStore } from '../../stores/board.store';
 import { useMozerBookStore } from '../../stores/mozerBook.store';
+import { useWikiBooksStore } from '../../stores/wikibooks.store';
 import MozerBookFooter from '../MozerBook/MozerBookFooter.vue';
 import MozerBookRow from '../MozerBook/MozerBookRow.vue';
 import TheoryExplorerModal from '../MozerBook/TheoryExplorerModal.vue';
@@ -18,6 +19,7 @@ defineProps<{
 const { t } = useI18n();
 const boardStore = useBoardStore();
 const mozerStore = useMozerBookStore();
+const wikiStore = useWikiBooksStore();
 
 const stats = computed(() => mozerStore.currentStats);
 const loading = computed(() => mozerStore.isLoading);
@@ -45,6 +47,7 @@ function handleSelectMove(uci: string) {
 // Watch both version and the fen property from store
 watch([pgnTreeVersion, () => boardStore.fen], () => {
   mozerStore.fetchStats();
+  wikiStore.updateMoves(pgnService.getCurrentSanPath());
   showTheory.value = false; // Close theory when position changes
 }, { immediate: true });
 
@@ -89,7 +92,7 @@ const theoryWithChildren = computed<TheoryItemWithChildren[]>(() => {
         <span class="book-title">MozerBook</span>
         <span class="header-n" v-if="stats?.summary"> (N={{ (stats.summary.w + stats.summary.d +
           stats.summary.l).toLocaleString()
-        }})</span>
+          }})</span>
       </div>
       <div class="header-actions">
         <n-icon size="18" class="info-icon" :class="{ 'active': showTheory }" @click.stop="showTheory = !showTheory">

@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { CloseOutline, LeafOutline } from '@vicons/ionicons5';
-import { NIcon, NModal, NScrollbar, NText } from 'naive-ui';
-import { computed } from 'vue';
+import { BookOutline, CloseOutline, LeafOutline } from '@vicons/ionicons5';
+import { NIcon, NModal, NScrollbar, NTabPane, NTabs, NText } from 'naive-ui';
+import { computed, ref } from 'vue';
+import WikiBooksPanel from './WikiBooksPanel.vue';
 import WinrateBar from './WinrateBar.vue';
 import { type TheoryItemWithChildren } from './types';
 import { getNagColor, getNagSymbol } from './utils';
@@ -14,6 +15,8 @@ interface Props {
 
 const props = defineProps<Props>();
 const emit = defineEmits(['update:show', 'select']);
+
+const activeTab = ref('explorer');
 
 const internalShow = computed({
     get: () => props.show,
@@ -42,63 +45,94 @@ const calculateScore = (item: TheoryItemWithChildren) => {
                         <LeafOutline />
                     </n-icon>
                     <div class="title-text">
-                        <div class="main-title">Theoretical Explorer</div>
-                        <div class="sub-title">Theoretical continuations for the current position</div>
+                        <div class="main-title">MozerBook Theory</div>
+                        <div class="sub-title">Theoretical continuations and wiki documentation</div>
                     </div>
                 </div>
-                <n-icon class="modal-close" size="24" @click="internalShow = false">
-                    <CloseOutline />
-                </n-icon>
+                <div class="header-right">
+                    <n-icon class="modal-close" size="24" @click="internalShow = false">
+                        <CloseOutline />
+                    </n-icon>
+                </div>
             </div>
 
-            <n-scrollbar style="max-height: 70vh" trigger="none">
-                <div class="modal-body">
-                    <div v-if="theoryItems.length > 0" class="theory-grid">
-                        <div v-for="item in theoryItems" :key="item.uci" class="theory-card"
-                            @click="handleSelect(item.uci)">
-                            <div class="card-main-info">
-                                <div class="card-move-header">
-                                    <span class="card-eco">{{ item.eco }}</span>
-                                    <span class="card-san" :style="{ color: getNagColor(item.nag) }">
-                                        {{ item.san }}{{ getNagSymbol(item.nag) }}
-                                    </span>
-                                    <span class="card-popularity" v-if="item.count > 0">N={{ item.count.toLocaleString()
-                                        }}</span>
-                                </div>
-                                <div class="card-name">{{ item.name }}</div>
+            <div class="modal-tabs-container">
+                <n-tabs type="segment" animated v-model:value="activeTab">
+                    <n-tab-pane name="explorer" tab="Explorer">
+                        <template #tab>
+                            <div class="tab-label">
+                                <n-icon>
+                                    <LeafOutline />
+                                </n-icon>
+                                <span>Explorer</span>
+                            </div>
+                        </template>
+                        <n-scrollbar style="max-height: 70vh" trigger="none">
+                            <div class="modal-body">
+                                <div v-if="theoryItems.length > 0" class="theory-grid">
+                                    <div v-for="item in theoryItems" :key="item.uci" class="theory-card"
+                                        @click="handleSelect(item.uci)">
+                                        <div class="card-main-info">
+                                            <div class="card-move-header">
+                                                <span class="card-eco">{{ item.eco }}</span>
+                                                <span class="card-san" :style="{ color: getNagColor(item.nag) }">
+                                                    {{ item.san }}{{ getNagSymbol(item.nag) }}
+                                                </span>
+                                                <span class="card-popularity" v-if="item.count > 0">N={{
+                                                    item.count.toLocaleString()
+                                                }}</span>
+                                            </div>
+                                            <div class="card-name">{{ item.name }}</div>
 
-                                <div class="card-stats-row" v-if="item.count > 0">
-                                    <div class="card-bar-wrapper">
-                                        <WinrateBar :w="item.w" :d="item.d" :l="item.l" :turn="turn" :show-score="false"
-                                            mini />
+                                            <div class="card-stats-row" v-if="item.count > 0">
+                                                <div class="card-bar-wrapper">
+                                                    <WinrateBar :w="item.w" :d="item.d" :l="item.l" :turn="turn"
+                                                        :show-score="false" mini />
+                                                </div>
+                                                <div class="card-stats-values">
+                                                    <span class="stat-score">{{ calculateScore(item).toFixed(1)
+                                                    }}%</span>
+                                                    <span class="stat-sep">|</span>
+                                                    <span class="stat-draw">{{ ((item.d / item.count) * 100).toFixed(1)
+                                                        }}%
+                                                        draw</span>
+                                                    <span class="stat-sep">|</span>
+                                                    <span class="stat-av">Av: {{ Math.round(item.av) }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="card-children" v-if="item.children.length > 0">
+                                            <div v-for="(child, idx) in item.children" :key="child.uci"
+                                                class="modal-hierarchy-line">
+                                                <span class="marker">{{ idx === item.children.length - 1 ? '└──' : '├──'
+                                                    }}</span>
+                                                <span class="child-san">{{ child.san }}</span>
+                                                <span class="child-eco">({{ child.eco }})</span>
+                                                <span class="child-name">{{ child.name }}</span>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="card-stats-values">
-                                        <span class="stat-score">{{ calculateScore(item).toFixed(1) }}%</span>
-                                        <span class="stat-sep">|</span>
-                                        <span class="stat-draw">{{ ((item.d / item.count) * 100).toFixed(1) }}%
-                                            draw</span>
-                                        <span class="stat-sep">|</span>
-                                        <span class="stat-av">Av: {{ Math.round(item.av) }}</span>
-                                    </div>
+                                </div>
+                                <div v-else class="empty-theory-modal">
+                                    <n-text depth="3">No theoretical data available for this position.</n-text>
                                 </div>
                             </div>
-
-                            <div class="card-children" v-if="item.children.length > 0">
-                                <div v-for="(child, idx) in item.children" :key="child.uci"
-                                    class="modal-hierarchy-line">
-                                    <span class="marker">{{ idx === item.children.length - 1 ? '└──' : '├──' }}</span>
-                                    <span class="child-san">{{ child.san }}</span>
-                                    <span class="child-eco">({{ child.eco }})</span>
-                                    <span class="child-name">{{ child.name }}</span>
-                                </div>
+                        </n-scrollbar>
+                    </n-tab-pane>
+                    <n-tab-pane name="wikibooks" tab="WikiBooks">
+                        <template #tab>
+                            <div class="tab-label">
+                                <n-icon>
+                                    <BookOutline />
+                                </n-icon>
+                                <span>WikiBooks</span>
                             </div>
-                        </div>
-                    </div>
-                    <div v-else class="empty-theory-modal">
-                        <n-text depth="3">No theoretical data available for this position.</n-text>
-                    </div>
-                </div>
-            </n-scrollbar>
+                        </template>
+                        <WikiBooksPanel />
+                    </n-tab-pane>
+                </n-tabs>
+            </div>
         </div>
     </n-modal>
 </template>
@@ -158,7 +192,18 @@ const calculateScore = (item: TheoryItemWithChildren) => {
 }
 
 .modal-body {
-    padding: 24px;
+    padding: 12px 8px;
+}
+
+.modal-tabs-container {
+    padding: 0 20px 20px 20px;
+}
+
+.tab-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
 }
 
 .theory-grid {

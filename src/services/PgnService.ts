@@ -311,6 +311,16 @@ class PgnServiceController {
     return this.currentNode.parent ? this.currentNode : null
   }
 
+  public getCurrentSanPath(): string[] {
+    const path: string[] = []
+    let N: PgnNode | undefined = this.currentNode
+    while (N && N.parent) {
+      path.unshift(N.san)
+      N = N.parent
+    }
+    return path
+  }
+
   public getFenHistoryForRepetition(): string[] {
     const history: string[] = [this.rootNode.fenAfter]
     let N: PgnNode | undefined = this.currentNode

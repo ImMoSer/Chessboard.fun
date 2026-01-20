@@ -100,6 +100,7 @@ declare module 'vue' {
     UserProfileHeader: typeof import('./src/components/userCabinet/sections/UserProfileHeader.vue')['default']
     UserStats: typeof import('./src/components/UserStats.vue')['default']
     WebChessBoard: typeof import('./src/components/WebChessBoard.vue')['default']
+    WikiBooksPanel: typeof import('./src/components/MozerBook/WikiBooksPanel.vue')['default']
     WinrateBar: typeof import('./src/components/MozerBook/WinrateBar.vue')['default']
   }
 }
