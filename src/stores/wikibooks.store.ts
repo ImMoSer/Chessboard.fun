@@ -16,7 +16,8 @@ export const useWikiBooksStore = defineStore('wikibooks', () => {
 
     async function updateMoves(moves: string[]) {
         // Avoid redundant updates
-        if (JSON.stringify(currentMoves.value) === JSON.stringify(moves)) return
+        const isSameMoves = JSON.stringify(currentMoves.value) === JSON.stringify(moves)
+        if (isSameMoves && (wikiData.value !== null || isLoading.value || error.value !== null)) return
 
         currentMoves.value = [...moves]
         isLoading.value = true

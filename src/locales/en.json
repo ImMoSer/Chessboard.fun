@@ -194,7 +194,12 @@
     "profiles": {
       "lite": "Lite (12MB)",
       "pro": "Pro (48MB)"
-    }
+    },
+    "openingTheory": "Opening Theory",
+    "viewOnWikibooks": "View on Wikibooks",
+    "loadingTheory": "Loading theory...",
+    "noTheoryFound": "No dedicated theory found for this position.",
+    "noTheorySubtext": "Try a more common move order."
   },
   "puzzleInfo": {
     "title": "Puzzle Info",
