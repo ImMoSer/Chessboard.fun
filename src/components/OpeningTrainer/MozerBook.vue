@@ -110,12 +110,20 @@ const theoryWithChildren = computed(() => {
   if (!stats.value?.theory) return [];
 
   return stats.value.theory.map(tItem => {
-    // Find matching move in stats to get children and popularity
+    // Find matching move in stats to get children and statistics
     const matchingMove = stats.value?.moves.find(m => m.uci === tItem.uci);
+    const count = matchingMove ? (matchingMove.w + matchingMove.d + matchingMove.l) : 0;
+
     return {
       ...tItem,
+      nag: matchingMove?.nag || 0,
+      w: matchingMove?.w || 0,
+      d: matchingMove?.d || 0,
+      l: matchingMove?.l || 0,
+      av: matchingMove?.av || 0,
+      perf: matchingMove?.perf || 0,
       children: matchingMove?.children || [],
-      count: matchingMove ? (matchingMove.w + matchingMove.d + matchingMove.l) : 0
+      count: count
     };
   }).sort((a, b) => b.count - a.count); // Sort by popularity
 });
@@ -135,7 +143,7 @@ const theoryWithChildren = computed(() => {
         <span class="book-title">MozerBook</span>
         <span class="header-n" v-if="stats?.summary"> (N={{ (stats.summary.w + stats.summary.d +
           stats.summary.l).toLocaleString()
-        }})</span>
+          }})</span>
       </div>
       <div class="header-actions">
         <n-icon size="18" class="info-icon" :class="{ 'active': showTheory }" @click.stop="showTheory = !showTheory">
@@ -170,10 +178,31 @@ const theoryWithChildren = computed(() => {
                 <div class="card-main-info">
                   <div class="card-move-header">
                     <span class="card-eco">{{ item.eco }}</span>
-                    <span class="card-san">{{ item.san }}</span>
+                    <span class="card-san" :style="{ color: getNagColor(item.nag) }">
+                      {{ item.san }}{{ getNagSymbol(item.nag) }}
+                    </span>
                     <span class="card-popularity" v-if="item.count > 0">N={{ item.count.toLocaleString() }}</span>
                   </div>
                   <div class="card-name">{{ item.name }}</div>
+
+                  <!-- Statistics for the parent move -->
+                  <div class="card-stats-row" v-if="item.count > 0">
+                    <div class="card-bar-wrapper">
+                      <div class="score-bar-container mini">
+                        <div class="score-bar-green" :style="{ width: getBarWidths(item).w + '%' }"></div>
+                        <div class="score-bar-grey" :style="{ width: getBarWidths(item).d + '%' }"></div>
+                        <div class="score-bar-red" :style="{ width: getBarWidths(item).l + '%' }"></div>
+                        <div class="mid-line-static"></div>
+                      </div>
+                    </div>
+                    <div class="card-stats-values">
+                      <span class="stat-score">{{ calculateScore(item).toFixed(1) }}%</span>
+                      <span class="stat-sep">|</span>
+                      <span class="stat-draw">{{ ((item.d / item.count) * 100).toFixed(1) }}% draw</span>
+                      <span class="stat-sep">|</span>
+                      <span class="stat-av">Av: {{ Math.round(item.av) }}</span>
+                    </div>
+                  </div>
                 </div>
 
                 <div class="card-children" v-if="item.children.length > 0">
@@ -692,7 +721,6 @@ const theoryWithChildren = computed(() => {
 .card-san {
   font-size: 20px;
   font-weight: 800;
-  color: var(--color-accent);
 }
 
 .card-popularity {
@@ -707,11 +735,49 @@ const theoryWithChildren = computed(() => {
 .card-name {
   font-size: 14px;
   color: #ccc;
+  margin-bottom: 8px;
+}
+
+.card-stats-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
   margin-bottom: 12px;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+}
+
+.card-bar-wrapper {
+  width: 100px;
+}
+
+.score-bar-container.mini {
+  height: 12px;
+  border: none;
+}
+
+.card-stats-values {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-family: 'Fira Code', monospace;
+  color: #888;
+}
+
+.stat-score {
+  color: #fff;
+  font-weight: bold;
+}
+
+.stat-sep {
+  opacity: 0.3;
 }
 
 .card-children {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.03);
   border-radius: 8px;
   padding: 12px;
   margin-top: 8px;
