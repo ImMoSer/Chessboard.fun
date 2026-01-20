@@ -2,9 +2,9 @@
 import { pgnParserService } from '@/services/PgnParserService'
 import { pgnService, type PgnNode } from '@/services/PgnService'
 import {
-  repertoireApiService,
-  type RepertoireProfile,
-  type RepertoireStyle,
+    repertoireApiService,
+    type RepertoireProfile,
+    type RepertoireStyle,
 } from '@/services/RepertoireApiService'
 import { useBoardStore } from '@/stores/board.store'
 import { useStudyStore } from '@/stores/study.store'
@@ -23,27 +23,12 @@ const styleOptions = [
   {
     label: '⚖️ Balanced Master',
     value: 'master',
-    description: 'Theoretical & sound, optimized for professional growth.',
-  },
-  {
-    label: '🧱 The Wall',
-    value: 'wall',
-    description: 'Rock-solid defense, minimizes risk and aims for safe endgames.',
+    description: 'Theoretical & sound, optimized for professional growth. "Play like a classic. Win like a pro."',
   },
   {
     label: '🃏 The Hustler',
     value: 'hustler',
-    description: 'Sharp traps and obscure lines to confuse your opponent.',
-  },
-  {
-    label: '🐍 Boa Constrictor',
-    value: 'constrictor',
-    description: 'Positional squeeze, avoids early simplification, keeps tension.',
-  },
-  {
-    label: '👑 Forsage (Dictator)',
-    value: 'dictator',
-    description: 'Forces forcing lines, giving opponent minimal choices.',
+    description: 'Aggressive and provocative. Sharp traps and obscure lines to confuse your opponent.',
   },
 ]
 

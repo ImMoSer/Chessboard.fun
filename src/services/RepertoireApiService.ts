@@ -1,7 +1,7 @@
 // src/services/RepertoireApiService.ts
 import logger from '../utils/logger'
 
-export type RepertoireStyle = 'master' | 'wall' | 'hustler' | 'constrictor' | 'dictator'
+export type RepertoireStyle = 'master' | 'hustler'
 export type RepertoireProfile = 'amateur' | 'club' | 'master'
 
 export interface RepertoireParams {
@@ -19,14 +19,17 @@ class RepertoireApiService {
     params: RepertoireParams,
   ): Promise<string | null> {
     try {
-      logger.info(`[RepertoireApiService] Requesting ${style} repertoire:`, params)
-      const response = await fetch(`${this.BACKEND_URL}/opening/repertoire/${style}`, {
+      logger.info(`[RepertoireApiService] Ordering ${style} repertoire:`, params)
+      const response = await fetch(`${this.BACKEND_URL}/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
         },
-        body: JSON.stringify(params),
+        body: JSON.stringify({
+          ...params,
+          style,
+        }),
       })
 
       if (!response.ok) {
