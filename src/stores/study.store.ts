@@ -163,6 +163,11 @@ export const useStudyStore = defineStore('study', () => {
             localStorage.setItem('lastActiveChapterId', id);
             pgnService.setRoot(next.root, next.savedPath);
             boardStore.syncBoardWithPgn();
+
+            // Auto-flip board based on chapter color
+            if (next.color) {
+                boardStore.orientation = next.color;
+            }
         }
     }
 

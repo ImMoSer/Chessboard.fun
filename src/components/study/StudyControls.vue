@@ -118,9 +118,10 @@ const handleGenerateRepertoire = async () => {
     } else {
       message.error('Failed to generate repertoire')
     }
-  } catch (e: any) {
-    console.error(e)
-    message.error(e.message || 'An error occurred during generation')
+  } catch (e: unknown) {
+    const error = e as Error;
+    console.error(error)
+    message.error(error.message || 'An error occurred during generation')
   } finally {
     isGenerating.value = false
   }
@@ -130,7 +131,7 @@ const handleGenerateRepertoire = async () => {
 <template>
   <div class="study-controls">
     <div class="control-group">
-      <n-tooltip trigger="hover">
+      <n-tooltip v-if="!studyStore.activeChapter?.color" trigger="hover">
         <template #trigger>
           <button @click="handleFlip">🔄</button>
         </template>
