@@ -32,6 +32,8 @@ declare module 'vue' {
     LichessOpeningExplorer: typeof import('./src/components/OpeningTrainer/LichessOpeningExplorer.vue')['default']
     MedalStandingsTable: typeof import('./src/components/clubPage/MedalStandingsTable.vue')['default']
     MozerBook: typeof import('./src/components/OpeningTrainer/MozerBook.vue')['default']
+    MozerBookFooter: typeof import('./src/components/MozerBook/MozerBookFooter.vue')['default']
+    MozerBookRow: typeof import('./src/components/MozerBook/MozerBookRow.vue')['default']
     NAlert: typeof import('naive-ui')['NAlert']
     NAvatar: typeof import('naive-ui')['NAvatar']
     NavMenu: typeof import('./src/components/NavMenu.vue')['default']
@@ -89,6 +91,7 @@ declare module 'vue' {
     StudyTreeNode: typeof import('./src/components/study/StudyTreeNode.vue')['default']
     ThematicLeaderboardTable: typeof import('./src/components/recordsPage/ThematicLeaderboardTable.vue')['default']
     ThemeRoseChart: typeof import('./src/components/userCabinet/sections/ThemeRoseChart.vue')['default']
+    TheoryExplorerModal: typeof import('./src/components/MozerBook/TheoryExplorerModal.vue')['default']
     TheoryStackbarChart: typeof import('./src/components/userCabinet/sections/TheoryStackbarChart.vue')['default']
     TimedModeLeaderboardTable: typeof import('./src/components/recordsPage/TimedModeLeaderboardTable.vue')['default']
     TopInfoPanel: typeof import('./src/components/TopInfoPanel.vue')['default']
@@ -97,5 +100,6 @@ declare module 'vue' {
     UserProfileHeader: typeof import('./src/components/userCabinet/sections/UserProfileHeader.vue')['default']
     UserStats: typeof import('./src/components/UserStats.vue')['default']
     WebChessBoard: typeof import('./src/components/WebChessBoard.vue')['default']
+    WinrateBar: typeof import('./src/components/MozerBook/WinrateBar.vue')['default']
   }
 }
