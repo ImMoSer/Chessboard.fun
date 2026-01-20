@@ -3,14 +3,27 @@ import { BookOutline, OpenOutline } from '@vicons/ionicons5'
 import DOMPurify from 'dompurify'
 import { NEmpty, NIcon, NScrollbar, NSpin, NText } from 'naive-ui'
 import { storeToRefs } from 'pinia'
-import { computed } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { pgnService, pgnTreeVersion } from '../../services/PgnService'
 import { WikiUrlBuilder } from '../../services/WikiBooksService'
 import { useWikiBooksStore } from '../../stores/wikibooks.store'
 
 const { t } = useI18n()
 const store = useWikiBooksStore()
 const { wikiData, isLoading, error, hasTheory, currentSlug } = storeToRefs(store)
+
+const updateTheory = () => {
+    store.updateMoves(pgnService.getCurrentSanPath())
+}
+
+onMounted(() => {
+    updateTheory()
+})
+
+watch(pgnTreeVersion, () => {
+    updateTheory()
+})
 
 const displayTitle = computed(() => {
     if (wikiData.value) {
@@ -71,7 +84,7 @@ const sanitizedContent = computed(() => {
                             :description="t('analysis.noTheoryFound') || 'No dedicated theory found for this position.'">
                             <template #extra>
                                 <n-text depth="3">{{ t('analysis.noTheorySubtext') || 'Try a more common move order.'
-                                    }}</n-text>
+                                }}</n-text>
                             </template>
                         </n-empty>
                     </div>
