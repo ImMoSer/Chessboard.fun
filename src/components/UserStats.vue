@@ -7,15 +7,21 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import type { TornadoMode } from '@/types/api.types'
 import {
-  NCard, NStatistic, NGrid, NGridItem, NText, NDivider,
-  NButton, NAvatar, NSpace, NTag, NIcon, NTooltip, NNumberAnimation
+  NCard,
+  NStatistic,
+  NGrid,
+  NGridItem,
+  NText,
+  NDivider,
+  NButton,
+  NAvatar,
+  NSpace,
+  NTag,
+  NIcon,
+  NTooltip,
+  NNumberAnimation,
 } from 'naive-ui'
-import {
-  WalletOutline,
-  RibbonOutline,
-  GolfOutline,
-  LockClosedOutline
-} from '@vicons/ionicons5'
+import { WalletOutline, RibbonOutline, GolfOutline, LockClosedOutline } from '@vicons/ionicons5'
 
 const authStore = useAuthStore()
 const { userProfile, isAuthenticated } = storeToRefs(authStore)
@@ -85,12 +91,22 @@ const avatarUrl = computed(() => {
           <!-- Header: Avatar, Name & FunCoins -->
           <n-space align="center" justify="space-between" :size="12" style="width: 100%">
             <n-space align="center" :size="12">
-              <n-avatar round size="medium" :src="avatarUrl || undefined"
-                fallback-src="https://lichess1.org/assets/images/avatar_default.png" class="piece-avatar" />
+              <n-avatar
+                round
+                size="medium"
+                :src="avatarUrl || undefined"
+                fallback-src="https://lichess1.org/assets/images/avatar_default.png"
+                class="piece-avatar"
+              />
               <n-space vertical :size="0">
                 <n-text strong class="username">{{ userProfile.username }}</n-text>
-                <n-tag :bordered="false" :type="userProfile.subscriptionTier === 'administrator' ? 'error' : 'warning'"
-                  size="tiny" round uppercase>
+                <n-tag
+                  :bordered="false"
+                  :type="userProfile.subscriptionTier === 'administrator' ? 'error' : 'warning'"
+                  size="tiny"
+                  round
+                  uppercase
+                >
                   {{ userProfile.subscriptionTier }}
                 </n-tag>
               </n-space>
@@ -169,7 +185,9 @@ const avatarUrl = computed(() => {
             <LockClosedOutline />
           </n-icon>
           <div style="text-align: center">
-            <n-text strong size="large" block class="login-title">{{ t('userCabinet.title') }}</n-text>
+            <n-text strong size="large" block class="login-title">{{
+              t('userCabinet.title')
+            }}</n-text>
             <n-text depth="3">{{ t('userCabinet.loginPrompt') }}</n-text>
           </div>
           <n-button type="primary" size="large" block secondary strong @click="handleLogin">

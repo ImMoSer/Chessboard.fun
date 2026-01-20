@@ -22,7 +22,12 @@ const formatNumber = (num: number) => new Intl.NumberFormat('ru-RU').format(num)
     <!-- Заголовок турнира -->
     <header class="report-header">
       <h1 class="tournament-name">🏆 {{ report.tournament_info.name }} 🏆</h1>
-      <a :href="report.tournament_info.url" target="_blank" rel="noopener noreferrer" class="tournament-link">
+      <a
+        :href="report.tournament_info.url"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="tournament-link"
+      >
         {{ t('latestBattle.linkToTournament') }}
       </a>
     </header>
@@ -84,9 +89,15 @@ const formatNumber = (num: number) => new Intl.NumberFormat('ru-RU').format(num)
       <section class="report-section medals-section">
         <h2 class="section-title">🔥🔥🔥 {{ t('latestBattle.medalsTitle') }} 🔥🔥🔥</h2>
         <ul class="awards-list">
-          <li>🥇 {{ t('latestBattle.goldMedal') }}: <span>{{ report.medals.gold }}</span></li>
-          <li>🥈 {{ t('latestBattle.silverMedal') }}: <span>{{ report.medals.silver }}</span></li>
-          <li>🥉 {{ t('latestBattle.bronzeMedal') }}: <span>{{ report.medals.bronze }}</span></li>
+          <li>
+            🥇 {{ t('latestBattle.goldMedal') }}: <span>{{ report.medals.gold }}</span>
+          </li>
+          <li>
+            🥈 {{ t('latestBattle.silverMedal') }}: <span>{{ report.medals.silver }}</span>
+          </li>
+          <li>
+            🥉 {{ t('latestBattle.bronzeMedal') }}: <span>{{ report.medals.bronze }}</span>
+          </li>
         </ul>
       </section>
 
@@ -94,14 +105,34 @@ const formatNumber = (num: number) => new Intl.NumberFormat('ru-RU').format(num)
       <section class="report-section nominations-section">
         <h2 class="section-title">🔥🔥🔥 {{ t('latestBattle.nominationsTitle') }} 🔥🔥🔥</h2>
         <ul class="awards-list">
-          <li>⚡️ {{ t('latestBattle.berserker') }}: <span>{{ report.nominations.berserker.username }} ({{
-            report.nominations.berserker.value }} {{ t('latestBattle.winsUnit') }})</span></li>
-          <li>💪 {{ t('latestBattle.workhorse') }}: <span>{{ report.nominations.workhorse.username }} ({{
-            report.nominations.workhorse.value }} {{ t('latestBattle.gamesUnit') }})</span></li>
-          <li>🔥 {{ t('latestBattle.winStreaker') }}: <span>{{ report.nominations.win_streaker.username }} ({{
-            t('latestBattle.streakUnit') }} {{ report.nominations.win_streaker.value }})</span></li>
-          <li>👌 {{ t('latestBattle.performer') }}: <span>{{ report.nominations.performer.username }} ({{
-            t('latestBattle.perfUnit') }} {{ formatNumber(report.nominations.performer.value) }})</span></li>
+          <li>
+            ⚡️ {{ t('latestBattle.berserker') }}:
+            <span
+              >{{ report.nominations.berserker.username }} ({{ report.nominations.berserker.value }}
+              {{ t('latestBattle.winsUnit') }})</span
+            >
+          </li>
+          <li>
+            💪 {{ t('latestBattle.workhorse') }}:
+            <span
+              >{{ report.nominations.workhorse.username }} ({{ report.nominations.workhorse.value }}
+              {{ t('latestBattle.gamesUnit') }})</span
+            >
+          </li>
+          <li>
+            🔥 {{ t('latestBattle.winStreaker') }}:
+            <span
+              >{{ report.nominations.win_streaker.username }} ({{ t('latestBattle.streakUnit') }}
+              {{ report.nominations.win_streaker.value }})</span
+            >
+          </li>
+          <li>
+            👌 {{ t('latestBattle.performer') }}:
+            <span
+              >{{ report.nominations.performer.username }} ({{ t('latestBattle.perfUnit') }}
+              {{ formatNumber(report.nominations.performer.value) }})</span
+            >
+          </li>
         </ul>
       </section>
     </div>

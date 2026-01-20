@@ -13,11 +13,18 @@ import { useControlsStore } from './controls.store'
 import { useUiStore } from './ui.store'
 
 export type GamePhase = 'IDLE' | 'LOADING' | 'PLAYING' | 'GAMEOVER'
-export type GameMode = 'finish-him' | 'tornado' | 'sandbox' | 'opening-trainer' | 'theory' | 'practical-chess' | null
+export type GameMode =
+  | 'finish-him'
+  | 'tornado'
+  | 'sandbox'
+  | 'opening-trainer'
+  | 'theory'
+  | 'practical-chess'
+  | null
 
 const BOT_MOVE_DELAY_MS = 50
 const FIRST_BOT_MOVE_DELAY_MS = 500
-const noop = () => { }
+const noop = () => {}
 
 export const useGameStore = defineStore('game', () => {
   const gamePhase = ref<GamePhase>('IDLE')
@@ -190,12 +197,12 @@ export const useGameStore = defineStore('game', () => {
     if (isScenarioActive) {
       const expectedMove = scenarioMoves.value[currentScenarioMoveIndex.value]
       if (uciMove === expectedMove) {
-        if (userMovesCount.value === 1 && (currentGameMode.value === 'tornado')) {
+        if (userMovesCount.value === 1 && currentGameMode.value === 'tornado') {
           onCorrectFirstMoveCallback()
         }
         currentScenarioMoveIndex.value++
         const isPuzzleComplete = currentScenarioMoveIndex.value >= scenarioMoves.value.length
-        if (isPuzzleComplete && (currentGameMode.value === 'tornado')) {
+        if (isPuzzleComplete && currentGameMode.value === 'tornado') {
           onGameOverCallback(true)
           return
         }

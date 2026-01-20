@@ -28,7 +28,11 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
 
 <template>
   <div class="records-page">
-    <img class="records-page__banner" src="/jpg/ChessBoardLeader_bg_101014.jpg" :alt="t('records.bannerAlt')" />
+    <img
+      class="records-page__banner"
+      src="/jpg/ChessBoardLeader_bg_101014.jpg"
+      :alt="t('records.bannerAlt')"
+    />
 
     <div v-if="isLoading" class="loading-message">
       {{ t('common.loading') }}
@@ -38,27 +42,44 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
     </div>
 
     <div v-else-if="leaderboards" class="records-page__grid">
-
       <!-- СЕКЦИЯ: HOT (Activity & Streaks) -->
       <section class="records-section">
         <h2 class="section-divider">{{ t('records.sections.hot') }}</h2>
         <div class="section-grid">
           <!-- Skill Streak Mega Leaderboard -->
           <SkillLeaderboardTable
-            v-if="leaderboards.skillStreakMegaLeaderboard && leaderboards.skillStreakMegaLeaderboard.length > 0"
-            :title="t('records.titles.skillStreakMega')" :entries="leaderboards.skillStreakMegaLeaderboard"
-            color-class="skillStreakMega" :show-streak="true" info-topic="skillStreakMega" />
+            v-if="
+              leaderboards.skillStreakMegaLeaderboard &&
+              leaderboards.skillStreakMegaLeaderboard.length > 0
+            "
+            :title="t('records.titles.skillStreakMega')"
+            :entries="leaderboards.skillStreakMegaLeaderboard"
+            color-class="skillStreakMega"
+            :show-streak="true"
+            info-topic="skillStreakMega"
+          />
 
           <!-- Top Today Leaderboard -->
-          <SkillLeaderboardTable v-if="leaderboards.topTodayLeaderboard && leaderboards.topTodayLeaderboard.length > 0"
-            :title="t('records.titles.topToday')" :entries="leaderboards.topTodayLeaderboard" color-class="topToday"
-            :show-timer="true" info-topic="topToday" />
+          <SkillLeaderboardTable
+            v-if="leaderboards.topTodayLeaderboard && leaderboards.topTodayLeaderboard.length > 0"
+            :title="t('records.titles.topToday')"
+            :entries="leaderboards.topTodayLeaderboard"
+            color-class="topToday"
+            :show-timer="true"
+            info-topic="topToday"
+          />
 
           <!-- Skill Streak Leaderboard -->
           <SkillLeaderboardTable
-            v-if="leaderboards.skillStreakLeaderboard && leaderboards.skillStreakLeaderboard.length > 0"
-            :title="t('records.titles.skillStreak')" :entries="leaderboards.skillStreakLeaderboard"
-            color-class="skillStreak" :show-streak="true" info-topic="skillStreak" />
+            v-if="
+              leaderboards.skillStreakLeaderboard && leaderboards.skillStreakLeaderboard.length > 0
+            "
+            :title="t('records.titles.skillStreak')"
+            :entries="leaderboards.skillStreakLeaderboard"
+            color-class="skillStreak"
+            :show-streak="true"
+            info-topic="skillStreak"
+          />
         </div>
       </section>
 
@@ -67,23 +88,41 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
         <h2 class="section-divider">{{ t('records.sections.competitive') }}</h2>
         <div class="section-grid">
           <!-- Tornado Leaderboard -->
-          <TimedModeLeaderboardTable v-if="leaderboards.tornadoLeaderboard" :title="t('nav.tornado')"
-            :data="leaderboards.tornadoLeaderboard" mode="tornado" color-class="tornadoLeaderboard"
-            info-topic="tornadoLeaderboard" />
+          <TimedModeLeaderboardTable
+            v-if="leaderboards.tornadoLeaderboard"
+            :title="t('nav.tornado')"
+            :data="leaderboards.tornadoLeaderboard"
+            mode="tornado"
+            color-class="tornadoLeaderboard"
+            info-topic="tornadoLeaderboard"
+          />
 
           <!-- Advantage Leaderboard -->
-          <ThematicLeaderboardTable v-if="leaderboards.advantageLeaderboard"
-            :title="t('records.titles.advantageLeaderboard')" :data="leaderboards.advantageLeaderboard"
-            color-class="advantageLeaderboard" info-topic="topFinishHim" />
+          <ThematicLeaderboardTable
+            v-if="leaderboards.advantageLeaderboard"
+            :title="t('records.titles.advantageLeaderboard')"
+            :data="leaderboards.advantageLeaderboard"
+            color-class="advantageLeaderboard"
+            info-topic="topFinishHim"
+          />
 
           <!-- Theory Leaderboard -->
-          <ThematicLeaderboardTable v-if="leaderboards.theoryLeaderboard" :title="t('records.titles.theoryLeaderboard')"
-            :data="leaderboards.theoryLeaderboard" color-class="theoryLeaderboard" info-topic="theoryLeaderboard" />
+          <ThematicLeaderboardTable
+            v-if="leaderboards.theoryLeaderboard"
+            :title="t('records.titles.theoryLeaderboard')"
+            :data="leaderboards.theoryLeaderboard"
+            color-class="theoryLeaderboard"
+            info-topic="theoryLeaderboard"
+          />
 
           <!-- Practical Leaderboard -->
-          <ThematicLeaderboardTable v-if="leaderboards.practicalLeaderboard"
-            :title="t('records.titles.practicalLeaderboard')" :data="leaderboards.practicalLeaderboard"
-            color-class="practicalLeaderboard" info-topic="practicalLeaderboard" />
+          <ThematicLeaderboardTable
+            v-if="leaderboards.practicalLeaderboard"
+            :title="t('records.titles.practicalLeaderboard')"
+            :data="leaderboards.practicalLeaderboard"
+            color-class="practicalLeaderboard"
+            info-topic="practicalLeaderboard"
+          />
         </div>
       </section>
 
@@ -91,12 +130,18 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
       <section class="records-section">
         <h2 class="section-divider">{{ t('records.sections.hallOfFame') }}</h2>
         <!-- Overall Skill Leaderboard -->
-        <SkillLeaderboardTable v-if="leaderboards.overallSkillLeaderboard" :title="t('records.titles.overallSkill')"
-          :entries="leaderboards.overallSkillLeaderboard" color-class="overallSkill" :show-filter="true"
-          :is-loading="isSkillLeaderboardLoading" :selected-period="selectedSkillPeriod" info-topic="overallSkill"
-          @period-change="handleSkillPeriodChange" />
+        <SkillLeaderboardTable
+          v-if="leaderboards.overallSkillLeaderboard"
+          :title="t('records.titles.overallSkill')"
+          :entries="leaderboards.overallSkillLeaderboard"
+          color-class="overallSkill"
+          :show-filter="true"
+          :is-loading="isSkillLeaderboardLoading"
+          :selected-period="selectedSkillPeriod"
+          info-topic="overallSkill"
+          @period-change="handleSkillPeriodChange"
+        />
       </section>
-
     </div>
   </div>
 </template>
@@ -123,7 +168,8 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
   max-height: 200px;
   border-radius: 20px;
   align-self: center;
-  box-shadow: 0 0 20px rgba(255, 0, 0, 0.6),
+  box-shadow:
+    0 0 20px rgba(255, 0, 0, 0.6),
     0 0 40px rgba(255, 69, 0, 0.4),
     inset 0 0 15px rgba(255, 0, 0, 0.5);
   animation: flame-pulse 2s infinite ease-in-out;
@@ -131,17 +177,18 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
 }
 
 @keyframes flame-pulse {
-
   0%,
   100% {
-    box-shadow: 0 0 15px rgba(255, 0, 0, 0.6),
+    box-shadow:
+      0 0 15px rgba(255, 0, 0, 0.6),
       0 0 30px rgba(255, 69, 0, 0.4),
       inset 0 0 10px rgba(255, 0, 0, 0.5);
     transform: scale(1);
   }
 
   50% {
-    box-shadow: 0 0 25px rgba(255, 0, 0, 0.8),
+    box-shadow:
+      0 0 25px rgba(255, 0, 0, 0.8),
       0 0 50px rgba(255, 140, 0, 0.6),
       inset 0 0 20px rgba(255, 69, 0, 0.6);
     transform: scale(1.005);
@@ -193,7 +240,7 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
 }
 
 .section-divider::after {
-  content: "";
+  content: '';
   flex: 1;
   height: 1px;
   background: var(--color-border);
@@ -204,7 +251,6 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
   grid-template-columns: 1fr;
   gap: 25px;
 }
-
 
 @media (max-width: 768px) {
   .records-page {

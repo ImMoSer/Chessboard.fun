@@ -30,7 +30,7 @@ class OpeningChaptersService {
       .finally(() => {
         this.loadPromise = null
       })
-    
+
     return this.loadPromise
   }
 
@@ -42,9 +42,7 @@ class OpeningChaptersService {
     if (!query) return this.chapters
     const q = query.toLowerCase()
     return this.chapters.filter(
-      (c) => 
-        c.name.toLowerCase().includes(q) || 
-        c.eco.toLowerCase().includes(q)
+      (c) => c.name.toLowerCase().includes(q) || c.eco.toLowerCase().includes(q),
     )
   }
 }

@@ -4,10 +4,10 @@ import { getThemeTranslationKey } from '@/utils/theme-mapper'
 import { ExpandOutline } from '@vicons/ionicons5'
 import { BarChart } from 'echarts/charts'
 import {
-    GridComponent,
-    LegendComponent,
-    TitleComponent,
-    TooltipComponent
+  GridComponent,
+  LegendComponent,
+  TitleComponent,
+  TooltipComponent,
 } from 'echarts/components'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
@@ -15,14 +15,7 @@ import { computed, ref, type PropType } from 'vue'
 import VChart from 'vue-echarts'
 import { useI18n } from 'vue-i18n'
 
-use([
-  CanvasRenderer,
-  BarChart,
-  GridComponent,
-  TooltipComponent,
-  LegendComponent,
-  TitleComponent
-])
+use([CanvasRenderer, BarChart, GridComponent, TooltipComponent, LegendComponent, TitleComponent])
 
 const { t } = useI18n()
 
@@ -39,7 +32,7 @@ const props = defineProps({
   mode: {
     type: String as PropType<'theory' | 'advantage' | 'practical'>,
     default: 'theory',
-  }
+  },
 })
 
 const activeType = ref<'win' | 'draw'>('win')
@@ -48,8 +41,8 @@ const difficulties = ['Novice', 'Pro', 'Master'] as const
 
 const seriesColors = {
   Novice: '#42b883', // Vue green
-  Pro: '#35495e',    // Vue dark blue
-  Master: '#f39c12'  // Orange
+  Pro: '#35495e', // Vue dark blue
+  Master: '#f39c12', // Orange
 }
 
 // Extract unique themes from keys
@@ -57,7 +50,7 @@ const currentThemes = computed(() => {
   const themes = new Set<string>()
   const prefix = props.mode === 'theory' ? activeType.value : 'win'
 
-  Object.keys(props.stats).forEach(key => {
+  Object.keys(props.stats).forEach((key) => {
     const parts = key.split('/')
     if (parts.length === 3 && parts[0] === prefix) {
       const theme = parts[2]
@@ -68,8 +61,24 @@ const currentThemes = computed(() => {
   })
 
   const preferredOrder = [
-    'pawn', 'knight', 'bishop', 'rookPawn', 'rookPieces', 'knightBishop', 'queen', 'queenPieces', 'expert',
-    'extra_pawn', 'material_equality', 'bishops', 'knights', 'pawns', 'queens', 'rooks', 'exchange', 'knight_vs_bishop'
+    'pawn',
+    'knight',
+    'bishop',
+    'rookPawn',
+    'rookPieces',
+    'knightBishop',
+    'queen',
+    'queenPieces',
+    'expert',
+    'extra_pawn',
+    'material_equality',
+    'bishops',
+    'knights',
+    'pawns',
+    'queens',
+    'rooks',
+    'exchange',
+    'knight_vs_bishop',
   ]
 
   return Array.from(themes).sort((a, b) => {
@@ -91,7 +100,7 @@ const option = computed(() => {
     tooltip: {
       trigger: 'axis',
       axisPointer: {
-        type: 'shadow'
+        type: 'shadow',
       },
       appendTo: 'body',
       confine: true,
@@ -102,7 +111,9 @@ const option = computed(() => {
       formatter: (params: any) => {
         const theme = themes[params[0].dataIndex]
         if (!theme) return ''
-        const themeName = t(`chess.themes.${getThemeTranslationKey(theme)}`, { defaultValue: theme })
+        const themeName = t(`chess.themes.${getThemeTranslationKey(theme)}`, {
+          defaultValue: theme,
+        })
 
         let html = `<div style="padding: 4px; min-width: 150px;">
                       <b style="color: #FFFFFF; display: block; margin-bottom: 8px; border-bottom: 1px solid #5A5A5A; padding-bottom: 4px;">${themeName}</b>`
@@ -121,39 +132,39 @@ const option = computed(() => {
           }
         })
         return html + '</div>'
-      }
+      },
     },
     legend: {
-      data: difficulties.map(d => t(`theoryEndings.difficulties.${d}`)),
+      data: difficulties.map((d) => t(`theoryEndings.difficulties.${d}`)),
       textStyle: { color: '#CCCCCC' },
-      bottom: 0
+      bottom: 0,
     },
     grid: {
       left: '3%',
       right: '4%',
       bottom: '10%',
       top: '5%',
-      containLabel: true
+      containLabel: true,
     },
     xAxis: {
       type: 'category',
-      data: themes.map(theme => {
+      data: themes.map((theme) => {
         return t(`chess.themes.${getThemeTranslationKey(theme)}`)
       }),
       axisLabel: {
         color: '#CCCCCC',
         interval: 0,
-        rotate: themes.length > 6 ? 30 : 0
+        rotate: themes.length > 6 ? 30 : 0,
       },
-      axisLine: { lineStyle: { color: '#5A5A5A' } }
+      axisLine: { lineStyle: { color: '#5A5A5A' } },
     },
     yAxis: {
       type: 'value',
       axisLabel: { color: '#CCCCCC' },
       axisLine: { lineStyle: { color: '#5A5A5A' } },
-      splitLine: { lineStyle: { color: '#444' } }
+      splitLine: { lineStyle: { color: '#444' } },
     },
-    series: difficulties.map(diff => ({
+    series: difficulties.map((diff) => ({
       name: t(`theoryEndings.difficulties.${diff}`),
       type: 'bar',
       stack: 'total',
@@ -163,26 +174,28 @@ const option = computed(() => {
           return params.value > 0 ? params.value : ''
         },
         color: '#fff',
-        fontSize: 10
+        fontSize: 10,
       },
       emphasis: {
-        focus: 'self'
+        focus: 'self',
       },
       itemStyle: {
-        color: seriesColors[diff]
+        color: seriesColors[diff],
       },
-      data: themes.map(theme => {
+      data: themes.map((theme) => {
         const key = `${prefix}/${diff}/${theme}`
         return props.stats[key]?.success || 0
-      })
-    }))
+      }),
+    })),
   }
 })
 
 const onChartClick = (params: any) => {
   const themeId = currentThemes.value[params.dataIndex]
   const difficultyId = difficulties[params.seriesIndex]
-  console.log(`[ECharts Click] Mode: ${props.mode}, Type: ${activeType.value}, Theme: ${themeId}, Difficulty: ${difficultyId}`)
+  console.log(
+    `[ECharts Click] Mode: ${props.mode}, Type: ${activeType.value}, Theme: ${themeId}, Difficulty: ${difficultyId}`,
+  )
 }
 </script>
 
@@ -193,9 +206,11 @@ const onChartClick = (params: any) => {
         <div class="title-group">
           <h3 class="theory-title">
             {{
-              mode === 'theory' ? t('userCabinet.stats.modes.theory') :
-              mode === 'advantage' ? t('userCabinet.stats.modes.advantage') :
-              t('userCabinet.stats.modes.practical')
+              mode === 'theory'
+                ? t('userCabinet.stats.modes.theory')
+                : mode === 'advantage'
+                  ? t('userCabinet.stats.modes.advantage')
+                  : t('userCabinet.stats.modes.practical')
             }}
           </h3>
           <n-button quaternary circle size="small" @click="showModal = true" class="zoom-btn">
@@ -205,10 +220,18 @@ const onChartClick = (params: any) => {
           </n-button>
         </div>
         <n-button-group v-if="mode === 'theory'">
-          <n-button :type="activeType === 'win' ? 'primary' : 'default'" @click="activeType = 'win'" size="small">
+          <n-button
+            :type="activeType === 'win' ? 'primary' : 'default'"
+            @click="activeType = 'win'"
+            size="small"
+          >
             {{ t('theoryEndings.types.win') }}
           </n-button>
-          <n-button :type="activeType === 'draw' ? 'primary' : 'default'" @click="activeType = 'draw'" size="small">
+          <n-button
+            :type="activeType === 'draw' ? 'primary' : 'default'"
+            @click="activeType = 'draw'"
+            size="small"
+          >
             {{ t('theoryEndings.types.draw') }}
           </n-button>
         </n-button-group>
@@ -220,9 +243,19 @@ const onChartClick = (params: any) => {
     </div>
 
     <!-- Zoom Modal -->
-    <n-modal v-model:show="showModal" preset="card" class="zoom-modal"
-      :title="mode === 'theory' ? t('userCabinet.stats.modes.theory') : mode === 'advantage' ? t('userCabinet.stats.modes.advantage') : t('userCabinet.stats.modes.practical')"
-      style="width: 90vw; max-width: 1200px;">
+    <n-modal
+      v-model:show="showModal"
+      preset="card"
+      class="zoom-modal"
+      :title="
+        mode === 'theory'
+          ? t('userCabinet.stats.modes.theory')
+          : mode === 'advantage'
+            ? t('userCabinet.stats.modes.advantage')
+            : t('userCabinet.stats.modes.practical')
+      "
+      style="width: 90vw; max-width: 1200px"
+    >
       <div class="modal-content">
         <div class="modal-controls" v-if="mode === 'theory'">
           <n-radio-group v-model:value="activeType" size="medium">

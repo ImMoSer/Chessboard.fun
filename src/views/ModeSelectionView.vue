@@ -86,7 +86,6 @@ const selectMode = (modeId: TornadoMode) => {
 }
 
 .modes-container {
-
   backdrop-filter: blur(15px);
   border-radius: var(--panel-border-radius);
   padding: 30px;

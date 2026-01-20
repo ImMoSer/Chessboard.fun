@@ -3,24 +3,14 @@
 import { getThemeTranslationKey } from '@/utils/theme-mapper'
 import { ExpandOutline } from '@vicons/ionicons5'
 import { PieChart } from 'echarts/charts'
-import {
-    LegendComponent,
-    TitleComponent,
-    TooltipComponent
-} from 'echarts/components'
+import { LegendComponent, TitleComponent, TooltipComponent } from 'echarts/components'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { computed, ref, type PropType } from 'vue'
 import VChart from 'vue-echarts'
 import { useI18n } from 'vue-i18n'
 
-use([
-  CanvasRenderer,
-  PieChart,
-  TooltipComponent,
-  LegendComponent,
-  TitleComponent
-])
+use([CanvasRenderer, PieChart, TooltipComponent, LegendComponent, TitleComponent])
 
 const { t } = useI18n()
 
@@ -34,20 +24,20 @@ interface ThemeStat {
 const props = defineProps({
   themes: {
     type: Array as PropType<ThemeStat[]>,
-    required: true
+    required: true,
   },
   title: {
     type: String,
-    required: true
+    required: true,
   },
   modes: {
     type: Array as PropType<string[]>,
-    default: () => []
+    default: () => [],
   },
   activeMode: {
     type: String,
-    default: ''
-  }
+    default: '',
+  },
 })
 
 const emit = defineEmits<{
@@ -62,14 +52,16 @@ const formatMode = (mode: string) => {
 }
 
 const chartData = computed(() => {
-  return props.themes.map(item => {
-    const accuracy = item.requested > 0 ? (item.success / item.requested) * 100 : 0
-    return {
-      name: item.theme,
-      value: viewMode.value === 'rating' ? item.rating : Math.round(accuracy),
-      raw: item
-    }
-  }).sort((a, b) => b.value - a.value)
+  return props.themes
+    .map((item) => {
+      const accuracy = item.requested > 0 ? (item.success / item.requested) * 100 : 0
+      return {
+        name: item.theme,
+        value: viewMode.value === 'rating' ? item.rating : Math.round(accuracy),
+        raw: item,
+      }
+    })
+    .sort((a, b) => b.value - a.value)
 })
 
 const option = computed(() => {
@@ -105,7 +97,7 @@ const option = computed(() => {
             </div>
           </div>
         `
-      }
+      },
     },
     series: [
       {
@@ -115,7 +107,7 @@ const option = computed(() => {
         center: ['50%', '50%'],
         roseType: 'radius',
         itemStyle: {
-          borderRadius: 5
+          borderRadius: 5,
         },
         label: {
           show: true,
@@ -123,17 +115,17 @@ const option = computed(() => {
           formatter: (params: any) => {
             const themeName = t(`chess.themes.${getThemeTranslationKey(params.name)}`)
             return themeName.length > 10 ? themeName.slice(0, 8) + '..' : themeName
-          }
+          },
         },
         emphasis: {
           label: {
             show: true,
-            fontWeight: 'bold'
-          }
+            fontWeight: 'bold',
+          },
         },
-        data: chartData.value
-      }
-    ]
+        data: chartData.value,
+      },
+    ],
   }
 })
 
@@ -155,7 +147,9 @@ const onChartClick = (params: any) => {
       </div>
       <n-radio-group v-model:value="viewMode" size="small">
         <n-radio-button value="rating">{{ t('userCabinet.analyticsTable.rating') }}</n-radio-button>
-        <n-radio-button value="accuracy">{{ t('userCabinet.analyticsTable.accuracy') }}</n-radio-button>
+        <n-radio-button value="accuracy">{{
+          t('userCabinet.analyticsTable.accuracy')
+        }}</n-radio-button>
       </n-radio-group>
     </div>
 
@@ -176,12 +170,22 @@ const onChartClick = (params: any) => {
     </div>
 
     <!-- Zoom Modal -->
-    <n-modal v-model:show="showModal" preset="card" class="zoom-modal" :title="title" style="width: 90vw; max-width: 1200px;">
+    <n-modal
+      v-model:show="showModal"
+      preset="card"
+      class="zoom-modal"
+      :title="title"
+      style="width: 90vw; max-width: 1200px"
+    >
       <div class="modal-content">
         <div class="modal-controls">
-           <n-radio-group v-model:value="viewMode" size="medium">
-            <n-radio-button value="rating">{{ t('userCabinet.analyticsTable.rating') }}</n-radio-button>
-            <n-radio-button value="accuracy">{{ t('userCabinet.analyticsTable.accuracy') }}</n-radio-button>
+          <n-radio-group v-model:value="viewMode" size="medium">
+            <n-radio-button value="rating">{{
+              t('userCabinet.analyticsTable.rating')
+            }}</n-radio-button>
+            <n-radio-button value="accuracy">{{
+              t('userCabinet.analyticsTable.accuracy')
+            }}</n-radio-button>
           </n-radio-group>
 
           <n-radio-group

@@ -9,7 +9,7 @@ import {
   GridComponent,
   TooltipComponent,
   LegendComponent,
-  TitleComponent
+  TitleComponent,
 } from 'echarts/components'
 import VChart from 'vue-echarts'
 import type {
@@ -19,18 +19,14 @@ import type {
 } from '@/types/api.types'
 import InfoIcon from '../InfoIcon.vue'
 
-use([
-  CanvasRenderer,
-  BarChart,
-  GridComponent,
-  TooltipComponent,
-  LegendComponent,
-  TitleComponent
-])
+use([CanvasRenderer, BarChart, GridComponent, TooltipComponent, LegendComponent, TitleComponent])
 
 const props = defineProps({
   title: { type: String, required: true },
-  entries: { type: Array as PropType<(OverallSolvedLeaderboardEntry | SolveStreakLeaderboardEntry)[]>, required: true },
+  entries: {
+    type: Array as PropType<(OverallSolvedLeaderboardEntry | SolveStreakLeaderboardEntry)[]>,
+    required: true,
+  },
   colorClass: { type: String, required: true },
   showStreak: { type: Boolean, default: false },
   showFilter: { type: Boolean, default: false },
@@ -48,8 +44,8 @@ const { t } = useI18n()
 
 const skillModes = [
   { key: 'advantage', nameKey: 'userCabinet.stats.modes.advantage', color: '#42b883' }, // Green
-  { key: 'tornado', nameKey: 'userCabinet.stats.modes.tornado', color: '#f39c12' },   // Orange
-  { key: 'theory', nameKey: 'userCabinet.stats.modes.theory', color: '#9b59b6' },     // Purple
+  { key: 'tornado', nameKey: 'userCabinet.stats.modes.tornado', color: '#f39c12' }, // Orange
+  { key: 'theory', nameKey: 'userCabinet.stats.modes.theory', color: '#9b59b6' }, // Purple
 ] as const
 
 const periodOptions = [
@@ -61,7 +57,7 @@ const periodOptions = [
 
 const chartOption = computed(() => {
   const displayEntries = [...props.entries].slice(0, 20).reverse()
-  
+
   return {
     backgroundColor: 'transparent',
     tooltip: {
@@ -76,10 +72,10 @@ const chartOption = computed(() => {
       formatter: (params: any) => {
         const entry = displayEntries[params[0].dataIndex]
         if (!entry) return ''
-        
+
         let html = `<div style="padding: 4px; min-width: 150px;">
                       <b style="color: #FFFFFF; display: block; margin-bottom: 8px; border-bottom: 1px solid #5A5A5A; padding-bottom: 4px;">${entry.username}</b>`
-        
+
         params.forEach((item: any) => {
           if (item.value > 0) {
             html += `
@@ -89,24 +85,27 @@ const chartOption = computed(() => {
               </div>`
           }
         })
-        const total = (entry as any).total_score !== undefined ? (entry as any).total_score : (entry as any).total_solved
+        const total =
+          (entry as any).total_score !== undefined
+            ? (entry as any).total_score
+            : (entry as any).total_solved
         html += `<div style="margin-top: 8px; border-top: 1px solid #5A5A5A; padding-top: 4px; text-align: right;">
                    <b>Total: ${total}</b>
                  </div></div>`
         return html
-      }
+      },
     },
     grid: {
       left: '3%',
       right: '12%', // Extra space for labels at the end
       bottom: '3%',
       top: '5%',
-      containLabel: true
+      containLabel: true,
     },
     xAxis: {
       type: 'value',
       show: false, // Hide X axis for a cleaner look
-      splitLine: { show: false }
+      splitLine: { show: false },
     },
     yAxis: {
       type: 'category',
@@ -119,10 +118,10 @@ const chartOption = computed(() => {
       axisLabel: {
         color: '#CCC',
         fontSize: 12,
-        fontWeight: 'bold'
+        fontWeight: 'bold',
       },
       axisLine: { show: false },
-      axisTick: { show: false }
+      axisTick: { show: false },
     },
     series: skillModes.map((mode, modeIdx) => ({
       name: t(mode.nameKey),
@@ -130,7 +129,7 @@ const chartOption = computed(() => {
       stack: 'total',
       barWidth: 24, // Fixed bar thickness
       itemStyle: {
-        color: mode.color
+        color: mode.color,
       },
       label: {
         show: modeIdx === skillModes.length - 1, // Show only on the last segment (the end of the bar)
@@ -142,11 +141,13 @@ const chartOption = computed(() => {
         formatter: (params: any) => {
           const entry = displayEntries[params.dataIndex]
           if (!entry) return ''
-          return (entry as any).total_score !== undefined ? (entry as any).total_score : (entry as any).total_solved
-        }
+          return (entry as any).total_score !== undefined
+            ? (entry as any).total_score
+            : (entry as any).total_solved
+        },
       },
-      data: displayEntries.map(e => (e.solved_by_mode ? e.solved_by_mode[mode.key] || 0 : 0))
-    }))
+      data: displayEntries.map((e) => (e.solved_by_mode ? e.solved_by_mode[mode.key] || 0 : 0)),
+    })),
   }
 })
 
@@ -162,8 +163,8 @@ const onChartClick = (params: any) => {
   // or if explicitly clicking on the name part of the data
   if (params.componentType === 'yAxis' || params.componentType === 'series') {
     const entry = [...props.entries].slice(0, 20).reverse()[params.dataIndex]
-    
-    // On mobile, first touch shows tooltip. 
+
+    // On mobile, first touch shows tooltip.
     // We can decide to only redirect if clicking the Y-axis (the name)
     if (params.componentType === 'yAxis' && entry && entry.lichess_id) {
       window.open(`https://lichess.org/@/${entry.lichess_id}`, '_blank')
@@ -183,8 +184,12 @@ const onChartClick = (params: any) => {
 
     <n-space vertical class="controls-area" :size="12">
       <div v-if="showFilter" class="filter-row">
-        <n-select :value="selectedPeriod" :options="periodOptions"
-          @update:value="(val: string) => emit('period-change', val as any)" style="width: 200px" />
+        <n-select
+          :value="selectedPeriod"
+          :options="periodOptions"
+          @update:value="(val: string) => emit('period-change', val as any)"
+          style="width: 200px"
+        />
       </div>
 
       <div class="legend-row">
@@ -197,8 +202,18 @@ const onChartClick = (params: any) => {
       </div>
     </n-space>
 
-    <div class="chart-container" :class="{ 'is-loading': isLoading }" :style="{ height: dynamicHeight }">
-      <v-chart v-if="entries.length > 0" class="chart" :option="chartOption" @click="onChartClick" autoresize />
+    <div
+      class="chart-container"
+      :class="{ 'is-loading': isLoading }"
+      :style="{ height: dynamicHeight }"
+    >
+      <v-chart
+        v-if="entries.length > 0"
+        class="chart"
+        :option="chartOption"
+        @click="onChartClick"
+        autoresize
+      />
       <n-empty v-else :description="t('userCabinet.stats.noData')" />
       <div v-if="isLoading" class="loading-overlay">
         <n-spin size="large" />
@@ -223,10 +238,18 @@ const onChartClick = (params: any) => {
   border-bottom: 1px solid var(--color-border-hover);
 }
 
-.skillStreak .card-header { background-color: var(--color-accent-success); }
-.skillStreakMega .card-header { background-color: var(--color-violett-lichess); }
-.topToday .card-header { background-color: var(--color-accent-warning); }
-.overallSkill .card-header { background-color: var(--color-accent-primary); }
+.skillStreak .card-header {
+  background-color: var(--color-accent-success);
+}
+.skillStreakMega .card-header {
+  background-color: var(--color-violett-lichess);
+}
+.topToday .card-header {
+  background-color: var(--color-accent-warning);
+}
+.overallSkill .card-header {
+  background-color: var(--color-accent-primary);
+}
 
 .card-title {
   color: var(--color-bg-primary);
@@ -280,7 +303,7 @@ const onChartClick = (params: any) => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;

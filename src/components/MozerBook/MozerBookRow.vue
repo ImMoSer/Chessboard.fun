@@ -1,38 +1,48 @@
 <script setup lang="ts">
-import { NTooltip } from 'naive-ui';
-import { computed } from 'vue';
-import { type MozerBookMove } from '../../services/OpeningApiService';
-import WinrateBar from './WinrateBar.vue';
-import { getNagColor, getNagSymbol } from './utils';
+import { NTooltip } from 'naive-ui'
+import { computed } from 'vue'
+import { type MozerBookMove } from '../../services/OpeningApiService'
+import WinrateBar from './WinrateBar.vue'
+import { getNagColor, getNagSymbol } from './utils'
 
 interface Props {
-  move: MozerBookMove;
-  turn: 'white' | 'black';
-  fullMoveNumber: number;
+  move: MozerBookMove
+  turn: 'white' | 'black'
+  fullMoveNumber: number
 }
 
-const props = defineProps<Props>();
-const emit = defineEmits(['select']);
+const props = defineProps<Props>()
+const emit = defineEmits(['select'])
 
 const formatMove = computed(() => {
-  const prefix = props.turn === 'white' ? `${props.fullMoveNumber}.` : `${props.fullMoveNumber}...`;
-  const nag = getNagSymbol(props.move.nag);
-  return `${prefix}${props.move.san}${nag}`;
-});
+  const prefix = props.turn === 'white' ? `${props.fullMoveNumber}.` : `${props.fullMoveNumber}...`
+  const nag = getNagSymbol(props.move.nag)
+  return `${prefix}${props.move.san}${nag}`
+})
 
-const totalN = computed(() => props.move.w + props.move.d + props.move.l);
-const drawPct = computed(() => totalN.value > 0 ? ((props.move.d / totalN.value) * 100).toFixed(1) : '0.0');
+const totalN = computed(() => props.move.w + props.move.d + props.move.l)
+const drawPct = computed(() =>
+  totalN.value > 0 ? ((props.move.d / totalN.value) * 100).toFixed(1) : '0.0',
+)
 
 function handleClick() {
-  emit('select', props.move.uci);
+  emit('select', props.move.uci)
 }
 </script>
 
 <template>
   <div class="move-row" @click="handleClick">
     <div class="col-move">
-      <n-tooltip trigger="hover" placement="right"
-        :style="{ width: 'max-content', maxWidth: 'none', backgroundColor: '#1a1a1a', padding: '12px' }">
+      <n-tooltip
+        trigger="hover"
+        placement="right"
+        :style="{
+          width: 'max-content',
+          maxWidth: 'none',
+          backgroundColor: '#1a1a1a',
+          padding: '12px',
+        }"
+      >
         <template #trigger>
           <span class="move-text" :style="{ color: getNagColor(move.nag) }">
             {{ formatMove }}
@@ -46,7 +56,9 @@ function handleClick() {
             <span class="move-name">- {{ move.name }}</span>
           </div>
           <div v-for="(child, idx) in move.children" :key="child.uci" class="hierarchy-line child">
-            <span class="marker">{{ idx === (move.children?.length || 0) - 1 ? '│ └──' : '│ ├──' }}</span>
+            <span class="marker">{{
+              idx === (move.children?.length || 0) - 1 ? '│ └──' : '│ ├──'
+            }}</span>
             <span class="move-san">{{ child.san }}</span>
             <span class="move-eco">({{ child.eco }})</span>
             <span class="move-name">- {{ child.name }}</span>
@@ -82,7 +94,7 @@ function handleClick() {
   transition: background 0.2s;
 }
 
-.move-row>div {
+.move-row > div {
   display: flex;
   justify-content: flex-end;
   align-items: center;

@@ -23,82 +23,81 @@ const router = useRouter()
 const route = useRoute()
 
 onMounted(() => {
-    const id = route.params.id as string
-    practicalStore.loadNewPuzzle(id)
+  const id = route.params.id as string
+  practicalStore.loadNewPuzzle(id)
 })
 
 watch(
-    () => [gameStore.gamePhase, gameStore.isGameActive],
-    () => {
-        const isGameOver = gameStore.gamePhase === 'GAMEOVER'
-        const isIdle = gameStore.gamePhase === 'IDLE'
-        const isPlaying = gameStore.gamePhase === 'PLAYING'
+  () => [gameStore.gamePhase, gameStore.isGameActive],
+  () => {
+    const isGameOver = gameStore.gamePhase === 'GAMEOVER'
+    const isIdle = gameStore.gamePhase === 'IDLE'
+    const isPlaying = gameStore.gamePhase === 'PLAYING'
 
-        controlsStore.setControls({
-            canRequestNew: isGameOver || isIdle,
-            canRestart:
-                (isGameOver || isIdle || !gameStore.isGameActive) && !!practicalStore.activePuzzle,
-            canResign: isPlaying && gameStore.isGameActive,
-            canShare: !!practicalStore.activePuzzle,
-            onRequestNew: () => {
-                if (route.params.id) {
-                    router.push({ name: 'practical-chess' })
-                } else {
-                    practicalStore.loadNewPuzzle()
-                }
-            },
-            onRestart: () => {
-                practicalStore.restartPuzzle()
-            },
-            onResign: practicalStore.handleResign,
-            onShare: async () => {
-                if (practicalStore.activePuzzle) {
-                    await shareService.share('practical-chess', practicalStore.activePuzzle.puzzle_id)
-                }
-            },
-        })
-    },
-    { immediate: true, deep: true },
+    controlsStore.setControls({
+      canRequestNew: isGameOver || isIdle,
+      canRestart:
+        (isGameOver || isIdle || !gameStore.isGameActive) && !!practicalStore.activePuzzle,
+      canResign: isPlaying && gameStore.isGameActive,
+      canShare: !!practicalStore.activePuzzle,
+      onRequestNew: () => {
+        if (route.params.id) {
+          router.push({ name: 'practical-chess' })
+        } else {
+          practicalStore.loadNewPuzzle()
+        }
+      },
+      onRestart: () => {
+        practicalStore.restartPuzzle()
+      },
+      onResign: practicalStore.handleResign,
+      onShare: async () => {
+        if (practicalStore.activePuzzle) {
+          await shareService.share('practical-chess', practicalStore.activePuzzle.puzzle_id)
+        }
+      },
+    })
+  },
+  { immediate: true, deep: true },
 )
 
 watch(
-    () => route.params.id,
-    (newId, oldId) => {
-        if (oldId && !newId) {
-            practicalStore.loadNewPuzzle()
-        }
+  () => route.params.id,
+  (newId, oldId) => {
+    if (oldId && !newId) {
+      practicalStore.loadNewPuzzle()
     }
+  },
 )
 </script>
 
 <template>
-    <GameLayout>
-        <template #left-panel>
-            <UserStats />
-        </template>
+  <GameLayout>
+    <template #left-panel>
+      <UserStats />
+    </template>
 
-        <template #top-info>
-            <TopInfoPanel />
-        </template>
+    <template #top-info>
+      <TopInfoPanel />
+    </template>
 
-        <template #center-column>
-        </template>
+    <template #center-column> </template>
 
-        <template #right-panel>
-            <div class="right-panel-content-wrapper">
-                <ControlPanel />
-                <AnalysisPanel v-if="analysisStore.isPanelVisible" />
-                <PuzzleInfo />
-            </div>
-        </template>
-    </GameLayout>
+    <template #right-panel>
+      <div class="right-panel-content-wrapper">
+        <ControlPanel />
+        <AnalysisPanel v-if="analysisStore.isPanelVisible" />
+        <PuzzleInfo />
+      </div>
+    </template>
+  </GameLayout>
 </template>
 
 <style scoped>
 .right-panel-content-wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
 }
 </style>

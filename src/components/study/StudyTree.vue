@@ -16,7 +16,6 @@ const gameResult = computed(() => {
   const v = pgnTreeVersion.value
   return pgnService.getGameResult()
 })
-
 </script>
 
 <template>

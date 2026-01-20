@@ -486,7 +486,9 @@ class PgnServiceController {
       parent.children.splice(index, 1)
       parent.children.unshift(node)
       treeVersion.value++
-      logger.info(`[PgnService] Promoted node ${node.san} (ply ${node.ply}) to its variant mainline.`)
+      logger.info(
+        `[PgnService] Promoted node ${node.san} (ply ${node.ply}) to its variant mainline.`,
+      )
     }
   }
 
@@ -583,7 +585,7 @@ class PgnServiceController {
   }
 
   public mergeSubtree(target: PgnNode, source: PgnNode): void {
-    let changed = false;
+    let changed = false
     const merge = (t: PgnNode, s: PgnNode) => {
       for (const sChild of s.children) {
         let tChild = t.children.find((c) => c.uci === sChild.uci)

@@ -29,17 +29,25 @@ const accuracyStatus = computed(() => {
     </template>
 
     <div class="card-body">
-      <n-statistic v-if="rating > 0" :label="t('userCabinet.analyticsTable.rating')" :value="rating">
+      <n-statistic
+        v-if="rating > 0"
+        :label="t('userCabinet.analyticsTable.rating')"
+        :value="rating"
+      >
         <template #prefix>📈</template>
       </n-statistic>
       <div v-else class="rating-placeholder"></div>
 
       <div class="accuracy-box">
-        <n-progress type="circle" :percentage="accuracy" :status="accuracyStatus" :stroke-width="10"
-          :show-indicator="true" size="small" />
-        <n-text depth="3" class="attempts-text">
-          {{ solved }} / {{ attempted }}
-        </n-text>
+        <n-progress
+          type="circle"
+          :percentage="accuracy"
+          :status="accuracyStatus"
+          :stroke-width="10"
+          :show-indicator="true"
+          size="small"
+        />
+        <n-text depth="3" class="attempts-text"> {{ solved }} / {{ attempted }} </n-text>
       </div>
     </div>
   </n-card>

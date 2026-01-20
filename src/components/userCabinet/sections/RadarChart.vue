@@ -3,18 +3,16 @@
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { RadarChart } from 'echarts/charts'
-import { TitleComponent, TooltipComponent, LegendComponent, GridComponent } from 'echarts/components'
-import VChart from 'vue-echarts'
-import { computed, type PropType } from 'vue'
-
-use([
-  CanvasRenderer,
-  RadarChart,
+import {
   TitleComponent,
   TooltipComponent,
   LegendComponent,
-  GridComponent
-])
+  GridComponent,
+} from 'echarts/components'
+import VChart from 'vue-echarts'
+import { computed, type PropType } from 'vue'
+
+use([CanvasRenderer, RadarChart, TitleComponent, TooltipComponent, LegendComponent, GridComponent])
 
 const props = defineProps({
   chartData: {
@@ -40,7 +38,7 @@ const chartOption = computed(() => ({
     },
   },
   radar: {
-    indicator: props.chartData.map(item => ({
+    indicator: props.chartData.map((item) => ({
       name: item.name,
       max: maxRating.value,
       min: minRating.value,
@@ -78,7 +76,7 @@ const chartOption = computed(() => ({
       type: 'radar',
       data: [
         {
-          value: props.chartData.map(item => item.value),
+          value: props.chartData.map((item) => item.value),
           name: props.datasetLabel,
           areaStyle: {
             color: 'rgba(255, 99, 132, 0.3)',
@@ -96,18 +94,18 @@ const chartOption = computed(() => ({
 }))
 
 const minRating = computed(() => {
-  if (props.chartData.length === 0) return 0;
-  const values = props.chartData.map(item => item.value);
-  const minValue = Math.min(...values);
-  return Math.max(0, Math.floor(minValue / 100) * 100 - 200);
-});
+  if (props.chartData.length === 0) return 0
+  const values = props.chartData.map((item) => item.value)
+  const minValue = Math.min(...values)
+  return Math.max(0, Math.floor(minValue / 100) * 100 - 200)
+})
 
 const maxRating = computed(() => {
-  if (props.chartData.length === 0) return 2500; // Default max if no data
-  const values = props.chartData.map(item => item.value);
-  const maxValue = Math.max(...values);
-  return Math.ceil(maxValue / 100) * 100 + 200;
-});
+  if (props.chartData.length === 0) return 2500 // Default max if no data
+  const values = props.chartData.map((item) => item.value)
+  const maxValue = Math.max(...values)
+  return Math.ceil(maxValue / 100) * 100 + 200
+})
 </script>
 
 <template>

@@ -25,8 +25,13 @@ const tabs: { id: ClubPageTabId; labelKey: string }[] = [
 
 <template>
   <div class="club-page__tabs">
-    <button v-for="tab in tabs" :key="tab.id" class="club-page__tab-button" :class="{ active: activeTab === tab.id }"
-      @click="emit('setActiveTab', tab.id)">
+    <button
+      v-for="tab in tabs"
+      :key="tab.id"
+      class="club-page__tab-button"
+      :class="{ active: activeTab === tab.id }"
+      @click="emit('setActiveTab', tab.id)"
+    >
       {{ t(tab.labelKey) }}
     </button>
   </div>

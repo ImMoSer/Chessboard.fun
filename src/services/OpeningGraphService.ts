@@ -1,61 +1,61 @@
 // src/services/OpeningGraphService.ts
-import logger from '../utils/logger';
-import { slugify } from '../utils/slugify';
+import logger from '../utils/logger'
+import { slugify } from '../utils/slugify'
 
 // Internal types for the optimized JSON structure
-type CompressedMove = [number, number, string]; // [nameIdx, ecoIdx, nextFen]
+type CompressedMove = [number, number, string] // [nameIdx, ecoIdx, nextFen]
 
 interface OptimizedGraphJson {
-  names: string[];
-  ecos: string[];
-  graph: Record<string, Record<string, CompressedMove>>;
+  names: string[]
+  ecos: string[]
+  graph: Record<string, Record<string, CompressedMove>>
 }
 
 export interface GraphMove {
-  uci: string;
-  name: string | null;
-  eco: string | null;
-  nextFen: string;
+  uci: string
+  name: string | null
+  eco: string | null
+  nextFen: string
 }
 
 export interface MajorOpening {
-  name: string;
-  eco?: string;
-  moves: string[];
-  slug: string;
+  name: string
+  eco?: string
+  moves: string[]
+  slug: string
 }
 
 class OpeningGraphService {
-  private data: OptimizedGraphJson | null = null;
-  private isLoading = false;
-  private loadingPromise: Promise<void> | null = null;
-  private readonly JSON_URL = '/openings_full_graph/openings_optimized.json';
+  private data: OptimizedGraphJson | null = null
+  private isLoading = false
+  private loadingPromise: Promise<void> | null = null
+  private readonly JSON_URL = '/openings_full_graph/openings_optimized.json'
 
   async loadBook(): Promise<void> {
-    if (this.data) return;
-    if (this.isLoading && this.loadingPromise) return this.loadingPromise;
+    if (this.data) return
+    if (this.isLoading && this.loadingPromise) return this.loadingPromise
 
-    this.isLoading = true;
+    this.isLoading = true
     this.loadingPromise = (async () => {
       try {
-        const res = await fetch(this.JSON_URL);
-        if (!res.ok) throw new Error(`Failed to load opening graph: ${res.statusText}`);
-        this.data = await res.json();
-        logger.info('[OpeningGraphService] Optimized book loaded successfully.');
+        const res = await fetch(this.JSON_URL)
+        if (!res.ok) throw new Error(`Failed to load opening graph: ${res.statusText}`)
+        this.data = await res.json()
+        logger.info('[OpeningGraphService] Optimized book loaded successfully.')
       } catch (err) {
-        logger.error('[OpeningGraphService] Error loading book:', err);
-        this.data = null;
+        logger.error('[OpeningGraphService] Error loading book:', err)
+        this.data = null
       } finally {
-        this.isLoading = false;
-        this.loadingPromise = null;
+        this.isLoading = false
+        this.loadingPromise = null
       }
-    })();
+    })()
 
-    return this.loadingPromise;
+    return this.loadingPromise
   }
 
   isBookLoaded(): boolean {
-    return !!this.data;
+    return !!this.data
   }
 
   /**
@@ -65,39 +65,39 @@ class OpeningGraphService {
    *       -> "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq -"
    */
   toCleanFen(fen: string): string {
-    return fen.split(' ').slice(0, 4).join(' ');
+    return fen.split(' ').slice(0, 4).join(' ')
   }
 
   getMoves(fen: string): GraphMove[] {
-    if (!this.data || !this.data.graph) return [];
+    if (!this.data || !this.data.graph) return []
 
-    const cleanFen = this.toCleanFen(fen);
-    const node = this.data.graph[cleanFen];
+    const cleanFen = this.toCleanFen(fen)
+    const node = this.data.graph[cleanFen]
 
-    if (!node) return [];
+    if (!node) return []
 
     return Object.entries(node).map(([uci, [nameIdx, ecoIdx, nextFen]]) => ({
       uci,
-      name: nameIdx !== -1 ? (this.data!.names[nameIdx] || null) : null,
-      eco: ecoIdx !== -1 ? (this.data!.ecos[ecoIdx] || null) : null,
-      nextFen
-    }));
+      name: nameIdx !== -1 ? this.data!.names[nameIdx] || null : null,
+      eco: ecoIdx !== -1 ? this.data!.ecos[ecoIdx] || null : null,
+      nextFen,
+    }))
   }
 
   private simplifyName(name: string): string {
-    return name.split(':')[0]!.trim();
+    return name.split(':')[0]!.trim()
   }
 
   getMajorOpenings(): MajorOpening[] {
-    if (!this.data || !this.data.graph) return [];
+    if (!this.data || !this.data.graph) return []
 
-    const openingsMap = new Map<string, MajorOpening>();
-    const rootFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -';
+    const openingsMap = new Map<string, MajorOpening>()
+    const rootFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -'
 
     // Helper to process a move
     const processMove = (name: string | null, eco: string | null, moves: string[]) => {
-      if (!name) return;
-      const simpleName = this.simplifyName(name);
+      if (!name) return
+      const simpleName = this.simplifyName(name)
 
       // If we haven't seen this opening group yet, add it.
       if (!openingsMap.has(simpleName)) {
@@ -105,40 +105,40 @@ class OpeningGraphService {
           name: simpleName,
           eco: eco || undefined,
           moves,
-          slug: slugify(simpleName)
-        });
+          slug: slugify(simpleName),
+        })
       }
-    };
+    }
 
     // Traverse Depth 1 and 2 to build the catalog
     // Depth 1 (White's first move)
-    const rootNode = this.data.graph[rootFen];
+    const rootNode = this.data.graph[rootFen]
     if (rootNode) {
       for (const [move1, [nameIdx1, ecoIdx1, nextFen1]] of Object.entries(rootNode)) {
-        const name1 = nameIdx1 !== -1 ? (this.data.names[nameIdx1] || null) : null;
-        const eco1 = ecoIdx1 !== -1 ? (this.data.ecos[ecoIdx1] || null) : null;
+        const name1 = nameIdx1 !== -1 ? this.data.names[nameIdx1] || null : null
+        const eco1 = ecoIdx1 !== -1 ? this.data.ecos[ecoIdx1] || null : null
 
-        processMove(name1, eco1, [move1]);
+        processMove(name1, eco1, [move1])
 
         // Depth 2 (Black's response)
-        const node2 = this.data.graph[nextFen1];
+        const node2 = this.data.graph[nextFen1]
         if (node2) {
           for (const [move2, [nameIdx2, ecoIdx2]] of Object.entries(node2)) {
-            const name2 = nameIdx2 !== -1 ? (this.data.names[nameIdx2] || null) : null;
-            const eco2 = ecoIdx2 !== -1 ? (this.data.ecos[ecoIdx2] || null) : null;
-            processMove(name2, eco2, [move1, move2]);
+            const name2 = nameIdx2 !== -1 ? this.data.names[nameIdx2] || null : null
+            const eco2 = ecoIdx2 !== -1 ? this.data.ecos[ecoIdx2] || null : null
+            processMove(name2, eco2, [move1, move2])
           }
         }
       }
     }
 
     // Sort alphabetically by name
-    return Array.from(openingsMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+    return Array.from(openingsMap.values()).sort((a, b) => a.name.localeCompare(b.name))
   }
 
   findOpeningBySlug(slug: string): MajorOpening | undefined {
-    return this.getMajorOpenings().find(op => op.slug === slug);
+    return this.getMajorOpenings().find((op) => op.slug === slug)
   }
 }
 
-export const openingGraphService = new OpeningGraphService();
+export const openingGraphService = new OpeningGraphService()

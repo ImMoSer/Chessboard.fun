@@ -78,7 +78,7 @@ function selectPuzzle(puzzle: GamePuzzle) {
     puzzle.Moves.split(' '),
     handlePuzzleResult,
     () => true,
-    () => { },
+    () => {},
     'tornado',
   )
 }
@@ -168,11 +168,17 @@ async function handleExit() {
       <div class="mistakes-list-container">
         <h4>{{ t('tornado.mistakes.title') }}</h4>
         <div class="mistakes-list-scrollable">
-          <div v-for="puzzle in unsolvedMistakes" :key="puzzle.PuzzleId" class="mistake-item" :class="{
-            active: puzzle.PuzzleId === selectedPuzzleId,
-            solved: solvedStatus[puzzle.PuzzleId],
-            unsolved: !solvedStatus[puzzle.PuzzleId],
-          }" @click="selectPuzzle(puzzle)">
+          <div
+            v-for="puzzle in unsolvedMistakes"
+            :key="puzzle.PuzzleId"
+            class="mistake-item"
+            :class="{
+              active: puzzle.PuzzleId === selectedPuzzleId,
+              solved: solvedStatus[puzzle.PuzzleId],
+              unsolved: !solvedStatus[puzzle.PuzzleId],
+            }"
+            @click="selectPuzzle(puzzle)"
+          >
             <ChessboardPreview :fen="puzzle.FEN_0" orientation="white" />
           </div>
           <div v-if="mistakes.length === 0" class="no-mistakes">
@@ -209,8 +215,11 @@ async function handleExit() {
           <button @click="showAnalysis" :disabled="!isAttemptMade" class="action-btn analysis-btn">
             {{ t('tornado.mistakes.ui.analysisButton') }}
           </button>
-          <button @click="selectNextUnsolvedPuzzle" :disabled="unsolvedMistakes.length <= 1 || allMistakesSolved"
-            class="action-btn next-btn">
+          <button
+            @click="selectNextUnsolvedPuzzle"
+            :disabled="unsolvedMistakes.length <= 1 || allMistakesSolved"
+            class="action-btn next-btn"
+          >
             {{ t('tornado.mistakes.ui.nextButton') }}
           </button>
           <button @click="handleExit" class="action-btn restart-btn">

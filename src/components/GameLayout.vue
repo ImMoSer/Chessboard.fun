@@ -54,7 +54,8 @@ const handleUserMove = ({ orig, dest }: { orig: Key; dest: Key }) => {
 }
 
 const handleBoardWheel = (direction: 'up' | 'down') => {
-  if (analysisStore.isAnalysisActive || boardStore.isAnalysisModeActive) { // Разрешаем скролл и в режиме анализа
+  if (analysisStore.isAnalysisActive || boardStore.isAnalysisModeActive) {
+    // Разрешаем скролл и в режиме анализа
     if (direction === 'up') {
       boardStore.navigatePgn('backward') // Убираем analysisStore.playerColor, navigationPgn сам разберется
     } else {
@@ -111,13 +112,24 @@ onUnmounted(() => {
 
     <div class="center-column" ref="centerColumnRef">
       <div class="board-aspect-wrapper">
-        <WebChessBoard :fen="boardStore.fen" :orientation="boardStore.orientation" :turn-color="boardStore.turn"
-          :dests="boardStore.dests" :last-move="boardStore.lastMove" :check="boardStore.isCheck"
-          :promotion-state="boardStore.promotionState" :drawable-shapes="boardStore.drawableShapes"
-          :is-analysis-mode="boardStore.isAnalysisModeActive" :animation-enabled="isAnimationEnabled"
-          :animation-duration="themeStore.currentTheme.animationDuration" @user-move="handleUserMove"
-          @check-premove="handleUserMove" @complete-promotion="boardStore.completePromotion"
-          @cancel-promotion="boardStore.cancelPromotion" @wheel-navigate="handleBoardWheel" />
+        <WebChessBoard
+          :fen="boardStore.fen"
+          :orientation="boardStore.orientation"
+          :turn-color="boardStore.turn"
+          :dests="boardStore.dests"
+          :last-move="boardStore.lastMove"
+          :check="boardStore.isCheck"
+          :promotion-state="boardStore.promotionState"
+          :drawable-shapes="boardStore.drawableShapes"
+          :is-analysis-mode="boardStore.isAnalysisModeActive"
+          :animation-enabled="isAnimationEnabled"
+          :animation-duration="themeStore.currentTheme.animationDuration"
+          @user-move="handleUserMove"
+          @check-premove="handleUserMove"
+          @complete-promotion="boardStore.completePromotion"
+          @cancel-promotion="boardStore.cancelPromotion"
+          @wheel-navigate="handleBoardWheel"
+        />
         <slot name="center-column"></slot>
       </div>
       <div class="board-resizer" @mousedown="startResize"></div>

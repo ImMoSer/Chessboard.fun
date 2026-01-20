@@ -30,7 +30,9 @@ export const useFunclubStore = defineStore('funclub', () => {
         generatePeriodOptions()
       } else {
         // Если метаданные не загрузились, создаем опцию по умолчанию
-        periodOptions.value = [{ label: t('clubPage.tournamentHistoryTitle'), value: 'last_30_days' }]
+        periodOptions.value = [
+          { label: t('clubPage.tournamentHistoryTitle'), value: 'last_30_days' },
+        ]
       }
 
       // Устанавливаем индекс по умолчанию

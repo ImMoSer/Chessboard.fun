@@ -19,7 +19,12 @@ const router = useRouter()
 const { t } = useI18n()
 
 const tierToPieceMap: Record<string, string> = {
-  Pawn: 'wP.svg', Knight: 'wN.svg', Bishop: 'wB.svg', Rook: 'wR.svg', Queen: 'wQ.svg', King: 'wK.svg',
+  Pawn: 'wP.svg',
+  Knight: 'wN.svg',
+  Bishop: 'wB.svg',
+  Rook: 'wR.svg',
+  Queen: 'wQ.svg',
+  King: 'wK.svg',
 }
 
 const getSubscriptionIcon = (tier?: string) => {
@@ -46,38 +51,46 @@ const columns: DataTableColumns<FinishHimLeaderboardEntry> = [
       const icon = getSubscriptionIcon(row.subscriptionTier)
       return h('div', { style: { display: 'flex', alignItems: 'center' } }, [
         icon ? h('img', { src: icon, style: { height: '24px', marginRight: '8px' } }) : null,
-        h('n-a', {
-          href: `https://lichess.org/@/${row.lichess_id}`,
-          target: '_blank',
-          style: { fontWeight: 'bold' }
-        }, row.username)
+        h(
+          'n-a',
+          {
+            href: `https://lichess.org/@/${row.lichess_id}`,
+            target: '_blank',
+            style: { fontWeight: 'bold' },
+          },
+          row.username,
+        ),
       ])
-    }
+    },
   },
   {
     title: t('records.table.time'),
     key: 'best_time',
     align: 'right',
-    render: (row) => formatTime(row.best_time)
+    render: (row) => formatTime(row.best_time),
   },
   {
     title: t('records.table.daysOld'),
     key: 'days_old',
     align: 'right',
-    render: (row) => `${row.days_old}d`
+    render: (row) => `${row.days_old}d`,
   },
   {
     title: t('records.table.action'),
     key: 'action',
     align: 'center',
     render(row) {
-      return h('n-button', {
-        size: 'small',
-        type: 'success',
-        onClick: () => handleChallengeClick(row.puzzle_id)
-      }, { default: () => t('records.table.challenge') })
-    }
-  }
+      return h(
+        'n-button',
+        {
+          size: 'small',
+          type: 'success',
+          onClick: () => handleChallengeClick(row.puzzle_id),
+        },
+        { default: () => t('records.table.challenge') },
+      )
+    },
+  },
 ]
 </script>
 
@@ -115,7 +128,9 @@ const columns: DataTableColumns<FinishHimLeaderboardEntry> = [
   border-bottom: 1px solid var(--color-border-hover);
 }
 
-.finishHimLeaderboard .card-header { background-color: var(--color-accent-secondary); }
+.finishHimLeaderboard .card-header {
+  background-color: var(--color-accent-secondary);
+}
 
 .card-title {
   color: var(--color-bg-primary);

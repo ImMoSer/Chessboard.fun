@@ -21,29 +21,41 @@ const props = defineProps({
 
 // Преобразуем входящие конфиги колонок в формат Naive UI
 const nColumns = computed<DataTableColumns<TeamBattlePlayerSummary>>(() => {
-  return props.columns.map(col => ({
+  return props.columns.map((col) => ({
     title: col.label,
     key: col.key as string,
-    align: col.class?.includes('text-right') ? 'right' : (col.class?.includes('text-center') ? 'center' : 'left'),
+    align: col.class?.includes('text-right')
+      ? 'right'
+      : col.class?.includes('text-center')
+        ? 'center'
+        : 'left',
     render(row) {
       const value = row[col.key]
 
       // Специфическая отрисовка для имени пользователя
       if (col.key === 'username') {
-        return h('a', {
-          href: `https://lichess.org/@/${row.lichess_id}`,
-          target: '_blank',
-          style: { color: 'var(--color-text-link)', textDecoration: 'none' }
-        }, value as string)
+        return h(
+          'a',
+          {
+            href: `https://lichess.org/@/${row.lichess_id}`,
+            target: '_blank',
+            style: { color: 'var(--color-text-link)', textDecoration: 'none' },
+          },
+          value as string,
+        )
       }
 
       // Специфическая отрисовка для VECTOR (делаем жирным)
       if (col.key === 'vector') {
-        return h('span', { style: { fontWeight: 'bold', color: 'var(--color-accent-warning)' } }, value as number)
+        return h(
+          'span',
+          { style: { fontWeight: 'bold', color: 'var(--color-accent-warning)' } },
+          value as number,
+        )
       }
 
       return value as string | number
-    }
+    },
   }))
 })
 
@@ -66,8 +78,15 @@ const sortedData = computed(() => {
         <info-icon v-if="infoTopic" :topic="infoTopic" base-path="info.club." color="white" />
       </div>
     </div>
-    <n-data-table :columns="nColumns" :data="sortedData" :row-key="(row: TeamBattlePlayerSummary) => row.lichess_id"
-      size="small" striped class="stats-table" :max-height="400" />
+    <n-data-table
+      :columns="nColumns"
+      :data="sortedData"
+      :row-key="(row: TeamBattlePlayerSummary) => row.lichess_id"
+      size="small"
+      striped
+      class="stats-table"
+      :max-height="400"
+    />
   </div>
 </template>
 

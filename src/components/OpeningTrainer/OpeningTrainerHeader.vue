@@ -4,41 +4,42 @@ import {
   PlayOutline,
   RefreshOutline,
   SchoolOutline,
-  SearchOutline
-} from '@vicons/ionicons5';
+  SearchOutline,
+} from '@vicons/ionicons5'
 import {
   NButton,
   NCard,
-  NGrid, NGridItem,
+  NGrid,
+  NGridItem,
   NIcon,
   NPageHeader,
   NSpace,
   NStatistic,
   NTag,
-  NText
-} from 'naive-ui';
-import { useI18n } from 'vue-i18n';
+  NText,
+} from 'naive-ui'
+import { useI18n } from 'vue-i18n'
 
 defineProps<{
-  openingName: string;
-  eco?: string;
-  averageAccuracy: number;
-  averageWinRate: number;
-  averageRating: number;
-  isTheoryOver: boolean;
-  isDeviation: boolean;
-  isAnalysisActive: boolean;
-  isPlayoutMode?: boolean;
-}>();
+  openingName: string
+  eco?: string
+  averageAccuracy: number
+  averageWinRate: number
+  averageRating: number
+  isTheoryOver: boolean
+  isDeviation: boolean
+  isAnalysisActive: boolean
+  isPlayoutMode?: boolean
+}>()
 
 const emit = defineEmits<{
-  (e: 'restart'): void;
-  (e: 'hint'): void;
-  (e: 'playout'): void;
-  (e: 'toggle-analysis'): void;
-}>();
+  (e: 'restart'): void
+  (e: 'hint'): void
+  (e: 'playout'): void
+  (e: 'toggle-analysis'): void
+}>()
 
-const { t } = useI18n();
+const { t } = useI18n()
 </script>
 
 <template>
@@ -71,9 +72,7 @@ const { t } = useI18n();
           <n-tag v-if="isDeviation" type="error" size="small" round uppercase>
             {{ t('openingTrainer.header.deviation') }}
           </n-tag>
-          <n-tag v-if="isPlayoutMode" type="success" size="small" round uppercase>
-            PLAYOUT
-          </n-tag>
+          <n-tag v-if="isPlayoutMode" type="success" size="small" round uppercase> PLAYOUT </n-tag>
         </n-space>
       </template>
 
@@ -101,17 +100,19 @@ const { t } = useI18n();
             <n-grid :cols="2" :x-gap="8" :y-gap="8">
               <n-grid-item>
                 <n-button block secondary @click="emit('restart')">
-                  <template #icon><n-icon>
-                      <RefreshOutline />
-                    </n-icon></template>
+                  <template #icon
+                    ><n-icon>
+                      <RefreshOutline /> </n-icon
+                  ></template>
                   {{ t('openingTrainer.header.newSession') }}
                 </n-button>
               </n-grid-item>
               <n-grid-item>
                 <n-button block secondary @click="emit('hint')" :disabled="isPlayoutMode">
-                  <template #icon><n-icon>
-                      <BulbOutline />
-                    </n-icon></template>
+                  <template #icon
+                    ><n-icon>
+                      <BulbOutline /> </n-icon
+                  ></template>
                   {{ t('openingTrainer.header.hint') }}
                 </n-button>
               </n-grid-item>
@@ -119,20 +120,32 @@ const { t } = useI18n();
 
             <n-grid :cols="2" :x-gap="8">
               <n-grid-item>
-                <n-button block secondary @click="emit('toggle-analysis')"
-                  :type="isAnalysisActive ? 'primary' : 'default'">
-                  <template #icon><n-icon>
-                      <SearchOutline />
-                    </n-icon></template>
+                <n-button
+                  block
+                  secondary
+                  @click="emit('toggle-analysis')"
+                  :type="isAnalysisActive ? 'primary' : 'default'"
+                >
+                  <template #icon
+                    ><n-icon>
+                      <SearchOutline /> </n-icon
+                  ></template>
                   {{ t('openingTrainer.header.analysis') }}
                 </n-button>
               </n-grid-item>
               <n-grid-item>
-                <n-button block class="playout-btn" type="success" secondary @click="emit('playout')"
-                  :disabled="isPlayoutMode">
-                  <template #icon><n-icon>
-                      <PlayOutline />
-                    </n-icon></template>
+                <n-button
+                  block
+                  class="playout-btn"
+                  type="success"
+                  secondary
+                  @click="emit('playout')"
+                  :disabled="isPlayoutMode"
+                >
+                  <template #icon
+                    ><n-icon>
+                      <PlayOutline /> </n-icon
+                  ></template>
                   {{ t('openingTrainer.header.playout') }}
                 </n-button>
               </n-grid-item>

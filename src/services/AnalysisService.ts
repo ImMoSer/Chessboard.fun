@@ -18,8 +18,10 @@ export interface EvaluatedLineWithSan extends EvaluatedLine {
 }
 
 class AnalysisServiceController {
-  private activeEngineManager: typeof multiThreadEngineManager | typeof singleThreadEngineManager | null =
-    null
+  private activeEngineManager:
+    | typeof multiThreadEngineManager
+    | typeof singleThreadEngineManager
+    | null = null
   private sanCache = new Map<
     string,
     { pvSan: string[]; initialFullMoveNumber: number; initialTurn: ChessopsColor }
@@ -38,7 +40,9 @@ class AnalysisServiceController {
     } else {
       await singleThreadEngineManager.setProfile(profile)
       this.activeEngineManager = singleThreadEngineManager
-      logger.info(`[AnalysisService] Initialized with Single-Threaded Engine fallback (${profile}).`)
+      logger.info(
+        `[AnalysisService] Initialized with Single-Threaded Engine fallback (${profile}).`,
+      )
     }
   }
 
@@ -141,7 +145,10 @@ class AnalysisServiceController {
         }
       }
     } catch (e: unknown) {
-      logger.error('[AnalysisService] Error converting UCI to SAN:', e instanceof Error ? e.message : String(e))
+      logger.error(
+        '[AnalysisService] Error converting UCI to SAN:',
+        e instanceof Error ? e.message : String(e),
+      )
       return { pvSan: [], initialFullMoveNumber: 1, initialTurn: 'white' }
     }
 

@@ -1,82 +1,88 @@
 <script setup lang="ts">
-import { InformationCircleOutline, LeafOutline } from '@vicons/ionicons5';
-import { NIcon, NSpin, NText } from 'naive-ui';
-import { computed, onMounted, ref, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { pgnTreeVersion } from '../../services/PgnService';
-import { useBoardStore } from '../../stores/board.store';
-import { useMozerBookStore } from '../../stores/mozerBook.store';
-import MozerBookFooter from '../MozerBook/MozerBookFooter.vue';
-import MozerBookRow from '../MozerBook/MozerBookRow.vue';
-import TheoryExplorerModal from '../MozerBook/TheoryExplorerModal.vue';
-import { type TheoryItemWithChildren } from '../MozerBook/types';
+import { InformationCircleOutline, LeafOutline } from '@vicons/ionicons5'
+import { NIcon, NSpin, NText } from 'naive-ui'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { pgnTreeVersion } from '../../services/PgnService'
+import { useBoardStore } from '../../stores/board.store'
+import { useMozerBookStore } from '../../stores/mozerBook.store'
+import MozerBookFooter from '../MozerBook/MozerBookFooter.vue'
+import MozerBookRow from '../MozerBook/MozerBookRow.vue'
+import TheoryExplorerModal from '../MozerBook/TheoryExplorerModal.vue'
+import { type TheoryItemWithChildren } from '../MozerBook/types'
 
 defineProps<{
   blurred?: boolean
-}>();
+}>()
 
-const { t } = useI18n();
-const boardStore = useBoardStore();
-const mozerStore = useMozerBookStore();
+const { t } = useI18n()
+const boardStore = useBoardStore()
+const mozerStore = useMozerBookStore()
 
-const stats = computed(() => mozerStore.currentStats);
-const loading = computed(() => mozerStore.isLoading);
+const stats = computed(() => mozerStore.currentStats)
+const loading = computed(() => mozerStore.isLoading)
 
-const currentFen = computed(() => mozerStore.currentFen);
+const currentFen = computed(() => mozerStore.currentFen)
 
 const turn = computed(() => {
-  const parts = currentFen.value.split(' ');
-  return parts[1] === 'w' ? 'white' : 'black';
-});
+  const parts = currentFen.value.split(' ')
+  return parts[1] === 'w' ? 'white' : 'black'
+})
 
 const fullMoveNumber = computed(() => {
-  const parts = currentFen.value.split(' ');
-  const moveNumStr = parts[5];
-  return moveNumStr ? (parseInt(moveNumStr) || 1) : 1;
-});
+  const parts = currentFen.value.split(' ')
+  const moveNumStr = parts[5]
+  return moveNumStr ? parseInt(moveNumStr) || 1 : 1
+})
 
-const showTheory = ref(false);
+const showTheory = ref(false)
 
 function handleSelectMove(uci: string) {
-  boardStore.applyUciMove(uci);
-  showTheory.value = false;
+  boardStore.applyUciMove(uci)
+  showTheory.value = false
 }
 
 // Watch both version and the fen property from store
-watch([pgnTreeVersion, () => boardStore.fen], () => {
-  mozerStore.fetchStats();
-  showTheory.value = false; // Close theory when position changes
-}, { immediate: true });
+watch(
+  [pgnTreeVersion, () => boardStore.fen],
+  () => {
+    mozerStore.fetchStats()
+    showTheory.value = false // Close theory when position changes
+  },
+  { immediate: true },
+)
 
 onMounted(() => {
-  mozerStore.fetchStats();
-});
+  mozerStore.fetchStats()
+})
 
 const theoryWithChildren = computed<TheoryItemWithChildren[]>(() => {
-  if (!stats.value?.theory) return [];
+  if (!stats.value?.theory) return []
 
-  return stats.value.theory.map(tItem => {
-    // Find matching move in stats to get children and statistics
-    const matchingMove = stats.value?.moves.find(m => m.uci === tItem.uci);
-    const count = matchingMove ? (matchingMove.w + matchingMove.d + matchingMove.l) : 0;
+  return stats.value.theory
+    .map((tItem) => {
+      // Find matching move in stats to get children and statistics
+      const matchingMove = stats.value?.moves.find((m) => m.uci === tItem.uci)
+      const count = matchingMove ? matchingMove.w + matchingMove.d + matchingMove.l : 0
 
-    return {
-      ...tItem,
-      nag: matchingMove?.nag || 0,
-      w: matchingMove?.w || 0,
-      d: matchingMove?.d || 0,
-      l: matchingMove?.l || 0,
-      av: matchingMove?.av || 0,
-      perf: matchingMove?.perf || 0,
-      children: matchingMove?.children || [],
-      count: count
-    };
-  }).sort((a, b) => b.count - a.count); // Sort by popularity
-});
+      return {
+        ...tItem,
+        nag: matchingMove?.nag || 0,
+        w: matchingMove?.w || 0,
+        d: matchingMove?.d || 0,
+        l: matchingMove?.l || 0,
+        av: matchingMove?.av || 0,
+        perf: matchingMove?.perf || 0,
+        children: matchingMove?.children || [],
+        count: count,
+      }
+    })
+    .sort((a, b) => b.count - a.count) // Sort by popularity
+})
 </script>
 
 <template>
-  <div class="mozer-book" :class="{ 'blurred': blurred }">
+  <div class="mozer-book" :class="{ blurred: blurred }">
     <div v-if="blurred" class="overlay">
       <n-text strong depth="1">{{ t('openingTrainer.stats.reviewModeOverlay') }}</n-text>
     </div>
@@ -87,20 +93,29 @@ const theoryWithChildren = computed<TheoryItemWithChildren[]>(() => {
           <LeafOutline />
         </n-icon>
         <span class="book-title">MozerBook</span>
-        <span class="header-n" v-if="stats?.summary"> (N={{ (stats.summary.w + stats.summary.d +
-          stats.summary.l).toLocaleString()
-        }})</span>
+        <span class="header-n" v-if="stats?.summary">
+          (N={{ (stats.summary.w + stats.summary.d + stats.summary.l).toLocaleString() }})</span
+        >
       </div>
       <div class="header-actions">
-        <n-icon size="18" class="info-icon" :class="{ 'active': showTheory }" @click.stop="showTheory = !showTheory">
+        <n-icon
+          size="18"
+          class="info-icon"
+          :class="{ active: showTheory }"
+          @click.stop="showTheory = !showTheory"
+        >
           <InformationCircleOutline />
         </n-icon>
       </div>
     </div>
 
     <!-- Full Theory Modal Component -->
-    <TheoryExplorerModal v-model:show="showTheory" :theory-items="theoryWithChildren" :turn="turn"
-      @select="handleSelectMove" />
+    <TheoryExplorerModal
+      v-model:show="showTheory"
+      :theory-items="theoryWithChildren"
+      :turn="turn"
+      @select="handleSelectMove"
+    />
 
     <div class="table-labels">
       <div class="col-move"></div>
@@ -116,12 +131,16 @@ const theoryWithChildren = computed<TheoryItemWithChildren[]>(() => {
         <n-spin size="medium" />
       </div>
 
-      <MozerBookRow v-for="move in stats?.moves" :key="move.uci" :move="move" :turn="turn"
-        :full-move-number="fullMoveNumber" @select="handleSelectMove" />
+      <MozerBookRow
+        v-for="move in stats?.moves"
+        :key="move.uci"
+        :move="move"
+        :turn="turn"
+        :full-move-number="fullMoveNumber"
+        @select="handleSelectMove"
+      />
 
-      <div v-if="!loading && (!stats || stats.moves.length === 0)" class="empty-state">
-        No data
-      </div>
+      <div v-if="!loading && (!stats || stats.moves.length === 0)" class="empty-state">No data</div>
     </div>
 
     <MozerBookFooter v-if="stats?.summary" :summary="stats.summary" :turn="turn" />
@@ -215,7 +234,7 @@ const theoryWithChildren = computed<TheoryItemWithChildren[]>(() => {
   color: var(--color-text-secondary);
 }
 
-.table-labels>div {
+.table-labels > div {
   display: flex;
   justify-content: flex-end;
   align-items: center;

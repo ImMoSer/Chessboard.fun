@@ -96,15 +96,27 @@ const handleChangeLang = (lang: 'en' | 'ru' | 'de') => {
     </div>
 
     <div class="language-switcher-container">
-      <button class="lang-button" :class="{ active: locale === 'en' }" @click="handleChangeLang('en')">
+      <button
+        class="lang-button"
+        :class="{ active: locale === 'en' }"
+        @click="handleChangeLang('en')"
+      >
         EN
       </button>
       <span class="lang-separator">|</span>
-      <button class="lang-button" :class="{ active: locale === 'ru' }" @click="handleChangeLang('ru')">
+      <button
+        class="lang-button"
+        :class="{ active: locale === 'ru' }"
+        @click="handleChangeLang('ru')"
+      >
         RU
       </button>
       <span class="lang-separator">|</span>
-      <button class="lang-button" :class="{ active: locale === 'de' }" @click="handleChangeLang('de')">
+      <button
+        class="lang-button"
+        :class="{ active: locale === 'de' }"
+        @click="handleChangeLang('de')"
+      >
         DE
       </button>
     </div>
@@ -177,7 +189,8 @@ const handleChangeLang = (lang: 'en' | 'ru' | 'de') => {
   max-width: 100%;
   height: auto;
   border-radius: 20px;
-  box-shadow: 0 0 20px rgba(0, 191, 255, 0.6),
+  box-shadow:
+    0 0 20px rgba(0, 191, 255, 0.6),
     0 0 40px rgba(0, 0, 255, 0.4),
     inset 0 0 15px rgba(0, 191, 255, 0.5);
   animation: blue-flame-pulse 2s infinite ease-in-out;
@@ -185,17 +198,18 @@ const handleChangeLang = (lang: 'en' | 'ru' | 'de') => {
 }
 
 @keyframes blue-flame-pulse {
-
   0%,
   100% {
-    box-shadow: 0 0 15px rgba(0, 191, 255, 0.6),
+    box-shadow:
+      0 0 15px rgba(0, 191, 255, 0.6),
       0 0 30px rgba(0, 0, 255, 0.4),
       inset 0 0 10px rgba(0, 191, 255, 0.5);
     transform: scale(1);
   }
 
   50% {
-    box-shadow: 0 0 25px rgba(0, 255, 255, 0.8),
+    box-shadow:
+      0 0 25px rgba(0, 255, 255, 0.8),
       0 0 50px rgba(30, 144, 255, 0.6),
       inset 0 0 20px rgba(0, 191, 255, 0.6);
     transform: scale(1.005);

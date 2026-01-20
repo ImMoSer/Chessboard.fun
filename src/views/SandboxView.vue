@@ -125,9 +125,7 @@ watch(
       loadGameFromFen(fen, userColorFromUrl)
     } else if (fen) {
       // Engine is NOT in URL, determine default and redirect
-      const defaultEngineId = authStore.isAuthenticated
-        ? controlsStore.selectedEngine
-        : 'SF_2200'
+      const defaultEngineId = authStore.isAuthenticated ? controlsStore.selectedEngine : 'SF_2200'
       await router.replace({
         name: 'sandbox-with-engine',
         params: { engineId: defaultEngineId, fen },
@@ -149,7 +147,7 @@ watch(
       canRestart: isGameOver || isIdle || !gameStore.isGameActive,
       canResign: isPlaying && gameStore.isGameActive,
       canShare: true,
-      onRequestNew: () => { },
+      onRequestNew: () => {},
       onRestart: () => {
         if (route.params.fen) {
           loadGameFromFen(

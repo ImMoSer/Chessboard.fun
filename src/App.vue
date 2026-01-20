@@ -61,17 +61,17 @@ const beforeUnloadHandler = (event: BeforeUnloadEvent) => {
   }
 }
 
-const mediaQuery = window.matchMedia('(min-width: 769px) and (orientation: landscape)');
-const updateLandscape = () => isLandscape.value = mediaQuery.matches;
+const mediaQuery = window.matchMedia('(min-width: 769px) and (orientation: landscape)')
+const updateLandscape = () => (isLandscape.value = mediaQuery.matches)
 
 onMounted(() => {
-  mediaQuery.addEventListener('change', updateLandscape);
-  updateLandscape(); // Initial check
+  mediaQuery.addEventListener('change', updateLandscape)
+  updateLandscape() // Initial check
   window.addEventListener('beforeunload', beforeUnloadHandler)
 })
 
 onUnmounted(() => {
-  mediaQuery.removeEventListener('change', updateLandscape);
+  mediaQuery.removeEventListener('change', updateLandscape)
   window.removeEventListener('beforeunload', beforeUnloadHandler)
 })
 </script>
@@ -82,9 +82,18 @@ onUnmounted(() => {
       <n-dialog-provider>
         <n-layout has-sider position="absolute" class="root-layout">
           <!-- Desktop Sidebar (Landscape) -->
-          <n-layout-sider v-if="isLandscape && !isScreenshotView" bordered collapse-mode="width" :collapsed-width="64"
-            :width="260" :collapsed="isSidebarCollapsed" show-trigger class="app-sider"
-            @collapse="isSidebarCollapsed = true" @expand="isSidebarCollapsed = false">
+          <n-layout-sider
+            v-if="isLandscape && !isScreenshotView"
+            bordered
+            collapse-mode="width"
+            :collapsed-width="64"
+            :width="260"
+            :collapsed="isSidebarCollapsed"
+            show-trigger
+            class="app-sider"
+            @collapse="isSidebarCollapsed = true"
+            @expand="isSidebarCollapsed = false"
+          >
             <!-- Top Action Bar (Settings) -->
             <div class="sider-top-bar">
               <SettingsMenu />
@@ -92,8 +101,11 @@ onUnmounted(() => {
 
             <div class="sider-header">
               <RouterLink to="/" class="logo-link">
-                <img :src="isSidebarCollapsed ? '/png/ChessBoard_fun.png' : '/png/1920_Banner.png'" alt="Logo"
-                  :class="isSidebarCollapsed ? 'logo-collapsed' : 'logo-full'" />
+                <img
+                  :src="isSidebarCollapsed ? '/png/ChessBoard_fun.png' : '/png/1920_Banner.png'"
+                  alt="Logo"
+                  :class="isSidebarCollapsed ? 'logo-collapsed' : 'logo-full'"
+                />
               </RouterLink>
             </div>
 
@@ -102,7 +114,11 @@ onUnmounted(() => {
 
           <n-layout class="main-layout-container">
             <!-- Mobile Header (Portrait) -->
-            <n-layout-header v-if="!isLandscape && !isScreenshotView" bordered class="mobile-header">
+            <n-layout-header
+              v-if="!isLandscape && !isScreenshotView"
+              bordered
+              class="mobile-header"
+            >
               <n-button quaternary circle @click="openDrawer">
                 <template #icon>
                   <n-icon>

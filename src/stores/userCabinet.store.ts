@@ -3,10 +3,7 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import { webhookService } from '../services/WebhookService'
 import { authService } from '../services/AuthService'
-import type {
-  PersonalActivityStatsResponse,
-  UserProfileStatsDto,
-} from '../types/api.types'
+import type { PersonalActivityStatsResponse, UserProfileStatsDto } from '../types/api.types'
 import logger from '../utils/logger'
 import i18n from '../services/i18n'
 

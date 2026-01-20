@@ -42,7 +42,6 @@ const showInfo = () => {
 .info-icon {
   width: 25px;
   height: 25px;
-
 }
 
 .info-icon-button:hover .info-icon {

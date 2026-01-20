@@ -6,25 +6,45 @@ const controlsStore = useControlsStore()
 
 <template>
   <div class="control-panel-container">
-    <button class="control-panel-button" title="New" :disabled="!controlsStore.canRequestNew"
-      @click="controlsStore.onRequestNew">
+    <button
+      class="control-panel-button"
+      title="New"
+      :disabled="!controlsStore.canRequestNew"
+      @click="controlsStore.onRequestNew"
+    >
       <img src="/buttons/new.svg" alt="New" />
     </button>
-    <button class="control-panel-button" title="Restart" :disabled="!controlsStore.canRestart"
-      @click="controlsStore.onRestart">
+    <button
+      class="control-panel-button"
+      title="Restart"
+      :disabled="!controlsStore.canRestart"
+      @click="controlsStore.onRestart"
+    >
       <img src="/buttons/restart.svg" alt="Restart" />
     </button>
-    <button class="control-panel-button" title="Resign" :disabled="!controlsStore.canResign"
-      @click="controlsStore.onResign">
+    <button
+      class="control-panel-button"
+      title="Resign"
+      :disabled="!controlsStore.canResign"
+      @click="controlsStore.onResign"
+    >
       <img src="/buttons/resign.svg" alt="Resign" />
     </button>
-    <button class="control-panel-button" title="Share" :disabled="!controlsStore.canShare"
-      @click="controlsStore.onShare">
+    <button
+      class="control-panel-button"
+      title="Share"
+      :disabled="!controlsStore.canShare"
+      @click="controlsStore.onShare"
+    >
       <img src="/buttons/link.svg" alt="Share" />
     </button>
 
-    <button class="control-panel-button" title="Info" :disabled="!controlsStore.canShowInfo"
-      @click="controlsStore.onShowInfo">
+    <button
+      class="control-panel-button"
+      title="Info"
+      :disabled="!controlsStore.canShowInfo"
+      @click="controlsStore.onShowInfo"
+    >
       <img src="/buttons/info.svg" alt="Info" />
     </button>
   </div>

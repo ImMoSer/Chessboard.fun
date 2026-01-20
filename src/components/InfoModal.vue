@@ -11,7 +11,7 @@ const show = computed({
   get: () => !!uiStore.infoModalKey,
   set: (val) => {
     if (!val) uiStore.hideInfoModal()
-  }
+  },
 })
 
 const title = computed(() => {

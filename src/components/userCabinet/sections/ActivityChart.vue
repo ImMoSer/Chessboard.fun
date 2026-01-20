@@ -7,24 +7,15 @@ import { useUserCabinetStore, type ActivityPeriod } from '@/stores/userCabinet.s
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { BarChart } from 'echarts/charts'
-import {
-  GridComponent,
-  TooltipComponent,
-  LegendComponent,
-} from 'echarts/components'
+import { GridComponent, TooltipComponent, LegendComponent } from 'echarts/components'
 import VChart from 'vue-echarts'
 
-use([
-  CanvasRenderer,
-  BarChart,
-  GridComponent,
-  TooltipComponent,
-  LegendComponent,
-])
+use([CanvasRenderer, BarChart, GridComponent, TooltipComponent, LegendComponent])
 
 const { t } = useI18n()
 const userCabinetStore = useUserCabinetStore()
-const { personalActivityStats, isPersonalActivityStatsLoading, selectedActivityPeriod } = storeToRefs(userCabinetStore)
+const { personalActivityStats, isPersonalActivityStatsLoading, selectedActivityPeriod } =
+  storeToRefs(userCabinetStore)
 
 const modeColors = {
   advantage: { solved: '#42b883', requested: 'rgba(66, 184, 131, 0.2)' },
@@ -40,7 +31,7 @@ const chartOption = computed(() => {
   if (!personalActivityStats.value) return {}
 
   const periodData = personalActivityStats.value[selectedActivityPeriod.value]
-  
+
   const modes = [
     { key: 'theory', name: t('userCabinet.stats.modes.theory') },
     { key: 'tornado', name: t('nav.tornado') },
@@ -60,7 +51,7 @@ const chartOption = computed(() => {
         const solved = params[0].value
         const remaining = params[1].value
         const total = solved + remaining
-        
+
         return `<div style="padding: 4px; min-width: 140px;">
                   <b style="color: #FFFFFF; display: block; margin-bottom: 8px; border-bottom: 1px solid #5A5A5A; padding-bottom: 4px;">${modeName}</b>
                   <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
@@ -75,32 +66,32 @@ const chartOption = computed(() => {
                     <b style="color: var(--color-accent-success)">${total > 0 ? Math.round((solved / total) * 100) : 0}% Accuracy</b>
                   </div>
                 </div>`
-      }
+      },
     },
     grid: {
       left: '3%',
       right: '8%',
       bottom: '5%',
       top: '5%',
-      containLabel: true
+      containLabel: true,
     },
     xAxis: {
       type: 'value',
-      splitLine: { 
-        lineStyle: { color: '#333' } 
+      splitLine: {
+        lineStyle: { color: '#333' },
       },
-      axisLabel: { color: '#888' }
+      axisLabel: { color: '#888' },
     },
     yAxis: {
       type: 'category',
-      data: modes.map(m => m.name),
+      data: modes.map((m) => m.name),
       axisLabel: {
         color: '#CCC',
         fontSize: 13,
-        fontWeight: 'bold'
+        fontWeight: 'bold',
       },
       axisLine: { show: false },
-      axisTick: { show: false }
+      axisTick: { show: false },
     },
     series: [
       {
@@ -108,21 +99,24 @@ const chartOption = computed(() => {
         type: 'bar',
         stack: 'total',
         barWidth: 35,
-        data: modes.map(m => ({
+        data: modes.map((m) => ({
           value: periodData[m.key].puzzles_solved,
-          itemStyle: { color: modeColors[m.key].solved }
-        }))
+          itemStyle: { color: modeColors[m.key].solved },
+        })),
       },
       {
         name: t('records.table.requested'),
         type: 'bar',
         stack: 'total',
-        data: modes.map(m => ({
-          value: Math.max(0, periodData[m.key].puzzles_requested - periodData[m.key].puzzles_solved),
-          itemStyle: { color: modeColors[m.key].requested }
-        }))
-      }
-    ]
+        data: modes.map((m) => ({
+          value: Math.max(
+            0,
+            periodData[m.key].puzzles_requested - periodData[m.key].puzzles_solved,
+          ),
+          itemStyle: { color: modeColors[m.key].requested },
+        })),
+      },
+    ],
   }
 })
 </script>
@@ -132,15 +126,20 @@ const chartOption = computed(() => {
     <template #header>
       <div class="card-header-flex">
         <span class="card-title">{{ t('userCabinet.stats.global.title') }}</span>
-        <n-tabs type="segment" :value="selectedActivityPeriod" @update:value="handlePeriodChange"
-          class="period-tabs" size="small">
+        <n-tabs
+          type="segment"
+          :value="selectedActivityPeriod"
+          @update:value="handlePeriodChange"
+          class="period-tabs"
+          size="small"
+        >
           <n-tab-pane name="daily" :tab="t('userCabinet.stats.periods.day')" />
           <n-tab-pane name="weekly" :tab="t('userCabinet.stats.periods.week')" />
           <n-tab-pane name="monthly" :tab="t('userCabinet.stats.periods.month')" />
         </n-tabs>
       </div>
     </template>
-    
+
     <div class="chart-container">
       <v-chart v-if="personalActivityStats" class="chart" :option="chartOption" autoresize />
       <n-empty v-else :description="t('userCabinet.stats.noData')" />
@@ -194,4 +193,3 @@ const chartOption = computed(() => {
   }
 }
 </style>
-

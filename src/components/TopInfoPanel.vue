@@ -1,6 +1,5 @@
 <!-- src/components/TopInfoPanel.vue -->
 <script setup lang="ts">
-
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -53,9 +52,19 @@ const containerClass = computed(() => {
     <!-- Таймер для Торнадо -->
     <div v-if="route.name === 'tornado'" class="timer-container">
       <div class="tornado-info-container">
-        <span v-if="tornadoStore.sessionTheme || activePuzzle?.theme_key" class="session-theme-label">
-          {{ t('tornado.ui.themeLabel') }}: {{ t('chess.themes.' + getThemeTranslationKey(activePuzzle?.theme_key ||
-            tornadoStore.sessionTheme || 'auto')) }}
+        <span
+          v-if="tornadoStore.sessionTheme || activePuzzle?.theme_key"
+          class="session-theme-label"
+        >
+          {{ t('tornado.ui.themeLabel') }}:
+          {{
+            t(
+              'chess.themes.' +
+                getThemeTranslationKey(
+                  activePuzzle?.theme_key || tornadoStore.sessionTheme || 'auto',
+                ),
+            )
+          }}
         </span>
         <span class="session-rating-label">
           {{ t('tornado.ui.ratingLabel') }}: {{ tornadoStore.sessionRating }}
@@ -65,22 +74,30 @@ const containerClass = computed(() => {
     </div>
 
     <!-- Общий заголовок для других режимов (Finish Him, Theory) -->
-    <div v-else-if="activePuzzle?.theme_key || (activePuzzle as any)?.meta?.theme_key" class="puzzle-title-container">
+    <div
+      v-else-if="activePuzzle?.theme_key || (activePuzzle as any)?.meta?.theme_key"
+      class="puzzle-title-container"
+    >
       <span class="puzzle-title-label">
-        {{ t('chess.themes.' + getThemeTranslationKey(activePuzzle?.theme_key || (activePuzzle as any)?.meta?.theme_key
-          || 'auto')) }}
+        {{
+          t(
+            'chess.themes.' +
+              getThemeTranslationKey(
+                activePuzzle?.theme_key || (activePuzzle as any)?.meta?.theme_key || 'auto',
+              ),
+          )
+        }}
       </span>
     </div>
 
-
-
-    <div v-if="
-      [
-        'sandbox',
-        'sandbox-with-engine',
-        'sandbox-with-engine-and-color',
-      ].includes(route.name as string)
-    " class="engine-selector-container">
+    <div
+      v-if="
+        ['sandbox', 'sandbox-with-engine', 'sandbox-with-engine-and-color'].includes(
+          route.name as string,
+        )
+      "
+      class="engine-selector-container"
+    >
       <img src="/buttons/robot.svg" alt="Select Engine" class="robot-icon" />
       <EngineSelector />
     </div>
@@ -175,8 +192,6 @@ const containerClass = computed(() => {
     grid-template-columns: 1fr 2fr 2fr;
     /* Centered middle column */
   }
-
-
 
   .timer-container {
     flex-direction: column;

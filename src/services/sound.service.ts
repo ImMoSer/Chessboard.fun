@@ -91,7 +91,6 @@ const soundDefinitions: Record<SoundEvent, { track: SoundTrack; path: string | s
   // --- НАЧАЛО ИЗМЕНЕНИЙ ---
   game_tacktics_success: { track: 'background', path: '/sounds/gameStore/TacticksSuccess.mp3' },
   // --- КОНЕЦ ИЗМЕНЕНИЙ ---
-
 }
 
 class SoundServiceController {

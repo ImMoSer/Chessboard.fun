@@ -5,15 +5,18 @@ import { useBoardStore } from '@/stores/board.store'
 import { NDropdown, NInput, NModal } from 'naive-ui'
 import { computed, nextTick, ref } from 'vue'
 
-const props = withDefaults(defineProps<{
-  node: PgnNode
-  forceNumber?: boolean
-  depth?: number
-  mode?: 'all' | 'san' | 'continuation'
-}>(), {
-  depth: 0,
-  mode: 'all'
-})
+const props = withDefaults(
+  defineProps<{
+    node: PgnNode
+    forceNumber?: boolean
+    depth?: number
+    mode?: 'all' | 'san' | 'continuation'
+  }>(),
+  {
+    depth: 0,
+    mode: 'all',
+  },
+)
 
 const boardStore = useBoardStore()
 
@@ -67,19 +70,19 @@ const nagMap: Record<number, string> = {
   14: '±',
   15: '∓',
   18: '+-',
-  19: '-+'
+  19: '-+',
 }
 
 const dropdownOptions = computed(() => [
   {
     label: 'Promote Variation',
     key: 'promote-variant',
-    disabled: !props.node.parent || props.node.parent.children[0] === props.node
+    disabled: !props.node.parent || props.node.parent.children[0] === props.node,
   },
   {
     label: 'Make Mainline',
     key: 'promote-mainline',
-    disabled: isOnLevelZero.value
+    disabled: isOnLevelZero.value,
   },
   {
     label: 'Glyphs',
@@ -96,17 +99,17 @@ const dropdownOptions = computed(() => [
       { label: '∓ (Black is Better)', key: 'nag-15' },
       { label: '+- (White is Winning)', key: 'nag-18' },
       { label: '-+ (Black is Winning)', key: 'nag-19' },
-    ]
+    ],
   },
   {
     label: 'Comment',
-    key: 'comment'
+    key: 'comment',
   },
   {
     label: 'Delete',
     key: 'delete',
-    disabled: props.node.id === '__ROOT__'
-  }
+    disabled: props.node.id === '__ROOT__',
+  },
 ])
 
 const isOnLevelZero = computed(() => {
@@ -170,7 +173,7 @@ const toggleOptions = [
   { label: 'Collapse ALL variants', key: 'collapse-global' },
   { label: 'Expand ALL variants', key: 'expand-global' },
   { label: 'Collapse this branch', key: 'collapse-all' },
-  { label: 'Expand this branch', key: 'expand-all' }
+  { label: 'Expand this branch', key: 'expand-all' },
 ]
 
 const handleToggleSelect = (key: string) => {
@@ -206,60 +209,71 @@ const saveComment = () => {
 
 // --- comment parsing ---
 const parsedComment = computed(() => {
-  if (!props.node.comment) return null;
-  const comment = props.node.comment;
+  if (!props.node.comment) return null
+  const comment = props.node.comment
 
   // Look for N:..., W:..., D:... (Hero moves)
-  const statsMatch = comment.match(/N:(\d+),\s*W:(\d+)%,\s*D:(\d+)%/);
+  const statsMatch = comment.match(/N:(\d+),\s*W:(\d+)%,\s*D:(\d+)%/)
   // Look for P:... (Opponent moves)
-  const probMatch = comment.match(/P:(\d+)%/);
+  const probMatch = comment.match(/P:(\d+)%/)
 
-  let cleanComment = comment;
-  if (statsMatch) cleanComment = cleanComment.replace(statsMatch[0], '').trim();
-  if (probMatch) cleanComment = cleanComment.replace(probMatch[0], '').trim();
+  let cleanComment = comment
+  if (statsMatch) cleanComment = cleanComment.replace(statsMatch[0], '').trim()
+  if (probMatch) cleanComment = cleanComment.replace(probMatch[0], '').trim()
 
   return {
     n: statsMatch ? statsMatch[1] : null,
     w: statsMatch ? statsMatch[2] : null,
     d: statsMatch ? statsMatch[3] : null,
     p: probMatch ? probMatch[1] : null,
-    text: cleanComment
-  };
-});
+    text: cleanComment,
+  }
+})
 
 // --- eval formatting ---
 const formatEval = (val: number) => {
   if (Math.abs(val) > 10000) {
     // Mate
-    const moves = Math.abs(val) - 100000;
-    return (val > 0 ? '#' : '-#') + moves;
+    const moves = Math.abs(val) - 100000
+    return (val > 0 ? '#' : '-#') + moves
   }
-  const cp = val / 100;
-  return (cp > 0 ? '+' : '') + cp.toFixed(1);
+  const cp = val / 100
+  return (cp > 0 ? '+' : '') + cp.toFixed(1)
 }
 
 const getEvalClass = (val: number) => {
-  if (val > 0.5) return 'pos-white';
-  if (val < -0.5) return 'pos-black';
-  return '';
+  if (val > 0.5) return 'pos-white'
+  if (val < -0.5) return 'pos-black'
+  return ''
 }
 </script>
 
 <script lang="ts">
 export default {
-  name: 'StudyTreeNode'
+  name: 'StudyTreeNode',
 }
 </script>
 
 <template>
   <div class="study-node">
-    <n-dropdown trigger="manual" :show="showDropdown" :options="dropdownOptions" :x="x" :y="y"
-      @clickoutside="showDropdown = false" @select="handleSelect" />
+    <n-dropdown
+      trigger="manual"
+      :show="showDropdown"
+      :options="dropdownOptions"
+      :x="x"
+      :y="y"
+      @clickoutside="showDropdown = false"
+      @select="handleSelect"
+    />
 
     <!-- 1. The move itself (SAN) -->
     <template v-if="node.id !== '__ROOT__' && mode !== 'continuation'">
-      <span class="move-san" :class="[depthClass, { active: isActive, 'has-comment': !!node.comment }]"
-        @click.stop="activateNode" @contextmenu="handleContextMenu">
+      <span
+        class="move-san"
+        :class="[depthClass, { active: isActive, 'has-comment': !!node.comment }]"
+        @click.stop="activateNode"
+        @contextmenu="handleContextMenu"
+      >
         <span v-if="moveNumber" class="move-index">{{ moveNumber }}</span>
         <span class="san-text">{{ node.san }}</span>
         <span v-if="node.nag" class="nag-text">{{ nagMap[node.nag] }}</span>
@@ -269,13 +283,24 @@ export default {
           <span v-if="parsedComment.p" class="stat-badge prob" title="Opponent Probability">
             {{ parsedComment.p }}%
           </span>
-          <span v-if="parsedComment.w" class="stat-badge win" :title="`Games in DB. Draw: ${parsedComment.d}%`">
+          <span
+            v-if="parsedComment.w"
+            class="stat-badge win"
+            :title="`Games in DB. Draw: ${parsedComment.d}%`"
+          >
             {{ parsedComment.w }}%
           </span>
         </template>
 
-        <span v-if="parsedComment?.text" class="comment-indicator" :title="parsedComment.text">💬</span>
-        <span v-else-if="node.comment && !parsedComment" class="comment-indicator" :title="node.comment">💬</span>
+        <span v-if="parsedComment?.text" class="comment-indicator" :title="parsedComment.text"
+          >💬</span
+        >
+        <span
+          v-else-if="node.comment && !parsedComment"
+          class="comment-indicator"
+          :title="node.comment"
+          >💬</span
+        >
 
         <span v-if="node.eval !== undefined" class="eval-tag" :class="getEvalClass(node.eval)">
           {{ formatEval(node.eval) }}
@@ -290,9 +315,20 @@ export default {
 
       <!-- B. Render alternatives to that next move -->
       <div v-if="variations.length > 0" class="variations-container">
-        <n-dropdown trigger="manual" :show="showToggleDropdown" :options="toggleOptions" :x="tx" :y="ty"
-          @clickoutside="showToggleDropdown = false" @select="handleToggleSelect" />
-        <button class="collapse-toggle" @click.stop="toggleCollapse" @contextmenu="handleToggleContextMenu">
+        <n-dropdown
+          trigger="manual"
+          :show="showToggleDropdown"
+          :options="toggleOptions"
+          :x="tx"
+          :y="ty"
+          @clickoutside="showToggleDropdown = false"
+          @select="handleToggleSelect"
+        />
+        <button
+          class="collapse-toggle"
+          @click.stop="toggleCollapse"
+          @contextmenu="handleToggleContextMenu"
+        >
           {{ isCollapsed ? '+' : '-' }}
         </button>
         <div v-show="!isCollapsed" class="variations-list">
@@ -305,12 +341,22 @@ export default {
       </div>
 
       <!-- C. Render the continuation of the next move -->
-      <StudyTreeNode :node="mainlineChild" mode="continuation" :depth="depth"
-        :force-number="variations.length > 0 || !!mainlineChild.comment" />
+      <StudyTreeNode
+        :node="mainlineChild"
+        mode="continuation"
+        :depth="depth"
+        :force-number="variations.length > 0 || !!mainlineChild.comment"
+      />
     </template>
 
-    <n-modal v-model:show="showCommentModal" preset="dialog" title="Edit Comment" positive-text="Save"
-      negative-text="Cancel" @positive-click="saveComment">
+    <n-modal
+      v-model:show="showCommentModal"
+      preset="dialog"
+      title="Edit Comment"
+      positive-text="Save"
+      negative-text="Cancel"
+      @positive-click="saveComment"
+    >
       <n-input v-model:value="commentText" type="textarea" placeholder="Enter comment..." />
     </n-modal>
   </div>

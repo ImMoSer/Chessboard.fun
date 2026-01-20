@@ -44,8 +44,7 @@ watch(
 
     controlsStore.setControls({
       canRequestNew: isGameOver || isIdle,
-      canRestart:
-        (isGameOver || isIdle || !gameStore.isGameActive) && !!theoryStore.activePuzzle,
+      canRestart: (isGameOver || isIdle || !gameStore.isGameActive) && !!theoryStore.activePuzzle,
       canResign: isPlaying && gameStore.isGameActive,
       canShare: !!theoryStore.activePuzzle,
       onRequestNew: () => {
@@ -79,7 +78,7 @@ watch(
     if (oldId && !newId) {
       theoryStore.loadNewPuzzle()
     }
-  }
+  },
 )
 </script>
 

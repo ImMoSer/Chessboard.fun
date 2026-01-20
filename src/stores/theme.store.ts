@@ -121,7 +121,12 @@ export const useThemeStore = defineStore('theme', () => {
       if (savedTheme) {
         const parsed = JSON.parse(savedTheme)
         // --- ИЗМЕНЕНИЕ: Проверяем наличие всех свойств, включая boardSize ---
-        if (parsed.board && parsed.pieces && 'animationDuration' in parsed && 'boardSize' in parsed) {
+        if (
+          parsed.board &&
+          parsed.pieces &&
+          'animationDuration' in parsed &&
+          'boardSize' in parsed
+        ) {
           return { ...defaults, ...parsed }
         }
       }

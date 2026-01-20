@@ -138,7 +138,9 @@ export const useTornadoStore = defineStore('tornado', () => {
     gameStore.setGamePhase('GAMEOVER')
 
     // Format stats message
-    const themeLabel = sessionTheme.value ? t(`chess.themes.${getThemeTranslationKey(sessionTheme.value)}`) : t('chess.themes.auto')
+    const themeLabel = sessionTheme.value
+      ? t(`chess.themes.${getThemeTranslationKey(sessionTheme.value)}`)
+      : t('chess.themes.auto')
     const message = t('tornado.sessionEnd.stats', {
       rating: sessionRating.value,
       solved: puzzlesSolved.value,
@@ -155,17 +157,13 @@ export const useTornadoStore = defineStore('tornado', () => {
 
     const hasMistakes = mistakenPuzzles.value.length > 0
 
-    const userResponse = await uiStore.showConfirmation(
-      t('tornado.sessionEnd.title'),
-      message,
-      {
-        confirmText: t('tornado.sessionEnd.newSession'),
-        cancelText: t('tornado.sessionEnd.exit'),
-        extraText: t('tornado.sessionEnd.mistakes'),
-        showExtra: hasMistakes,
-        persistent: true,
-      },
-    )
+    const userResponse = await uiStore.showConfirmation(t('tornado.sessionEnd.title'), message, {
+      confirmText: t('tornado.sessionEnd.newSession'),
+      cancelText: t('tornado.sessionEnd.exit'),
+      extraText: t('tornado.sessionEnd.mistakes'),
+      showExtra: hasMistakes,
+      persistent: true,
+    })
 
     switch (userResponse) {
       case 'extra':
@@ -214,7 +212,9 @@ export const useTornadoStore = defineStore('tornado', () => {
           t('pricing.insufficientCoins.message', {
             required: e.required,
             available: e.available,
-          }) + '\n\n' + t('pricing.insufficientCoins.subMessage'),
+          }) +
+            '\n\n' +
+            t('pricing.insufficientCoins.subMessage'),
           {
             confirmText: t('pricing.insufficientCoins.goToPricing'),
             cancelText: t('common.close'),
@@ -237,7 +237,7 @@ export const useTornadoStore = defineStore('tornado', () => {
       puzzle.Moves.split(' '),
       (isCorrect) => handlePuzzleResult(isCorrect),
       () => true,
-      () => { },
+      () => {},
       'tornado',
       () => {
         if (isSessionActive.value && timerId.value === null) {
@@ -335,4 +335,3 @@ export const useTornadoStore = defineStore('tornado', () => {
     handleNew,
   }
 })
-

@@ -1,15 +1,11 @@
 <script setup lang="ts">
-import { openingChaptersService, type OpeningChapterTemplate } from '@/services/OpeningChaptersService';
-import { useStudyStore } from '@/stores/study.store';
 import {
-  NCard, NInput, NList, NListItem,
-  NModal,
-  NSpace,
-  NSpin,
-  NText,
-  NThing
-} from 'naive-ui';
-import { computed, ref } from 'vue';
+  openingChaptersService,
+  type OpeningChapterTemplate,
+} from '@/services/OpeningChaptersService'
+import { useStudyStore } from '@/stores/study.store'
+import { NCard, NInput, NList, NListItem, NModal, NSpace, NSpin, NText, NThing } from 'naive-ui'
+import { computed, ref } from 'vue'
 
 defineProps<{
   show: boolean
@@ -31,9 +27,7 @@ const filteredChapters = computed(() => {
   if (!query) return chapters.value
 
   return chapters.value.filter(
-    (c) =>
-      c.name.toLowerCase().includes(query) ||
-      c.eco.toLowerCase().includes(query)
+    (c) => c.name.toLowerCase().includes(query) || c.eco.toLowerCase().includes(query),
   )
 })
 
@@ -61,29 +55,50 @@ const handleClose = () => {
 </script>
 
 <template>
-  <n-modal :show="show" @update:show="(val) => emit('update:show', val)" :on-after-enter="handleOpen"
-    class="template-modal">
-    <n-card title="Create from Template" :bordered="false" size="huge" role="dialog" aria-modal="true" closable
-      @close="handleClose" style="width: 650px; max-width: 95vw; height: 85vh; display: flex; flex-direction: column;"
-      content-style="flex: 1; overflow: hidden; display: flex; flex-direction: column; padding-bottom: 0;">
-
+  <n-modal
+    :show="show"
+    @update:show="(val) => emit('update:show', val)"
+    :on-after-enter="handleOpen"
+    class="template-modal"
+  >
+    <n-card
+      title="Create from Template"
+      :bordered="false"
+      size="huge"
+      role="dialog"
+      aria-modal="true"
+      closable
+      @close="handleClose"
+      style="width: 650px; max-width: 95vw; height: 85vh; display: flex; flex-direction: column"
+      content-style="flex: 1; overflow: hidden; display: flex; flex-direction: column; padding-bottom: 0;"
+    >
       <div class="modal-controls">
         <div class="color-toggle-container">
           <n-text depth="3" class="label">Choose your side:</n-text>
           <div class="color-toggle">
-            <button :class="{ active: selectedColor === 'white' }" @click="selectedColor = 'white'"
-              class="side-btn white">
+            <button
+              :class="{ active: selectedColor === 'white' }"
+              @click="selectedColor = 'white'"
+              class="side-btn white"
+            >
               White
             </button>
-            <button :class="{ active: selectedColor === 'black' }" @click="selectedColor = 'black'"
-              class="side-btn black">
+            <button
+              :class="{ active: selectedColor === 'black' }"
+              @click="selectedColor = 'black'"
+              class="side-btn black"
+            >
               Black
             </button>
           </div>
         </div>
 
-        <n-input v-model:value="searchQuery" placeholder="Search openings (e.g. Sicilian, B20)..." clearable
-          class="search-input" />
+        <n-input
+          v-model:value="searchQuery"
+          placeholder="Search openings (e.g. Sicilian, B20)..."
+          clearable
+          class="search-input"
+        />
       </div>
 
       <div class="list-container">
@@ -93,7 +108,11 @@ const handleClose = () => {
         </div>
 
         <n-list v-else hoverable clickable>
-          <n-list-item v-for="chapter in filteredChapters" :key="chapter.name" @click="selectTemplate(chapter)">
+          <n-list-item
+            v-for="chapter in filteredChapters"
+            :key="chapter.name"
+            @click="selectTemplate(chapter)"
+          >
             <n-thing :title="chapter.name">
               <template #description>
                 <n-space size="small">

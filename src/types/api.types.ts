@@ -1,15 +1,9 @@
 // src/types/api.types.ts
 
 // --- Engine and Gameplay Types ---
-export type EngineId =
-  | 'SF_2200'
-  | 'MOZER_1900'
-  | 'MOZER_2000'
-  | 'maia_2200'
+export type EngineId = 'SF_2200' | 'MOZER_1900' | 'MOZER_2000' | 'maia_2200'
 
 export type Color = 'white' | 'black'
-
-
 
 // --- TORNADO MODE ---
 export type TornadoMode = 'bullet' | 'blitz' | 'rapid' | 'classic'
@@ -202,8 +196,6 @@ export interface PracticalStats {
 }
 // --- END PRACTICAL CHESS ---
 
-
-
 export type WebhookSuccessResponse<T> = T | null
 
 export interface PuzzleResultEntry {
@@ -213,17 +205,12 @@ export interface PuzzleResultEntry {
   record_timestamp_ms: number
 }
 
-
-
 export interface UpdateFinishHimStatsDto {
   PuzzleId: string
   success: boolean
   solved_in_seconds?: number
   bw_value: number
 }
-
-
-
 
 export interface SubmitTacticalResultDto {
   PuzzleId: string
@@ -291,7 +278,6 @@ export interface TacticalTrainerStats {
   UserStatsUpdate?: UserStatsUpdate
 }
 
-
 export interface TournamentInfo {
   name: string
   url: string
@@ -323,8 +309,6 @@ export interface FinishHimLeaderboardEntry {
   puzzle_id: string
   subscriptionTier?: string
 }
-
-
 
 export interface TornadoLeaderboardEntry {
   rank: number
@@ -427,13 +411,7 @@ export interface PersonalActivityStatsResponse {
   monthly: ActivityPeriodStats
 }
 
-export type SubscriptionTier =
-  | 'none'
-  | 'bronze'
-  | 'silver'
-  | 'gold'
-  | 'platinum'
-  | 'administrator'
+export type SubscriptionTier = 'none' | 'bronze' | 'silver' | 'gold' | 'platinum' | 'administrator'
 
 export interface LichessUserProfile {
   id: string
@@ -449,8 +427,6 @@ export interface LichessUserProfile {
     location?: string
   }
 }
-
-
 
 export interface PuzzlesSolvedToday {
   advantage: number
@@ -696,8 +672,6 @@ export interface TheoryEndingProfileDto {
 export interface PracticalChessProfileDto {
   stats: Record<string, { requested: number; success: number }>
 }
-
-
 
 export interface UserProfileStatsDto {
   tornado: TornadoProfileDto

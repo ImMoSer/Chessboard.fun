@@ -5,7 +5,6 @@ import { useUiStore } from '@/stores/ui.store'
 import { nextTick, ref } from 'vue'
 import ChapterTemplateModal from './ChapterTemplateModal.vue'
 
-
 const studyStore = useStudyStore()
 const uiStore = useUiStore()
 const showInput = ref(false)
@@ -83,7 +82,7 @@ const cancelEdit = () => {
 const confirmDelete = async (chapter: StudyChapter) => {
   const result = await uiStore.showConfirmation(
     'Delete Chapter',
-    `Are you sure you want to delete "${chapter.name}"? This action cannot be undone.`
+    `Are you sure you want to delete "${chapter.name}"? This action cannot be undone.`,
   )
   if (result === 'confirm') {
     studyStore.deleteChapter(chapter.id)
@@ -91,24 +90,24 @@ const confirmDelete = async (chapter: StudyChapter) => {
 }
 
 const downloadChapter = (chapter: StudyChapter) => {
-  const currentRoot = pgnService.getRootNode();
-  const currentPath = pgnService.getCurrentPath();
+  const currentRoot = pgnService.getRootNode()
+  const currentPath = pgnService.getCurrentPath()
 
-  pgnService.setRoot(chapter.root);
-  const pgn = pgnService.getFullPgn(chapter.tags);
+  pgnService.setRoot(chapter.root)
+  const pgn = pgnService.getFullPgn(chapter.tags)
 
   // Restore
-  pgnService.setRoot(currentRoot, currentPath);
+  pgnService.setRoot(currentRoot, currentPath)
 
-  const blob = new Blob([pgn], { type: 'text/plain' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `${chapter.name.replace(/\s+/g, '_')}.pgn`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+  const blob = new Blob([pgn], { type: 'text/plain' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `${chapter.name.replace(/\s+/g, '_')}.pgn`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
 }
 </script>
 
@@ -117,13 +116,39 @@ const downloadChapter = (chapter: StudyChapter) => {
     <div class="chapters-header">
       <h3 v-if="!collapsed">Chapters</h3>
       <div class="header-actions">
-        <button @click="emit('toggle')" class="toggle-btn" :title="collapsed ? 'Expand' : 'Collapse'">
+        <button
+          @click="emit('toggle')"
+          class="toggle-btn"
+          :title="collapsed ? 'Expand' : 'Collapse'"
+        >
           {{ collapsed ? '▼' : '▲' }}
         </button>
         <template v-if="!collapsed">
-          <button @click="showTemplateModal = true" class="template-btn" title="Create from Template">📚</button>
-          <button @click="showImport = !showImport; showInput = false" class="import-btn" title="Import PGN">📥</button>
-          <button @click="toggleCreate(); showImport = false" class="add-btn" title="New Chapter">
+          <button
+            @click="showTemplateModal = true"
+            class="template-btn"
+            title="Create from Template"
+          >
+            📚
+          </button>
+          <button
+            @click="
+              showImport = !showImport
+              showInput = false
+            "
+            class="import-btn"
+            title="Import PGN"
+          >
+            📥
+          </button>
+          <button
+            @click="
+              toggleCreate()
+              showImport = false
+            "
+            class="add-btn"
+            title="New Chapter"
+          >
             <span class="plus-icon">＋</span>
           </button>
         </template>
@@ -133,12 +158,29 @@ const downloadChapter = (chapter: StudyChapter) => {
     <ChapterTemplateModal v-if="!collapsed" v-model:show="showTemplateModal" />
 
     <div v-if="showInput && !collapsed" class="new-chapter-form">
-      <input v-model="newChapterName" placeholder="Chapter Name" @keyup.enter="handleCreateManual" ref="nameInput" />
+      <input
+        v-model="newChapterName"
+        placeholder="Chapter Name"
+        @keyup.enter="handleCreateManual"
+        ref="nameInput"
+      />
       <div class="color-selector">
-        <button :class="{ active: selectedColor === 'white' }" @click="selectedColor = 'white'"
-          title="Repertoire for White" class="white-btn">White</button>
-        <button :class="{ active: selectedColor === 'black' }" @click="selectedColor = 'black'"
-          title="Repertoire for Black" class="black-btn">Black</button>
+        <button
+          :class="{ active: selectedColor === 'white' }"
+          @click="selectedColor = 'white'"
+          title="Repertoire for White"
+          class="white-btn"
+        >
+          White
+        </button>
+        <button
+          :class="{ active: selectedColor === 'black' }"
+          @click="selectedColor = 'black'"
+          title="Repertoire for Black"
+          class="black-btn"
+        >
+          Black
+        </button>
       </div>
       <div class="form-actions">
         <button @click="handleCreateManual" class="submit-btn highlight">Create</button>
@@ -149,33 +191,58 @@ const downloadChapter = (chapter: StudyChapter) => {
     <div v-if="showImport && !collapsed" class="import-pgn-form">
       <textarea v-model="pgnInput" placeholder="Paste PGN here..." rows="4"></textarea>
       <div class="form-actions import-actions">
-        <button @click="handleImport('white')" class="submit-btn white-style">Import for White</button>
-        <button @click="handleImport('black')" class="submit-btn black-style">Import for Black</button>
+        <button @click="handleImport('white')" class="submit-btn white-style">
+          Import for White
+        </button>
+        <button @click="handleImport('black')" class="submit-btn black-style">
+          Import for Black
+        </button>
         <button @click="showImport = false" class="cancel-btn">Cancel</button>
       </div>
     </div>
 
     <ul v-if="!collapsed" class="chapter-list">
-      <li v-for="(chapter, index) in studyStore.chapters" :key="chapter.id"
-        :class="{ active: studyStore.activeChapterId === chapter.id, editing: editingId === chapter.id }"
-        @click="selectChapter(chapter.id)">
-
+      <li
+        v-for="(chapter, index) in studyStore.chapters"
+        :key="chapter.id"
+        :class="{
+          active: studyStore.activeChapterId === chapter.id,
+          editing: editingId === chapter.id,
+        }"
+        @click="selectChapter(chapter.id)"
+      >
         <div v-if="editingId === chapter.id" class="edit-wrapper">
-          <input v-model="editName" @keyup.enter="finishEdit" @keyup.esc="cancelEdit" @blur="finishEdit"
-            ref="editInput" />
+          <input
+            v-model="editName"
+            @keyup.enter="finishEdit"
+            @keyup.esc="cancelEdit"
+            @blur="finishEdit"
+            ref="editInput"
+          />
         </div>
 
         <template v-else>
           <div class="chapter-info">
-            <span class="color-indicator" :class="chapter.color || 'none'"
-              :title="chapter.color ? `Repertoire for ${chapter.color}` : 'No color set'"></span>
+            <span
+              class="color-indicator"
+              :class="chapter.color || 'none'"
+              :title="chapter.color ? `Repertoire for ${chapter.color}` : 'No color set'"
+            ></span>
             <span class="chapter-num">{{ index + 1 }}</span>
             <span class="chapter-name" :title="chapter.name">{{ chapter.name }}</span>
           </div>
           <div class="chapter-actions">
-            <button @click.stop="downloadChapter(chapter)" class="download-btn" title="Download PGN">💾</button>
+            <button
+              @click.stop="downloadChapter(chapter)"
+              class="download-btn"
+              title="Download PGN"
+            >
+              💾
+            </button>
             <button @click.stop="startEdit(chapter)" class="edit-btn" title="Rename">✏️</button>
-            <button @click.stop="confirmDelete(chapter)" class="delete-btn" title="Delete">×</button>
+            <button @click.stop="confirmDelete(chapter)" class="delete-btn" title="Delete">
+              ×
+            </button>
           </div>
         </template>
       </li>
@@ -398,7 +465,7 @@ const downloadChapter = (chapter: StudyChapter) => {
 
 .chapter-list li.active {
   background-color: rgba(76, 175, 80, 0.15);
-  border-left: 3px solid #4CAF50;
+  border-left: 3px solid #4caf50;
 }
 
 .chapter-info {
@@ -491,7 +558,7 @@ const downloadChapter = (chapter: StudyChapter) => {
 .edit-wrapper input {
   width: 100%;
   background: rgba(0, 0, 0, 0.3);
-  border: 1px solid #4CAF50;
+  border: 1px solid #4caf50;
   color: white;
   padding: 4px 8px;
   font-size: 0.9em;

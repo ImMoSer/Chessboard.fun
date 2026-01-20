@@ -74,7 +74,6 @@ watch(
   /* Соотношение сторон 1:1 */
   position: relative;
   overflow: hidden;
-
 }
 
 .chessboard-preview :deep(.cg-wrap) {

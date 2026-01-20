@@ -51,20 +51,25 @@ onUnmounted(() => {
 })
 
 // Auto-update node evaluation from engine
-watch(() => analysisStore.analysisLines, (lines) => {
-  if (analysisStore.isAnalysisActive && lines.length > 0) {
-    const topMove = lines[0];
-    const currentNode = pgnService.getCurrentNode();
-    if (topMove && currentNode && currentNode.id !== '__ROOT__') {
-      // Convert score to centipawns or mate value
-      let scoreVal = topMove.score.value;
-      if (topMove.score.type === 'mate') {
-        scoreVal = topMove.score.value > 0 ? 100000 + topMove.score.value : -100000 - topMove.score.value;
+watch(
+  () => analysisStore.analysisLines,
+  (lines) => {
+    if (analysisStore.isAnalysisActive && lines.length > 0) {
+      const topMove = lines[0]
+      const currentNode = pgnService.getCurrentNode()
+      if (topMove && currentNode && currentNode.id !== '__ROOT__') {
+        // Convert score to centipawns or mate value
+        let scoreVal = topMove.score.value
+        if (topMove.score.type === 'mate') {
+          scoreVal =
+            topMove.score.value > 0 ? 100000 + topMove.score.value : -100000 - topMove.score.value
+        }
+        pgnService.updateNode(currentNode, { eval: scoreVal })
       }
-      pgnService.updateNode(currentNode, { eval: scoreVal });
     }
-  }
-}, { deep: true });
+  },
+  { deep: true },
+)
 </script>
 
 <template>
@@ -74,14 +79,28 @@ watch(() => analysisStore.analysisLines, (lines) => {
     </template>
 
     <template #left-panel>
-      <div class="left-panel-content" @mouseenter="cancelAutoCollapseTimer" @mouseleave="startAutoCollapseTimer">
-        <StudySidebar class="sidebar-component" :collapsed="isSidebarCollapsed"
-          @toggle="isSidebarCollapsed = !isSidebarCollapsed" />
+      <div
+        class="left-panel-content"
+        @mouseenter="cancelAutoCollapseTimer"
+        @mouseleave="startAutoCollapseTimer"
+      >
+        <StudySidebar
+          class="sidebar-component"
+          :collapsed="isSidebarCollapsed"
+          @toggle="isSidebarCollapsed = !isSidebarCollapsed"
+        />
 
-        <div class="explorer-container" :class="{ 'expanded': isSidebarCollapsed }">
+        <div class="explorer-container" :class="{ expanded: isSidebarCollapsed }">
           <div class="explorer-toggle">
-            <button :class="{ active: explorerMode === 'mozer' }" @click="explorerMode = 'mozer'">MozerBook</button>
-            <button :class="{ active: explorerMode === 'lichess' }" @click="explorerMode = 'lichess'">Lichess</button>
+            <button :class="{ active: explorerMode === 'mozer' }" @click="explorerMode = 'mozer'">
+              MozerBook
+            </button>
+            <button
+              :class="{ active: explorerMode === 'lichess' }"
+              @click="explorerMode = 'lichess'"
+            >
+              Lichess
+            </button>
           </div>
           <MozerBook v-if="explorerMode === 'mozer'" class="explorer-component" />
           <LichessOpeningExplorer v-else mode="study" class="explorer-component" />
@@ -113,7 +132,6 @@ watch(() => analysisStore.analysisLines, (lines) => {
   min-height: 0;
   overflow: hidden;
 }
-
 
 .explorer-container {
   flex-shrink: 0;

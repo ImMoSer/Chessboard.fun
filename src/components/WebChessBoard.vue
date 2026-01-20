@@ -4,7 +4,12 @@ import { ref, onMounted, onUnmounted, watch, shallowRef, type PropType } from 'v
 import { Chessground } from '@lichess-org/chessground'
 import type { Api } from '@lichess-org/chessground/api'
 import type { Config } from '@lichess-org/chessground/config'
-import type { Key, Dests, Color as ChessgroundColor, MoveMetadata } from '@lichess-org/chessground/types'
+import type {
+  Key,
+  Dests,
+  Color as ChessgroundColor,
+  MoveMetadata,
+} from '@lichess-org/chessground/types'
 import PromotionDialog from './PromotionDialog.vue'
 import type { Role as ChessopsRole } from 'chessops/types'
 import type { DrawShape } from '@lichess-org/chessground/draw'
@@ -88,68 +93,91 @@ onUnmounted(() => {
 // --- Atomic Watchers ---
 
 // 1. Critical Position Update and Premove Check
-watch(() => props.fen, (newFen) => {
-  if (!ground.value) return;
+watch(
+  () => props.fen,
+  (newFen) => {
+    if (!ground.value) return
 
-  ground.value.set({
-    fen: newFen,
-    turnColor: props.turnColor // Ensure turn color is synced with FEN
-  })
+    ground.value.set({
+      fen: newFen,
+      turnColor: props.turnColor, // Ensure turn color is synced with FEN
+    })
 
-  // Premove Logic
-  const premove = ground.value.state.premovable.current
-  if (premove) {
-    const [orig, dest] = premove
-    emit('check-premove', { orig, dest })
-  }
-})
+    // Premove Logic
+    const premove = ground.value.state.premovable.current
+    if (premove) {
+      const [orig, dest] = premove
+      emit('check-premove', { orig, dest })
+    }
+  },
+)
 
 // 2. Orientation
-watch(() => props.orientation, (newOri) => {
-  ground.value?.set({ orientation: newOri })
-})
+watch(
+  () => props.orientation,
+  (newOri) => {
+    ground.value?.set({ orientation: newOri })
+  },
+)
 
 // 3. Move Configuration
-watch([() => props.dests, () => props.turnColor, () => props.isAnalysisMode], ([dests, turnColor, isAnalysis]) => {
-  ground.value?.set({
-    turnColor,
-    movable: {
-      color: isAnalysis ? 'both' : props.orientation,
-      dests: dests,
-      free: false
-    }
-  })
-})
+watch(
+  [() => props.dests, () => props.turnColor, () => props.isAnalysisMode],
+  ([dests, turnColor, isAnalysis]) => {
+    ground.value?.set({
+      turnColor,
+      movable: {
+        color: isAnalysis ? 'both' : props.orientation,
+        dests: dests,
+        free: false,
+      },
+    })
+  },
+)
 
 // 4. Visuals (Last Move, Check)
-watch(() => props.lastMove, (lm) => {
-  ground.value?.set({ lastMove: lm })
-})
+watch(
+  () => props.lastMove,
+  (lm) => {
+    ground.value?.set({ lastMove: lm })
+  },
+)
 
-watch(() => props.check, (val) => {
-  ground.value?.set({ check: val })
-})
+watch(
+  () => props.check,
+  (val) => {
+    ground.value?.set({ check: val })
+  },
+)
 
 // 5. Shapes
-watch(() => props.drawableShapes, (shapes) => {
-  ground.value?.setShapes(shapes)
-}, { deep: true })
+watch(
+  () => props.drawableShapes,
+  (shapes) => {
+    ground.value?.setShapes(shapes)
+  },
+  { deep: true },
+)
 
 // 6. Animation Settings
 watch([() => props.animationEnabled, () => props.animationDuration], ([enabled, duration]) => {
   ground.value?.set({
-    animation: { enabled, duration }
+    animation: { enabled, duration },
   })
 })
-
 </script>
 
 <template>
   <div class="board-wrapper" @wheel.passive="handleWheel">
     <div ref="chessboardRef" class="chessboard"></div>
-    <PromotionDialog v-if="promotionState" :dest="promotionState.dest" :color="promotionState.color"
-      :orientation="orientation" @piece-selected="(role) => emit('complete-promotion', role)"
-      @close="emit('cancel-promotion')" />
+    <PromotionDialog
+      v-if="promotionState"
+      :dest="promotionState.dest"
+      :color="promotionState.color"
+      :orientation="orientation"
+      @piece-selected="(role) => emit('complete-promotion', role)"
+      @close="emit('cancel-promotion')"
+    />
   </div>
 </template>
 

@@ -18,7 +18,6 @@ const activePanel = ref<'main' | 'board' | 'pieces' | 'sounds' | 'animation'>('m
 const dropdownPosition = ref({ top: '0px', left: '0px' })
 const toggleButton = ref<HTMLButtonElement | null>(null)
 
-
 const voiceVolume = ref(soundService.getVoiceVolume())
 const boardVolume = ref(soundService.getBoardVolume())
 
@@ -34,7 +33,9 @@ const toggleMenu = async (event: MouseEvent) => {
     await nextTick()
     if (toggleButton.value) {
       const rect = toggleButton.value.getBoundingClientRect()
-      const isLandscape = window.matchMedia('(orientation: landscape) and (min-width: 769px)').matches
+      const isLandscape = window.matchMedia(
+        '(orientation: landscape) and (min-width: 769px)',
+      ).matches
       if (isLandscape) {
         dropdownPosition.value = {
           top: `${rect.top}px`,
@@ -107,7 +108,12 @@ onUnmounted(() => {
 
 <template>
   <div class="settings-menu-container" @click.stop>
-    <button ref="toggleButton" class="settings-toggle-button" @click="toggleMenu" :title="t('settings.title')">
+    <button
+      ref="toggleButton"
+      class="settings-toggle-button"
+      @click="toggleMenu"
+      :title="t('settings.title')"
+    >
       ⚙️
     </button>
 
@@ -493,6 +499,4 @@ onUnmounted(() => {
   min-width: 50px;
   text-align: right;
 }
-
-
 </style>

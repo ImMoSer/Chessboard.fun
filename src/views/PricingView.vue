@@ -106,8 +106,12 @@ const gameCosts = [
     <div class="section">
       <h2 class="section-title">{{ t('pricing.tiers.title') }}</h2>
       <div class="tiers-grid">
-        <div v-for="tier in subscriptionTiers" :key="tier.name" class="tier-card"
-          :class="{ highlight: tier.highlight }">
+        <div
+          v-for="tier in subscriptionTiers"
+          :key="tier.name"
+          class="tier-card"
+          :class="{ highlight: tier.highlight }"
+        >
           <img :src="tier.icon" :alt="tier.name" class="tier-icon" />
           <!-- <h3 class="tier-name">{{ tier.name }}</h3> -->
           <p class="tier-description" v-html="tier.description"></p>

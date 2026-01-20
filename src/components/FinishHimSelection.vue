@@ -61,8 +61,13 @@ onUnmounted(() => {
       <span class="selector-arrow" :class="{ 'is-open': isOpen }">▼</span>
     </button>
     <div v-if="isOpen" class="theme-dropdown">
-      <button v-for="theme in availableThemes" :key="theme" class="theme-item"
-        :class="{ active: theme === selectedTheme }" @click="handleThemeSelect(theme)">
+      <button
+        v-for="theme in availableThemes"
+        :key="theme"
+        class="theme-item"
+        :class="{ active: theme === selectedTheme }"
+        @click="handleThemeSelect(theme)"
+      >
         {{ getThemeName(theme) }}
       </button>
     </div>

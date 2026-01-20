@@ -9,23 +9,16 @@ import {
   ChevronBackOutline,
   ChevronForwardOutline,
   PlaySkipBackOutline,
-  PlaySkipForwardOutline
+  PlaySkipForwardOutline,
 } from '@vicons/ionicons5'
-import {
-  NButton, NButtonGroup, NScrollbar,
-  NSpace, NText
-} from 'naive-ui'
+import { NButton, NButtonGroup, NScrollbar, NSpace, NText } from 'naive-ui'
 import { storeToRefs } from 'pinia'
 import { computed, h, type FunctionalComponent } from 'vue'
 
 const analysisStore = useAnalysisStore()
 const boardStore = useBoardStore()
 
-const {
-  isPanelVisible,
-  isAnalysisActive,
-} = storeToRefs(analysisStore)
-
+const { isPanelVisible, isAnalysisActive } = storeToRefs(analysisStore)
 
 const pgnRendererComponent = computed(() => {
   const rootNode = pgnService.getRootNode()
@@ -61,7 +54,13 @@ const PgnRenderer: FunctionalComponent<{ nodes: PgnNode[]; pathPrefix?: string }
   const isCurrent = movePath === currentPath
 
   if (mainlineNode.ply % 2 !== 0) {
-    elements.push(h(NText, { depth: 3, class: 'move-number' }, { default: () => `${Math.ceil(mainlineNode.ply / 2)}. ` }))
+    elements.push(
+      h(
+        NText,
+        { depth: 3, class: 'move-number' },
+        { default: () => `${Math.ceil(mainlineNode.ply / 2)}. ` },
+      ),
+    )
   }
 
   elements.push(
@@ -73,7 +72,7 @@ const PgnRenderer: FunctionalComponent<{ nodes: PgnNode[]; pathPrefix?: string }
         class: { 'pgn-move': true, current: isCurrent },
         onClick: () => handlePgnMoveClick(mainlineNode),
       },
-      { default: () => mainlineNode.san }
+      { default: () => mainlineNode.san },
     ),
   )
 
@@ -107,24 +106,31 @@ const PgnRenderer: FunctionalComponent<{ nodes: PgnNode[]; pathPrefix?: string }
         <!-- Navigation -->
         <n-button-group class="nav-group">
           <n-button secondary @click="boardStore.navigatePgn('start')">
-            <template #icon><n-icon>
-                <PlaySkipBackOutline />
-              </n-icon></template>
+            <template #icon
+              ><n-icon>
+                <PlaySkipBackOutline /> </n-icon
+            ></template>
           </n-button>
-          <n-button secondary @click="boardStore.navigatePgn('backward', analysisStore.playerColor)">
-            <template #icon><n-icon>
-                <ChevronBackOutline />
-              </n-icon></template>
+          <n-button
+            secondary
+            @click="boardStore.navigatePgn('backward', analysisStore.playerColor)"
+          >
+            <template #icon
+              ><n-icon>
+                <ChevronBackOutline /> </n-icon
+            ></template>
           </n-button>
           <n-button secondary @click="boardStore.navigatePgn('forward', analysisStore.playerColor)">
-            <template #icon><n-icon>
-                <ChevronForwardOutline />
-              </n-icon></template>
+            <template #icon
+              ><n-icon>
+                <ChevronForwardOutline /> </n-icon
+            ></template>
           </n-button>
           <n-button secondary @click="boardStore.navigatePgn('end')">
-            <template #icon><n-icon>
-                <PlaySkipForwardOutline />
-              </n-icon></template>
+            <template #icon
+              ><n-icon>
+                <PlaySkipForwardOutline /> </n-icon
+            ></template>
           </n-button>
         </n-button-group>
 

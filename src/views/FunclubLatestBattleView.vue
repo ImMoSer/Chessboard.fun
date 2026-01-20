@@ -47,9 +47,7 @@ watch(() => route.params.lang, loadDataForLanguage)
     <div v-if="isLoading" class="status-message">
       {{ t('common.loading') }}
     </div>
-    <div v-else-if="error" class="status-message error">
-      {{ t('common.error') }}: {{ error }}
-    </div>
+    <div v-else-if="error" class="status-message error">{{ t('common.error') }}: {{ error }}</div>
     <LatestBattleReport v-else-if="report" :report="report" />
   </div>
 </template>

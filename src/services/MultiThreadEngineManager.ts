@@ -1,5 +1,9 @@
 // src/services/MultiThreadEngineManager.ts
-import { loadMultiThreadEngine, type EngineController, type EngineProfile } from '../utils/engine.loader'
+import {
+  loadMultiThreadEngine,
+  type EngineController,
+  type EngineProfile,
+} from '../utils/engine.loader'
 import logger from '../utils/logger'
 
 // --- Интерфейсы для анализа ---
@@ -89,7 +93,11 @@ class MultiThreadEngineManagerController {
 
   private sendCommand(command: string): void {
     if (!this.engine) return
-    if (!this.isReady && !['uci', 'isready'].includes(command) && !command.startsWith('setoption')) {
+    if (
+      !this.isReady &&
+      !['uci', 'isready'].includes(command) &&
+      !command.startsWith('setoption')
+    ) {
       this.commandQueue.push(command)
       return
     }
@@ -206,7 +214,7 @@ class MultiThreadEngineManagerController {
     // navigator.hardwareConcurrency возвращает общее количество логических процессоров.
     // Обычно рекомендуется использовать на 1-2 меньше для отзывчивости интерфейса,
     // но Stockfish эффективно масштабируется.
-    return Math.max(1, (navigator.hardwareConcurrency || 4))
+    return Math.max(1, navigator.hardwareConcurrency || 4)
   }
 
   public async setProfile(profile: EngineProfile): Promise<void> {

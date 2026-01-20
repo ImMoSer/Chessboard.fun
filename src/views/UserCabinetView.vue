@@ -43,7 +43,11 @@ onMounted(() => {
     </n-alert>
 
     <div v-else-if="!isAuthenticated || !userProfile" class="login-prompt">
-      <n-result status="403" :title="t('userCabinet.title')" :description="t('userCabinet.loginPrompt')">
+      <n-result
+        status="403"
+        :title="t('userCabinet.title')"
+        :description="t('userCabinet.loginPrompt')"
+      >
         <template #footer>
           <n-button type="primary" size="large" @click="authStore.login()">
             {{ t('nav.loginWithLichess') }}
@@ -60,23 +64,39 @@ onMounted(() => {
 
         <div class="charts-grid">
           <!-- Tornado Stats Section -->
-          <ThemeRoseChart v-if="detailedStats && detailedStats.tornado" v-model:activeMode="selectedTornadoMode"
-            :modes="['bullet', 'blitz', 'rapid', 'classic']" :themes="currentTornadoThemes"
-            :title="t('userCabinet.stats.modes.tornado')" />
+          <ThemeRoseChart
+            v-if="detailedStats && detailedStats.tornado"
+            v-model:activeMode="selectedTornadoMode"
+            :modes="['bullet', 'blitz', 'rapid', 'classic']"
+            :themes="currentTornadoThemes"
+            :title="t('userCabinet.stats.modes.tornado')"
+          />
 
-          <ThemeRoseChart v-if="detailedStats && detailedStats.advantage" :themes="detailedStats.advantage.themes"
-            :title="t('userCabinet.stats.modes.advantage')" />
+          <ThemeRoseChart
+            v-if="detailedStats && detailedStats.advantage"
+            :themes="detailedStats.advantage.themes"
+            :title="t('userCabinet.stats.modes.advantage')"
+          />
         </div>
 
         <div class="charts-grid">
-          <TheoryStackbarChart v-if="detailedStats && detailedStats.advantage" :stats="detailedStats.advantage.stats"
-            mode="advantage" />
+          <TheoryStackbarChart
+            v-if="detailedStats && detailedStats.advantage"
+            :stats="detailedStats.advantage.stats"
+            mode="advantage"
+          />
 
-          <TheoryStackbarChart v-if="detailedStats && detailedStats.theory" :stats="detailedStats.theory.stats"
-            mode="theory" />
+          <TheoryStackbarChart
+            v-if="detailedStats && detailedStats.theory"
+            :stats="detailedStats.theory.stats"
+            mode="theory"
+          />
 
-          <TheoryStackbarChart v-if="detailedStats && detailedStats.practical" :stats="detailedStats.practical.stats"
-            mode="practical" />
+          <TheoryStackbarChart
+            v-if="detailedStats && detailedStats.practical"
+            :stats="detailedStats.practical.stats"
+            mode="practical"
+          />
         </div>
       </n-space>
     </div>

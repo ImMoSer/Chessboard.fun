@@ -44,27 +44,37 @@ const playerColumns: DataTableColumns<TournamentPlayer> = [
     render(row) {
       const elements = []
       if (row.isScoringPlayer) {
-        elements.push(h('img', {
-          src: '/flair/objects.crown.webp',
-          style: { width: '18px', marginRight: '8px', verticalAlign: 'middle' },
-          alt: 'Crown'
-        }))
+        elements.push(
+          h('img', {
+            src: '/flair/objects.crown.webp',
+            style: { width: '18px', marginRight: '8px', verticalAlign: 'middle' },
+            alt: 'Crown',
+          }),
+        )
       }
-      elements.push(h('a', {
-        href: `https://lichess.org/@/${row.lichess_id}`,
-        target: '_blank',
-        style: { color: 'var(--color-text-link)', textDecoration: 'none' }
-      }, row.username))
+      elements.push(
+        h(
+          'a',
+          {
+            href: `https://lichess.org/@/${row.lichess_id}`,
+            target: '_blank',
+            style: { color: 'var(--color-text-link)', textDecoration: 'none' },
+          },
+          row.username,
+        ),
+      )
 
       if (row.flair) {
-        elements.push(h('img', {
-          src: `https://lichess1.org/assets/flair/img/${row.flair}.webp`,
-          style: { height: '14px', marginLeft: '6px', verticalAlign: 'middle' },
-          alt: 'Flair'
-        }))
+        elements.push(
+          h('img', {
+            src: `https://lichess1.org/assets/flair/img/${row.flair}.webp`,
+            style: { height: '14px', marginLeft: '6px', verticalAlign: 'middle' },
+            alt: 'Flair',
+          }),
+        )
       }
       return elements
-    }
+    },
   },
   {
     title: t('clubPage.table.score'),
@@ -72,7 +82,7 @@ const playerColumns: DataTableColumns<TournamentPlayer> = [
     align: 'right',
     render(row) {
       return h('span', { style: { fontWeight: 'bold' } }, row.calculatedStats.pointsTotal)
-    }
+    },
   },
   {
     title: 'W/D/L',
@@ -80,17 +90,26 @@ const playerColumns: DataTableColumns<TournamentPlayer> = [
     align: 'center',
     render(row) {
       return h('div', [
-        h('span', { style: { color: 'var(--color-accent-success)', fontWeight: 'bold' } }, row.calculatedStats.wins),
+        h(
+          'span',
+          { style: { color: 'var(--color-accent-success)', fontWeight: 'bold' } },
+          row.calculatedStats.wins,
+        ),
         ' / ',
         h('span', { style: { color: 'var(--color-text-muted)' } }, row.calculatedStats.draws),
         ' / ',
-        h('span', { style: { color: 'var(--color-accent-error)' } }, row.calculatedStats.losses)
+        h('span', { style: { color: 'var(--color-accent-error)' } }, row.calculatedStats.losses),
       ])
-    }
+    },
   },
   { title: t('clubPage.table.performance'), key: 'performance', align: 'right' },
-  { title: '🚀', key: 'berserk', align: 'center', render: (row) => row.calculatedStats.berserkWins },
-  { title: t('clubPage.table.arenaRank'), key: 'rank_in_arena', align: 'right' }
+  {
+    title: '🚀',
+    key: 'berserk',
+    align: 'center',
+    render: (row) => row.calculatedStats.berserkWins,
+  },
+  { title: t('clubPage.table.arenaRank'), key: 'rank_in_arena', align: 'right' },
 ]
 
 // --- Колонки основной таблицы ---
@@ -98,30 +117,23 @@ const columns: DataTableColumns<TeamBattlePlayedArena> = [
   {
     type: 'expand',
     renderExpand: (row) => {
-      return h(
-        'div',
-        { style: { padding: '16px', backgroundColor: 'var(--color-bg-primary)' } },
-        [
-          h(
-            NDataTable,
-            {
-              size: 'small',
-              columns: playerColumns,
-              data: row.players_in_arena,
-              rowKey: (r: TournamentPlayer) => r.lichess_id,
-              striped: true,
-            }
-          )
-        ]
-      )
-    }
+      return h('div', { style: { padding: '16px', backgroundColor: 'var(--color-bg-primary)' } }, [
+        h(NDataTable, {
+          size: 'small',
+          columns: playerColumns,
+          data: row.players_in_arena,
+          rowKey: (r: TournamentPlayer) => r.lichess_id,
+          striped: true,
+        }),
+      ])
+    },
   },
   {
     title: t('clubPage.table.date'),
     key: 'startsAt',
     render(row) {
       return formatDateForUser(row.startsAt)
-    }
+    },
   },
   {
     title: t('clubPage.table.tournamentName'),
@@ -133,11 +145,11 @@ const columns: DataTableColumns<TeamBattlePlayedArena> = [
           href: row.tournament_url,
           target: '_blank',
           style: { color: 'var(--color-text-link)', textDecoration: 'none' },
-          onClick: (e) => e.stopPropagation() // Чтобы клик по ссылке не закрывал строку
+          onClick: (e) => e.stopPropagation(), // Чтобы клик по ссылке не закрывал строку
         },
-        row.tournament_name.replace(/ Team Battle$/, '')
+        row.tournament_name.replace(/ Team Battle$/, ''),
       )
-    }
+    },
   },
   {
     title: t('clubPage.table.clubRank'),
@@ -145,7 +157,7 @@ const columns: DataTableColumns<TeamBattlePlayedArena> = [
     align: 'right',
     render(row) {
       return row.club_in_arena_rank || '-'
-    }
+    },
   },
   {
     title: t('clubPage.table.clubScore'),
@@ -153,8 +165,8 @@ const columns: DataTableColumns<TeamBattlePlayedArena> = [
     align: 'right',
     render(row) {
       return calculateTeamScore(row)
-    }
-  }
+    },
+  },
 ]
 
 // Обработчик клика по строке
@@ -169,7 +181,7 @@ const rowProps = (row: TeamBattlePlayedArena) => {
       } else {
         expandedRowKeys.value.push(key)
       }
-    }
+    },
   }
 }
 </script>
@@ -179,8 +191,15 @@ const rowProps = (row: TeamBattlePlayedArena) => {
     <div class="card-header">
       <n-h3 class="card-title">{{ t('clubPage.tournamentHistoryTitle') }}</n-h3>
     </div>
-    <n-data-table v-model:expanded-row-keys="expandedRowKeys" :columns="columns" :data="tournaments"
-      :row-key="(row: TeamBattlePlayedArena) => row.arena_id" :row-props="rowProps" striped class="history-table" />
+    <n-data-table
+      v-model:expanded-row-keys="expandedRowKeys"
+      :columns="columns"
+      :data="tournaments"
+      :row-key="(row: TeamBattlePlayedArena) => row.arena_id"
+      :row-props="rowProps"
+      striped
+      class="history-table"
+    />
   </div>
 </template>
 
@@ -220,7 +239,6 @@ const rowProps = (row: TeamBattlePlayedArena) => {
 }
 
 @media (max-width: 768px) {
-
   :deep(.n-data-table-td),
   :deep(.n-data-table-th) {
     font-size: var(--font-size-xsmall);

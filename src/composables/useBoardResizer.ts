@@ -56,8 +56,8 @@ export function useBoardResizer(
   }
 
   onUnmounted(() => {
-    window.removeEventListener('mousemove', () => { })
-    window.removeEventListener('mouseup', () => { })
+    window.removeEventListener('mousemove', () => {})
+    window.removeEventListener('mouseup', () => {})
   })
 
   return {
@@ -66,4 +66,3 @@ export function useBoardResizer(
     startResize,
   }
 }
-

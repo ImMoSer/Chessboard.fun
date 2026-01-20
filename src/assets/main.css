@@ -36,16 +36,16 @@ body {
   /* --- Accents & Palette --- */
   /* Оставляем ваш синий, он отлично сочетается с нейтральным фоном Naive.
      Дефолтный зеленый Naive (#63e2b7) можно поставить, если захотите сменить бренд-цвет. */
-  --color-blue-base: #13ADF6;
-  --color-blue-dark: #0B8ACB;
+  --color-blue-base: #13adf6;
+  --color-blue-dark: #0b8acb;
 
   /* Акценты */
   --color-accent-primary: var(--color-blue-base);
   --color-accent-primary-hover: var(--color-blue-dark);
 
   /* Розовый */
-  --color-accent-secondary: #FF0496;
-  --color-accent-secondary-hover: #D1047F;
+  --color-accent-secondary: #ff0496;
+  --color-accent-secondary-hover: #d1047f;
 
   /* Статусные цвета (подогнаны под яркость темной темы Naive) */
   --color-accent-success: #63e2b7; /* Naive UI Green */
@@ -59,12 +59,12 @@ body {
 
   --color-accent-info: var(--color-accent-primary);
   --color-accent-special: var(--color-accent-secondary);
-  --color-violett-lichess: #B72FC6;
+  --color-violett-lichess: #b72fc6;
 
   /* --- Text Colors (Naive UI Transparency System) --- */
   /* Naive использует белый цвет с альфа-каналом для иерархии */
   --color-text-default: rgba(255, 255, 255, 0.82); /* Base text */
-  --color-text-muted: rgba(255, 255, 255, 0.52);   /* Secondary text */
+  --color-text-muted: rgba(255, 255, 255, 0.52); /* Secondary text */
   --color-text-on-accent: #000000; /* На ярких акцентах Naive часто использует черный текст */
   --color-text-error: #e88080;
   --color-text-dark: #101014;
@@ -77,13 +77,13 @@ body {
   /* Эти цвета идеально ложатся на холодный фон Naive UI */
 
   /* 1. Mainline */
-  --color-pgn_mainline: #29B6F6;
+  --color-pgn_mainline: #29b6f6;
 
   /* 2. Secondline */
-  --color-pgn_secondline: #7E57C2;
+  --color-pgn_secondline: #7e57c2;
 
   /* 3. Thirdline */
-  --color-pgn_thirdline: #78909C;
+  --color-pgn_thirdline: #78909c;
 
   /* 4. Fourthline */
   --color-pgn_fourthline: #616161;
@@ -95,7 +95,7 @@ body {
   --font-size-pgn_fourthline: 0.85rem;
 
   /* --- Typography --- */
-  --font-family-primary: "Neucha", cursive;
+  --font-family-primary: 'Neucha', cursive;
   --font-weight-normal: 400;
   --font-weight-bold: 600;
   --font-style-normal: normal;
@@ -104,7 +104,7 @@ body {
   --font-size-hxsmall: 0.4rem;
   --font-size-xsmall: 0.6rem;
   --font-size-small: 0.8rem;
-  --font-size-base: 1.0rem;
+  --font-size-base: 1rem;
   --font-size-large: 1.2rem;
   --font-size-xlarge: 1.6rem;
   --font-size-xxlarge: 2.2rem;

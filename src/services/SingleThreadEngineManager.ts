@@ -1,5 +1,9 @@
 // src/services/SingleThreadEngineManager.ts
-import { loadSingleThreadEngine, type EngineController, type EngineProfile } from '../utils/engine.loader'
+import {
+  loadSingleThreadEngine,
+  type EngineController,
+  type EngineProfile,
+} from '../utils/engine.loader'
 import logger from '../utils/logger'
 
 // --- Интерфейсы ---
@@ -97,7 +101,11 @@ class SingleThreadEngineManagerController {
 
   private sendCommand(command: string): void {
     if (!this.engine) return
-    if (!this.isReady && !['uci', 'isready'].includes(command) && !command.startsWith('setoption')) {
+    if (
+      !this.isReady &&
+      !['uci', 'isready'].includes(command) &&
+      !command.startsWith('setoption')
+    ) {
       this.commandQueue.push(command)
       return
     }
@@ -226,8 +234,9 @@ class SingleThreadEngineManagerController {
 
       this.sendCommand('ucinewgame')
       this.sendCommand(`position fen ${fen}`)
-      const goCommand = `go ${options.depth ? `depth ${options.depth}` : ''} ${options.movetime ? `movetime ${options.movetime}` : ''
-        }`.trim()
+      const goCommand = `go ${options.depth ? `depth ${options.depth}` : ''} ${
+        options.movetime ? `movetime ${options.movetime}` : ''
+      }`.trim()
       this.sendCommand(goCommand || 'go depth 10')
     })
   }
@@ -243,7 +252,9 @@ class SingleThreadEngineManagerController {
   public async startAnalysis(fen: string, callback: AnalysisUpdateCallback): Promise<void> {
     await this.ensureReady()
     if (this.pendingRequest) {
-      logger.warn(`[SingleThreadEngineManager] Cannot start analysis while a getBestMove request is pending.`)
+      logger.warn(
+        `[SingleThreadEngineManager] Cannot start analysis while a getBestMove request is pending.`,
+      )
       return
     }
     this.infiniteAnalysisCallback = callback

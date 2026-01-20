@@ -1,19 +1,25 @@
 <!-- src/components/recordsPage/TimedModeLeaderboardTable.vue -->
 <script setup lang="ts">
-import type { AdvantageLeaderboardEntry, TornadoLeaderboardEntry, TornadoMode } from '@/types/api.types'
+import type {
+  AdvantageLeaderboardEntry,
+  TornadoLeaderboardEntry,
+  TornadoMode,
+} from '@/types/api.types'
 import type { DataTableColumns } from 'naive-ui'
 import { computed, h, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
 import InfoIcon from '../InfoIcon.vue'
 
-type TimedLeaderboards = { [key in TornadoMode]?: (TornadoLeaderboardEntry | AdvantageLeaderboardEntry)[] }
+type TimedLeaderboards = {
+  [key in TornadoMode]?: (TornadoLeaderboardEntry | AdvantageLeaderboardEntry)[]
+}
 
 const props = defineProps({
   title: { type: String, required: true },
   data: { type: Object as PropType<TimedLeaderboards>, required: true },
   colorClass: { type: String, required: true },
   infoTopic: { type: String, required: false },
-  mode: { type: String as PropType<'tornado' | 'advantage'>, required: true }
+  mode: { type: String as PropType<'tornado' | 'advantage'>, required: true },
 })
 
 const { t } = useI18n()
@@ -26,7 +32,12 @@ const MODE_DEFINITIONS: { id: TornadoMode; name: string; color: string; icon: st
 ]
 
 const tierToPieceMap: Record<string, string> = {
-  Pawn: 'wP.svg', Knight: 'wN.svg', Bishop: 'wB.svg', Rook: 'wR.svg', Queen: 'wQ.svg', King: 'wK.svg',
+  Pawn: 'wP.svg',
+  Knight: 'wN.svg',
+  Bishop: 'wB.svg',
+  Rook: 'wR.svg',
+  Queen: 'wQ.svg',
+  King: 'wK.svg',
 }
 
 const getSubscriptionIcon = (tier?: string) => {
@@ -34,38 +45,51 @@ const getSubscriptionIcon = (tier?: string) => {
   return `/piece/alpha/${tierToPieceMap[tier]}`
 }
 
-const columns = computed<DataTableColumns<TornadoLeaderboardEntry | AdvantageLeaderboardEntry>>(() => [
-  { title: t('records.table.rank'), key: 'rank', align: 'center', width: 45 },
-  {
-    title: t('records.table.player'),
-    key: 'username',
-    minWidth: 160,
-    ellipsis: { tooltip: true },
-    render(row) {
-      const icon = getSubscriptionIcon(row.subscriptionTier)
-      return h('div', { style: { display: 'flex', alignItems: 'center' } }, [
-        icon ? h('img', { src: icon, style: { height: '22px', marginRight: '6px' } }) : null,
-        h('n-a', {
-          href: `https://lichess.org/@/${row.lichess_id}`,
-          target: '_blank',
-          style: { fontWeight: 'bold' }
-        }, row.username)
-      ])
-    }
-  },
-  {
-    title: props.mode === 'tornado' ? t('tornado.leaderboard.highScore') : t('records.table.score'),
-    key: props.mode === 'tornado' ? 'highScore' : 'score',
-    align: 'right',
-    render(row) {
-      const val = props.mode === 'tornado'
-        ? (row as TornadoLeaderboardEntry).highScore
-        : (row as AdvantageLeaderboardEntry).score
-      return h('span', { class: 'mode-score-value' }, val)
-    }
-  },
-  { title: t('records.table.daysOld'), key: 'days_old', align: 'right', render: (row) => `${row.days_old}d` }
-])
+const columns = computed<DataTableColumns<TornadoLeaderboardEntry | AdvantageLeaderboardEntry>>(
+  () => [
+    { title: t('records.table.rank'), key: 'rank', align: 'center', width: 45 },
+    {
+      title: t('records.table.player'),
+      key: 'username',
+      minWidth: 160,
+      ellipsis: { tooltip: true },
+      render(row) {
+        const icon = getSubscriptionIcon(row.subscriptionTier)
+        return h('div', { style: { display: 'flex', alignItems: 'center' } }, [
+          icon ? h('img', { src: icon, style: { height: '22px', marginRight: '6px' } }) : null,
+          h(
+            'n-a',
+            {
+              href: `https://lichess.org/@/${row.lichess_id}`,
+              target: '_blank',
+              style: { fontWeight: 'bold' },
+            },
+            row.username,
+          ),
+        ])
+      },
+    },
+    {
+      title:
+        props.mode === 'tornado' ? t('tornado.leaderboard.highScore') : t('records.table.score'),
+      key: props.mode === 'tornado' ? 'highScore' : 'score',
+      align: 'right',
+      render(row) {
+        const val =
+          props.mode === 'tornado'
+            ? (row as TornadoLeaderboardEntry).highScore
+            : (row as AdvantageLeaderboardEntry).score
+        return h('span', { class: 'mode-score-value' }, val)
+      },
+    },
+    {
+      title: t('records.table.daysOld'),
+      key: 'days_old',
+      align: 'right',
+      render: (row) => `${row.days_old}d`,
+    },
+  ],
+)
 </script>
 
 <template>
@@ -87,8 +111,15 @@ const columns = computed<DataTableColumns<TornadoLeaderboardEntry | AdvantageLea
             </div>
           </template>
           <div class="mode-table-wrapper">
-            <n-data-table :columns="columns" :data="data[modeDef.id] || []" :row-key="(row: any) => row.lichess_id"
-              size="small" striped class="records-table" :max-height="400" />
+            <n-data-table
+              :columns="columns"
+              :data="data[modeDef.id] || []"
+              :row-key="(row: any) => row.lichess_id"
+              size="small"
+              striped
+              class="records-table"
+              :max-height="400"
+            />
           </div>
         </n-tab-pane>
       </n-tabs>

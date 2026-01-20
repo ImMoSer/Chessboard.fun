@@ -60,7 +60,10 @@ export const useRecordsStore = defineStore('records', () => {
         leaderboards.value.overallSkillLeaderboard = skillData
       }
     } catch (e: unknown) {
-      logger.error(`[RecordsStore] Error fetching overall skill leaderboard for period ${period}:`, e)
+      logger.error(
+        `[RecordsStore] Error fetching overall skill leaderboard for period ${period}:`,
+        e,
+      )
       error.value = e instanceof Error ? e.message : t('records.errors.dataLoadFailed')
     } finally {
       isSkillLeaderboardLoading.value = false

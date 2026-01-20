@@ -75,7 +75,9 @@ export function loadSingleThreadEngine(): Promise<EngineController> {
  * Возвращает null, если среда не поддерживает многопоточность (crossOriginIsolated = false).
  * @returns {Promise<EngineController | null>} Промис, который разрешается контроллером движка или null.
  */
-export function loadMultiThreadEngine(profile: EngineProfile = 'lite'): Promise<EngineController | null> {
+export function loadMultiThreadEngine(
+  profile: EngineProfile = 'lite',
+): Promise<EngineController | null> {
   const isCrossOriginIsolated = window.crossOriginIsolated
   if (!isCrossOriginIsolated) {
     logger.warn(`[EngineLoader] Multi-threaded engine not supported: crossOriginIsolated is false.`)
@@ -113,7 +115,9 @@ export function loadMultiThreadEngine(profile: EngineProfile = 'lite'): Promise<
                 // Проверка наличия файла
                 try {
                   const stat = FS.stat(filename)
-                  logger.info(`[EngineLoader] NNUE file verified in FS: ${filename}, size: ${stat.size}`)
+                  logger.info(
+                    `[EngineLoader] NNUE file verified in FS: ${filename}, size: ${stat.size}`,
+                  )
                 } catch {
                   logger.error(`[EngineLoader] NNUE file verification failed: ${filename}`)
                 }
@@ -124,18 +128,26 @@ export function loadMultiThreadEngine(profile: EngineProfile = 'lite'): Promise<
                 logger.warn('[EngineLoader] Emscripten FS not found on engine instance.')
               }
             } catch (nnueError) {
-              logger.error(`[EngineLoader] Failed to load/init NNUE network (${profile}):`, nnueError)
+              logger.error(
+                `[EngineLoader] Failed to load/init NNUE network (${profile}):`,
+                nnueError,
+              )
             }
           }
 
           resolve(engine as EngineController)
         } catch (error) {
-          logger.error('[EngineLoader] Error initializing multi-threaded Stockfish instance.', error)
+          logger.error(
+            '[EngineLoader] Error initializing multi-threaded Stockfish instance.',
+            error,
+          )
           reject(error)
         }
       } else {
         reject(
-          new Error('[EngineLoader] Stockfish factory function not found on window after script load.'),
+          new Error(
+            '[EngineLoader] Stockfish factory function not found on window after script load.',
+          ),
         )
       }
     }

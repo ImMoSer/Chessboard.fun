@@ -18,7 +18,6 @@ const availableEngines = computed(() => controlsStore.availableEngines)
 const selectedEngine = computed(() => controlsStore.selectedEngine)
 
 const engineNames: Record<EngineId, string> = {
-
   MOZER_2000: 'MoZeR 2200+',
   MOZER_1900: 'Maia 1900',
   maia_2200: 'Maia 2200',
@@ -72,14 +71,22 @@ onUnmounted(() => {
 
 <template>
   <div class="engine-selector" ref="dropdownRef" @click="handleEngineSelectorClick">
-    <button class="selector-toggle" :disabled="!isAuthenticated" :title="!isAuthenticated ? t('auth.requiredForAction') : t('engine.select')
-      ">
+    <button
+      class="selector-toggle"
+      :disabled="!isAuthenticated"
+      :title="!isAuthenticated ? t('auth.requiredForAction') : t('engine.select')"
+    >
       {{ engineNames[selectedEngine] }}
       <span class="selector-arrow" :class="{ 'is-open': isOpen }">▼</span>
     </button>
     <div v-if="isOpen && isAuthenticated" class="engine-dropdown">
-      <button v-for="engine in availableEngines" :key="engine" class="engine-item"
-        :class="{ active: engine === selectedEngine }" @click.stop="selectEngine(engine)">
+      <button
+        v-for="engine in availableEngines"
+        :key="engine"
+        class="engine-item"
+        :class="{ active: engine === selectedEngine }"
+        @click.stop="selectEngine(engine)"
+      >
         {{ engineNames[engine] }}
       </button>
     </div>
@@ -185,7 +192,6 @@ onUnmounted(() => {
 }
 
 @media (orientation: portrait) {
-
   .selector-toggle,
   .engine-item {
     padding: 5px 5px;

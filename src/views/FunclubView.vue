@@ -24,14 +24,8 @@ type ClubStatsTableColumn = {
 const funclubStore = useFunclubStore()
 const { t } = useI18n()
 
-const {
-  isLoading,
-  error,
-  clubMeta,
-  teamBattleReport,
-  periodOptions,
-  selectedPeriodIndex,
-} = storeToRefs(funclubStore)
+const { isLoading, error, clubMeta, teamBattleReport, periodOptions, selectedPeriodIndex } =
+  storeToRefs(funclubStore)
 
 const activeTab = ref<ClubPageTabId>('overview')
 const scrollPosition = ref(0)
@@ -131,9 +125,14 @@ onMounted(() => {
       <n-tabs v-model:value="activeTab" type="segment" animated class="club-tabs">
         <n-tab-pane name="overview" :tab="t('clubPage.tabs.overview')">
           <div class="tab-content">
-            <ClubStatsTable :title="t('clubPage.overview.title')" :players="teamBattleReport.players_summary"
-              :columns="overviewColumns" sort-key="vector" title-color-class="title-color-secondary"
-              info-topic="overview" />
+            <ClubStatsTable
+              :title="t('clubPage.overview.title')"
+              :players="teamBattleReport.players_summary"
+              :columns="overviewColumns"
+              sort-key="vector"
+              title-color-class="title-color-secondary"
+              info-topic="overview"
+            />
           </div>
         </n-tab-pane>
 
@@ -141,19 +140,34 @@ onMounted(() => {
           <div class="tab-content">
             <n-grid x-gap="20" y-gap="20" cols="1 m:3" responsive="screen">
               <n-grid-item>
-                <ClubStatsTable :title="t('clubPage.mostValuablePlayersTitle')"
-                  :players="teamBattleReport.players_summary" :columns="mvpColumns" sort-key="total_score"
-                  title-color-class="title-color-primary" info-topic="mostValuablePlayers" />
+                <ClubStatsTable
+                  :title="t('clubPage.mostValuablePlayersTitle')"
+                  :players="teamBattleReport.players_summary"
+                  :columns="mvpColumns"
+                  sort-key="total_score"
+                  title-color-class="title-color-primary"
+                  info-topic="mostValuablePlayers"
+                />
               </n-grid-item>
               <n-grid-item>
-                <ClubStatsTable :title="t('clubPage.mostActivePlayersTitle')"
-                  :players="teamBattleReport.players_summary" :columns="activeColumns" sort-key="tournaments_played"
-                  title-color-class="title-color-violet" info-topic="mostActivePlayers" />
+                <ClubStatsTable
+                  :title="t('clubPage.mostActivePlayersTitle')"
+                  :players="teamBattleReport.players_summary"
+                  :columns="activeColumns"
+                  sort-key="tournaments_played"
+                  title-color-class="title-color-violet"
+                  info-topic="mostActivePlayers"
+                />
               </n-grid-item>
               <n-grid-item>
-                <ClubStatsTable :title="t('clubPage.mostGamesPlayedTitle')"
-                  :players="teamBattleReport.players_summary" :columns="gamesColumns" sort-key="total_games_played"
-                  title-color-class="title-color-primary" info-topic="mostGamesPlayed" />
+                <ClubStatsTable
+                  :title="t('clubPage.mostGamesPlayedTitle')"
+                  :players="teamBattleReport.players_summary"
+                  :columns="gamesColumns"
+                  sort-key="total_games_played"
+                  title-color-class="title-color-primary"
+                  info-topic="mostGamesPlayed"
+                />
               </n-grid-item>
             </n-grid>
           </div>
@@ -163,15 +177,24 @@ onMounted(() => {
           <div class="tab-content">
             <n-grid x-gap="20" y-gap="20" cols="1 m:2" responsive="screen">
               <n-grid-item>
-                <ClubStatsTable :title="t('clubPage.berserkKingsTitle')" :players="teamBattleReport.players_summary"
-                  :columns="berserkersColumns" sort-key="total_berserk_wins" title-color-class="title-color-primary"
-                  info-topic="berserkKings" />
+                <ClubStatsTable
+                  :title="t('clubPage.berserkKingsTitle')"
+                  :players="teamBattleReport.players_summary"
+                  :columns="berserkersColumns"
+                  sort-key="total_berserk_wins"
+                  title-color-class="title-color-primary"
+                  info-topic="berserkKings"
+                />
               </n-grid-item>
               <n-grid-item>
-                <ClubStatsTable :title="t('clubPage.winStreakMastersTitle')"
-                  :players="teamBattleReport.players_summary" :columns="winStreaksColumns"
-                  sort-key="max_longest_win_streak_ever" title-color-class="title-color-primary"
-                  info-topic="winStreakMasters" />
+                <ClubStatsTable
+                  :title="t('clubPage.winStreakMastersTitle')"
+                  :players="teamBattleReport.players_summary"
+                  :columns="winStreaksColumns"
+                  sort-key="max_longest_win_streak_ever"
+                  title-color-class="title-color-primary"
+                  info-topic="winStreakMasters"
+                />
               </n-grid-item>
             </n-grid>
           </div>

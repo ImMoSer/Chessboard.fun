@@ -11,7 +11,6 @@ const { t } = useI18n()
 const authStore = useAuthStore()
 const { userProfile } = storeToRefs(authStore)
 
-
 const tierToPieceMap: Record<string, string> = {
   Pawn: 'wP.svg',
   Knight: 'wN.svg',
@@ -69,8 +68,13 @@ const tornadoScores = computed(() => {
       <div class="profile-basic-info">
         <div class="avatar-container">
           <!-- KEEP CLEAR: No elements should be placed directly under the avatar -->
-          <n-avatar round :size="150" :src="avatarUrl"
-            fallback-src="https://lichess1.org/assets/images/avatar_default.png" class="user-avatar" />
+          <n-avatar
+            round
+            :size="150"
+            :src="avatarUrl"
+            fallback-src="https://lichess1.org/assets/images/avatar_default.png"
+            class="user-avatar"
+          />
         </div>
 
         <div class="user-main-info">
@@ -85,7 +89,10 @@ const tornadoScores = computed(() => {
           </n-space>
 
           <div class="funcoins-stat">
-            <n-statistic :label="t('userCabinet.stats.funcoinsLabel')" :value="userProfile.FunCoins">
+            <n-statistic
+              :label="t('userCabinet.stats.funcoinsLabel')"
+              :value="userProfile.FunCoins"
+            >
               <template #prefix>🪙</template>
             </n-statistic>
           </div>
@@ -98,7 +105,11 @@ const tornadoScores = computed(() => {
         <n-grid :cols="2" :x-gap="12" :y-gap="12">
           <n-grid-item v-for="stat in tornadoScores" :key="stat.mode">
             <div class="score-item" :style="{ borderColor: modeMeta[stat.mode].color }">
-              <n-icon :component="modeMeta[stat.mode].icon" :color="modeMeta[stat.mode].color" size="20" />
+              <n-icon
+                :component="modeMeta[stat.mode].icon"
+                :color="modeMeta[stat.mode].color"
+                size="20"
+              />
               <div class="score-details">
                 <div class="mode-name">{{ stat.mode }}</div>
                 <div class="mode-score">{{ stat.score }}</div>
@@ -124,7 +135,6 @@ const tornadoScores = computed(() => {
   gap: 48px;
 }
 
-
 .profile-basic-info {
   display: flex;
   align-items: flex-start;
@@ -132,7 +142,6 @@ const tornadoScores = computed(() => {
 }
 
 .avatar-container {
-
   padding: 10px;
   border-radius: 20%;
   border: 1px solid var(--color-blue-base);

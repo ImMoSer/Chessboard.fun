@@ -1,6 +1,6 @@
 // src/services/cache.service.ts
 
-import logger from '../utils/logger';
+import logger from '../utils/logger'
 
 class CacheServiceController {
   /**
@@ -9,7 +9,7 @@ class CacheServiceController {
    */
   public get(): unknown {
     // Кэширование на стороне клиента полностью отключено.
-    return null;
+    return null
   }
 
   /**
@@ -25,12 +25,12 @@ class CacheServiceController {
    */
   public clear(key: string): void {
     try {
-      localStorage.removeItem(key);
-      logger.info(`[CacheService] Cleared item from localStorage for key: "${key}".`);
+      localStorage.removeItem(key)
+      logger.info(`[CacheService] Cleared item from localStorage for key: "${key}".`)
     } catch (error) {
-      logger.error(`[CacheService] Error clearing item for key "${key}":`, error);
+      logger.error(`[CacheService] Error clearing item for key "${key}":`, error)
     }
   }
 }
 
-export const CacheService = new CacheServiceController();
+export const CacheService = new CacheServiceController()

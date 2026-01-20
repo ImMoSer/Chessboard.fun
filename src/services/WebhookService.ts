@@ -27,7 +27,7 @@ import type {
   TornadoStartResponse,
   UpdateFinishHimStatsDto,
   UserProfileStatsDto,
-  UserTheoryEndingStatsDto
+  UserTheoryEndingStatsDto,
 } from '../types/api.types'
 import logger from '../utils/logger'
 
@@ -112,7 +112,10 @@ class WebhookServiceController {
       }
 
       const c = response.headers.get('content-type')
-      if (response.status === 204 || (response.status === 200 && (!c || !c.includes('application/json')))) {
+      if (
+        response.status === 204 ||
+        (response.status === 200 && (!c || !c.includes('application/json')))
+      ) {
         return { status: 'ok' } as unknown as TResponse
       }
 
@@ -197,9 +200,7 @@ class WebhookServiceController {
     return this._apiRequest<GamePuzzle>(path, 'GET', 'fetchAdvantagePuzzle')
   }
 
-  public async processAdvantageResult(
-    dto: AdvantageResultDto,
-  ): Promise<GameResultResponse | null> {
+  public async processAdvantageResult(dto: AdvantageResultDto): Promise<GameResultResponse | null> {
     return this._apiRequest<GameResultResponse>(
       '/advantage/result',
       'POST',
@@ -226,9 +227,7 @@ class WebhookServiceController {
     return this._apiRequest<TheoryEndingPuzzle>(path, 'GET', 'fetchTheoryPuzzle')
   }
 
-  public async processTheoryResult(
-    dto: TheoryEndingResultDto,
-  ): Promise<GameResultResponse | null> {
+  public async processTheoryResult(dto: TheoryEndingResultDto): Promise<GameResultResponse | null> {
     return this._apiRequest<GameResultResponse>(
       '/theory-endings/result',
       'POST',
@@ -254,10 +253,7 @@ class WebhookServiceController {
   // --- END THEORY ENDINGS API ---
 
   // --- PRACTICAL CHESS API ---
-  public async fetchPracticalPuzzle(
-    category: string,
-    difficulty: string,
-  ): Promise<any | null> {
+  public async fetchPracticalPuzzle(category: string, difficulty: string): Promise<any | null> {
     const path = `/practical-chess/${category}/puzzle?difficulty=${difficulty}`
     return this._apiRequest<any>(path, 'GET', 'fetchPracticalPuzzle')
   }
@@ -275,22 +271,14 @@ class WebhookServiceController {
   }
 
   public async fetchPracticalStats(): Promise<any | null> {
-    return this._apiRequest<any>(
-      '/practical-chess/stats',
-      'GET',
-      'fetchPracticalStats',
-    )
+    return this._apiRequest<any>('/practical-chess/stats', 'GET', 'fetchPracticalStats')
   }
 
-  public async fetchPracticalPuzzleById(
-    id: string,
-  ): Promise<any | null> {
+  public async fetchPracticalPuzzleById(id: string): Promise<any | null> {
     const path = `/practical-chess/puzzle/${id}`
     return this._apiRequest<any>(path, 'GET', 'fetchPracticalPuzzleById')
   }
   // --- END PRACTICAL CHESS API ---
-
-
 
   public async sendFinishHimStatsUpdate(
     dto: UpdateFinishHimStatsDto,
@@ -318,12 +306,13 @@ class WebhookServiceController {
       logger.info(`[WebhookService] sendFinishHimStatsUpdateBeacon status: ${status}`)
       return status
     } catch (e: unknown) {
-      logger.error('[WebhookService] sendFinishHimStatsUpdateBeacon failed:', e instanceof Error ? e.message : String(e))
+      logger.error(
+        '[WebhookService] sendFinishHimStatsUpdateBeacon failed:',
+        e instanceof Error ? e.message : String(e),
+      )
       return false
     }
   }
-
-
 
   public async fetchTacticalPuzzle(dto: GetTacticalPuzzleDto): Promise<GamePuzzle | null> {
     return this._apiRequest<GamePuzzle>(

@@ -7,7 +7,12 @@ import { makeSan } from 'chessops/san'
 import { parseSquare, makeUci, parseUci as parseUciMove } from 'chessops/util'
 import { chessgroundDests } from 'chessops/compat'
 import { isNormal } from 'chessops/types'
-import type { Key, Dests, Color as ChessgroundColor, Piece as ChessopsPiece } from '@lichess-org/chessground/types'
+import type {
+  Key,
+  Dests,
+  Color as ChessgroundColor,
+  Piece as ChessopsPiece,
+} from '@lichess-org/chessground/types'
 import type {
   Role as ChessopsRole,
   Color as ChessopsColor,
@@ -147,7 +152,9 @@ export const useBoardStore = defineStore('board', () => {
       lastMove.value = [uci.slice(0, 2) as Key, uci.slice(2, 4) as Key]
     }
 
-    logger.info(`[_applyUciMove] Move played. Adding to PGN. FenBefore: ${fenBefore}, FenAfter: ${fenAfter}`)
+    logger.info(
+      `[_applyUciMove] Move played. Adding to PGN. FenBefore: ${fenBefore}, FenAfter: ${fenAfter}`,
+    )
     const node = pgnService.addNode({ san, uci, fenBefore, fenAfter })
     if (!node) {
       logger.error(`[_applyUciMove] Failed to add node to PGN tree.`)
@@ -167,13 +174,7 @@ export const useBoardStore = defineStore('board', () => {
     _applyUciMove(uci)
   }
 
-  async function handleUserMove({
-    orig,
-    dest,
-  }: {
-    orig: Key
-    dest: Key
-  }): Promise<string | null> {
+  async function handleUserMove({ orig, dest }: { orig: Key; dest: Key }): Promise<string | null> {
     const fromSq = parseSquare(orig)
     const toSq = parseSquare(dest)
     if (fromSq === undefined || toSq === undefined) return null

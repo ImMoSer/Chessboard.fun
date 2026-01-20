@@ -4,9 +4,9 @@ import {
   ColorPaletteOutline,
   FilterOutline,
   PlayOutline,
-  ShuffleOutline
-} from '@vicons/ionicons5';
-import type { SelectOption } from 'naive-ui';
+  ShuffleOutline,
+} from '@vicons/ionicons5'
+import type { SelectOption } from 'naive-ui'
 import {
   NButton,
   NIcon,
@@ -17,55 +17,61 @@ import {
   NSlider,
   NSpace,
   NTag,
-  NText
-} from 'naive-ui';
-import { computed, onMounted, ref } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { openingGraphService } from '../../services/OpeningGraphService';
-import { useOpeningTrainingStore } from '../../stores/openingTraining.store';
-import EngineSelector from '../EngineSelector.vue';
+  NText,
+} from 'naive-ui'
+import { computed, onMounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { openingGraphService } from '../../services/OpeningGraphService'
+import { useOpeningTrainingStore } from '../../stores/openingTraining.store'
+import EngineSelector from '../EngineSelector.vue'
 
-const emit = defineEmits(['start', 'close']);
-const { t } = useI18n();
-const openingStore = useOpeningTrainingStore();
+const emit = defineEmits(['start', 'close'])
+const { t } = useI18n()
+const openingStore = useOpeningTrainingStore()
 
-const selectedColor = ref<'white' | 'black'>('white');
-const selectedOpening = ref<string | null>(null);
-const majorOpenings = ref<{ name: string, eco?: string, moves: string[], slug: string }[]>([]);
-
+const selectedColor = ref<'white' | 'black'>('white')
+const selectedOpening = ref<string | null>(null)
+const majorOpenings = ref<{ name: string; eco?: string; moves: string[]; slug: string }[]>([])
 
 const openingOptions = computed<SelectOption[]>(() => {
   const options: SelectOption[] = [
-    { label: t('openingTrainer.settings.startPosition'), value: 'start' }
-  ];
-  majorOpenings.value.forEach(op => {
+    { label: t('openingTrainer.settings.startPosition'), value: 'start' },
+  ]
+  majorOpenings.value.forEach((op) => {
     options.push({
       label: `${op.eco ? `[${op.eco}] ` : ''}${op.name}`,
-      value: op.slug
-    });
-  });
-  return options;
-});
+      value: op.slug,
+    })
+  })
+  return options
+})
 
 onMounted(async () => {
-  await openingGraphService.loadBook();
-  majorOpenings.value = openingGraphService.getMajorOpenings();
+  await openingGraphService.loadBook()
+  majorOpenings.value = openingGraphService.getMajorOpenings()
 
   // Init from store
-  selectedColor.value = openingStore.playerColor;
-});
+  selectedColor.value = openingStore.playerColor
+})
 
 function startSession() {
-  const op = majorOpenings.value.find(o => o.slug === selectedOpening.value);
-  const moves = op ? op.moves : [];
-  const slug = selectedOpening.value === 'start' ? undefined : selectedOpening.value;
-  emit('start', selectedColor.value, moves, slug || undefined);
+  const op = majorOpenings.value.find((o) => o.slug === selectedOpening.value)
+  const moves = op ? op.moves : []
+  const slug = selectedOpening.value === 'start' ? undefined : selectedOpening.value
+  emit('start', selectedColor.value, moves, slug || undefined)
 }
 </script>
 
 <template>
-  <n-modal :show="true" preset="card" :style="{ width: '560px', borderRadius: '16px' }" class="settings-modal"
-    :title="t('nav.openingTraining')" :bordered="false" @close="$emit('close')">
+  <n-modal
+    :show="true"
+    preset="card"
+    :style="{ width: '560px', borderRadius: '16px' }"
+    class="settings-modal"
+    :title="t('nav.openingTraining')"
+    :bordered="false"
+    @close="$emit('close')"
+  >
     <template #header-extra>
       <n-icon size="24" color="var(--color-accent)">
         <BookOutline />
@@ -101,7 +107,6 @@ function startSession() {
           </n-text>
         </div>
 
-
         <!-- 3. Opening Selection -->
         <div class="setting-section">
           <n-space align="center" :size="12" class="section-title">
@@ -110,8 +115,13 @@ function startSession() {
             </n-icon>
             <n-text strong>{{ t('openingTrainer.settings.selectOpening') }}</n-text>
           </n-space>
-          <n-select v-model:value="selectedOpening" :options="openingOptions" filterable placeholder="Search opening..."
-            size="large" />
+          <n-select
+            v-model:value="selectedOpening"
+            :options="openingOptions"
+            filterable
+            placeholder="Search opening..."
+            size="large"
+          />
         </div>
 
         <!-- 4. Variability -->
@@ -121,11 +131,15 @@ function startSession() {
               <n-icon>
                 <ShuffleOutline />
               </n-icon>
-              <n-text strong>{{ t('openingTrainer.settings.variability', {
-                value: openingStore.variability
-              }) }}</n-text>
+              <n-text strong>{{
+                t('openingTrainer.settings.variability', {
+                  value: openingStore.variability,
+                })
+              }}</n-text>
             </n-space>
-            <n-tag :bordered="false" type="info" size="small">{{ openingStore.variability }} / 7</n-tag>
+            <n-tag :bordered="false" type="info" size="small"
+              >{{ openingStore.variability }} / 7</n-tag
+            >
           </n-space>
           <n-slider v-model:value="openingStore.variability" :min="3" :max="7" :step="1" />
           <n-text depth="3" class="hint-text">
@@ -149,7 +163,15 @@ function startSession() {
     </div>
 
     <template #footer>
-      <n-button type="primary" size="large" block secondary strong class="start-btn" @click="startSession">
+      <n-button
+        type="primary"
+        size="large"
+        block
+        secondary
+        strong
+        class="start-btn"
+        @click="startSession"
+      >
         <template #icon>
           <n-icon>
             <PlayOutline />

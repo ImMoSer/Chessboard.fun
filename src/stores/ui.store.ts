@@ -76,7 +76,7 @@ export const useUiStore = defineStore('ui', () => {
     isModalVisible.value = false
     reset()
   }
-  
+
   function handleOverlayClick() {
     if (!isModalPersistent.value) {
       handleCancel()

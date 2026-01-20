@@ -62,13 +62,24 @@ onUnmounted(() => {
 
       <div class="center-column">
         <div class="board-aspect-wrapper">
-          <WebChessBoard :fen="boardStore.fen" :orientation="boardStore.orientation" :turn-color="boardStore.turn"
-            :dests="boardStore.dests" :last-move="boardStore.lastMove" :check="boardStore.isCheck"
-            :promotion-state="boardStore.promotionState" :drawable-shapes="boardStore.drawableShapes"
-            :is-analysis-mode="true" :animation-enabled="isAnimationEnabled"
-            :animation-duration="themeStore.currentTheme.animationDuration" @user-move="handleUserMove"
-            @check-premove="handleUserMove" @complete-promotion="boardStore.completePromotion"
-            @cancel-promotion="boardStore.cancelPromotion" @wheel-navigate="handleBoardWheel" />
+          <WebChessBoard
+            :fen="boardStore.fen"
+            :orientation="boardStore.orientation"
+            :turn-color="boardStore.turn"
+            :dests="boardStore.dests"
+            :last-move="boardStore.lastMove"
+            :check="boardStore.isCheck"
+            :promotion-state="boardStore.promotionState"
+            :drawable-shapes="boardStore.drawableShapes"
+            :is-analysis-mode="true"
+            :animation-enabled="isAnimationEnabled"
+            :animation-duration="themeStore.currentTheme.animationDuration"
+            @user-move="handleUserMove"
+            @check-premove="handleUserMove"
+            @complete-promotion="boardStore.completePromotion"
+            @cancel-promotion="boardStore.cancelPromotion"
+            @wheel-navigate="handleBoardWheel"
+          />
         </div>
       </div>
 

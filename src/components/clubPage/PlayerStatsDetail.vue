@@ -37,11 +37,14 @@ const formatDate = (dateString: string) => {
         <div v-if="player.medals_in_team.bronze.count > 0" class="medal-row">
           <template v-for="i in player.medals_in_team.bronze.count" :key="`b${i}`">🥉</template>
         </div>
-        <div v-if="
-          player.medals_in_team.gold.count === 0 &&
-          player.medals_in_team.silver.count === 0 &&
-          player.medals_in_team.bronze.count === 0
-        " class="no-medals">
+        <div
+          v-if="
+            player.medals_in_team.gold.count === 0 &&
+            player.medals_in_team.silver.count === 0 &&
+            player.medals_in_team.bronze.count === 0
+          "
+          class="no-medals"
+        >
           {{ t('common.notAvailable') }}
         </div>
       </div>

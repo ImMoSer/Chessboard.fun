@@ -11,10 +11,18 @@ const uiStore = useUiStore()
       <h3 class="modal-title">{{ uiStore.modalTitle }}</h3>
       <p class="modal-message">{{ uiStore.modalMessage }}</p>
       <div class="modal-actions">
-        <button v-if="uiStore.isExtraButtonVisible" class="button-extra" @click="uiStore.handleExtra">
+        <button
+          v-if="uiStore.isExtraButtonVisible"
+          class="button-extra"
+          @click="uiStore.handleExtra"
+        >
           {{ uiStore.modalExtraText }}
         </button>
-        <button v-if="uiStore.isCancelButtonVisible" class="button-cancel" @click="uiStore.handleCancel">
+        <button
+          v-if="uiStore.isCancelButtonVisible"
+          class="button-cancel"
+          @click="uiStore.handleCancel"
+        >
           {{ uiStore.modalCancelText }}
         </button>
         <button class="button-confirm" @click="uiStore.handleConfirm">

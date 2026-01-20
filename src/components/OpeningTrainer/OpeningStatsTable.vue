@@ -1,77 +1,82 @@
 <script setup lang="ts">
-import type { DataTableColumns } from 'naive-ui';
-import { NDataTable, NText } from 'naive-ui';
-import { computed, h } from 'vue';
-import { useI18n } from 'vue-i18n';
-import type { LichessMove } from '../../services/OpeningApiService';
-import { useBoardStore } from '../../stores/board.store';
+import type { DataTableColumns } from 'naive-ui'
+import { NDataTable, NText } from 'naive-ui'
+import { computed, h } from 'vue'
+import { useI18n } from 'vue-i18n'
+import type { LichessMove } from '../../services/OpeningApiService'
+import { useBoardStore } from '../../stores/board.store'
 
 const props = defineProps<{
-  moves: LichessMove[];
-  isReviewMode: boolean;
+  moves: LichessMove[]
+  isReviewMode: boolean
   // Current position stats
-  white?: number;
-  draws?: number;
-  black?: number;
-  avgElo?: number;
-  avgDraw?: number;
-  avgScore?: number;
-}>();
+  white?: number
+  draws?: number
+  black?: number
+  avgElo?: number
+  avgDraw?: number
+  avgScore?: number
+}>()
 
 const emit = defineEmits<{
   (e: 'select-move', uci: string): void
-}>();
+}>()
 
-const { t } = useI18n();
-const boardStore = useBoardStore();
+const { t } = useI18n()
+const boardStore = useBoardStore()
 
 const formatTotal = (total: number) => {
-  if (total >= 1000000) return (total / 1000000).toFixed(1) + 'M';
-  if (total >= 1000) return (total / 1000).toFixed(1) + 'K';
-  return total.toString();
-};
+  if (total >= 1000000) return (total / 1000000).toFixed(1) + 'M'
+  if (total >= 1000) return (total / 1000).toFixed(1) + 'K'
+  return total.toString()
+}
 
 const formatMove = (san: string) => {
-  const parts = boardStore.fen.split(' ');
-  const moveNumber = parts[5];
-  const turn = parts[1];
+  const parts = boardStore.fen.split(' ')
+  const moveNumber = parts[5]
+  const turn = parts[1]
   if (turn === 'w') {
-    return `${moveNumber}. ${san}`;
+    return `${moveNumber}. ${san}`
   } else {
-    return `${moveNumber}... ${san}`;
+    return `${moveNumber}... ${san}`
   }
-};
+}
 
 const summaryAvgScore = computed(() => {
-  if (props.avgScore !== undefined) return props.avgScore;
-  const total = (props.white || 0) + (props.draws || 0) + (props.black || 0);
-  if (total === 0) return 0;
-  return ((props.white || 0) + 0.5 * (props.draws || 0)) / total * 100;
-});
+  if (props.avgScore !== undefined) return props.avgScore
+  const total = (props.white || 0) + (props.draws || 0) + (props.black || 0)
+  if (total === 0) return 0
+  return (((props.white || 0) + 0.5 * (props.draws || 0)) / total) * 100
+})
 
 const summaryAvgDraw = computed(() => {
-  if (props.avgDraw !== undefined) return props.avgDraw;
-  const total = (props.white || 0) + (props.draws || 0) + (props.black || 0);
-  if (total === 0) return 0;
-  return (props.draws || 0) / total * 100;
-});
+  if (props.avgDraw !== undefined) return props.avgDraw
+  const total = (props.white || 0) + (props.draws || 0) + (props.black || 0)
+  if (total === 0) return 0
+  return ((props.draws || 0) / total) * 100
+})
 
 const summaryAvgElo = computed(() => {
-  if (props.avgElo !== undefined) return props.avgElo;
-  if (props.moves.length === 0) return 0;
-  const totalGames = props.moves.reduce((sum, m) => sum + m.white + m.draws + m.black, 0);
-  if (totalGames === 0) return 0;
-  const weightedRating = props.moves.reduce((sum, m) => sum + m.averageRating * (m.white + m.draws + m.black), 0);
-  return Math.round(weightedRating / totalGames);
-});
+  if (props.avgElo !== undefined) return props.avgElo
+  if (props.moves.length === 0) return 0
+  const totalGames = props.moves.reduce((sum, m) => sum + m.white + m.draws + m.black, 0)
+  if (totalGames === 0) return 0
+  const weightedRating = props.moves.reduce(
+    (sum, m) => sum + m.averageRating * (m.white + m.draws + m.black),
+    0,
+  )
+  return Math.round(weightedRating / totalGames)
+})
 
-const totalGamesCount = computed(() => (props.white || 0) + (props.draws || 0) + (props.black || 0) || 1);
-const whitePct = computed(() => ((props.white || 0) / totalGamesCount.value) * 100);
-const drawsPct = computed(() => ((props.draws || 0) / totalGamesCount.value) * 100);
-const blackPct = computed(() => ((props.black || 0) / totalGamesCount.value) * 100);
+const totalGamesCount = computed(
+  () => (props.white || 0) + (props.draws || 0) + (props.black || 0) || 1,
+)
+const whitePct = computed(() => ((props.white || 0) / totalGamesCount.value) * 100)
+const drawsPct = computed(() => ((props.draws || 0) / totalGamesCount.value) * 100)
+const blackPct = computed(() => ((props.black || 0) / totalGamesCount.value) * 100)
 
 const tableData = computed(() => {
-  const totalPosGames = (props.white || 0) + (props.draws || 0) + (props.black || 0) || 1;
+  const totalPosGames = (props.white || 0) + (props.draws || 0) + (props.black || 0) || 1
 
   const summaryRow = {
     key: 'summary',
@@ -84,15 +89,16 @@ const tableData = computed(() => {
     isSummary: true,
     white: props.white || 0,
     draws: props.draws || 0,
-    black: props.black || 0
-  };
+    black: props.black || 0,
+  }
 
-  const moveRows = props.moves.map(m => {
-    const total = m.white + m.draws + m.black || 1;
-    const score = boardStore.turn === 'white'
-      ? (m.white + m.draws * 0.5) / total * 100
-      : (m.black + m.draws * 0.5) / total * 100;
-    const drawPct = (m.draws / total) * 100;
+  const moveRows = props.moves.map((m) => {
+    const total = m.white + m.draws + m.black || 1
+    const score =
+      boardStore.turn === 'white'
+        ? ((m.white + m.draws * 0.5) / total) * 100
+        : ((m.black + m.draws * 0.5) / total) * 100
+    const drawPct = (m.draws / total) * 100
 
     return {
       key: m.uci,
@@ -105,39 +111,39 @@ const tableData = computed(() => {
       isSummary: false,
       white: m.white,
       draws: m.draws,
-      black: m.black
-    };
-  });
+      black: m.black,
+    }
+  })
 
-  return [summaryRow, ...moveRows];
-});
+  return [summaryRow, ...moveRows]
+})
 
 const rowProps = (row: any) => {
   if (row.isSummary) {
     return {
-      class: 'summary-row'
-    };
+      class: 'summary-row',
+    }
   }
   return {
     style: 'cursor: pointer;',
     onClick: () => {
-      emit('select-move', row.uci);
-    }
-  };
-};
+      emit('select-move', row.uci)
+    },
+  }
+}
 
 const renderWinrateBar = (white: number, draws: number, black: number) => {
-  const total = white + draws + black || 1;
-  const w = (white / total) * 100;
-  const d = (draws / total) * 100;
-  const b = (black / total) * 100;
+  const total = white + draws + black || 1
+  const w = (white / total) * 100
+  const d = (draws / total) * 100
+  const b = (black / total) * 100
 
   return h('div', { class: 'mini-winrate-bar' }, [
     h('div', { class: 'segment white', style: { width: `${w}%` } }),
     h('div', { class: 'segment draw', style: { width: `${d}%` } }),
-    h('div', { class: 'segment black', style: { width: `${b}%` } })
-  ]);
-};
+    h('div', { class: 'segment black', style: { width: `${b}%` } }),
+  ])
+}
 
 const columns = computed<DataTableColumns<any>>(() => [
   {
@@ -145,13 +151,9 @@ const columns = computed<DataTableColumns<any>>(() => [
     key: 'san',
     width: 90,
     render(row) {
-      if (row.isSummary) return null;
-      return h(
-        NText,
-        { strong: true, style: { fontSize: '0.8rem' } },
-        { default: () => row.san }
-      );
-    }
+      if (row.isSummary) return null
+      return h(NText, { strong: true, style: { fontSize: '0.8rem' } }, { default: () => row.san })
+    },
   },
   {
     title: 'N',
@@ -159,8 +161,8 @@ const columns = computed<DataTableColumns<any>>(() => [
     width: 60,
     align: 'right',
     render(row) {
-      return h('span', { style: { fontSize: '0.8rem' } }, formatTotal(row.n));
-    }
+      return h('span', { style: { fontSize: '0.8rem' } }, formatTotal(row.n))
+    },
   },
   {
     title: '%',
@@ -170,9 +172,9 @@ const columns = computed<DataTableColumns<any>>(() => [
     render(row) {
       return h('div', { class: 'score-cell' }, [
         h('span', { style: { fontSize: '0.8rem', fontWeight: 'bold' } }, row.score.toFixed(1)),
-        renderWinrateBar(row.white, row.draws, row.black)
-      ]);
-    }
+        renderWinrateBar(row.white, row.draws, row.black),
+      ])
+    },
   },
   {
     title: '=%',
@@ -180,8 +182,8 @@ const columns = computed<DataTableColumns<any>>(() => [
     width: 50,
     align: 'right',
     render(row) {
-      return h('span', { style: { fontSize: '0.8rem', opacity: 0.8 } }, row.drawPct.toFixed(1));
-    }
+      return h('span', { style: { fontSize: '0.8rem', opacity: 0.8 } }, row.drawPct.toFixed(1))
+    },
   },
   {
     title: 'Av',
@@ -189,15 +191,18 @@ const columns = computed<DataTableColumns<any>>(() => [
     width: 60,
     align: 'right',
     render(row) {
-      return h(NText, { depth: 3, style: { fontSize: '0.8rem' } }, { default: () => row.avgElo || '-' });
-    }
-  }
-]);
-
+      return h(
+        NText,
+        { depth: 3, style: { fontSize: '0.8rem' } },
+        { default: () => row.avgElo || '-' },
+      )
+    },
+  },
+])
 </script>
 
 <template>
-  <div class="stats-container" :class="{ 'blurred': !isReviewMode }">
+  <div class="stats-container" :class="{ blurred: !isReviewMode }">
     <div v-if="!isReviewMode" class="overlay">
       <n-text strong depth="1">{{ t('openingTrainer.stats.reviewModeOverlay') }}</n-text>
     </div>
@@ -216,8 +221,15 @@ const columns = computed<DataTableColumns<any>>(() => [
       </div>
     </div>
 
-    <n-data-table :columns="columns" :data="tableData" :pagination="false" :bordered="false" size="small"
-      class="stats-table" :row-props="rowProps" />
+    <n-data-table
+      :columns="columns"
+      :data="tableData"
+      :pagination="false"
+      :bordered="false"
+      size="small"
+      class="stats-table"
+      :row-props="rowProps"
+    />
   </div>
 </template>
 
@@ -232,7 +244,6 @@ const columns = computed<DataTableColumns<any>>(() => [
 }
 
 .blurred {
-
   .stats-table,
   .global-winrate {
     filter: blur(12px);

@@ -1,158 +1,201 @@
 <script setup lang="ts">
-import { CalendarOutline, HourglassOutline, ListOutline, SettingsOutline, TrophyOutline } from '@vicons/ionicons5';
-import { NButton, NButtonGroup, NCheckbox, NCheckboxGroup, NCollapseTransition, NGrid, NGridItem, NIcon, NSlider, NSpace, NText } from 'naive-ui';
-import { computed, onMounted, ref, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { openingApiService, type LichessMastersParams, type LichessOpeningResponse, type LichessParams, type OpeningDatabaseSource } from '../../services/OpeningApiService';
-import { pgnService, pgnTreeVersion } from '../../services/PgnService';
-import { useBoardStore } from '../../stores/board.store';
-import { useOpeningExamStore } from '../../stores/openingExam.store';
-import { useOpeningTrainingStore } from '../../stores/openingTraining.store';
-import OpeningStatsTable from './OpeningStatsTable.vue';
+import {
+  CalendarOutline,
+  HourglassOutline,
+  ListOutline,
+  SettingsOutline,
+  TrophyOutline,
+} from '@vicons/ionicons5'
+import {
+  NButton,
+  NButtonGroup,
+  NCheckbox,
+  NCheckboxGroup,
+  NCollapseTransition,
+  NGrid,
+  NGridItem,
+  NIcon,
+  NSlider,
+  NSpace,
+  NText,
+} from 'naive-ui'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
+import {
+  openingApiService,
+  type LichessMastersParams,
+  type LichessOpeningResponse,
+  type LichessParams,
+  type OpeningDatabaseSource,
+} from '../../services/OpeningApiService'
+import { pgnService, pgnTreeVersion } from '../../services/PgnService'
+import { useBoardStore } from '../../stores/board.store'
+import { useOpeningExamStore } from '../../stores/openingExam.store'
+import { useOpeningTrainingStore } from '../../stores/openingTraining.store'
+import OpeningStatsTable from './OpeningStatsTable.vue'
 
 const props = defineProps<{
-  mode: 'training' | 'exam' | 'study',
+  mode: 'training' | 'exam' | 'study'
   blurred?: boolean
-}>();
+}>()
 
-const { t } = useI18n();
-const boardStore = useBoardStore();
-const trainingStore = useOpeningTrainingStore();
-const examStore = useOpeningExamStore();
+const { t } = useI18n()
+const boardStore = useBoardStore()
+const trainingStore = useOpeningTrainingStore()
+const examStore = useOpeningExamStore()
 
-const showSettings = ref(false);
+const showSettings = ref(false)
 
 // Active store depends on mode
 const activeStore = computed(() => {
-  if (props.mode === 'training') return trainingStore;
-  if (props.mode === 'exam') return examStore;
-  return null;
-});
+  if (props.mode === 'training') return trainingStore
+  if (props.mode === 'exam') return examStore
+  return null
+})
 
 // Local state for Study mode
-const localStats = ref<LichessOpeningResponse | null>(null);
-const localLoading = ref(false);
-const localSource = ref<OpeningDatabaseSource>('lichess');
+const localStats = ref<LichessOpeningResponse | null>(null)
+const localLoading = ref(false)
+const localSource = ref<OpeningDatabaseSource>('lichess')
 const localLichessParams = ref({
   ratings: [1800, 2000, 2200, 2500],
-  speeds: ['blitz', 'rapid', 'classical']
-});
+  speeds: ['blitz', 'rapid', 'classical'],
+})
 const localMastersParams = ref({
   since: 1952,
   until: new Date().getFullYear(),
   moves: 12,
-  topGames: 10
-});
+  topGames: 10,
+})
 
 // Computed values that bridge Store vs Local
-const stats = computed(() => activeStore.value ? activeStore.value.currentStats : localStats.value);
-const loading = computed(() => activeStore.value ? activeStore.value.isLoading : localLoading.value);
+const stats = computed(() =>
+  activeStore.value ? activeStore.value.currentStats : localStats.value,
+)
+const loading = computed(() =>
+  activeStore.value ? activeStore.value.isLoading : localLoading.value,
+)
 const source = computed({
-  get: () => activeStore.value ? activeStore.value.dbSource : localSource.value,
+  get: () => (activeStore.value ? activeStore.value.dbSource : localSource.value),
   set: (val) => {
     if (activeStore.value) {
-      activeStore.value.setDbSource(val);
+      activeStore.value.setDbSource(val)
     } else {
-      localSource.value = val;
-      fetchLocalStats();
+      localSource.value = val
+      fetchLocalStats()
     }
-  }
-});
+  },
+})
 
-const lichessParams = computed(() => activeStore.value ? activeStore.value.lichessParams : localLichessParams.value);
-const mastersParams = computed(() => activeStore.value ? activeStore.value.lichessMastersParams : localMastersParams.value);
+const lichessParams = computed(() =>
+  activeStore.value ? activeStore.value.lichessParams : localLichessParams.value,
+)
+const mastersParams = computed(() =>
+  activeStore.value ? activeStore.value.lichessMastersParams : localMastersParams.value,
+)
 
 const sortedTopGames = computed(() => {
-  if (!stats.value?.topGames) return [];
+  if (!stats.value?.topGames) return []
   return [...stats.value.topGames].sort((a, b) => {
     // Sort by year descending
-    if (b.year !== a.year) return b.year - a.year;
+    if (b.year !== a.year) return b.year - a.year
     // If year is same, try month sorting (ISO format "YYYY-MM")
-    return b.month.localeCompare(a.month);
-  });
-});
+    return b.month.localeCompare(a.month)
+  })
+})
 
 // Pending settings to avoid rate limits
-const pendingLichessParams = ref({ ...lichessParams.value });
-const pendingMastersParams = ref({ ...mastersParams.value });
+const pendingLichessParams = ref({ ...lichessParams.value })
+const pendingMastersParams = ref({ ...mastersParams.value })
 
 const isDirty = computed(() => {
   if (source.value === 'lichess') {
-    return JSON.stringify(pendingLichessParams.value) !== JSON.stringify(lichessParams.value);
+    return JSON.stringify(pendingLichessParams.value) !== JSON.stringify(lichessParams.value)
   } else {
-    return JSON.stringify(pendingMastersParams.value) !== JSON.stringify(mastersParams.value);
+    return JSON.stringify(pendingMastersParams.value) !== JSON.stringify(mastersParams.value)
   }
-});
+})
 
 watch(showSettings, (val) => {
   if (val) {
-    pendingLichessParams.value = JSON.parse(JSON.stringify(lichessParams.value));
-    pendingMastersParams.value = JSON.parse(JSON.stringify(mastersParams.value));
+    pendingLichessParams.value = JSON.parse(JSON.stringify(lichessParams.value))
+    pendingMastersParams.value = JSON.parse(JSON.stringify(mastersParams.value))
   }
-});
+})
 
 function applySettings() {
   if (source.value === 'lichess') {
-    updateParams('lichess', pendingLichessParams.value);
+    updateParams('lichess', pendingLichessParams.value)
   } else {
-    updateParams('masters', pendingMastersParams.value);
+    updateParams('masters', pendingMastersParams.value)
   }
 }
 
-const AVAILABLE_RATINGS = [1800, 2000, 2200, 2500];
-const AVAILABLE_SPEEDS = ['bullet', 'blitz', 'rapid', 'classical'];
+const AVAILABLE_RATINGS = [1800, 2000, 2200, 2500]
+const AVAILABLE_SPEEDS = ['bullet', 'blitz', 'rapid', 'classical']
 
 function handleSelectMove(uci: string) {
   if (props.mode === 'study') {
-    boardStore.applyUciMove(uci);
+    boardStore.applyUciMove(uci)
   } else if (activeStore.value) {
-    activeStore.value.handlePlayerMove(uci);
+    activeStore.value.handlePlayerMove(uci)
   }
 }
 
 async function fetchLocalStats() {
-  if (props.mode !== 'study') return;
-  localLoading.value = true;
+  if (props.mode !== 'study') return
+  localLoading.value = true
   try {
-    const fen = pgnService.getCurrentNavigatedFen();
-    const params = localSource.value === 'masters' ? localMastersParams.value : localLichessParams.value;
-    const data = await openingApiService.getStats(fen, localSource.value, params);
-    localStats.value = data;
+    const fen = pgnService.getCurrentNavigatedFen()
+    const params =
+      localSource.value === 'masters' ? localMastersParams.value : localLichessParams.value
+    const data = await openingApiService.getStats(fen, localSource.value, params)
+    localStats.value = data
   } catch (e) {
-    console.error('[LichessOpeningExplorer] Failed to fetch stats:', e);
+    console.error('[LichessOpeningExplorer] Failed to fetch stats:', e)
   } finally {
-    localLoading.value = false;
+    localLoading.value = false
   }
 }
 
-function updateParams(type: 'lichess' | 'masters', newParams: LichessParams | LichessMastersParams) {
+function updateParams(
+  type: 'lichess' | 'masters',
+  newParams: LichessParams | LichessMastersParams,
+) {
   if (activeStore.value) {
     if (type === 'lichess') {
-      activeStore.value.setLichessParams(newParams as LichessParams);
+      activeStore.value.setLichessParams(newParams as LichessParams)
     } else {
-      activeStore.value.setLichessMastersParams(newParams as LichessMastersParams);
+      activeStore.value.setLichessMastersParams(newParams as LichessMastersParams)
     }
   } else {
     if (type === 'lichess') {
-      localLichessParams.value = { ...localLichessParams.value, ...(newParams as LichessParams) };
+      localLichessParams.value = { ...localLichessParams.value, ...(newParams as LichessParams) }
     } else {
-      localMastersParams.value = { ...localMastersParams.value, ...(newParams as LichessMastersParams) };
+      localMastersParams.value = {
+        ...localMastersParams.value,
+        ...(newParams as LichessMastersParams),
+      }
     }
-    fetchLocalStats();
+    fetchLocalStats()
   }
 }
 
-watch([pgnTreeVersion, localSource, localLichessParams, localMastersParams], () => {
-  if (props.mode === 'study') fetchLocalStats();
-}, { deep: true });
+watch(
+  [pgnTreeVersion, localSource, localLichessParams, localMastersParams],
+  () => {
+    if (props.mode === 'study') fetchLocalStats()
+  },
+  { deep: true },
+)
 
 onMounted(() => {
-  if (props.mode === 'study') fetchLocalStats();
-});
+  if (props.mode === 'study') fetchLocalStats()
+})
 </script>
 
 <template>
-  <div class="lichess-opening-explorer" :class="{ 'blurred': blurred }">
+  <div class="lichess-opening-explorer" :class="{ blurred: blurred }">
     <div v-if="blurred" class="overlay">
       <n-text strong depth="1">{{ t('openingTrainer.stats.reviewModeOverlay') }}</n-text>
     </div>
@@ -168,8 +211,13 @@ onMounted(() => {
         </n-button-group>
       </div>
       <div class="header-right">
-        <n-button quaternary circle size="small" @click="showSettings = !showSettings"
-          :color="showSettings ? 'var(--color-accent)' : undefined">
+        <n-button
+          quaternary
+          circle
+          size="small"
+          @click="showSettings = !showSettings"
+          :color="showSettings ? 'var(--color-accent)' : undefined"
+        >
           <template #icon>
             <n-icon>
               <SettingsOutline />
@@ -188,12 +236,16 @@ onMounted(() => {
                 <n-text depth="3" strong class="section-label">
                   <n-icon>
                     <TrophyOutline />
-                  </n-icon> Ratings
+                  </n-icon>
+                  Ratings
                 </n-text>
-                <n-checkbox-group :value="pendingLichessParams.ratings"
-                  @update:value="(v: any) => pendingLichessParams.ratings = v">
+                <n-checkbox-group
+                  :value="pendingLichessParams.ratings"
+                  @update:value="(v: any) => (pendingLichessParams.ratings = v)"
+                >
                   <n-space vertical :size="4">
-                    <n-checkbox v-for="r in AVAILABLE_RATINGS" :key="r" :value="r">{{ r
+                    <n-checkbox v-for="r in AVAILABLE_RATINGS" :key="r" :value="r">{{
+                      r
                     }}</n-checkbox>
                   </n-space>
                 </n-checkbox-group>
@@ -204,13 +256,16 @@ onMounted(() => {
                 <n-text depth="3" strong class="section-label">
                   <n-icon>
                     <HourglassOutline />
-                  </n-icon> Speeds
+                  </n-icon>
+                  Speeds
                 </n-text>
-                <n-checkbox-group :value="pendingLichessParams.speeds"
-                  @update:value="(v: any) => pendingLichessParams.speeds = v">
+                <n-checkbox-group
+                  :value="pendingLichessParams.speeds"
+                  @update:value="(v: any) => (pendingLichessParams.speeds = v)"
+                >
                   <n-space vertical :size="4">
                     <n-checkbox v-for="s in AVAILABLE_SPEEDS" :key="s" :value="s">
-                      <span style="text-transform: capitalize;">{{ s }}</span>
+                      <span style="text-transform: capitalize">{{ s }}</span>
                     </n-checkbox>
                   </n-space>
                 </n-checkbox-group>
@@ -224,20 +279,37 @@ onMounted(() => {
               <n-text depth="3" strong class="section-label">
                 <n-icon>
                   <CalendarOutline />
-                </n-icon> Years: {{ pendingMastersParams.since }} — {{ pendingMastersParams.until }}
+                </n-icon>
+                Years: {{ pendingMastersParams.since }} — {{ pendingMastersParams.until }}
               </n-text>
-              <n-slider range :min="1952" :max="new Date().getFullYear()" :step="1"
+              <n-slider
+                range
+                :min="1952"
+                :max="new Date().getFullYear()"
+                :step="1"
                 :value="[pendingMastersParams.since, pendingMastersParams.until]"
-                @update:value="(v: any) => { pendingMastersParams.since = v[0]; pendingMastersParams.until = v[1]; }" />
+                @update:value="
+                  (v: any) => {
+                    pendingMastersParams.since = v[0]
+                    pendingMastersParams.until = v[1]
+                  }
+                "
+              />
             </div>
             <div class="compact-section">
               <n-text depth="3" strong class="section-label">
                 <n-icon>
                   <ListOutline />
-                </n-icon> Top Games: {{ pendingMastersParams.topGames }}
+                </n-icon>
+                Top Games: {{ pendingMastersParams.topGames }}
               </n-text>
-              <n-slider :min="0" :max="10" :step="1" :value="pendingMastersParams.topGames"
-                @update:value="(v: any) => pendingMastersParams.topGames = v" />
+              <n-slider
+                :min="0"
+                :max="10"
+                :step="1"
+                :value="pendingMastersParams.topGames"
+                @update:value="(v: any) => (pendingMastersParams.topGames = v)"
+              />
             </div>
           </n-space>
         </div>
@@ -256,9 +328,18 @@ onMounted(() => {
         <n-text depth="3">Loading stats...</n-text>
       </div>
 
-      <OpeningStatsTable v-if="stats" :moves="stats.moves" :isReviewMode="true" :white="stats.white"
-        :draws="stats.draws" :black="stats.black" :avg-elo="stats.avgElo" :avg-draw="stats.avgDraw"
-        :avg-score="stats.avgScore" @select-move="handleSelectMove" />
+      <OpeningStatsTable
+        v-if="stats"
+        :moves="stats.moves"
+        :isReviewMode="true"
+        :white="stats.white"
+        :draws="stats.draws"
+        :black="stats.black"
+        :avg-elo="stats.avgElo"
+        :avg-draw="stats.avgDraw"
+        :avg-score="stats.avgScore"
+        @select-move="handleSelectMove"
+      />
 
       <!-- Top Games Section -->
       <div v-if="stats && sortedTopGames.length > 0" class="top-games-section">
@@ -266,8 +347,13 @@ onMounted(() => {
           <span class="divider-text">Top Master Games</span>
         </div>
         <div class="games-list">
-          <a v-for="game in sortedTopGames" :key="game.id" :href="'https://lichess.org/' + game.id" target="_blank"
-            class="game-row">
+          <a
+            v-for="game in sortedTopGames"
+            :key="game.id"
+            :href="'https://lichess.org/' + game.id"
+            target="_blank"
+            class="game-row"
+          >
             <div class="game-info">
               <span class="game-uci">{{ game.uci }}</span>
               <span class="game-players">
@@ -307,7 +393,6 @@ onMounted(() => {
 }
 
 .blurred {
-
   .explorer-header,
   .table-container {
     filter: blur(12px);

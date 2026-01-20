@@ -11,8 +11,8 @@ const route = useRoute()
 defineProps({
   collapsed: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 })
 
 const emit = defineEmits(['select'])
@@ -28,63 +28,63 @@ const menuOptions: MenuOption[] = [
   {
     label: () => t('nav.home'),
     key: '/',
-    icon: renderEmojiIcon('🏠')
+    icon: renderEmojiIcon('🏠'),
   },
   {
     label: () => t('nav.tornado'),
     key: '/tornado',
-    icon: renderEmojiIcon('🌪️')
+    icon: renderEmojiIcon('🌪️'),
   },
   {
     label: () => t('nav.finishHim'),
     key: '/finish-him',
-    icon: renderEmojiIcon('🎯')
+    icon: renderEmojiIcon('🎯'),
   },
   {
     label: () => t('nav.practicalChess'),
     key: '/practical-chess',
-    icon: renderEmojiIcon('♟️')
+    icon: renderEmojiIcon('♟️'),
   },
   {
     label: () => t('nav.sandbox'),
     key: '/sandbox',
-    icon: renderEmojiIcon('🔬')
+    icon: renderEmojiIcon('🔬'),
   },
   {
     label: () => t('nav.openingTrainer'),
     key: '/opening-trainer',
-    icon: renderEmojiIcon('📖')
+    icon: renderEmojiIcon('📖'),
   },
   {
     label: () => t('nav.leaderboards'),
     key: '/records',
-    icon: renderEmojiIcon('🏆')
+    icon: renderEmojiIcon('🏆'),
   },
   {
     label: () => t('nav.lichessClubs'),
     key: '/funclub',
-    icon: renderEmojiIcon('🏰')
+    icon: renderEmojiIcon('🏰'),
   },
   {
     label: () => t('nav.userCabinet'),
     key: '/user-cabinet',
-    icon: renderEmojiIcon('👤')
+    icon: renderEmojiIcon('👤'),
   },
   {
     label: () => t('nav.pricing'),
     key: '/pricing',
-    icon: renderEmojiIcon('💰')
+    icon: renderEmojiIcon('💰'),
   },
   {
     label: () => t('nav.study'),
     key: '/study',
-    icon: renderEmojiIcon('🎓')
+    icon: renderEmojiIcon('🎓'),
   },
   {
     label: () => t('nav.about'),
     key: '/about',
-    icon: renderEmojiIcon('ℹ️')
-  }
+    icon: renderEmojiIcon('ℹ️'),
+  },
 ]
 
 // Determine current active key based on route path
@@ -93,7 +93,7 @@ const activeKey = computed(() => {
   if (path === '/') return '/'
 
   // Find match
-  const matched = menuOptions.find(opt => opt.key && path.startsWith(opt.key as string))
+  const matched = menuOptions.find((opt) => opt.key && path.startsWith(opt.key as string))
   if (matched) return matched.key as string
 
   return path
@@ -107,8 +107,14 @@ const handleUpdateValue = (key: string) => {
 
 <template>
   <div class="nav-menu-wrapper">
-    <n-menu :value="activeKey" :collapsed="collapsed" :collapsed-width="64" :collapsed-icon-size="22"
-      :options="menuOptions" @update:value="handleUpdateValue" />
+    <n-menu
+      :value="activeKey"
+      :collapsed="collapsed"
+      :collapsed-width="64"
+      :collapsed-icon-size="22"
+      :options="menuOptions"
+      @update:value="handleUpdateValue"
+    />
   </div>
 </template>
 

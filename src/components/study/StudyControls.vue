@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { pgnParserService } from '@/services/PgnParserService'
 import { pgnService, type PgnNode } from '@/services/PgnService'
-import { repertoireApiService, type RepertoireProfile, type RepertoireStyle } from '@/services/RepertoireApiService'
+import {
+  repertoireApiService,
+  type RepertoireProfile,
+  type RepertoireStyle,
+} from '@/services/RepertoireApiService'
 import { useBoardStore } from '@/stores/board.store'
 import { useStudyStore } from '@/stores/study.store'
 import { NPopover, NSelect, NTooltip, useMessage } from 'naive-ui'
@@ -16,11 +20,31 @@ const selectedProfile = ref<RepertoireProfile>('amateur')
 const selectedStyle = ref<RepertoireStyle>('master')
 
 const styleOptions = [
-  { label: '⚖️ Balanced Master', value: 'master', description: 'Theoretical & sound, optimized for professional growth.' },
-  { label: '🧱 The Wall', value: 'wall', description: 'Rock-solid defense, minimizes risk and aims for safe endgames.' },
-  { label: '🃏 The Hustler', value: 'hustler', description: 'Sharp traps and obscure lines to confuse your opponent.' },
-  { label: '🐍 Boa Constrictor', value: 'constrictor', description: 'Positional squeeze, avoids early simplification, keeps tension.' },
-  { label: '👑 Forsage (Dictator)', value: 'dictator', description: 'Forces forcing lines, giving opponent minimal choices.' },
+  {
+    label: '⚖️ Balanced Master',
+    value: 'master',
+    description: 'Theoretical & sound, optimized for professional growth.',
+  },
+  {
+    label: '🧱 The Wall',
+    value: 'wall',
+    description: 'Rock-solid defense, minimizes risk and aims for safe endgames.',
+  },
+  {
+    label: '🃏 The Hustler',
+    value: 'hustler',
+    description: 'Sharp traps and obscure lines to confuse your opponent.',
+  },
+  {
+    label: '🐍 Boa Constrictor',
+    value: 'constrictor',
+    description: 'Positional squeeze, avoids early simplification, keeps tension.',
+  },
+  {
+    label: '👑 Forsage (Dictator)',
+    value: 'dictator',
+    description: 'Forces forcing lines, giving opponent minimal choices.',
+  },
 ]
 
 const profileOptions = [
@@ -29,9 +53,7 @@ const profileOptions = [
   { label: 'Master (Comprehensive)', value: 'master' },
 ]
 
-const selectedStyleData = computed(() =>
-  styleOptions.find(s => s.value === selectedStyle.value)!
-)
+const selectedStyleData = computed(() => styleOptions.find((s) => s.value === selectedStyle.value)!)
 
 const selectedStyleCleanName = computed(() => {
   const label = selectedStyleData.value.label
@@ -39,19 +61,19 @@ const selectedStyleCleanName = computed(() => {
 })
 
 const canGenerate = computed(() => {
-  const ply = pgnService.getCurrentPly();
-  const chapter = studyStore.activeChapter;
-  if (!chapter || !chapter.color) return false;
+  const ply = pgnService.getCurrentPly()
+  const chapter = studyStore.activeChapter
+  if (!chapter || !chapter.color) return false
 
   // Must have at least one move, but no more than 10 plies
-  const isInRange = ply > 0 && ply <= 12;
+  const isInRange = ply > 0 && ply <= 12
 
   // The button is active when it's the OPPONENT'S turn
   // (User made their move, now asking for responses)
-  const isOpponentTurn = boardStore.turn !== chapter.color;
+  const isOpponentTurn = boardStore.turn !== chapter.color
 
-  return isInRange && isOpponentTurn;
-});
+  return isInRange && isOpponentTurn
+})
 
 const handleFlip = () => {
   boardStore.flipBoard()
@@ -86,14 +108,15 @@ const handleGenerateRepertoire = async () => {
   }
 
   isGenerating.value = true
-  const styleLabel = styleOptions.find(s => s.value === selectedStyle.value)?.label || selectedStyle.value;
+  const styleLabel =
+    styleOptions.find((s) => s.value === selectedStyle.value)?.label || selectedStyle.value
 
   try {
     const currentPgn = pgnService.getCurrentPgnString({ showVariations: false })
     const params = {
       start_pgn: currentPgn,
       color: studyStore.activeChapter.color,
-      profile: selectedProfile.value
+      profile: selectedProfile.value,
     }
 
     const pgn = await repertoireApiService.generateRepertoire(selectedStyle.value, params)
@@ -104,11 +127,11 @@ const handleGenerateRepertoire = async () => {
       let sourceNode = parsedRoot
       const currentPly = pgnService.getCurrentPly()
       for (let i = 0; i < currentPly; i++) {
-        const firstChild: PgnNode | undefined = sourceNode.children[0];
+        const firstChild: PgnNode | undefined = sourceNode.children[0]
         if (firstChild) {
-          sourceNode = firstChild;
+          sourceNode = firstChild
         } else {
-          break;
+          break
         }
       }
 
@@ -119,7 +142,7 @@ const handleGenerateRepertoire = async () => {
       message.error('Failed to generate repertoire')
     }
   } catch (e: unknown) {
-    const error = e as Error;
+    const error = e as Error
     console.error(error)
     message.error(error.message || 'An error occurred during generation')
   } finally {
@@ -160,7 +183,12 @@ const handleGenerateRepertoire = async () => {
 
     <div v-if="canGenerate" class="control-group repertoire">
       <div class="gen-params">
-        <n-select v-model:value="selectedProfile" :options="profileOptions" size="small" class="profile-select" />
+        <n-select
+          v-model:value="selectedProfile"
+          :options="profileOptions"
+          size="small"
+          class="profile-select"
+        />
 
         <n-popover trigger="click" placement="top" :width="300">
           <template #trigger>
@@ -169,8 +197,13 @@ const handleGenerateRepertoire = async () => {
             </button>
           </template>
           <div class="style-picker">
-            <div v-for="s in styleOptions" :key="s.value" class="style-option"
-              :class="{ active: selectedStyle === s.value }" @click="selectedStyle = s.value as RepertoireStyle">
+            <div
+              v-for="s in styleOptions"
+              :key="s.value"
+              class="style-option"
+              :class="{ active: selectedStyle === s.value }"
+              @click="selectedStyle = s.value as RepertoireStyle"
+            >
               <span class="style-icon">{{ s.label.split(' ')[0] }}</span>
               <div class="style-info">
                 <div class="style-name">{{ s.label.split(' ').slice(1).join(' ') }}</div>
@@ -181,8 +214,13 @@ const handleGenerateRepertoire = async () => {
         </n-popover>
       </div>
 
-      <button @click="handleGenerateRepertoire" :disabled="isGenerating" class="gen-btn"
-        :title="`Generate ${selectedStyle} Repertoire`" :class="{ 'gen-loading': isGenerating }">
+      <button
+        @click="handleGenerateRepertoire"
+        :disabled="isGenerating"
+        class="gen-btn"
+        :title="`Generate ${selectedStyle} Repertoire`"
+        :class="{ 'gen-loading': isGenerating }"
+      >
         <span v-if="!isGenerating">⚡ Generate {{ selectedStyleCleanName }}</span>
         <span v-else>⌛ Analyzing...</span>
       </button>

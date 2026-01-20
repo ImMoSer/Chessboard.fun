@@ -8,19 +8,13 @@ import { useUiStore } from './ui.store'
 
 const ENGINE_STORAGE_KEY = 'user_selected_engine'
 
-const noop = () => { }
+const noop = () => {}
 
 export const useControlsStore = defineStore('controls', () => {
   const uiStore = useUiStore()
   const router = useRouter()
 
-  const availableEngines = ref<EngineId[]>([
-
-    'MOZER_2000',
-    'maia_2200',
-    'MOZER_1900',
-    'SF_2200',
-  ])
+  const availableEngines = ref<EngineId[]>(['MOZER_2000', 'maia_2200', 'MOZER_1900', 'SF_2200'])
 
   const loadSavedEngine = (): EngineId => {
     try {

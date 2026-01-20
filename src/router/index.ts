@@ -22,7 +22,6 @@ import TornadoMistakesView from '../views/TornadoMistakesView.vue'
 import TornadoView from '../views/TornadoView.vue'
 import UserCabinetView from '../views/UserCabinetView.vue'
 
-
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -35,7 +34,8 @@ const router = createRouter({
     {
       path: '/sandbox',
       name: 'sandbox-base',
-      redirect: '/sandbox/play/MOZER_2000/white/rnbqkbnr/ppp1pppp/8/3p4/3PP3/8/PPP2PPP/RNBQKBNR b KQkq - 0 2',
+      redirect:
+        '/sandbox/play/MOZER_2000/white/rnbqkbnr/ppp1pppp/8/3p4/3PP3/8/PPP2PPP/RNBQKBNR b KQkq - 0 2',
     },
     {
       path: '/sandbox/play/:engineId([A-Z0-9_]+)/:userColor(white|black)/:fen(.+)',
@@ -146,8 +146,8 @@ const router = createRouter({
       path: '/opening-trainer/:openingSlug?/:color?',
       redirect: (to) => ({
         name: 'opening-training',
-        params: to.params
-      })
+        params: to.params,
+      }),
     },
     {
       path: '/finish-him/playout/:color/:fen',
@@ -276,10 +276,16 @@ router.afterEach(async (to, from) => {
     useFinishHimStore().reset()
   } else if (fromBaseRoute === 'tornado' && toBaseRoute !== 'tornado' && !isTornadoToMistakes) {
     useTornadoStore().reset()
-  } else if (fromBaseRoute?.startsWith('theory-endings') && !toBaseRoute?.startsWith('theory-endings')) {
+  } else if (
+    fromBaseRoute?.startsWith('theory-endings') &&
+    !toBaseRoute?.startsWith('theory-endings')
+  ) {
     const { useTheoryEndingsStore } = await import('../stores/theoryEndings.store')
     useTheoryEndingsStore().reset()
-  } else if (fromBaseRoute?.startsWith('practical-chess') && !toBaseRoute?.startsWith('practical-chess')) {
+  } else if (
+    fromBaseRoute?.startsWith('practical-chess') &&
+    !toBaseRoute?.startsWith('practical-chess')
+  ) {
     const { usePracticalChessStore } = await import('../stores/practicalChess.store')
     usePracticalChessStore().reset()
   }

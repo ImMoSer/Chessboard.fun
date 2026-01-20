@@ -26,24 +26,41 @@ const activeTab = ref('')
 const availableThemes = computed(() => {
   const dataKeys = Object.keys(props.data)
   const ALL_THEMES_ORDER = [
-    'pawn', 'knight', 'bishop', 'rookPawn', 'queen', 'knightBishop',
-    'rookPieces', 'queenPieces', 'expert'
+    'pawn',
+    'knight',
+    'bishop',
+    'rookPawn',
+    'queen',
+    'knightBishop',
+    'rookPieces',
+    'queenPieces',
+    'expert',
   ]
-  const sorted = ALL_THEMES_ORDER.filter(theme => dataKeys.includes(theme))
-    .concat(dataKeys.filter(theme => !ALL_THEMES_ORDER.includes(theme)))
+  const sorted = ALL_THEMES_ORDER.filter((theme) => dataKeys.includes(theme)).concat(
+    dataKeys.filter((theme) => !ALL_THEMES_ORDER.includes(theme)),
+  )
 
   return sorted
 })
 
 // Set default active tab when availableThemes changes or on initial load
-watch(availableThemes, (newThemes) => {
-  if (!activeTab.value && newThemes.length > 0) {
-    activeTab.value = newThemes[0] ?? ''
-  }
-}, { immediate: true })
+watch(
+  availableThemes,
+  (newThemes) => {
+    if (!activeTab.value && newThemes.length > 0) {
+      activeTab.value = newThemes[0] ?? ''
+    }
+  },
+  { immediate: true },
+)
 
 const tierToPieceMap: Record<string, string> = {
-  Pawn: 'wP.svg', Knight: 'wN.svg', Bishop: 'wB.svg', Rook: 'wR.svg', Queen: 'wQ.svg', King: 'wK.svg',
+  Pawn: 'wP.svg',
+  Knight: 'wN.svg',
+  Bishop: 'wB.svg',
+  Rook: 'wR.svg',
+  Queen: 'wQ.svg',
+  King: 'wK.svg',
 }
 
 const getSubscriptionIcon = (tier?: string) => {
@@ -61,8 +78,17 @@ const getThemeIcon = (theme: string) => {
   if (te(`theoryEndings.categories.${key}.icon`)) return t(`theoryEndings.categories.${key}.icon`)
   if (te(`practicalChess.categories.${key}.icon`)) return t(`practicalChess.categories.${key}.icon`)
   const fallbacks: Record<string, string> = {
-    expert: '⭐', pawn: '♟', knight: '♞', bishop: '♝', rook: '♜', queen: '♛', king: '♚',
-    rook_pawn_endgame: '♖♙', rook_pieces_endgame: '♖♘♗', knight_vs_bishop: '♘♗', queen_pieces_endgame: '♕♘♗'
+    expert: '⭐',
+    pawn: '♟',
+    knight: '♞',
+    bishop: '♝',
+    rook: '♜',
+    queen: '♛',
+    king: '♚',
+    rook_pawn_endgame: '♖♙',
+    rook_pieces_endgame: '♖♘♗',
+    knight_vs_bishop: '♘♗',
+    queen_pieces_endgame: '♕♘♗',
   }
   return fallbacks[key] || ''
 }
@@ -78,13 +104,17 @@ const columns = computed<DataTableColumns<AdvantageLeaderboardEntry>>(() => [
       const icon = getSubscriptionIcon(row.subscriptionTier)
       return h('div', { style: { display: 'flex', alignItems: 'center' } }, [
         icon ? h('img', { src: icon, style: { height: '25px', marginRight: '5px' } }) : null,
-        h('n-a', {
-          href: `https://lichess.org/@/${row.lichess_id}`,
-          target: '_blank',
-          style: { fontWeight: 'bold' }
-        }, row.username)
+        h(
+          'n-a',
+          {
+            href: `https://lichess.org/@/${row.lichess_id}`,
+            target: '_blank',
+            style: { fontWeight: 'bold' },
+          },
+          row.username,
+        ),
       ])
-    }
+    },
   },
   {
     title: t('records.table.score'),
@@ -92,8 +122,8 @@ const columns = computed<DataTableColumns<AdvantageLeaderboardEntry>>(() => [
     align: 'right',
     render(row) {
       return h('span', { class: 'mode-score-value' }, row.score)
-    }
-  }
+    },
+  },
 ])
 
 const swiperModules = [Navigation, Mousewheel, FreeMode]
@@ -112,15 +142,26 @@ const swiperModules = [Navigation, Mousewheel, FreeMode]
     <div class="modes-container">
       <!-- Category Selection Ribbon using Swiper -->
       <div class="category-ribbon" v-if="availableThemes.length > 0">
-        <swiper :modules="swiperModules" :slides-per-view="'auto'" :space-between="16" :navigation="true"
-          :mousewheel="{ forceToAxis: true }" :free-mode="true" class="category-swiper">
+        <swiper
+          :modules="swiperModules"
+          :slides-per-view="'auto'"
+          :space-between="16"
+          :navigation="true"
+          :mousewheel="{ forceToAxis: true }"
+          :free-mode="true"
+          class="category-swiper"
+        >
           <swiper-slide v-for="theme in availableThemes" :key="theme" class="theme-slide">
             <n-tooltip trigger="hover">
               <template #trigger>
-                <div class="theme-button" :class="{
-                  active: activeTab === theme,
-                  'is-composite': (getThemeIcon(theme) || '').length > 1
-                }" @click="activeTab = theme">
+                <div
+                  class="theme-button"
+                  :class="{
+                    active: activeTab === theme,
+                    'is-composite': (getThemeIcon(theme) || '').length > 1,
+                  }"
+                  @click="activeTab = theme"
+                >
                   <span class="theme-icon">{{ getThemeIcon(theme) || getThemeLabel(theme) }}</span>
                 </div>
               </template>
@@ -133,8 +174,15 @@ const swiperModules = [Navigation, Mousewheel, FreeMode]
       <!-- Active Table View -->
       <div class="table-view-container" v-if="activeTab && props.data[activeTab]">
         <div class="table-container">
-          <n-data-table :columns="columns" :data="props.data[activeTab] || []" :row-key="(row: any) => row.lichess_id"
-            size="small" striped class="records-table" :max-height="400" />
+          <n-data-table
+            :columns="columns"
+            :data="props.data[activeTab] || []"
+            :row-key="(row: any) => row.lichess_id"
+            size="small"
+            striped
+            class="records-table"
+            :max-height="400"
+          />
         </div>
       </div>
 
@@ -162,15 +210,27 @@ const swiperModules = [Navigation, Mousewheel, FreeMode]
 }
 
 .advantageLeaderboard .main-header {
-  background: linear-gradient(135deg, var(--color-accent-secondary-hover), var(--color-accent-secondary));
+  background: linear-gradient(
+    135deg,
+    var(--color-accent-secondary-hover),
+    var(--color-accent-secondary)
+  );
 }
 
 .theoryLeaderboard .main-header {
-  background: linear-gradient(135deg, var(--color-accent-warning-hover), var(--color-accent-warning));
+  background: linear-gradient(
+    135deg,
+    var(--color-accent-warning-hover),
+    var(--color-accent-warning)
+  );
 }
 
 .practicalLeaderboard .main-header {
-  background: linear-gradient(135deg, var(--color-accent-primary-hover), var(--color-accent-primary));
+  background: linear-gradient(
+    135deg,
+    var(--color-accent-primary-hover),
+    var(--color-accent-primary)
+  );
 }
 
 .card-title {

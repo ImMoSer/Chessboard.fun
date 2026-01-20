@@ -46,7 +46,10 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
       if (id) {
         puzzle = await webhookService.fetchPracticalPuzzleById(id)
       } else {
-        puzzle = await webhookService.fetchPracticalPuzzle(activeCategory.value, activeDifficulty.value)
+        puzzle = await webhookService.fetchPracticalPuzzle(
+          activeCategory.value,
+          activeDifficulty.value,
+        )
       }
 
       if (!puzzle) throw new Error('Puzzle data is null')
@@ -63,7 +66,7 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
         [], // moves
         _handleGameOver,
         _checkWinCondition,
-        () => { }, // onPlayoutStart
+        () => {}, // onPlayoutStart
         'practical-chess',
         undefined, // onCorrectFirstMove
         humanColor,
@@ -119,7 +122,7 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
         [], // moves
         _handleGameOver,
         _checkWinCondition,
-        () => { }, // onPlayoutStart
+        () => {}, // onPlayoutStart
         'practical-chess',
         undefined, // onCorrectFirstMove
         activePuzzle.value.winner,

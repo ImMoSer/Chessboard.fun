@@ -19,11 +19,19 @@ const getFlairIconUrl = (flair?: string | null) => {
 
 <template>
   <div>
-    <img src="/clubPageBanner/clubBanner.jpg" class="club-page__banner" :alt="t('clubPage.bannerAlt')"
-      @error="($event.target as HTMLImageElement).style.display = 'none'" />
+    <img
+      src="/clubPageBanner/clubBanner.jpg"
+      class="club-page__banner"
+      :alt="t('clubPage.bannerAlt')"
+      @error="($event.target as HTMLImageElement).style.display = 'none'"
+    />
     <header class="club-page__header">
       <div class="club-page__header-info">
-        <a :href="`https://lichess.org/team/${clubInfo.clubId}`" target="_blank" class="club-page__name-link">
+        <a
+          :href="`https://lichess.org/team/${clubInfo.clubId}`"
+          target="_blank"
+          class="club-page__name-link"
+        >
           <h1 class="club-page__name">{{ clubInfo.name }}</h1>
         </a>
         <p class="club-page__meta">
@@ -42,8 +50,12 @@ const getFlairIconUrl = (flair?: string | null) => {
         <li v-for="leader in clubInfo.leaders" :key="leader.id">
           <a :href="`https://lichess.org/@/${leader.id}`" target="_blank">
             {{ leader.title ? `${leader.title} ` : '' }}{{ leader.name }}
-            <img v-if="getFlairIconUrl(leader.flair)" :src="getFlairIconUrl(leader.flair)!" alt="Flair"
-              class="club-page__flair-icon" />
+            <img
+              v-if="getFlairIconUrl(leader.flair)"
+              :src="getFlairIconUrl(leader.flair)!"
+              alt="Flair"
+              class="club-page__flair-icon"
+            />
           </a>
         </li>
       </ul>

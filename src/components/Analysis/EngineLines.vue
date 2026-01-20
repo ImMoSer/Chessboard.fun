@@ -2,21 +2,8 @@
 import type { EvaluatedLineWithSan } from '@/services/AnalysisService'
 import { useAnalysisStore } from '@/stores/analysis.store'
 import { useBoardStore } from '@/stores/board.store'
-import {
-    BarChartOutline,
-    HardwareChipOutline,
-    TerminalOutline
-} from '@vicons/ionicons5'
-import {
-    NButton,
-    NCard,
-    NIcon,
-    NSelect, NSpace,
-    NSpin,
-    NSwitch,
-    NText,
-    NTooltip
-} from 'naive-ui'
+import { BarChartOutline, HardwareChipOutline, TerminalOutline } from '@vicons/ionicons5'
+import { NButton, NCard, NIcon, NSelect, NSpace, NSpin, NSwitch, NText, NTooltip } from 'naive-ui'
 import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -72,13 +59,13 @@ const formatPv = (line: EvaluatedLineWithSan) => {
 const threadOptions = computed(() => {
   return Array.from({ length: maxThreads.value }, (_, i) => ({
     label: `${i + 1}`,
-    value: i + 1
+    value: i + 1,
   }))
 })
 
 const profileOptions = computed(() => [
   { label: t('analysis.profiles.lite'), value: 'lite' },
-  { label: t('analysis.profiles.pro'), value: 'pro' }
+  { label: t('analysis.profiles.pro'), value: 'pro' },
 ])
 
 const handleLineClick = (line: EvaluatedLineWithSan) => {
@@ -99,7 +86,11 @@ const handleLineClick = (line: EvaluatedLineWithSan) => {
             <BarChartOutline />
           </n-icon>
           <n-text strong>{{ t('analysis.engine') }}</n-text>
-          <n-switch :value="isAnalysisActive" size="small" @update:value="analysisStore.toggleAnalysis" />
+          <n-switch
+            :value="isAnalysisActive"
+            size="small"
+            @update:value="analysisStore.toggleAnalysis"
+          />
         </n-space>
 
         <n-space align="center" :size="8">
@@ -111,8 +102,13 @@ const handleLineClick = (line: EvaluatedLineWithSan) => {
             </template>
             {{ t('analysis.profile') }}
           </n-tooltip>
-          <n-select class="profile-select" size="small" :value="engineProfile" :options="profileOptions"
-            @update:value="analysisStore.setEngineProfile" />
+          <n-select
+            class="profile-select"
+            size="small"
+            :value="engineProfile"
+            :options="profileOptions"
+            @update:value="analysisStore.setEngineProfile"
+          />
 
           <n-tooltip trigger="hover">
             <template #trigger>
@@ -122,8 +118,14 @@ const handleLineClick = (line: EvaluatedLineWithSan) => {
             </template>
             {{ t('analysis.threads') }}
           </n-tooltip>
-          <n-select class="threads-select" size="small" :disabled="!isMultiThreadAvailable" :value="numThreads"
-            :options="threadOptions" @update:value="analysisStore.setThreads" />
+          <n-select
+            class="threads-select"
+            size="small"
+            :disabled="!isMultiThreadAvailable"
+            :value="numThreads"
+            :options="threadOptions"
+            @update:value="analysisStore.setThreads"
+          />
         </n-space>
       </n-space>
     </n-card>
@@ -138,7 +140,13 @@ const handleLineClick = (line: EvaluatedLineWithSan) => {
         <div v-else-if="analysisLines.length > 0" class="lines-list">
           <div v-for="(line, index) in analysisLines.slice(0, 3)" :key="line.id" class="line-item">
             <n-text class="line-depth" depth="3">{{ line.depth }}</n-text>
-            <n-button size="tiny" :type="getScoreType(index)" class="score-btn" strong @click="handleLineClick(line)">
+            <n-button
+              size="tiny"
+              :type="getScoreType(index)"
+              class="score-btn"
+              strong
+              @click="handleLineClick(line)"
+            >
               {{ formatScore(line) }}
             </n-button>
             <n-tooltip trigger="hover">

@@ -60,7 +60,6 @@ const squareStyles = computed(() => {
       }
 
       row = 8 - targetRankIdx
-
     } else {
       // Orientation Black
       // Files: h->a. Col 1 = h(7), Col 8 = a(0).
@@ -74,11 +73,11 @@ const squareStyles = computed(() => {
 
       let targetRankIdx: number
       if (props.color === 'white') {
-         // White promotes at rank 7. Displaces to 6, 5, 4.
-         targetRankIdx = startRankIdx - roleIndex
+        // White promotes at rank 7. Displaces to 6, 5, 4.
+        targetRankIdx = startRankIdx - roleIndex
       } else {
-         // Black promotes at rank 0. Displaces to 1, 2, 3.
-         targetRankIdx = startRankIdx + roleIndex
+        // Black promotes at rank 0. Displaces to 1, 2, 3.
+        targetRankIdx = startRankIdx + roleIndex
       }
 
       row = targetRankIdx + 1
@@ -86,7 +85,7 @@ const squareStyles = computed(() => {
 
     return {
       gridColumn: col,
-      gridRow: row
+      gridRow: row,
     }
   }
 })
@@ -118,14 +117,14 @@ function onPieceSelected(role: ChessopsRole) {
   grid-template-columns: repeat(8, 1fr);
   grid-template-rows: repeat(8, 1fr);
   z-index: 100;
-  background-color: rgba(0,0,0,0.5); /* Dim the board slightly */
+  background-color: rgba(0, 0, 0, 0.5); /* Dim the board slightly */
 }
 
 .promotion-square {
   cursor: pointer;
   border-radius: 50%;
   background-color: var(--color-background-soft, #f8f9fa);
-  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;

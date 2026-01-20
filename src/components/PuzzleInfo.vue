@@ -4,22 +4,8 @@ import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import { useFinishHimStore } from '../stores/finishHim.store'
 
-import {
-  BarChartOutline,
-  FlashOutline,
-  StarOutline,
-  TrendingUpOutline
-} from '@vicons/ionicons5'
-import {
-  NCard,
-  NGrid, NGridItem,
-  NIcon,
-  NSpace,
-  NStatistic,
-  NTable,
-  NTag,
-  NText
-} from 'naive-ui'
+import { BarChartOutline, FlashOutline, StarOutline, TrendingUpOutline } from '@vicons/ionicons5'
+import { NCard, NGrid, NGridItem, NIcon, NSpace, NStatistic, NTable, NTag, NText } from 'naive-ui'
 import { usePracticalChessStore } from '../stores/practicalChess.store'
 import { useTheoryEndingsStore } from '../stores/theoryEndings.store'
 import { useTornadoStore } from '../stores/tornado.store'
@@ -37,16 +23,18 @@ const isFinishHim = computed(() => route.meta.game === 'finish-him')
 
 const activeStore = computed(() => {
   if (route.name === 'tornado' || route.meta.game === 'tornado') return tornadoStore
-  if (route.name?.toString().startsWith('theory-endings') || route.meta.game === 'theory-endings') return theoryStore
-  if (route.name?.toString().startsWith('practical-chess') || route.meta.game === 'practical-chess') return usePracticalChessStore()
+  if (route.name?.toString().startsWith('theory-endings') || route.meta.game === 'theory-endings')
+    return theoryStore
+  if (route.name?.toString().startsWith('practical-chess') || route.meta.game === 'practical-chess')
+    return usePracticalChessStore()
   return finishHimStore
 })
 
 const activePuzzle = computed(() => {
-  return activeStore.value.activePuzzle as (GamePuzzle & { category?: string; type?: string }) | null
+  return activeStore.value.activePuzzle as
+    | (GamePuzzle & { category?: string; type?: string })
+    | null
 })
-
-
 
 const tacticalThemesList = computed<string[]>(() => {
   const puzzle = activePuzzle.value
@@ -70,10 +58,13 @@ const tacticalThemesList = computed<string[]>(() => {
 
   // 3. Legacy/Specific formats
   if (puzzle.EngmThemes_PG) {
-    return puzzle.EngmThemes_PG.replace(/[{}]/g, '').split(',').map((t: string) => t.trim())
+    return puzzle.EngmThemes_PG.replace(/[{}]/g, '')
+      .split(',')
+      .map((t: string) => t.trim())
   }
 
-  if (puzzle.Themes_PG) return Array.isArray(puzzle.Themes_PG) ? puzzle.Themes_PG : [puzzle.Themes_PG]
+  if (puzzle.Themes_PG)
+    return Array.isArray(puzzle.Themes_PG) ? puzzle.Themes_PG : [puzzle.Themes_PG]
   if (puzzle.Themes) return puzzle.Themes.split(' ')
   if (puzzle.puzzle_theme) return puzzle.puzzle_theme.split(' ')
 
@@ -106,14 +97,10 @@ const sortedResults = computed(() => {
   }
   return [...results].sort((a, b) => a.time_in_seconds - b.time_in_seconds)
 })
-
-
 </script>
 
 <template>
   <div class="puzzle-info-container">
-
-
     <!-- Current Puzzle Details -->
     <transition name="fade">
       <n-card v-if="activePuzzle" class="info-card puzzle-details" size="small" :bordered="false">
@@ -129,8 +116,13 @@ const sortedResults = computed(() => {
                   </n-icon>
                 </template>
                 <n-text strong>
-                  {{ activePuzzle.Rating || activePuzzle.rating || activePuzzle.engmRating || activePuzzle.difficulty ||
-                    '?' }}
+                  {{
+                    activePuzzle.Rating ||
+                    activePuzzle.rating ||
+                    activePuzzle.engmRating ||
+                    activePuzzle.difficulty ||
+                    '?'
+                  }}
                 </n-text>
               </n-statistic>
             </n-grid-item>
@@ -172,21 +164,43 @@ const sortedResults = computed(() => {
           </n-grid>
 
           <!-- Final Position Preview -->
-          <n-card v-if="activePuzzle.fen_final" embedded :bordered="false" class="preview-card" size="small">
+          <n-card
+            v-if="activePuzzle.fen_final"
+            embedded
+            :bordered="false"
+            class="preview-card"
+            size="small"
+          >
             <n-space vertical align="stretch" :size="8" style="width: 100%">
               <!-- Display Themes instead of Final Position title if themes are present -->
               <n-space v-if="tacticalThemesList.length > 0" justify="center" :size="[4, 4]" wrap>
-                <n-tag v-for="theme in tacticalThemesList" :key="theme" size="small" round :bordered="false"
-                  type="info">
+                <n-tag
+                  v-for="theme in tacticalThemesList"
+                  :key="theme"
+                  size="small"
+                  round
+                  :bordered="false"
+                  type="info"
+                >
                   {{ t(`chess.themes.${getThemeTranslationKey(theme)}`, { defaultValue: theme }) }}
                 </n-tag>
               </n-space>
-              <n-text v-else depth="3" strong uppercase class="preview-title" style="text-align: center">
+              <n-text
+                v-else
+                depth="3"
+                strong
+                uppercase
+                class="preview-title"
+                style="text-align: center"
+              >
                 {{ t('puzzleInfo.finalPositionTitle') }}
               </n-text>
 
               <div class="chessboard-preview-wrapper">
-                <ChessboardPreview :fen="activePuzzle.fen_final" :orientation="finalPositionOrientation" />
+                <ChessboardPreview
+                  :fen="activePuzzle.fen_final"
+                  :orientation="finalPositionOrientation"
+                />
               </div>
             </n-space>
           </n-card>
@@ -197,8 +211,9 @@ const sortedResults = computed(() => {
               <n-icon color="#f0a020">
                 <StarOutline />
               </n-icon>
-              <n-text strong uppercase depth="3" class="section-subtitle">{{ t('puzzleInfo.leaderboardTitle')
-                }}</n-text>
+              <n-text strong uppercase depth="3" class="section-subtitle">{{
+                t('puzzleInfo.leaderboardTitle')
+              }}</n-text>
             </n-space>
             <n-table size="small" :bordered="false" class="minimal-table">
               <thead>
@@ -214,7 +229,11 @@ const sortedResults = computed(() => {
                     <n-text depth="3">{{ index + 1 }}</n-text>
                   </td>
                   <td>
-                    <a :href="`https://lichess.org/@/${result.lichess_id}`" target="_blank" class="player-link">
+                    <a
+                      :href="`https://lichess.org/@/${result.lichess_id}`"
+                      target="_blank"
+                      class="player-link"
+                    >
                       {{ result.username }}
                     </a>
                   </td>
@@ -228,8 +247,6 @@ const sortedResults = computed(() => {
         </n-space>
       </n-card>
     </transition>
-
-
   </div>
 </template>
 
@@ -336,7 +353,9 @@ const sortedResults = computed(() => {
 /* Transitions */
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
 }
 
 .fade-enter-from,

@@ -45,7 +45,11 @@ const topThree = computed(() => {
             <n-image src="/jpg/club_trofee/platz_2.jpg" preview-disabled class="trophy-img" />
           </div>
           <n-card size="small" class="name-card">
-            <n-a :href="`https://lichess.org/@/${topThree.second.lichess_id}`" target="_blank" class="player-link">
+            <n-a
+              :href="`https://lichess.org/@/${topThree.second.lichess_id}`"
+              target="_blank"
+              class="player-link"
+            >
               <n-ellipsis style="max-width: 100%">{{ topThree.second.username }}</n-ellipsis>
             </n-a>
           </n-card>
@@ -59,7 +63,11 @@ const topThree = computed(() => {
             <n-image src="/jpg/club_trofee/platz_1.jpg" preview-disabled class="trophy-img" />
           </div>
           <n-card size="small" class="name-card gold-border">
-            <n-a :href="`https://lichess.org/@/${topThree.first.lichess_id}`" target="_blank" class="player-link first-place">
+            <n-a
+              :href="`https://lichess.org/@/${topThree.first.lichess_id}`"
+              target="_blank"
+              class="player-link first-place"
+            >
               <n-ellipsis style="max-width: 100%">{{ topThree.first.username }}</n-ellipsis>
             </n-a>
           </n-card>
@@ -73,7 +81,11 @@ const topThree = computed(() => {
             <n-image src="/jpg/club_trofee/platz_3.jpg" preview-disabled class="trophy-img" />
           </div>
           <n-card size="small" class="name-card">
-            <n-a :href="`https://lichess.org/@/${topThree.third.lichess_id}`" target="_blank" class="player-link">
+            <n-a
+              :href="`https://lichess.org/@/${topThree.third.lichess_id}`"
+              target="_blank"
+              class="player-link"
+            >
               <n-ellipsis style="max-width: 100%">{{ topThree.third.username }}</n-ellipsis>
             </n-a>
           </n-card>
@@ -85,15 +97,35 @@ const topThree = computed(() => {
 
 <style scoped>
 @keyframes breathe-red {
-  0% { box-shadow: 0 0 15px rgba(255, 0, 0, 0.4); transform: scale(1); }
-  50% { box-shadow: 0 0 30px rgba(255, 0, 0, 0.7); transform: scale(1.02); }
-  100% { box-shadow: 0 0 15px rgba(255, 0, 0, 0.4); transform: scale(1); }
+  0% {
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(255, 0, 0, 0.7);
+    transform: scale(1.02);
+  }
+  100% {
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
+    transform: scale(1);
+  }
 }
 
 @keyframes breathe-gold {
-  0% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); transform: scale(1); }
-  50% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.8), 0 0 20px rgba(255, 0, 0, 0.4); transform: scale(1.05); }
-  100% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); transform: scale(1); }
+  0% {
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow:
+      0 0 40px rgba(255, 215, 0, 0.8),
+      0 0 20px rgba(255, 0, 0, 0.4);
+    transform: scale(1.05);
+  }
+  100% {
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+    transform: scale(1);
+  }
 }
 
 .trophies-main-wrapper {
@@ -174,11 +206,11 @@ const topThree = computed(() => {
   .trophies-main-wrapper {
     padding: 10px 0;
   }
-  
+
   .player-link {
     font-size: var(--font-size-small);
   }
-  
+
   .trophy-item.first {
     transform: translateY(-5px);
   }

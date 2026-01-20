@@ -33,12 +33,16 @@ const columns: DataTableColumns<MedalsReportUser> = [
     title: t('clubPage.table.player'),
     key: 'username',
     render(row) {
-      return h('a', {
-        href: `https://lichess.org/@/${row.username}`,
-        target: '_blank',
-        style: { color: 'var(--color-text-link)', textDecoration: 'none' }
-      }, row.username)
-    }
+      return h(
+        'a',
+        {
+          href: `https://lichess.org/@/${row.username}`,
+          target: '_blank',
+          style: { color: 'var(--color-text-link)', textDecoration: 'none' },
+        },
+        row.username,
+      )
+    },
   },
   {
     title: '🥇',
@@ -46,7 +50,7 @@ const columns: DataTableColumns<MedalsReportUser> = [
     align: 'center',
     render(row) {
       return h('span', { class: 'medal-count gold' }, row.medals.gold?.count || 0)
-    }
+    },
   },
   {
     title: '🥈',
@@ -54,7 +58,7 @@ const columns: DataTableColumns<MedalsReportUser> = [
     align: 'center',
     render(row) {
       return h('span', { class: 'medal-count silver' }, row.medals.silver?.count || 0)
-    }
+    },
   },
   {
     title: '🥉',
@@ -62,7 +66,7 @@ const columns: DataTableColumns<MedalsReportUser> = [
     align: 'center',
     render(row) {
       return h('span', { class: 'medal-count bronze' }, row.medals.bronze?.count || 0)
-    }
+    },
   },
   {
     title: t('clubPage.table.totalMedals'),
@@ -71,17 +75,18 @@ const columns: DataTableColumns<MedalsReportUser> = [
     render(row) {
       const stats = getMedalStats(row.medals)
       return h('span', { style: { fontWeight: 'bold' } }, stats.total)
-    }
-  }
+    },
+  },
 ]
 
 const displayData = computed(() => {
-  const data = medalType.value === 'club' 
-    ? props.report.user_in_club_medals 
-    : props.report.user_in_arena_medals
-  
+  const data =
+    medalType.value === 'club'
+      ? props.report.user_in_club_medals
+      : props.report.user_in_arena_medals
+
   return [...data]
-    .filter(item => getMedalStats(item.medals).total > 0)
+    .filter((item) => getMedalStats(item.medals).total > 0)
     .sort((a, b) => getMedalStats(b.medals).total - getMedalStats(a.medals).total)
 })
 </script>
@@ -91,7 +96,11 @@ const displayData = computed(() => {
     <div class="card-header">
       <div class="header-top">
         <h3 class="card-title">
-          {{ medalType === 'club' ? t('clubPage.medalStandings.teamTitle') : t('clubPage.medalStandings.arenaTitle') }}
+          {{
+            medalType === 'club'
+              ? t('clubPage.medalStandings.teamTitle')
+              : t('clubPage.medalStandings.arenaTitle')
+          }}
         </h3>
         <n-radio-group v-model:value="medalType" size="small" name="medalTypeGroup">
           <n-radio-button value="club">{{ t('clubPage.details.teamMedals') }}</n-radio-button>
@@ -143,9 +152,15 @@ const displayData = computed(() => {
   font-size: var(--font-size-large);
 }
 
-.gold { color: var(--color-gold); }
-.silver { color: var(--color-silver); }
-.bronze { color: var(--color-bronze); }
+.gold {
+  color: var(--color-gold);
+}
+.silver {
+  color: var(--color-silver);
+}
+.bronze {
+  color: var(--color-bronze);
+}
 
 .medal-table {
   --n-td-color-striped: var(--color-bg-secondary);
