@@ -61,6 +61,16 @@ const selectChapter = (id: string) => {
   studyStore.setActiveChapter(id)
 }
 
+const toggleImport = () => {
+  showImport.value = !showImport.value
+  showInput.value = false
+}
+
+const toggleCreateNew = async () => {
+  await toggleCreate()
+  showImport.value = false
+}
+
 const startEdit = async (chapter: StudyChapter) => {
   editingId.value = chapter.id
   editName.value = chapter.name
@@ -114,7 +124,7 @@ const downloadChapter = (chapter: StudyChapter) => {
 <template>
   <div class="study-sidebar" :class="{ collapsed }">
     <div class="chapters-header">
-      <h3 v-if="!collapsed">Chapters</h3>
+      <h3>Chapters</h3>
       <div class="header-actions">
         <button
           @click="emit('toggle')"
@@ -123,35 +133,13 @@ const downloadChapter = (chapter: StudyChapter) => {
         >
           {{ collapsed ? '▼' : '▲' }}
         </button>
-        <template v-if="!collapsed">
-          <button
-            @click="showTemplateModal = true"
-            class="template-btn"
-            title="Create from Template"
-          >
-            📚
-          </button>
-          <button
-            @click="
-              showImport = !showImport
-              showInput = false
-            "
-            class="import-btn"
-            title="Import PGN"
-          >
-            📥
-          </button>
-          <button
-            @click="
-              toggleCreate()
-              showImport = false
-            "
-            class="add-btn"
-            title="New Chapter"
-          >
-            <span class="plus-icon">＋</span>
-          </button>
-        </template>
+        <button @click="showTemplateModal = true" class="template-btn" title="Create from Template">
+          📚
+        </button>
+        <button @click="toggleImport" class="import-btn" title="Import PGN">📥</button>
+        <button @click="toggleCreateNew" class="add-btn" title="New Chapter">
+          <span class="plus-icon">＋</span>
+        </button>
       </div>
     </div>
 
@@ -260,6 +248,7 @@ const downloadChapter = (chapter: StudyChapter) => {
   background: rgba(20, 20, 20, 0.4);
   border-radius: 8px;
   overflow: hidden;
+  transition: all 0.3s ease;
 }
 
 .chapters-header {
