@@ -51,17 +51,21 @@ export interface LichessMastersParams {
 }
 
 // MozerBook Specific Types
-export interface MozerBookMove {
+export interface MozerBookTheoryItem {
   san: string;
   uci: string;
+  name: string;
+  eco: string;
+}
+
+export interface MozerBookMove extends MozerBookTheoryItem {
   w: number;
   d: number;
   l: number;
   av: number;
   perf: number;
   nag: number;
-  name?: string;
-  eco?: string;
+  children?: MozerBookTheoryItem[];
 }
 
 export interface MozerBookResponse {
@@ -73,6 +77,7 @@ export interface MozerBookResponse {
     perf: number;
   } | null;
   moves: MozerBookMove[];
+  theory?: MozerBookTheoryItem[];
 }
 
 interface MastersMove {
