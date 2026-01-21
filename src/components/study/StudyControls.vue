@@ -4,6 +4,7 @@ import { pgnService, type PgnNode } from '@/services/PgnService'
 import {
     repertoireApiService,
     type RepertoireProfile,
+    type RepertoireRequest,
     type RepertoireStyle,
 } from '@/services/RepertoireApiService'
 import { useBoardStore } from '@/stores/board.store'
@@ -21,21 +22,26 @@ const selectedStyle = ref<RepertoireStyle>('master')
 
 const styleOptions = [
   {
-    label: '⚖️ Balanced Master',
+    label: '🏛️ GrossMaster',
+    value: 'grossmaster',
+    description: 'Maximum reliability and theoretical soundness. The elite choice.',
+  },
+  {
+    label: '🏆 Master',
     value: 'master',
-    description: 'Theoretical & sound, optimized for professional growth. "Play like a classic. Win like a pro."',
+    description: 'Professional growth with a focus on winning chances. Balanced and strong.',
   },
   {
     label: '🃏 The Hustler',
     value: 'hustler',
-    description: 'Aggressive and provocative. Sharp traps and obscure lines to confuse your opponent.',
+    description: 'Sharp traps, "poisonous" lines, and provocative play. Play to win at all costs.',
   },
 ]
 
 const profileOptions = [
   { label: 'Amateur (Standard)', value: 'amateur' },
   { label: 'Club (Advanced)', value: 'club' },
-  { label: 'Master (Comprehensive)', value: 'master' },
+  { label: 'Tournament (Elite)', value: 'tournament' },
 ]
 
 const selectedStyleData = computed(() => styleOptions.find((s) => s.value === selectedStyle.value)!)
@@ -98,13 +104,14 @@ const handleGenerateRepertoire = async () => {
 
   try {
     const currentPgn = pgnService.getCurrentPgnString({ showVariations: false })
-    const params = {
+    const request: RepertoireRequest = {
       start_pgn: currentPgn,
-      color: studyStore.activeChapter.color,
+      color: studyStore.activeChapter.color as 'white' | 'black',
       profile: selectedProfile.value,
+      style: selectedStyle.value,
     }
 
-    const pgn = await repertoireApiService.generateRepertoire(selectedStyle.value, params)
+    const pgn = await repertoireApiService.generateRepertoire(request)
     if (pgn) {
       const { root: parsedRoot } = pgnParserService.parse(pgn)
 
