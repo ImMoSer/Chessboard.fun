@@ -29,7 +29,13 @@ const handleChangeLang = (lang: 'en' | 'ru' | 'de') => {
 <template>
   <div class="welcome-page-container">
     <div class="welcome-content">
-      <img class="welcome-logo" src="/jpg/mainLogo_bg_101014.jpg" :alt="t('app.title')" />
+      <img
+        class="welcome-logo"
+        src="/jpg/mainLogo_bg_101014.jpg"
+        :alt="t('app.title')"
+        width="1200"
+        height="240"
+      />
 
       <div class="mode-selection-container">
         <router-link class="mode-button" to="/finish-him">
@@ -184,6 +190,7 @@ const handleChangeLang = (lang: 'en' | 'ru' | 'de') => {
 .welcome-logo {
   max-width: 100%;
   height: auto;
+  aspect-ratio: 1200 / 240;
   border-radius: 20px;
   box-shadow:
     0 0 20px rgba(0, 191, 255, 0.6),
