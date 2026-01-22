@@ -106,6 +106,8 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
     isProcessingGameOver.value = true
 
     gameStore.setGamePhase('GAMEOVER')
+    analysisStore.showPanel()
+    analysisStore.setPlayerColor(currentUserColor.value)
 
     const puzzle = activePuzzle.value
     if (!puzzle) return

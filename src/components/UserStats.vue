@@ -1,27 +1,27 @@
 <!-- src/components/UserStats.vue -->
 <script setup lang="ts">
 import { useAuthStore } from '@/stores/auth.store'
-import { storeToRefs } from 'pinia'
-import { useI18n } from 'vue-i18n'
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
 import type { TornadoMode } from '@/types/api.types'
+import { GolfOutline, LockClosedOutline, RibbonOutline, WalletOutline } from '@vicons/ionicons5'
 import {
+  NAvatar,
+  NButton,
   NCard,
-  NStatistic,
+  NDivider,
   NGrid,
   NGridItem,
-  NText,
-  NDivider,
-  NButton,
-  NAvatar,
-  NSpace,
-  NTag,
   NIcon,
-  NTooltip,
   NNumberAnimation,
+  NSpace,
+  NStatistic,
+  NTag,
+  NText,
+  NTooltip,
 } from 'naive-ui'
-import { WalletOutline, RibbonOutline, GolfOutline, LockClosedOutline } from '@vicons/ionicons5'
+import { storeToRefs } from 'pinia'
+import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
 
 const authStore = useAuthStore()
 const { userProfile, isAuthenticated } = storeToRefs(authStore)
@@ -46,8 +46,9 @@ const localResetTimeMessage = computed(() => {
 
 const activityModes = [
   { key: 'advantage' as const, label: t('nav.finishHim'), icon: '🎯' },
-  { key: 'theory' as const, label: t('nav.theoryEndings'), icon: '🎓' },
   { key: 'tornado' as const, label: t('nav.tornado'), icon: '🌪️' },
+  { key: 'practical-chess' as const, label: t('practicalChess.selection.title'), icon: '♙♖' },
+  { key: 'theory' as const, label: t('nav.theoryEndings'), icon: '♔♙' },
 ]
 
 const tornadoMode = computed(() => {
@@ -156,7 +157,7 @@ const avatarUrl = computed(() => {
                     {{ userProfile.today_activity.puzzles_solved_today.total }}
                   </n-text>
                 </n-space>
-                <n-grid :cols="3" :x-gap="8">
+                <n-grid :cols="2" :x-gap="12" :y-gap="12">
                   <n-grid-item v-for="mode in activityModes" :key="mode.key">
                     <n-tooltip trigger="hover">
                       <template #trigger>

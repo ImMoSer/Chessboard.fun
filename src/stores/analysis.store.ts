@@ -68,6 +68,7 @@ export const useAnalysisStore = defineStore('analysis', () => {
       `[AnalysisStore] Panel shown. Profile: ${engineProfile.value}. Multi-threading: ${isMultiThreadAvailable.value}. Threads: ${numThreads.value}/${maxThreads.value}.`,
     )
     isLoading.value = false
+    boardStore.setAnalysisMode(true)
     if (startActive) {
       isAnalysisActive.value = true
       await startCurrentPositionAnalysis()
@@ -186,6 +187,7 @@ export const useAnalysisStore = defineStore('analysis', () => {
     }
 
     boardStore.setDrawableShapes([])
+    boardStore.setAnalysisMode(false)
     logger.info('[AnalysisStore] Analysis state has been reset.')
   }
 
