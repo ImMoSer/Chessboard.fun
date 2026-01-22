@@ -117,8 +117,10 @@ export const useGameStore = defineStore('game', () => {
       const setup = parseFen(fen).unwrap()
       let humanPlayerColor: ChessgroundColor
 
-      if (mode === 'sandbox' || mode === 'opening-trainer' || mode === 'theory') {
-        humanPlayerColor = userColor || setup.turn
+      if (userColor) {
+        humanPlayerColor = userColor
+      } else if (mode === 'sandbox' || mode === 'opening-trainer' || mode === 'theory') {
+        humanPlayerColor = setup.turn
       } else {
         const botTurnColor = setup.turn
         humanPlayerColor = botTurnColor === 'white' ? 'black' : 'white'

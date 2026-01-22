@@ -31,8 +31,34 @@
       "queen_pieces_endgame": "Queen & Pieces",
       "expert_endgame": "Expert",
       "extra_pawn": "Extra Pawn",
-      "material_equality": "Material Equality",
+      "material_equality": "YOU MOVE!",
       "exchange": "Exchange"
+    }
+  },
+  "practicalChess": {
+    "youMove": {
+      "title": "YOU MOVE!",
+      "subtitle": "Analyze the position and pick the side you want to play. One side is winning - but which one?",
+      "playWhite": "I play White",
+      "playBlack": "I play Black"
+    },
+    "selection": {
+      "title": "Practical Chess",
+      "subtitle": "Master real-game scenarios and endgames",
+      "difficultyLabel": "Difficulty",
+      "categoryLabel": "Material setups",
+      "start": "Practice now"
+    },
+    "categories": {
+      "extra_pawn": { "icon": "♟️" },
+      "material_equality": { "icon": "⚖️" },
+      "bishops": { "icon": "♗" },
+      "knights": { "icon": "♘" },
+      "pawns": { "icon": "♙" },
+      "queens": { "icon": "♕" },
+      "rooks": { "icon": "♖" },
+      "exchange": { "icon": "🔄" },
+      "knight_vs_bishop": { "icon": "♘♗" }
     }
   },
   "common": {
@@ -875,44 +901,6 @@
       "win": "You won! Position converted.",
       "drawSuccess": "Draw achieved! Great defense.",
       "loss": "Defeat. Try again."
-    }
-  },
-  "practicalChess": {
-    "selection": {
-      "title": "Practical Chess",
-      "subtitle": "Develop skills in converting advantages and defending typical situations.",
-      "difficultyLabel": "Difficulty",
-      "categoryLabel": "Category",
-      "start": "Start Training"
-    },
-    "categories": {
-      "extra_pawn": {
-        "icon": "➕♟"
-      },
-      "material_equality": {
-        "icon": "⚖️"
-      },
-      "bishops": {
-        "icon": "♗♗"
-      },
-      "knights": {
-        "icon": "♘♘"
-      },
-      "pawns": {
-        "icon": "♙♙"
-      },
-      "queens": {
-        "icon": "♕♕"
-      },
-      "rooks": {
-        "icon": "♖♖"
-      },
-      "exchange": {
-        "icon": "⇄"
-      },
-      "knight_vs_bishop": {
-        "icon": "♘♗"
-      }
     }
   }
 }

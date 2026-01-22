@@ -106,5 +106,6 @@ declare module 'vue' {
     WebChessBoard: typeof import('./src/components/WebChessBoard.vue')['default']
     WikiBooksPanel: typeof import('./src/components/MozerBook/WikiBooksPanel.vue')['default']
     WinrateBar: typeof import('./src/components/MozerBook/WinrateBar.vue')['default']
+    YouMoveSelection: typeof import('./src/components/practical/YouMoveSelection.vue')['default']
   }
 }

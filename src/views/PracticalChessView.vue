@@ -87,7 +87,8 @@ watch(
       <div class="right-panel-content-wrapper">
         <ControlPanel />
         <AnalysisPanel v-if="analysisStore.isPanelVisible" />
-        <PuzzleInfo />
+        <YouMoveSelection v-if="practicalStore.isWaitingForColorSelection" />
+        <PuzzleInfo v-else />
       </div>
     </template>
   </GameLayout>
