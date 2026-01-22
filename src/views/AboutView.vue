@@ -1,6 +1,6 @@
 <!-- src/views/AboutView.vue -->
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
+import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n()
 const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
@@ -24,10 +24,6 @@ const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
       <li>
         <strong>{{ t('about.modes.automaticTacticalTrainerTitle') }}</strong
         >{{ t('about.modes.automaticTacticalTrainer') }}
-      </li>
-      <li>
-        <strong>{{ t('about.modes.lichessClubsTitle') }}</strong
-        >{{ t('about.modes.lichessClubs') }}
       </li>
       <li>
         <strong>{{ t('about.modes.userCabinetTitle') }}</strong

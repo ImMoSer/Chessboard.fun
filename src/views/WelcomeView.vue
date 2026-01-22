@@ -72,10 +72,6 @@ const handleChangeLang = (lang: 'en' | 'ru' | 'de') => {
           <span class="mode-button-text">{{ t('nav.userCabinet') }}</span>
         </router-link>
 
-        <router-link class="mode-button" to="/funclub">
-          <span class="mode-button-icon">🎭</span>
-          <span class="mode-button-text">{{ t('welcome.buttons.clubs') }}</span>
-        </router-link>
 
         <router-link class="mode-button" to="/records">
           <span class="mode-button-icon">🏆</span>

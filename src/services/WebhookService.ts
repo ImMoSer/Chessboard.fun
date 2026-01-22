@@ -1,33 +1,30 @@
 // src/services/WebhookService.ts
 import type {
-  AdvantageResultDto,
-  FunclubMeta,
-  GamePuzzle,
-  GameResultResponse,
-  GetTacticalPuzzleDto,
-  LatestTeamBattleReport,
-  LeaderboardApiResponse,
-  OverallSolvedLeaderboardEntry,
-  PersonalActivityStatsResponse,
-  PersonalOverallSolvedResponse,
-  PersonalSolveStreakResponse,
-  SubmitTacticalResultDto,
-  TacticalTrainerStats,
-  TeamBattleReport,
-  TheoryEndingCategory,
-  TheoryEndingDifficulty,
-  TheoryEndingPuzzle,
-  TheoryEndingResultDto,
-  TheoryEndingType,
-  TornadoEndResponse,
-  TornadoEndSessionDto,
-  TornadoMode,
-  TornadoNextPuzzleDto,
-  TornadoNextResponse,
-  TornadoStartResponse,
-  UpdateFinishHimStatsDto,
-  UserProfileStatsDto,
-  UserTheoryEndingStatsDto,
+    AdvantageResultDto,
+    GamePuzzle,
+    GameResultResponse,
+    GetTacticalPuzzleDto,
+    LeaderboardApiResponse,
+    OverallSolvedLeaderboardEntry,
+    PersonalActivityStatsResponse,
+    PersonalOverallSolvedResponse,
+    PersonalSolveStreakResponse,
+    SubmitTacticalResultDto,
+    TacticalTrainerStats,
+    TheoryEndingCategory,
+    TheoryEndingDifficulty,
+    TheoryEndingPuzzle,
+    TheoryEndingResultDto,
+    TheoryEndingType,
+    TornadoEndResponse,
+    TornadoEndSessionDto,
+    TornadoMode,
+    TornadoNextPuzzleDto,
+    TornadoNextResponse,
+    TornadoStartResponse,
+    UpdateFinishHimStatsDto,
+    UserProfileStatsDto,
+    UserTheoryEndingStatsDto,
 } from '../types/api.types'
 import logger from '../utils/logger'
 
@@ -125,29 +122,6 @@ class WebhookServiceController {
       logger.error(`[WebhookService ${context}] Network or fetch error:`, error)
       return null
     }
-  }
-
-  // --- NEW FUNCLUB STATS API ---
-  public async fetchFunclubClubMeta(): Promise<FunclubMeta | null> {
-    return this._apiRequest<FunclubMeta>('/funclub-stats/club-meta', 'GET', 'fetchFunclubClubMeta')
-  }
-
-  public async fetchFunclubTeamBattleReport(
-    period: 'last_30_days' | string,
-  ): Promise<TeamBattleReport | null> {
-    const path =
-      period === 'last_30_days'
-        ? '/funclub-stats/team-battle/last_30_days'
-        : `/funclub-stats/team-battle/monthly/${period.replace('-', '/')}`
-    return this._apiRequest<TeamBattleReport>(path, 'GET', 'fetchFunclubTeamBattleReport')
-  }
-
-  public async fetchLatestTeamBattleReport(): Promise<LatestTeamBattleReport | null> {
-    return this._apiRequest<LatestTeamBattleReport>(
-      '/funclub-stats/team-battle/latest',
-      'GET',
-      'fetchLatestTeamBattleReport',
-    )
   }
 
   // --- TORNADO API ---

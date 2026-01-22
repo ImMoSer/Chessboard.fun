@@ -121,32 +121,6 @@
         "title": "Tornado Rating",
         "content": "Ranks players by their highest rating achieved in Tornado mode. Rating calculated using the Glicko2 system based on solved puzzle difficulty and time spent."
       }
-    },
-    "club": {
-      "overview": {
-        "title": "Club Overview",
-        "content": "Comprehensive summary of each player's performance: VECTOR score, total points, tournaments played, and games played. VECTOR is calculated using the formula: √(points earned² + games played² + tournaments played²)."
-      },
-      "mostValuablePlayers": {
-        "title": "Club MVPs",
-        "content": "Players ranked by total points earned across all tournaments. Shows who contributed the most to the club's success."
-      },
-      "mostActivePlayers": {
-        "title": "Most Active Players",
-        "content": "Rating based on the total number of tournaments each player participated in. Highlights the most dedicated club members."
-      },
-      "mostGamesPlayed": {
-        "title": "Grinders (Games)",
-        "content": "Shows players ranked by total number of games played in tournaments. Recognizes the most persistent and hardworking club members."
-      },
-      "berserkKings": {
-        "title": "Berserk Kings",
-        "content": "Honors players who achieved the most wins using the 'berserk' option in tournaments. Demonstrates their confidence and skill."
-      },
-      "winStreakMasters": {
-        "title": "Win Streak Masters",
-        "content": "Players ranked by their longest winning streak in tournaments. Highlights players capable of maintaining high performance across many consecutive games."
-      }
     }
   },
   "nav": {
@@ -162,7 +136,6 @@
     "tornado": "Tornado",
     "leaderboards": "LeaderBoards",
     "userCabinet": "Cabinet",
-    "lichessClubs": "FunClub",
     "pricing": "Pricing",
     "about": "About",
     "study": "Repertoire",
@@ -248,7 +221,6 @@
       "theoryEndings": "Endgames",
       "practicalChess": "Practical",
       "tacktics": "Tacktics",
-      "clubs": "FunClub",
       "leaderboards": "Leaderboards",
       "openingTraining": "Open Training",
       "openingSparring": "Open Sparring",
@@ -350,122 +322,6 @@
       "days21": "Last 21 days"
     }
   },
-  "lichessClubs": {
-    "pageTitle": {
-      "loading": "Loading FunClub...",
-      "loaded": "FunClub",
-      "error": "Error Loading FunClub"
-    },
-    "table": {
-      "clubName": "Club Name",
-      "tournamentsPlayed": "Tournaments Played",
-      "totalScore": "Total Score",
-      "averageScore": "Ø Score",
-      "activePlayers": "Players",
-      "noClubs": "No registered clubs found."
-    },
-    "bannerAlt": "FunClub Banner",
-    "founder": {
-      "cooldownMessage": "You can perform the next action in {hours} hours.",
-      "clubIsListed": "Your club is listed: {clubName}",
-      "removeClub": "Remove {clubName}",
-      "clubNotListed": "Your club is not listed: {clubName}",
-      "addClubButton": "Add {clubName} to List",
-      "confirmRemove": "Are you sure you want to remove the club \"{clubName}\" from the list? This will allow you to register another one of your clubs."
-    },
-    "widgets": {
-      "hallOfFameTitle": "Hall of Fame",
-      "medalBearersTitle": "Medal Bearers",
-      "hardWorkersTitle": "Hard Workers"
-    },
-    "medals": {
-      "gold": "Gold",
-      "silver": "Silver",
-      "bronze": "Bronze"
-    },
-    "errors": {
-      "dataLoadFailed": "Failed to load clubs data.",
-      "unknown": "An unknown error occurred."
-    }
-  },
-  "clubPage": {
-    "bannerAlt": "Club Banner",
-    "founder": "Founder",
-    "members": "Members",
-    "leadersTitle": "Club Leaders",
-    "button": {
-      "follow": "Follow",
-      "unfollow": "Unfollow",
-      "showMore": "Show more"
-    },
-    "tabs": {
-      "overview": "Overview",
-      "keyIndicators": "Key Indicators",
-      "playStyle": "Play Style",
-      "ratings": "Ratings",
-      "medals": "Medals"
-    },
-    "overview": {
-      "title": "Club Overview"
-    },
-    "mostValuablePlayersTitle": "Valuable Players",
-    "mostActivePlayersTitle": "Active Players",
-    "mostGamesPlayedTitle": "Hard Workers",
-    "berserkKingsTitle": "Berserk Kings",
-    "winStreakMastersTitle": "Win Streak Masters",
-    "performanceLeadersTitle": "Performance Leaders",
-    "ratingLeadersTitle": "Rating Leaders",
-    "medalStandings": {
-      "teamTitle": "Medal Standings (Team)",
-      "arenaTitle": "Medal Standings (Arena)"
-    },
-    "tournamentHistoryTitle": "Last 30 Days",
-    "table": {
-      "player": "Player",
-      "totalScore": "Score",
-      "tournaments": "Tours",
-      "gamesPlayed": "Games",
-      "avgPerf": "Perf",
-      "berserkWins": "Berserk Wins",
-      "maxWinStreak": "Max Streak",
-      "avgRating": "Avg.",
-      "medals": "Member Medals",
-      "date": "Date",
-      "tournamentName": "Tournament",
-      "clubRank": "Rank",
-      "clubScore": "Score",
-      "score": "Score",
-      "performance": "Perf.",
-      "arenaRank": "ArenaRank",
-      "cronePlayer": "Contributed to the tournament standings",
-      "totalMedals": "Total"
-    },
-    "details": {
-      "medalsTitle": "Medals",
-      "teamMedals": "Medals",
-      "arenaMedals": "Arena",
-      "keyMetrics": "Key Metrics",
-      "winRate": "Win Rate",
-      "performance": "Performance",
-      "tournamentsPlayed": "Tournaments Played"
-    },
-    "follow": {
-      "successAdded": "You are now following this club!",
-      "successRemoved": "You have unfollowed this club."
-    },
-    "error": {
-      "dataLoadFailedOrNotRegistered": "Failed to load data for club {clubId} or club is not registered.",
-      "unknown": "An unknown error occurred.",
-      "noDataFound": "No data found for club ID: {clubId}",
-      "clubNotRegisteredModal": {
-        "message": "Club \"{clubId}\" is not registered. To register the club, please contact the administration at: https://chessboard.fun"
-      },
-      "profileNotFound": "User profile not found. Please try logging in again.",
-      "followCooldown": "You can change your follow status again in {minutes} minutes.",
-      "followFailed": "Failed to update follow status. Please try again.",
-      "followRequestFailed": "An error occurred during the follow/unfollow request."
-    }
-  },
   "userCabinet": {
     "title": "User Cabinet",
     "loginPrompt": "Log in to view your statistics and activity.",
@@ -509,11 +365,6 @@
       "attempts": "attempts",
       "puzzle": "Puzzle",
       "theoryThemes": "Endgame Themes"
-    },
-    "clubs": {
-      "activityTitle": "Club Activity",
-      "followedClubs": "Followed Clubs",
-      "founderOfClubs": "Founder Of"
     },
     "telegram": {
       "title": "Telegram Integration",
@@ -626,16 +477,14 @@
         "maia_2200": " (LCZero+Maia2200 - Human-like engine (server-side))",
         "maia_1900": " (LCZero+Maia1900 - Human-like engine (server-side))"
       },
-      "lichessClubsTitle": "FunClub Statistics: ",
-      "lichessClubs": "View detailed statistics and leaderboards for our FunClub, tracking player activity and achievements.",
       "userCabinetTitle": "User Dashboard: ",
-      "userCabinet": "Your personal dashboard with statistics for all game modes, a list of your favorite puzzles, and your FunClub activity.",
+      "userCabinet": "Your personal dashboard with statistics for all game modes and a list of your favorite puzzles.",
       "analysisPanelTitle": "Analysis Panel: ",
       "analysisPanel": "A powerful tool for analyzing any position with the Stockfish engine, viewing variations, and PGN."
     },
     "features": {
       "lichessIntegrationTitle": "Lichess Integration: ",
-      "lichessIntegration": "Log in via your Lichess account, use your profile, and fetch club activity data.",
+      "lichessIntegration": "Log in via your Lichess account and use your profile.",
       "advancedStatsTitle": "Advanced Statistics: ",
       "advancedStats": "Track your tactical and FinishHim ratings, number of games played, FunCoins, and more.",
       "puzzleDatabaseTitle": "Lichess Puzzle Database: ",
@@ -786,38 +635,6 @@
     "ui": {
       "ratingLabel": "Rating",
       "themeLabel": "Theme"
-    }
-  },
-  "latestBattle": {
-    "linkToTournament": "Link to the tournament on Lichess",
-    "teamStatsTitle": "TEAM STATISTICS",
-    "rankInTournament": "Tournament Rank",
-    "playersCount": "Players",
-    "totalGames": "Total Games",
-    "totalScore": "Total Score",
-    "winRatePercent": "Win Rate",
-    "table": {
-      "rank": "#",
-      "player": "Player",
-      "score": "Score",
-      "games": "Games",
-      "performance": "Perf"
-    },
-    "medalsTitle": "MEDALS",
-    "goldMedal": "1st place",
-    "silverMedal": "2nd place",
-    "bronzeMedal": "3rd place",
-    "nominationsTitle": "NOMINATIONS",
-    "berserker": "Berserker",
-    "workhorse": "Workhorse",
-    "winStreaker": "Win Streaker",
-    "performer": "Performer",
-    "winsUnit": "wins",
-    "gamesUnit": "games",
-    "streakUnit": "streak",
-    "perfUnit": "perf",
-    "errors": {
-      "noData": "Latest battle report not found."
     }
   },
   "openingTrainer": {

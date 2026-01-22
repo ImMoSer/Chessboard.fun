@@ -16,7 +16,6 @@ import PricingView from '../views/PricingView.vue'
 import RecordsPageView from '../views/RecordsPageView.vue'
 import WelcomeView from '../views/WelcomeView.vue'
 
-import FunclubLatestBattleView from '../views/FunclubLatestBattleView.vue'
 import ModeSelectionView from '../views/ModeSelectionView.vue'
 import TornadoMistakesView from '../views/TornadoMistakesView.vue'
 import TornadoView from '../views/TornadoView.vue'
@@ -114,16 +113,6 @@ const router = createRouter({
       path: '/pricing',
       name: 'pricing',
       component: PricingView,
-    },
-    {
-      path: '/funclub',
-      name: 'funclub',
-      component: () => import('../views/FunclubView.vue'),
-    },
-    {
-      path: '/funclub/latestbattle/:lang?',
-      name: 'funclub-latest-battle',
-      component: FunclubLatestBattleView,
     },
     {
       path: '/records',

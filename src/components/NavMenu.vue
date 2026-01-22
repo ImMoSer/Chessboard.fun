@@ -61,11 +61,6 @@ const menuOptions: MenuOption[] = [
     icon: renderEmojiIcon('🏆'),
   },
   {
-    label: () => t('nav.lichessClubs'),
-    key: '/funclub',
-    icon: renderEmojiIcon('🏰'),
-  },
-  {
     label: () => t('nav.userCabinet'),
     key: '/user-cabinet',
     icon: renderEmojiIcon('👤'),

@@ -1,23 +1,22 @@
 <!-- src/App.vue -->
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
-import { RouterView, useRoute } from 'vue-router'
-import { useI18n } from 'vue-i18n'
+import { MenuOutline } from '@vicons/ionicons5'
 import { darkTheme, type GlobalThemeOverrides } from 'naive-ui'
-import NavMenu from './components/NavMenu.vue'
-import SettingsMenu from './components/SettingsMenu.vue'
+import { onMounted, onUnmounted, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { RouterView } from 'vue-router'
 import ConfirmationModal from './components/ConfirmationModal.vue'
 import InfoModal from './components/InfoModal.vue'
-import { useGameStore } from './stores/game.store'
+import NavMenu from './components/NavMenu.vue'
+import SettingsMenu from './components/SettingsMenu.vue'
 import { useFinishHimStore } from './stores/finishHim.store'
+import { useGameStore } from './stores/game.store'
 import { useUiStore } from './stores/ui.store'
-import { MenuOutline } from '@vicons/ionicons5'
 
 const gameStore = useGameStore()
 const finishHimStore = useFinishHimStore()
 const uiStore = useUiStore()
 const { t } = useI18n()
-const route = useRoute()
 
 const isLandscape = ref(false)
 const isSidebarCollapsed = ref(true)
@@ -45,9 +44,6 @@ const openDrawer = () => {
   isDrawerOpen.value = true
 }
 
-// --- НАЧАЛО ИЗМЕНЕНИЙ: Проверяем, является ли текущая страница страницей для скриншота ---
-const isScreenshotView = computed(() => route.name === 'funclub-latest-battle')
-// --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
 // Обработчик для перезагрузки/закрытия страницы
 const beforeUnloadHandler = (event: BeforeUnloadEvent) => {
@@ -83,7 +79,7 @@ onUnmounted(() => {
         <n-layout has-sider position="absolute" class="root-layout">
           <!-- Desktop Sidebar (Landscape) -->
           <n-layout-sider
-            v-if="isLandscape && !isScreenshotView"
+            v-if="isLandscape"
             bordered
             collapse-mode="width"
             :collapsed-width="64"
@@ -115,7 +111,7 @@ onUnmounted(() => {
           <n-layout class="main-layout-container">
             <!-- Mobile Header (Portrait) -->
             <n-layout-header
-              v-if="!isLandscape && !isScreenshotView"
+              v-if="!isLandscape"
               bordered
               class="mobile-header"
             >
