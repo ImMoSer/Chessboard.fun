@@ -16,6 +16,11 @@ RUN pnpm install --frozen-lockfile
 COPY . .
 
 # Build the application
+ARG VITE_BACKEND_API_URL
+ARG VITE_APP_VERSION
+ENV VITE_BACKEND_API_URL=$VITE_BACKEND_API_URL
+ENV VITE_APP_VERSION=$VITE_APP_VERSION
+
 RUN pnpm run build-only
 
 # Production stage
