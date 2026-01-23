@@ -48,4 +48,17 @@ export default defineConfig({
       'Cross-Origin-Embedder-Policy': 'require-corp',
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'naive-ui': ['naive-ui'],
+          'echarts': ['echarts', 'vue-echarts'],
+          'chess-logic': ['@lichess-org/chessground', 'chessops'],
+          'vendor': ['vue', 'vue-router', 'pinia', 'vue-i18n'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1000,
+  },
 })

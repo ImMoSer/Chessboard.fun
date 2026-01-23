@@ -8,6 +8,8 @@ import { useGameStore } from '../stores/game.store'
 import { useUiStore } from '../stores/ui.store'
 
 import { useAuthStore } from '../stores/auth.store'
+import { usePracticalChessStore } from '../stores/practicalChess.store'
+import { useTheoryEndingsStore } from '../stores/theoryEndings.store'
 import { useTornadoStore } from '../stores/tornado.store'
 
 import AboutView from '../views/AboutView.vue'
@@ -269,13 +271,11 @@ router.afterEach(async (to, from) => {
     fromBaseRoute?.startsWith('theory-endings') &&
     !toBaseRoute?.startsWith('theory-endings')
   ) {
-    const { useTheoryEndingsStore } = await import('../stores/theoryEndings.store')
     useTheoryEndingsStore().reset()
   } else if (
     fromBaseRoute?.startsWith('practical-chess') &&
     !toBaseRoute?.startsWith('practical-chess')
   ) {
-    const { usePracticalChessStore } = await import('../stores/practicalChess.store')
     usePracticalChessStore().reset()
   }
 })
