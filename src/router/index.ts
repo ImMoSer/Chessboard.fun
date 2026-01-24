@@ -42,19 +42,19 @@ const router = createRouter({
       path: '/sandbox/play/:engineId([A-Z0-9_]+)/:userColor(white|black)/:fen(.+)',
       name: 'sandbox-with-engine-and-color',
       component: () => import('../views/SandboxView.vue'),
-      meta: { isGame: true, game: 'sandbox' },
+      meta: { isGame: true, game: 'sandbox', requiresAuth: true },
     },
     {
       path: '/sandbox/play/:engineId([A-Z0-9_]+)/:fen(.+)',
       name: 'sandbox-with-engine',
       component: () => import('../views/SandboxView.vue'),
-      meta: { isGame: true, game: 'sandbox' },
+      meta: { isGame: true, game: 'sandbox', requiresAuth: true },
     },
     {
       path: '/sandbox/play/:fen(.+)', // :fen(.+) for supporting FENs with slashes
       name: 'sandbox',
       component: () => import('../views/SandboxView.vue'),
-      meta: { isGame: true, game: 'sandbox' },
+      meta: { isGame: true, game: 'sandbox', requiresAuth: true },
     },
     {
       path: '/finish-him',
@@ -125,13 +125,13 @@ const router = createRouter({
       path: '/opening-training/:openingSlug?/:color?',
       name: 'opening-training',
       component: () => import('../views/OpeningTrainingView.vue'),
-      meta: { isGame: true, game: 'opening-training' },
+      meta: { isGame: true, game: 'opening-training', requiresAuth: true },
     },
     {
       path: '/opening-sparring/:openingSlug?/:color?',
       name: 'opening-sparring',
       component: () => import('../views/OpeningExamView.vue'),
-      meta: { isGame: true, game: 'opening-sparring' },
+      meta: { isGame: true, game: 'opening-sparring', requiresAuth: true },
     },
     {
       path: '/opening-trainer/:openingSlug?/:color?',

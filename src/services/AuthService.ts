@@ -25,6 +25,30 @@ class AuthServiceController {
 
   constructor() {
     logger.info(`[AuthService] Initializing with Backend API URL: ${BACKEND_API_URL}`)
+    this._restoreFromStorage()
+  }
+
+  private _restoreFromStorage() {
+    try {
+      const savedProfile = localStorage.getItem('user_profile')
+      if (savedProfile) {
+        const userProfile: UserSessionProfile = JSON.parse(savedProfile)
+        this.state = {
+          ...this.state,
+          isAuthenticated: true,
+          userProfile: userProfile,
+          isProcessing: false, // Мы уже что-то знаем, можем начать работать
+        }
+        logger.info(`[AuthService] Restored profile for "${userProfile.username}" from localStorage.`)
+      } else {
+        this.state = {
+          ...this.state,
+          isProcessing: true, // Будем проверять сессию
+        }
+      }
+    } catch (e) {
+      logger.error('[AuthService] Error restoring profile from storage:', e)
+    }
   }
 
   public getState(): Readonly<AuthState> {
@@ -68,6 +92,12 @@ class AuthServiceController {
 
   public async handleAuthentication(): Promise<boolean> {
     logger.info('[AuthService] Handling authentication...')
+    if (this.state.userProfile && this.state.isAuthenticated) {
+      // If we already have a profile from localStorage, don't block the UI
+      // But verify it in the background to ensure the session is still valid
+      this.checkSession()
+      return true
+    }
     await this.checkSession()
     return this.state.isAuthenticated
   }
