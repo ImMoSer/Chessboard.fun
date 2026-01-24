@@ -19,14 +19,16 @@ class RepertoireApiService {
   ): Promise<string | null> {
     try {
       logger.info(`[RepertoireApiService] Ordering ${request.style} repertoire:`, request)
-      const response = await fetch(`${this.BACKEND_URL}/generate`, {
+      
+      const { style, ...body } = request;
+      const response = await fetch(`${this.BACKEND_URL}/opening/repertoire/${style}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify(request),
+        body: JSON.stringify(body),
       })
 
       if (!response.ok) {
@@ -44,7 +46,7 @@ class RepertoireApiService {
 
   async checkHealth() {
     try {
-      const response = await fetch(`${this.BACKEND_URL}/opening/health`)
+      const response = await fetch(`${this.BACKEND_URL}/health`)
       return await response.json()
     } catch (error) {
       return { status: 'error', error }
