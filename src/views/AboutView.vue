@@ -21,10 +21,7 @@ const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
         >{{ t('about.modes.conversion') }}
       </li>
 
-      <li>
-        <strong>{{ t('about.modes.automaticTacticalTrainerTitle') }}</strong
-        >{{ t('about.modes.automaticTacticalTrainer') }}
-      </li>
+
       <li>
         <strong>{{ t('about.modes.userCabinetTitle') }}</strong
         >{{ t('about.modes.userCabinet') }}
@@ -192,7 +189,7 @@ const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
     <h3>{{ t('about.licenseAndAcknowledgements.otherCreditsTitle') }}</h3>
     <ul>
       <li>{{ t('about.licenseAndAcknowledgements.credits.lichess') }}</li>
-      <li>{{ t('about.licenseAndAcknowledgements.credits.n8n') }}</li>
+
       <li>{{ t('about.licenseAndAcknowledgements.credits.community') }}</li>
     </ul>
     <!-- --- КОНЕЦ ИЗМЕНЕНИЙ --- -->

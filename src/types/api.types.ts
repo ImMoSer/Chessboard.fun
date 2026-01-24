@@ -205,24 +205,7 @@ export interface PuzzleResultEntry {
   record_timestamp_ms: number
 }
 
-export interface UpdateFinishHimStatsDto {
-  PuzzleId: string
-  success: boolean
-  solved_in_seconds?: number
-  bw_value: number
-}
 
-export interface SubmitTacticalResultDto {
-  PuzzleId: string
-  Rating: number
-  Themes_PG: string[]
-  success: boolean
-}
-
-export type TacticalLevel = 'easy' | 'normal' | 'hard'
-export interface GetTacticalPuzzleDto {
-  tactical_level: TacticalLevel
-}
 
 export interface AdvantageLeaderboardEntry {
   rank: number
@@ -264,19 +247,7 @@ export interface GamePuzzle {
   }
 }
 
-export interface TacticalThemeStat {
-  rating: number
-  total_attempts: number
-  solved: number
-  failed: number
-  last_activity: string | null
-}
 
-export interface TacticalTrainerStats {
-  global_rating: number
-  theme_stats: Record<string, TacticalThemeStat>
-  UserStatsUpdate?: UserStatsUpdate
-}
 
 export interface FinishHimLeaderboardEntry {
   rank: number
@@ -298,7 +269,7 @@ export interface TornadoLeaderboardEntry {
 }
 
 export interface WorktableLeaderboards {
-  finishHimLeaderboard: FinishHimLeaderboardEntry[]
+  finishHimLeaderboard?: FinishHimLeaderboardEntry[]
   advantageLeaderboard?: Record<string, AdvantageLeaderboardEntry[]>
   theoryLeaderboard?: Record<string, AdvantageLeaderboardEntry[]>
   practicalLeaderboard?: Record<string, AdvantageLeaderboardEntry[]>
@@ -367,9 +338,7 @@ export interface PersonalSolveStreakResponse {
   daily_summary: DailySolvedSummary[]
 }
 
-export interface TelegramBindingUrlResponse {
-  bindingUrl: string
-}
+
 
 export interface ActivityModeStats {
   puzzles_requested: number

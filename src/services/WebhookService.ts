@@ -254,76 +254,13 @@ class WebhookServiceController {
   }
   // --- END PRACTICAL CHESS API ---
 
-  public async sendFinishHimStatsUpdate(
-    dto: UpdateFinishHimStatsDto,
-  ): Promise<GameResultResponse | null> {
-    return this._apiRequest<GameResultResponse>(
-      '/n8n-proxy/stats/finish-him',
-      'POST',
-      'sendFinishHimStatsUpdate',
-      dto,
-    )
-  }
 
-  public sendFinishHimStatsUpdateBeacon(dto: UpdateFinishHimStatsDto): boolean {
-    const url = `${BACKEND_API_URL}/n8n-proxy/stats/finish-him`
 
-    // The backend must be adapted to read auth data from the body for beacon requests
-    const payload = {
-      ...dto,
-    }
 
-    const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' })
-
-    try {
-      const status = navigator.sendBeacon(url, blob)
-      logger.info(`[WebhookService] sendFinishHimStatsUpdateBeacon status: ${status}`)
-      return status
-    } catch (e: unknown) {
-      logger.error(
-        '[WebhookService] sendFinishHimStatsUpdateBeacon failed:',
-        e instanceof Error ? e.message : String(e),
-      )
-      return false
-    }
-  }
-
-  public async fetchTacticalPuzzle(dto: GetTacticalPuzzleDto): Promise<GamePuzzle | null> {
-    return this._apiRequest<GamePuzzle>(
-      '/tactical-trainer/puzzle',
-      'POST',
-      'fetchTacticalPuzzle',
-      dto,
-    )
-  }
-  public async fetchTacticalPuzzleById(puzzleId: string): Promise<GamePuzzle | null> {
-    return this._apiRequest<GamePuzzle>(
-      `/tactical-trainer/puzzle/${puzzleId}`,
-      'GET',
-      'fetchTacticalPuzzleById',
-    )
-  }
-  public async submitTacticalResult(
-    dto: SubmitTacticalResultDto,
-  ): Promise<TacticalTrainerStats | null> {
-    return this._apiRequest<TacticalTrainerStats>(
-      '/tactical-trainer/submit-result',
-      'POST',
-      'submitTacticalResult',
-      dto,
-    )
-  }
-  public async fetchTacticalStats(): Promise<TacticalTrainerStats | null> {
-    return this._apiRequest<TacticalTrainerStats>(
-      '/tactical-trainer/stats',
-      'GET',
-      'fetchTacticalStats',
-    )
-  }
 
   public async fetchCombinedLeaderboards(): Promise<LeaderboardApiResponse | null> {
     return this._apiRequest<LeaderboardApiResponse>(
-      `/n8n-proxy/leaderboards`,
+      `/leaderboards`,
       'GET',
       'fetchCombinedLeaderboards',
     )
@@ -333,7 +270,7 @@ class WebhookServiceController {
     period: '7' | '14' | '21' | '30',
   ): Promise<OverallSolvedLeaderboardEntry[] | null> {
     return this._apiRequest<OverallSolvedLeaderboardEntry[]>(
-      `/n8n-proxy/leaderboards/overall-skill?period=${period}`,
+      `/leaderboards/overall-skill?period=${period}`,
       'GET',
       'fetchOverallSkillLeaderboard',
     )
