@@ -9,12 +9,20 @@ import {
 } from '@/services/RepertoireApiService'
 import { useBoardStore } from '@/stores/board.store'
 import { useStudyStore } from '@/stores/study.store'
+import { useAuthStore } from '@/stores/auth.store'
+import { useUiStore } from '@/stores/ui.store'
+import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { NPopover, NSelect, NTooltip, useMessage } from 'naive-ui'
 import { computed, ref } from 'vue'
 
 const boardStore = useBoardStore()
 const studyStore = useStudyStore()
+const authStore = useAuthStore()
+const uiStore = useUiStore()
+const router = useRouter()
 const message = useMessage()
+const { t } = useI18n()
 
 const isGenerating = ref(false)
 const selectedProfile = ref<RepertoireProfile>('amateur')
@@ -92,9 +100,57 @@ const handleCopyPgn = () => {
   message.success('PGN copied!')
 }
 
+const handleCloudSave = async () => {
+  try {
+    if (studyStore.activeChapter?.slug) {
+      if (studyStore.isOwner) {
+        await studyStore.updateInCloud()
+        message.success(t('study.notifications.updated'))
+      } else {
+        const newSlug = await studyStore.forkToCloud()
+        message.success(t('study.notifications.savedAsCopy'))
+        if (newSlug) window.history.pushState({}, '', `/study/chapter/${newSlug}`)
+      }
+    }
+    else {
+      const slug = await studyStore.saveToCloud()
+      message.success(t('study.notifications.saved'))
+      if (slug) window.history.pushState({}, '', `/study/chapter/${slug}`)
+    }
+  } catch (e: any) {
+    if (e.message?.includes('limit reached')) {
+      const tier = authStore.userProfile?.subscriptionTier || 'Pawn'
+      const limit = tier === 'Queen' || tier === 'King' ? 10 : 1
+
+      const result = await uiStore.showConfirmation(
+        t('study.limitModal.title'),
+        t('study.limitModal.message', { tier, limit }),
+        {
+          confirmText: t('study.limitModal.confirm'),
+          cancelText: t('study.limitModal.cancel'),
+          showCancel: true,
+        },
+      )
+
+      if (result === 'confirm') {
+        router.push('/pricing')
+      }
+    } else {
+      message.error(e.message || t('study.notifications.saveError'))
+    }
+  }
+}
+
+const handleShare = () => {
+  if (!studyStore.activeChapter?.slug) return
+  const url = `${window.location.origin}/study/chapter/${studyStore.activeChapter.slug}`
+  navigator.clipboard.writeText(url)
+  message.success(t('study.notifications.shareLinkCopied'))
+}
+
 const handleGenerateRepertoire = async () => {
   if (!studyStore.activeChapter || !studyStore.activeChapter.color) {
-    message.warning('Please select a color for this chapter first.')
+    message.warning(t('study.notifications.colorRequired'))
     return
   }
 
@@ -171,6 +227,38 @@ const handleGenerateRepertoire = async () => {
       <button @click="handlePrev" title="Previous">&lt;</button>
       <button @click="handleNext" title="Next">&gt;</button>
       <button @click="handleEnd" title="End">&gt;|</button>
+    </div>
+
+    <div class="control-group cloud">
+      <n-tooltip trigger="hover">
+        <template #trigger>
+          <button
+            @click="handleCloudSave"
+            :disabled="studyStore.cloudLoading"
+            class="cloud-btn"
+            :class="{ 'owner-btn': studyStore.isOwner && studyStore.activeChapter?.slug }"
+          >
+            <span v-if="studyStore.cloudLoading">⌛</span>
+            <span v-else-if="!studyStore.activeChapter?.slug">☁️ Save</span>
+            <span v-else-if="studyStore.isOwner">☁️ Update</span>
+            <span v-else>☁️ Save as Mine</span>
+          </button>
+        </template>
+        {{
+          !studyStore.activeChapter?.slug
+            ? 'Save this chapter to cloud'
+            : studyStore.isOwner
+              ? 'Update your cloud chapter'
+              : 'Save this chapter as your own copy'
+        }}
+      </n-tooltip>
+
+      <n-tooltip v-if="studyStore.activeChapter?.slug" trigger="hover">
+        <template #trigger>
+          <button @click="handleShare" class="share-btn">🔗 Share</button>
+        </template>
+        Copy shareable link
+      </n-tooltip>
     </div>
 
     <div v-if="canGenerate" class="control-group repertoire">
@@ -277,6 +365,33 @@ button:active {
   font-weight: bold;
   min-width: 36px;
   justify-content: center;
+}
+
+.cloud-btn {
+  background: rgba(var(--color-accent-primary-rgb), 0.1);
+  border-color: var(--color-accent-primary);
+  color: var(--color-accent-primary);
+  font-weight: bold;
+}
+
+.cloud-btn.owner-btn {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: #22c55e;
+  color: #22c55e;
+}
+
+.cloud-btn:hover {
+  background: var(--color-accent-primary);
+  color: white;
+}
+
+.cloud-btn.owner-btn:hover {
+  background: #22c55e;
+  color: white;
+}
+
+.share-btn {
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .repertoire {

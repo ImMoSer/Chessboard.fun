@@ -218,6 +218,7 @@ const downloadChapter = (chapter: StudyChapter) => {
             ></span>
             <span class="chapter-num">{{ index + 1 }}</span>
             <span class="chapter-name" :title="chapter.name">{{ chapter.name }}</span>
+            <span v-if="chapter.slug" class="cloud-indicator" title="Saved in cloud">☁️</span>
           </div>
           <div class="chapter-actions">
             <button
@@ -497,6 +498,12 @@ const downloadChapter = (chapter: StudyChapter) => {
   overflow: hidden;
   text-overflow: ellipsis;
   font-weight: 500;
+}
+
+.cloud-indicator {
+  font-size: 0.7em;
+  opacity: 0.7;
+  flex-shrink: 0;
 }
 
 .chapter-actions {

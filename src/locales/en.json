@@ -138,7 +138,23 @@
     "userCabinet": "Cabinet",
     "pricing": "Pricing",
     "about": "About",
-    "study": "Repertoire",
+    "study": {
+      "limitModal": {
+        "title": "Subscription Limit Reached",
+        "message": "Your current subscription tier \"{tier}\" allows saving up to {limit} chapters on the server. All other chapters are stored locally on your device and may be lost if browser cache is cleared.",
+        "confirm": "Pricing & Tiers",
+        "cancel": "Got it"
+      },
+      "notifications": {
+        "updated": "Chapter updated in cloud!",
+        "savedAsCopy": "Chapter saved as your own copy!",
+        "saved": "Chapter saved to cloud!",
+        "shareLinkCopied": "Share link copied to clipboard!",
+        "saveError": "Failed to save to cloud",
+        "colorRequired": "Please select a color for this chapter first."
+      },
+      "repertoire": "Repertoire"
+    },
     "login": "Login",
     "logout": "Logout",
     "loginWithLichess": "Login with Lichess"

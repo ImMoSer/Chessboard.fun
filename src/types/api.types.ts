@@ -358,7 +358,7 @@ export interface PersonalActivityStatsResponse {
   monthly: ActivityPeriodStats
 }
 
-export type SubscriptionTier = 'none' | 'bronze' | 'silver' | 'gold' | 'platinum' | 'administrator'
+export type SubscriptionTier = 'Pawn' | 'Knight' | 'Bishop' | 'Rook' | 'Queen' | 'King' | 'administrator'
 
 export interface LichessUserProfile {
   id: string

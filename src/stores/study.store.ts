@@ -1,10 +1,12 @@
 import { pgnParserService } from '@/services/PgnParserService'
 import { pgnService, pgnTreeVersion, type PgnNode } from '@/services/PgnService'
 import { studyPersistenceService } from '@/services/StudyPersistenceService'
+import { chapterApiService } from '@/services/ChapterApiService'
 import { makeFen, parseFen } from 'chessops/fen'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { useBoardStore } from './board.store'
+import { useAuthStore } from './auth.store'
 
 export interface StudyChapter {
   id: string
@@ -13,16 +15,26 @@ export interface StudyChapter {
   tags: Record<string, string>
   savedPath: string // To restore cursor location
   color?: 'white' | 'black'
+  slug?: string // Cloud ID
+  ownerId?: string // Cloud Owner ID
 }
 
 export const useStudyStore = defineStore('study', () => {
   const boardStore = useBoardStore()
+  const authStore = useAuthStore()
 
   const chapters = ref<StudyChapter[]>([])
   const activeChapterId = ref<string | null>(null)
   const isInitialized = ref(false)
+  const cloudLoading = ref(false)
 
   const activeChapter = computed(() => chapters.value.find((c) => c.id === activeChapterId.value))
+
+  const isOwner = computed(() => {
+    if (!activeChapter.value || !authStore.userProfile) return true
+    if (!activeChapter.value.slug) return true
+    return activeChapter.value.ownerId === authStore.userProfile.id
+  })
 
   function generateId(): string {
     return crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 15)
@@ -34,7 +46,28 @@ export const useStudyStore = defineStore('study', () => {
     const loadedChapters = await studyPersistenceService.getAllChapters()
     if (loadedChapters.length > 0) {
       chapters.value = loadedChapters
-      // Restore last active chapter from localStorage or just take the first one
+    }
+
+    // Sync with cloud if authenticated
+    if (authStore.isAuthenticated) {
+      try {
+        const cloudChapters = await chapterApiService.getMyChapters()
+        for (const cc of cloudChapters) {
+          const local = chapters.value.find((c) => c.slug === cc.slug)
+          if (!local) {
+            // Import new cloud chapter locally
+            await loadFromCloud(cc.slug)
+          } else {
+            // Optional: update local if cloud is newer? For now, just keep slug
+            local.ownerId = cc.ownerId
+          }
+        }
+      } catch (e) {
+        console.error('Failed to sync cloud chapters', e)
+      }
+    }
+
+    if (chapters.value.length > 0) {
       const lastId = localStorage.getItem('lastActiveChapterId')
       if (lastId && chapters.value.some((c) => c.id === lastId)) {
         setActiveChapter(lastId)
@@ -191,6 +224,105 @@ export const useStudyStore = defineStore('study', () => {
     }
   }
 
+  // --- CLOUD ACTIONS ---
+
+  async function saveToCloud() {
+    if (!activeChapter.value || cloudLoading.value) return
+    cloudLoading.value = true
+    try {
+      const pgn = pgnService.getFullPgn(activeChapter.value.tags)
+      const result = await chapterApiService.createChapter({
+        title: activeChapter.value.name,
+        color: activeChapter.value.color || 'white',
+        pgn: pgn,
+      })
+      activeChapter.value.slug = result.slug
+      activeChapter.value.ownerId = result.ownerId
+      await studyPersistenceService.saveChapter(activeChapter.value)
+      return result.slug
+    } catch (e) {
+      console.error('Failed to save to cloud', e)
+      throw e
+    } finally {
+      cloudLoading.value = false
+    }
+  }
+
+  async function updateInCloud() {
+    if (!activeChapter.value || !activeChapter.value.slug || cloudLoading.value) return
+    cloudLoading.value = true
+    try {
+      const pgn = pgnService.getFullPgn(activeChapter.value.tags)
+      await chapterApiService.updateChapter(activeChapter.value.slug, {
+        title: activeChapter.value.name,
+        color: activeChapter.value.color,
+        pgn: pgn,
+      })
+    } catch (e) {
+      console.error('Failed to update in cloud', e)
+      throw e
+    } finally {
+      cloudLoading.value = false
+    }
+  }
+
+  async function forkToCloud() {
+    if (!activeChapter.value || cloudLoading.value) return
+    cloudLoading.value = true
+    try {
+      const pgn = pgnService.getFullPgn(activeChapter.value.tags)
+      const result = await chapterApiService.createChapter({
+        title: `${activeChapter.value.name} (Copy)`,
+        color: activeChapter.value.color || 'white',
+        pgn: pgn,
+      })
+
+      const id = createChapterFromPgn(
+        pgn,
+        `${activeChapter.value.name} (Copy)`,
+        activeChapter.value.color,
+      )
+      const newChap = chapters.value.find((c) => c.id === id)
+      if (newChap) {
+        newChap.slug = result.slug
+        newChap.ownerId = result.ownerId
+        await studyPersistenceService.saveChapter(newChap)
+      }
+      return result.slug
+    } catch (e) {
+      console.error('Failed to fork to cloud', e)
+      throw e
+    } finally {
+      cloudLoading.value = false
+    }
+  }
+
+  async function loadFromCloud(slug: string) {
+    cloudLoading.value = true
+    try {
+      const existing = chapters.value.find((c) => c.slug === slug)
+      if (existing) {
+        setActiveChapter(existing.id)
+        return existing.id
+      }
+
+      const cloudChap = await chapterApiService.getChapter(slug)
+      const id = createChapterFromPgn(cloudChap.pgn, cloudChap.title, cloudChap.color)
+      const newChap = chapters.value.find((c) => c.id === id)
+      if (newChap) {
+        newChap.slug = cloudChap.slug
+        newChap.ownerId = cloudChap.ownerId
+        await studyPersistenceService.saveChapter(newChap)
+      }
+      return id
+    } catch (e) {
+      console.error('Failed to load from cloud', e)
+      throw e
+    } finally {
+      cloudLoading.value = false
+    }
+  }
+
   // Auto-save active chapter when tree changes
   watch(
     pgnTreeVersion,
@@ -209,11 +341,17 @@ export const useStudyStore = defineStore('study', () => {
     activeChapterId,
     activeChapter,
     isInitialized,
+    cloudLoading,
+    isOwner,
     initialize,
     createChapter,
     createChapterFromPgn,
     deleteChapter,
     setActiveChapter,
     updateChapterMetadata,
+    saveToCloud,
+    updateInCloud,
+    forkToCloud,
+    loadFromCloud,
   }
 })

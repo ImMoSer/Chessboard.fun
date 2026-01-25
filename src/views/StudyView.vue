@@ -13,7 +13,9 @@ import { onMounted, onUnmounted, ref } from 'vue'
 import { pgnService } from '@/services/PgnService'
 import { useAnalysisStore } from '@/stores/analysis.store'
 import { watch } from 'vue'
+import { useRoute } from 'vue-router'
 
+const route = useRoute()
 const boardStore = useBoardStore()
 const studyStore = useStudyStore()
 const analysisStore = useAnalysisStore()
@@ -39,6 +41,11 @@ onMounted(async () => {
   boardStore.setAnalysisMode(true)
   await analysisStore.showPanel() // Initialize analysis (threads, etc.) and set visible flag for watcher
   await studyStore.initialize()
+
+  if (route.params.slug) {
+    await studyStore.loadFromCloud(route.params.slug as string)
+  }
+
   // Запускаем таймер при загрузке, чтобы если она была открыта (например, через стор), она закрылась
   if (!isSidebarCollapsed.value) {
     startAutoCollapseTimer()

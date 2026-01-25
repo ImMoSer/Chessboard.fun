@@ -172,6 +172,12 @@ const router = createRouter({
       meta: { isGame: true, game: 'study', requiresAuth: true }, // Optional requiresAuth
     },
     {
+      path: '/study/chapter/:slug',
+      name: 'study-chapter',
+      component: () => import('../views/StudyView.vue'),
+      meta: { isGame: true, game: 'study', requiresAuth: true },
+    },
+    {
       path: '/practical-chess',
       name: 'practical-chess',
       component: () => import('../views/PracticalChessSelectionView.vue'),
