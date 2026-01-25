@@ -52,7 +52,9 @@ const toggleCreate = async () => {
   showInput.value = !showInput.value
   if (showInput.value) {
     await nextTick()
-    nameInput.value?.focus()
+    const el = nameInput.value as any
+    if (Array.isArray(el)) el[0]?.focus()
+    else el?.focus()
   }
 }
 
@@ -75,7 +77,9 @@ const startEdit = async (chapter: StudyChapter) => {
   editingId.value = chapter.id
   editName.value = chapter.name
   await nextTick()
-  editInput.value?.focus()
+  const el = editInput.value as any
+  if (Array.isArray(el)) el[0]?.focus()
+  else el?.focus()
 }
 
 const finishEdit = () => {

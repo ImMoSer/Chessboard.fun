@@ -101,22 +101,33 @@ const handleCopyPgn = () => {
 }
 
 const handleCloudSave = async () => {
+
   try {
+
     if (studyStore.activeChapter?.slug) {
+
       if (studyStore.isOwner) {
+
         await studyStore.updateInCloud()
+
         message.success(t('study.notifications.updated'))
+
       } else {
-        const newSlug = await studyStore.forkToCloud()
+
+        await studyStore.forkToCloud()
+
         message.success(t('study.notifications.savedAsCopy'))
-        if (newSlug) window.history.pushState({}, '', `/study/chapter/${newSlug}`)
+
       }
-    }
-    else {
-      const slug = await studyStore.saveToCloud()
+
+    } else {
+
+      await studyStore.saveToCloud()
+
       message.success(t('study.notifications.saved'))
-      if (slug) window.history.pushState({}, '', `/study/chapter/${slug}`)
+
     }
+
   } catch (e: any) {
     if (e.message?.includes('limit reached')) {
       const tier = authStore.userProfile?.subscriptionTier || 'Pawn'
@@ -135,6 +146,15 @@ const handleCloudSave = async () => {
       if (result === 'confirm') {
         router.push('/pricing')
       }
+    } else if (e.message?.includes('shorter than or equal to')) {
+      await uiStore.showConfirmation(
+        t('study.sizeModal.title'),
+        t('study.sizeModal.message'),
+        {
+          confirmText: t('study.sizeModal.confirm'),
+          showCancel: false,
+        },
+      )
     } else {
       message.error(e.message || t('study.notifications.saveError'))
     }

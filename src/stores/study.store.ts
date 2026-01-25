@@ -67,6 +67,11 @@ export const useStudyStore = defineStore('study', () => {
       }
     }
 
+    if (chapters.value.length === 0) {
+      // Create a default chapter if none exist
+      createChapter('My Repertoire', undefined, 'white')
+    }
+
     if (chapters.value.length > 0) {
       const lastId = localStorage.getItem('lastActiveChapterId')
       if (lastId && chapters.value.some((c) => c.id === lastId)) {
@@ -172,16 +177,29 @@ export const useStudyStore = defineStore('study', () => {
   async function deleteChapter(id: string) {
     const index = chapters.value.findIndex((c) => c.id === id)
     if (index !== -1) {
+      const chapterToDelete = chapters.value[index]
+      
+      // If it's a cloud chapter, try to delete from server first
+      if (chapterToDelete?.slug) {
+        try {
+          await chapterApiService.deleteChapter(chapterToDelete.slug)
+        } catch (e) {
+          console.error('Failed to delete chapter from cloud:', e)
+          // We continue local deletion even if cloud fails, to keep UI responsive
+        }
+      }
+
       chapters.value.splice(index, 1)
       await studyPersistenceService.deleteChapter(id)
 
+      if (chapters.value.length === 0) {
+        createChapter('My Repertoire', undefined, 'white')
+        return
+      }
+
       if (activeChapterId.value === id) {
-        if (chapters.value.length > 0) {
-          const next = chapters.value[0]
-          if (next) setActiveChapter(next.id)
-        } else {
-          activeChapterId.value = null
-        }
+        const next = chapters.value[0]
+        if (next) setActiveChapter(next.id)
       }
     }
   }

@@ -13,9 +13,10 @@ import { onMounted, onUnmounted, ref } from 'vue'
 import { pgnService } from '@/services/PgnService'
 import { useAnalysisStore } from '@/stores/analysis.store'
 import { watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
+const router = useRouter()
 const boardStore = useBoardStore()
 const studyStore = useStudyStore()
 const analysisStore = useAnalysisStore()
@@ -44,6 +45,11 @@ onMounted(async () => {
 
   if (route.params.slug) {
     await studyStore.loadFromCloud(route.params.slug as string)
+  } else if (route.params.id) {
+    studyStore.setActiveChapter(route.params.id as string)
+  } else if (studyStore.activeChapterId) {
+    // Redirect to active chapter URL if we just hit /study
+    updateUrl(studyStore.activeChapterId)
   }
 
   // Запускаем таймер при загрузке, чтобы если она была открыта (например, через стор), она закрылась
@@ -51,6 +57,25 @@ onMounted(async () => {
     startAutoCollapseTimer()
   }
 })
+
+function updateUrl(id: string) {
+  const chapter = studyStore.chapters.find((c) => c.id === id)
+  if (!chapter) return
+
+  if (chapter.slug) {
+    router.replace({ name: 'study-chapter', params: { slug: chapter.slug } })
+  } else {
+    router.replace({ name: 'study-local', params: { id: chapter.id } })
+  }
+}
+
+// Watch for active chapter changes to update URL
+watch(
+  () => studyStore.activeChapterId,
+  (newId) => {
+    if (newId) updateUrl(newId)
+  },
+)
 
 onUnmounted(() => {
   boardStore.setAnalysisMode(false)

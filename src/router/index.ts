@@ -178,6 +178,12 @@ const router = createRouter({
       meta: { isGame: true, game: 'study', requiresAuth: true },
     },
     {
+      path: '/study/local/:id',
+      name: 'study-local',
+      component: () => import('../views/StudyView.vue'),
+      meta: { isGame: true, game: 'study', requiresAuth: true },
+    },
+    {
       path: '/practical-chess',
       name: 'practical-chess',
       component: () => import('../views/PracticalChessSelectionView.vue'),
