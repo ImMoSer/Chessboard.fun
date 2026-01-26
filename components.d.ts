@@ -14,6 +14,8 @@ declare module 'vue' {
     ActivityChart: typeof import('./src/components/userCabinet/sections/ActivityChart.vue')['default']
     AnalysisPanel: typeof import('./src/components/AnalysisPanel.vue')['default']
     AnalyticsDisplay: typeof import('./src/components/userCabinet/AnalyticsDisplay.vue')['default']
+    BrilliantBookExplorer: typeof import('./src/components/BrilliantBook/BrilliantBookExplorer.vue')['default']
+    BrilliantBookRow: typeof import('./src/components/BrilliantBook/BrilliantBookRow.vue')['default']
     ChapterTemplateModal: typeof import('./src/components/study/ChapterTemplateModal.vue')['default']
     ChessboardPreview: typeof import('./src/components/ChessboardPreview.vue')['default']
     ConfirmationModal: typeof import('./src/components/ConfirmationModal.vue')['default']

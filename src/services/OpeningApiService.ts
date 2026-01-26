@@ -2,7 +2,7 @@
 import logger from '../utils/logger'
 import { openingCacheService, type CacheSource } from './OpeningCacheService'
 
-export type OpeningDatabaseSource = 'lichess' | 'masters' | 'backend'
+export type OpeningDatabaseSource = 'lichess' | 'masters' | 'backend' | 'brilliant'
 
 export interface LichessMove {
   uci: string
