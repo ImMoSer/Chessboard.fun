@@ -91,6 +91,7 @@ declare module 'vue' {
     TimedModeLeaderboardTable: typeof import('./src/components/recordsPage/TimedModeLeaderboardTable.vue')['default']
     TopInfoPanel: typeof import('./src/components/TopInfoPanel.vue')['default']
     TornadoStats: typeof import('./src/components/TornadoStats.vue')['default']
+    TrapBar: typeof import('./src/components/BrilliantBook/TrapBar.vue')['default']
     UserProfileHeader: typeof import('./src/components/userCabinet/sections/UserProfileHeader.vue')['default']
     UserStats: typeof import('./src/components/UserStats.vue')['default']
     WebChessBoard: typeof import('./src/components/WebChessBoard.vue')['default']

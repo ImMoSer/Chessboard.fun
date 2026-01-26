@@ -54,10 +54,10 @@ import { computed } from 'vue'
   <div class="brilliant-explorer">
     <div class="table-header">
       <div class="col-move">Move</div>
-      <div class="col-n">Traps</div>
-      <div class="col-pct">W / B</div>
-      <div class="col-rate">RW</div>
-      <div class="col-rate">RB</div>
+      <div class="col-n">Total</div>
+      <div class="col-pct">Gradients (W/B)</div>
+      <div class="col-rate" title="White Avg Rating">RW</div>
+      <div class="col-rate" title="Black Avg Rating">RB</div>
     </div>
 
     <div class="table-body">
@@ -107,9 +107,9 @@ import { computed } from 'vue'
 }
 
 .col-move { width: 90px; text-align: left !important; }
-.col-n { width: 70px; padding-right: 8px; }
-.col-pct { width: 100px; text-align: center !important; }
-.col-rate { width: 50px; text-align: center !important; }
+.col-n { width: 60px; padding-right: 8px; }
+.col-pct { width: 120px; text-align: center !important; }
+.col-rate { width: 45px; text-align: center !important; }
 
 .table-body {
   flex: 1;

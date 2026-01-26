@@ -2,7 +2,7 @@
 import { NTooltip } from 'naive-ui'
 import { computed } from 'vue'
 import type { BrilliantBookMove } from '../../types/brilliant-book'
-import WinrateBar from '../MozerBook/WinrateBar.vue'
+import TrapBar from './TrapBar.vue'
 import { getNagColor, getNagSymbol } from '../MozerBook/utils'
 
 interface Props {
@@ -38,11 +38,9 @@ const formatRate = (rate: number) => (rate > 0 ? rate : '-')
     <div class="col-n">{{ move.total }}</div>
 
     <div class="col-pct cell-pct">
-      <WinrateBar 
+      <TrapBar 
         :w="move.w_cnt" 
-        :d="0" 
-        :l="move.b_cnt" 
-        :turn="turn" 
+        :b="move.b_cnt" 
       />
     </div>
 
@@ -76,17 +74,17 @@ const formatRate = (rate: number) => (rate > 0 ? rate : '-')
 }
 
 .col-n {
-  width: 70px;
+  width: 60px;
   padding-right: 8px;
 }
 
 .col-pct {
-  width: 100px;
+  width: 120px;
   padding: 0 8px;
 }
 
 .col-rate {
-  width: 50px;
+  width: 45px;
   text-align: center;
   color: var(--color-text-secondary);
 }

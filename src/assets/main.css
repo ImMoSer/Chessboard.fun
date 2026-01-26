@@ -119,6 +119,10 @@ body {
   --color-silver-border: #a9a9a9;
   --color-bronze: #cd7f32;
   --color-bronze-border: #b8732e;
+
+
+  /* NAGs colors */
+  --color-nag-255: #ff0496;
 }
 
 /* --- Global Resets & Styles --- */

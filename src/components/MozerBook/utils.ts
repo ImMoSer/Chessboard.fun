@@ -7,6 +7,7 @@ export const getNagSymbol = (nag: number) => {
     5: '!?',
     6: '?!',
     7: '□',
+    255: '!!!',
   }
   return map[nag] || ''
 }
@@ -27,6 +28,8 @@ export const getNagColor = (nag: number) => {
       return '#ff9800' // Orange
     case 7:
       return '#3f51b5' // Blue
+    case 255:
+      return 'var(--color-nag-255, #ff0496)'
     default:
       return 'inherit'
   }
