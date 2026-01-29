@@ -33,7 +33,7 @@ import { useBoardStore } from '../../stores/board.store'
 import { useOpeningExamStore } from '../../stores/openingExam.store'
 import { useOpeningTrainingStore } from '../../stores/openingTraining.store'
 import OpeningStatsTable from './OpeningStatsTable.vue'
-import BrilliantBookExplorer from '../BrilliantBook/BrilliantBookExplorer.vue'
+
 
 const props = defineProps<{
   mode: 'training' | 'exam' | 'study'
@@ -209,9 +209,7 @@ onMounted(() => {
           <n-button :secondary="source !== 'masters'" @click="source = 'masters'">
             Masters
           </n-button>
-          <n-button :secondary="source !== 'brilliant'" @click="source = 'brilliant'">
-            Brilliant
-          </n-button>
+
         </n-button-group>
       </div>
       <div class="header-right">
@@ -333,7 +331,7 @@ onMounted(() => {
       </div>
 
       <OpeningStatsTable
-        v-if="stats && source !== 'brilliant'"
+        v-if="stats"
         :moves="stats.moves"
         :isReviewMode="true"
         :white="stats.white"
@@ -345,14 +343,10 @@ onMounted(() => {
         @select-move="handleSelectMove"
       />
 
-      <BrilliantBookExplorer
-        v-if="source === 'brilliant'"
-        :blurred="blurred"
-        @select-move="handleSelectMove"
-      />
+
 
       <!-- Top Games Section -->
-      <div v-if="stats && sortedTopGames.length > 0 && source !== 'brilliant'" class="top-games-section">
+      <div v-if="stats && sortedTopGames.length > 0" class="top-games-section">
         <div class="section-divider">
           <span class="divider-text">Top Master Games</span>
         </div>

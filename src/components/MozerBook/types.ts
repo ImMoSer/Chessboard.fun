@@ -12,6 +12,8 @@ export interface TheoryItemWithChildren extends MozerBookTheoryItem {
   l: number
   av: number
   perf: number
+  wt: number
+  bt: number
   children: MozerBookTheoryItem[]
   count: number
 }

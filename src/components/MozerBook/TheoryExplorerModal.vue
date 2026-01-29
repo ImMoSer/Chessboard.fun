@@ -107,6 +107,10 @@ const calculateScore = (item: TheoryItemWithChildren) => {
                           >
                           <span class="stat-sep">|</span>
                           <span class="stat-av">Av: {{ Math.round(item.av) }}</span>
+                          <span v-if="item.wt > 0" class="stat-sep">|</span>
+                          <span v-if="item.wt > 0" class="stat-trap white">WTrp: {{ item.wt }}</span>
+                          <span v-if="item.bt > 0" class="stat-sep">|</span>
+                          <span v-if="item.bt > 0" class="stat-trap black">BTrp: {{ item.bt }}</span>
                         </div>
                       </div>
                     </div>
@@ -300,6 +304,14 @@ const calculateScore = (item: TheoryItemWithChildren) => {
 .stat-score {
   color: #fff;
   font-weight: bold;
+}
+
+.stat-trap.white {
+  color: #ff9800;
+}
+
+.stat-trap.black {
+  color: #03a9f4;
 }
 
 .stat-sep {

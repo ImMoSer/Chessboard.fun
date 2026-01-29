@@ -2,7 +2,7 @@
 import logger from '../utils/logger'
 import { openingCacheService, type CacheSource } from './OpeningCacheService'
 
-export type OpeningDatabaseSource = 'lichess' | 'masters' | 'backend' | 'brilliant'
+export type OpeningDatabaseSource = 'lichess' | 'masters' | 'backend'
 
 export interface LichessMove {
   uci: string
@@ -65,6 +65,8 @@ export interface MozerBookMove extends MozerBookTheoryItem {
   av: number
   perf: number
   nag: number
+  wt: number
+  bt: number
   children?: MozerBookTheoryItem[]
 }
 

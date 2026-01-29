@@ -129,9 +129,7 @@ export const useOpeningTrainingStore = defineStore('openingTraining', () => {
       const m = lichessMastersParams.value
       return `masters:${m.since}:${m.until}:${m.topGames}`
     }
-    if (dbSource.value === 'brilliant') {
-      return 'brilliant'
-    }
+
     return `lichess:${lichessParams.value.ratings.slice().sort().join(',')}|${lichessParams.value.speeds.slice().sort().join(',')}`
   }
 
@@ -148,12 +146,7 @@ export const useOpeningTrainingStore = defineStore('openingTraining', () => {
       return
     }
 
-    if (dbSource.value === 'brilliant') {
-      // In brilliant mode, we don't fetch stats for gameplay (bot moves), 
-      // but we might want to keep currentStats if it was already fetched from Lichess
-      // to avoid breaking the bot. For now, just exit.
-      return
-    }
+
 
     isLoading.value = true
     error.value = null
