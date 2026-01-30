@@ -190,7 +190,14 @@ export const useGameStore = defineStore('game', () => {
     }
     userMovesCount.value++
 
-    if (_checkAndHandleGameOver()) {
+    const isGameOver = _checkAndHandleGameOver()
+
+    if (currentGameMode.value === 'opening-trainer') {
+      onUserMoveCallback(uciMove)
+      if (isGameOver) return
+    }
+
+    if (isGameOver) {
       return
     }
 
@@ -220,10 +227,6 @@ export const useGameStore = defineStore('game', () => {
     const isBotTurn = boardStore.turn !== boardStore.orientation
     if (isBotTurn && currentGameMode.value !== 'opening-trainer') {
       await _triggerBotMove()
-    }
-
-    if (currentGameMode.value === 'opening-trainer') {
-      onUserMoveCallback(uciMove)
     }
   }
 

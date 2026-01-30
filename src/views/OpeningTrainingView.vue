@@ -5,8 +5,8 @@ import { useRoute, useRouter } from 'vue-router'
 import GameLayout from '../components/GameLayout.vue'
 import OpeningTrainingSettingsModal from '../components/OpeningTrainer/OpeningTrainingSettingsModal.vue'
 import MozerBook from '../components/OpeningTrainer/MozerBook.vue'
-import { NModal, NButton, NIcon } from 'naive-ui'
-import { ArrowBack } from '@vicons/ionicons5'
+import { NModal, NButton, NIcon, NStatistic, NNumberAnimation } from 'naive-ui'
+import { ArrowBack, DiamondOutline, FlashOutline } from '@vicons/ionicons5'
 import { useAnalysisStore } from '../stores/analysis.store'
 import { useBoardStore } from '../stores/board.store'
 import { useGameStore } from '../stores/game.store'
@@ -157,6 +157,7 @@ function goBack() {
               </n-button>
               <div class="title">Diamond Hunter</div>
           </div>
+          
           <div class="status">
               <div v-if="diamondHunterStore.state === 'HUNTING'">
                  Hunting...
@@ -165,6 +166,24 @@ function goBack() {
                  PUNISH THE BLUNDER!
               </div>
           </div>
+
+          <!-- Session Stats -->
+          <div class="stats-row">
+              <n-statistic label="Diamonds">
+                <template #prefix>
+                    <n-icon color="#9C27B0"><DiamondOutline /></n-icon>
+                </template>
+                <n-number-animation :from="0" :to="diamondHunterStore.sessionDiamonds" />
+              </n-statistic>
+
+              <n-statistic label="Brilliants">
+                <template #prefix>
+                    <n-icon color="#00C853"><FlashOutline /></n-icon>
+                </template>
+                <n-number-animation :from="0" :to="diamondHunterStore.sessionBrilliants" />
+              </n-statistic>
+          </div>
+
            <n-button type="primary" secondary @click="handleRestart" style="margin-top: 20px; width: 100%">
               Restart Session
           </n-button>
@@ -234,6 +253,15 @@ function goBack() {
     background: rgba(255, 255, 255, 0.05);
     border-radius: 8px;
     text-align: center;
+    margin-bottom: 15px;
+}
+
+.stats-row {
+    display: flex;
+    justify-content: space-around;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 10px;
+    border-radius: 8px;
 }
 
 .right-panel-placeholder {
