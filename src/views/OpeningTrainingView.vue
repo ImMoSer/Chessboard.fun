@@ -5,8 +5,9 @@ import { useRoute, useRouter } from 'vue-router'
 import GameLayout from '../components/GameLayout.vue'
 import OpeningTrainingSettingsModal from '../components/OpeningTrainer/OpeningTrainingSettingsModal.vue'
 import MozerBook from '../components/OpeningTrainer/MozerBook.vue'
-import { NModal, NButton, NIcon, NStatistic, NNumberAnimation } from 'naive-ui'
-import { ArrowBack, DiamondOutline, FlashOutline } from '@vicons/ionicons5'
+import AnalysisPanel from '../components/AnalysisPanel.vue'
+import { NModal, NButton, NIcon, NStatistic, NNumberAnimation, NSpace } from 'naive-ui'
+import { ArrowBack, DiamondOutline, FlashOutline, TelescopeOutline } from '@vicons/ionicons5'
 import { useAnalysisStore } from '../stores/analysis.store'
 import { useBoardStore } from '../stores/board.store'
 import { useGameStore } from '../stores/game.store'
@@ -22,6 +23,7 @@ const router = useRouter()
 const route = useRoute()
 
 const isSettingsModalOpen = ref(true)
+const isAnalysisView = ref(false)
 let navigationDebounce: ReturnType<typeof setTimeout> | null = null
 
 // Sync Opening Stats with Board Position (Debounced for Navigation)
@@ -85,6 +87,7 @@ onUnmounted(() => {
 
 async function startSession(color: 'white' | 'black') {
   isSettingsModalOpen.value = false
+  isAnalysisView.value = false
   analysisStore.setPlayerColor(color)
   // analysisStore.showPanel() // Maybe hide analysis panel initiates to keep it clean?
   // User said "other functions not needed". Analysis might give away answers.
@@ -137,8 +140,15 @@ async function startSession(color: 'white' | 'black') {
 async function handleRestart() {
     openingStore.reset()
     diamondHunterStore.stopHunt()
+    isAnalysisView.value = false
     await gameStore.resetGame()
     isSettingsModalOpen.value = true
+}
+
+function startAnalysis() {
+    diamondHunterStore.stopHunt()
+    isAnalysisView.value = true
+    analysisStore.showPanel(true)
 }
 
 function goBack() {
@@ -149,8 +159,17 @@ function goBack() {
 <template>
   <GameLayout>
     <template #left-panel>
-        <!-- Minimal Header -->
-      <div class="diamond-header">
+        <!-- Analysis Mode -->
+        <div v-if="isAnalysisView" class="analysis-container">
+            <n-button secondary type="primary" @click="handleRestart" style="margin-bottom: 10px; width: 100%">
+                <template #icon><n-icon><ArrowBack /></n-icon></template>
+                Back to Hunt
+            </n-button>
+            <AnalysisPanel />
+        </div>
+
+        <!-- Minimal Header (Hunt Mode) -->
+      <div v-else class="diamond-header">
           <div class="header-top">
               <n-button circle secondary @click="goBack">
                   <template #icon><n-icon><ArrowBack /></n-icon></template>
@@ -204,17 +223,31 @@ function goBack() {
          </template>
          <div style="font-size: 3rem; margin: 20px 0;">💎</div>
          <div style="font-size: 1.1rem; margin-bottom: 20px;">{{ diamondHunterStore.message }}</div>
-         <n-button type="primary" @click="diamondHunterStore.stopHunt(); handleRestart()">Next Hunt</n-button>
+         
+         <n-space justify="center" :size="20">
+             <n-button type="primary" @click="diamondHunterStore.stopHunt(); handleRestart()">Next Hunt</n-button>
+             <n-button secondary @click="startAnalysis">
+                 <template #icon><n-icon><TelescopeOutline /></n-icon></template>
+                 Analyze
+             </n-button>
+         </n-space>
       </n-modal>
 
        <!-- Fail Modal -->
-      <n-modal v-model:show="diamondHunterStore.isActive" :preset="'dialog'" v-if="diamondHunterStore.message && diamondHunterStore.state === 'IDLE' && diamondHunterStore.message.includes('lost')" style="width: 400px; text-align: center;">
+      <n-modal v-model:show="diamondHunterStore.isActive" :preset="'dialog'" v-if="diamondHunterStore.message && diamondHunterStore.state === 'FAILED'" style="width: 400px; text-align: center;">
          <template #header>
             <div style="font-size: 1.2rem; font-weight: bold; color: #D32F2F">{{ 'Diamond Lost!' }}</div>
          </template>
           <div style="font-size: 3rem; margin: 20px 0;">❌</div>
          <div style="font-size: 1.1rem; margin-bottom: 20px;">{{ diamondHunterStore.message }}</div>
-          <n-button type="primary" @click="diamondHunterStore.stopHunt(); handleRestart()">Try Again</n-button>
+         
+         <n-space justify="center" :size="20">
+             <n-button type="primary" @click="diamondHunterStore.stopHunt(); handleRestart()">Try Again</n-button>
+             <n-button secondary @click="startAnalysis">
+                 <template #icon><n-icon><TelescopeOutline /></n-icon></template>
+                 Analyze
+             </n-button>
+         </n-space>
       </n-modal>
 
     </template>

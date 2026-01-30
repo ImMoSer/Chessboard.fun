@@ -11,7 +11,7 @@ import type { DrawShape } from '@lichess-org/chessground/draw'
 import type { Key } from '@lichess-org/chessground/types'
 import logger from '../utils/logger'
 
-export type HunterState = 'IDLE' | 'HUNTING' | 'SOLVING' | 'REWARD'
+export type HunterState = 'IDLE' | 'HUNTING' | 'SOLVING' | 'REWARD' | 'FAILED'
 
 export const useDiamondHunterStore = defineStore('diamondHunter', () => {
     const boardStore = useBoardStore()
@@ -259,11 +259,8 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
                 playedNag: playedMove?.nag
              })
              message.value = "Incorrect refutation! The diamond is lost."
-             state.value = 'IDLE'
+             state.value = 'FAILED'
              soundService.playSound('game_user_lost')
-              setTimeout(() => {
-                 stopHunt()
-             }, 3000)
         }
     }
 
