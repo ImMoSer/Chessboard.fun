@@ -63,23 +63,22 @@ const theoryWithChildren = computed<TheoryItemWithChildren[]>(() => {
     .map((tItem) => {
       // Find matching move in stats to get children and statistics
       const matchingMove = stats.value?.moves.find((m) => m.uci === tItem.uci)
-      const count = matchingMove ? matchingMove.w + matchingMove.d + matchingMove.l : 0
+      const count = matchingMove ? matchingMove.total : 0
 
       return {
         ...tItem,
         nag: matchingMove?.nag || 0,
-        w: matchingMove?.w || 0,
-        d: matchingMove?.d || 0,
-        l: matchingMove?.l || 0,
-        av: matchingMove?.av || 0,
+        total: count,
+        w_pct: matchingMove?.w_pct || 0,
+        d_pct: matchingMove?.d_pct || 0,
+        l_pct: matchingMove?.l_pct || 0,
         perf: matchingMove?.perf || 0,
         wt: matchingMove?.wt || 0,
         bt: matchingMove?.bt || 0,
         children: matchingMove?.children || [],
-        count: count,
-      }
+      } as TheoryItemWithChildren
     })
-    .sort((a, b) => b.count - a.count) // Sort by popularity
+    .sort((a, b) => b.total - a.total) // Sort by popularity
 })
 </script>
 
@@ -124,7 +123,6 @@ const theoryWithChildren = computed<TheoryItemWithChildren[]>(() => {
       <div class="col-n">N</div>
       <div class="col-pct">%</div>
       <div class="col-draw">=%</div>
-      <div class="col-av">Av</div>
       <div class="col-perf">Perf</div>
       <div class="col-trap">WTrp</div>
       <div class="col-trap">BTrp</div>

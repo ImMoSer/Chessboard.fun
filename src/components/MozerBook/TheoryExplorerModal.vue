@@ -28,11 +28,10 @@ function handleSelect(uci: string) {
 }
 
 const calculateScore = (item: TheoryItemWithChildren) => {
-  const total = item.w + item.d + item.l
-  if (total === 0) return 0
+  if (item.total === 0) return 0
   // Score always represents White points (1-0)
-  const whiteWins = props.turn === 'white' ? item.w : item.l
-  return ((whiteWins + item.d * 0.5) / total) * 100
+  const whiteScore = item.w_pct + item.d_pct * 0.5
+  return props.turn === 'white' ? whiteScore : (100 - whiteScore)
 }
 </script>
 
@@ -82,18 +81,18 @@ const calculateScore = (item: TheoryItemWithChildren) => {
                         <span class="card-san" :style="{ color: getNagColor(item.nag) }">
                           {{ item.san }}{{ getNagSymbol(item.nag) }}
                         </span>
-                        <span class="card-popularity" v-if="item.count > 0"
-                          >N={{ item.count.toLocaleString() }}</span
+                        <span class="card-popularity" v-if="item.total > 0"
+                          >N={{ item.total.toLocaleString() }}</span
                         >
                       </div>
                       <div class="card-name">{{ item.name }}</div>
 
-                      <div class="card-stats-row" v-if="item.count > 0">
+                      <div class="card-stats-row" v-if="item.total > 0">
                         <div class="card-bar-wrapper">
                           <WinrateBar
-                            :w="item.w"
-                            :d="item.d"
-                            :l="item.l"
+                            :w="item.w_pct"
+                            :d="item.d_pct"
+                            :l="item.l_pct"
                             :turn="turn"
                             :show-score="false"
                             mini
@@ -103,19 +102,19 @@ const calculateScore = (item: TheoryItemWithChildren) => {
                           <span class="stat-score">{{ calculateScore(item).toFixed(1) }}%</span>
                           <span class="stat-sep">|</span>
                           <span class="stat-draw"
-                            >{{ ((item.d / item.count) * 100).toFixed(1) }}% draw</span
+                            >{{ item.d_pct.toFixed(1) }}% draw</span
                           >
                           <span class="stat-sep">|</span>
-                          <span class="stat-av">Av: {{ Math.round(item.av) }}</span>
+                          <span class="stat-perf">Perf: {{ Math.round(item.perf) }}</span>
                           <span v-if="item.wt > 0" class="stat-sep">|</span>
-                          <span v-if="item.wt > 0" class="stat-trap white">WTrp: {{ item.wt }}</span>
+                          <span v-if="item.wt > 0" class="stat-trap white">WTrp: {{ Math.round((item.wt / 255) * 100) }}%</span>
                           <span v-if="item.bt > 0" class="stat-sep">|</span>
-                          <span v-if="item.bt > 0" class="stat-trap black">BTrp: {{ item.bt }}</span>
+                          <span v-if="item.bt > 0" class="stat-trap black">BTrp: {{ Math.round((item.bt / 255) * 100) }}%</span>
                         </div>
                       </div>
                     </div>
 
-                    <div class="card-children" v-if="item.children.length > 0">
+                    <div class="card-children" v-if="item.children && item.children.length > 0">
                       <div
                         v-for="(child, idx) in item.children"
                         :key="child.uci"

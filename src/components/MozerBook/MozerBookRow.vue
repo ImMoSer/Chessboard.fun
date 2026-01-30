@@ -20,10 +20,8 @@ const formatMove = computed(() => {
   return `${prefix}${props.move.san}${nag}`
 })
 
-const totalN = computed(() => props.move.w + props.move.d + props.move.l)
-const drawPct = computed(() =>
-  totalN.value > 0 ? ((props.move.d / totalN.value) * 100).toFixed(1) : '0.0',
-)
+const totalN = computed(() => props.move.total)
+const drawPct = computed(() => props.move.d_pct.toFixed(1))
 
 function handleClick() {
   emit('select', props.move.uci)
@@ -74,14 +72,13 @@ function handleClick() {
     <div class="col-n">{{ totalN }}</div>
 
     <div class="col-pct cell-pct">
-      <WinrateBar :w="move.w" :d="move.d" :l="move.l" :turn="turn" />
+      <WinrateBar :w="move.w_pct" :d="move.d_pct" :l="move.l_pct" :turn="turn" />
     </div>
 
     <div class="col-draw">{{ drawPct }}</div>
-    <div class="col-av">{{ Math.round(move.av) }}</div>
     <div class="col-perf">{{ Math.round(move.perf) }}</div>
-    <div class="col-trap">{{ move.wt > 0 ? move.wt : '' }}</div>
-    <div class="col-trap">{{ move.bt > 0 ? move.bt : '' }}</div>
+    <div class="col-trap">{{ move.wt > 0 ? Math.round((move.wt / 255) * 100) + '%' : '' }}</div>
+    <div class="col-trap">{{ move.bt > 0 ? Math.round((move.bt / 255) * 100) + '%' : '' }}</div>
   </div>
 </template>
 

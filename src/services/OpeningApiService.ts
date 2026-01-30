@@ -63,10 +63,10 @@ export interface MozerBookTheoryItem {
 }
 
 export interface MozerBookMove extends MozerBookTheoryItem {
-  w: number
-  d: number
-  l: number
-  av: number
+  total: number
+  w_pct: number
+  d_pct: number
+  l_pct: number
   perf: number
   nag: number
   wt: number
@@ -89,19 +89,24 @@ export interface MozerBookResponse {
 interface MastersMove {
   san: string
   uci: string
-  n: number
-  score: number
-  draw: number
-  avElo: number
+  total: number
+  w_pct: number
+  d_pct: number
+  l_pct: number
+  perf: number
+  nag: number
+  wt: number
+  bt: number
 }
 
 interface MastersResponse {
   summary: {
-    totalGames: number
-    avgScore: number
-    avgDraw: number
-    avgElo: number
-  }
+    w: number
+    d: number
+    l: number
+    av: number
+    perf: number
+  } | null
   moves: MastersMove[]
 }
 
@@ -274,35 +279,36 @@ class OpeningApiService {
     const data = (await response.json()) as MastersResponse
 
     const moves: LichessMove[] = data.moves.map((m) => {
-      const d = (m.draw / 100) * m.n
-      const w = (m.score / 100) * m.n - 0.5 * d
-      const b = m.n - w - d
+      // Reconstruct absolutes for LichessMove compatibility
+      // m.total, m.w_pct, m.d_pct
+      const total = m.total
+      const w = Math.round(total * (m.w_pct / 100))
+      const d = Math.round(total * (m.d_pct / 100))
+      const b = total - w - d
 
       return {
         uci: m.uci,
         san: m.san,
-        white: Math.round(w),
-        draws: Math.round(d),
-        black: Math.round(b),
-        averageRating: Math.round(m.avElo),
+        white: w,
+        draws: d,
+        black: b,
+        averageRating: m.perf, // Use perf as average rating proxy
+        w_trap: m.wt,
+        b_trap: m.bt,
+        nag: m.nag
       }
     })
 
+    const summary = data.summary || { w: 0, d: 0, l: 0, av: 0, perf: 0 }
+    
     return {
-      white: Math.round(
-        (data.summary.avgScore / 100) * data.summary.totalGames -
-          0.5 * (data.summary.avgDraw / 100) * data.summary.totalGames,
-      ),
-      draws: Math.round((data.summary.avgDraw / 100) * data.summary.totalGames),
-      black: Math.round(
-        data.summary.totalGames -
-          ((data.summary.avgScore / 100) * data.summary.totalGames +
-            0.5 * (data.summary.avgDraw / 100) * data.summary.totalGames),
-      ),
+      white: summary.w,
+      draws: summary.d,
+      black: summary.l,
       moves: moves,
-      avgElo: data.summary.avgElo,
-      avgDraw: data.summary.avgDraw,
-      avgScore: data.summary.avgScore,
+      avgElo: summary.av,
+      avgDraw: 0, // Not available
+      avgScore: 0, // Not available
     }
   }
 

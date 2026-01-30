@@ -174,16 +174,84 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
         const playerColor = analysisStore.playerColor || 'white'
         const userColor = playerColor
 
-        // Bot plays move that MAXIMIZES user's trap potential (Giveaway)
-        const sorted = [...moves].sort((a: MozerBookMove, b: MozerBookMove) => {
-            const trapA = userColor === 'white' ? (a.wt || 0) : (a.bt || 0)
-            const trapB = userColor === 'white' ? (b.wt || 0) : (b.bt || 0)
-            return trapB - trapA
+        // 1. Calculate scores and filter bad moves
+        const movesWithScores = moves.map(m => ({
+            ...m,
+            score: userColor === 'white' ? (m.wt || 0) : (m.bt || 0)
+        })).filter(m => {
+             const nag = m.nag || 0
+             // Exclude ? (2), ?? (4), ?! (6)
+             return nag !== 2 && nag !== 4 && nag !== 6
         })
 
-        const selected = sorted[0]
-        if (selected) {
-             boardStore.applyUciMove(selected.uci)
+        if (movesWithScores.length === 0) {
+             // Fallback if all moves are marked bad (rare)
+             if (moves[0]) {
+                 logger.info('DiamondHunter: All moves bad, forcing top move', { uci: moves[0].uci })
+                 boardStore.applyUciMove(moves[0].uci)
+                 setTimeout(() => updateArrows(), 200)
+             }
+             return
+        }
+        
+        // Sort by score desc
+        movesWithScores.sort((a, b) => b.score - a.score)
+        
+        // Fix: Ensure we have moves before accessing index 0
+        if (movesWithScores.length === 0) {
+             if (moves[0]) {
+                 logger.info('DiamondHunter: All moves bad, forcing top move', { uci: moves[0].uci })
+                 boardStore.applyUciMove(moves[0].uci)
+                 setTimeout(() => updateArrows(), 200)
+             }
+             return
+        }
+
+        const maxScore = movesWithScores[0]?.score || 0
+
+        // 2. Filter Candidates (Threshold 20% of maxScore)
+        const candidates = movesWithScores.filter(m => m.score > 0 && m.score >= maxScore * 0.2)
+
+        // Fix: Explicit type definition to include 'score' for local usage if needed, 
+        // but 'selectedMove' will be passed to boardStore which expects standard MozerBookMove.
+        // We use 'any' or intersection type for the selection logic variables.
+        let selectedMove: (MozerBookMove & { score?: number }) | null | undefined = null
+
+        if (candidates.length === 0) {
+             // Fallback: No traps available -> Pick most popular
+             // Fix: Handle undefined if moves[0] is missing (though unlikely if we passed the length check above)
+             selectedMove = moves[0] || null
+             if (selectedMove) {
+                logger.info('DiamondHunter: No trap candidates. Falling back to top move.', { uci: selectedMove.uci })
+             }
+        } else {
+             // 3. Weighted Randomness
+             const totalWeight = candidates.reduce((sum, m) => sum + m.score, 0)
+             let randomValue = Math.random() * totalWeight
+             
+             logger.info('DiamondHunter: Weighted Selection Process', { 
+                 maxScore, 
+                 totalWeight, 
+                 candidates: candidates.map(c => `${c.uci}(${c.score})`).join(', ')
+             })
+
+             for (const move of candidates) {
+                 randomValue -= move.score
+                 if (randomValue <= 0) {
+                     selectedMove = move
+                     break
+                 }
+             }
+             // Safety fallback
+             if (!selectedMove) selectedMove = candidates[candidates.length - 1]
+             
+             if (selectedMove) {
+                 logger.info('DiamondHunter: Bot selected weighted move', { uci: selectedMove.uci, score: selectedMove.score })
+             }
+        }
+
+        if (selectedMove) {
+             boardStore.applyUciMove(selectedMove.uci)
         }
 
         // After move, update user arrows
