@@ -30,6 +30,7 @@ export const useOpeningTrainingStore = defineStore('openingTraining', () => {
   const isLoading = ref(false)
   const isProcessingMove = ref(false)
   const isPlayoutMode = ref(false)
+  const isDiamondMode = ref(false) // New Flag
   const error = ref<string | null>(null)
   const moveQueue = ref<string[]>([])
 
@@ -104,6 +105,8 @@ export const useOpeningTrainingStore = defineStore('openingTraining', () => {
     isLoading.value = false
     isProcessingMove.value = false
     isPlayoutMode.value = false
+    // isDiamondMode.value = false // Optional: Do we want to reset mode preference on every reset? Maybe keep it.
+    // Let's keep it persistent for the session dialog interaction, but maybe reset state.
     moveQueue.value = []
     lastFetchedFen.value = ''
     lastFetchedConfig.value = ''
@@ -221,7 +224,7 @@ export const useOpeningTrainingStore = defineStore('openingTraining', () => {
     const graphMoves = openingGraphService.getMoves(boardStore.fen)
     const isAcademic = graphMoves.some((gm) => gm.uci === moveUci)
     const maxGames = Math.max(
-      ...currentStats.value.moves.map((m: any) => m.white + m.draws + m.black),
+      ...currentStats.value.moves.map((m: LichessMove) => m.white + m.draws + m.black),
     )
     let accuracy = maxGames > 0 ? (moveGames / maxGames) * 100 : 0
     if (isAcademic) accuracy = 100
@@ -257,6 +260,8 @@ export const useOpeningTrainingStore = defineStore('openingTraining', () => {
   }
 
   async function triggerBotMove() {
+     if (isDiamondMode.value) return
+
     if (!currentStats.value || currentStats.value.moves.length === 0) {
       await fetchStats()
       if (!currentStats.value || currentStats.value.moves.length === 0) {
@@ -349,6 +354,7 @@ export const useOpeningTrainingStore = defineStore('openingTraining', () => {
     isLoading,
     isProcessingMove,
     isPlayoutMode,
+    isDiamondMode, // Exposed
     error,
     dbSource,
     lichessParams,

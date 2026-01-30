@@ -2,70 +2,69 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import AnalysisPanel from '../components/AnalysisPanel.vue'
 import GameLayout from '../components/GameLayout.vue'
-import LichessOpeningExplorer from '../components/OpeningTrainer/LichessOpeningExplorer.vue'
-import OpeningTrainerHeader from '../components/OpeningTrainer/OpeningTrainerHeader.vue'
 import OpeningTrainingSettingsModal from '../components/OpeningTrainer/OpeningTrainingSettingsModal.vue'
-import i18n from '../services/i18n'
-import { openingGraphService } from '../services/OpeningGraphService'
+import MozerBook from '../components/OpeningTrainer/MozerBook.vue'
+import { NModal, NButton, NIcon } from 'naive-ui'
+import { ArrowBack } from '@vicons/ionicons5'
 import { useAnalysisStore } from '../stores/analysis.store'
 import { useBoardStore } from '../stores/board.store'
 import { useGameStore } from '../stores/game.store'
 import { useOpeningTrainingStore } from '../stores/openingTraining.store'
-import { useUiStore } from '../stores/ui.store'
+import { useDiamondHunterStore } from '../stores/diamondHunter.store'
 
-const t = i18n.global.t
 const openingStore = useOpeningTrainingStore()
+const diamondHunterStore = useDiamondHunterStore()
 const boardStore = useBoardStore()
 const gameStore = useGameStore()
-const uiStore = useUiStore()
 const analysisStore = useAnalysisStore()
 const router = useRouter()
 const route = useRoute()
 
 const isSettingsModalOpen = ref(true)
-const isNavigatingToPlayout = ref(false)
 let navigationDebounce: ReturnType<typeof setTimeout> | null = null
 
 // Sync Opening Stats with Board Position (Debounced for Navigation)
 watch(
   () => boardStore.fen,
-  () => {
+  async () => {
+    // Diamond Hunter Logic
+    if (openingStore.isDiamondMode && diamondHunterStore.isActive) {
+       // If it is User's turn, update arrows
+       if (boardStore.turn === analysisStore.playerColor) {
+           await diamondHunterStore.updateArrows()
+       } else {
+           // If it is Bot's turn, trigger bot move
+           await diamondHunterStore.botMove()
+       }
+    }
+
     if (navigationDebounce) clearTimeout(navigationDebounce)
 
     navigationDebounce = setTimeout(() => {
-      if (!openingStore.isLoading && !openingStore.isProcessingMove) {
-        openingStore.fetchStats(false, false, true)
-      }
+        // Minimal fetch just to ensure we have data if needed??
+        // Actually diamondHunterStore fetches its own stats in updateArrows/botMove.
+        // We might not need openingStore.fetchStats at all anymore.
     }, 100)
   },
 )
 
 onMounted(async () => {
   openingStore.reset()
-  analysisStore.showPanel() // Always show in training
-  if (route.params.openingSlug || route.params.color) {
-    await handleRouteParams()
+  // Force Diamond Mode
+  openingStore.isDiamondMode = true
+
+  // openingStore.initializeSession might do too much setup we don't need (like graph loading)
+  // But we need board setup.
+
+  if (route.params.color) {
+      await handleRouteParams()
   }
 })
 
 async function handleRouteParams() {
-  await openingGraphService.loadBook()
-
-  let slug = route.params.openingSlug as string | undefined
-  let colorParam = route.params.color as string | undefined
+  const colorParam = route.params.color as string | undefined
   let color: 'white' | 'black' = 'white'
-  let moves: string[] = []
-
-  if (slug) {
-    if (slug === 'white' || slug === 'black' || slug === 'for_white' || slug === 'for_black') {
-      colorParam = slug
-      slug = undefined
-    } else if (slug === 'start') {
-      slug = undefined
-    }
-  }
 
   if (colorParam) {
     const normalized = colorParam.replace('for_', '')
@@ -74,37 +73,31 @@ async function handleRouteParams() {
     }
   }
 
-  if (slug) {
-    const opening = openingGraphService.findOpeningBySlug(slug)
-    if (opening) moves = opening.moves
-  }
-
-  if (slug || colorParam) {
-    await startSession(color, moves, slug)
-  }
+  await startSession(color)
 }
 
 onUnmounted(() => {
   openingStore.reset()
+  diamondHunterStore.stopHunt()
   analysisStore.setPlayerColor(null)
-  if (!isNavigatingToPlayout.value) {
-    gameStore.resetGame()
-  }
+  gameStore.resetGame()
 })
 
-async function startSession(color: 'white' | 'black', moves: string[] = [], slug?: string) {
+async function startSession(color: 'white' | 'black') {
   isSettingsModalOpen.value = false
   analysisStore.setPlayerColor(color)
-  analysisStore.showPanel()
+  // analysisStore.showPanel() // Maybe hide analysis panel initiates to keep it clean?
+  // User said "other functions not needed". Analysis might give away answers.
+  // Although "Solving" phase assumes user finds move. Analysis engine would cheat.
+  // So likely hide analysis.
+  analysisStore.hidePanel()
+  openingStore.isDiamondMode = true
 
-  if (slug) {
-    router.replace({
+  router.replace({
       name: 'opening-training',
-      params: { openingSlug: slug, color: `for_${color}` },
-    })
-  } else {
-    router.replace({ name: 'opening-training' })
-  }
+      params: { color: `for_${color}` },
+  })
+
 
   gameStore.setupPuzzle(
     'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
@@ -115,58 +108,68 @@ async function startSession(color: 'white' | 'black', moves: string[] = [], slug
     'opening-trainer',
     undefined,
     color,
-    (uci) => openingStore.handlePlayerMove(uci),
+    (uci) => {
+      if (diamondHunterStore.isSolving) {
+         diamondHunterStore.handleUserSolvingMove(uci)
+      } else {
+         // In Hunt mode, user just moves.
+         // We might want to validate move legality via boardStore, which handles it.
+         // But we usually need to update state.
+         // Check if boardStore.handleUserMove was called?
+         // gameStore.handleUserMove calls this callback.
+         // So the move is already applied on board if legitimate.
+      }
+    },
   )
 
-  await openingStore.initializeSession(color, moves)
+  // Initialize board only
+  boardStore.setupPosition('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', color)
+
+  diamondHunterStore.startHunt()
+  // Initial Arrows or Bot Move
+  if (boardStore.turn === color) {
+      diamondHunterStore.updateArrows()
+  } else {
+      diamondHunterStore.botMove()
+  }
 }
 
 async function handleRestart() {
-  const confirmed = await uiStore.showConfirmation(
-    t('gameplay.confirmExit.title'),
-    'Restart the training session?',
-  )
-  if (confirmed) {
     openingStore.reset()
+    diamondHunterStore.stopHunt()
     await gameStore.resetGame()
     isSettingsModalOpen.value = true
-  }
 }
 
-async function handlePlayout() {
-  const confirmed = await uiStore.showConfirmation(
-    'Start Playout?',
-    'Continue this position against the selected engine right here?',
-  )
-  if (confirmed) {
-    openingStore.startPlayout()
-  }
+function goBack() {
+    router.push({ name: 'home' })
 }
 </script>
 
 <template>
   <GameLayout>
     <template #left-panel>
-      <div class="controls-panel">
-        <OpeningTrainerHeader
-          :opening-name="openingStore.openingName"
-          :eco="openingStore.currentEco"
-          :average-accuracy="openingStore.averageAccuracy"
-          :average-win-rate="openingStore.averageWinRate"
-          :average-rating="openingStore.averageRating"
-          :is-theory-over="openingStore.isTheoryOver"
-          :is-deviation="openingStore.isDeviation"
-          :is-analysis-active="analysisStore.isPanelVisible"
-          :is-playout-mode="openingStore.isPlayoutMode"
-          @restart="handleRestart"
-          @hint="openingStore.hint"
-          @toggle-analysis="
-            analysisStore.isPanelVisible ? analysisStore.hidePanel() : analysisStore.showPanel(true)
-          "
-          @playout="handlePlayout"
-        />
+        <!-- Minimal Header -->
+      <div class="diamond-header">
+          <div class="header-top">
+              <n-button circle secondary @click="goBack">
+                  <template #icon><n-icon><ArrowBack /></n-icon></template>
+              </n-button>
+              <div class="title">Diamond Hunter</div>
+          </div>
+          <div class="status">
+              <div v-if="diamondHunterStore.state === 'HUNTING'">
+                 Hunting...
+              </div>
+              <div v-else-if="diamondHunterStore.state === 'SOLVING'" style="color: #ff5252">
+                 PUNISH THE BLUNDER!
+              </div>
+          </div>
+           <n-button type="primary" secondary @click="handleRestart" style="margin-top: 20px; width: 100%">
+              Restart Session
+          </n-button>
       </div>
-      <AnalysisPanel />
+
       <OpeningTrainingSettingsModal
         v-if="isSettingsModalOpen"
         @start="startSession"
@@ -175,65 +178,69 @@ async function handlePlayout() {
     </template>
 
     <template #center-column>
-      <div v-if="openingStore.isLoading" class="loader-overlay">
-        <div class="spinner"></div>
-      </div>
+      <!-- Reward Modal -->
+      <n-modal v-model:show="diamondHunterStore.isActive" :preset="'dialog'" v-if="diamondHunterStore.message && diamondHunterStore.state === 'REWARD'" style="width: 400px; text-align: center;">
+         <template #header>
+            <div style="font-size: 1.2rem; font-weight: bold; color: #00C853">{{ 'Diamond Collected!' }}</div>
+         </template>
+         <div style="font-size: 3rem; margin: 20px 0;">💎</div>
+         <div style="font-size: 1.1rem; margin-bottom: 20px;">{{ diamondHunterStore.message }}</div>
+         <n-button type="primary" @click="diamondHunterStore.stopHunt(); handleRestart()">Next Hunt</n-button>
+      </n-modal>
+
+       <!-- Fail Modal -->
+      <n-modal v-model:show="diamondHunterStore.isActive" :preset="'dialog'" v-if="diamondHunterStore.message && diamondHunterStore.state === 'IDLE' && diamondHunterStore.message.includes('lost')" style="width: 400px; text-align: center;">
+         <template #header>
+            <div style="font-size: 1.2rem; font-weight: bold; color: #D32F2F">{{ 'Diamond Lost!' }}</div>
+         </template>
+          <div style="font-size: 3rem; margin: 20px 0;">❌</div>
+         <div style="font-size: 1.1rem; margin-bottom: 20px;">{{ diamondHunterStore.message }}</div>
+          <n-button type="primary" @click="diamondHunterStore.stopHunt(); handleRestart()">Try Again</n-button>
+      </n-modal>
+
     </template>
 
     <template #right-panel>
-      <div class="stats-table-wrapper">
-        <LichessOpeningExplorer mode="training" />
-
-        <div v-if="openingStore.error" class="error-msg">
-          {{ openingStore.error }}
-        </div>
-      </div>
+       <MozerBook />
     </template>
   </GameLayout>
 </template>
 
-<style scoped>
-.controls-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+<style scoped lang="scss">
+.diamond-header {
+    background: var(--color-bg-secondary);
+    padding: 20px;
+    border-radius: 12px;
+    color: var(--color-text-primary);
 }
 
-.loader-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.3);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 100;
-  pointer-events: none;
+.header-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
 }
 
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid #fff;
-  border-top-color: transparent;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+.title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #00C853;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+.status {
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    text-align: center;
 }
 
-.error-msg {
-  color: #f44336;
-  padding: 10px;
-  background: rgba(244, 67, 54, 0.1);
-  border-radius: 8px;
-  margin-top: 10px;
-  text-align: center;
+.right-panel-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    min-height: 400px;
 }
 </style>

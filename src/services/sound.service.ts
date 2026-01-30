@@ -35,6 +35,7 @@ export type SoundEvent =
   | 'game_tacktics_error'
   | 'game_tacktics_success'
   | 'game_you_move'
+  | 'blunder'
 
 // --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
@@ -92,6 +93,7 @@ const soundDefinitions: Record<SoundEvent, { track: SoundTrack; path: string | s
   // --- НАЧАЛО ИЗМЕНЕНИЙ ---
   game_tacktics_success: { track: 'background', path: '/sounds/gameStore/TacticksSuccess.mp3' },
   game_you_move: { track: 'voice', path: '/sounds/gameStore/during_game/play_out_start/play_out_start_1.mp3' },
+  blunder: { track: 'background', path: '/sounds/gameStore/TacticksError.mp3' }, // Placeholder reuse
 }
 
 class SoundServiceController {

@@ -11,6 +11,10 @@ export interface LichessMove {
   draws: number
   black: number
   averageRating: number
+  // Diamond Hunter Extensions
+  w_trap?: number
+  b_trap?: number
+  nag?: number
 }
 
 export interface LichessTopGame {
@@ -237,7 +241,7 @@ class OpeningApiService {
       white: data.white,
       draws: data.draws,
       black: data.black,
-      moves: data.moves.map((m: any) => ({
+      moves: data.moves.map((m: { uci: string; san: string; white: number; draws: number; black: number; averageRating?: number }) => ({
         uci: m.uci,
         san: m.san,
         white: m.white,
