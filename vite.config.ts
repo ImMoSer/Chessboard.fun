@@ -6,6 +6,7 @@ import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
 import Components from 'unplugin-vue-components/vite'
 import { defineConfig } from 'vite'
 import VueDevTools from 'vite-plugin-vue-devtools'
+import { viteStaticCopy } from 'vite-plugin-static-copy'
 
 export default defineConfig({
   plugins: [
@@ -30,7 +31,26 @@ export default defineConfig({
       resolvers: [NaiveUiResolver()],
     }),
 
-
+    viteStaticCopy({
+      targets: [
+        {
+          src: 'node_modules/@lichess-org/stockfish-web/sf_18_smallnet.js',
+          dest: 'stockfish/nnue',
+        },
+        {
+          src: 'node_modules/@lichess-org/stockfish-web/sf_18_smallnet.wasm',
+          dest: 'stockfish/nnue',
+        },
+        {
+          src: 'node_modules/stockfish/src/stockfish-17.1-lite-single-03e3232.js',
+          dest: 'stockfish/single',
+        },
+        {
+          src: 'node_modules/stockfish/src/stockfish-17.1-lite-single-03e3232.wasm',
+          dest: 'stockfish/single',
+        },
+      ],
+    }),
 
     // 🔥 Включаем Vue Devtools
     VueDevTools(),

@@ -2,7 +2,6 @@
 import {
   loadSingleThreadEngine,
   type EngineController,
-  type EngineProfile,
 } from '../utils/engine.loader'
 import logger from '../utils/logger'
 
@@ -53,7 +52,6 @@ class SingleThreadEngineManagerController {
   private resolveInitPromise!: () => void
   private rejectInitPromise!: (reason?: unknown) => void
 
-  private currentProfile: EngineProfile = 'lite'
   private infiniteAnalysisCallback: AnalysisUpdateCallback | null = null
   private pendingRequest: PendingRequest | null = null
   private commandQueue: string[] = []
@@ -272,26 +270,6 @@ class SingleThreadEngineManagerController {
   public async setOption(name: string, value: string | number): Promise<void> {
     await this.ensureReady()
     this.sendCommand(`setoption name ${name} value ${value}`)
-  }
-
-  public async setProfile(profile: EngineProfile): Promise<void> {
-    if (this.currentProfile === profile && this.engine) return
-
-    logger.info(`[SingleThreadEngineManager] Switching profile to ${profile}`)
-    this.currentProfile = profile
-
-    if (this.engine) {
-      if (this.engine.terminate) this.engine.terminate()
-      this.engine = null
-      this.isReady = false
-      this.isInitializing = false
-    }
-
-    return this.ensureReady()
-  }
-
-  public getProfile(): EngineProfile {
-    return this.currentProfile
   }
 }
 

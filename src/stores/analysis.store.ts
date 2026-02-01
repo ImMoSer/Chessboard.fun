@@ -4,12 +4,10 @@ import type { Key } from '@lichess-org/chessground/types'
 import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
 import { analysisService, type EvaluatedLineWithSan } from '../services/AnalysisService'
-import type { EngineProfile } from '../utils/engine.loader'
 import logger from '../utils/logger'
 import { useBoardStore } from './board.store'
 
 const THREADS_STORAGE_KEY = 'analysis_threads'
-const PROFILE_STORAGE_KEY = 'analysis_engine_profile'
 const ARROW_STYLES = [
   { brush: 'blue', lineWidth: 15 },
   { brush: 'green', lineWidth: 9 },
@@ -27,7 +25,6 @@ export const useAnalysisStore = defineStore('analysis', () => {
   const isMultiThreadAvailable = ref(false)
   const maxThreads = ref(1)
   const numThreads = ref(1)
-  const engineProfile = ref<EngineProfile>('lite')
   const playerColor = ref<'white' | 'black' | null>(null)
 
   // --- Внутренний механизм для предотвращения гонки состояний ---
@@ -36,9 +33,12 @@ export const useAnalysisStore = defineStore('analysis', () => {
   // --- СЛЕЖЕНИЕ ЗА ИЗМЕНЕНИЯМИ ---
   watch(
     () => boardStore.fen,
-    () => {
+    (newFen) => {
       if (isPanelVisible.value && isAnalysisActive.value) {
+        logger.debug(`[AnalysisStore] FEN changed. Restarting analysis. FEN: ${newFen}`)
         startCurrentPositionAnalysis()
+      } else {
+        // logger.debug(`[AnalysisStore] FEN changed but analysis ignored. Visible: ${isPanelVisible.value}, Active: ${isAnalysisActive.value}`)
       }
     },
   )
@@ -47,6 +47,9 @@ export const useAnalysisStore = defineStore('analysis', () => {
   async function showPanel(startActive = false) {
     isPanelVisible.value = true
     isLoading.value = true
+
+    // Инициализация сервиса анализа (один раз при первом открытии)
+    await analysisService.initialize()
 
     isMultiThreadAvailable.value = analysisService.isMultiThreadAvailable()
     maxThreads.value = analysisService.getMaxThreads()
@@ -58,14 +61,8 @@ export const useAnalysisStore = defineStore('analysis', () => {
       ? Math.min(parseInt(savedThreads, 10), maxThreads.value)
       : defaultThreads
 
-    // Загрузка настроек профиля
-    const savedProfile = localStorage.getItem(PROFILE_STORAGE_KEY) as EngineProfile | null
-    engineProfile.value = savedProfile || 'lite'
-
-    await analysisService.initialize(engineProfile.value)
-
     logger.info(
-      `[AnalysisStore] Panel shown. Profile: ${engineProfile.value}. Multi-threading: ${isMultiThreadAvailable.value}. Threads: ${numThreads.value}/${maxThreads.value}.`,
+      `[AnalysisStore] Panel shown. Multi-threading: ${isMultiThreadAvailable.value}. Threads: ${numThreads.value}/${maxThreads.value}.`,
     )
     isLoading.value = false
     boardStore.setAnalysisMode(true)
@@ -133,23 +130,6 @@ export const useAnalysisStore = defineStore('analysis', () => {
     }
   }
 
-  async function setEngineProfile(profile: EngineProfile) {
-    if (engineProfile.value === profile) return
-
-    isLoading.value = true
-    engineProfile.value = profile
-    localStorage.setItem(PROFILE_STORAGE_KEY, profile)
-
-    logger.info(`[AnalysisStore] Engine profile changed to ${profile}. Re-initializing.`)
-    await analysisService.setEngineProfile(profile)
-
-    if (isAnalysisActive.value) {
-      await startCurrentPositionAnalysis()
-    } else {
-      isLoading.value = false
-    }
-  }
-
   function drawAnalysisArrows(lines: EvaluatedLineWithSan[]) {
     const shapes: DrawShape[] = []
     lines.slice(0, 3).forEach((line, index) => {
@@ -203,13 +183,11 @@ export const useAnalysisStore = defineStore('analysis', () => {
     isMultiThreadAvailable,
     maxThreads,
     numThreads,
-    engineProfile,
     playerColor,
     showPanel,
     hidePanel,
     toggleAnalysis,
     setThreads,
-    setEngineProfile,
     resetAnalysisState,
     setPlayerColor,
   }

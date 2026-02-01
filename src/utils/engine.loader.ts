@@ -17,28 +17,9 @@ export interface EngineController {
   terminate?(): void
 }
 
-export type EngineProfile = 'lite' | 'pro'
-
-interface EngineConfig {
-  loaderPath: string
-  networkPath?: string
-  networkFilename?: string
-}
-
-const ENGINE_CONFIGS: Record<EngineProfile, EngineConfig> = {
-  lite: {
-    loaderPath: '/stockfish_nnue/stockfish.js',
-    networkPath: '/stockfish_nnue/nn-4fd273888b72.nnue',
-    networkFilename: 'nn-4fd273888b72.nnue',
-  },
-  pro: {
-    loaderPath: '/stockfish_nnue_big/stockfish.js',
-    // Big engine has embedded network nn-ac5605a608d6.nnue
-  },
-}
-
 export function loadSingleThreadEngine(): Promise<EngineController> {
-  const loaderPath = '/stockfish_single/stockfish.js'
+  // Используем Lite Single версию из npm пакета stockfish
+  const loaderPath = '/stockfish/single/stockfish-17.1-lite-single-03e3232.js'
   logger.info(`[EngineLoader] Loading single-threaded engine from ${loaderPath}`)
   return new Promise((resolve, reject) => {
     try {
@@ -71,89 +52,93 @@ export function loadSingleThreadEngine(): Promise<EngineController> {
 }
 
 /**
- * Загружает и инициализирует многопоточную версию движка Stockfish.
- * Возвращает null, если среда не поддерживает многопоточность (crossOriginIsolated = false).
+ * Интерфейс модуля Stockfish от Lichess.
+ * Они используют метод uci() для отправки команд вместо postMessage.
+ */
+interface LichessModule {
+  uci(command: string): void
+  addMessageListener?: never // Этого метода нет в оригинале
+  postMessage?: never      // Этого метода нет в оригинале
+}
+
+/**
+ * Загружает и инициализирует многопоточную версию движка Stockfish (NNUE).
  * @returns {Promise<EngineController | null>} Промис, который разрешается контроллером движка или null.
  */
-export function loadMultiThreadEngine(
-  profile: EngineProfile = 'lite',
-): Promise<EngineController | null> {
+export function loadMultiThreadEngine(): Promise<EngineController | null> {
   const isCrossOriginIsolated = window.crossOriginIsolated
   if (!isCrossOriginIsolated) {
     logger.warn(`[EngineLoader] Multi-threaded engine not supported: crossOriginIsolated is false.`)
     return Promise.resolve(null)
   }
 
-  const config = ENGINE_CONFIGS[profile]
-  logger.info(`[EngineLoader] Loading multi-threaded engine (${profile}) from ${config.loaderPath}`)
-  return new Promise((resolve, reject) => {
-    const script = document.createElement('script')
-    script.src = config.loaderPath
-    script.async = true
-    script.onload = async () => {
-      logger.info('[EngineLoader] Multi-threaded loader script loaded.')
-      if (typeof window.Stockfish === 'function') {
-        try {
-          const engine = await window.Stockfish()
-          logger.info('[EngineLoader] Multi-threaded Stockfish instance created successfully.')
+  // Путь к основному движку с вшитой сетью (Lichess SmallNet)
+  const loaderPath = '/stockfish/nnue/sf_18_smallnet.js'
 
-          // Загружаем NNUE сеть, если она указана в конфиге
-          if (config.networkPath && config.networkFilename) {
-            try {
-              logger.info(`[EngineLoader] Fetching NNUE network from ${config.networkPath}...`)
-              const response = await fetch(config.networkPath)
-              if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`)
-
-              const buffer = await response.arrayBuffer()
-              const uint8Array = new Uint8Array(buffer)
-              const FS = (engine as any).FS
-
-              if (FS) {
-                const filename = `/${config.networkFilename}`
-                FS.writeFile(filename, uint8Array)
-
-                // Проверка наличия файла
-                try {
-                  const stat = FS.stat(filename)
-                  logger.info(
-                    `[EngineLoader] NNUE file verified in FS: ${filename}, size: ${stat.size}`,
-                  )
-                } catch {
-                  logger.error(`[EngineLoader] NNUE file verification failed: ${filename}`)
-                }
-
-                engine.postMessage(`setoption name EvalFile value ${filename}`)
-                logger.info(`[EngineLoader] NNUE network option set: ${filename}`)
-              } else {
-                logger.warn('[EngineLoader] Emscripten FS not found on engine instance.')
-              }
-            } catch (nnueError) {
-              logger.error(
-                `[EngineLoader] Failed to load/init NNUE network (${profile}):`,
-                nnueError,
-              )
-            }
-          }
-
-          resolve(engine as EngineController)
-        } catch (error) {
-          logger.error(
-            '[EngineLoader] Error initializing multi-threaded Stockfish instance.',
-            error,
-          )
-          reject(error)
-        }
-      } else {
-        reject(
-          new Error(
-            '[EngineLoader] Stockfish factory function not found on window after script load.',
-          ),
-        )
+  logger.info(`[EngineLoader] Loading multi-threaded engine (NNUE) from ${loaderPath}`)
+  
+  return new Promise(async (resolve, reject) => {
+    try {
+      // Используем динамический импорт для загрузки ESM модуля
+      const module = await import(/* @vite-ignore */ loaderPath)
+      
+      // Lichess stockfish-web экспортирует фабрику как default export
+      const StockfishFactory = module.default || module.Stockfish || module
+      
+      if (typeof StockfishFactory !== 'function') {
+        throw new Error('[EngineLoader] Stockfish factory is not a function.')
       }
+
+      logger.info('[EngineLoader] Multi-threaded loader module imported.')
+
+      // Массив подписчиков на сообщения от движка
+      const listeners: ((message: string) => void)[] = []
+
+      try {
+        // Инициализируем движок.
+        // Передаем callback 'listen', который будет транслировать сообщения нашим подписчикам.
+        const engineInstance = await StockfishFactory({
+          locateFile: (path: string, prefix: string) => {
+            if (path.endsWith('.wasm')) {
+              return `/stockfish/nnue/${path}`
+            }
+            return prefix + path
+          },
+          listen: (line: string) => {
+             listeners.forEach((callback) => callback(line))
+          }
+        }) as LichessModule
+        
+        logger.info('[EngineLoader] Multi-threaded Stockfish instance created successfully.')
+        
+        // Создаем адаптер, чтобы движок выглядел как EngineController
+        const engineAdapter: EngineController = {
+          postMessage: (command: string) => {
+            engineInstance.uci(command)
+          },
+          addMessageListener: (callback: (message: string) => void) => {
+            listeners.push(callback)
+          },
+          terminate: () => {
+            // Прямого метода terminate у WASM модуля обычно нет, если он запущен в главном потоке.
+            // Можно просто очистить слушателей.
+            listeners.length = 0
+            logger.warn('[EngineLoader] Terminate called on main-thread WASM engine (no-op).')
+          }
+        }
+
+        resolve(engineAdapter)
+      } catch (error) {
+        logger.error(
+          '[EngineLoader] Error initializing multi-threaded Stockfish instance.',
+          error,
+        )
+        reject(error)
+      }
+
+    } catch (error) {
+      logger.error(`[EngineLoader] Failed to load module: ${loaderPath}`, error)
+      reject(error)
     }
-    script.onerror = () => {
-      reject(new Error(`[EngineLoader] Failed to load script: ${config.loaderPath}`))
-    }
-    document.head.appendChild(script)
   })
 }

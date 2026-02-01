@@ -106,10 +106,10 @@ const calculateScore = (item: TheoryItemWithChildren) => {
                           >
                           <span class="stat-sep">|</span>
                           <span class="stat-perf">Perf: {{ Math.round(item.perf) }}</span>
-                          <span v-if="item.wt > 0" class="stat-sep">|</span>
-                          <span v-if="item.wt > 0" class="stat-trap white">WTrp: {{ Math.round((item.wt / 255) * 100) }}%</span>
-                          <span v-if="item.bt > 0" class="stat-sep">|</span>
-                          <span v-if="item.bt > 0" class="stat-trap black">BTrp: {{ Math.round((item.bt / 255) * 100) }}%</span>
+                          <span v-if="(item.wt ?? 0) > 0" class="stat-sep">|</span>
+                          <span v-if="(item.wt ?? 0) > 0" class="stat-trap white">WTrp: {{ Math.round(((item.wt ?? 0) / 255) * 100) }}%</span>
+                          <span v-if="(item.bt ?? 0) > 0" class="stat-sep">|</span>
+                          <span v-if="(item.bt ?? 0) > 0" class="stat-trap black">BTrp: {{ Math.round(((item.bt ?? 0) / 255) * 100) }}%</span>
                         </div>
                       </div>
                     </div>

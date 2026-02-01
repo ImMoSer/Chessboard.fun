@@ -4,7 +4,6 @@ import { parseFen } from 'chessops/fen'
 import { makeSan } from 'chessops/san'
 import type { Color as ChessopsColor } from 'chessops/types'
 import { parseUci } from 'chessops/util'
-import type { EngineProfile } from '../utils/engine.loader'
 import logger from '../utils/logger'
 import type { AnalysisUpdateCallback, EvaluatedLine } from './MultiThreadEngineManager'
 import { multiThreadEngineManager } from './MultiThreadEngineManager'
@@ -31,17 +30,19 @@ class AnalysisServiceController {
     logger.info('[AnalysisService] Created.')
   }
 
-  public async initialize(profile: EngineProfile = 'lite') {
+  public async initialize() {
     // Инициализация происходит один раз при старте приложения
-    await multiThreadEngineManager.setProfile(profile)
+    // Пытаемся инициализировать многопоточный движок (он сам проверит поддержку)
+    await multiThreadEngineManager.ensureReady()
+    
     if (multiThreadEngineManager.isMultiThreadingSupported()) {
       this.activeEngineManager = multiThreadEngineManager
-      logger.info(`[AnalysisService] Initialized with Multi-Threaded Engine (${profile}).`)
+      logger.info(`[AnalysisService] Initialized with Multi-Threaded Engine (NNUE).`)
     } else {
-      await singleThreadEngineManager.setProfile(profile)
+      await singleThreadEngineManager.ensureReady()
       this.activeEngineManager = singleThreadEngineManager
       logger.info(
-        `[AnalysisService] Initialized with Single-Threaded Engine fallback (${profile}).`,
+        `[AnalysisService] Initialized with Single-Threaded Engine fallback.`,
       )
     }
   }
@@ -87,17 +88,6 @@ class AnalysisServiceController {
     } else {
       logger.warn(`[AnalysisService] Cannot set threads for single-threaded engine.`)
     }
-  }
-
-  public async setEngineProfile(profile: EngineProfile) {
-    if (this.activeEngineManager) {
-      await this.activeEngineManager.setProfile(profile)
-      logger.info(`[AnalysisService] Engine profile switched to ${profile}`)
-    }
-  }
-
-  public getEngineProfile(): EngineProfile {
-    return this.activeEngineManager ? (this.activeEngineManager as any).getProfile() : 'lite'
   }
 
   private prepareLinesForDisplay(lines: EvaluatedLine[], fen: string): EvaluatedLineWithSan[] {

@@ -2,7 +2,7 @@
 import type { EvaluatedLineWithSan } from '@/services/AnalysisService'
 import { useAnalysisStore } from '@/stores/analysis.store'
 import { useBoardStore } from '@/stores/board.store'
-import { BarChartOutline, HardwareChipOutline, TerminalOutline } from '@vicons/ionicons5'
+import { BarChartOutline, TerminalOutline } from '@vicons/ionicons5'
 import { NButton, NCard, NIcon, NSelect, NSpace, NSpin, NSwitch, NText, NTooltip } from 'naive-ui'
 import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
@@ -19,7 +19,6 @@ const {
   isMultiThreadAvailable,
   maxThreads,
   numThreads,
-  engineProfile,
 } = storeToRefs(analysisStore)
 
 const formatScore = (line: EvaluatedLineWithSan) => {
@@ -63,11 +62,6 @@ const threadOptions = computed(() => {
   }))
 })
 
-const profileOptions = computed(() => [
-  { label: t('analysis.profiles.lite'), value: 'lite' },
-  { label: t('analysis.profiles.pro'), value: 'pro' },
-])
-
 const handleLineClick = (line: EvaluatedLineWithSan) => {
   const uciMove = line.pvUci[0]
   if (uciMove) {
@@ -94,22 +88,6 @@ const handleLineClick = (line: EvaluatedLineWithSan) => {
         </n-space>
 
         <n-space align="center" :size="8">
-          <n-tooltip trigger="hover">
-            <template #trigger>
-              <n-icon size="16" depth="3" class="toolbar-icon">
-                <HardwareChipOutline />
-              </n-icon>
-            </template>
-            {{ t('analysis.profile') }}
-          </n-tooltip>
-          <n-select
-            class="profile-select"
-            size="small"
-            :value="engineProfile"
-            :options="profileOptions"
-            @update:value="analysisStore.setEngineProfile"
-          />
-
           <n-tooltip trigger="hover">
             <template #trigger>
               <n-icon size="16" depth="3" class="toolbar-icon">

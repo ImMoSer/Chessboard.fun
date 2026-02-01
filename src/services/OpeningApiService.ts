@@ -69,6 +69,8 @@ export interface MozerBookMove extends MozerBookTheoryItem {
   l_pct: number
   perf: number
   nag: number
+  wt?: number
+  bt?: number
   children?: MozerBookTheoryItem[]
 }
 
