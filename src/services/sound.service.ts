@@ -22,6 +22,7 @@ export type SoundEvent =
   | 'board_timer_8s'
   | 'board_timer_times_up'
   | 'board_bot_checks_player' // Голосовой, но инициируется board.store
+  | 'board_check' // Simple check sound (User -> Bot)
   | 'board_checkmate' // Голосовой, но инициируется board.store
   | 'board_draw_stalemate'
   | 'board_draw_repetition'
@@ -61,6 +62,7 @@ const soundDefinitions: Record<SoundEvent, { track: SoundTrack; path: string | s
   board_timer_8s: { track: 'background', path: '/sounds/boarStore/timer_8_seconds_left.mp3' },
   board_timer_times_up: { track: 'background', path: '/sounds/boarStore/timer_times_up.mp3' },
   board_bot_checks_player: { track: 'voice', path: createPool('/sounds/boarStore/checks_by_bot') },
+  board_check: { track: 'background', path: '/sounds/boarStore/board_check.mp3' },
   board_checkmate: {
     track: 'voice',
     path: createPool('/sounds/boarStore/chessGameResult/checkmate'),
@@ -93,7 +95,7 @@ const soundDefinitions: Record<SoundEvent, { track: SoundTrack; path: string | s
   // --- НАЧАЛО ИЗМЕНЕНИЙ ---
   game_tacktics_success: { track: 'background', path: '/sounds/gameStore/TacticksSuccess.mp3' },
   game_you_move: { track: 'voice', path: '/sounds/gameStore/during_game/play_out_start/play_out_start_1.mp3' },
-  blunder: { track: 'background', path: '/sounds/gameStore/TacticksError.mp3' }, // Placeholder reuse
+  blunder: { track: 'voice', path: '/sounds/gameStore/during_game/play_out_start/play_out_start_2.mp3' },
 }
 
 class SoundServiceController {

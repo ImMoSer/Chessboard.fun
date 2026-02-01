@@ -69,8 +69,6 @@ export interface MozerBookMove extends MozerBookTheoryItem {
   l_pct: number
   perf: number
   nag: number
-  wt: number
-  bt: number
   children?: MozerBookTheoryItem[]
 }
 
@@ -95,8 +93,6 @@ interface MastersMove {
   l_pct: number
   perf: number
   nag: number
-  wt: number
-  bt: number
 }
 
 interface MastersResponse {
@@ -293,14 +289,12 @@ class OpeningApiService {
         draws: d,
         black: b,
         averageRating: m.perf, // Use perf as average rating proxy
-        w_trap: m.wt,
-        b_trap: m.bt,
         nag: m.nag
       }
     })
 
     const summary = data.summary || { w: 0, d: 0, l: 0, av: 0, perf: 0 }
-    
+
     return {
       white: summary.w,
       draws: summary.d,

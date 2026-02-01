@@ -77,8 +77,6 @@ function handleClick() {
 
     <div class="col-draw">{{ drawPct }}</div>
     <div class="col-perf">{{ Math.round(move.perf) }}</div>
-    <div class="col-trap">{{ move.wt > 0 ? Math.round((move.wt / 255) * 100) + '%' : '' }}</div>
-    <div class="col-trap">{{ move.bt > 0 ? Math.round((move.bt / 255) * 100) + '%' : '' }}</div>
   </div>
 </template>
 
@@ -134,12 +132,6 @@ function handleClick() {
   padding-right: 4px;
 }
 
-.col-trap {
-  width: 40px;
-  padding-right: 4px;
-  font-size: 11px;
-  opacity: 0.8;
-}
 
 .move-text {
   font-weight: bold;

@@ -24,6 +24,7 @@ declare module 'vue' {
     EngineSelector: typeof import('./src/components/EngineSelector.vue')['default']
     FinishHimSelection: typeof import('./src/components/FinishHimSelection.vue')['default']
     GameLayout: typeof import('./src/components/GameLayout.vue')['default']
+    GravityBook: typeof import('./src/components/OpeningTrainer/GravityBook.vue')['default']
     InfoIcon: typeof import('./src/components/InfoIcon.vue')['default']
     InfoModal: typeof import('./src/components/InfoModal.vue')['default']
     LichessOpeningExplorer: typeof import('./src/components/OpeningTrainer/LichessOpeningExplorer.vue')['default']

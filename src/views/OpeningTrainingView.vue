@@ -4,7 +4,7 @@ import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import GameLayout from '../components/GameLayout.vue'
 import OpeningTrainingSettingsModal from '../components/OpeningTrainer/OpeningTrainingSettingsModal.vue'
-import MozerBook from '../components/OpeningTrainer/MozerBook.vue'
+import GravityBook from '../components/OpeningTrainer/GravityBook.vue'
 import AnalysisPanel from '../components/AnalysisPanel.vue'
 import { NModal, NButton, NIcon, NStatistic, NNumberAnimation, NSpace } from 'naive-ui'
 import { ArrowBack, DiamondOutline, FlashOutline, TelescopeOutline } from '@vicons/ionicons5'
@@ -129,11 +129,13 @@ async function startSession(color: 'white' | 'black') {
   boardStore.setupPosition('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', color)
 
   diamondHunterStore.startHunt()
-  // Initial Arrows or Bot Move
-  if (boardStore.turn === color) {
-      diamondHunterStore.updateArrows()
+
+  // Manual Trigger: If it is not user's turn, force bot move.
+  // The watcher might have missed the initial state change if it happened before HUNTING mode.
+  if (boardStore.turn !== color) {
+       await diamondHunterStore.botMove()
   } else {
-      diamondHunterStore.botMove()
+       await diamondHunterStore.updateArrows()
   }
 }
 
@@ -188,18 +190,18 @@ function goBack() {
 
           <!-- Session Stats -->
           <div class="stats-row">
-              <n-statistic label="Diamonds">
+              <n-statistic label="Total Diamonds">
                 <template #prefix>
                     <n-icon color="#9C27B0"><DiamondOutline /></n-icon>
                 </template>
-                <n-number-animation :from="0" :to="diamondHunterStore.sessionDiamonds" />
+                <n-number-animation :from="0" :to="diamondHunterStore.totalDiamonds" />
               </n-statistic>
 
-              <n-statistic label="Brilliants">
+              <n-statistic label="Total Brilliants">
                 <template #prefix>
                     <n-icon color="#00C853"><FlashOutline /></n-icon>
                 </template>
-                <n-number-animation :from="0" :to="diamondHunterStore.sessionBrilliants" />
+                <n-number-animation :from="0" :to="diamondHunterStore.totalBrilliants" />
               </n-statistic>
           </div>
 
@@ -216,6 +218,23 @@ function goBack() {
     </template>
 
     <template #center-column>
+       <!-- Theory Ended Modal -->
+      <n-modal v-model:show="diamondHunterStore.showTheoryEndModal" :preset="'dialog'" style="width: 400px; text-align: center;">
+         <template #header>
+            <div style="font-size: 1.2rem; font-weight: bold; color: #FFA000">{{ 'Theory Ended' }}</div>
+         </template>
+         <div style="font-size: 3rem; margin: 20px 0;">🤷‍♂️</div>
+         <div style="font-size: 1.1rem; margin-bottom: 20px;">We are out of book moves.</div>
+         
+         <n-space justify="center" :size="20">
+             <n-button type="primary" @click="diamondHunterStore.closeTheoryModal(); handleRestart()">Restart</n-button>
+             <n-button secondary @click="diamondHunterStore.closeTheoryModal(); startAnalysis()">
+                 <template #icon><n-icon><TelescopeOutline /></n-icon></template>
+                 Analyze
+             </n-button>
+         </n-space>
+      </n-modal>
+
       <!-- Reward Modal -->
       <n-modal v-model:show="diamondHunterStore.isActive" :preset="'dialog'" v-if="diamondHunterStore.message && diamondHunterStore.state === 'REWARD'" style="width: 400px; text-align: center;">
          <template #header>
@@ -253,7 +272,7 @@ function goBack() {
     </template>
 
     <template #right-panel>
-       <MozerBook />
+       <GravityBook />
     </template>
   </GameLayout>
 </template>

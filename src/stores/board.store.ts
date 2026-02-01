@@ -125,8 +125,14 @@ export const useBoardStore = defineStore('board', () => {
             break
         }
       } else if (gameStatus.isCheck) {
-        // In study mode, just play check sound if check
-        soundService.playSound('board_bot_checks_player') // reusing this sound for generic check
+        // If it's currently the player's turn (gameStatus.turn === orientation),
+        // it means the opponent (Bot) just moved and delivered check.
+        if (gameStatus.turn === orientation.value) {
+            soundService.playSound('board_bot_checks_player')
+        } else {
+            // Otherwise, the player just moved and delivered check to the Bot.
+            soundService.playSound('board_check')
+        }
       }
     }
   }

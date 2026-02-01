@@ -1,47 +1,116 @@
-// src/stores/diamondHunter.store.ts
-import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
-import { useBoardStore } from './board.store'
-import { useAnalysisStore } from './analysis.store'
-import { useMozerBookStore } from './mozerBook.store'
-import { type MozerBookMove } from '../services/OpeningApiService'
-import { soundService } from '../services/sound.service'
-import { checkDiamondLimit, recordDiamond } from '../db/DiamondDatabase'
 import type { DrawShape } from '@lichess-org/chessground/draw'
 import type { Key } from '@lichess-org/chessground/types'
+import { defineStore } from 'pinia'
+import { computed, ref, watch } from 'vue'
+import { checkDiamondLimit, db, recordBrilliant, recordDiamond } from '../db/DiamondDatabase'
+import { diamondApiService, type GravityMove } from '../services/DiamondApiService'
+import { soundService } from '../services/sound.service'
 import logger from '../utils/logger'
+import { useAnalysisStore } from './analysis.store'
+import { useBoardStore } from './board.store'
 
 export type HunterState = 'IDLE' | 'HUNTING' | 'SOLVING' | 'REWARD' | 'FAILED'
+
+// Arrow Colors: 1st=Green, 2nd=Blue, 3rd=Yellow
+const ARROW_COLORS = ['green', 'blue', 'yellow']
 
 export const useDiamondHunterStore = defineStore('diamondHunter', () => {
     const boardStore = useBoardStore()
     const analysisStore = useAnalysisStore()
-    const mozerBookStore = useMozerBookStore()
 
     const state = ref<HunterState>('IDLE')
     const isActive = computed(() => state.value !== 'IDLE')
     const isSolving = computed(() => state.value === 'SOLVING')
 
     const currentDiamondHash = ref<string | null>(null)
+    const currentBlunderMove = ref<GravityMove | null>(null)
     const message = ref<string>('')
     const isProcessing = ref(false)
+    const showTheoryEndModal = ref(false)
+
+    // Current Gravity Stats (Cached)
+    const currentGravityStats = ref<{ moves: GravityMove[] } | null>(null)
+    const lastFetchedFen = ref('')
+    const lastFetchedPlayerColor = ref<string | null>(null)
+    
+    // In-flight request deduplication
+    const pendingRequest = ref<Promise<any> | null>(null)
+    const pendingFen = ref<string | null>(null)
 
     // Tracks the FEN of the position the user is currently trying to SOLVE.
-    // This is updated after the bot plays a move (blunder or reply).
     const puzzleFen = ref<string>('')
 
-    // Session Stats
-    const sessionDiamonds = ref(0)
-    const sessionBrilliants = ref(0)
+    // Stats
+    const totalDiamonds = ref(0)
+    const totalBrilliants = ref(0)
 
-    // Arrow Colors
-    const ARROW_COLORS = ['green', 'blue', 'yellow']
+    // Load initial stats
+    db.diamonds.count().then(count => {
+        totalDiamonds.value = count
+    })
+    db.brilliants.count().then(count => {
+        totalBrilliants.value = count
+    })
+
+    async function fetchGravityForFen(fen: string, force = false) {
+        const playerColor = analysisStore.playerColor
+        if (!playerColor) return null
+
+        // 1. Return cached data if valid (FEN + PlayerColor match)
+        if (!force && 
+            fen === lastFetchedFen.value && 
+            playerColor === lastFetchedPlayerColor.value && 
+            currentGravityStats.value
+        ) {
+            return currentGravityStats.value
+        }
+
+        // 2. Return in-flight promise if matching FEN
+        if (pendingRequest.value && pendingFen.value === fen && !force) {
+            return pendingRequest.value
+        }
+
+        // 3. Create new request
+        pendingFen.value = fen
+        
+        const promise = (async () => {
+            try {
+                let response
+                if (playerColor === 'white') {
+                    response = await diamondApiService.getWhiteGravity(fen)
+                } else {
+                    response = await diamondApiService.getBlackGravity(fen)
+                }
+                
+                if (fen === pendingFen.value) {
+                     currentGravityStats.value = response
+                     lastFetchedFen.value = fen
+                     lastFetchedPlayerColor.value = playerColor
+                }
+                return response
+            } finally {
+                if (fen === pendingFen.value) {
+                    pendingRequest.value = null
+                    pendingFen.value = null
+                }
+            }
+        })()
+
+        pendingRequest.value = promise
+        return promise
+    }
 
     function startHunt() {
         logger.info('DiamondHunter: Starting hunt')
         state.value = 'HUNTING'
         message.value = 'Hunt started! Follow the arrows...'
-        updateArrows()
+        
+        // Kickstart the loop based on whose turn it is
+        if (boardStore.turn === analysisStore.playerColor) {
+            updateArrows()
+        } else {
+            botMove()
+        }
     }
 
     function stopHunt() {
@@ -49,57 +118,52 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
         state.value = 'IDLE'
         boardStore.setDrawableShapes([])
         message.value = ''
+        currentGravityStats.value = null
+        lastFetchedFen.value = ''
+        lastFetchedPlayerColor.value = null
     }
 
     // --- Arrow Logic (User Turn) ---
     async function updateArrows() {
-        // STRICT GUARD: No arrow updates if we are solving.
         if (state.value === 'SOLVING') return
 
         const playerColor = analysisStore.playerColor || 'white'
+        const fen = boardStore.fen
 
-        // If not hunting or if it's NOT the player's turn, clear arrows
         if (state.value !== 'HUNTING' || boardStore.turn !== playerColor) {
             boardStore.setDrawableShapes([])
             return
         }
 
-        const fen = boardStore.fen
-        const stats = await mozerBookStore.getStatsForFen(fen)
+        const response = await fetchGravityForFen(fen)
 
-        if (!stats || !stats.moves) return
+        if (!response || !response.moves || response.moves.length === 0) {
+            // If we are hunting but no moves are found, theory has ended
+            if (state.value === 'HUNTING') {
+                logger.info('DiamondHunter: Theory ended (User turn)')
+                showTheoryEndModal.value = true
+                state.value = 'IDLE' // Pause the hunt state so we don't loop
+            }
+            return
+        }
 
-        const userColor = playerColor
+        const sortedMoves = [...response.moves].sort((a, b) => b.weight - a.weight)
+        const topMoves = sortedMoves.slice(0, 3)
 
-        // Filter out BAD moves from advice/arrows
-        // - Exclude: ? (2), ?? (4), ?! (6)
-        // - Diamond Hunter Rule: Only show moves with ACTUAL trap potential (wt/bt > 0)
-        const trapMoves = stats.moves.filter(m => {
-            const nag = m.nag || 0
-            if (nag === 2 || nag === 4 || nag === 6) return false
-
-            const trapValue = userColor === 'white' ? (m.wt || 0) : (m.bt || 0)
-            return trapValue > 0
-        })
-
-        let finalMoves: MozerBookMove[] = []
-
-        if (trapMoves.length > 0) {
-            // Sort by Trap Potential Descending
-            finalMoves = [...trapMoves].sort((a: MozerBookMove, b: MozerBookMove) => {
-                const trapA = userColor === 'white' ? (a.wt || 0) : (a.bt || 0)
-                const trapB = userColor === 'white' ? (b.wt || 0) : (b.bt || 0)
-                return trapB - trapA
-            }).slice(0, 3)
-        } 
-        // STRICT RULE: If no trap moves, show NO arrows.
-
-        const shapes: DrawShape[] = finalMoves.map((move: MozerBookMove, index: number) => {
-            return {
+        const shapes: DrawShape[] = topMoves.map((move, index) => {
+            const shape: DrawShape = {
                 orig: move.uci.substring(0, 2) as Key,
                 dest: move.uci.substring(2, 4) as Key,
                 brush: ARROW_COLORS[index],
             }
+
+            if (move.dist <= 3) {
+                shape.label = { text: '!', fill: '#00C853' }
+            } else if (move.dist <= 5) {
+                shape.label = { text: '!?', fill: '#2196F3' }
+            }
+
+            return shape
         })
 
         boardStore.setDrawableShapes(shapes)
@@ -107,54 +171,71 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
 
     // --- Bot Logic (System Turn) ---
     async function botMove() {
-        // STRICT GUARD: No bot moves if solving (handled by botSolvingResponse)
         if (state.value !== 'HUNTING' || isProcessing.value) return
+
+        const playerColor = analysisStore.playerColor || 'white'
+        // If it's player's turn, bot shouldn't move
+        if (boardStore.turn === playerColor) return
+
         isProcessing.value = true
-
         const fen = boardStore.fen
-        const stats = await mozerBookStore.getStatsForFen(fen)
 
-        if (!stats || !stats.moves || stats.moves.length === 0) {
-            logger.info('DiamondHunter: No book moves left for bot in hunting phase')
+        const response = await fetchGravityForFen(fen)
+
+        if (!response || !response.moves || response.moves.length === 0) {
+            logger.info('DiamondHunter: Theory ended (Bot turn)')
+            showTheoryEndModal.value = true
+            state.value = 'IDLE'
             isProcessing.value = false
             return
         }
 
-        // Priority 1: STRICT Blunder (??) - NAG 4
-        const blunder = stats.moves.find((m: MozerBookMove) => m.nag === 4)
-        // Priority 2: Only Move (Only) - NAG 7
-        const onlyMove = stats.moves.find((m: MozerBookMove) => m.nag === 7)
+        const candidates = [...response.moves]
+            .sort((a, b) => b.weight - a.weight)
+            .slice(0, 5)
 
-        if (blunder) {
-            logger.info('DiamondHunter: Bot blundered! Triggering solve phase', { uci: blunder.uci })
-            await playBlunder(blunder)
-        } else if (onlyMove) {
-             logger.info('DiamondHunter: Bot playing forced move', { uci: onlyMove.uci })
-             boardStore.applyUciMove(onlyMove.uci)
-             setTimeout(() => updateArrows(), 200)
+        let selectedMove: GravityMove | undefined = candidates[0]
+
+        if (candidates.length > 0) {
+            const totalWeight = candidates.reduce((sum, m) => sum + m.weight, 0)
+            let randomValue = Math.random() * totalWeight
+
+            for (const move of candidates) {
+                randomValue -= move.weight
+                if (randomValue <= 0) {
+                    selectedMove = move
+                    break
+                }
+            }
+        }
+
+        if (!selectedMove) {
+            logger.warn('DiamondHunter: Failed to select move')
+            isProcessing.value = false
+            return
+        }
+
+        logger.info('DiamondHunter: Bot selected move', { uci: selectedMove.uci, nag: selectedMove.nag })
+
+        if (selectedMove.nag === 4) {
+            await playBlunder(selectedMove)
         } else {
-            await playGiveaway(stats.moves)
+            boardStore.applyUciMove(selectedMove.uci)
+            // No explicit updateArrows() or setTimeout here. 
+            // The FEN change will trigger the watcher, which will call updateArrows() for the user.
         }
 
         isProcessing.value = false
     }
 
-    async function playBlunder(move: MozerBookMove) {
-        // 1. Trigger Diamond Context
+    async function playBlunder(move: GravityMove) {
         currentDiamondHash.value = boardStore.fen
-        
-        // 2. Make the move FIRST
+        currentBlunderMove.value = move
         boardStore.applyUciMove(move.uci)
-        
-        // 3. CAPTURE THE PUZZLE STATE
-        // The user now faces this position and must find the refutation.
         puzzleFen.value = boardStore.fen
-        
-        // 4. Set State to SOLVING
         state.value = 'SOLVING'
         message.value = 'Tactics available! Punishment time!'
 
-        // 5. Visual Alert (Post-move)
         const dest = move.uci.substring(2, 4) as Key
         boardStore.setDrawableShapes([{
             orig: dest,
@@ -164,171 +245,82 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
 
         soundService.playSound('blunder')
 
-        // 6. Clear the red mark after a delay
         setTimeout(() => {
-             boardStore.setDrawableShapes([])
+            // Check if we are still solving to avoid clearing other shapes if state changed rapidly
+            if (state.value === 'SOLVING') {
+                boardStore.setDrawableShapes([])
+            }
         }, 2000)
-    }
-
-    async function playGiveaway(moves: MozerBookMove[]) {
-        const playerColor = analysisStore.playerColor || 'white'
-        const userColor = playerColor
-
-        // 1. Calculate scores and filter bad moves
-        const movesWithScores = moves.map(m => ({
-            ...m,
-            score: userColor === 'white' ? (m.wt || 0) : (m.bt || 0)
-        })).filter(m => {
-             const nag = m.nag || 0
-             // Exclude ? (2), ?? (4), ?! (6)
-             return nag !== 2 && nag !== 4 && nag !== 6
-        })
-
-        if (movesWithScores.length === 0) {
-             // Fallback if all moves are marked bad (rare)
-             if (moves[0]) {
-                 logger.info('DiamondHunter: All moves bad, forcing top move', { uci: moves[0].uci })
-                 boardStore.applyUciMove(moves[0].uci)
-                 setTimeout(() => updateArrows(), 200)
-             }
-             return
-        }
-        
-        // Sort by score desc
-        movesWithScores.sort((a, b) => b.score - a.score)
-        
-        // Fix: Ensure we have moves before accessing index 0
-        if (movesWithScores.length === 0) {
-             if (moves[0]) {
-                 logger.info('DiamondHunter: All moves bad, forcing top move', { uci: moves[0].uci })
-                 boardStore.applyUciMove(moves[0].uci)
-                 setTimeout(() => updateArrows(), 200)
-             }
-             return
-        }
-
-        const maxScore = movesWithScores[0]?.score || 0
-
-        // 2. Filter Candidates (Threshold 20% of maxScore)
-        const candidates = movesWithScores.filter(m => m.score > 0 && m.score >= maxScore * 0.2)
-
-        // Fix: Explicit type definition to include 'score' for local usage if needed, 
-        // but 'selectedMove' will be passed to boardStore which expects standard MozerBookMove.
-        // We use 'any' or intersection type for the selection logic variables.
-        let selectedMove: (MozerBookMove & { score?: number }) | null | undefined = null
-
-        if (candidates.length === 0) {
-             // Fallback: No traps available -> Pick most popular
-             // Fix: Handle undefined if moves[0] is missing (though unlikely if we passed the length check above)
-             selectedMove = moves[0] || null
-             if (selectedMove) {
-                logger.info('DiamondHunter: No trap candidates. Falling back to top move.', { uci: selectedMove.uci })
-             }
-        } else {
-             // 3. Weighted Randomness
-             const totalWeight = candidates.reduce((sum, m) => sum + m.score, 0)
-             let randomValue = Math.random() * totalWeight
-             
-             logger.info('DiamondHunter: Weighted Selection Process', { 
-                 maxScore, 
-                 totalWeight, 
-                 candidates: candidates.map(c => `${c.uci}(${c.score})`).join(', ')
-             })
-
-             for (const move of candidates) {
-                 randomValue -= move.score
-                 if (randomValue <= 0) {
-                     selectedMove = move
-                     break
-                 }
-             }
-             // Safety fallback
-             if (!selectedMove) selectedMove = candidates[candidates.length - 1]
-             
-             if (selectedMove) {
-                 logger.info('DiamondHunter: Bot selected weighted move', { uci: selectedMove.uci, score: selectedMove.score })
-             }
-        }
-
-        if (selectedMove) {
-             boardStore.applyUciMove(selectedMove.uci)
-        }
-
-        // After move, update user arrows
-        setTimeout(() => updateArrows(), 200)
     }
 
     // --- Solving Logic ---
     async function handleUserSolvingMove(uci: string) {
         if (state.value !== 'SOLVING') return
 
-        // CRITICAL: Validate against puzzleFen (Pre-user-move state)
         const validationFen = puzzleFen.value
-        logger.info('DiamondHunter: User solving move', { uci, validationFen })
+        if (!validationFen) return
 
-        if (!validationFen) {
-            logger.error('DiamondHunter: Puzzle FEN missing!')
-            return
-        }
+        const response = await fetchGravityForFen(validationFen)
+        const moveStats = response?.moves.find((m: GravityMove) => m.uci === uci)
 
-        const stats = await mozerBookStore.getStatsForFen(validationFen)
-        if (!stats?.moves) {
-            logger.warn('DiamondHunter: No stats found for validation FEN')
-            return
-        }
+        if (moveStats?.nag === 255) {
+            logger.info('DiamondHunter: Victory (NAG 255)')
+            // Increment happens in completeDiamond after DB write for accuracy, 
+            // but we can optimistic update or wait. Let's wait.
 
-        // Find the move the user actually played in the stats
-        const playedMove = stats.moves.find(m => m.uci === uci)
+            const orig = uci.substring(0, 2) as Key
+            const dest = uci.substring(2, 4) as Key
+            boardStore.setDrawableShapes([{
+                orig,
+                dest,
+                brush: 'purple',
+                label: { text: '!!!', fill: '#9C27B0' }
+            }])
 
-        // Validation Rules:
-        // 1. NAG 3 (!!) -> Correct, continue
-        // 2. NAG 255 (!!!) -> Victory
-        // Everything else -> Failure
-        
-        if (playedMove?.nag === 255) {
-             logger.info('DiamondHunter: Victory reached (NAG 255)')
-             // Move already applied by BoardStore interaction
-             
-             // Increment Stats
-             sessionDiamonds.value++
-             
-             // Visual Feedback (Gold/Purple for Diamond)
-             const orig = uci.substring(0, 2) as Key
-             const dest = uci.substring(2, 4) as Key
-             boardStore.setDrawableShapes([{
-                 orig,
-                 dest,
-                 brush: 'purple', // Using purple/gold for victory
-                 label: { text: '!!!', fill: '#9C27B0' } // Purple label
-             }])
-             
-             await completeDiamond()
-        } else if (playedMove?.nag === 3) {
-             logger.info('DiamondHunter: Brilliant move (NAG 3), chain continues')
-             // Move already applied by BoardStore interaction
-             
-             // Increment Stats
-             sessionBrilliants.value++
+            await completeDiamond()
+        } else if (moveStats?.nag === 3) {
+            logger.info('DiamondHunter: Brilliant (NAG 3)')
+            
+            // Record Brilliant
+            if (currentDiamondHash.value) {
+                recordBrilliant(currentDiamondHash.value, boardStore.fen, 'pgn-placeholder')
+                    .then(() => db.brilliants.count())
+                    .then(count => totalBrilliants.value = count)
+            } else {
+                totalBrilliants.value++
+            }
 
-             // Visual Feedback (Green for Brilliant)
-             const orig = uci.substring(0, 2) as Key
-             const dest = uci.substring(2, 4) as Key
-             boardStore.setDrawableShapes([{
-                 orig,
-                 dest,
-                 brush: 'green',
-                 label: { text: '!!', fill: '#00C853' } // Green label
-             }])
-             
-             setTimeout(() => botSolvingResponse(), 1000)
+            const orig = uci.substring(0, 2) as Key
+            const dest = uci.substring(2, 4) as Key
+            boardStore.setDrawableShapes([{
+                orig,
+                dest,
+                brush: 'green',
+                label: { text: '!!', fill: '#00C853' }
+            }])
+
+            setTimeout(() => botSolvingResponse(), 1000)
         } else {
-             logger.warn('DiamondHunter: Incorrect refutation', {
-                played: uci,
-                playedNag: playedMove?.nag
-             })
-             message.value = "Incorrect refutation! The diamond is lost."
-             state.value = 'FAILED'
-             soundService.playSound('game_user_lost')
+            logger.warn('DiamondHunter: Incorrect refutation, retrying...')
+            message.value = "Incorrect! Try again..."
+            soundService.playSound('game_user_lost')
+
+            if (currentDiamondHash.value && currentBlunderMove.value) {
+                setTimeout(async () => {
+                    if (state.value !== 'SOLVING') return // Guard in case user left
+
+                    // Reset to position before blunder
+                    boardStore.setupPosition(currentDiamondHash.value!)
+                    
+                    // Replay the blunder to restart the puzzle
+                    // We can cast because we checked for null above, but safely:
+                    if (currentBlunderMove.value) {
+                        await playBlunder(currentBlunderMove.value)
+                    }
+                }, 1500)
+            } else {
+                state.value = 'FAILED'
+            }
         }
     }
 
@@ -336,30 +328,17 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
         if (state.value !== 'SOLVING') return
 
         const fen = boardStore.fen
-        const stats = await mozerBookStore.getStatsForFen(fen)
+        const response = await fetchGravityForFen(fen)
 
-        if (!stats || !stats.moves || stats.moves.length === 0) {
-            logger.info('DiamondHunter: No more book moves in solving phase')
-            return
-        }
+        if (!response || !response.moves || response.moves.length === 0) return
 
-        // Priority 1: Blunder (??, NAG 4) - Chained Blunder
-        // Priority 2: Only Move (NAG 7)
-        // Priority 3: Top Move (Fallback)
-
-        const blunder = stats.moves.find((m: MozerBookMove) => m.nag === 4)
-        const forcedMove = stats.moves.find((m: MozerBookMove) => m.nag === 7) || stats.moves[0]
+        const blunder = response.moves.find((m: GravityMove) => m.nag === 4)
+        const forced = response.moves.find((m: GravityMove) => m.nag === 7) || response.moves[0]
 
         if (blunder) {
-            logger.info('DiamondHunter: Bot blunders again in chain!', { uci: blunder.uci })
-            await playBlunder(blunder) 
-            // playBlunder updates puzzleFen internally
-        } else if (forcedMove) {
-            logger.info('DiamondHunter: Bot responding in solving loop', { uci: forcedMove.uci, nag: forcedMove.nag })
-            boardStore.applyUciMove(forcedMove.uci)
-            
-            // CRITICAL: Update puzzleFen to the NEW position after bot's reply
-            // User must now solve THIS new position.
+            await playBlunder(blunder)
+        } else if (forced) {
+            boardStore.applyUciMove(forced.uci)
             puzzleFen.value = boardStore.fen
         }
     }
@@ -374,23 +353,52 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
             message.value = "Diamond Collected! 💎"
             soundService.playSound('game_user_won')
             await recordDiamond(currentDiamondHash.value, boardStore.fen, 'pgn-placeholder')
+            totalDiamonds.value = await db.diamonds.count()
         } else {
-             message.value = "Limit reached for this diamond today. Good job though!"
+            message.value = "Limit reached for this diamond today. Good job though!"
         }
     }
+
+    function closeTheoryModal() {
+        showTheoryEndModal.value = false
+    }
+
+    // --- Reactivity ---
+    watch(() => boardStore.fen, async () => {
+        if (state.value !== 'HUNTING') return
+        
+        const playerColor = analysisStore.playerColor || 'white'
+        const isPlayerTurn = boardStore.turn === playerColor
+
+        if (isPlayerTurn) {
+             // User's turn: Update arrows
+            await updateArrows()
+        } else {
+            // Bot's turn: Move
+            // Add a small natural delay so the board doesn't move instantly
+            if (!isProcessing.value) {
+                setTimeout(() => botMove(), 500)
+            }
+        }
+    })
 
     return {
         state,
         isActive,
         isSolving,
         message,
-        sessionDiamonds,
-        sessionBrilliants,
+        totalDiamonds,
+        totalBrilliants,
+        currentGravityStats,
+        lastFetchedFen,
         startHunt,
         stopHunt,
         updateArrows,
         botMove,
         completeDiamond,
-        handleUserSolvingMove
+        handleUserSolvingMove,
+        fetchGravityForFen,
+        showTheoryEndModal,
+        closeTheoryModal
     }
 })

@@ -9,12 +9,13 @@ export interface OpeningStats {
   timestamp: number
 }
 
-export type CacheSource = 'lichess' | 'masters' | 'lichessMasters' | 'mozerBook'
+export type CacheSource = 'lichess' | 'masters' | 'lichessMasters' | 'mozerBook' | 'diamondGravity'
 
 export class OpeningDatabase extends Dexie {
   openings!: Table<OpeningStats>
   lichessMasters!: Table<OpeningStats>
   mozerBook!: Table<OpeningStats>
+  diamondGravity!: Table<OpeningStats>
 
   constructor() {
     super('OpeningDatabase')
@@ -30,6 +31,12 @@ export class OpeningDatabase extends Dexie {
       lichessMasters: 'fen, timestamp',
       mozerBook: 'fen, timestamp',
     })
+    this.version(4).stores({
+      openings: 'fen, timestamp',
+      lichessMasters: 'fen, timestamp',
+      mozerBook: 'fen, timestamp',
+      diamondGravity: 'fen, timestamp',
+    })
   }
 }
 
@@ -41,6 +48,7 @@ class OpeningCacheService {
   private getTable(source: CacheSource): Table<OpeningStats> {
     if (source === 'lichessMasters') return db.lichessMasters
     if (source === 'mozerBook') return db.mozerBook
+    if (source === 'diamondGravity') return db.diamondGravity
     return db.openings
   }
 
@@ -85,6 +93,7 @@ class OpeningCacheService {
     await db.openings.clear()
     await db.lichessMasters.clear()
     await db.mozerBook.clear()
+    await db.diamondGravity.clear()
   }
 }
 

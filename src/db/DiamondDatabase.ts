@@ -8,13 +8,26 @@ export interface DiamondRecord {
   collectedAt: number; // Timestamp (Date.now())
 }
 
+export interface BrilliantRecord {
+  id: number;
+  hash: string;
+  fen: string;
+  pgn: string;
+  collectedAt: number;
+}
+
 export class DiamondDatabase extends Dexie {
   diamonds!: EntityTable<DiamondRecord, 'id'>;
+  brilliants!: EntityTable<BrilliantRecord, 'id'>;
 
   constructor() {
     super('DiamondDB');
     this.version(1).stores({
       diamonds: '++id, diamondHash, collectedAt'
+    });
+    this.version(2).stores({
+      diamonds: '++id, diamondHash, collectedAt',
+      brilliants: '++id, hash, collectedAt'
     });
   }
 }
@@ -41,4 +54,13 @@ export async function recordDiamond(hash: string, fen: string, pgn: string): Pro
     pgn,
     collectedAt: Date.now(),
   } as DiamondRecord);
+}
+
+export async function recordBrilliant(hash: string, fen: string, pgn: string): Promise<void> {
+  await db.brilliants.add({
+    hash,
+    fen,
+    pgn,
+    collectedAt: Date.now(),
+  } as BrilliantRecord);
 }

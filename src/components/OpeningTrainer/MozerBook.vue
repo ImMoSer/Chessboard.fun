@@ -73,8 +73,6 @@ const theoryWithChildren = computed<TheoryItemWithChildren[]>(() => {
         d_pct: matchingMove?.d_pct || 0,
         l_pct: matchingMove?.l_pct || 0,
         perf: matchingMove?.perf || 0,
-        wt: matchingMove?.wt || 0,
-        bt: matchingMove?.bt || 0,
         children: matchingMove?.children || [],
       } as TheoryItemWithChildren
     })
@@ -124,8 +122,6 @@ const theoryWithChildren = computed<TheoryItemWithChildren[]>(() => {
       <div class="col-pct">%</div>
       <div class="col-draw">=%</div>
       <div class="col-perf">Perf</div>
-      <div class="col-trap">WTrp</div>
-      <div class="col-trap">BTrp</div>
     </div>
 
     <div class="book-body">
