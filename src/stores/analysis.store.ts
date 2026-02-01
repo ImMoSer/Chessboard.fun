@@ -34,7 +34,7 @@ export const useAnalysisStore = defineStore('analysis', () => {
   watch(
     () => boardStore.fen,
     (newFen) => {
-      if (isPanelVisible.value && isAnalysisActive.value) {
+      if (isAnalysisActive.value) {
         logger.debug(`[AnalysisStore] FEN changed. Restarting analysis. FEN: ${newFen}`)
         startCurrentPositionAnalysis()
       } else {
