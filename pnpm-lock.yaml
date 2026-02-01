@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@lichess-org/chessground':
-        specifier: ^9.10.3
-        version: 9.10.3
+        specifier: ^10.0.1
+        version: 10.0.1
       '@lichess-org/stockfish-web':
         specifier: ^0.2.0
         version: 0.2.0
@@ -589,8 +589,8 @@ packages:
   '@juggle/resize-observer@3.4.0':
     resolution: {integrity: sha512-dfLbk+PwWvFzSxwk3n5ySL0hfBog779o8h68wK/7/APo/7cgyWp5jcXockbxdk5kFRkbeXWm4Fbi9FrdN381sA==}
 
-  '@lichess-org/chessground@9.10.3':
-    resolution: {integrity: sha512-Ig9fTOxva+ifW7GLOls7ZcBTP6ODHlYGdhjoAas34/X3BYL9nMoQplJO3a9RGq/XB3LoAXrCe2FgBw41DkDvPg==}
+  '@lichess-org/chessground@10.0.1':
+    resolution: {integrity: sha512-QNVgPB2XqfIo4qAbgffP/Eaze12ZzaBJsIDN65g6b1FqbVR0zJYYehTJ8C/dukPR+L9z6+7MJd8n00urelBl/A==}
 
   '@lichess-org/stockfish-web@0.2.0':
     resolution: {integrity: sha512-m3wfjQrm3HiSna0/76iiVwR7lNpwcfQ6c7YSwgYthmpinIw0asAbMdIeAWYTaUhm4YSAU0V33rFLFi3Wpk5yLg==}
@@ -2994,7 +2994,7 @@ snapshots:
 
   '@juggle/resize-observer@3.4.0': {}
 
-  '@lichess-org/chessground@9.10.3': {}
+  '@lichess-org/chessground@10.0.1': {}
 
   '@lichess-org/stockfish-web@0.2.0': {}
 

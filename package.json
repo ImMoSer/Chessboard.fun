@@ -24,7 +24,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "@lichess-org/chessground": "^9.10.3",
+    "@lichess-org/chessground": "^10.0.1",
     "@lichess-org/stockfish-web": "^0.2.0",
     "@vicons/ionicons5": "^0.13.0",
     "chessops": "^0.15.0",
