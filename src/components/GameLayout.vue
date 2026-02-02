@@ -5,48 +5,25 @@ import { useBoardStore } from '@/stores/board.store'
 import { useGameStore } from '@/stores/game.store'
 import { useThemeStore } from '@/stores/theme.store'
 import type { Key } from '@lichess-org/chessground/types'
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
-import { useBoardResizer } from '../composables/useBoardResizer'
+import { computed, onMounted, onUnmounted } from 'vue'
+import { useRoute } from 'vue-router'
 import WebChessBoard from './WebChessBoard.vue'
 
-const centerColumnRef = ref<HTMLElement | null>(null)
-
-// --- НАЧАЛО ИЗМЕНЕНИЙ: Интеграция с themeStore ---
 const themeStore = useThemeStore()
-
-// Инициализируем наш composable, передавая начальный размер из themeStore
-// и функцию для сохранения нового размера
-const { size: boardSize, startResize } = useBoardResizer(
-  centerColumnRef,
-  themeStore.currentTheme.boardSize,
-  (newSize) => themeStore.setBoardSize(newSize), // Колбэк для сохранения
-  400,
-  1200,
-)
-
-// Наблюдаем за изменениями в store (например, из другого компонента или настроек)
-// и синхронизируем локальный размер
-watch(
-  () => themeStore.currentTheme.boardSize,
-  (newSize) => {
-    boardSize.value = newSize
-  },
-)
-
-// Создаем вычисляемое свойство для динамического обновления CSS переменной
-const layoutStyle = computed(() => ({
-  '--board-side': `${boardSize.value}px`,
-}))
-// --- КОНЕЦ ИЗМЕНЕНИЙ ---
-
 const boardStore = useBoardStore()
 const gameStore = useGameStore()
 const analysisStore = useAnalysisStore()
+const route = useRoute()
 
 const isAnimationEnabled = computed(() => themeStore.currentTheme.animationDuration > 0)
 
+// Force analysis mode if we are in study views, to prevent race conditions or store resets
+const effectiveAnalysisMode = computed(() => {
+  return boardStore.isAnalysisModeActive || route.path.startsWith('/study')
+})
+
 const handleUserMove = ({ orig, dest }: { orig: Key; dest: Key }) => {
-  if (boardStore.isAnalysisModeActive) {
+  if (effectiveAnalysisMode.value) {
     boardStore.handleAnalysisMove({ orig, dest })
   } else {
     gameStore.handleUserMove(orig, dest)
@@ -54,10 +31,10 @@ const handleUserMove = ({ orig, dest }: { orig: Key; dest: Key }) => {
 }
 
 const handleBoardWheel = (direction: 'up' | 'down') => {
-  if (analysisStore.isAnalysisActive || boardStore.isAnalysisModeActive) {
+  if (analysisStore.isAnalysisActive || effectiveAnalysisMode.value) {
     // Разрешаем скролл и в режиме анализа
     if (direction === 'up') {
-      boardStore.navigatePgn('backward') // Убираем analysisStore.playerColor, navigationPgn сам разберется
+      boardStore.navigatePgn('backward')
     } else {
       boardStore.navigatePgn('forward')
     }
@@ -91,268 +68,209 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="game-layout" :style="layoutStyle">
-    <!-- Верхняя строка сетки -->
-    <div class="top-left">
-      <slot name="top-left"></slot>
-    </div>
+  <div class="game-layout">
+    <!-- Main Grid Logic -->
+    <div class="layout-main">
+      <aside class="left-panel">
+        <slot name="left-panel"></slot>
+      </aside>
 
-    <div class="top-info-container">
-      <slot name="top-info"></slot>
-    </div>
+      <!-- Center Stage: Top Info -> Board -> Controls -->
+      <div class="center-stage" ref="centerColumnRef">
+        <div class="cb-top-panel">
+          <slot name="top-info"></slot>
+        </div>
 
-    <div class="top-right">
-      <slot name="top-right"></slot>
-    </div>
+        <div class="board-aspect-wrapper">
+          <WebChessBoard
+            :fen="boardStore.fen"
+            :orientation="boardStore.orientation"
+            :turn-color="boardStore.turn"
+            :dests="boardStore.dests"
+            :last-move="boardStore.lastMove"
+            :check="boardStore.isCheck"
+            :promotion-state="boardStore.promotionState"
+            :drawable-shapes="boardStore.drawableShapes"
+            :is-analysis-mode="effectiveAnalysisMode"
+            :animation-enabled="isAnimationEnabled"
+            :animation-duration="themeStore.currentTheme.animationDuration"
+            @user-move="handleUserMove"
+            @check-premove="handleUserMove"
+            @complete-promotion="boardStore.completePromotion"
+            @cancel-promotion="boardStore.cancelPromotion"
+            @wheel-navigate="handleBoardWheel"
+          />
+          <!-- Center slot for overlays or additional content -->
+          <div class="center-column-overlay">
+            <slot name="center-column"></slot>
+          </div>
+        </div>
 
-    <!-- Средняя строка сетки -->
-    <aside class="left-panel">
-      <slot name="left-panel"></slot>
-    </aside>
-
-    <div class="center-column" ref="centerColumnRef">
-      <div class="board-aspect-wrapper">
-        <WebChessBoard
-          :fen="boardStore.fen"
-          :orientation="boardStore.orientation"
-          :turn-color="boardStore.turn"
-          :dests="boardStore.dests"
-          :last-move="boardStore.lastMove"
-          :check="boardStore.isCheck"
-          :promotion-state="boardStore.promotionState"
-          :drawable-shapes="boardStore.drawableShapes"
-          :is-analysis-mode="boardStore.isAnalysisModeActive"
-          :animation-enabled="isAnimationEnabled"
-          :animation-duration="themeStore.currentTheme.animationDuration"
-          @user-move="handleUserMove"
-          @check-premove="handleUserMove"
-          @complete-promotion="boardStore.completePromotion"
-          @cancel-promotion="boardStore.cancelPromotion"
-          @wheel-navigate="handleBoardWheel"
-        />
-        <slot name="center-column"></slot>
+        <div class="cb-down-panel">
+          <slot name="controls"></slot>
+        </div>
       </div>
-      <div class="board-resizer" @mousedown="startResize"></div>
-    </div>
 
-    <aside class="right-panel">
-      <slot name="right-panel"></slot>
-    </aside>
+      <aside class="right-panel">
+        <slot name="right-panel"></slot>
+      </aside>
+    </div>
   </div>
 </template>
 
 <style scoped>
 .game-layout {
-  --left-panel-width: 0.3fr;
-  --right-panel-width: 0.5fr;
-  --top-bottom-height: 5vh;
-
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
   width: 100%;
-  max-width: 100vw;
-
-  grid-template-rows: var(--top-bottom-height) var(--board-side);
-  grid-template-columns: var(--left-panel-width) var(--board-side) var(--right-panel-width);
-
-  grid-template-areas:
-    'top-left top-info top-right'
-    'left-panel center-column right-panel';
-
-  gap: 1vh;
   padding: 10px;
   box-sizing: border-box;
   overflow: hidden;
+  background-color: var(--color-bg-primary);
+}
+
+.layout-main {
+  display: grid;
+  flex: 1;
+  /* Columns: Left (flex) | Center (Auto/Fit Content) | Right (flex) */
+  /* Using minmax for center to prevent it from disappearing, but ideally it drives the width */
+  grid-template-columns: 2fr auto 3fr;
+  gap: 20px;
+  min-height: 0;
   justify-content: center;
 }
 
-.top-left {
-  grid-area: top-left;
+/* --- Center Stage Area --- */
+.center-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-width: min-content; /* Ensure it doesn't shrink below board size */
+  height: 100%;
 }
 
-.top-info-container {
-  grid-area: top-info;
-  min-height: var(--top-bottom-height);
+.cb-top-panel,
+.cb-down-panel {
   width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 40px; /* Base height reserve */
 }
 
-.top-right {
-  grid-area: top-right;
+/* Board always square, sized by viewport height logic, but constrained by panels */
+.board-aspect-wrapper {
+  /*
+     Calc logic: 100vh - (padding + gaps + top/bottom panels approx height).
+     Safety margin to ensure it fits without scrolling on desktop.
+     Adjust 140px based on actual panel heights (~50px top + ~50px bottom + 40px paddings/gaps)
+  */
+  height: calc(100vh - 140px);
+  width: calc(100vh - 140px);
+  max-width: 100%;
+  aspect-ratio: 1 / 1;
+  position: relative;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  flex-shrink: 1;
 }
 
-.left-panel {
-  grid-area: left-panel;
+.center-column-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
-.right-panel {
-  grid-area: right-panel;
+.center-column-overlay > * {
+  pointer-events: auto;
 }
 
+/* --- Side Panels --- */
 .left-panel,
 .right-panel {
   background-color: var(--color-bg-secondary);
   border-radius: var(--panel-border-radius);
   border: 1px solid var(--color-border-hover);
   padding: 10px;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
   overflow-y: auto;
-  min-width: 0;
-  -ms-overflow-style: none;
   scrollbar-width: none;
+  height: 100%;
 }
 
+/* Hide scrollbars */
 .left-panel::-webkit-scrollbar,
 .right-panel::-webkit-scrollbar {
   display: none;
 }
 
-.center-column {
-  grid-area: center-column;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-}
+/* --- Responsive / Mobile --- */
 
-.board-aspect-wrapper {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  position: relative;
-}
-
-.board-resizer {
-  position: absolute;
-  right: -5px;
-  bottom: -5px;
-  width: 20px;
-  height: 20px;
-  cursor: se-resize;
-  z-index: 100;
-}
-
-@media (orientation: portrait) {
-  .board-resizer {
-    display: none;
+@media (max-width: 1200px) {
+  .layout-main {
+    /* Shrink side panels on smaller desktops */
+    grid-template-columns: 250px auto 300px;
+    gap: 10px;
   }
 }
 
-.top-left,
-.top-right {
-  background-color: var(--color-bg-secondary);
-  border-radius: var(--panel-border-radius);
-  border: 1px solid var(--color-border-hover);
-  padding: 5px;
-}
-
-.top-info-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: var(--color-bg-secondary);
-  border-radius: var(--panel-border-radius);
-  border: 1px solid var(--color-border-hover);
-  padding: 0px;
-}
-
 @media (orientation: portrait) {
-  .top-info-container {
-    order: 0;
+  .game-layout {
+    height: 100%;
+    overflow-y: auto; /* Enable scroll for the whole page on mobile */
+    padding: 10px;
+    display: block; /* Stack everything */
   }
 
-  .center-column {
+  .layout-main {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  /* Reorder for Mobile: Panel -> Board -> Controls -> Left -> Right */
+  .center-stage {
     order: 1;
+    width: 100%;
+    height: auto;
+    justify-content: flex-start;
+  }
+
+  .left-panel {
+    order: 2;
+    height: auto;
+    min-height: 200px;
   }
 
   .right-panel {
-    order: 2;
-  }
-
-  .left-panel {
     order: 3;
-  }
-
-  .game-layout {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    width: 97vw;
     height: auto;
-
-    margin: 0 auto;
-    padding: 10px 0;
-    gap: 5px;
-    grid-template-areas: none;
-    grid-template-rows: none;
-    grid-template-columns: none;
-    overflow-x: hidden;
-    overflow-y: auto;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-    box-sizing: border-box;
-    contain: layout style;
-  }
-
-  .game-layout::-webkit-scrollbar {
-    display: none;
-  }
-
-  .top-left,
-  .top-right,
-  .bottom-left,
-  .bottom-right,
-  .bottom-info {
-    display: none;
-  }
-
-  .top-info-container {
-    width: 100%;
-    min-height: 60px;
-    margin: 0;
-    flex-shrink: 0;
-    max-width: 100%;
-    box-sizing: border-box;
-  }
-
-  .center-column {
-    width: 100%;
-    padding: 0;
-    margin: 0;
-    flex-shrink: 0;
-    max-width: 100%;
-    box-sizing: border-box;
-    overflow: hidden;
+    min-height: 300px;
   }
 
   .board-aspect-wrapper {
+    width: 95vw;
+    height: 95vw; /* Maximize width on mobile */
+    margin: 5px auto;
+  }
+
+  .cb-top-panel,
+  .cb-down-panel {
     width: 100%;
-    box-sizing: border-box;
-    border-radius: 10px;
-  }
-
-  .right-panel,
-  .left-panel {
-    width: 100%;
-    margin: 0;
-    min-height: 50px;
-
-    flex-shrink: 0;
-    overflow-y: auto;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-    max-width: 100%;
-    box-sizing: border-box;
-    overflow-x: hidden;
-  }
-
-  .right-panel::-webkit-scrollbar,
-  .left-panel::-webkit-scrollbar {
-    display: none;
-  }
-
-  .top-info-container,
-  .center-column,
-  .right-panel,
-  .left-panel {
-    grid-area: unset;
+    min-height: auto;
   }
 }
 </style>

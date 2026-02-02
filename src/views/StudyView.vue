@@ -1,18 +1,23 @@
+```
 <script setup lang="ts">
 import EngineLines from '@/components/Analysis/EngineLines.vue'
+import GameLayout from '@/components/GameLayout.vue'
 import LichessOpeningExplorer from '@/components/OpeningTrainer/LichessOpeningExplorer.vue'
 import MozerBook from '@/components/OpeningTrainer/MozerBook.vue'
+import RepertoireGeneratorModal from '@/components/study/RepertoireGeneratorModal.vue'
 import StudyControls from '@/components/study/StudyControls.vue'
-import StudyLayout from '@/components/study/StudyLayout.vue'
-import StudySidebar from '@/components/study/StudySidebar.vue'
+import StudyManagerModal from '@/components/study/StudyManagerModal.vue'
 import StudyTree from '@/components/study/StudyTree.vue'
-import { useBoardStore } from '@/stores/board.store'
-import { useStudyStore } from '@/stores/study.store'
-import { onMounted, onUnmounted, ref } from 'vue'
-
 import { pgnService } from '@/services/PgnService'
 import { useAnalysisStore } from '@/stores/analysis.store'
-import { watch } from 'vue'
+import { useAuthStore } from '@/stores/auth.store'
+import { useBoardStore } from '@/stores/board.store'
+import { useStudyStore } from '@/stores/study.store'
+import { useUiStore } from '@/stores/ui.store'
+import { CloudOutline, FlashOutline, ShareSocialOutline } from '@vicons/ionicons5'
+import { NIcon, NTooltip, useMessage } from 'naive-ui'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
@@ -20,22 +25,68 @@ const router = useRouter()
 const boardStore = useBoardStore()
 const studyStore = useStudyStore()
 const analysisStore = useAnalysisStore()
-const isSidebarCollapsed = ref(true) // По умолчанию свернута
-const autoCollapseTimer = ref<ReturnType<typeof setTimeout> | null>(null)
-const explorerMode = ref<'lichess' | 'mozer'>('mozer')
+const authStore = useAuthStore()
+const uiStore = useUiStore()
+const message = useMessage()
+const { t } = useI18n()
 
-const startAutoCollapseTimer = () => {
-  cancelAutoCollapseTimer()
-  autoCollapseTimer.value = setTimeout(() => {
-    isSidebarCollapsed.value = true
-  }, 10000) // 10 секунд
+const explorerMode = ref<'lichess' | 'mozer'>('mozer')
+const isChapterModalOpen = ref(false)
+const isGeneratorModalOpen = ref(false)
+
+const currentChapterName = computed(() => {
+  const chapter = studyStore.chapters.find((c) => c.id === studyStore.activeChapterId)
+  return chapter ? chapter.name : 'Select Chapter'
+})
+
+const handleCloudSave = async () => {
+  try {
+    if (studyStore.activeChapter?.slug) {
+      if (studyStore.isOwner) {
+        await studyStore.updateInCloud()
+        message.success(t('study.notifications.updated'))
+      } else {
+        await studyStore.forkToCloud()
+        message.success(t('study.notifications.savedAsCopy'))
+      }
+    } else {
+      await studyStore.saveToCloud()
+      message.success(t('study.notifications.saved'))
+    }
+  } catch (e: any) {
+    if (e.message?.includes('limit reached')) {
+      const tier = authStore.userProfile?.subscriptionTier || 'Pawn'
+      const limit = tier === 'Queen' || tier === 'King' ? 10 : 1
+
+      const result = await uiStore.showConfirmation(
+        t('study.limitModal.title'),
+        t('study.limitModal.message', { tier, limit }),
+        {
+          confirmText: t('study.limitModal.confirm'),
+          cancelText: t('study.limitModal.cancel'),
+          showCancel: true,
+        },
+      )
+
+      if (result === 'confirm') {
+        router.push('/pricing')
+      }
+    } else if (e.message?.includes('shorter than or equal to')) {
+      await uiStore.showConfirmation(t('study.sizeModal.title'), t('study.sizeModal.message'), {
+        confirmText: t('study.sizeModal.confirm'),
+        showCancel: false,
+      })
+    } else {
+      message.error(e.message || t('study.notifications.saveError'))
+    }
+  }
 }
 
-const cancelAutoCollapseTimer = () => {
-  if (autoCollapseTimer.value) {
-    clearTimeout(autoCollapseTimer.value)
-    autoCollapseTimer.value = null
-  }
+const handleShare = () => {
+  if (!studyStore.activeChapter?.slug) return
+  const url = `${window.location.origin}/study/chapter/${studyStore.activeChapter.slug}`
+  navigator.clipboard.writeText(url)
+  message.success(t('study.notifications.shareLinkCopied'))
 }
 
 onMounted(async () => {
@@ -50,11 +101,6 @@ onMounted(async () => {
   } else if (studyStore.activeChapterId) {
     // Redirect to active chapter URL if we just hit /study
     updateUrl(studyStore.activeChapterId)
-  }
-
-  // Запускаем таймер при загрузке, чтобы если она была открыта (например, через стор), она закрылась
-  if (!isSidebarCollapsed.value) {
-    startAutoCollapseTimer()
   }
 })
 
@@ -105,42 +151,86 @@ watch(
 </script>
 
 <template>
-  <StudyLayout>
+  <GameLayout>
     <template #top-info>
-      <StudyControls />
+      <div class="study-header">
+        <button class="chapter-select-btn" @click="isChapterModalOpen = true">
+          <span class="chapter-title">{{ currentChapterName }}</span>
+          <span class="chapter-count">
+            ({{
+              Math.max(
+                0,
+                studyStore.chapters.findIndex((c) => c.id === studyStore.activeChapterId) + 1,
+              )
+            }}/{{ studyStore.chapters.length }})
+          </span>
+          <span class="dropdown-icon">▼</span>
+        </button>
+
+        <div class="header-actions">
+          <NTooltip trigger="hover">
+            <template #trigger>
+              <button class="icon-btn" @click="isGeneratorModalOpen = true">
+                <NIcon><FlashOutline /></NIcon>
+              </button>
+            </template>
+            Generate Repertoire
+          </NTooltip>
+
+          <NTooltip trigger="hover">
+            <template #trigger>
+              <button
+                class="icon-btn cloud-btn"
+                :class="{ active: studyStore.isOwner && studyStore.activeChapter?.slug }"
+                :disabled="studyStore.cloudLoading"
+                @click="handleCloudSave"
+              >
+                <NIcon v-if="!studyStore.cloudLoading"><CloudOutline /></NIcon>
+                <span v-else class="loader-v2"></span>
+              </button>
+            </template>
+            {{
+              !studyStore.activeChapter?.slug
+                ? 'Save to Cloud'
+                : studyStore.isOwner
+                  ? 'Update in Cloud'
+                  : 'Save as My Copy'
+            }}
+          </NTooltip>
+
+          <NTooltip v-if="studyStore.activeChapter?.slug" trigger="hover">
+            <template #trigger>
+              <button class="icon-btn" @click="handleShare">
+                <NIcon><ShareSocialOutline /></NIcon>
+              </button>
+            </template>
+            Share Chapter Link
+          </NTooltip>
+        </div>
+
+        <StudyManagerModal v-model:show="isChapterModalOpen" />
+        <RepertoireGeneratorModal v-model:show="isGeneratorModalOpen" />
+      </div>
     </template>
 
     <template #left-panel>
-      <div
-        class="left-panel-content"
-        @mouseenter="cancelAutoCollapseTimer"
-        @mouseleave="startAutoCollapseTimer"
-      >
-        <StudySidebar
-          class="sidebar-component"
-          :collapsed="isSidebarCollapsed"
-          @toggle="isSidebarCollapsed = !isSidebarCollapsed"
-        />
-
-        <div class="explorer-container" :class="{ expanded: isSidebarCollapsed }">
-          <div class="explorer-toggle">
+      <div class="explorer-wrapper">
+         <div class="explorer-toggle">
             <button :class="{ active: explorerMode === 'mozer' }" @click="explorerMode = 'mozer'">
               MozerBook
             </button>
-            <button
-              :class="{ active: explorerMode === 'lichess' }"
-              @click="explorerMode = 'lichess'"
-            >
+            <button :class="{ active: explorerMode === 'lichess' }" @click="explorerMode = 'lichess'">
               Lichess
             </button>
           </div>
           <MozerBook v-if="explorerMode === 'mozer'" class="explorer-component" />
           <LichessOpeningExplorer v-else mode="study" class="explorer-component" />
-        </div>
       </div>
     </template>
 
-    <!-- Center is auto-filled by StudyLayout with WebChessBoard -->
+    <template #controls>
+       <StudyControls />
+    </template>
 
     <template #right-panel>
       <div class="right-panel-content">
@@ -148,61 +238,165 @@ watch(
         <StudyTree />
       </div>
     </template>
-  </StudyLayout>
+  </GameLayout>
 </template>
 
 <style scoped>
-.left-panel-content {
+.study-header {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chapter-select-btn {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--panel-border-radius);
+  padding: 8px 16px;
+  color: var(--color-text-primary);
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: background 0.2s;
+  max-width: 100%;
+}
+
+.chapter-select-btn:hover {
+  background: var(--color-bg-tertiary);
+}
+
+.icon-btn {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--panel-border-radius);
+  padding: 8px;
+  color: var(--color-text-primary);
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.icon-btn:hover {
+  background: var(--color-bg-tertiary);
+  color: var(--color-accent-primary);
+}
+
+.cloud-btn.active {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: #22c55e;
+  color: #22c55e;
+}
+
+.cloud-btn.active:hover {
+  background: rgba(34, 197, 94, 0.2);
+  border-color: #22c55e;
+}
+
+/* Spinner for Cloud Loading */
+.loader-v2 {
+  width: 1.2rem;
+  height: 1.2rem;
+  border: 2px solid currentColor;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.chapter-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.chapter-count {
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.dropdown-icon {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+
+/* Modal Styles */
+.chapters-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.chapter-item {
+  padding: 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.chapter-item:hover {
+  background: var(--color-bg-secondary);
+}
+
+.chapter-item.active {
+  background: var(--color-accent-primary-alpha);
+  color: var(--color-accent-primary);
+  font-weight: bold;
+}
+
+/* Explorer Styles */
+.explorer-wrapper {
   display: flex;
   flex-direction: column;
   height: 100%;
-  gap: 10px;
-}
-
-.sidebar-component {
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.explorer-container {
-  flex-shrink: 0;
-  max-height: 45%;
-  transition: all 0.3s ease;
-  display: flex;
-  flex-direction: column;
-}
-
-.explorer-container.expanded {
-  flex: 1;
-  max-height: 100%;
 }
 
 .explorer-toggle {
   display: flex;
   background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
-  border-bottom: none;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
-  overflow: hidden;
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
 }
 
 .explorer-toggle button {
   flex: 1;
-  padding: 6px;
+  padding: 8px;
   border: none;
   background: transparent;
   color: var(--color-text-secondary);
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: bold;
   cursor: pointer;
-  transition: all 0.2s;
+  border-bottom: 2px solid transparent;
 }
 
 .explorer-toggle button.active {
-  background: var(--color-accent);
-  color: white;
+  color: var(--color-accent-primary);
+  border-bottom-color: var(--color-accent-primary);
 }
 
 .explorer-component {
@@ -210,14 +404,23 @@ watch(
   min-height: 0;
 }
 
+/* Right Panel */
 .right-panel-content {
   display: flex;
   flex-direction: column;
   height: 100%;
+  gap: 10px;
 }
 
 :deep(.study-tree-container) {
   flex: 1;
   min-height: 0;
+}
+
+@media (orientation: portrait) {
+  .chapter-title {
+     max-width: 150px;
+     font-size: 0.9rem;
+  }
 }
 </style>

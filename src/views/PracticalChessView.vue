@@ -83,9 +83,12 @@ watch(
 
     <template #center-column> </template>
 
+    <template #controls>
+      <ControlPanel />
+    </template>
+
     <template #right-panel>
       <div class="right-panel-content-wrapper">
-        <ControlPanel />
         <AnalysisPanel v-if="analysisStore.isPanelVisible" />
         <YouMoveSelection v-if="practicalStore.isWaitingForColorSelection" />
         <PuzzleInfo v-else />

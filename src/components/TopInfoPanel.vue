@@ -51,12 +51,14 @@ const containerClass = computed(() => {
   <div class="top-info-panel-container" :class="containerClass">
     <!-- Таймер для Торнадо -->
     <div v-if="route.name === 'tornado'" class="timer-container">
-      <div class="tornado-info-container">
+      <div class="tornado-info-left">
+        <span class="session-rating-label">
+          {{ t('tornado.ui.ratingLabel') }}: {{ tornadoStore.sessionRating }}
+        </span>
         <span
           v-if="tornadoStore.sessionTheme || activePuzzle?.theme_key"
           class="session-theme-label"
         >
-          {{ t('tornado.ui.themeLabel') }}:
           {{
             t(
               'chess.themes.' +
@@ -66,11 +68,10 @@ const containerClass = computed(() => {
             )
           }}
         </span>
-        <span class="session-rating-label">
-          {{ t('tornado.ui.ratingLabel') }}: {{ tornadoStore.sessionRating }}
-        </span>
       </div>
-      {{ formattedTimer }}
+      <div class="tornado-timer">
+        {{ formattedTimer }}
+      </div>
     </div>
 
     <!-- Общий заголовок для других режимов (Finish Him, Theory) -->
@@ -108,61 +109,58 @@ const containerClass = computed(() => {
 .top-info-panel-container {
   width: 100%;
   height: 100%;
-  display: grid;
+  display: flex; /* Changed from Grid to Flex for better centering/distribution */
   align-items: center;
-  gap: 2px;
-  padding: 1px;
-  box-sizing: border-box;
-}
-
-/* Макеты под разные режимы */
-.top-info-panel-container.mode-default {
-  grid-template-columns: 1fr 1fr;
-}
-
-.top-info-panel-container.mode-finish-him {
-  grid-template-columns: 1fr 2fr 2fr;
-  /* Centered middle column */
-}
-
-.top-info-panel-container.mode-tornado {
-  grid-template-columns: 1fr;
   justify-content: center;
+  padding: 0 10px;
+  box-sizing: border-box;
+  position: relative;
 }
 
-/* Таймер */
+/* --- TORNADO MODE --- */
 .timer-container {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  gap: 20px;
+  width: 100%;
+  max-width: 600px; /* Constrain width on large screens */
+}
+
+/* Group Info and Rating together on the left */
+.tornado-info-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.tornado-timer {
   font-size: var(--font-size-xlarge);
   font-weight: bold;
+  font-variant-numeric: tabular-nums; /* Monospaced numbers for timer */
   color: var(--color-accent-warning);
 }
 
 .session-rating-label {
   font-size: var(--font-size-large);
   color: var(--color-accent-success);
-}
-
-.tornado-info-container,
-.advantage-info-container {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  margin-right: 15px;
+  font-weight: bold;
 }
 
 .session-theme-label {
-  font-size: var(--font-size-large);
+  font-size: var(--font-size-base);
   color: var(--color-text-link);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
 }
 
+/* --- OTHER MODES --- */
 .puzzle-title-container {
+  flex: 1;
   display: flex;
   justify-content: center;
-  align-items: center;
 }
 
 .puzzle-title-label {
@@ -171,46 +169,52 @@ const containerClass = computed(() => {
   color: var(--color-accent-primary);
   text-transform: uppercase;
   letter-spacing: 1px;
-  text-shadow: 0 0 10px rgba(var(--color-accent-primary-rgb), 0.3);
 }
 
-/* Контейнер под селектор движка */
 .engine-selector-container {
+  position: absolute;
+  right: 10px;
   display: flex;
-  justify-content: flex-end;
   align-items: center;
   gap: 5px;
 }
 
 .robot-icon {
-  width: 30px;
-  height: auto;
+  width: 24px;
+  height: 24px;
 }
 
+/* --- MOBILE ADAPTATION --- */
 @media (orientation: portrait) {
-  .top-info-panel-container.mode-finish-him {
-    grid-template-columns: 1fr 2fr 2fr;
-    /* Centered middle column */
+  .top-info-panel-container {
+    padding: 0 5px;
   }
 
+  /* Tornado: Compact Row */
   .timer-container {
-    flex-direction: column;
-    gap: 5px;
-    font-size: var(--font-size-large);
+    justify-content: space-between;
+  }
+
+  .tornado-timer {
+    font-size: 1.5rem; /* Slightly smaller but still prominent */
+  }
+
+  .tornado-info-left {
+    max-width: 60%; /* Prevent overlapping timer */
   }
 
   .session-rating-label {
-    font-size: var(--font-size-base);
-  }
-
-  .tornado-info-container {
-    flex-direction: column;
-    gap: 2px;
-    margin-right: 0;
+    font-size: 1rem;
   }
 
   .session-theme-label {
-    font-size: var(--font-size-base);
+    font-size: 0.8rem;
+    max-width: 150px;
+  }
+
+  .engine-selector-container {
+    position: relative; /* On mobile, let it flow or be placed specifically */
+    right: auto;
   }
 }
 </style>

@@ -96,9 +96,12 @@ watch(
       <!-- Custom overlay for type/difficulty if needed -->
     </template>
 
+    <template #controls>
+      <ControlPanel />
+    </template>
+
     <template #right-panel>
       <div class="right-panel-content-wrapper">
-        <ControlPanel />
         <AnalysisPanel v-if="analysisStore.isPanelVisible" />
         <PuzzleInfo />
       </div>

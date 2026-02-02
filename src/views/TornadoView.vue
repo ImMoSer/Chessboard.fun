@@ -1,16 +1,16 @@
 <!-- src/views/TornadoView.vue -->
 <script setup lang="ts">
+import { useControlsStore } from '@/stores/controls.store'
 import { onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { useTornadoStore, type TornadoMode } from '../stores/tornado.store'
-import GameLayout from '../components/GameLayout.vue'
-import ControlPanel from '../components/ControlPanel.vue'
 import AnalysisPanel from '../components/AnalysisPanel.vue'
-import TornadoStats from '../components/TornadoStats.vue'
+import ControlPanel from '../components/ControlPanel.vue'
+import GameLayout from '../components/GameLayout.vue'
 import PuzzleInfo from '../components/PuzzleInfo.vue'
 import TopInfoPanel from '../components/TopInfoPanel.vue'
+import TornadoStats from '../components/TornadoStats.vue'
 import UserStats from '../components/UserStats.vue'
-import { useControlsStore } from '@/stores/controls.store'
+import { useTornadoStore, type TornadoMode } from '../stores/tornado.store'
 
 const tornadoStore = useTornadoStore()
 const controlsStore = useControlsStore()
@@ -54,9 +54,12 @@ watch(
       <TopInfoPanel />
     </template>
 
+    <template #controls>
+      <ControlPanel />
+    </template>
+
     <template #right-panel>
       <div class="panel-content-wrapper">
-        <ControlPanel />
         <PuzzleInfo />
         <AnalysisPanel />
       </div>

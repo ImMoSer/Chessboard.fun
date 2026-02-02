@@ -1,7 +1,7 @@
 // src/views/SandboxView.vue
 <template>
   <GameLayout>
-    <template #top-left>
+    <template #left-panel>
       <div class="fen-input-container">
         <input v-model="fenInput" type="text" placeholder="Enter FEN here" />
         <button @click="playFen">Play</button>
@@ -10,9 +10,11 @@
     <template #top-info>
       <TopInfoPanel />
     </template>
+    <template #controls>
+      <ControlPanel />
+    </template>
     <template #right-panel>
       <div class="right-panel-content-wrapper">
-        <ControlPanel />
         <AnalysisPanel v-if="analysisStore.isPanelVisible" />
       </div>
     </template>
