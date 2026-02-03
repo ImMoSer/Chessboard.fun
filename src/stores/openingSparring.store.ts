@@ -125,7 +125,9 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     await mozerStore.fetchStats()
 
     // 2. If configured, fetch Lichess stats (Source for Bot decisions)
-    if (opponentSource.value === 'lichess') {
+    // Optimization: Only fetch Lichess stats when it is the BOT's turn.
+    // When it's the player's turn, we rely on Master stats (MozerBook) for evaluation.
+    if (opponentSource.value === 'lichess' && boardStore.turn !== playerColor.value) {
         const { lichessApiService } = await import('../services/LichessApiService')
         // Using standard speeds (blitz, rapid, classical)
         currentLichessStats.value = await lichessApiService.getStats(boardStore.fen, 'lichess', {
