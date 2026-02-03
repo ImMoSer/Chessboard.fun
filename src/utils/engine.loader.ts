@@ -57,7 +57,7 @@ export function loadSingleThreadEngine(): Promise<EngineController> {
  */
 interface LichessModule {
   uci(command: string): void
-  setNnueBuffer(buffer: ArrayBuffer): void
+  setNnueBuffer(buffer: ArrayBuffer | Uint8Array): void
   getRecommendedNnue?(): string
   addMessageListener?: never // Этого метода нет в оригинале
   postMessage?: never      // Этого метода нет в оригинале
