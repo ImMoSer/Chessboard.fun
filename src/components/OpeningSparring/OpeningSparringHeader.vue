@@ -3,9 +3,8 @@ import {
     BulbOutline,
     Heart,
     HeartOutline,
-    PlayOutline,
     RefreshOutline,
-    TrophyOutline,
+    TrophyOutline
 } from '@vicons/ionicons5';
 import {
     NButton,
@@ -139,21 +138,6 @@ const { t } = useI18n()
                 </n-button>
               </n-grid-item>
             </n-grid>
-
-            <n-button
-              block
-              class="playout-btn"
-              type="success"
-              secondary
-              @click="emit('playout')"
-              :disabled="isPlayoutMode"
-            >
-              <template #icon
-                ><n-icon>
-                  <PlayOutline /> </n-icon
-              ></template>
-              {{ t('openingTrainer.header.playout') }}
-            </n-button>
           </n-space>
         </div>
       </template>

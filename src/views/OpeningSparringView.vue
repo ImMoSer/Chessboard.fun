@@ -23,6 +23,7 @@ const router = useRouter()
 const route = useRoute()
 
 const isSettingsModalOpen = ref(true)
+const showSummaryModal = ref(false)
 const isNavigatingToPlayout = ref(false)
 
 const isExamEnding = computed(() => openingStore.isTheoryOver || openingStore.isDeviation)
@@ -30,15 +31,29 @@ const isExamEnding = computed(() => openingStore.isTheoryOver || openingStore.is
 // Automatically handle analysis panel in Exam mode
 watch(
   isExamEnding,
-  (isEnding) => {
-    if (isEnding) {
-      analysisStore.showPanel(true)
-    } else {
+  async (isEnding) => {
+    if (isEnding && !openingStore.isPlayoutMode) {
+        showSummaryModal.value = true
+        await openingStore.runFinalEvaluation()
+    } else if (!isEnding) {
       analysisStore.hidePanel()
+      showSummaryModal.value = false
     }
   },
   { immediate: true },
 )
+
+const showAnalysisPanel = computed(() => {
+    return isExamEnding.value && !showSummaryModal.value && !openingStore.isPlayoutMode
+})
+
+watch(showAnalysisPanel, (val) => {
+    if (val) {
+        analysisStore.showPanel(true)
+    } else {
+        analysisStore.hidePanel()
+    }
+})
 
 onMounted(async () => {
   openingStore.reset()
@@ -89,6 +104,7 @@ onUnmounted(() => {
 
 async function startSession(color: 'white' | 'black', moves: string[] = [], slug?: string) {
   isSettingsModalOpen.value = false
+  showSummaryModal.value = false
   analysisStore.setPlayerColor(color)
   analysisStore.hidePanel()
 
@@ -137,6 +153,22 @@ async function handlePlayout() {
     openingStore.startPlayout()
   }
 }
+
+function handleSummaryPlayout() {
+    showSummaryModal.value = false
+    openingStore.startPlayout()
+}
+
+function handleSummaryAnalyze() {
+    showSummaryModal.value = false
+}
+
+async function handleSummaryRestart() {
+    showSummaryModal.value = false
+    openingStore.reset()
+    await gameStore.resetGame()
+    isSettingsModalOpen.value = true
+}
 </script>
 
 <template>
@@ -158,11 +190,18 @@ async function handlePlayout() {
           @playout="handlePlayout"
         />
       </div>
-      <AnalysisPanel v-if="isExamEnding" />
+      <AnalysisPanel v-if="showAnalysisPanel" />
       <OpeningSparringSettingsModal
         v-if="isSettingsModalOpen"
         @start="startSession"
         @close="() => {}"
+      />
+      <OpeningSparringSummaryModal
+        :show="showSummaryModal"
+        @close="showSummaryModal = false"
+        @playout="handleSummaryPlayout"
+        @analyze="handleSummaryAnalyze"
+        @restart="handleSummaryRestart"
       />
     </template>
 

@@ -31,6 +31,11 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   // Lives for Exam mode
   const lives = ref(3)
 
+  // Final Evaluation state
+  const finalEval = ref<{ type: 'cp' | 'mate'; value: number } | null>(null)
+  const isFinalEvaluating = ref(false)
+  const finalEvalDepth = ref(0)
+
   const movesCount = computed(() => sessionHistory.value.length)
 
   const averageAccuracy = computed(() => {
@@ -87,6 +92,9 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     isPlayoutMode.value = false
     moveQueue.value = []
     lives.value = 3
+    finalEval.value = null
+    isFinalEvaluating.value = false
+    finalEvalDepth.value = 0
   }
 
   async function fetchStats() {
@@ -101,6 +109,42 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
         }
       }
     }
+  }
+
+  async function runFinalEvaluation() {
+      if (isFinalEvaluating.value) return
+
+      const targetDepth = 20
+
+      isFinalEvaluating.value = true
+      finalEvalDepth.value = 0
+      finalEval.value = null
+
+      // We use analysisService directly to not interfere with analysisStore UI
+      const { analysisService } = await import('../services/AnalysisService')
+      await analysisService.initialize()
+
+      // Dynamically calculate threads: cores / 2, but between 1 and 4.
+      const cores = navigator.hardwareConcurrency || 1
+      const threads = Math.max(1, Math.min(4, Math.floor(cores / 2)))
+      await analysisService.setThreads(threads)
+
+      return new Promise<void>((resolve) => {
+          // Use multiPV = 1 for fastest assessment of the top line
+          analysisService.startAnalysis(boardStore.fen, (lines) => {
+              if (lines.length > 0) {
+                  const bestLine = lines[0]!
+                  finalEvalDepth.value = bestLine.depth
+
+                  if (bestLine.depth >= targetDepth || bestLine.score.type === 'mate') {
+                      finalEval.value = bestLine.score
+                      analysisService.stopAnalysis()
+                      isFinalEvaluating.value = false
+                      resolve()
+                  }
+              }
+          }, 1)
+      })
   }
 
   async function handlePlayerMove(moveUci: string) {
@@ -300,9 +344,13 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     isPlayoutMode,
     error,
     lives,
+    finalEval,
+    isFinalEvaluating,
+    finalEvalDepth,
     initializeSession,
     handlePlayerMove,
     fetchStats,
+    runFinalEvaluation,
     reset,
     hint,
     startPlayout,

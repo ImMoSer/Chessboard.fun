@@ -34,7 +34,7 @@ class AnalysisServiceController {
     // Инициализация происходит один раз при старте приложения
     // Пытаемся инициализировать многопоточный движок (он сам проверит поддержку)
     await multiThreadEngineManager.ensureReady()
-    
+
     if (multiThreadEngineManager.isMultiThreadingSupported()) {
       this.activeEngineManager = multiThreadEngineManager
       logger.info(`[AnalysisService] Initialized with Multi-Threaded Engine (NNUE).`)
@@ -55,7 +55,7 @@ class AnalysisServiceController {
     return this.isMultiThreadAvailable() ? multiThreadEngineManager.getMaxThreads() : 1
   }
 
-  public async startAnalysis(fen: string, callback: (lines: EvaluatedLineWithSan[]) => void) {
+  public async startAnalysis(fen: string, callback: (lines: EvaluatedLineWithSan[]) => void, multiPV = 3) {
     if (!this.activeEngineManager) {
       logger.error('[AnalysisService] Cannot start analysis, no engine manager is active.')
       return
@@ -69,7 +69,7 @@ class AnalysisServiceController {
       }
     }
 
-    await this.activeEngineManager.setOption('MultiPV', 3)
+    await this.activeEngineManager.setOption('MultiPV', multiPV)
     await this.activeEngineManager.startAnalysis(fen, analysisUpdateCallback)
   }
 
