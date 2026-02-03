@@ -4,7 +4,7 @@ import Dexie, { type Table } from 'dexie'
 export interface TheoryStats {
   fen: string
   history: string[] // UCI moves
-  data: any // Raw response from Lichess or backend
+  data: unknown // Raw response from Lichess or backend
   timestamp: number
 }
 
@@ -51,14 +51,14 @@ class TheoryCacheService {
     return theoryDb.openings
   }
 
-  async getCachedStats(fen: string, source: CacheSource = 'lichess'): Promise<any | null> {
+  async getCachedStats<T = unknown>(fen: string, source: CacheSource = 'lichess'): Promise<T | null> {
     try {
       const table = this.getTable(source)
       const record = await table.get(fen)
       if (record) {
         const now = Date.now()
         if (now - record.timestamp < this.CACHE_TTL) {
-          return record.data
+          return record.data as T
         } else {
           await table.delete(fen)
         }
@@ -69,10 +69,10 @@ class TheoryCacheService {
     return null
   }
 
-  async cacheStats(
+  async cacheStats<T = unknown>(
     fen: string,
     history: string[],
-    data: any,
+    data: T,
     source: CacheSource = 'lichess',
   ): Promise<void> {
     try {
@@ -80,7 +80,7 @@ class TheoryCacheService {
       await table.put({
         fen,
         history,
-        data,
+        data: data as unknown,
         timestamp: Date.now(),
       })
     } catch (error) {

@@ -12,6 +12,12 @@ import VChart from 'vue-echarts'
 
 use([CanvasRenderer, BarChart, GridComponent, TooltipComponent, LegendComponent])
 
+interface TooltipParam {
+  axisValue: string
+  value: number
+  color: string
+}
+
 const { t } = useI18n()
 const userCabinetStore = useUserCabinetStore()
 const { personalActivityStats, isPersonalActivityStatsLoading, selectedActivityPeriod } =
@@ -46,16 +52,18 @@ const chartOption = computed(() => {
       backgroundColor: '#2a2a2e',
       borderColor: '#5A5A5A',
       textStyle: { color: '#CCCCCC' },
-      formatter: (params: any) => {
-        const modeName = params[0].axisValue
-        const solved = params[0].value
-        const remaining = params[1].value
+      formatter: (params: unknown) => {
+        const p = params as TooltipParam[]
+        if (!p || !p[0] || !p[1]) return ''
+        const modeName = p[0].axisValue
+        const solved = p[0].value
+        const remaining = p[1].value
         const total = solved + remaining
 
         return `<div style="padding: 4px; min-width: 140px;">
                   <b style="color: #FFFFFF; display: block; margin-bottom: 8px; border-bottom: 1px solid #5A5A5A; padding-bottom: 4px;">${modeName}</b>
                   <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                    <span style="color: ${params[0].color}; font-weight: bold;">${t('records.table.solved')}:</span>
+                    <span style="color: ${p[0].color}; font-weight: bold;">${t('records.table.solved')}:</span>
                     <span style="color: #FFF; margin-left: 12px;">${solved}</span>
                   </div>
                   <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">

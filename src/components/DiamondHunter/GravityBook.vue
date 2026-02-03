@@ -7,11 +7,15 @@ import { NDataTable, NTag, NEmpty, NSpin } from 'naive-ui'
 import { type GravityMove } from '../../services/DiamondApiService'
 import { h } from 'vue'
 
+interface GravityMoveWithPercent extends GravityMove {
+  percent: string
+}
+
 const boardStore = useBoardStore()
 const analysisStore = useAnalysisStore()
 const diamondStore = useDiamondHunterStore()
 
-const moves = computed(() => {
+const moves = computed<GravityMoveWithPercent[]>(() => {
     const stats = diamondStore.currentGravityStats
     if (!stats || !stats.moves) return []
     
@@ -30,7 +34,7 @@ const columns = [
     title: 'Moves',
     key: 'san',
     width: 80,
-    render(row: GravityMove) {
+    render(row: GravityMoveWithPercent) {
        return row.san
     }
   },
@@ -45,7 +49,7 @@ const columns = [
     key: 'percent',
     width: 60,
     align: 'right' as const,
-    render(row: any) {
+    render(row: GravityMoveWithPercent) {
        return `${row.percent}%`
     }
   },
@@ -60,7 +64,7 @@ const columns = [
     key: 'dist',
     width: 80,
     align: 'center' as const,
-    render(row: GravityMove) {
+    render(row: GravityMoveWithPercent) {
         // Render Dist with visual cues
         const tags = []
         tags.push(row.dist.toString())
@@ -78,7 +82,7 @@ const columns = [
     key: 'nag_str',
     width: 60,
     align: 'center' as const,
-    render(row: GravityMove) {
+    render(row: GravityMoveWithPercent) {
         if (!row.nag) return ''
         let type: 'default' | 'error' | 'primary' | 'info' | 'success' | 'warning' = 'default'
         

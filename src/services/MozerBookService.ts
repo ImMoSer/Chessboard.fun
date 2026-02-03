@@ -44,7 +44,7 @@ class MozerBookService {
     const cleanFen = this.toCleanFen(fen)
 
     // 1. Check persistent cache
-    const cached = await theoryCacheService.getCachedStats(cleanFen, 'mozerBook')
+    const cached = await theoryCacheService.getCachedStats<MozerBookResponse>(cleanFen, 'mozerBook')
     if (cached) {
       return cached
     }

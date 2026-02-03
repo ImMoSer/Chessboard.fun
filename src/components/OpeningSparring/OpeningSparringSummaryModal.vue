@@ -65,10 +65,6 @@ const evalStatus = computed(() => {
 const progressPercent = computed(() => {
     return Math.min(100, (openingStore.finalEvalDepth / 20) * 100)
 })
-
-function handleClose() {
-  emit('close')
-}
 </script>
 
 <template>

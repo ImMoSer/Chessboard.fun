@@ -243,7 +243,7 @@ export interface GamePuzzle {
   theme_key?: string
   meta?: {
     theme_key: string
-    [key: string]: any
+    [key: string]: unknown
   }
 }
 

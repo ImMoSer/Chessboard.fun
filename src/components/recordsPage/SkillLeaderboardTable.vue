@@ -21,6 +21,22 @@ import InfoIcon from '../InfoIcon.vue'
 
 use([CanvasRenderer, BarChart, GridComponent, TooltipComponent, LegendComponent, TitleComponent])
 
+interface TooltipParam {
+  dataIndex: number
+  value: number
+  color: string
+  seriesName: string
+}
+
+interface LabelParam {
+  dataIndex: number
+}
+
+interface ClickParam {
+  componentType: string
+  dataIndex: number
+}
+
 const props = defineProps({
   title: { type: String, required: true },
   entries: {
@@ -69,14 +85,16 @@ const chartOption = computed(() => {
       backgroundColor: '#2a2a2e',
       borderColor: '#5A5A5A',
       textStyle: { color: '#CCCCCC' },
-      formatter: (params: any) => {
-        const entry = displayEntries[params[0].dataIndex]
+      formatter: (params: unknown) => {
+        const p = params as TooltipParam[]
+        if (!p || !p[0]) return ''
+        const entry = displayEntries[p[0].dataIndex]
         if (!entry) return ''
 
         let html = `<div style="padding: 4px; min-width: 150px;">
                       <b style="color: #FFFFFF; display: block; margin-bottom: 8px; border-bottom: 1px solid #5A5A5A; padding-bottom: 4px;">${entry.username}</b>`
 
-        params.forEach((item: any) => {
+        p.forEach((item) => {
           if (item.value > 0) {
             html += `
               <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
@@ -85,10 +103,7 @@ const chartOption = computed(() => {
               </div>`
           }
         })
-        const total =
-          (entry as any).total_score !== undefined
-            ? (entry as any).total_score
-            : (entry as any).total_solved
+        const total = 'total_score' in entry ? entry.total_score : entry.total_solved
         html += `<div style="margin-top: 8px; border-top: 1px solid #5A5A5A; padding-top: 4px; text-align: right;">
                    <b>Total: ${total}</b>
                  </div></div>`
@@ -138,12 +153,11 @@ const chartOption = computed(() => {
         color: '#f39c12',
         fontWeight: 'bold',
         fontSize: 14,
-        formatter: (params: any) => {
-          const entry = displayEntries[params.dataIndex]
+        formatter: (params: unknown) => {
+          const p = params as LabelParam
+          const entry = displayEntries[p.dataIndex]
           if (!entry) return ''
-          return (entry as any).total_score !== undefined
-            ? (entry as any).total_score
-            : (entry as any).total_solved
+          return 'total_score' in entry ? entry.total_score : entry.total_solved
         },
       },
       data: displayEntries.map((e) => (e.solved_by_mode ? e.solved_by_mode[mode.key] || 0 : 0)),
@@ -158,15 +172,16 @@ const dynamicHeight = computed(() => {
   return `${displayCount * 45 + 40}px`
 })
 
-const onChartClick = (params: any) => {
+const onChartClick = (params: unknown) => {
+  const p = params as ClickParam
   // Only redirect if clicking on the Y-axis labels (username)
   // or if explicitly clicking on the name part of the data
-  if (params.componentType === 'yAxis' || params.componentType === 'series') {
-    const entry = [...props.entries].slice(0, 20).reverse()[params.dataIndex]
+  if (p.componentType === 'yAxis' || p.componentType === 'series') {
+    const entry = [...props.entries].slice(0, 20).reverse()[p.dataIndex]
 
     // On mobile, first touch shows tooltip.
     // We can decide to only redirect if clicking the Y-axis (the name)
-    if (params.componentType === 'yAxis' && entry && entry.lichess_id) {
+    if (p.componentType === 'yAxis' && entry && entry.lichess_id) {
       window.open(`https://lichess.org/@/${entry.lichess_id}`, '_blank')
     }
   }

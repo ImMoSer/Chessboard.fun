@@ -1,5 +1,3 @@
-import logger from '../utils/logger'
-
 export interface CloudChapter {
   id: number
   slug: string

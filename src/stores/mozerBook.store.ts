@@ -57,9 +57,10 @@ export const useMozerBookStore = defineStore('mozerBook', () => {
                 return data
             }
             return null
-        } catch (e: any) {
+        } catch (e: unknown) {
             if (fen === pendingFen.value) {
-                error.value = e.message || 'Failed to fetch MozerBook stats'
+                const msg = e instanceof Error ? e.message : String(e)
+                error.value = msg || 'Failed to fetch MozerBook stats'
             }
             logger.error(`[MozerBookStore] Error:`, e)
             return null

@@ -21,6 +21,13 @@ interface ThemeStat {
   requested: number
 }
 
+interface RoseParam {
+  data: {
+    raw: ThemeStat
+  }
+  name: string
+}
+
 const props = defineProps({
   themes: {
     type: Array as PropType<ThemeStat[]>,
@@ -75,8 +82,9 @@ const option = computed(() => {
       backgroundColor: '#2a2a2e', // Matching --color-bg-tertiary
       borderColor: '#5A5A5A',
       textStyle: { color: '#CCCCCC' },
-      formatter: (params: any) => {
-        const data = params.data.raw as ThemeStat
+      formatter: (params: unknown) => {
+        const p = params as RoseParam
+        const data = p.data.raw
         const accuracy = data.requested > 0 ? Math.round((data.success / data.requested) * 100) : 0
         const themeName = t(`chess.themes.${getThemeTranslationKey(data.theme)}`)
 
@@ -112,8 +120,9 @@ const option = computed(() => {
         label: {
           show: true,
           color: '#CCCCCC',
-          formatter: (params: any) => {
-            const themeName = t(`chess.themes.${getThemeTranslationKey(params.name)}`)
+          formatter: (params: unknown) => {
+            const p = params as RoseParam
+            const themeName = t(`chess.themes.${getThemeTranslationKey(p.name)}`)
             return themeName.length > 10 ? themeName.slice(0, 8) + '..' : themeName
           },
         },
@@ -129,8 +138,9 @@ const option = computed(() => {
   }
 })
 
-const onChartClick = (params: any) => {
-  console.log(`[Rose Click] Theme: ${params.name}, Mode: ${viewMode.value}`)
+const onChartClick = (params: unknown) => {
+  const p = params as RoseParam
+  console.log(`[Rose Click] Theme: ${p.name}, Mode: ${viewMode.value}`)
 }
 </script>
 

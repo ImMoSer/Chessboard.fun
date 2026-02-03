@@ -34,7 +34,7 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
     const lastFetchedPlayerColor = ref<string | null>(null)
 
     // In-flight request deduplication
-    const pendingRequest = ref<Promise<any> | null>(null)
+    const pendingRequest = ref<Promise<{ moves: GravityMove[] } | null> | null>(null)
     const pendingFen = ref<string | null>(null)
 
     // Tracks the FEN of the position the user is currently trying to SOLVE.

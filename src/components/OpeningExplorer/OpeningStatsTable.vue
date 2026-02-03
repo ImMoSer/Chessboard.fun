@@ -75,10 +75,24 @@ const whitePct = computed(() => ((props.white || 0) / totalGamesCount.value) * 1
 const drawsPct = computed(() => ((props.draws || 0) / totalGamesCount.value) * 100)
 const blackPct = computed(() => ((props.black || 0) / totalGamesCount.value) * 100)
 
-const tableData = computed(() => {
+interface StatsTableRow {
+  key: string
+  uci: string
+  san: string
+  n: number
+  score: number
+  drawPct: number
+  avgElo: number
+  isSummary: boolean
+  white: number
+  draws: number
+  black: number
+}
+
+const tableData = computed<StatsTableRow[]>(() => {
   const totalPosGames = (props.white || 0) + (props.draws || 0) + (props.black || 0) || 1
 
-  const summaryRow = {
+  const summaryRow: StatsTableRow = {
     key: 'summary',
     uci: '',
     san: '',
@@ -92,7 +106,7 @@ const tableData = computed(() => {
     black: props.black || 0,
   }
 
-  const moveRows = props.moves.map((m) => {
+  const moveRows: StatsTableRow[] = props.moves.map((m) => {
     const total = m.white + m.draws + m.black || 1
     const score =
       boardStore.turn === 'white'
@@ -118,7 +132,7 @@ const tableData = computed(() => {
   return [summaryRow, ...moveRows]
 })
 
-const rowProps = (row: any) => {
+const rowProps = (row: StatsTableRow) => {
   if (row.isSummary) {
     return {
       class: 'summary-row',
@@ -145,7 +159,7 @@ const renderWinrateBar = (white: number, draws: number, black: number) => {
   ])
 }
 
-const columns = computed<DataTableColumns<any>>(() => [
+const columns = computed<DataTableColumns<StatsTableRow>>(() => [
   {
     title: t('openingTrainer.stats.move'),
     key: 'san',

@@ -51,6 +51,15 @@ export interface LichessMastersParams {
   topGames?: number
 }
 
+interface LichessRawMove {
+  uci: string
+  san: string
+  white: number
+  draws: number
+  black: number
+  averageRating?: number
+}
+
 const SPEED_ORDER = ['bullet', 'blitz', 'rapid', 'classical']
 
 class LichessApiService {
@@ -101,7 +110,7 @@ class LichessApiService {
       return this.activeRequests.get(cacheKey)!
     }
 
-    const cached = await theoryCacheService.getCachedStats(cacheKey, cacheSource)
+    const cached = await theoryCacheService.getCachedStats<LichessOpeningResponse>(cacheKey, cacheSource)
     if (cached) {
       return source === 'lichess' ? this.normalizeLichessData(cached) : cached
     }
@@ -160,7 +169,7 @@ class LichessApiService {
       white: data.white,
       draws: data.draws,
       black: data.black,
-      moves: data.moves.map((m: any) => ({
+      moves: data.moves.map((m: LichessRawMove) => ({
         uci: m.uci,
         san: m.san,
         white: m.white,

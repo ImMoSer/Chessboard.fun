@@ -46,7 +46,7 @@ class DiamondApiService {
     // So we MUST prefix the key.
     const cacheKey = `gravity:${color}:${cleanFen}`
 
-    const cached = await theoryCacheService.getCachedStats(cacheKey, 'diamondGravity')
+    const cached = await theoryCacheService.getCachedStats<GravityResponse>(cacheKey, 'diamondGravity')
     if (cached) {
         return cached
     }

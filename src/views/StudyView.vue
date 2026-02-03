@@ -53,8 +53,9 @@ const handleCloudSave = async () => {
       await studyStore.saveToCloud()
       message.success(t('study.notifications.saved'))
     }
-  } catch (e: any) {
-    if (e.message?.includes('limit reached')) {
+  } catch (e: unknown) {
+    const err = e instanceof Error ? e : { message: String(e) }
+    if (err.message?.includes('limit reached')) {
       const tier = authStore.userProfile?.subscriptionTier || 'Pawn'
       const limit = tier === 'Queen' || tier === 'King' ? 10 : 1
 
@@ -71,13 +72,13 @@ const handleCloudSave = async () => {
       if (result === 'confirm') {
         router.push('/pricing')
       }
-    } else if (e.message?.includes('shorter than or equal to')) {
+    } else if (err.message?.includes('shorter than or equal to')) {
       await uiStore.showConfirmation(t('study.sizeModal.title'), t('study.sizeModal.message'), {
         confirmText: t('study.sizeModal.confirm'),
         showCancel: false,
       })
     } else {
-      message.error(e.message || t('study.notifications.saveError'))
+      message.error(err.message || t('study.notifications.saveError'))
     }
   }
 }

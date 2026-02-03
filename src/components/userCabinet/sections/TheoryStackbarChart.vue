@@ -24,6 +24,21 @@ interface TheoryStatValue {
   requested: number
 }
 
+interface TooltipParam {
+  dataIndex: number
+  seriesName: string
+  color: string
+}
+
+interface LabelParam {
+  value: number
+}
+
+interface ClickParam {
+  dataIndex: number
+  seriesIndex: number
+}
+
 const props = defineProps({
   stats: {
     type: Object as PropType<Record<string, TheoryStatValue>>,
@@ -108,8 +123,10 @@ const option = computed(() => {
       backgroundColor: '#2a2a2e', // Matching --color-bg-tertiary
       borderColor: '#5A5A5A',
       textStyle: { color: '#CCCCCC' },
-      formatter: (params: any) => {
-        const theme = themes[params[0].dataIndex]
+      formatter: (params: unknown) => {
+        const p = params as TooltipParam[]
+        if (!p || !p[0]) return ''
+        const theme = themes[p[0].dataIndex]
         if (!theme) return ''
         const themeName = t(`chess.themes.${getThemeTranslationKey(theme)}`, {
           defaultValue: theme,
@@ -118,7 +135,7 @@ const option = computed(() => {
         let html = `<div style="padding: 4px; min-width: 150px;">
                       <b style="color: #FFFFFF; display: block; margin-bottom: 8px; border-bottom: 1px solid #5A5A5A; padding-bottom: 4px;">${themeName}</b>`
 
-        params.forEach((item: any) => {
+        p.forEach((item) => {
           const diff = item.seriesName
           const key = `${prefix}/${diff}/${theme}`
           const stat = props.stats[key]
@@ -170,8 +187,9 @@ const option = computed(() => {
       stack: 'total',
       label: {
         show: true,
-        formatter: (params: any) => {
-          return params.value > 0 ? params.value : ''
+        formatter: (params: unknown) => {
+          const p = params as LabelParam
+          return p.value > 0 ? p.value : ''
         },
         color: '#fff',
         fontSize: 10,
@@ -190,9 +208,10 @@ const option = computed(() => {
   }
 })
 
-const onChartClick = (params: any) => {
-  const themeId = currentThemes.value[params.dataIndex]
-  const difficultyId = difficulties[params.seriesIndex]
+const onChartClick = (params: unknown) => {
+  const p = params as ClickParam
+  const themeId = currentThemes.value[p.dataIndex]
+  const difficultyId = difficulties[p.seriesIndex]
   console.log(
     `[ECharts Click] Mode: ${props.mode}, Type: ${activeType.value}, Theme: ${themeId}, Difficulty: ${difficultyId}`,
   )
