@@ -6,10 +6,10 @@ import { useI18n } from 'vue-i18n'
 import { pgnTreeVersion } from '../../services/PgnService'
 import { useBoardStore } from '../../stores/board.store'
 import { useMozerBookStore } from '../../stores/mozerBook.store'
-import MozerBookFooter from '../MozerBook/MozerBookFooter.vue'
-import MozerBookRow from '../MozerBook/MozerBookRow.vue'
-import TheoryExplorerModal from '../MozerBook/TheoryExplorerModal.vue'
-import { type TheoryItemWithChildren } from '../MozerBook/types'
+import MozerBookFooter from './MozerBookFooter.vue'
+import MozerBookRow from './MozerBookRow.vue'
+import TheoryExplorerModal from './TheoryExplorerModal.vue'
+import { type TheoryItemWithChildren } from './types'
 
 defineProps<{
   blurred?: boolean

@@ -1,25 +1,25 @@
 <script setup lang="ts">
 import {
-  BulbOutline,
-  Heart,
-  HeartOutline,
-  PlayOutline,
-  RefreshOutline,
-  TrophyOutline,
-} from '@vicons/ionicons5'
+    BulbOutline,
+    Heart,
+    HeartOutline,
+    PlayOutline,
+    RefreshOutline,
+    TrophyOutline,
+} from '@vicons/ionicons5';
 import {
-  NButton,
-  NCard,
-  NGrid,
-  NGridItem,
-  NIcon,
-  NPageHeader,
-  NSpace,
-  NStatistic,
-  NTag,
-  NText,
-} from 'naive-ui'
-import { useI18n } from 'vue-i18n'
+    NButton,
+    NCard,
+    NGrid,
+    NGridItem,
+    NIcon,
+    NPageHeader,
+    NSpace,
+    NStatistic,
+    NTag,
+    NText,
+} from 'naive-ui';
+import { useI18n } from 'vue-i18n';
 
 defineProps<{
   openingName: string
@@ -81,7 +81,7 @@ const { t } = useI18n()
                 <TrophyOutline />
               </n-icon>
             </template>
-            {{ t('nav.openingExam') }}
+            {{ t('nav.openingSparring') }}
           </n-tag>
           <n-tag v-if="isTheoryOver" type="warning" size="small" round uppercase>
             {{ t('openingTrainer.header.bookEnded') }}

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { NTooltip } from 'naive-ui'
 import { computed } from 'vue'
-import { type MozerBookMove } from '../../services/OpeningApiService'
+import { type MozerBookMove } from '../../services/MozerBookService'
 import WinrateBar from './WinrateBar.vue'
 import { getNagColor, getNagSymbol } from './utils'
 

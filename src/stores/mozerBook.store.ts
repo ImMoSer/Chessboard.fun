@@ -1,7 +1,7 @@
 // src/stores/mozerBook.store.ts
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import { openingApiService, type MozerBookResponse } from '../services/OpeningApiService'
+import { mozerBookService, type MozerBookResponse } from '../services/MozerBookService'
 import { pgnService, pgnTreeVersion } from '../services/PgnService'
 import logger from '../utils/logger'
 import { useBoardStore } from './board.store'
@@ -13,7 +13,7 @@ export const useMozerBookStore = defineStore('mozerBook', () => {
   const isLoading = ref(false)
   const error = ref<string | null>(null)
   const lastFetchedFen = ref('')
-  
+
   // Deduplication: Store the pending promise
   const pendingRequest = ref<Promise<MozerBookResponse | null> | null>(null)
   const pendingFen = ref<string | null>(null)
@@ -46,9 +46,9 @@ export const useMozerBookStore = defineStore('mozerBook', () => {
     const promise = (async () => {
         try {
             logger.info(`[MozerBookStore] Fetching stats for FEN: ${fen}`)
-            const data = await openingApiService.getMozerBookStats(fen)
+            const data = await mozerBookService.getStats(fen)
             if (data) {
-                // Only update state if this is still the relevant FEN 
+                // Only update state if this is still the relevant FEN
                 // (though usually we want to cache it anyway)
                 if (fen === pendingFen.value) {
                      currentStats.value = data
@@ -89,16 +89,16 @@ export const useMozerBookStore = defineStore('mozerBook', () => {
   // Actually, we usually want to update the store.
   // But if Diamond Hunter needs stats for a *future* move or specific validation, it might want to bypass currentStats.
   // However, Diamond Hunter usually looks at the board's current FEN.
-  
+
   async function getStatsForFen(fen: string): Promise<MozerBookResponse | null> {
       // If the requested FEN matches our current store state, just ensure it's loaded.
       if (fen === currentFen.value) {
           return fetchStats()
       }
-      
+
       // Otherwise, fetch independently (stateless for the store UI, but using API)
       // We don't want to break the UI by loading other FENs into `currentStats`.
-      return openingApiService.getMozerBookStats(fen)
+      return mozerBookService.getStats(fen)
   }
 
   return {

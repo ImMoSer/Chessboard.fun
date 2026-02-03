@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import {
-  openingChaptersService,
-  type OpeningChapterTemplate,
-} from '@/services/OpeningChaptersService'
-import { useStudyStore } from '@/stores/study.store'
-import { NCard, NInput, NList, NListItem, NModal, NSpace, NSpin, NText, NThing } from 'naive-ui'
-import { computed, ref } from 'vue'
+    theoryChaptersService,
+    type TheoryChapterTemplate,
+} from '@/services/TheoryChaptersService';
+import { useStudyStore } from '@/stores/study.store';
+import { NCard, NInput, NList, NListItem, NModal, NSpace, NSpin, NText, NThing } from 'naive-ui';
+import { computed, ref } from 'vue';
 
 defineProps<{
   show: boolean
@@ -13,13 +13,13 @@ defineProps<{
 
 const emit = defineEmits<{
   (e: 'update:show', value: boolean): void
-  (e: 'select', template: OpeningChapterTemplate): void
+  (e: 'select', template: TheoryChapterTemplate): void
 }>()
 
 const studyStore = useStudyStore()
 const searchQuery = ref('')
 const isLoading = ref(false)
-const chapters = ref<OpeningChapterTemplate[]>([])
+const chapters = ref<TheoryChapterTemplate[]>([])
 const selectedColor = ref<'white' | 'black'>('white')
 
 const filteredChapters = computed(() => {
@@ -27,20 +27,20 @@ const filteredChapters = computed(() => {
   if (!query) return chapters.value
 
   return chapters.value.filter(
-    (c) => c.name.toLowerCase().includes(query) || c.eco.toLowerCase().includes(query),
+    (c: TheoryChapterTemplate) => c.name.toLowerCase().includes(query) || c.eco.toLowerCase().includes(query),
   )
 })
 
 const handleOpen = async () => {
   if (!chapters.value.length) {
     isLoading.value = true
-    await openingChaptersService.load()
-    chapters.value = openingChaptersService.getChapters()
+    await theoryChaptersService.load()
+    chapters.value = theoryChaptersService.getChapters()
     isLoading.value = false
   }
 }
 
-const selectTemplate = (template: OpeningChapterTemplate) => {
+const selectTemplate = (template: TheoryChapterTemplate) => {
   try {
     studyStore.createChapterFromPgn(template.pgn, template.name, selectedColor.value)
     emit('update:show', false)

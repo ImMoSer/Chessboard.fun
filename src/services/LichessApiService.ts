@@ -1,8 +1,6 @@
-// src/services/OpeningApiService.ts
+// src/services/LichessApiService.ts
 import logger from '../utils/logger'
-import { openingCacheService, type CacheSource } from './OpeningCacheService'
-
-export type OpeningDatabaseSource = 'lichess' | 'masters' | 'backend'
+import { theoryCacheService } from './TheoryCacheService'
 
 export interface LichessMove {
   uci: string
@@ -11,7 +9,6 @@ export interface LichessMove {
   draws: number
   black: number
   averageRating: number
-  // Diamond Hunter Extensions
   w_trap?: number
   b_trap?: number
   nag?: number
@@ -54,68 +51,12 @@ export interface LichessMastersParams {
   topGames?: number
 }
 
-// MozerBook Specific Types
-export interface MozerBookTheoryItem {
-  san: string
-  uci: string
-  name: string
-  eco: string
-}
-
-export interface MozerBookMove extends MozerBookTheoryItem {
-  total: number
-  w_pct: number
-  d_pct: number
-  l_pct: number
-  perf: number
-  nag: number
-  wt?: number
-  bt?: number
-  children?: MozerBookTheoryItem[]
-}
-
-export interface MozerBookResponse {
-  summary: {
-    w: number
-    d: number
-    l: number
-    av: number
-    perf: number
-  } | null
-  moves: MozerBookMove[]
-  theory?: MozerBookTheoryItem[]
-}
-
-interface MastersMove {
-  san: string
-  uci: string
-  total: number
-  w_pct: number
-  d_pct: number
-  l_pct: number
-  perf: number
-  nag: number
-}
-
-interface MastersResponse {
-  summary: {
-    w: number
-    d: number
-    l: number
-    av: number
-    perf: number
-  } | null
-  moves: MastersMove[]
-}
-
 const SPEED_ORDER = ['bullet', 'blitz', 'rapid', 'classical']
 
-class OpeningApiService {
+class LichessApiService {
   private readonly LICHESS_URL = 'https://explorer.lichess.ovh/lichess'
   private readonly LICHESS_MASTERS_URL = 'https://explorer.lichess.ovh/masters'
-  private readonly BACKEND_URL = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:3000/api'
 
-  // Stores in-flight requests to prevent duplicate network calls
   private activeRequests = new Map<string, Promise<LichessOpeningResponse | null>>()
 
   private toCleanFen(fen: string): string {
@@ -124,7 +65,7 @@ class OpeningApiService {
 
   private getCacheKey(
     cleanFen: string,
-    source: OpeningDatabaseSource,
+    source: 'lichess' | 'masters',
     params?: LichessParams | LichessMastersParams,
   ): string {
     if (source === 'masters') {
@@ -132,11 +73,7 @@ class OpeningApiService {
       const mastersKey = `masters:${p?.since || 'default'}-${p?.until || 'default'}:${p?.moves || '12'}`
       return `${mastersKey}:${cleanFen}`
     }
-    if (source === 'backend') {
-      return `backend:${cleanFen}`
-    }
 
-    // Default Lichess Amateur
     const p = params as LichessParams
     const ratingsKey = p?.ratings.join(',') || 'default'
     const speedsKey = p?.speeds.join(',') || 'default'
@@ -145,13 +82,12 @@ class OpeningApiService {
 
   async getStats(
     fen: string,
-    source: OpeningDatabaseSource = 'masters',
+    source: 'lichess' | 'masters' = 'masters',
     params?: LichessParams | LichessMastersParams,
     options: { onlyCache?: boolean } = {},
   ): Promise<LichessOpeningResponse | null> {
     const cleanFen = this.toCleanFen(fen)
 
-    // Sort params strictly to ensure consistent Cache Keys and URL order
     if (params && source === 'lichess') {
       const p = params as LichessParams
       p.ratings.sort((a, b) => a - b)
@@ -159,58 +95,39 @@ class OpeningApiService {
     }
 
     const cacheKey = this.getCacheKey(cleanFen, source, params)
-    const cacheSource: CacheSource = source === 'masters' ? 'lichessMasters' : 'lichess'
+    const cacheSource = source === 'masters' ? 'lichessMasters' : 'lichess'
 
-    // 1. Check Memory Cache (In-flight requests)
     if (this.activeRequests.has(cacheKey)) {
-      logger.info(`[OpeningApiService] [DEDUPLICATED] Request already in flight for: ${cacheKey}`)
       return this.activeRequests.get(cacheKey)!
     }
 
-    // 2. Check Persistent Cache (IndexedDB)
-    const cached = await openingCacheService.getCachedStats(cacheKey, cacheSource)
+    const cached = await theoryCacheService.getCachedStats(cacheKey, cacheSource)
     if (cached) {
-      logger.info(`[OpeningApiService] [CACHE HIT] Found data for: ${cacheKey} in ${cacheSource}`)
       return source === 'lichess' ? this.normalizeLichessData(cached) : cached
     }
 
-    // Stop here if only cache is requested
-    if (options.onlyCache) {
-      logger.info(
-        `[OpeningApiService] [CACHE MISS] onlyCache=true, skipping network for: ${cacheKey}`,
-      )
-      return null
-    }
+    if (options.onlyCache) return null
 
-    // 3. Execute Network Request (wrapped in a Promise tracker)
     const requestPromise = (async () => {
       try {
         let result: LichessOpeningResponse | null = null
 
         if (source === 'masters') {
-          logger.info(`[OpeningApiService] [NETWORK] Fetching Lichess Masters for FEN: ${cleanFen}`)
           result = await this.fetchFromLichessMasters(cleanFen, params as LichessMastersParams)
-        } else if (source === 'backend') {
-          logger.info(`[OpeningApiService] [NETWORK] Fetching Backend Masters for FEN: ${cleanFen}`)
-          result = await this.fetchFromBackendMasters(cleanFen)
         } else {
           await new Promise((resolve) => setTimeout(resolve, 300))
           result = await this.fetchFromLichess(cleanFen, params as LichessParams)
         }
 
         if (result) {
-          await openingCacheService.cacheStats(cacheKey, [], result, cacheSource)
-          logger.info(
-            `[OpeningApiService] [NETWORK SUCCESS] Cached new data for: ${cacheKey} in ${cacheSource}`,
-          )
+          await theoryCacheService.cacheStats(cacheKey, [], result, cacheSource)
         }
 
         return result
       } catch (error) {
-        logger.error(`[OpeningApiService] [NETWORK ERROR] for ${source}:`, error)
+        logger.error(`[LichessApiService] Error:`, error)
         throw error
       } finally {
-        // Remove from active requests when done (success or fail)
         this.activeRequests.delete(cacheKey)
       }
     })()
@@ -239,12 +156,11 @@ class OpeningApiService {
 
     const data = await response.json()
 
-    // Normalize format
     const result: LichessOpeningResponse = {
       white: data.white,
       draws: data.draws,
       black: data.black,
-      moves: data.moves.map((m: { uci: string; san: string; white: number; draws: number; black: number; averageRating?: number }) => ({
+      moves: data.moves.map((m: any) => ({
         uci: m.uci,
         san: m.san,
         white: m.white,
@@ -255,90 +171,9 @@ class OpeningApiService {
       topGames: data.topGames,
     }
 
-    if (data.opening) {
-      result.opening = data.opening
-    }
+    if (data.opening) result.opening = data.opening
 
     return this.normalizeLichessData(result)
-  }
-
-  private async fetchFromBackendMasters(cleanFen: string): Promise<LichessOpeningResponse | null> {
-    const response = await fetch(`${this.BACKEND_URL}/opening/masters`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
-      credentials: 'include',
-      body: JSON.stringify({ fen: cleanFen }),
-    })
-
-    if (!response.ok) throw new Error(`Backend Masters API Error: ${response.statusText}`)
-    const data = (await response.json()) as MastersResponse
-
-    const moves: LichessMove[] = data.moves.map((m) => {
-      // Reconstruct absolutes for LichessMove compatibility
-      // m.total, m.w_pct, m.d_pct
-      const total = m.total
-      const w = Math.round(total * (m.w_pct / 100))
-      const d = Math.round(total * (m.d_pct / 100))
-      const b = total - w - d
-
-      return {
-        uci: m.uci,
-        san: m.san,
-        white: w,
-        draws: d,
-        black: b,
-        averageRating: m.perf, // Use perf as average rating proxy
-        nag: m.nag
-      }
-    })
-
-    const summary = data.summary || { w: 0, d: 0, l: 0, av: 0, perf: 0 }
-
-    return {
-      white: summary.w,
-      draws: summary.d,
-      black: summary.l,
-      moves: moves,
-      avgElo: summary.av,
-      avgDraw: 0, // Not available
-      avgScore: 0, // Not available
-    }
-  }
-
-  async getMozerBookStats(fen: string): Promise<MozerBookResponse | null> {
-    const cleanFen = this.toCleanFen(fen)
-
-    // 1. Check persistent cache
-    const cached = await openingCacheService.getCachedStats(cleanFen, 'mozerBook')
-    if (cached) {
-      return cached
-    }
-
-    try {
-      const response = await fetch(`${this.BACKEND_URL}/opening/masters`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ fen: cleanFen }),
-      })
-
-      if (!response.ok) throw new Error(`MozerBook API Error: ${response.statusText}`)
-      const data = await response.json()
-
-      // 2. Save to cache
-      await openingCacheService.cacheStats(cleanFen, [], data, 'mozerBook')
-
-      return data
-    } catch (error) {
-      logger.error(`[OpeningApiService] MozerBook error:`, error)
-      return null
-    }
   }
 
   private async fetchFromLichess(
@@ -390,4 +225,4 @@ class OpeningApiService {
   }
 }
 
-export const openingApiService = new OpeningApiService()
+export const lichessApiService = new LichessApiService()

@@ -1,5 +1,5 @@
 import logger from '../utils/logger'
-import { openingCacheService } from './OpeningCacheService'
+import { theoryCacheService } from './TheoryCacheService'
 
 export interface GravityMove {
   uci: string
@@ -32,21 +32,21 @@ class DiamondApiService {
 
   private async fetchGravity(color: 'white' | 'black', fen: string): Promise<GravityResponse | null> {
     const cleanFen = this.toCleanFen(fen)
-    
+
     // 1. Check Cache
     // We use a composite key "color:cleanFen" because the DB structure in backend is separate,
     // although technically FEN should be unique enough, but better safe if we ever mix.
-    // Actually, OpeningCacheService expects just a FEN key. 
-    // But since White and Black databases are totally different, 
+    // Actually, OpeningCacheService expects just a FEN key.
+    // But since White and Black databases are totally different,
     // we should include color in the key passed to cache, or assume the FEN dictates whose turn it is?
     // Wait, FEN includes turn color ("w" or "b").
     // BUT here we force-query a specific DB (White or Black) regardless of turn.
-    // So "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -" queried against Black DB 
+    // So "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -" queried against Black DB
     // gives different result (if valid) than White DB.
     // So we MUST prefix the key.
     const cacheKey = `gravity:${color}:${cleanFen}`
-    
-    const cached = await openingCacheService.getCachedStats(cacheKey, 'diamondGravity')
+
+    const cached = await theoryCacheService.getCachedStats(cacheKey, 'diamondGravity')
     if (cached) {
         return cached
     }
@@ -63,10 +63,10 @@ class DiamondApiService {
 
       if (!response.ok) throw new Error(`Diamond Gravity API Error: ${response.statusText}`)
       const data = await response.json()
-      
+
       // 2. Save to Cache
-      await openingCacheService.cacheStats(cacheKey, [], data, 'diamondGravity')
-      
+      await theoryCacheService.cacheStats(cacheKey, [], data, 'diamondGravity')
+
       return data
     } catch (error) {
       logger.error(`[DiamondApiService] Error fetching ${color} gravity:`, error)

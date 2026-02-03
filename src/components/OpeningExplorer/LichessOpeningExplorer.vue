@@ -1,63 +1,59 @@
 <script setup lang="ts">
 import {
-  CalendarOutline,
-  HourglassOutline,
-  ListOutline,
-  SettingsOutline,
-  TrophyOutline,
+    CalendarOutline,
+    HourglassOutline,
+    ListOutline,
+    SettingsOutline,
+    TrophyOutline,
 } from '@vicons/ionicons5'
 import {
-  NButton,
-  NButtonGroup,
-  NCheckbox,
-  NCheckboxGroup,
-  NCollapseTransition,
-  NGrid,
-  NGridItem,
-  NIcon,
-  NSlider,
-  NSpace,
-  NText,
+    NButton,
+    NButtonGroup,
+    NCheckbox,
+    NCheckboxGroup,
+    NCollapseTransition,
+    NGrid,
+    NGridItem,
+    NIcon,
+    NSlider,
+    NSpace,
+    NText,
 } from 'naive-ui'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
-  openingApiService,
-  type LichessMastersParams,
-  type LichessOpeningResponse,
-  type LichessParams,
-  type OpeningDatabaseSource,
-} from '../../services/OpeningApiService'
+    lichessApiService,
+    type LichessMastersParams,
+    type LichessOpeningResponse,
+    type LichessParams,
+} from '../../services/LichessApiService'
 import { pgnService, pgnTreeVersion } from '../../services/PgnService'
 import { useBoardStore } from '../../stores/board.store'
-import { useOpeningExamStore } from '../../stores/openingExam.store'
-import { useOpeningTrainingStore } from '../../stores/openingTraining.store'
+import { useOpeningSparringStore } from '../../stores/openingSparring.store'
 import OpeningStatsTable from './OpeningStatsTable.vue'
 
 
 const props = defineProps<{
-  mode: 'training' | 'exam' | 'study'
+  mode: 'sparring' | 'study'
   blurred?: boolean
 }>()
 
 const { t } = useI18n()
 const boardStore = useBoardStore()
-const trainingStore = useOpeningTrainingStore()
-const examStore = useOpeningExamStore()
+const examStore = useOpeningSparringStore()
 
 const showSettings = ref(false)
 
 // Active store depends on mode
 const activeStore = computed(() => {
-  if (props.mode === 'training') return trainingStore
-  if (props.mode === 'exam') return examStore
+  if (props.mode === 'sparring') return examStore
   return null
 })
 
 // Local state for Study mode
 const localStats = ref<LichessOpeningResponse | null>(null)
 const localLoading = ref(false)
-const localSource = ref<OpeningDatabaseSource>('lichess')
+const localSource = ref<'lichess' | 'masters'>('lichess')
 const localLichessParams = ref({
   ratings: [1800, 2000, 2200, 2500],
   speeds: ['blitz', 'rapid', 'classical'],
@@ -150,7 +146,7 @@ async function fetchLocalStats() {
     const fen = pgnService.getCurrentNavigatedFen()
     const params =
       localSource.value === 'masters' ? localMastersParams.value : localLichessParams.value
-    const data = await openingApiService.getStats(fen, localSource.value, params)
+    const data = await lichessApiService.getStats(fen, localSource.value, params)
     localStats.value = data
   } catch (e) {
     console.error('[LichessOpeningExplorer] Failed to fetch stats:', e)

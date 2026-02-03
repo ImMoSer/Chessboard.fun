@@ -2,8 +2,8 @@
 <script setup lang="ts">
 import EngineLines from '@/components/Analysis/EngineLines.vue'
 import GameLayout from '@/components/GameLayout.vue'
-import LichessOpeningExplorer from '@/components/OpeningTrainer/LichessOpeningExplorer.vue'
-import MozerBook from '@/components/OpeningTrainer/MozerBook.vue'
+import MozerBook from '@/components/MozerBook/MozerBook.vue'
+import LichessOpeningExplorer from '@/components/OpeningExplorer/LichessOpeningExplorer.vue'
 import RepertoireGeneratorModal from '@/components/study/RepertoireGeneratorModal.vue'
 import StudyControls from '@/components/study/StudyControls.vue'
 import StudyManagerModal from '@/components/study/StudyManagerModal.vue'

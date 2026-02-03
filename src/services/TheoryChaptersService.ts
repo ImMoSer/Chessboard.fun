@@ -1,11 +1,11 @@
-export interface OpeningChapterTemplate {
+export interface TheoryChapterTemplate {
   name: string
   eco: string
   pgn: string
 }
 
-class OpeningChaptersService {
-  private chapters: OpeningChapterTemplate[] = []
+class TheoryChaptersService {
+  private chapters: TheoryChapterTemplate[] = []
   private isLoaded = false
   private loadPromise: Promise<void> | null = null
 
@@ -16,7 +16,7 @@ class OpeningChaptersService {
     this.loadPromise = fetch('/openings_full_graph/opening_chapters.json')
       .then(async (response) => {
         if (!response.ok) throw new Error('Failed to load')
-        this.chapters = (await response.json()) as OpeningChapterTemplate[]
+        this.chapters = (await response.json()) as TheoryChapterTemplate[]
         this.isLoaded = true
       })
       .catch((error: unknown) => {
@@ -34,11 +34,11 @@ class OpeningChaptersService {
     return this.loadPromise
   }
 
-  getChapters(): OpeningChapterTemplate[] {
+  getChapters(): TheoryChapterTemplate[] {
     return this.chapters
   }
 
-  search(query: string): OpeningChapterTemplate[] {
+  search(query: string): TheoryChapterTemplate[] {
     if (!query) return this.chapters
     const q = query.toLowerCase()
     return this.chapters.filter(
@@ -47,4 +47,4 @@ class OpeningChaptersService {
   }
 }
 
-export const openingChaptersService = new OpeningChaptersService()
+export const theoryChaptersService = new TheoryChaptersService()

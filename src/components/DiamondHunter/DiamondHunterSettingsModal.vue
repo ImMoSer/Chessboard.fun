@@ -1,31 +1,33 @@
 <script setup lang="ts">
 import {
-  DiamondOutline,
-  ColorPaletteOutline,
-  PlayOutline,
+    ColorPaletteOutline,
+    DiamondOutline,
+    PlayOutline,
 } from '@vicons/ionicons5'
 import {
-  NButton,
-  NIcon,
-  NModal,
-  NRadioButton,
-  NRadioGroup,
-  NSpace,
-  NText,
+    NButton,
+    NIcon,
+    NModal,
+    NRadioButton,
+    NRadioGroup,
+    NSpace,
+    NText,
 } from 'naive-ui'
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useOpeningTrainingStore } from '../../stores/openingTraining.store'
+import { useAnalysisStore } from '../../stores/analysis.store'
 
 const emit = defineEmits(['start', 'close'])
 const { t } = useI18n()
-const openingStore = useOpeningTrainingStore()
+const analysisStore = useAnalysisStore()
 
 const selectedColor = ref<'white' | 'black'>('white')
 
 onMounted(() => {
-  // Init from store
-  selectedColor.value = openingStore.playerColor
+  // Init from analysis store if player color is set
+  if (analysisStore.playerColor) {
+    selectedColor.value = analysisStore.playerColor
+  }
 })
 
 function startSession() {

@@ -1,24 +1,23 @@
-// src/services/OpeningCacheService.ts
+// src/services/TheoryCacheService.ts
 import Dexie, { type Table } from 'dexie'
-import { type LichessOpeningResponse } from './OpeningApiService'
 
-export interface OpeningStats {
+export interface TheoryStats {
   fen: string
   history: string[] // UCI moves
-  data: LichessOpeningResponse | any // Raw response from Lichess or backend
+  data: any // Raw response from Lichess or backend
   timestamp: number
 }
 
 export type CacheSource = 'lichess' | 'masters' | 'lichessMasters' | 'mozerBook' | 'diamondGravity'
 
-export class OpeningDatabase extends Dexie {
-  openings!: Table<OpeningStats>
-  lichessMasters!: Table<OpeningStats>
-  mozerBook!: Table<OpeningStats>
-  diamondGravity!: Table<OpeningStats>
+export class TheoryDatabase extends Dexie {
+  openings!: Table<TheoryStats>
+  lichessMasters!: Table<TheoryStats>
+  mozerBook!: Table<TheoryStats>
+  diamondGravity!: Table<TheoryStats>
 
   constructor() {
-    super('OpeningDatabase')
+    super('OpeningDatabase') // Keep the same DB name to preserve data
     this.version(1).stores({
       openings: 'fen, timestamp',
     })
@@ -40,16 +39,16 @@ export class OpeningDatabase extends Dexie {
   }
 }
 
-export const db = new OpeningDatabase()
+export const theoryDb = new TheoryDatabase()
 
-class OpeningCacheService {
+class TheoryCacheService {
   private readonly CACHE_TTL = 7 * 24 * 60 * 60 * 1000 // 7 days
 
-  private getTable(source: CacheSource): Table<OpeningStats> {
-    if (source === 'lichessMasters') return db.lichessMasters
-    if (source === 'mozerBook') return db.mozerBook
-    if (source === 'diamondGravity') return db.diamondGravity
-    return db.openings
+  private getTable(source: CacheSource): Table<TheoryStats> {
+    if (source === 'lichessMasters') return theoryDb.lichessMasters
+    if (source === 'mozerBook') return theoryDb.mozerBook
+    if (source === 'diamondGravity') return theoryDb.diamondGravity
+    return theoryDb.openings
   }
 
   async getCachedStats(fen: string, source: CacheSource = 'lichess'): Promise<any | null> {
@@ -65,7 +64,7 @@ class OpeningCacheService {
         }
       }
     } catch (error) {
-      console.error(`[OpeningCacheService] Error reading from cache (${source}):`, error)
+      console.error(`[TheoryCacheService] Error reading from cache (${source}):`, error)
     }
     return null
   }
@@ -85,16 +84,16 @@ class OpeningCacheService {
         timestamp: Date.now(),
       })
     } catch (error) {
-      console.error(`[OpeningCacheService] Error writing to cache (${source}):`, error)
+      console.error(`[TheoryCacheService] Error writing to cache (${source}):`, error)
     }
   }
 
   async clearCache(): Promise<void> {
-    await db.openings.clear()
-    await db.lichessMasters.clear()
-    await db.mozerBook.clear()
-    await db.diamondGravity.clear()
+    await theoryDb.openings.clear()
+    await theoryDb.lichessMasters.clear()
+    await theoryDb.mozerBook.clear()
+    await theoryDb.diamondGravity.clear()
   }
 }
 
-export const openingCacheService = new OpeningCacheService()
+export const theoryCacheService = new TheoryCacheService()

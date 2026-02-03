@@ -124,13 +124,13 @@ const router = createRouter({
     {
       path: '/diamond-hunter/:openingSlug?/:color?',
       name: 'diamond-hunter',
-      component: () => import('../views/OpeningTrainingView.vue'),
+      component: () => import('../views/DiamondHunterView.vue'),
       meta: { isGame: true, game: 'opening-training', requiresAuth: true },
     },
     {
       path: '/opening-sparring/:openingSlug?/:color?',
       name: 'opening-sparring',
-      component: () => import('../views/OpeningExamView.vue'),
+      component: () => import('../views/OpeningSparringView.vue'),
       meta: { isGame: true, game: 'opening-sparring', requiresAuth: true },
     },
     {

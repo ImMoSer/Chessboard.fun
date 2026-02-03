@@ -1,4 +1,4 @@
-// src/services/OpeningGraphService.ts
+// src/services/TheoryGraphService.ts
 import logger from '../utils/logger'
 import { slugify } from '../utils/slugify'
 
@@ -25,7 +25,7 @@ export interface MajorOpening {
   slug: string
 }
 
-class OpeningGraphService {
+class TheoryGraphService {
   private data: OptimizedGraphJson | null = null
   private isLoading = false
   private loadingPromise: Promise<void> | null = null
@@ -41,9 +41,9 @@ class OpeningGraphService {
         const res = await fetch(this.JSON_URL)
         if (!res.ok) throw new Error(`Failed to load opening graph: ${res.statusText}`)
         this.data = await res.json()
-        logger.info('[OpeningGraphService] Optimized book loaded successfully.')
+        logger.info('[TheoryGraphService] Optimized book loaded successfully.')
       } catch (err) {
-        logger.error('[OpeningGraphService] Error loading book:', err)
+        logger.error('[TheoryGraphService] Error loading book:', err)
         this.data = null
       } finally {
         this.isLoading = false
@@ -141,4 +141,4 @@ class OpeningGraphService {
   }
 }
 
-export const openingGraphService = new OpeningGraphService()
+export const theoryGraphService = new TheoryGraphService()

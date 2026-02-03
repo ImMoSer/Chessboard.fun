@@ -1,20 +1,18 @@
 <!-- src/views/OpeningTrainingView.vue -->
 <script setup lang="ts">
+import { ArrowBack, DiamondOutline, FlashOutline, TelescopeOutline } from '@vicons/ionicons5'
+import { NButton, NIcon, NModal, NNumberAnimation, NSpace, NStatistic } from 'naive-ui'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import GameLayout from '../components/GameLayout.vue'
-import OpeningTrainingSettingsModal from '../components/OpeningTrainer/OpeningTrainingSettingsModal.vue'
-import GravityBook from '../components/OpeningTrainer/GravityBook.vue'
 import AnalysisPanel from '../components/AnalysisPanel.vue'
-import { NModal, NButton, NIcon, NStatistic, NNumberAnimation, NSpace } from 'naive-ui'
-import { ArrowBack, DiamondOutline, FlashOutline, TelescopeOutline } from '@vicons/ionicons5'
+import DiamondHunterSettingsModal from '../components/DiamondHunter/DiamondHunterSettingsModal.vue'
+import GravityBook from '../components/DiamondHunter/GravityBook.vue'
+import GameLayout from '../components/GameLayout.vue'
 import { useAnalysisStore } from '../stores/analysis.store'
 import { useBoardStore } from '../stores/board.store'
-import { useGameStore } from '../stores/game.store'
-import { useOpeningTrainingStore } from '../stores/openingTraining.store'
 import { useDiamondHunterStore } from '../stores/diamondHunter.store'
+import { useGameStore } from '../stores/game.store'
 
-const openingStore = useOpeningTrainingStore()
 const diamondHunterStore = useDiamondHunterStore()
 const boardStore = useBoardStore()
 const gameStore = useGameStore()
@@ -31,7 +29,7 @@ watch(
   () => boardStore.fen,
   async () => {
     // Diamond Hunter Logic
-    if (openingStore.isDiamondMode && diamondHunterStore.isActive) {
+    if (diamondHunterStore.isActive) {
        // If it is User's turn, update arrows
        if (boardStore.turn === analysisStore.playerColor) {
            await diamondHunterStore.updateArrows()
@@ -52,9 +50,7 @@ watch(
 )
 
 onMounted(async () => {
-  openingStore.reset()
-  // Force Diamond Mode
-  openingStore.isDiamondMode = true
+  diamondHunterStore.reset()
 
   // openingStore.initializeSession might do too much setup we don't need (like graph loading)
   // But we need board setup.
@@ -79,7 +75,6 @@ async function handleRouteParams() {
 }
 
 onUnmounted(() => {
-  openingStore.reset()
   diamondHunterStore.stopHunt()
   analysisStore.setPlayerColor(null)
   gameStore.resetGame()
@@ -94,7 +89,6 @@ async function startSession(color: 'white' | 'black') {
   // Although "Solving" phase assumes user finds move. Analysis engine would cheat.
   // So likely hide analysis.
   analysisStore.hidePanel()
-  openingStore.isDiamondMode = true
 
   router.replace({
       name: 'diamond-hunter',
@@ -140,7 +134,6 @@ async function startSession(color: 'white' | 'black') {
 }
 
 async function handleRestart() {
-    openingStore.reset()
     diamondHunterStore.stopHunt()
     isAnalysisView.value = false
     await gameStore.resetGame()
@@ -178,7 +171,7 @@ function goBack() {
               </n-button>
               <div class="title">Diamond Hunter</div>
           </div>
-          
+
           <div class="status">
               <div v-if="diamondHunterStore.state === 'HUNTING'">
                  Hunting...
@@ -210,7 +203,7 @@ function goBack() {
           </n-button>
       </div>
 
-      <OpeningTrainingSettingsModal
+      <DiamondHunterSettingsModal
         v-if="isSettingsModalOpen"
         @start="startSession"
         @close="() => {}"
@@ -225,7 +218,7 @@ function goBack() {
          </template>
          <div style="font-size: 3rem; margin: 20px 0;">🤷‍♂️</div>
          <div style="font-size: 1.1rem; margin-bottom: 20px;">We are out of book moves.</div>
-         
+
          <n-space justify="center" :size="20">
              <n-button type="primary" @click="diamondHunterStore.closeTheoryModal(); handleRestart()">Restart</n-button>
              <n-button secondary @click="diamondHunterStore.closeTheoryModal(); startAnalysis()">
@@ -242,7 +235,7 @@ function goBack() {
          </template>
          <div style="font-size: 3rem; margin: 20px 0;">💎</div>
          <div style="font-size: 1.1rem; margin-bottom: 20px;">{{ diamondHunterStore.message }}</div>
-         
+
          <n-space justify="center" :size="20">
              <n-button type="primary" @click="diamondHunterStore.stopHunt(); handleRestart()">Next Hunt</n-button>
              <n-button secondary @click="startAnalysis">
@@ -259,7 +252,7 @@ function goBack() {
          </template>
           <div style="font-size: 3rem; margin: 20px 0;">❌</div>
          <div style="font-size: 1.1rem; margin-bottom: 20px;">{{ diamondHunterStore.message }}</div>
-         
+
          <n-space justify="center" :size="20">
              <n-button type="primary" @click="diamondHunterStore.stopHunt(); handleRestart()">Try Again</n-button>
              <n-button secondary @click="startAnalysis">

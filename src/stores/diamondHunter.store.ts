@@ -32,7 +32,7 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
     const currentGravityStats = ref<{ moves: GravityMove[] } | null>(null)
     const lastFetchedFen = ref('')
     const lastFetchedPlayerColor = ref<string | null>(null)
-    
+
     // In-flight request deduplication
     const pendingRequest = ref<Promise<any> | null>(null)
     const pendingFen = ref<string | null>(null)
@@ -57,9 +57,9 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
         if (!playerColor) return null
 
         // 1. Return cached data if valid (FEN + PlayerColor match)
-        if (!force && 
-            fen === lastFetchedFen.value && 
-            playerColor === lastFetchedPlayerColor.value && 
+        if (!force &&
+            fen === lastFetchedFen.value &&
+            playerColor === lastFetchedPlayerColor.value &&
             currentGravityStats.value
         ) {
             return currentGravityStats.value
@@ -72,7 +72,7 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
 
         // 3. Create new request
         pendingFen.value = fen
-        
+
         const promise = (async () => {
             try {
                 let response
@@ -81,7 +81,7 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
                 } else {
                     response = await diamondApiService.getBlackGravity(fen)
                 }
-                
+
                 if (fen === pendingFen.value) {
                      currentGravityStats.value = response
                      lastFetchedFen.value = fen
@@ -102,9 +102,10 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
 
     function startHunt() {
         logger.info('DiamondHunter: Starting hunt')
+        reset() // Ensure clean slate
         state.value = 'HUNTING'
         message.value = 'Hunt started! Follow the arrows...'
-        
+
         // Kickstart the loop based on whose turn it is
         if (boardStore.turn === analysisStore.playerColor) {
             updateArrows()
@@ -113,14 +114,22 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
         }
     }
 
-    function stopHunt() {
-        logger.info('DiamondHunter: Stopping hunt')
+    function reset() {
         state.value = 'IDLE'
         boardStore.setDrawableShapes([])
         message.value = ''
         currentGravityStats.value = null
         lastFetchedFen.value = ''
         lastFetchedPlayerColor.value = null
+        showTheoryEndModal.value = false
+        currentDiamondHash.value = null
+        currentBlunderMove.value = null
+        isProcessing.value = false
+    }
+
+    function stopHunt() {
+        logger.info('DiamondHunter: Stopping hunt')
+        reset()
     }
 
     // --- Arrow Logic (User Turn) ---
@@ -221,7 +230,7 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
             await playBlunder(selectedMove)
         } else {
             boardStore.applyUciMove(selectedMove.uci)
-            // No explicit updateArrows() or setTimeout here. 
+            // No explicit updateArrows() or setTimeout here.
             // The FEN change will trigger the watcher, which will call updateArrows() for the user.
         }
 
@@ -265,7 +274,7 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
 
         if (moveStats?.nag === 255) {
             logger.info('DiamondHunter: Victory (NAG 255)')
-            // Increment happens in completeDiamond after DB write for accuracy, 
+            // Increment happens in completeDiamond after DB write for accuracy,
             // but we can optimistic update or wait. Let's wait.
 
             const orig = uci.substring(0, 2) as Key
@@ -280,7 +289,7 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
             await completeDiamond()
         } else if (moveStats?.nag === 3) {
             logger.info('DiamondHunter: Brilliant (NAG 3)')
-            
+
             // Record Brilliant
             if (currentDiamondHash.value) {
                 recordBrilliant(currentDiamondHash.value, boardStore.fen, 'pgn-placeholder')
@@ -311,7 +320,7 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
 
                     // Reset to position before blunder
                     boardStore.setupPosition(currentDiamondHash.value!)
-                    
+
                     // Replay the blunder to restart the puzzle
                     // We can cast because we checked for null above, but safely:
                     if (currentBlunderMove.value) {
@@ -366,7 +375,7 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
     // --- Reactivity ---
     watch(() => boardStore.fen, async () => {
         if (state.value !== 'HUNTING') return
-        
+
         const playerColor = analysisStore.playerColor || 'white'
         const isPlayerTurn = boardStore.turn === playerColor
 
@@ -399,6 +408,7 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
         handleUserSolvingMove,
         fetchGravityForFen,
         showTheoryEndModal,
-        closeTheoryModal
+        closeTheoryModal,
+        reset
     }
 })

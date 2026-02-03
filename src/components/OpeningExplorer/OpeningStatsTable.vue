@@ -3,7 +3,7 @@ import type { DataTableColumns } from 'naive-ui'
 import { NDataTable, NText } from 'naive-ui'
 import { computed, h } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { LichessMove } from '../../services/OpeningApiService'
+import type { LichessMove } from '../../services/LichessApiService'
 import { useBoardStore } from '../../stores/board.store'
 
 const props = defineProps<{

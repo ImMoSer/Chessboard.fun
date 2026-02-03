@@ -3,20 +3,19 @@ import type { Key } from '@lichess-org/chessground/types'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import {
-  openingApiService,
-  type LichessMastersParams,
-  type LichessMove,
-  type LichessOpeningResponse,
-  type LichessParams,
-  type OpeningDatabaseSource,
-} from '../services/OpeningApiService'
-import { openingGraphService } from '../services/OpeningGraphService'
+    lichessApiService,
+    type LichessMastersParams,
+    type LichessMove,
+    type LichessOpeningResponse,
+    type LichessParams,
+} from '../services/LichessApiService'
+import { theoryGraphService } from '../services/TheoryGraphService'
 import { soundService } from '../services/sound.service'
 import { type SessionMove } from '../types/openingTrainer.types'
 import { useBoardStore } from './board.store'
 import { useGameStore } from './game.store'
 
-export const useOpeningExamStore = defineStore('openingExam', () => {
+export const useOpeningSparringStore = defineStore('openingSparring', () => {
   const boardStore = useBoardStore()
 
   const currentStats = ref<LichessOpeningResponse | null>(null)
@@ -37,7 +36,7 @@ export const useOpeningExamStore = defineStore('openingExam', () => {
   const lives = ref(3)
 
   // Database settings - Fixed for Exam
-  const dbSource = ref<OpeningDatabaseSource>('masters')
+  const dbSource = ref<'lichess' | 'masters'>('masters')
   const lichessParams = ref<LichessParams>({
     ratings: [1800, 2000, 2200, 2500],
     speeds: ['blitz', 'rapid', 'classical'],
@@ -79,7 +78,7 @@ export const useOpeningExamStore = defineStore('openingExam', () => {
     isProcessingMove.value = true
 
     try {
-      await openingGraphService.loadBook()
+      await theoryGraphService.loadBook()
       boardStore.setupPosition('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', color)
 
       for (const move of startMoves) {
@@ -123,7 +122,7 @@ export const useOpeningExamStore = defineStore('openingExam', () => {
     fetchStats(false, true) // Force refresh
   }
 
-  function setDbSource(source: OpeningDatabaseSource) {
+  function setDbSource(source: 'lichess' | 'masters') {
     dbSource.value = source
     fetchStats(false, true) // Force refresh
   }
@@ -153,7 +152,7 @@ export const useOpeningExamStore = defineStore('openingExam', () => {
     error.value = null
     try {
       const params = dbSource.value === 'masters' ? lichessMastersParams.value : lichessParams.value
-      const data = await openingApiService.getStats(currentFen, dbSource.value, params, {
+      const data = await lichessApiService.getStats(currentFen, dbSource.value, params, {
         onlyCache,
       })
 
@@ -219,7 +218,7 @@ export const useOpeningExamStore = defineStore('openingExam', () => {
     const moveGames = moveData.white + moveData.draws + moveData.black
     const popularity = (moveGames / totalGamesInPos) * 100
 
-    const graphMoves = openingGraphService.getMoves(boardStore.fen)
+    const graphMoves = theoryGraphService.getMoves(boardStore.fen)
     const isAcademic = graphMoves.some((gm) => gm.uci === moveUci)
     const maxGames = Math.max(
       ...currentStats.value.moves.map((m: any) => m.white + m.draws + m.black),
@@ -269,7 +268,7 @@ export const useOpeningExamStore = defineStore('openingExam', () => {
     }
 
     let candidateMoves = currentStats.value.moves
-    const graphMoves = openingGraphService.getMoves(boardStore.fen)
+    const graphMoves = theoryGraphService.getMoves(boardStore.fen)
     const academicMoves = candidateMoves.filter((lm: LichessMove) =>
       graphMoves.some((gm) => gm.uci === lm.uci),
     )

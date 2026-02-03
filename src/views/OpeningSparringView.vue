@@ -4,18 +4,18 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AnalysisPanel from '../components/AnalysisPanel.vue'
 import GameLayout from '../components/GameLayout.vue'
-import LichessOpeningExplorer from '../components/OpeningTrainer/LichessOpeningExplorer.vue'
-import OpeningExamHeader from '../components/OpeningTrainer/OpeningExamHeader.vue'
-import OpeningExamSettingsModal from '../components/OpeningTrainer/OpeningExamSettingsModal.vue'
+import LichessOpeningExplorer from '../components/OpeningExplorer/LichessOpeningExplorer.vue'
+import OpeningSparringHeader from '../components/OpeningSparring/OpeningSparringHeader.vue'
+import OpeningSparringSettingsModal from '../components/OpeningSparring/OpeningSparringSettingsModal.vue'
 import i18n from '../services/i18n'
-import { openingGraphService } from '../services/OpeningGraphService'
+import { theoryGraphService } from '../services/TheoryGraphService'
 import { useAnalysisStore } from '../stores/analysis.store'
 import { useGameStore } from '../stores/game.store'
-import { useOpeningExamStore } from '../stores/openingExam.store'
+import { useOpeningSparringStore } from '../stores/openingSparring.store'
 import { useUiStore } from '../stores/ui.store'
 
 const t = i18n.global.t
-const openingStore = useOpeningExamStore()
+const openingStore = useOpeningSparringStore()
 const gameStore = useGameStore()
 const uiStore = useUiStore()
 const analysisStore = useAnalysisStore()
@@ -49,7 +49,7 @@ onMounted(async () => {
 })
 
 async function handleRouteParams() {
-  await openingGraphService.loadBook()
+  await theoryGraphService.loadBook()
   let slug = route.params.openingSlug as string | undefined
   let colorParam = route.params.color as string | undefined
   let color: 'white' | 'black' = 'white'
@@ -70,7 +70,7 @@ async function handleRouteParams() {
   }
 
   if (slug) {
-    const opening = openingGraphService.findOpeningBySlug(slug)
+    const opening = theoryGraphService.findOpeningBySlug(slug)
     if (opening) moves = opening.moves
   }
 
@@ -143,7 +143,7 @@ async function handlePlayout() {
   <GameLayout>
     <template #left-panel>
       <div class="controls-panel">
-        <OpeningExamHeader
+        <OpeningSparringHeader
           :opening-name="openingStore.openingName"
           :eco="openingStore.currentEco"
           :average-accuracy="openingStore.averageAccuracy"
@@ -159,7 +159,7 @@ async function handlePlayout() {
         />
       </div>
       <AnalysisPanel v-if="isExamEnding" />
-      <OpeningExamSettingsModal
+      <OpeningSparringSettingsModal
         v-if="isSettingsModalOpen"
         @start="startSession"
         @close="() => {}"
@@ -174,7 +174,7 @@ async function handlePlayout() {
 
     <template #right-panel>
       <div class="stats-table-wrapper">
-        <LichessOpeningExplorer mode="exam" :blurred="!isExamEnding" />
+        <LichessOpeningExplorer mode="sparring" :blurred="!isExamEnding" />
 
         <div v-if="openingStore.error" class="error-msg">
           {{ openingStore.error }}

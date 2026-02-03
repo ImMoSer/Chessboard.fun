@@ -1,33 +1,33 @@
 <script setup lang="ts">
 import {
-  BookOutline,
-  ColorPaletteOutline,
-  FilterOutline,
-  PlayOutline,
-  ShuffleOutline,
+    BookOutline,
+    ColorPaletteOutline,
+    FilterOutline,
+    PlayOutline,
+    ShuffleOutline,
 } from '@vicons/ionicons5'
 import type { SelectOption } from 'naive-ui'
 import {
-  NButton,
-  NIcon,
-  NModal,
-  NRadioButton,
-  NRadioGroup,
-  NSelect,
-  NSlider,
-  NSpace,
-  NTag,
-  NText,
+    NButton,
+    NIcon,
+    NModal,
+    NRadioButton,
+    NRadioGroup,
+    NSelect,
+    NSlider,
+    NSpace,
+    NTag,
+    NText,
 } from 'naive-ui'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { openingGraphService } from '../../services/OpeningGraphService'
-import { useOpeningExamStore } from '../../stores/openingExam.store'
+import { theoryGraphService } from '../../services/TheoryGraphService'
+import { useOpeningSparringStore } from '../../stores/openingSparring.store'
 import EngineSelector from '../EngineSelector.vue'
 
 const emit = defineEmits(['start', 'close'])
 const { t } = useI18n()
-const openingStore = useOpeningExamStore()
+const openingStore = useOpeningSparringStore()
 
 const selectedColor = ref<'white' | 'black'>('white')
 const selectedOpening = ref<string | null>(null)
@@ -47,8 +47,8 @@ const openingOptions = computed<SelectOption[]>(() => {
 })
 
 onMounted(async () => {
-  await openingGraphService.loadBook()
-  majorOpenings.value = openingGraphService.getMajorOpenings()
+  await theoryGraphService.loadBook()
+  majorOpenings.value = theoryGraphService.getMajorOpenings()
 
   // Init from store
   selectedColor.value = openingStore.playerColor
@@ -68,7 +68,7 @@ function startSession() {
     preset="card"
     :style="{ width: '600px', borderRadius: '16px' }"
     class="settings-modal"
-    :title="t('nav.openingExam')"
+    :title="t('nav.openingSparring')"
     :bordered="false"
     @close="$emit('close')"
   >

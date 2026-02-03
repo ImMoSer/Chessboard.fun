@@ -1,5 +1,5 @@
 // src/types/openingTrainer.types.ts
-import { type LichessMove, type LichessOpeningResponse } from '../services/OpeningApiService'
+import { type LichessMove, type LichessOpeningResponse } from '../services/LichessApiService'
 
 export interface SessionMove {
   fen: string
