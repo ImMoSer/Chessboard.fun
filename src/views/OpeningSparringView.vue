@@ -4,7 +4,7 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AnalysisPanel from '../components/AnalysisPanel.vue'
 import GameLayout from '../components/GameLayout.vue'
-import LichessOpeningExplorer from '../components/OpeningExplorer/LichessOpeningExplorer.vue'
+import MozerBook from '../components/MozerBook/MozerBook.vue'
 import OpeningSparringHeader from '../components/OpeningSparring/OpeningSparringHeader.vue'
 import OpeningSparringSettingsModal from '../components/OpeningSparring/OpeningSparringSettingsModal.vue'
 import i18n from '../services/i18n'
@@ -174,7 +174,7 @@ async function handlePlayout() {
 
     <template #right-panel>
       <div class="stats-table-wrapper">
-        <LichessOpeningExplorer mode="sparring" :blurred="!isExamEnding" />
+        <MozerBook />
 
         <div v-if="openingStore.error" class="error-msg">
           {{ openingStore.error }}

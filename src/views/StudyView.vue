@@ -224,7 +224,7 @@ watch(
             </button>
           </div>
           <MozerBook v-if="explorerMode === 'mozer'" class="explorer-component" />
-          <LichessOpeningExplorer v-else mode="study" class="explorer-component" />
+          <LichessOpeningExplorer v-else class="explorer-component" />
       </div>
     </template>
 

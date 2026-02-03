@@ -1,56 +1,47 @@
 <script setup lang="ts">
 import {
-    CalendarOutline,
-    HourglassOutline,
-    ListOutline,
-    SettingsOutline,
-    TrophyOutline,
+  CalendarOutline,
+  HourglassOutline,
+  ListOutline,
+  SettingsOutline,
+  TrophyOutline,
 } from '@vicons/ionicons5'
 import {
-    NButton,
-    NButtonGroup,
-    NCheckbox,
-    NCheckboxGroup,
-    NCollapseTransition,
-    NGrid,
-    NGridItem,
-    NIcon,
-    NSlider,
-    NSpace,
-    NText,
+  NButton,
+  NButtonGroup,
+  NCheckbox,
+  NCheckboxGroup,
+  NCollapseTransition,
+  NGrid,
+  NGridItem,
+  NIcon,
+  NSlider,
+  NSpace,
+  NText,
 } from 'naive-ui'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import {
-    lichessApiService,
-    type LichessMastersParams,
-    type LichessOpeningResponse,
-    type LichessParams,
+  lichessApiService,
+  type LichessMastersParams,
+  type LichessOpeningResponse,
+  type LichessParams,
 } from '../../services/LichessApiService'
 import { pgnService, pgnTreeVersion } from '../../services/PgnService'
 import { useBoardStore } from '../../stores/board.store'
-import { useOpeningSparringStore } from '../../stores/openingSparring.store'
 import OpeningStatsTable from './OpeningStatsTable.vue'
 
 
-const props = defineProps<{
-  mode: 'sparring' | 'study'
+defineProps<{
   blurred?: boolean
 }>()
 
 const { t } = useI18n()
 const boardStore = useBoardStore()
-const examStore = useOpeningSparringStore()
 
 const showSettings = ref(false)
 
-// Active store depends on mode
-const activeStore = computed(() => {
-  if (props.mode === 'sparring') return examStore
-  return null
-})
-
-// Local state for Study mode
+// Local state for all modes when using this component
 const localStats = ref<LichessOpeningResponse | null>(null)
 const localLoading = ref(false)
 const localSource = ref<'lichess' | 'masters'>('lichess')
@@ -65,31 +56,19 @@ const localMastersParams = ref({
   topGames: 10,
 })
 
-// Computed values that bridge Store vs Local
-const stats = computed(() =>
-  activeStore.value ? activeStore.value.currentStats : localStats.value,
-)
-const loading = computed(() =>
-  activeStore.value ? activeStore.value.isLoading : localLoading.value,
-)
+// Computed values that bridge Store vs Local (kept for compatibility, though activeStore is null)
+const stats = computed(() => localStats.value)
+const loading = computed(() => localLoading.value)
 const source = computed({
-  get: () => (activeStore.value ? activeStore.value.dbSource : localSource.value),
+  get: () => localSource.value,
   set: (val) => {
-    if (activeStore.value) {
-      activeStore.value.setDbSource(val)
-    } else {
-      localSource.value = val
-      fetchLocalStats()
-    }
+    localSource.value = val
+    fetchLocalStats()
   },
 })
 
-const lichessParams = computed(() =>
-  activeStore.value ? activeStore.value.lichessParams : localLichessParams.value,
-)
-const mastersParams = computed(() =>
-  activeStore.value ? activeStore.value.lichessMastersParams : localMastersParams.value,
-)
+const lichessParams = computed(() => localLichessParams.value)
+const mastersParams = computed(() => localMastersParams.value)
 
 const sortedTopGames = computed(() => {
   if (!stats.value?.topGames) return []
@@ -132,15 +111,10 @@ const AVAILABLE_RATINGS = [1800, 2000, 2200, 2500]
 const AVAILABLE_SPEEDS = ['bullet', 'blitz', 'rapid', 'classical']
 
 function handleSelectMove(uci: string) {
-  if (props.mode === 'study') {
-    boardStore.applyUciMove(uci)
-  } else if (activeStore.value) {
-    activeStore.value.handlePlayerMove(uci)
-  }
+  boardStore.applyUciMove(uci)
 }
 
 async function fetchLocalStats() {
-  if (props.mode !== 'study') return
   localLoading.value = true
   try {
     const fen = pgnService.getCurrentNavigatedFen()
@@ -159,35 +133,27 @@ function updateParams(
   type: 'lichess' | 'masters',
   newParams: LichessParams | LichessMastersParams,
 ) {
-  if (activeStore.value) {
-    if (type === 'lichess') {
-      activeStore.value.setLichessParams(newParams as LichessParams)
-    } else {
-      activeStore.value.setLichessMastersParams(newParams as LichessMastersParams)
-    }
+  if (type === 'lichess') {
+    localLichessParams.value = { ...localLichessParams.value, ...(newParams as LichessParams) }
   } else {
-    if (type === 'lichess') {
-      localLichessParams.value = { ...localLichessParams.value, ...(newParams as LichessParams) }
-    } else {
-      localMastersParams.value = {
-        ...localMastersParams.value,
-        ...(newParams as LichessMastersParams),
-      }
+    localMastersParams.value = {
+      ...localMastersParams.value,
+      ...(newParams as LichessMastersParams),
     }
-    fetchLocalStats()
   }
+  fetchLocalStats()
 }
 
 watch(
   [pgnTreeVersion, localSource, localLichessParams, localMastersParams],
   () => {
-    if (props.mode === 'study') fetchLocalStats()
+    fetchLocalStats()
   },
   { deep: true },
 )
 
 onMounted(() => {
-  if (props.mode === 'study') fetchLocalStats()
+  fetchLocalStats()
 })
 </script>
 

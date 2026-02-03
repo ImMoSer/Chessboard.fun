@@ -1,24 +1,20 @@
-// src/stores/openingExam.store.ts
-import type { Key } from '@lichess-org/chessground/types'
+// src/stores/openingSparring.store.ts
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import {
-    lichessApiService,
-    type LichessMastersParams,
-    type LichessMove,
-    type LichessOpeningResponse,
-    type LichessParams,
-} from '../services/LichessApiService'
 import { theoryGraphService } from '../services/TheoryGraphService'
 import { soundService } from '../services/sound.service'
 import { type SessionMove } from '../types/openingTrainer.types'
+import { areMovesEqual } from '../utils/chess-utils'
+import { useAnalysisStore } from './analysis.store'
 import { useBoardStore } from './board.store'
 import { useGameStore } from './game.store'
+import { useMozerBookStore } from './mozerBook.store'
 
 export const useOpeningSparringStore = defineStore('openingSparring', () => {
   const boardStore = useBoardStore()
+  const mozerStore = useMozerBookStore()
 
-  const currentStats = ref<LichessOpeningResponse | null>(null)
+  const currentStats = computed(() => mozerStore.currentStats)
   const sessionHistory = ref<SessionMove[]>([])
   const isTheoryOver = ref(false)
   const isDeviation = ref(false)
@@ -26,31 +22,14 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   const playerColor = ref<'white' | 'black'>('white')
   const openingName = ref('')
   const currentEco = ref('')
-  const isLoading = ref(false)
+  const isLoading = computed(() => mozerStore.isLoading)
   const isProcessingMove = ref(false)
   const isPlayoutMode = ref(false)
-  const error = ref<string | null>(null)
+  const error = computed(() => mozerStore.error)
   const moveQueue = ref<string[]>([])
 
   // Lives for Exam mode
   const lives = ref(3)
-
-  // Database settings - Fixed for Exam
-  const dbSource = ref<'lichess' | 'masters'>('masters')
-  const lichessParams = ref<LichessParams>({
-    ratings: [1800, 2000, 2200, 2500],
-    speeds: ['blitz', 'rapid', 'classical'],
-  })
-  const lichessMastersParams = ref({
-    since: 1952,
-    until: new Date().getFullYear(),
-    moves: 12,
-    topGames: 10,
-  })
-
-  // Request deduplication tracking
-  const lastFetchedFen = ref<string>('')
-  const lastFetchedConfig = ref<string>('')
 
   const movesCount = computed(() => sessionHistory.value.length)
 
@@ -78,7 +57,9 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     isProcessingMove.value = true
 
     try {
+      // Still load book for initial navigation or slug search if used in View
       await theoryGraphService.loadBook()
+
       boardStore.setupPosition('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', color)
 
       for (const move of startMoves) {
@@ -96,98 +77,43 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   }
 
   function reset() {
-    currentStats.value = null
+    mozerStore.reset()
     sessionHistory.value = []
     isTheoryOver.value = false
     isDeviation.value = false
     openingName.value = ''
     currentEco.value = ''
-    error.value = null
-    isLoading.value = false
     isProcessingMove.value = false
     isPlayoutMode.value = false
     moveQueue.value = []
-    lastFetchedFen.value = ''
-    lastFetchedConfig.value = ''
-    lives.value = 3 // Reset lives
+    lives.value = 3
   }
 
-  function setLichessParams(params: Partial<LichessParams>) {
-    lichessParams.value = { ...lichessParams.value, ...params }
-    fetchStats(false, true) // Force refresh
-  }
-
-  function setLichessMastersParams(params: LichessMastersParams) {
-    lichessMastersParams.value = { ...lichessMastersParams.value, ...params }
-    fetchStats(false, true) // Force refresh
-  }
-
-  function setDbSource(source: 'lichess' | 'masters') {
-    dbSource.value = source
-    fetchStats(false, true) // Force refresh
-  }
-
-  function generateConfigHash(): string {
-    if (dbSource.value === 'masters') {
-      const m = lichessMastersParams.value
-      return `masters:${m.since}:${m.until}:${m.topGames}`
-    }
-    return `lichess:${lichessParams.value.ratings.slice().sort().join(',')}|${lichessParams.value.speeds.slice().sort().join(',')}`
-  }
-
-  async function fetchStats(isGameplay = true, force = false, onlyCache = false) {
-    const currentFen = boardStore.fen
-    const currentConfig = generateConfigHash()
-
-    if (
-      !force &&
-      currentFen === lastFetchedFen.value &&
-      currentConfig === lastFetchedConfig.value &&
-      !onlyCache
-    ) {
-      return
-    }
-
-    isLoading.value = true
-    error.value = null
-    try {
-      const params = dbSource.value === 'masters' ? lichessMastersParams.value : lichessParams.value
-      const data = await lichessApiService.getStats(currentFen, dbSource.value, params, {
-        onlyCache,
-      })
-
-      if (!onlyCache) {
-        lastFetchedFen.value = currentFen
-        lastFetchedConfig.value = currentConfig
-      }
-
-      if (data) {
-        currentStats.value = data
-        if (data.opening && !openingName.value) {
-          openingName.value = data.opening.name
-          if (data.opening.eco) currentEco.value = data.opening.eco
-        }
-
-        if (data.moves.length === 0 && isGameplay) {
-          isTheoryOver.value = true
-          soundService.playSound('game_user_won')
-        }
-      } else {
-        if (onlyCache) {
-          currentStats.value = null
-        } else if (isGameplay) {
-          isTheoryOver.value = true
+  async function fetchStats() {
+    await mozerStore.fetchStats()
+    if (currentStats.value) {
+      if (currentStats.value.summary && !openingName.value) {
+        // Fallback or use theory items if available
+        const theoryItem = currentStats.value.theory?.[0]
+        if (theoryItem) {
+          openingName.value = theoryItem.name
+          if (theoryItem.eco) currentEco.value = theoryItem.eco
         }
       }
-    } catch {
-      currentStats.value = null
-      error.value = `Failed to fetch stats from ${dbSource.value}.`
-    } finally {
-      isLoading.value = false
     }
   }
 
   async function handlePlayerMove(moveUci: string) {
+    if (isPlayoutMode.value) {
+        // In playout mode, we just let the bot respond with engine
+        isProcessingMove.value = true
+        setTimeout(async () => {
+            await triggerEngineMove()
+            isProcessingMove.value = false
+        }, 500)
+        return
+    }
+
     isProcessingMove.value = true
     moveQueue.value.push(moveUci)
     try {
@@ -198,12 +124,23 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   }
 
   async function processMoveQueue() {
-    if (isLoading.value || error.value || !currentStats.value || moveQueue.value.length === 0) {
+    if (moveQueue.value.length === 0) {
       return
     }
 
     const moveUci = moveQueue.value.shift()!
-    const moveData = currentStats.value.moves.find((m: LichessMove) => m.uci === moveUci)
+    const stats = currentStats.value
+
+    if (!stats || stats.moves.length === 0) {
+        // No stats available, this shouldn't happen if we correctly transition,
+        // but if it does, it's a deviation or theory over
+        isTheoryOver.value = true
+        isProcessingMove.value = false
+        return
+    }
+
+    // Use our new move matching utility
+    const moveData = stats.moves.find((m) => areMovesEqual(m.uci, moveUci))
 
     if (!moveData) {
       isDeviation.value = true
@@ -213,34 +150,34 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
       return
     }
 
-    const totalGamesInPos =
-      currentStats.value.white + currentStats.value.draws + currentStats.value.black || 1
-    const moveGames = moveData.white + moveData.draws + moveData.black
-    const popularity = (moveGames / totalGamesInPos) * 100
+    const totalGamesInPos = stats.summary
+      ? stats.summary.w + stats.summary.d + stats.summary.l
+      : stats.moves.reduce((acc, m) => acc + m.total, 0) || 1
 
-    const graphMoves = theoryGraphService.getMoves(boardStore.fen)
-    const isAcademic = graphMoves.some((gm) => gm.uci === moveUci)
-    const maxGames = Math.max(
-      ...currentStats.value.moves.map((m: any) => m.white + m.draws + m.black),
-    )
-    let accuracy = maxGames > 0 ? (moveGames / maxGames) * 100 : 0
-    if (isAcademic) accuracy = 100
+    const popularity = (moveData.total / totalGamesInPos) * 100
 
-    const wins = playerColor.value === 'white' ? moveData.white : moveData.black
-    const winRateRaw = moveGames > 0 ? ((wins + 0.5 * moveData.draws) / moveGames) * 100 : 0
-    const rating = moveData.averageRating || 0
+    const maxTotal = Math.max(...stats.moves.map((m) => m.total))
+    const accuracy = maxTotal > 0 ? (moveData.total / maxTotal) * 100 : 0
 
-    const graphMoveData = graphMoves.find((m) => m.uci === moveUci)
-    if (graphMoveData) {
-      if (graphMoveData.name) openingName.value = graphMoveData.name
-      if (graphMoveData.eco) currentEco.value = graphMoveData.eco
-    }
+    const wins = playerColor.value === 'white' ? moveData.w_pct : moveData.l_pct
+    const winRateRaw = wins + 0.5 * moveData.d_pct
+    const rating = moveData.perf || 0
+
+    if (moveData.name) openingName.value = moveData.name
+    if (moveData.eco) currentEco.value = moveData.eco
 
     sessionHistory.value.push({
       fen: boardStore.fen,
       moveUci,
       san: moveData.san,
-      stats: moveData,
+      stats: {
+          uci: moveData.uci,
+          san: moveData.san,
+          white: moveData.w_pct,
+          draws: moveData.d_pct,
+          black: moveData.l_pct,
+          averageRating: moveData.perf
+      } as any,
       popularity,
       accuracy,
       winRate: winRateRaw,
@@ -257,47 +194,32 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   }
 
   async function triggerBotMove() {
-    if (!currentStats.value || currentStats.value.moves.length === 0) {
-      await fetchStats()
-      if (!currentStats.value || currentStats.value.moves.length === 0) {
-        isTheoryOver.value = true
-        soundService.playSound('game_user_won')
-        isProcessingMove.value = false
-        return
-      }
+    const stats = currentStats.value
+    if (!stats || stats.moves.length === 0) {
+      isTheoryOver.value = true
+      soundService.playSound('game_user_won')
+      isProcessingMove.value = false
+      return
     }
 
-    let candidateMoves = currentStats.value.moves
-    const graphMoves = theoryGraphService.getMoves(boardStore.fen)
-    const academicMoves = candidateMoves.filter((lm: LichessMove) =>
-      graphMoves.some((gm) => gm.uci === lm.uci),
-    )
-
-    if (academicMoves.length > 0) {
-      candidateMoves = academicMoves
-    }
-
-    const topMoves = candidateMoves.slice(0, variability.value)
+    // Pick a move from top N based on variability
+    const topMoves = stats.moves.slice(0, variability.value)
     if (topMoves.length === 0) {
       isTheoryOver.value = true
       isProcessingMove.value = false
       return
     }
 
-    const totalGames = topMoves.reduce(
-      (acc: number, m: LichessMove) => acc + (m.white + m.draws + m.black),
-      0,
-    )
+    const totalGames = topMoves.reduce((acc, m) => acc + m.total, 0)
     let random = Math.random() * totalGames
-    let selectedMove: LichessMove = topMoves[0]!
+    let selectedMove = topMoves[0]!
 
     for (const move of topMoves) {
-      const moveGames = move.white + move.draws + move.black
-      if (random < moveGames) {
+      if (random < move.total) {
         selectedMove = move
         break
       }
-      random -= moveGames
+      random -= move.total
     }
 
     boardStore.applyUciMove(selectedMove.uci)
@@ -310,18 +232,35 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     }
   }
 
+  async function triggerEngineMove() {
+      const analysisStore = useAnalysisStore()
+      // Make sure analysis is running
+      if (!analysisStore.isAnalysisActive) {
+          await analysisStore.showPanel(true)
+      }
+
+      // Wait a bit for engine to produce a move
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
+      const bestMove = analysisStore.analysisLines[0]?.pvUci[0]
+      if (bestMove) {
+          boardStore.applyUciMove(bestMove)
+          await fetchStats()
+      }
+  }
+
   function hint() {
     if (lives.value <= 0) return
 
     const bestMove = currentStats.value?.moves?.[0]
     if (!bestMove) return
 
-    lives.value -= 1 // Decrement lives
+    lives.value -= 1
 
     boardStore.drawableShapes = [
       {
-        orig: bestMove.uci.substring(0, 2) as Key,
-        dest: bestMove.uci.substring(2, 4) as Key,
+        orig: bestMove.uci.substring(0, 2) as any,
+        dest: bestMove.uci.substring(2, 4) as any,
         brush: 'green',
       },
     ]
@@ -333,8 +272,14 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   function startPlayout() {
     isPlayoutMode.value = true
     const gameStore = useGameStore()
-    gameStore.currentGameMode = 'sandbox'
+    // We stay in opening-trainer mode but isPlayoutMode flag will change behavior
+    gameStore.currentGameMode = 'opening-trainer'
     soundService.playSound('game_play_out_start')
+
+    // If it's bot's turn, trigger engine move
+    if (boardStore.turn !== playerColor.value) {
+        triggerEngineMove()
+    }
   }
 
   return {
@@ -354,13 +299,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     isProcessingMove,
     isPlayoutMode,
     error,
-    dbSource,
-    lichessParams,
-    lichessMastersParams,
     lives,
-    setLichessParams,
-    setLichessMastersParams,
-    setDbSource,
     initializeSession,
     handlePlayerMove,
     fetchStats,
