@@ -74,6 +74,7 @@ declare module 'vue' {
     RepertoireGeneratorModal: typeof import('./src/components/study/RepertoireGeneratorModal.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SessionHistoryList: typeof import('./src/components/OpeningSparring/SessionHistoryList.vue')['default']
     SettingsMenu: typeof import('./src/components/SettingsMenu.vue')['default']
     SimpleLeaderboardTable: typeof import('./src/components/recordsPage/SimpleLeaderboardTable.vue')['default']
     SkillLeaderboardTable: typeof import('./src/components/recordsPage/SkillLeaderboardTable.vue')['default']

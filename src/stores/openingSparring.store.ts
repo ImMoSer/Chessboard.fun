@@ -83,6 +83,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   }
 
   function reset() {
+    console.log('[OpeningSparring] Resetting session')
     mozerStore.reset()
     sessionHistory.value = []
     isTheoryOver.value = false
@@ -211,6 +212,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
 
     const wins = playerColor.value === 'white' ? moveData.w_pct : moveData.l_pct
     const winRateRaw = wins + 0.5 * moveData.d_pct
+    const rating = moveData.perf || 0
     
     // Mapping MozerBook fields to TheoryMove directly (no mapping needed per se, just assignment)
     // MozerBookMove fields: w_pct, d_pct, l_pct, perf, total... matches TheoryMove
@@ -236,6 +238,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
       popularity,
       accuracy,
       winRate: winRateRaw,
+      rating,
     })
 
     await fetchStats()
@@ -256,6 +259,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
       return
     }
 
+    // Pick a move from top N based on variability
     const topMoves = stats.moves.slice(0, variability.value)
     if (topMoves.length === 0) {
       isTheoryOver.value = true
@@ -275,7 +279,44 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
       random -= move.total
     }
 
+    // Calculate stats for the bot's move
+    const totalGamesInPos = stats.summary
+      ? stats.summary.w + stats.summary.d + stats.summary.l
+      : stats.moves.reduce((acc, m) => acc + m.total, 0) || 1
+
+    const popularity = (selectedMove.total / totalGamesInPos) * 100
+    const maxTotal = Math.max(...stats.moves.map((m) => m.total))
+    const accuracy = maxTotal > 0 ? (selectedMove.total / maxTotal) * 100 : 0
+    
+    // Win rate from User's perspective
+    const wins = playerColor.value === 'white' ? selectedMove.w_pct : selectedMove.l_pct
+    const winRateRaw = wins + 0.5 * selectedMove.d_pct
+    const rating = selectedMove.perf || 0
+
+    const moveStats = {
+        uci: selectedMove.uci,
+        san: selectedMove.san,
+        total: selectedMove.total,
+        w_pct: selectedMove.w_pct,
+        d_pct: selectedMove.d_pct,
+        l_pct: selectedMove.l_pct,
+        perf: selectedMove.perf
+    }
+
     boardStore.applyUciMove(selectedMove.uci)
+
+    sessionHistory.value.push({
+      fen: boardStore.fen,
+      moveUci: selectedMove.uci,
+      san: selectedMove.san,
+      phase: 'theory',
+      stats: moveStats,
+      popularity,
+      accuracy,
+      winRate: winRateRaw,
+      rating
+    })
+
     await fetchStats()
 
     if (moveQueue.value.length > 0) {

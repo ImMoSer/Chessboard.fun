@@ -7,6 +7,8 @@ import GameLayout from '../components/GameLayout.vue'
 import MozerBook from '../components/MozerBook/MozerBook.vue'
 import OpeningSparringHeader from '../components/OpeningSparring/OpeningSparringHeader.vue'
 import OpeningSparringSettingsModal from '../components/OpeningSparring/OpeningSparringSettingsModal.vue'
+import OpeningSparringSummaryModal from '../components/OpeningSparring/OpeningSparringSummaryModal.vue'
+import SessionHistoryList from '../components/OpeningSparring/SessionHistoryList.vue'
 import i18n from '../services/i18n'
 import { theoryGraphService } from '../services/TheoryGraphService'
 import { useAnalysisStore } from '../stores/analysis.store'
@@ -174,7 +176,7 @@ async function handleSummaryRestart() {
 <template>
   <GameLayout>
     <template #left-panel>
-      <div class="controls-panel">
+      <div class="left-panel-content">
         <OpeningSparringHeader
           :opening-name="openingStore.openingName"
           :eco="openingStore.currentEco"
@@ -189,7 +191,12 @@ async function handleSummaryRestart() {
           @hint="openingStore.hint"
           @playout="handlePlayout"
         />
+
+        <div class="mozer-book-wrapper">
+             <MozerBook />
+        </div>
       </div>
+
       <AnalysisPanel v-if="showAnalysisPanel" />
       <OpeningSparringSettingsModal
         v-if="isSettingsModalOpen"
@@ -212,22 +219,33 @@ async function handleSummaryRestart() {
     </template>
 
     <template #right-panel>
-      <div class="stats-table-wrapper">
-        <MozerBook />
+      <div class="history-list-wrapper">
+         <SessionHistoryList />
+      </div>
 
-        <div v-if="openingStore.error" class="error-msg">
-          {{ openingStore.error }}
-        </div>
+      <div v-if="openingStore.error" class="error-msg">
+        {{ openingStore.error }}
       </div>
     </template>
   </GameLayout>
 </template>
 
 <style scoped>
-.controls-panel {
+.left-panel-content {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 12px;
+  height: 100%;
+}
+
+.mozer-book-wrapper {
+    flex: 1;
+    min-height: 0; /* Important for flex child scroll */
+}
+
+.history-list-wrapper {
+    height: 100%;
+    overflow: hidden;
 }
 
 .loader-overlay {

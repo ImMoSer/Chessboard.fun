@@ -19,4 +19,5 @@ export interface SessionMove {
   accuracy?: number
   winRate?: number
   popularity?: number
+  rating?: number
 }
