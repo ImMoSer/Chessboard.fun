@@ -700,6 +700,10 @@
       "startPosition": "Start Position (Standard)",
       "variability": "Variability: {value}",
       "variabilityHint": "Higher variability means the bot plays less popular moves more often.",
+      "opponentSource": "Opponent Base",
+      "masterHint": "Bot plays optimal moves from Master games.",
+      "lichessHint": "Bot simulates human play styles based on selected ratings.",
+      "selectRatings": "Select Opponent Ratings",
       "engineHint": "Choose the engine for playout mode.",
       "startSession": "Start Session"
     }
