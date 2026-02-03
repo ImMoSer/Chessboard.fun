@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@lichess-org/chessground": "^10.0.1",
-    "@lichess-org/stockfish-web": "^0.2.0",
+    "@lichess-org/stockfish-web": "^0.2.1",
     "@vicons/ionicons5": "^0.13.0",
     "chessops": "^0.15.0",
     "dexie": "^4.3.0",

@@ -57,6 +57,8 @@ export function loadSingleThreadEngine(): Promise<EngineController> {
  */
 interface LichessModule {
   uci(command: string): void
+  setNnueBuffer(buffer: ArrayBuffer): void
+  getRecommendedNnue?(): string
   addMessageListener?: never // Этого метода нет в оригинале
   postMessage?: never      // Этого метода нет в оригинале
 }
@@ -110,6 +112,46 @@ export function loadMultiThreadEngine(): Promise<EngineController | null> {
         }) as LichessModule
         
         logger.info('[EngineLoader] Multi-threaded Stockfish instance created successfully.')
+        
+        // Получаем рекомендуемое имя файла от самого движка
+        let nnueFileName = 'nn-4ca89e4b3abf.nnue' // Fallback
+        if (typeof engineInstance.getRecommendedNnue === 'function') {
+          try {
+            nnueFileName = engineInstance.getRecommendedNnue()
+            logger.info(`[EngineLoader] Engine recommended NNUE file: ${nnueFileName}`)
+          } catch (e) {
+            logger.warn('[EngineLoader] Failed to get recommended NNUE name, using fallback.', e)
+          }
+        }
+        
+        const nnuePath = `/stockfish/nnue/${nnueFileName}`
+
+        // Load and set NNUE network
+        try {
+          logger.info(`[EngineLoader] Fetching NNUE file from ${nnuePath}...`)
+          const response = await fetch(nnuePath)
+          if (!response.ok) {
+             if (response.status === 404) {
+               logger.error(`[EngineLoader] NNUE file not found! Please download ${nnueFileName} and place it in public/stockfish/nnue/`)
+             }
+            throw new Error(`Failed to fetch NNUE file: ${response.status} ${response.statusText}`)
+          }
+          const buffer = await response.arrayBuffer()
+          logger.info(`[EngineLoader] NNUE file fetched (${buffer.byteLength} bytes). Setting buffer...`)
+          
+          if (typeof engineInstance.setNnueBuffer === 'function') {
+             engineInstance.setNnueBuffer(new Uint8Array(buffer))
+             logger.info('[EngineLoader] NNUE buffer set successfully.')
+          } else {
+             logger.warn('[EngineLoader] setNnueBuffer function not found on engine instance!')
+          }
+
+        } catch (nnueError) {
+          logger.error('[EngineLoader] Critical error loading NNUE file:', nnueError)
+          // Можно реджектить, если без сети движок бесполезен
+          reject(nnueError)
+          return
+        }
         
         // Создаем адаптер, чтобы движок выглядел как EngineController
         const engineAdapter: EngineController = {

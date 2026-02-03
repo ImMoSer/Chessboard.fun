@@ -111,11 +111,12 @@ class MultiThreadEngineManagerController {
   }
 
   private handleEngineMessage(message: string): void {
-    // logger.debug(`[RAW_ENGINE_MSG] ${message}`)
-    // logger.debug(`[MultiThreadEngineManager] Received: ${message}`)
     const parts = message.split(' ')
 
     if (message === 'uciok') {
+      // Ensure NNUE is enabled and points to the correct file name (even if buffer is injected)
+      this.sendCommand('setoption name Use NNUE value true')
+      this.sendCommand('setoption name EvalFile value nn-4ca89e4b3abf.nnue')
       this.sendCommand('isready')
     } else if (message === 'readyok') {
       this.isReady = true
@@ -172,9 +173,7 @@ class MultiThreadEngineManagerController {
         i++
       }
       if (score && pvUci.length > 0 && !isNaN(depth) && depth > 0) {
-        // <<< ИЗМЕНЕНИЕ: Логирование разобранных данных
         const parsedData = { id: currentLineId, depth, score, pvUci }
-        // logger.debug('[PARSED_INFO]', parsedData)
         this.infiniteAnalysisCallback([parsedData], null)
       }
     } catch (error) {
