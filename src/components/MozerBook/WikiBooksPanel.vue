@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { BookOutline, OpenOutline } from '@vicons/ionicons5'
 import DOMPurify from 'dompurify'
-import { NEmpty, NIcon, NScrollbar, NSpin, NText } from 'naive-ui'
+import { NEmpty, NIcon, NScrollbar, NText } from 'naive-ui'
 import { storeToRefs } from 'pinia'
 import { computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -11,7 +11,7 @@ import { useWikiBooksStore } from '../../stores/wikibooks.store'
 
 const { t } = useI18n()
 const store = useWikiBooksStore()
-const { wikiData, isLoading, error, hasTheory, currentSlug } = storeToRefs(store)
+const { wikiData, error, hasTheory, currentSlug } = storeToRefs(store)
 
 const updateTheory = () => {
   store.updateMoves(pgnService.getCurrentSanPath())
@@ -73,12 +73,7 @@ const sanitizedContent = computed(() => {
     <div class="panel-content-wrapper">
       <n-scrollbar style="max-height: 60vh" trigger="none">
         <div class="panel-content">
-          <div v-if="isLoading" class="state-container loading">
-            <n-spin size="large" />
-            <p class="mt-4">{{ t('analysis.loadingTheory') || 'Loading theory...' }}</p>
-          </div>
-
-          <div v-else-if="error" class="state-container error">
+          <div v-if="error" class="state-container error">
             <span class="error-icon">⚠</span>
             <p>{{ error }}</p>
           </div>

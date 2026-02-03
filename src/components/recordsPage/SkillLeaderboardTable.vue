@@ -219,7 +219,6 @@ const onChartClick = (params: unknown) => {
 
     <div
       class="chart-container"
-      :class="{ 'is-loading': isLoading }"
       :style="{ height: dynamicHeight }"
     >
       <v-chart
@@ -230,9 +229,6 @@ const onChartClick = (params: unknown) => {
         autoresize
       />
       <n-empty v-else :description="t('userCabinet.stats.noData')" />
-      <div v-if="isLoading" class="loading-overlay">
-        <n-spin size="large" />
-      </div>
     </div>
   </div>
 </template>

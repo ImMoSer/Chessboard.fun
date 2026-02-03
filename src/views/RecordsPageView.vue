@@ -14,7 +14,7 @@ import TimedModeLeaderboardTable from '../components/recordsPage/TimedModeLeader
 const recordsStore = useRecordsStore()
 const { t } = useI18n()
 
-const { isLoading, isSkillLeaderboardLoading, error, leaderboards, selectedSkillPeriod } =
+const { isSkillLeaderboardLoading, error, leaderboards, selectedSkillPeriod } =
   storeToRefs(recordsStore)
 
 onMounted(() => {
@@ -34,10 +34,7 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
       :alt="t('records.bannerAlt')"
     />
 
-    <div v-if="isLoading" class="loading-message">
-      {{ t('common.loading') }}
-    </div>
-    <div v-else-if="error" class="records-page__error-message">
+    <div v-if="error" class="records-page__error-message">
       {{ t('common.error') }}: {{ error }}
     </div>
 

@@ -18,7 +18,7 @@ const authStore = useAuthStore()
 const { userProfile, isAuthenticated } = storeToRefs(authStore)
 
 const userCabinetStore = useUserCabinetStore()
-const { isLoading, error, detailedStats } = storeToRefs(userCabinetStore)
+const { error, detailedStats } = storeToRefs(userCabinetStore)
 
 const selectedTornadoMode = ref<TornadoMode>('blitz')
 
@@ -34,11 +34,7 @@ onMounted(() => {
 
 <template>
   <div class="user-cabinet-container">
-    <div v-if="isLoading" class="state-container">
-      <n-spin size="large" />
-    </div>
-
-    <n-alert v-else-if="error" type="error" closable class="error-alert">
+    <n-alert v-if="error" type="error" closable class="error-alert">
       {{ error }}
     </n-alert>
 
@@ -56,7 +52,7 @@ onMounted(() => {
       </n-result>
     </div>
 
-    <div v-else class="user-cabinet-content">
+    <div class="user-cabinet-content">
       <n-space vertical size="large">
         <UserProfileHeader />
 

@@ -3,7 +3,7 @@ import { computed, watch } from 'vue'
 import { useDiamondHunterStore } from '../../stores/diamondHunter.store'
 import { useBoardStore } from '../../stores/board.store'
 import { useAnalysisStore } from '../../stores/analysis.store'
-import { NDataTable, NTag, NEmpty, NSpin } from 'naive-ui'
+import { NDataTable, NTag, NEmpty } from 'naive-ui'
 import { type GravityMove } from '../../services/DiamondApiService'
 import { h } from 'vue'
 
@@ -126,7 +126,6 @@ const title = computed(() => {
           {{ title }}
       </div>
       <div class="content">
-          <n-spin :show="isLoading">
             <n-data-table
                 :columns="columns"
                 :data="moves"
@@ -137,7 +136,6 @@ const title = computed(() => {
                 virtual-scroll
             />
             <n-empty v-if="!isLoading && moves.length === 0" description="No Gravity Data" style="padding: 20px" />
-          </n-spin>
       </div>
   </div>
 </template>

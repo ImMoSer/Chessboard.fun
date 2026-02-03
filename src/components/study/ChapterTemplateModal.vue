@@ -4,7 +4,7 @@ import {
     type TheoryChapterTemplate,
 } from '@/services/TheoryChaptersService';
 import { useStudyStore } from '@/stores/study.store';
-import { NCard, NInput, NList, NListItem, NModal, NSpace, NSpin, NText, NThing } from 'naive-ui';
+import { NCard, NInput, NList, NListItem, NModal, NSpace, NText, NThing } from 'naive-ui';
 import { computed, ref } from 'vue';
 
 defineProps<{
@@ -102,12 +102,7 @@ const handleClose = () => {
       </div>
 
       <div class="list-container">
-        <div v-if="isLoading" class="loading-state">
-          <n-spin size="medium" />
-          <n-text depth="3">Loading templates...</n-text>
-        </div>
-
-        <n-list v-else hoverable clickable>
+        <n-list v-if="chapters.length > 0" hoverable clickable>
           <n-list-item
             v-for="chapter in filteredChapters"
             :key="chapter.name"

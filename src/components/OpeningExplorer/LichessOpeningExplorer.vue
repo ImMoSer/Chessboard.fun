@@ -287,12 +287,9 @@ onMounted(() => {
     </n-collapse-transition>
 
     <div class="table-container">
-      <div v-if="loading && !stats" class="loading-state">
-        <div class="spinner-tiny"></div>
-        <n-text depth="3">Loading stats...</n-text>
-      </div>
-
-      <OpeningStatsTable
+    <div v-if="!stats" class="empty-state">
+      <n-text depth="3">{{ t('openingTrainer.noStats', 'No statistics available for this position') }}</n-text>
+    </div>      <OpeningStatsTable
         v-if="stats"
         :moves="stats.moves"
         :isReviewMode="true"

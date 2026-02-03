@@ -3,7 +3,7 @@ import type { EvaluatedLineWithSan } from '@/services/AnalysisService'
 import { useAnalysisStore } from '@/stores/analysis.store'
 import { useBoardStore } from '@/stores/board.store'
 import { BarChartOutline, TerminalOutline } from '@vicons/ionicons5'
-import { NButton, NCard, NIcon, NSelect, NSpace, NSpin, NSwitch, NText, NTooltip } from 'naive-ui'
+import { NButton, NCard, NIcon, NSelect, NSpace, NSwitch, NText, NTooltip } from 'naive-ui'
 import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -14,7 +14,6 @@ const { t } = useI18n()
 
 const {
   isAnalysisActive,
-  isLoading,
   analysisLines,
   isMultiThreadAvailable,
   maxThreads,
@@ -110,12 +109,7 @@ const handleLineClick = (line: EvaluatedLineWithSan) => {
 
     <transition name="fade-slide">
       <div v-if="isAnalysisActive" class="lines-wrapper">
-        <div v-if="isLoading" class="loading-state">
-          <n-spin size="small" />
-          <n-text depth="3" italic>{{ t('analysis.loading') }}</n-text>
-        </div>
-
-        <div v-else-if="analysisLines.length > 0" class="lines-list">
+        <div v-if="analysisLines.length > 0" class="lines-list">
           <div v-for="(line, index) in analysisLines.slice(0, 3)" :key="line.id" class="line-item">
             <n-text class="line-depth" depth="3">{{ line.depth }}</n-text>
             <n-button
