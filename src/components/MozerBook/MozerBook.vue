@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { InformationCircleOutline, LeafOutline } from '@vicons/ionicons5'
-import { NIcon, NSpin, NText } from 'naive-ui'
+import { NIcon, NText } from 'naive-ui'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { pgnTreeVersion } from '../../services/PgnService'
@@ -125,10 +125,6 @@ const theoryWithChildren = computed<TheoryItemWithChildren[]>(() => {
     </div>
 
     <div class="book-body">
-      <div v-if="loading" class="loading-overlay">
-        <n-spin size="medium" />
-      </div>
-
       <MozerBookRow
         v-for="move in stats?.moves"
         :key="move.uci"

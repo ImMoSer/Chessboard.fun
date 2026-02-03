@@ -213,9 +213,7 @@ async function handleSummaryRestart() {
     </template>
 
     <template #center-column>
-      <div v-if="openingStore.isLoading" class="loader-overlay">
-        <div class="spinner"></div>
-      </div>
+      <!-- Loader removed to prevent blinking -->
     </template>
 
     <template #right-panel>
