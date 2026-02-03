@@ -1,14 +1,16 @@
 // src/stores/openingSparring.store.ts
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
+import { type Key } from '@lichess-org/chessground/types'
 import { theoryGraphService } from '../services/TheoryGraphService'
 import { soundService } from '../services/sound.service'
 import { type SessionMove } from '../types/openingSparring.types'
 import { areMovesEqual } from '../utils/chess-utils'
-import { useAnalysisStore } from './analysis.store'
 import { useBoardStore } from './board.store'
 import { useGameStore } from './game.store'
 import { useMozerBookStore } from './mozerBook.store'
+
+const PLAYOUT_DELAY = 100
 
 export const useOpeningSparringStore = defineStore('openingSparring', () => {
   const boardStore = useBoardStore()
@@ -164,7 +166,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
         setTimeout(async () => {
             await triggerEngineMove()
             isProcessingMove.value = false
-        }, 500)
+        }, PLAYOUT_DELAY)
         return
     }
 
@@ -336,7 +338,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
       const selectedEngine = controlsStore.selectedEngine
 
       try {
-          await new Promise(resolve => setTimeout(resolve, 500))
+          await new Promise(resolve => setTimeout(resolve, PLAYOUT_DELAY))
           
           const bestMove = await gameplayService.getBestMove(selectedEngine, boardStore.fen)
 
@@ -369,8 +371,8 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
 
     boardStore.drawableShapes = [
       {
-        orig: bestMove.uci.substring(0, 2) as any,
-        dest: bestMove.uci.substring(2, 4) as any,
+        orig: bestMove.uci.substring(0, 2) as Key,
+        dest: bestMove.uci.substring(2, 4) as Key,
         brush: 'green',
       },
     ]

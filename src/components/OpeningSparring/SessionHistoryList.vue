@@ -1,68 +1,99 @@
 <script setup lang="ts">
 import { computed, h } from 'vue'
-import { NDataTable, NText, NTag, type DataTableColumns } from 'naive-ui'
+import { NDataTable, NText, type DataTableColumns } from 'naive-ui'
 import { useOpeningSparringStore } from '../../stores/openingSparring.store'
 import { type SessionMove } from '../../types/openingSparring.types'
 
 const openingStore = useOpeningSparringStore()
 
-const columns = computed<DataTableColumns<SessionMove>>(() => [
+interface MovePair {
+  number: number
+  white: SessionMove | null
+  black: SessionMove | null
+}
+
+const movePairs = computed<MovePair[]>(() => {
+  const history = openingStore.sessionHistory
+  const pairs: MovePair[] = []
+  
+  for (let i = 0; i < history.length; i += 2) {
+    const white = history[i] || null
+    const black = history[i + 1] || null
+    
+    pairs.push({
+      number: Math.floor(i / 2) + 1,
+      white,
+      black
+    })
+  }
+  return pairs
+})
+
+// Хелпер для рендера ячеек
+const renderMove = (row: MovePair, color: 'white' | 'black') => {
+    const move = row[color]
+    if (!move) return null
+    const isPlayout = move.phase === 'playout'
+    return h(NText, { strong: true, style: { color: isPlayout ? '#2196f3' : undefined } }, { default: () => move.san || move.moveUci })
+}
+
+const renderStat = (row: MovePair, color: 'white' | 'black', stat: 'acc' | 'win' | 'rat') => {
+    const move = row[color]
+    if (!move || move.phase === 'playout') return h(NText, { depth: 3 }, { default: () => '-' })
+    
+    let val: string | number = '-'
+    let style = {}
+    
+    if (stat === 'acc') {
+        const acc = Math.round(move.accuracy || move.popularity || 0)
+        val = `${acc}%`
+        if (acc >= 80) style = { color: '#4caf50', fontWeight: 'bold' }
+        else if (acc >= 50) style = { color: '#ff9800', fontWeight: 'bold' }
+        else style = { color: '#f44336', fontWeight: 'bold' }
+    } else if (stat === 'win') {
+        val = `${Math.round(move.winRate || 0)}%`
+        style = { color: '#aaa' }
+    } else if (stat === 'rat') {
+        val = Math.round(move.rating || 0)
+        if (val === 0) val = '-'
+        style = { color: '#aaa' }
+    }
+    
+    return h('span', { style: { fontSize: '11px', ...style } }, val)
+}
+
+const columns = computed<DataTableColumns<MovePair>>(() => [
   {
     title: '#',
-    key: 'index',
-    width: 40,
-    render: (_, index) => {
-        const moveNum = Math.floor(index / 2) + 1
-        return index % 2 === 0 ? `${moveNum}.` : ''
-    }
-  },
-  {
-    title: 'Move',
-    key: 'san',
-    width: 80,
-    render: (row) => h(NText, { strong: true }, { default: () => row.san || row.moveUci })
-  },
-  {
-    title: 'Acc',
-    key: 'accuracy',
-    width: 60,
+    key: 'number',
+    width: 30,
     align: 'center',
-    render: (row) => {
-        if (row.phase === 'playout') return h(NText, { depth: 3 }, { default: () => '-' })
-        const acc = Math.round(row.accuracy || row.popularity || 0)
-        let type: 'success' | 'warning' | 'error' | 'default' = 'default'
-        if (acc >= 80) type = 'success'
-        else if (acc >= 50) type = 'warning'
-        else type = 'error'
-        
-        return h(NText, { type, strong: true }, { default: () => `${acc}%` })
-    }
+    fixed: 'left',
+    render: (row) => h(NText, { depth: 3, style: { fontSize: '11px' } }, { default: () => `${row.number}.` })
   },
   {
-    title: 'Perf',
-    key: 'rating',
-    width: 60,
-    align: 'right',
-    render: (row) => {
-        if (row.phase === 'playout') return h(NText, { depth: 3 }, { default: () => '-' })
-        return h(NText, { depth: 2 }, { default: () => Math.round(row.rating || 0).toString() })
-    }
+    title: 'White',
+    key: 'whiteGroup',
+    align: 'center',
+    children: [
+        { title: 'Move', key: 'w_move', width: 50, render: (row) => renderMove(row, 'white') },
+        { title: 'Acc', key: 'w_acc', width: 40, align: 'center', render: (row) => renderStat(row, 'white', 'acc') },
+        { title: 'Win', key: 'w_win', width: 40, align: 'center', render: (row) => renderStat(row, 'white', 'win') },
+        { title: 'Rat', key: 'w_rat', width: 45, align: 'center', render: (row) => renderStat(row, 'white', 'rat') }
+    ]
   },
   {
-    title: 'Phase',
-    key: 'phase',
-    width: 70,
-    align: 'right',
-    render: (row) => {
-        if (row.phase === 'playout') {
-            return h(NTag, { size: 'small', type: 'info', bordered: false }, { default: () => 'GAME' })
-        }
-        return h(NText, { depth: 3, style: { fontSize: '10px' } }, { default: () => 'BOOK' })
-    }
+    title: 'Black',
+    key: 'blackGroup',
+    align: 'center',
+    children: [
+        { title: 'Move', key: 'b_move', width: 50, render: (row) => renderMove(row, 'black') },
+        { title: 'Acc', key: 'b_acc', width: 40, align: 'center', render: (row) => renderStat(row, 'black', 'acc') },
+        { title: 'Win', key: 'b_win', width: 40, align: 'center', render: (row) => renderStat(row, 'black', 'win') },
+        { title: 'Rat', key: 'b_rat', width: 45, align: 'center', render: (row) => renderStat(row, 'black', 'rat') }
+    ]
   }
 ])
-
-const history = computed(() => openingStore.sessionHistory)
 
 </script>
 
@@ -71,15 +102,17 @@ const history = computed(() => openingStore.sessionHistory)
     <div class="history-header">
         <h3>Session History</h3>
     </div>
-    <n-data-table
-      :columns="columns"
-      :data="history"
-      :pagination="false"
-      :bordered="false"
-      size="small"
-      class="history-table"
-      :row-class-name="(row) => row.phase === 'playout' ? 'playout-row' : ''"
-    />
+    
+    <div class="table-scroll-area">
+        <n-data-table
+          :columns="columns"
+          :data="movePairs"
+          :pagination="false"
+          :bordered="false"
+          size="small"
+          class="history-table"
+        />
+    </div>
   </div>
 </template>
 
@@ -95,13 +128,14 @@ const history = computed(() => openingStore.sessionHistory)
 }
 
 .history-header {
-    padding: 10px 16px;
+    padding: 8px 12px;
     background: rgba(255, 255, 255, 0.03);
     border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
     
     h3 {
         margin: 0;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         font-weight: 700;
         color: var(--color-text-primary);
         text-transform: uppercase;
@@ -109,28 +143,45 @@ const history = computed(() => openingStore.sessionHistory)
     }
 }
 
-:deep(.history-table) {
-  flex: 1;
-  background: transparent;
+.table-scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+    &::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 3px;
+    }
+}
 
-  .n-data-table-wrapper {
-      border-radius: 0;
-  }
+:deep(.history-table) {
+  background: transparent;
 
   .n-data-table-td {
     background-color: transparent;
-    padding: 8px !important;
+    padding: 4px 4px !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 12px;
   }
 
   .n-data-table-th {
-    background-color: rgba(255, 255, 255, 0.02);
-    font-size: 0.75rem;
-    padding: 8px !important;
+    background-color: rgba(255, 255, 255, 0.05); /* Чуть светлее для заголовка */
+    font-size: 10px;
+    padding: 4px 4px !important;
+    font-weight: bold;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    position: sticky;
+    top: 0;
+    z-index: 2; /* Увеличил z-index для сгруппированных заголовков */
+    text-align: center;
   }
   
-  .playout-row .n-data-table-td {
-      background-color: rgba(33, 150, 243, 0.05) !important;
+  /* Разделитель между группами белых и черных */
+  .n-data-table-th[colspan="4"] {
+     border-bottom: 1px solid rgba(255,255,255,0.1);
   }
 }
 </style>
