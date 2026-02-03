@@ -97,7 +97,7 @@ async function startSession(color: 'white' | 'black') {
   openingStore.isDiamondMode = true
 
   router.replace({
-      name: 'opening-training',
+      name: 'diamond-hunter',
       params: { color: `for_${color}` },
   })
 

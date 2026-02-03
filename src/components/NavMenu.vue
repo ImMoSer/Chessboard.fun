@@ -52,8 +52,8 @@ const menuOptions: MenuOption[] = [
   },
   {
     label: () => t('nav.openingTrainer'),
-    key: '/opening-trainer',
-    icon: renderEmojiIcon('📖'),
+    key: '/diamond-hunter',
+    icon: renderEmojiIcon('💎'),
   },
   {
     label: () => t('nav.leaderboards'),

@@ -122,8 +122,8 @@ const router = createRouter({
       component: RecordsPageView,
     },
     {
-      path: '/opening-training/:openingSlug?/:color?',
-      name: 'opening-training',
+      path: '/diamond-hunter/:openingSlug?/:color?',
+      name: 'diamond-hunter',
       component: () => import('../views/OpeningTrainingView.vue'),
       meta: { isGame: true, game: 'opening-training', requiresAuth: true },
     },
@@ -136,7 +136,7 @@ const router = createRouter({
     {
       path: '/opening-trainer/:openingSlug?/:color?',
       redirect: (to) => ({
-        name: 'opening-training',
+        name: 'diamond-hunter',
         params: to.params,
       }),
     },

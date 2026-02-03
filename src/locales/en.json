@@ -125,8 +125,8 @@
   },
   "nav": {
     "home": "Home",
-    "openingTrainer": "Opening Trainer",
-    "openingTraining": "Opening Training",
+    "openingTrainer": "Diamond Hunter",
+    "openingTraining": "Diamond Hunter",
     "openingExam": "Sparring",
     "finishHim": "Finish Him",
     "sandbox": "Sandbox",
@@ -243,7 +243,7 @@
       "practicalChess": "Practical",
       "tacktics": "Tacktics",
       "leaderboards": "Leaderboards",
-      "openingTraining": "Open Training",
+      "openingTraining": "Diamond Hunter",
       "openingSparring": "Open Sparring",
       "study": "Repertoire"
     },
