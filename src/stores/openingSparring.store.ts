@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { theoryGraphService } from '../services/TheoryGraphService'
 import { soundService } from '../services/sound.service'
-import { type SessionMove } from '../types/openingTrainer.types'
+import { type SessionMove } from '../types/openingSparring.types'
 import { areMovesEqual } from '../utils/chess-utils'
 import { useAnalysisStore } from './analysis.store'
 import { useBoardStore } from './board.store'
@@ -40,19 +40,20 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
 
   const averageAccuracy = computed(() => {
     if (movesCount.value === 0) return 0
-    const sum = sessionHistory.value.reduce((acc, m) => acc + (m.accuracy ?? m.popularity), 0)
+    const sum = sessionHistory.value.reduce((acc, m) => acc + (m.accuracy ?? m.popularity ?? 0), 0)
     return Math.round(sum / movesCount.value)
   })
 
   const averageWinRate = computed(() => {
     if (movesCount.value === 0) return 0
-    const sum = sessionHistory.value.reduce((acc, m) => acc + m.winRate, 0)
+    const sum = sessionHistory.value.reduce((acc, m) => acc + (m.winRate ?? 0), 0)
     return Math.round(sum / movesCount.value)
   })
 
   const averageRating = computed(() => {
     if (movesCount.value === 0) return 0
-    const sum = sessionHistory.value.reduce((acc, m) => acc + m.rating, 0)
+    // If stats are missing (playout), we treat as 0 or ignore. Here treating as 0.
+    const sum = sessionHistory.value.reduce((acc, m) => acc + (m.stats?.perf ?? 0), 0)
     return Math.round(sum / movesCount.value)
   })
 
@@ -149,7 +150,15 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
 
   async function handlePlayerMove(moveUci: string) {
     if (isPlayoutMode.value) {
-        // In playout mode, we just let the bot respond with engine
+        // In playout mode, we add move to history (without stats) and trigger engine
+        sessionHistory.value.push({
+            fen: boardStore.fen,
+            moveUci: moveUci,
+            san: '', // We don't have SAN easily here without chessops, leaving empty for now or need a parser
+            phase: 'playout',
+            stats: undefined
+        })
+        
         isProcessingMove.value = true
         setTimeout(async () => {
             await triggerEngineMove()
@@ -176,14 +185,11 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     const stats = currentStats.value
 
     if (!stats || stats.moves.length === 0) {
-        // No stats available, this shouldn't happen if we correctly transition,
-        // but if it does, it's a deviation or theory over
         isTheoryOver.value = true
         isProcessingMove.value = false
         return
     }
 
-    // Use our new move matching utility
     const moveData = stats.moves.find((m) => areMovesEqual(m.uci, moveUci))
 
     if (!moveData) {
@@ -205,7 +211,18 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
 
     const wins = playerColor.value === 'white' ? moveData.w_pct : moveData.l_pct
     const winRateRaw = wins + 0.5 * moveData.d_pct
-    const rating = moveData.perf || 0
+    
+    // Mapping MozerBook fields to TheoryMove directly (no mapping needed per se, just assignment)
+    // MozerBookMove fields: w_pct, d_pct, l_pct, perf, total... matches TheoryMove
+    const moveStats = {
+        uci: moveData.uci,
+        san: moveData.san,
+        total: moveData.total,
+        w_pct: moveData.w_pct,
+        d_pct: moveData.d_pct,
+        l_pct: moveData.l_pct,
+        perf: moveData.perf
+    }
 
     if (moveData.name) openingName.value = moveData.name
     if (moveData.eco) currentEco.value = moveData.eco
@@ -214,18 +231,11 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
       fen: boardStore.fen,
       moveUci,
       san: moveData.san,
-      stats: {
-          uci: moveData.uci,
-          san: moveData.san,
-          white: moveData.w_pct,
-          draws: moveData.d_pct,
-          black: moveData.l_pct,
-          averageRating: moveData.perf
-      } as any,
+      phase: 'theory',
+      stats: moveStats,
       popularity,
       accuracy,
       winRate: winRateRaw,
-      rating,
     })
 
     await fetchStats()
@@ -246,7 +256,6 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
       return
     }
 
-    // Pick a move from top N based on variability
     const topMoves = stats.moves.slice(0, variability.value)
     if (topMoves.length === 0) {
       isTheoryOver.value = true
@@ -277,19 +286,35 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   }
 
   async function triggerEngineMove() {
-      const analysisStore = useAnalysisStore()
-      // Make sure analysis is running
-      if (!analysisStore.isAnalysisActive) {
-          await analysisStore.showPanel(true)
-      }
+      // Use gameplayService to get the best move from the selected sparring partner
+      // This respects the engine choice (Server or Local) and doesn't trigger analysis panel
+      const { gameplayService } = await import('../services/GameplayService')
+      const { useControlsStore } = await import('./controls.store')
+      
+      const controlsStore = useControlsStore()
+      const selectedEngine = controlsStore.selectedEngine
 
-      // Wait a bit for engine to produce a move
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      try {
+          await new Promise(resolve => setTimeout(resolve, 500))
+          
+          const bestMove = await gameplayService.getBestMove(selectedEngine, boardStore.fen)
 
-      const bestMove = analysisStore.analysisLines[0]?.pvUci[0]
-      if (bestMove) {
-          boardStore.applyUciMove(bestMove)
-          await fetchStats()
+          if (bestMove) {
+              boardStore.applyUciMove(bestMove)
+              
+              // Record bot move in session history (playout phase)
+              sessionHistory.value.push({
+                  fen: boardStore.fen,
+                  moveUci: bestMove,
+                  san: '', // Empty SAN for now
+                  phase: 'playout',
+                  stats: undefined
+              })
+              
+              // We do not fetchStats() in playout mode as we are out of book
+          }
+      } catch (err) {
+          console.error('Error in triggerEngineMove:', err)
       }
   }
 
@@ -315,6 +340,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
 
   function startPlayout() {
     isPlayoutMode.value = true
+    isFinalEvaluating.value = false
     const gameStore = useGameStore()
     // We stay in opening-trainer mode but isPlayoutMode flag will change behavior
     gameStore.currentGameMode = 'opening-trainer'
