@@ -1,5 +1,6 @@
 <!-- src/views/OpeningExamView.vue -->
 <script setup lang="ts">
+import { NTag } from 'naive-ui'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AnalysisPanel from '../components/AnalysisPanel.vue'
@@ -178,8 +179,6 @@ async function handleSummaryRestart() {
     <template #left-panel>
       <div class="left-panel-content">
         <OpeningSparringHeader
-          :opening-name="openingStore.openingName"
-          :eco="openingStore.currentEco"
           :average-accuracy="openingStore.averageAccuracy"
           :average-win-rate="openingStore.averageWinRate"
           :average-rating="openingStore.averageRating"
@@ -192,12 +191,11 @@ async function handleSummaryRestart() {
           @playout="handlePlayout"
         />
 
-        <div class="mozer-book-wrapper">
-             <MozerBook />
+        <div class="history-list-wrapper">
+             <SessionHistoryList />
         </div>
       </div>
 
-      <AnalysisPanel v-if="showAnalysisPanel" />
       <OpeningSparringSettingsModal
         v-if="isSettingsModalOpen"
         @start="startSession"
@@ -212,13 +210,37 @@ async function handleSummaryRestart() {
       />
     </template>
 
+    <template #top-info>
+      <div class="opening-top-info">
+        <n-tag
+          v-if="openingStore.currentEco && openingStore.movesCount > 0"
+          type="info"
+          size="small"
+          round
+          :bordered="false"
+          class="eco-tag"
+        >
+          {{ openingStore.currentEco }}
+        </n-tag>
+        <div class="opening-name-text">
+          <template v-if="openingStore.movesCount === 0">
+            START POSITION
+          </template>
+          <template v-else>
+            {{ openingStore.openingName || t('openingTrainer.header.searching') }}
+          </template>
+        </div>
+      </div>
+    </template>
+
     <template #center-column>
       <!-- Loader removed to prevent blinking -->
     </template>
 
     <template #right-panel>
-      <div class="history-list-wrapper">
-         <SessionHistoryList />
+      <AnalysisPanel v-if="showAnalysisPanel" style="margin-bottom: 12px; flex-shrink: 0;" />
+      <div class="mozer-book-wrapper">
+         <MozerBook />
       </div>
 
       <div v-if="openingStore.error" class="error-msg">
@@ -282,5 +304,34 @@ async function handleSummaryRestart() {
   border-radius: 8px;
   margin-top: 10px;
   text-align: center;
+}
+
+.opening-top-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(4px);
+}
+
+.opening-name-text {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 400px;
+}
+
+.eco-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 800;
+  background: var(--color-accent-primary-alpha) !important;
+  color: var(--color-accent-primary) !important;
 }
 </style>

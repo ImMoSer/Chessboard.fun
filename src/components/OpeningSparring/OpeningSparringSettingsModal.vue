@@ -3,14 +3,17 @@ import {
     BookOutline,
     ColorPaletteOutline,
     FilterOutline,
-    PlayOutline,
-    ShuffleOutline,
     PeopleOutline,
+    PlayOutline,
     ServerOutline,
+    ShuffleOutline,
 } from '@vicons/ionicons5'
 import type { SelectOption } from 'naive-ui'
 import {
     NButton,
+    NCheckbox,
+    NGi,
+    NGrid,
     NIcon,
     NModal,
     NRadioButton,
@@ -20,15 +23,11 @@ import {
     NSpace,
     NTag,
     NText,
-    NCheckbox,
-    NGrid,
-    NGi,
 } from 'naive-ui'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { theoryGraphService } from '../../services/TheoryGraphService'
 import { useOpeningSparringStore } from '../../stores/openingSparring.store'
-import EngineSelector from '../EngineSelector.vue'
 
 const emit = defineEmits(['start', 'close'])
 const { t } = useI18n()
@@ -164,7 +163,7 @@ function startSession() {
                     </n-space>
                 </n-radio-button>
             </n-radio-group>
-            
+
             <div v-if="openingStore.opponentSource === 'lichess'" class="rating-selector">
                 <n-text depth="3" class="hint-text" style="margin-bottom: 8px; display: block;">
                    {{ t('openingTrainer.settings.selectRatings', 'Select Opponent Ratings') }}
@@ -182,8 +181,8 @@ function startSession() {
                 </n-grid>
             </div>
             <n-text depth="3" class="hint-text">
-                {{ openingStore.opponentSource === 'master' 
-                   ? t('openingTrainer.settings.masterHint', 'Bot plays optimal moves from Master games.') 
+                {{ openingStore.opponentSource === 'master'
+                   ? t('openingTrainer.settings.masterHint', 'Bot plays optimal moves from Master games.')
                    : t('openingTrainer.settings.lichessHint', 'Bot simulates human play styles based on selected ratings.') }}
             </n-text>
         </div>
@@ -211,21 +210,6 @@ function startSession() {
           </n-text>
         </div>
 
-        <!-- 5. Opponent Engine -->
-        <div class="setting-section">
-          <n-space align="center" :size="12" class="section-title">
-            <n-icon>
-              <PlayOutline />
-            </n-icon>
-            <n-text strong>{{ t('engine.select') }}</n-text>
-          </n-space>
-          <div class="engine-selector-wrapper">
-            <EngineSelector />
-          </div>
-          <n-text depth="3" class="hint-text">
-            {{ t('openingTrainer.settings.engineHint', 'Choose the engine for playout mode.') }}
-          </n-text>
-        </div>
       </n-space>
     </div>
 
@@ -307,26 +291,6 @@ function startSession() {
   margin-top: 4px;
 }
 
-.engine-selector-wrapper {
-  width: 100%;
-
-  :deep(.engine-selector) {
-    width: 100%;
-    max-width: 100%;
-    justify-content: flex-start;
-  }
-
-  :deep(.selector-toggle) {
-    width: 100%;
-    background-color: rgba(255, 255, 255, 0.05);
-    padding: 12px;
-    border-radius: 8px;
-  }
-
-  :deep(.engine-dropdown) {
-    width: 100%;
-  }
-}
 
 .start-btn {
   height: 52px;

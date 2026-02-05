@@ -24,6 +24,7 @@ import {
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useOpeningSparringStore } from '../../stores/openingSparring.store'
+import EngineSelector from '../EngineSelector.vue'
 
 const openingStore = useOpeningSparringStore()
 const { t } = useI18n()
@@ -146,6 +147,16 @@ const progressPercent = computed(() => {
                  <n-text v-else-if="evalStatus === 'info'" class="result-msg">Solid position out of the opening.</n-text>
                  <n-text v-else-if="evalStatus === 'error'" class="result-msg">Slightly worse position. Don't worry!</n-text>
                  <n-text v-else class="result-msg">Equality has been maintained.</n-text>
+            </div>
+        </div>
+
+        <!-- Engine Selection for Playout -->
+        <div class="engine-selection-block">
+            <n-text depth="3" class="selection-hint">
+                {{ t('openingTrainer.settings.engineHint', 'Choose the engine for playout mode.') }}
+            </n-text>
+            <div class="engine-selector-wrapper">
+                <EngineSelector />
             </div>
         </div>
 
@@ -281,6 +292,49 @@ const progressPercent = computed(() => {
 
 .modal-actions {
     margin-top: 8px;
+}
+
+.engine-selection-block {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.selection-hint {
+    font-size: 0.8rem;
+    text-align: center;
+}
+
+.engine-selector-wrapper {
+    width: 100%;
+
+    :deep(.engine-selector) {
+        width: 100%;
+        max-width: 100%;
+        justify-content: center;
+    }
+
+    :deep(.selector-toggle) {
+        width: 100%;
+        background-color: rgba(255, 255, 255, 0.04);
+        padding: 10px 16px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        transition: all 0.2s ease;
+
+        &:hover {
+            background-color: rgba(255, 255, 255, 0.08);
+            border-color: rgba(var(--color-accent-rgb), 0.3);
+        }
+    }
+
+    :deep(.engine-dropdown) {
+        width: 100%;
+    }
 }
 
 :deep(.n-statistic) {

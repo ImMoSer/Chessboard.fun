@@ -1,28 +1,25 @@
 <script setup lang="ts">
 import {
-    BulbOutline,
-    Heart,
-    HeartOutline,
-    RefreshOutline,
-    TrophyOutline
+  BulbOutline,
+  Heart,
+  HeartOutline,
+  RefreshOutline,
+  TrophyOutline
 } from '@vicons/ionicons5';
 import {
-    NButton,
-    NCard,
-    NGrid,
-    NGridItem,
-    NIcon,
-    NPageHeader,
-    NSpace,
-    NStatistic,
-    NTag,
-    NText,
+  NButton,
+  NCard,
+  NGrid,
+  NGridItem,
+  NIcon,
+  NPageHeader,
+  NSpace,
+  NStatistic,
+  NTag
 } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 
 defineProps<{
-  openingName: string
-  eco?: string
   averageAccuracy: number
   averageWinRate: number
   averageRating: number
@@ -45,14 +42,7 @@ const { t } = useI18n()
   <n-card class="header-card" :bordered="false">
     <n-page-header class="opening-header">
       <template #title>
-        <div class="title-container">
-          <n-text class="opening-name">
-            <n-tag v-if="eco" type="info" size="small" round :bordered="false" class="eco-tag">
-              {{ eco }}
-            </n-tag>
-            {{ openingName || t('openingTrainer.header.searching') }}
-          </n-text>
-        </div>
+        <!-- Title moved to top-info panel above the board -->
       </template>
 
       <template #extra>
@@ -152,19 +142,8 @@ const { t } = useI18n()
   border-radius: 12px;
 }
 
-.opening-name {
-  font-size: 1.1rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  line-height: 1.2;
-}
+/* Title styles removed as title moved to top-info panel */
 
-.eco-tag {
-  font-family: monospace;
-  font-weight: 800;
-}
 
 .stats-section {
   margin-top: 16px;

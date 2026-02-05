@@ -6,10 +6,10 @@ import { pgnService, pgnTreeVersion } from '@/services/PgnService'
 import { useAnalysisStore } from '@/stores/analysis.store'
 import { useBoardStore } from '@/stores/board.store'
 import {
-  ChevronBackOutline,
-  ChevronForwardOutline,
-  PlaySkipBackOutline,
-  PlaySkipForwardOutline,
+    ChevronBackOutline,
+    ChevronForwardOutline,
+    PlaySkipBackOutline,
+    PlaySkipForwardOutline,
 } from '@vicons/ionicons5'
 import { NButton, NButtonGroup, NScrollbar, NSpace, NText } from 'naive-ui'
 import { storeToRefs } from 'pinia'
@@ -237,8 +237,16 @@ const PgnRenderer: FunctionalComponent<{ nodes: PgnNode[]; pathPrefix?: string }
   border: 1px solid var(--color-border);
   border-radius: 12px;
   padding: 12px;
-  height: 240px;
+  min-height: 80px;
+  max-height: 300px;
+  display: flex;
+  flex-direction: column;
   transition: all 0.3s ease;
+}
+
+.pgn-scroll {
+  flex: 1;
+  min-height: 0;
 }
 
 .pgn-content {

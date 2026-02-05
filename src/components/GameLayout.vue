@@ -77,7 +77,7 @@ onUnmounted(() => {
 
       <!-- Center Stage: Top Info -> Board -> Controls -->
       <div class="center-stage" ref="centerColumnRef">
-        <div class="cb-top-panel">
+        <div v-if="$slots['top-info']" class="cb-top-panel">
           <slot name="top-info"></slot>
         </div>
 
@@ -106,7 +106,7 @@ onUnmounted(() => {
           </div>
         </div>
 
-        <div class="cb-down-panel">
+        <div v-if="$slots.controls" class="cb-down-panel">
           <slot name="controls"></slot>
         </div>
       </div>
@@ -145,8 +145,8 @@ onUnmounted(() => {
 .center-stage {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-start;
+  justify-content: flex-start;
   gap: 10px;
   min-width: min-content; /* Ensure it doesn't shrink below board size */
   height: 100%;
@@ -158,7 +158,14 @@ onUnmounted(() => {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 40px; /* Base height reserve */
+}
+
+.cb-top-panel {
+  margin-bottom: 2px;
+}
+
+.cb-down-panel {
+  margin-top: 2px;
 }
 
 /* Board always square, sized by viewport height logic, but constrained by panels */
@@ -168,7 +175,6 @@ onUnmounted(() => {
      Safety margin to ensure it fits without scrolling on desktop.
      Adjust 140px based on actual panel heights (~50px top + ~50px bottom + 40px paddings/gaps)
   */
-  height: calc(100vh - 140px);
   width: calc(100vh - 140px);
   max-width: 100%;
   aspect-ratio: 1 / 1;
@@ -250,13 +256,13 @@ onUnmounted(() => {
   }
 
   .left-panel {
-    order: 2;
+    order: 3;
     height: auto;
     min-height: 200px;
   }
 
   .right-panel {
-    order: 3;
+    order: 2;
     height: auto;
     min-height: 300px;
   }
