@@ -4,12 +4,13 @@ import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { checkDiamondLimit, db, recordBrilliant, recordDiamond } from '../db/DiamondDatabase'
 import { diamondApiService, type GravityMove } from '../services/DiamondApiService'
+import { pgnService } from '../services/PgnService'
 import { soundService } from '../services/sound.service'
 import logger from '../utils/logger'
 import { useAnalysisStore } from './analysis.store'
 import { useBoardStore } from './board.store'
 
-export type HunterState = 'IDLE' | 'HUNTING' | 'SOLVING' | 'REWARD' | 'FAILED'
+export type HunterState = 'IDLE' | 'HUNTING' | 'SOLVING' | 'REWARD' | 'FAILED' | 'SAVING'
 
 // Arrow Colors: 1st=Green, 2nd=Blue, 3rd=Yellow
 const ARROW_COLORS = ['green', 'blue', 'yellow']
@@ -27,6 +28,13 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
     const message = ref<string>('')
     const isProcessing = ref(false)
     const showTheoryEndModal = ref(false)
+
+    // Saving Mode State
+    const savingPgn = ref<string | null>(null)
+    const savingMoves = ref<string[]>([])
+    const savingMoveIndex = ref(0)
+    const savingPlayerColor = ref<'white' | 'black'>('white')
+    const isReplayActive = ref(false)
 
     // Current Gravity Stats (Cached)
     const currentGravityStats = ref<{ moves: GravityMove[] } | null>(null)
@@ -125,6 +133,10 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
         currentDiamondHash.value = null
         currentBlunderMove.value = null
         isProcessing.value = false
+        savingPgn.value = null
+        savingMoves.value = []
+        savingMoveIndex.value = 0
+        isReplayActive.value = false
     }
 
     function stopHunt() {
@@ -134,7 +146,7 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
 
     // --- Arrow Logic (User Turn) ---
     async function updateArrows() {
-        if (state.value === 'SOLVING') return
+        if (state.value === 'SOLVING' || state.value === 'SAVING') return
 
         const playerColor = analysisStore.playerColor || 'white'
         const fen = boardStore.fen
@@ -180,6 +192,12 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
 
     // --- Bot Logic (System Turn) ---
     async function botMove() {
+        if (state.value === 'SAVING') {
+             // Saving/Replay mode is handled explicitly by handleSaveMove/startSaveRun
+             // We do NOT want the generic board watcher to trigger moves here.
+             return
+        }
+
         if (state.value !== 'HUNTING' || isProcessing.value) return
 
         const playerColor = analysisStore.playerColor || 'white'
@@ -241,6 +259,13 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
         currentDiamondHash.value = boardStore.fen
         currentBlunderMove.value = move
         boardStore.applyUciMove(move.uci)
+        
+        // Tag the blunder node in PGN so we can find it later for replay truncation
+        const blunderNode = pgnService.getCurrentNode()
+        if (blunderNode) {
+            pgnService.updateNode(blunderNode, { nag: 4 })
+        }
+
         puzzleFen.value = boardStore.fen
         state.value = 'SOLVING'
         message.value = 'Tactics available! Punishment time!'
@@ -264,6 +289,11 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
 
     // --- Solving Logic ---
     async function handleUserSolvingMove(uci: string) {
+        if (state.value === 'SAVING') {
+            await handleSaveMove(uci)
+            return
+        }
+
         if (state.value !== 'SOLVING') return
 
         const validationFen = puzzleFen.value
@@ -318,8 +348,23 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
                 setTimeout(async () => {
                     if (state.value !== 'SOLVING') return // Guard in case user left
 
-                    // Reset to position before blunder
-                    boardStore.setupPosition(currentDiamondHash.value!)
+                    // Return to position before blunder by undoing moves (User's wrong move + Blunder)
+                    // We loop safely until we hit the target FEN or run out of moves
+                    let safetyCounter = 0
+                    while (
+                        boardStore.fen !== currentDiamondHash.value && 
+                        safetyCounter < 5 // Should only be 2 moves deep usually
+                    ) {
+                         pgnService.undoLastMove()
+                         boardStore.syncBoardWithPgn()
+                         safetyCounter++
+                    }
+
+                    // Fallback if PGN navigation failed (shouldn't happen, but safe restart)
+                    if (boardStore.fen !== currentDiamondHash.value) {
+                        logger.warn('DiamondHunter: Could not navigate back to diamond hash via Undo. forcing setup (History lost).')
+                        boardStore.setupPosition(currentDiamondHash.value!)
+                    }
 
                     // Replay the blunder to restart the puzzle
                     // We can cast because we checked for null above, but safely:
@@ -355,17 +400,216 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
     async function completeDiamond() {
         if (!currentDiamondHash.value) return
 
-        state.value = 'REWARD'
-        const allowed = await checkDiamondLimit(currentDiamondHash.value)
-
-        if (allowed) {
-            message.value = "Diamond Collected! 💎"
-            soundService.playSound('game_user_won')
-            await recordDiamond(currentDiamondHash.value, boardStore.fen, 'pgn-placeholder')
-            totalDiamonds.value = await db.diamonds.count()
-        } else {
-            message.value = "Limit reached for this diamond today. Good job though!"
+        if (isReplayActive.value) {
+            // --- Phase 2: Replay Success (Diamond Secured) ---
+            const allowed = await checkDiamondLimit(currentDiamondHash.value)
+            if (allowed) {
+                message.value = "Diamond Secured! 💎"
+                soundService.playSound('game_user_won')
+                // Save the NEW PGN (which includes the full replay + solution)
+                const finalPgn = pgnService.getCurrentPgnString()
+                await recordDiamond(currentDiamondHash.value, boardStore.fen, finalPgn)
+                totalDiamonds.value = await db.diamonds.count()
+            } else {
+                message.value = "Limit reached, but great memory!"
+            }
+            // Reset replay state
+            state.value = 'REWARD'
+            isReplayActive.value = false
+            savingMoves.value = []
+            return
         }
+
+        // --- Phase 1: First Find (Prepare for Replay) ---
+        
+        // Traverse up to find the Blunder (NAG 4) to define the replay path
+        const node = pgnService.getCurrentNode()
+        let blunderNodeFound = false
+        
+        // First, traverse back from victory to finding the blunder
+        // We collect moves in reverse, then will slice or unshift
+        const tempPath: string[] = []
+        
+        let curr = node
+        while(curr && curr.parent) {
+            tempPath.unshift(curr.uci)
+            if (curr.nag === 4) {
+                blunderNodeFound = true
+                // We found the blunder. The replay should end HERE.
+                // Discard any moves found *after* this (which are the solution moves we just played)
+                // Since we unshift, the moves currently in tempPath are [Blunder, ...Solution]
+                // We want savingMoves to be [Root...Blunder].
+                // So we actually need to clear tempPath and start collecting from here upwards?
+                // No, let's just grab the path from Root to This Node.
+                break
+            }
+            curr = curr.parent
+        }
+        
+        if (blunderNodeFound && curr) {
+            // Rebuild path from Root to Blunder (curr)
+             let tracer = curr
+             const pathFromRoot: string[] = []
+             while (tracer && tracer.parent) {
+                 pathFromRoot.unshift(tracer.uci)
+                 tracer = tracer.parent
+             }
+             savingMoves.value = pathFromRoot
+             logger.info('DiamondHunter: Blunder found. Replay path set:', savingMoves.value)
+        } else {
+             // Fallback: If no blunder NAG found (shouldn't happen in standard logic),
+             // just save the whole path? Or maybe the user didn't blunder?
+             // Let's save the whole path for now as a fallback.
+             const fullPath: string[] = []
+             let n = pgnService.getCurrentNode()
+             while(n && n.parent) {
+                 fullPath.unshift(n.uci)
+                 n = n.parent
+             }
+             savingMoves.value = fullPath
+             logger.warn('DiamondHunter: No blunder (NAG 4) found. Replay path set to full game.')
+        }
+
+        // Store the PGN just in case, though we regenerate it on save
+        savingPgn.value = pgnService.getCurrentPgnString()
+
+        state.value = 'REWARD'
+        message.value = "Diamond Found! 💎"
+        soundService.playSound('game_user_won')
+    }
+
+    // --- Saving Mode (Replay) Logic ---
+    async function startSaveRun() {
+        logger.info('DiamondHunter: Starting Save Run')
+        state.value = 'SAVING'
+        isReplayActive.value = true
+        savingMoveIndex.value = 0
+        savingPlayerColor.value = analysisStore.playerColor || 'white'
+        
+        // Reset Board to Start
+        boardStore.setupPosition('start', savingPlayerColor.value)
+        boardStore.setDrawableShapes([])
+        
+        // If first move is bot's, play it
+        if (savingPlayerColor.value === 'black' && savingMoves.value.length > 0) {
+             setTimeout(() => botSaveMove(), 500)
+        }
+    }
+    
+    async function handleSaveMove(uci: string) {
+        if (state.value !== 'SAVING') return
+        
+        const expectedMove = savingMoves.value[savingMoveIndex.value]
+        
+        if (!expectedMove) {
+             logger.warn('DiamondHunter: No expected move found at index', savingMoveIndex.value)
+             return
+        }
+        
+        if (uci === expectedMove) {
+            // Correct move
+            savingMoveIndex.value++
+            
+            // Visual Feedback for correct move
+            const orig = uci.substring(0, 2) as Key
+            const dest = uci.substring(2, 4) as Key
+            boardStore.setDrawableShapes([{
+                orig,
+                dest,
+                brush: 'green',
+                label: { text: '!', fill: '#00C853' }
+            }])
+            
+            // Check if finished (Users last move was the move BEFORE blunder?)
+            // If the array ends with the Blunder (Bot move), then the Bot will play it next.
+            // If the array ends with a User move (unlikely for "Blunder -> Puzzle" flow), we might be done.
+            
+            if (savingMoveIndex.value >= savingMoves.value.length) {
+                 // This implies the path ended on a User move. 
+                 // Transition to Solving immediately.
+                 await transitionToSolving()
+            } else {
+                 // Trigger bot move if it's bot's turn now
+                 setTimeout(() => botSaveMove(), 500)
+            }
+        } else {
+            // Incorrect move
+            soundService.playSound('game_tacktics_error')
+             pgnService.undoLastMove()
+             boardStore.syncBoardWithPgn()
+
+            // Show arrow for expected move
+             const orig = expectedMove.substring(0, 2) as Key
+             const dest = expectedMove.substring(2, 4) as Key
+             
+             boardStore.setDrawableShapes([{
+                orig,
+                dest,
+                brush: 'red',
+                label: { text: 'Here!', fill: '#D32F2F' }
+            }])
+        }
+    }
+    
+    async function botSaveMove() {
+        if (state.value !== 'SAVING') return
+        if (savingMoveIndex.value >= savingMoves.value.length) return
+        
+        // Ensure it is bot's turn
+        if (boardStore.turn === savingPlayerColor.value) return
+
+        const move = savingMoves.value[savingMoveIndex.value]
+        
+        if (!move) {
+             logger.warn('DiamondHunter: No bot move found at index', savingMoveIndex.value)
+             return
+        }
+
+        boardStore.applyUciMove(move)
+        savingMoveIndex.value++
+        
+        if (savingMoveIndex.value >= savingMoves.value.length) {
+             // Bot just played the last move (The Blunder).
+             // Time for the user to solve it again!
+             await transitionToSolving()
+        }
+    }
+    
+    async function transitionToSolving() {
+        state.value = 'SOLVING'
+        message.value = "Punish the blunder again!"
+        puzzleFen.value = boardStore.fen
+        
+        // Update context for retry logic (if user fails again)
+        const lastNode = pgnService.getCurrentNode()
+        if (lastNode && lastNode.parent) {
+             currentDiamondHash.value = lastNode.fenBefore
+             // We reconstruct a GravityMove-like object or use the stored one if available.
+             // Ideally we kept the original move data, but for replay 'uci' is enough for playBlunder to work.
+             // However, playBlunder expects GravityMove with nag/weight.
+             // Let's mock it or retrieve it. Mocking is safer for now.
+             currentBlunderMove.value = {
+                 uci: lastNode.uci,
+                 san: lastNode.san,
+                 nag: 4,
+                 weight: 0, // Irrelevant for replay
+                 dist: 0,
+                 rating: 0,
+                 nag_str: 'Blunder'
+             }
+        }
+        
+        // Highlight the blunder (last move played)
+        const lastMove = boardStore.lastMove
+        if (lastMove) {
+            boardStore.setDrawableShapes([{
+                orig: lastMove[0],
+                dest: lastMove[1],
+                brush: 'red',
+                label: { text: '??', fill: '#D32F2F' }
+            }])
+        }
+        soundService.playSound('blunder')
     }
 
     function closeTheoryModal() {
@@ -374,6 +618,11 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
 
     // --- Reactivity ---
     watch(() => boardStore.fen, async () => {
+        if (state.value === 'SAVING') {
+            // Handled in specific functions
+            return
+        }
+
         if (state.value !== 'HUNTING') return
 
         const playerColor = analysisStore.playerColor || 'white'
@@ -400,12 +649,16 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
         totalBrilliants,
         currentGravityStats,
         lastFetchedFen,
+        savingPgn,
+        savingMoves,
         startHunt,
         stopHunt,
         updateArrows,
         botMove,
         completeDiamond,
         handleUserSolvingMove,
+        handleSaveMove, // Export for View/GameStore to call
+        startSaveRun,
         fetchGravityForFen,
         showTheoryEndModal,
         closeTheoryModal,

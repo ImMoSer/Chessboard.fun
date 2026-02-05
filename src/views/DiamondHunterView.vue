@@ -108,6 +108,8 @@ async function startSession(color: 'white' | 'black') {
     (uci) => {
       if (diamondHunterStore.isSolving) {
          diamondHunterStore.handleUserSolvingMove(uci)
+      } else if (diamondHunterStore.state === 'SAVING') {
+         diamondHunterStore.handleSaveMove(uci)
       } else {
          // In Hunt mode, user just moves.
          // We might want to validate move legality via boardStore, which handles it.
@@ -179,6 +181,9 @@ function goBack() {
               <div v-else-if="diamondHunterStore.state === 'SOLVING'" style="color: #ff5252">
                  PUNISH THE BLUNDER!
               </div>
+              <div v-else-if="diamondHunterStore.state === 'SAVING'" style="color: #448AFF">
+                 Secure Diamond: Replay from memory!
+              </div>
           </div>
 
           <!-- Session Stats -->
@@ -231,13 +236,30 @@ function goBack() {
       <!-- Reward Modal -->
       <n-modal v-model:show="diamondHunterStore.isActive" :preset="'dialog'" v-if="diamondHunterStore.message && diamondHunterStore.state === 'REWARD'" style="width: 400px; text-align: center;">
          <template #header>
-            <div style="font-size: 1.2rem; font-weight: bold; color: #00C853">{{ 'Diamond Collected!' }}</div>
+            <div style="font-size: 1.2rem; font-weight: bold; color: #00C853">{{ 'Diamond Found!' }}</div>
          </template>
          <div style="font-size: 3rem; margin: 20px 0;">💎</div>
          <div style="font-size: 1.1rem; margin-bottom: 20px;">{{ diamondHunterStore.message }}</div>
 
          <n-space justify="center" :size="20">
-             <n-button type="primary" @click="diamondHunterStore.stopHunt(); handleRestart()">Next Hunt</n-button>
+             <!-- If we have moves to replay (meaning we just found it initially), offer Secure option -->
+             <n-button 
+                v-if="diamondHunterStore.savingMoves.length > 0" 
+                type="primary" 
+                @click="diamondHunterStore.startSaveRun()"
+             >
+                Secure Diamond (Replay)
+             </n-button>
+             
+             <!-- Fallback or if already secured (moves cleared) -->
+             <n-button 
+                v-else
+                type="primary" 
+                @click="diamondHunterStore.stopHunt(); handleRestart()"
+             >
+                Next Hunt
+             </n-button>
+             
              <n-button secondary @click="startAnalysis">
                  <template #icon><n-icon><TelescopeOutline /></n-icon></template>
                  Analyze
