@@ -3,7 +3,6 @@
 import { NTag } from 'naive-ui'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import EngineLines from '../components/Analysis/EngineLines.vue'
 import AnalysisPanel from '../components/AnalysisPanel.vue'
 import GameLayout from '../components/GameLayout.vue'
 import MozerBook from '../components/MozerBook/MozerBook.vue'
@@ -233,8 +232,10 @@ async function handleSummaryRestart() {
           @playout="handlePlayout"
         />
 
-        <div class="history-list-wrapper">
-             <SessionHistoryList />
+        <AnalysisPanel v-if="showAnalysisPanel" style="margin-bottom: 12px; flex-shrink: 0;" />
+
+        <div class="mozer-book-wrapper">
+             <MozerBook :blurred="openingStore.isPlayoutMode" />
         </div>
       </div>
 
@@ -286,13 +287,12 @@ async function handleSummaryRestart() {
     </template>
 
     <template #right-panel>
-      <AnalysisPanel v-if="showAnalysisPanel" style="margin-bottom: 12px; flex-shrink: 0;" />
-      
       <div v-if="openingStore.isReviewMode" class="review-engine-container">
           <EngineLines />
       </div>
-      <div v-else class="mozer-book-wrapper">
-         <MozerBook :blurred="openingStore.isPlayoutMode" />
+
+      <div class="history-list-wrapper">
+          <SessionHistoryList />
       </div>
 
       <div v-if="openingStore.error" class="error-msg">
@@ -316,8 +316,14 @@ async function handleSummaryRestart() {
 }
 
 .history-list-wrapper {
-    height: 100%;
+    flex: 1;
+    min-height: 0;
     overflow: hidden;
+}
+
+.review-engine-container {
+    margin-bottom: 12px;
+    flex-shrink: 0;
 }
 
 .loader-overlay {

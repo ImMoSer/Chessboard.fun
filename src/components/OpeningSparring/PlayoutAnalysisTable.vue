@@ -2,7 +2,8 @@
 import { computed, h } from 'vue'
 import { 
     NDataTable, NText, NTag, NTooltip, NPopover, NIcon, 
-    type DataTableColumns 
+    type DataTableColumns,
+    type DataTableBaseColumn
 } from 'naive-ui'
 import { 
     FlameOutline, 
@@ -20,8 +21,45 @@ import { type Key } from '@lichess-org/chessground/types'
 const openingStore = useOpeningSparringStore()
 const boardStore = useBoardStore()
 
-const playoutMoves = computed(() => {
-    return openingStore.sessionHistory.filter(m => m.phase === 'playout')
+interface PlayoutPair {
+    number: number
+    white: SessionMove | null
+    black: SessionMove | null
+}
+
+const playoutPairs = computed(() => {
+    const allPlayout = openingStore.sessionHistory.filter(m => m.phase === 'playout')
+    if (allPlayout.length === 0) return []
+    
+    // We need to know where playout started in the global history to get the correct starting move number
+    const firstPlayoutIndex = openingStore.sessionHistory.findIndex(m => m.phase === 'playout')
+    
+    const pairs: PlayoutPair[] = []
+    
+    // If playout started on a Black move, the first pair will have white as null
+    let i = 0
+    if (firstPlayoutIndex % 2 !== 0) {
+        pairs.push({
+            number: Math.floor(firstPlayoutIndex / 2) + 1,
+            white: null,
+            black: allPlayout[0] || null
+        })
+        i = 1
+    }
+    
+    for (; i < allPlayout.length; i += 2) {
+        const white = allPlayout[i] || null
+        const black = allPlayout[i + 1] || null
+        const globalIndex = openingStore.sessionHistory.indexOf(white || black!)
+        
+        pairs.push({
+            number: Math.floor(globalIndex / 2) + 1,
+            white,
+            black
+        })
+    }
+    
+    return pairs
 })
 
 const getQualityColor = (quality?: string) => {
@@ -47,11 +85,47 @@ const getQualityText = (quality?: string) => {
     }
 }
 
-const renderEval = (move: SessionMove) => {
-    const ev = move.evaluation
-    if (!ev) return h(NText, { depth: 3 }, { default: () => '-' })
+const renderMoveCell = (move: SessionMove | null) => {
+    if (!move) return null
+    const globalIndex = openingStore.sessionHistory.indexOf(move)
+    const isActive = openingStore.isReviewMode && openingStore.reviewMoveIndex === globalIndex
     
-    const cp = ev.score_cp
+    return h('div', { 
+        style: { 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '4px',
+            cursor: 'pointer',
+            background: isActive ? 'var(--color-accent)' : 'transparent',
+            padding: '2px 4px',
+            borderRadius: '4px',
+            color: isActive ? '#fff' : 'inherit',
+            justifyContent: 'center'
+        },
+        onClick: () => openingStore.setReviewMove(globalIndex)
+    }, [
+        h(NText, { strong: true, style: { color: isActive ? '#fff' : 'inherit', fontSize: '13px' } }, { default: () => move.san }),
+        move.quality ? h(NTag, { 
+            size: 'small', 
+            round: true, 
+            bordered: false,
+            style: { 
+                backgroundColor: getQualityColor(move.quality), 
+                color: '#000', 
+                fontWeight: '800',
+                fontSize: '9px',
+                height: '14px',
+                padding: '0 3px',
+                lineHeight: '14px'
+            } 
+        }, { default: () => getQualityText(move.quality) }) : null
+    ])
+}
+
+const renderEval = (move: SessionMove | null) => {
+    if (!move?.evaluation) return h(NText, { depth: 3 }, { default: () => '-' })
+    
+    const cp = move.evaluation.score_cp
     const val = (cp / 100).toFixed(1)
     const displayVal = cp > 0 ? `+${val}` : val
     
@@ -63,195 +137,139 @@ const renderEval = (move: SessionMove) => {
         style: { 
             fontWeight: 'bold', 
             color, 
-            background: 'rgba(255,255,255,0.05)',
-            padding: '2px 6px',
-            borderRadius: '4px',
-            textAlign: 'center',
-            minWidth: '45px'
+            fontSize: '11px',
+            textAlign: 'center'
         } 
     }, displayVal)
 }
 
-const renderThreat = (move: SessionMove) => {
-    if (!move.threats || move.threats.threat_severity_score === 0) return null
-    
-    const severity = move.threats.threat_severity_score
-    let color = '#ffeb3b'
-    if (severity > 500) color = '#f44336'
-    else if (severity > 200) color = '#ff9800'
-    
-    return h(NTooltip, { trigger: 'hover' }, {
-        trigger: () => h(NIcon, { 
-            color, 
-            style: { cursor: 'pointer' },
-            onClick: (e: MouseEvent) => {
-                e.stopPropagation()
-                if (move.threats) {
-                    boardStore.setDrawableShapes([{
-                        orig: move.threats.opponent_threat_move.slice(0, 2) as Key,
-                        dest: move.threats.opponent_threat_move.slice(2, 4) as Key,
-                        brush: 'red'
-                    }])
+const renderAnalysisIcons = (move: SessionMove | null) => {
+    if (!move) return null
+    const icons = []
+
+    // Threat
+    if (move.threats && move.threats.threat_severity_score > 0) {
+        const severity = move.threats.threat_severity_score
+        let color = '#ffeb3b'
+        if (severity > 500) color = '#f44336'
+        else if (severity > 200) color = '#ff9800'
+
+        icons.push(h(NTooltip, { trigger: 'hover' }, {
+            trigger: () => h(NIcon, { 
+                color, 
+                size: 14,
+                style: { cursor: 'pointer' },
+                onClick: (e: MouseEvent) => {
+                    e.stopPropagation()
+                    if (move.threats) {
+                        boardStore.setDrawableShapes([{
+                            orig: move.threats.opponent_threat_move.slice(0, 2) as Key,
+                            dest: move.threats.opponent_threat_move.slice(2, 4) as Key,
+                            brush: 'red'
+                        }])
+                    }
                 }
-            }
-        }, { default: () => h(FlameOutline) }),
-        default: () => move.threats?.threat_description || `Threat: ${move.threats?.opponent_threat_san}`
-    })
+            }, { default: () => h(FlameOutline) }),
+            default: () => move.threats?.threat_description || `Threat: ${move.threats?.opponent_threat_san}`
+        }))
+    }
+
+    // Best Move Suggestion (if user missed it)
+    if (move.evaluation && move.san !== move.evaluation.best_move_san) {
+        icons.push(h(NTooltip, {}, {
+            trigger: () => h(NIcon, { 
+                color: '#2196f3', 
+                size: 14, 
+                style: { cursor: 'pointer' },
+                onClick: (e: MouseEvent) => {
+                    e.stopPropagation()
+                    const best = move.evaluation?.best_move
+                    if (best) {
+                        boardStore.setDrawableShapes([{
+                            orig: best.slice(0, 2) as Key,
+                            dest: best.slice(2, 4) as Key,
+                            brush: 'green'
+                        }])
+                    }
+                }
+            }, { default: () => h(ShieldCheckmarkOutline) }),
+            default: () => `Best: ${move.evaluation?.best_move_san}`
+        }))
+    }
+
+    // PV Eye
+    if (move.evaluation?.pv_san) {
+        icons.push(h(NPopover, { trigger: 'hover', placement: 'top', style: { maxWidth: '300px' } }, {
+            trigger: () => h(NIcon, { size: 14, style: { cursor: 'help', color: '#888' } }, { default: () => h(EyeOutline) }),
+            default: () => h('div', { style: { fontSize: '11px', lineHeight: '1.4' } }, move.evaluation?.pv_san)
+        }))
+    }
+
+    return h('div', { style: { display: 'flex', gap: '3px', justifyContent: 'center', alignItems: 'center' } }, icons)
 }
 
-const renderFeatures = (move: SessionMove) => {
+const renderFeatures = (move: SessionMove | null) => {
+    if (!move?.features) return null
     const features = move.features
-    if (!features) return null
-    
     const icons = []
     
     if (features.tactics.hanging_pieces.length > 0) {
         icons.push(h(NTooltip, {}, {
-            trigger: () => h(NIcon, { color: '#ff9800' }, { default: () => h(ExtensionPuzzleOutline) }),
+            trigger: () => h(NIcon, { color: '#ff9800', size: 12 }, { default: () => h(ExtensionPuzzleOutline) }),
             default: () => `Hanging: ${features.tactics.hanging_pieces.join(', ')}`
         }))
     }
     
     if (!features.king_safety.is_safe_heuristic) {
-        icons.push(h(NTooltip, {}, {
-            trigger: () => h(NIcon, { color: '#f44336' }, { default: () => h(WarningOutline) }),
-            default: () => `King safety warning at ${features.king_safety.square}`
-        }))
+        icons.push(h(NIcon, { color: '#f44336', size: 12 }, { default: () => h(WarningOutline) }))
     }
 
     if (move.evaluation?.best_move_motifs?.includes('fork')) {
-        icons.push(h(NTooltip, {}, {
-            trigger: () => h(NIcon, { color: '#2196f3' }, { default: () => h(FlashOutline) }),
-            default: () => 'Tactical fork motif'
-        }))
+        icons.push(h(NIcon, { color: '#2196f3', size: 12 }, { default: () => h(FlashOutline) }))
     }
     
-    return h('div', { style: { display: 'flex', gap: '4px' } }, icons)
+    return h('div', { style: { display: 'flex', gap: '2px', justifyContent: 'center' } }, icons)
 }
 
-const columns: DataTableColumns<SessionMove> = [
+const createColorColumns = (side: 'white' | 'black'): DataTableBaseColumn<PlayoutPair>[] => [
+    { title: 'Move', key: `${side}_move`, width: 65, align: 'center', render: (row: PlayoutPair) => renderMoveCell(row[side]) },
+    { title: 'Eval', key: `${side}_eval`, width: 45, align: 'center', render: (row: PlayoutPair) => renderEval(row[side]) },
+    { title: 'Anlys', key: `${side}_anlys`, width: 60, align: 'center', render: (row: PlayoutPair) => renderAnalysisIcons(row[side]) },
+    { title: 'Feat', key: `${side}_feat`, width: 45, align: 'center', render: (row: PlayoutPair) => renderFeatures(row[side]) }
+]
+
+const columns = computed<DataTableColumns<PlayoutPair>>(() => [
   {
     title: '#',
-    key: 'num',
-    width: 40,
-    render: (_, index) => {
-        // Find global index
-        const globalIndex = openingStore.sessionHistory.findIndex(m => m === playoutMoves.value[index])
-        const moveNum = Math.floor(globalIndex / 2) + 1
-        const side = globalIndex % 2 === 0 ? '.' : '...'
-        return h(NText, { depth: 3 }, { default: () => `${moveNum}${side}` })
-    }
-  },
-  {
-    title: 'Move',
-    key: 'move',
-    width: 80,
-    render: (row) => {
-        const globalIndex = openingStore.sessionHistory.findIndex(m => m === row)
-        const isActive = openingStore.isReviewMode && openingStore.reviewMoveIndex === globalIndex
-        
-        return h('div', { 
-            style: { 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '4px',
-                cursor: 'pointer',
-                background: isActive ? 'var(--color-accent)' : 'transparent',
-                padding: '2px 4px',
-                borderRadius: '4px',
-                color: isActive ? '#fff' : 'inherit'
-            },
-            onClick: () => openingStore.setReviewMove(globalIndex)
-        }, [
-            h(NText, { strong: true, style: { color: isActive ? '#fff' : 'inherit' } }, { default: () => row.san }),
-            row.quality ? h(NTag, { 
-                size: 'small', 
-                round: true, 
-                bordered: false,
-                style: { 
-                    backgroundColor: getQualityColor(row.quality), 
-                    color: '#000', 
-                    fontWeight: '800',
-                    fontSize: '10px',
-                    height: '16px',
-                    padding: '0 4px',
-                    lineHeight: '16px'
-                } 
-            }, { default: () => getQualityText(row.quality) }) : null
-        ])
-    }
-  },
-  {
-    title: 'Eval',
-    key: 'eval',
-    width: 60,
+    key: 'number',
+    width: 35,
     align: 'center',
-    render: (row) => renderEval(row)
+    render: (row) => h(NText, { depth: 3, style: { fontSize: '11px' } }, { default: () => `${row.number}.` })
   },
   {
-    title: 'Best',
-    key: 'best',
-    width: 60,
-    render: (row) => {
-        if (!row.evaluation || row.san === row.evaluation.best_move_san) return h(NIcon, { color: '#4caf50' }, { default: () => h(ShieldCheckmarkOutline) })
-        return h(NText, { 
-            style: { cursor: 'pointer', fontSize: '12px', borderBottom: '1px dashed #666' },
-            onClick: (e: MouseEvent) => {
-                e.stopPropagation()
-                const best = row.evaluation?.best_move
-                if (best) {
-                    boardStore.setDrawableShapes([{
-                        orig: best.slice(0, 2) as Key,
-                        dest: best.slice(2, 4) as Key,
-                        brush: 'green'
-                    }])
-                }
-            }
-        }, { default: () => row.evaluation?.best_move_san })
-    }
-  },
-  {
-    title: 'Features',
-    key: 'features',
-    width: 70,
-    render: (row) => renderFeatures(row)
-  },
-  {
-    title: 'Thr',
-    key: 'threat',
-    width: 40,
+    title: 'White',
+    key: 'whiteGroup',
     align: 'center',
-    render: (row) => renderThreat(row)
+    children: createColorColumns('white')
   },
   {
-    title: 'PV',
-    key: 'pv',
-    width: 40,
+    title: 'Black',
+    key: 'blackGroup',
     align: 'center',
-    render: (row) => {
-        if (!row.evaluation?.pv_san) return null
-        return h(NPopover, { trigger: 'hover', placement: 'left', style: { maxWidth: '300px' } }, {
-            trigger: () => h(NIcon, { style: { cursor: 'help' } }, { default: () => h(EyeOutline) }),
-            default: () => h('div', { style: { fontSize: '12px', lineHeight: '1.5' } }, row.evaluation?.pv_san)
-        })
-    }
+    children: createColorColumns('black')
   }
-]
+])
 </script>
 
 <template>
   <div class="playout-analysis-table">
     <n-data-table
       :columns="columns"
-      :data="playoutMoves"
+      :data="playoutPairs"
       :pagination="false"
       :bordered="false"
       size="small"
       class="analysis-table"
-      :row-props="(row: SessionMove) => ({
-          style: { cursor: 'pointer' },
-          onClick: () => openingStore.setReviewMove(openingStore.sessionHistory.indexOf(row))
-      })"
     />
   </div>
 </template>
@@ -266,17 +284,23 @@ const columns: DataTableColumns<SessionMove> = [
 
   .n-data-table-td {
     background-color: transparent;
-    padding: 6px 4px !important;
+    padding: 4px 2px !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   }
 
   .n-data-table-th {
     background-color: rgba(255, 255, 255, 0.03);
     font-size: 10px;
-    padding: 4px 4px !important;
+    padding: 4px 2px !important;
     font-weight: bold;
     color: var(--color-text-secondary);
     text-transform: uppercase;
+    text-align: center;
+  }
+
+  /* Разделитель между группами */
+  .n-data-table-th[colspan="4"] {
+     border-bottom: 1px solid rgba(255,255,255,0.1);
   }
 }
 </style>
