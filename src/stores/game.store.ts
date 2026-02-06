@@ -34,6 +34,7 @@ export const useGameStore = defineStore('game', () => {
 
   const userMovesCount = ref(0)
   const isGameActive = ref(false)
+  const shouldAutoPlayBot = ref(true)
 
   const boardStore = useBoardStore()
   const controlsStore = useControlsStore()
@@ -45,6 +46,7 @@ export const useGameStore = defineStore('game', () => {
   let onPlayoutStartCallback: () => void = noop
   let onCorrectFirstMoveCallback: () => void = noop
   let onUserMoveCallback: (uci: string) => void = noop
+  let onBotMoveCallback: (uci: string) => void = noop
 
   function _checkAndHandleGameOver(): boolean {
     if (gamePhase.value !== 'PLAYING') {
@@ -98,6 +100,7 @@ export const useGameStore = defineStore('game', () => {
     if (gamePhase.value !== 'PLAYING' || !botMoveUci) return
 
     boardStore.applyUciMove(botMoveUci)
+    onBotMoveCallback(botMoveUci)
 
     _checkAndHandleGameOver()
   }
@@ -112,6 +115,8 @@ export const useGameStore = defineStore('game', () => {
     onCorrectFirstMove?: () => void,
     userColor?: ChessgroundColor,
     onUserMove?: (uci: string) => void,
+    onBotMove?: (uci: string) => void,
+    autoPlayBot: boolean = true,
   ) {
     try {
       const setup = parseFen(fen).unwrap()
@@ -135,13 +140,15 @@ export const useGameStore = defineStore('game', () => {
       onPlayoutStartCallback = onPlayoutStart
       onCorrectFirstMoveCallback = onCorrectFirstMove ?? noop
       onUserMoveCallback = onUserMove ?? noop
+      onBotMoveCallback = onBotMove ?? noop
       currentGameMode.value = mode
+      shouldAutoPlayBot.value = autoPlayBot
 
       userMovesCount.value = 0
       isGameActive.value = false
       gamePhase.value = 'PLAYING'
 
-      if (setup.turn !== humanPlayerColor && mode !== 'opening-trainer') {
+      if (setup.turn !== humanPlayerColor && shouldAutoPlayBot.value) {
         _triggerBotMove()
       }
     } catch (error) {
@@ -225,7 +232,7 @@ export const useGameStore = defineStore('game', () => {
     }
 
     const isBotTurn = boardStore.turn !== boardStore.orientation
-    if (isBotTurn && currentGameMode.value !== 'opening-trainer') {
+    if (isBotTurn && shouldAutoPlayBot.value) {
       await _triggerBotMove()
     }
   }
@@ -253,6 +260,7 @@ export const useGameStore = defineStore('game', () => {
     onPlayoutStartCallback = noop
     onCorrectFirstMoveCallback = noop
     onUserMoveCallback = noop
+    onBotMoveCallback = noop
 
     logger.info('[GameStore] Full game state has been reset.')
   }
@@ -268,5 +276,6 @@ export const useGameStore = defineStore('game', () => {
     handleGameResignation,
     resetGame,
     userMovesCount,
+    shouldAutoPlayBot,
   }
 })

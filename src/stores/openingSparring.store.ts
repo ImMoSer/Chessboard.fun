@@ -1,7 +1,9 @@
 // src/stores/openingSparring.store.ts
+import { type Key } from '@lichess-org/chessground/types'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
-import { type Key } from '@lichess-org/chessground/types'
+import type { LichessMove, LichessOpeningResponse } from '../services/LichessApiService'
+import type { MozerBookMove } from '../services/MozerBookService'
 import { theoryGraphService } from '../services/TheoryGraphService'
 import { soundService } from '../services/sound.service'
 import { type SessionMove } from '../types/openingSparring.types'
@@ -9,10 +11,6 @@ import { areMovesEqual } from '../utils/chess-utils'
 import { useBoardStore } from './board.store'
 import { useGameStore } from './game.store'
 import { useMozerBookStore } from './mozerBook.store'
-import type { LichessMove, LichessOpeningResponse } from '../services/LichessApiService'
-import type { MozerBookMove } from '../services/MozerBookService'
-
-const PLAYOUT_DELAY = 100
 
 export const useOpeningSparringStore = defineStore('openingSparring', () => {
   const boardStore = useBoardStore()
@@ -81,6 +79,11 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     reset()
     playerColor.value = color
     isProcessingMove.value = true
+
+    // Ensure GameStore doesn't try to play engine moves during theory
+    const gameStore = useGameStore()
+    gameStore.shouldAutoPlayBot = false
+    gameStore.currentGameMode = 'opening-trainer'
 
     try {
       // Still load book for initial navigation or slug search if used in View
@@ -190,45 +193,10 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
 
   async function handlePlayerMove(moveUci: string) {
     if (isPlayoutMode.value) {
-      isProcessingMove.value = true
-      try {
-        const { serverEngineService } = await import('../services/ServerEngineService')
-        const { pgnService } = await import('../services/PgnService')
-
-        // Получаем оценку текущей позиции (после хода игрока)
-        let evalData = null
-        try {
-          evalData = await serverEngineService.evaluateThreats(boardStore.fen)
-        } catch (e) {
-          console.warn('Evaluation failed for this position (possibly mate):', e)
-        }
-        
-        const lastNode = pgnService.getLastMove()
-
-        sessionHistory.value.push({
-          fen: lastNode?.fenBefore || boardStore.fen,
-          moveUci: moveUci,
-          san: lastNode?.san || '',
-          phase: 'playout',
-          evaluation: evalData?.evaluation,
-          threats: evalData?.threats,
-          features: evalData?.features,
-        })
-
-        // Если игра окончена после хода игрока, не запускаем ответ движка
-        if (boardStore.getGameStatus().isGameOver) {
-          isProcessingMove.value = false
-          return
-        }
-
-        setTimeout(async () => {
-          await triggerEngineMove()
-          isProcessingMove.value = false
-        }, PLAYOUT_DELAY)
-      } catch (err) {
-        console.error('Error recording playout move:', err)
-        isProcessingMove.value = false
-      }
+      // In playout mode, gameStore handles the loop.
+      // We assume gameStore called onUserMove which we handled to record stats.
+      // So nothing to do here except maybe set processing flag to false just in case.
+      isProcessingMove.value = false
       return
     }
 
@@ -277,7 +245,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     const wins = playerColor.value === 'white' ? moveData.w_pct : moveData.l_pct
     const winRateRaw = wins + 0.5 * moveData.d_pct
     const rating = moveData.perf || 0
-    
+
     // Mapping MozerBook fields to TheoryMove directly (no mapping needed per se, just assignment)
     // MozerBookMove fields: w_pct, d_pct, l_pct, perf, total... matches TheoryMove
     const moveStats = {
@@ -317,7 +285,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   async function triggerBotMove() {
     // Determine the source of moves for the bot
     let movesPool: (MozerBookMove | LichessMove)[] = []
-    
+
     if (opponentSource.value === 'lichess' && currentLichessStats.value) {
         movesPool = currentLichessStats.value.moves
     } else {
@@ -328,8 +296,8 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     if (movesPool.length === 0) {
       // No moves available in the chosen source
       isTheoryOver.value = true
-      
-      // If we are in Lichess mode and run out of Lichess moves, 
+
+      // If we are in Lichess mode and run out of Lichess moves,
       // check if Master moves exist. If so, maybe we shouldn't play winning sound yet?
       // But for now, if bot has no moves, theory is over.
       if (opponentSource.value === 'master') {
@@ -342,7 +310,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     // Pick a move from top N based on variability
     // NOTE: Lichess stats structure is slightly different (white, draws, black, total implied)
     // We need to normalize 'total' for random selection if it's Lichess
-    
+
     const candidates = movesPool.slice(0, variability.value).map(m => {
         // Ensure we have a 'total' property
         let total = (m as MozerBookMove).total
@@ -394,7 +362,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
         popularity = (masterMoveData.total / totalGamesInPos) * 100
         const maxTotal = Math.max(...masterStats!.moves.map((m) => m.total))
         accuracy = maxTotal > 0 ? (masterMoveData.total / maxTotal) * 100 : 0
-        
+
         const wins = playerColor.value === 'white' ? masterMoveData.w_pct : masterMoveData.l_pct
         winRateRaw = wins + 0.5 * masterMoveData.d_pct
         rating = masterMoveData.perf || 0
@@ -437,14 +405,14 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     })
 
     await fetchStats()
-    
+
     // Check if the move took us out of book (Master book)
     // If masterMoveData was null, we are definitely out of Master book.
     if (!masterMoveData) {
         // Option: End theory if bot leaves master book?
         // Or continue if Lichess book still has moves?
         // User said: "оценка ... базируются на исходя из статистики мозербука"
-        // If we leave MozerBook, we can't evaluate further moves. 
+        // If we leave MozerBook, we can't evaluate further moves.
         // So effectively, theory phase ends (or switches to playout/unknown).
         isTheoryOver.value = true
         // Maybe play a different sound? "Bot left book"
@@ -454,56 +422,6 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
       await processMoveQueue()
     } else {
       isProcessingMove.value = false
-    }
-  }
-
-  async function triggerEngineMove() {
-    // Если игра уже окончена, ничего не делаем
-    if (boardStore.getGameStatus().isGameOver) return
-
-    // Use gameplayService to get the best move from the selected sparring partner
-    // This respects the engine choice (Server or Local) and doesn't trigger analysis panel
-    const { gameplayService } = await import('../services/GameplayService')
-    const { useControlsStore } = await import('./controls.store')
-    const { serverEngineService } = await import('../services/ServerEngineService')
-    const { pgnService } = await import('../services/PgnService')
-
-    const controlsStore = useControlsStore()
-    const selectedEngine = controlsStore.selectedEngine
-
-    try {
-      await new Promise((resolve) => setTimeout(resolve, PLAYOUT_DELAY))
-
-      const bestMove = await gameplayService.getBestMove(selectedEngine, boardStore.fen)
-
-      if (bestMove) {
-        boardStore.applyUciMove(bestMove)
-
-        // Получаем оценку после хода движка
-        let evalData = null
-        try {
-          evalData = await serverEngineService.evaluateThreats(boardStore.fen)
-        } catch (e) {
-          console.warn('Evaluation failed after engine move:', e)
-        }
-        
-        const lastNode = pgnService.getLastMove()
-
-        // Record bot move in session history (playout phase)
-        sessionHistory.value.push({
-          fen: lastNode?.fenBefore || boardStore.fen,
-          moveUci: bestMove,
-          san: lastNode?.san || '',
-          phase: 'playout',
-          evaluation: evalData?.evaluation,
-          threats: evalData?.threats,
-          features: evalData?.features,
-        })
-
-        // We do not fetchStats() in playout mode as we are out of book
-      }
-    } catch (err) {
-      console.error('Error in triggerEngineMove:', err)
     }
   }
 
@@ -527,18 +445,57 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     }, 2000)
   }
 
+  async function _recordPlayoutMove(uci: string) {
+    const { serverEngineService } = await import('../services/ServerEngineService')
+    const { pgnService } = await import('../services/PgnService')
+
+    let evalData = null
+    try {
+      evalData = await serverEngineService.evaluateThreats(boardStore.fen)
+    } catch (e) {
+      console.warn('Evaluation failed for this position (possibly mate):', e)
+    }
+
+    const lastNode = pgnService.getLastMove()
+
+    sessionHistory.value.push({
+      fen: lastNode?.fenBefore || boardStore.fen,
+      moveUci: uci,
+      san: lastNode?.san || '',
+      phase: 'playout',
+      evaluation: evalData?.evaluation,
+      threats: evalData?.threats,
+      features: evalData?.features,
+    })
+  }
+
+  function handlePlayoutGameOver(isWin: boolean, outcome?: { winner?: 'white' | 'black'; reason?: string }) {
+    // soundService.playSound(isWin ? 'game_user_won' : 'game_user_lost') // GameStore might handle standard sounds, but let's ensure feedback
+    // Logic for what to do when playout ends.
+    // Usually nothing specific for sparring, just let the user see the result.
+    console.log(`[OpeningSparring] Playout Game Over. Win: ${isWin}, Reason: ${outcome?.reason}`)
+  }
+
   function startPlayout() {
     isPlayoutMode.value = true
     isFinalEvaluating.value = false
     const gameStore = useGameStore()
-    // We stay in opening-trainer mode but isPlayoutMode flag will change behavior
-    gameStore.currentGameMode = 'opening-trainer'
+
     soundService.playSound('game_play_out_start')
 
-    // If it's bot's turn, trigger engine move
-    if (boardStore.turn !== playerColor.value) {
-        triggerEngineMove()
-    }
+    gameStore.setupPuzzle(
+      boardStore.fen,
+      [], // Empty moves -> start engine mode
+      handlePlayoutGameOver,
+      () => false, // WinCondition - playout continues until checkmate/draw
+      () => {}, // OnPlayoutStart
+      'opening-trainer',
+      undefined,
+      playerColor.value,
+      (uci) => _recordPlayoutMove(uci), // onUserMove
+      (uci) => _recordPlayoutMove(uci), // onBotMove
+      true // autoPlayBot
+    )
   }
 
   async function generateGameReport() {
