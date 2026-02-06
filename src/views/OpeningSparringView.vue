@@ -3,6 +3,7 @@
 import { NTag } from 'naive-ui'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import EngineLines from '../components/Analysis/EngineLines.vue'
 import AnalysisPanel from '../components/AnalysisPanel.vue'
 import GameLayout from '../components/GameLayout.vue'
 import MozerBook from '../components/MozerBook/MozerBook.vue'
@@ -50,7 +51,7 @@ watch(
 watch(
   isExamEnding,
   async (isEnding) => {
-    if (isEnding && !openingStore.isPlayoutMode) {
+    if (isEnding && !openingStore.isPlayoutMode && !openingStore.isReviewMode) {
         showSummaryModal.value = true
         await openingStore.runFinalEvaluation()
     } else if (!isEnding) {
@@ -62,15 +63,18 @@ watch(
 )
 
 const showAnalysisPanel = computed(() => {
-    // Show analysis only during theory summary, NOT during playout review
-    return isExamEnding.value && !showSummaryModal.value && !openingStore.isPlayoutMode && !showReviewModal.value
+    // Show analysis only during theory summary, NOT during playout review or Review Mode
+    return isExamEnding.value && !showSummaryModal.value && !openingStore.isPlayoutMode && !showReviewModal.value && !openingStore.isReviewMode
 })
 
 watch(showAnalysisPanel, (val) => {
     if (val) {
         analysisStore.showPanel(true)
     } else {
-        analysisStore.hidePanel()
+        // Only hide if we are NOT in review mode (review mode handles analysis manually)
+        if (!openingStore.isReviewMode) {
+            analysisStore.hidePanel()
+        }
     }
 })
 
@@ -178,6 +182,13 @@ function handleReviewRestart() {
     })
 }
 
+async function handleReviewAnalyze() {
+    showReviewModal.value = false
+    openingStore.enterReviewMode()
+    // Start engine
+    await analysisStore.showPanel(true)
+}
+
 async function handlePlayout() {
   const confirmed = await uiStore.showConfirmation(
     'Start Playout?',
@@ -243,6 +254,7 @@ async function handleSummaryRestart() {
         :show="showReviewModal"
         @close="showReviewModal = false"
         @restart="handleReviewRestart"
+        @analyze="handleReviewAnalyze"
       />
     </template>
 
@@ -275,7 +287,11 @@ async function handleSummaryRestart() {
 
     <template #right-panel>
       <AnalysisPanel v-if="showAnalysisPanel" style="margin-bottom: 12px; flex-shrink: 0;" />
-      <div class="mozer-book-wrapper">
+      
+      <div v-if="openingStore.isReviewMode" class="review-engine-container">
+          <EngineLines />
+      </div>
+      <div v-else class="mozer-book-wrapper">
          <MozerBook :blurred="openingStore.isPlayoutMode" />
       </div>
 

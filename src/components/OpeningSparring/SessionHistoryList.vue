@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, h } from 'vue'
+import { computed, h, type CSSProperties } from 'vue'
 import { NDataTable, NText, type DataTableColumns } from 'naive-ui'
 import { useOpeningSparringStore } from '../../stores/openingSparring.store'
 import { type SessionMove } from '../../types/openingSparring.types'
@@ -33,8 +33,53 @@ const movePairs = computed<MovePair[]>(() => {
 const renderMove = (row: MovePair, color: 'white' | 'black') => {
     const move = row[color]
     if (!move) return null
+    
+    // Calculate index
+    // row.number is 1-based.
+    // Index = (row.number - 1) * 2 + (color === 'white' ? 0 : 1)
+    const index = (row.number - 1) * 2 + (color === 'white' ? 0 : 1)
+    
     const isPlayout = move.phase === 'playout'
-    return h(NText, { strong: true, style: { color: isPlayout ? '#2196f3' : undefined } }, { default: () => move.san || move.moveUci })
+    const isReview = openingStore.isReviewMode
+    const isActive = isReview && openingStore.reviewMoveIndex === index
+    
+    const style: CSSProperties = {
+        cursor: isReview ? 'pointer' : 'default',
+        padding: '2px 6px',
+        borderRadius: '4px',
+        transition: 'background-color 0.2s',
+        display: 'inline-block',
+        minWidth: '36px',
+        textAlign: 'center'
+    }
+
+    if (isPlayout) {
+        style.color = '#2196f3'
+    }
+    
+    if (isActive) {
+        style.backgroundColor = 'var(--color-accent)'
+        style.color = '#fff'
+        style.fontWeight = 'bold'
+    } else if (isReview) {
+        // Hover effect could be done via CSS class, but inline simplicity for now
+        // or just let the user see the pointer
+    }
+
+    return h(
+        'div',
+        {
+            style,
+            onClick: isReview ? () => openingStore.setReviewMove(index) : undefined,
+            class: isReview ? 'review-move' : ''
+        },
+        [
+            h(NText, { 
+                strong: true, 
+                style: { color: isActive ? '#fff' : (style.color || undefined) } // Override NText color if active
+            }, { default: () => move.san || move.moveUci })
+        ]
+    )
 }
 
 const renderStat = (row: MovePair, color: 'white' | 'black', stat: 'acc' | 'win' | 'rat') => {

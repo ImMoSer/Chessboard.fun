@@ -5,6 +5,7 @@ import {
   PulseOutline,
   RefreshOutline,
   TrendingDownOutline,
+  SearchOutline,
 } from '@vicons/ionicons5'
 import {
   NButton,
@@ -27,7 +28,7 @@ const props = defineProps<{
   show: boolean
 }>()
 
-const emit = defineEmits(['close', 'restart'])
+const emit = defineEmits(['close', 'restart', 'analyze'])
 const openingStore = useOpeningSparringStore()
 const report = ref<GameReport | null>(null)
 const loading = ref(true)
@@ -123,12 +124,24 @@ watch(
             <n-text type="success">No significant errors found in playout phase!</n-text>
         </div>
 
-        <n-button block type="primary" size="large" @click="emit('restart')">
-          <template #icon>
-            <n-icon><RefreshOutline /></n-icon>
-          </template>
-          Start New Session
-        </n-button>
+        <n-grid :cols="2" :x-gap="12">
+            <n-grid-item>
+                <n-button block secondary size="large" @click="emit('analyze')">
+                    <template #icon>
+                        <n-icon><SearchOutline /></n-icon>
+                    </template>
+                    Analyze Game
+                </n-button>
+            </n-grid-item>
+            <n-grid-item>
+                <n-button block type="primary" size="large" @click="emit('restart')">
+                    <template #icon>
+                        <n-icon><RefreshOutline /></n-icon>
+                    </template>
+                    Start New Session
+                </n-button>
+            </n-grid-item>
+        </n-grid>
       </n-space>
     </div>
   </n-modal>

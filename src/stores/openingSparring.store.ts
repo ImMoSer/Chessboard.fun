@@ -27,6 +27,8 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   const isLoading = computed(() => mozerStore.isLoading)
   const isProcessingMove = ref(false)
   const isPlayoutMode = ref(false)
+  const isReviewMode = ref(false)
+  const reviewMoveIndex = ref(-1)
   const error = computed(() => mozerStore.error)
   const moveQueue = ref<string[]>([])
 
@@ -116,11 +118,80 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     currentEco.value = ''
     isProcessingMove.value = false
     isPlayoutMode.value = false
+    isReviewMode.value = false
+    reviewMoveIndex.value = -1
     moveQueue.value = []
     lives.value = 3
     finalEval.value = null
     isFinalEvaluating.value = false
     finalEvalDepth.value = 0
+  }
+
+  // Review Mode Actions
+  function enterReviewMode() {
+    isReviewMode.value = true
+    isPlayoutMode.value = false
+    // Set index to the last move
+    reviewMoveIndex.value = sessionHistory.value.length - 1
+    // Stop any game loop if active
+    const gameStore = useGameStore()
+    gameStore.setGamePhase('IDLE')
+  }
+
+  function exitReviewMode() {
+    isReviewMode.value = false
+    reviewMoveIndex.value = -1
+  }
+
+  function setReviewMove(index: number) {
+      if (index < -1 || index >= sessionHistory.value.length) return
+      
+      reviewMoveIndex.value = index
+      
+      // Update board
+      if (index === -1) {
+          // Start position
+           boardStore.setupPosition('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', playerColor.value)
+      } else {
+          const move = sessionHistory.value[index]
+          if (move) {
+              // We need the FEN AFTER the move.
+              // sessionHistory stores 'fen' which is usually the fen BEFORE the move in some contexts, or AFTER?
+              // Let's check 'processMoveQueue':
+              // sessionHistory.push({ fen: boardStore.fen ... }) where boardStore.fen is taken BEFORE push but AFTER applyUciMove?
+              // wait, in processMoveQueue:
+              // boardStore.applyUciMove is NOT called there?
+              // Ah, processMoveQueue calls triggerBotMove which calls applyUciMove?
+              // No, processMoveQueue is for player move.
+              // Wait, let's check processMoveQueue logic in the file content I read previously.
+              // It pushes to sessionHistory: fen: boardStore.fen.
+              // For player move, 'handlePlayerMove' calls 'processMoveQueue'.
+              // Does 'handlePlayerMove' apply the move? The View calls 'openingStore.handlePlayerMove(uci)'.
+              // The View's 'gameStore.setupPuzzle' callbacks call 'openingStore.handlePlayerMove'.
+              // 'gameStore' usually applies the move to the board.
+              
+              // So 'fen' in sessionHistory might be the position *after* the move if taken from boardStore.fen at that time.
+              // In triggerBotMove: boardStore.applyUciMove(...) then sessionHistory.push({ fen: boardStore.fen ... })
+              // So yes, it is the FEN AFTER the move.
+              boardStore.setupPosition(move.fen, playerColor.value)
+              boardStore.lastMove = [
+                  move.moveUci.substring(0, 2) as Key,
+                  move.moveUci.substring(2, 4) as Key
+              ]
+          }
+      }
+  }
+
+  function nextReviewMove() {
+      if (reviewMoveIndex.value < sessionHistory.value.length - 1) {
+          setReviewMove(reviewMoveIndex.value + 1)
+      }
+  }
+
+  function prevReviewMove() {
+      if (reviewMoveIndex.value > -1) {
+          setReviewMove(reviewMoveIndex.value - 1)
+      }
   }
 
   async function fetchStats() {
@@ -470,9 +541,8 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   }
 
   function handlePlayoutGameOver(isWin: boolean, outcome?: { winner?: 'white' | 'black'; reason?: string }) {
-    // soundService.playSound(isWin ? 'game_user_won' : 'game_user_lost') // GameStore might handle standard sounds, but let's ensure feedback
-    // Logic for what to do when playout ends.
-    // Usually nothing specific for sparring, just let the user see the result.
+    const gameStore = useGameStore()
+    gameStore.setGamePhase('GAMEOVER')
     console.log(`[OpeningSparring] Playout Game Over. Win: ${isWin}, Reason: ${outcome?.reason}`)
   }
 
@@ -487,7 +557,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
       boardStore.fen,
       [], // Empty moves -> start engine mode
       handlePlayoutGameOver,
-      () => false, // WinCondition - playout continues until checkmate/draw
+      (outcome) => outcome?.winner === playerColor.value, // WinCondition - check if winner matches player
       () => {}, // OnPlayoutStart
       'opening-trainer',
       undefined,
@@ -534,5 +604,12 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     hint,
     startPlayout,
     generateGameReport,
+    isReviewMode,
+    reviewMoveIndex,
+    enterReviewMode,
+    exitReviewMode,
+    setReviewMove,
+    nextReviewMove,
+    prevReviewMove,
   }
 })
