@@ -68,6 +68,7 @@ declare module 'vue' {
     OpeningSparringSettingsModal: typeof import('./src/components/OpeningSparring/OpeningSparringSettingsModal.vue')['default']
     OpeningSparringSummaryModal: typeof import('./src/components/OpeningSparring/OpeningSparringSummaryModal.vue')['default']
     OpeningStatsTable: typeof import('./src/components/OpeningExplorer/OpeningStatsTable.vue')['default']
+    PlayoutAnalysisTable: typeof import('./src/components/OpeningSparring/PlayoutAnalysisTable.vue')['default']
     PromotionDialog: typeof import('./src/components/PromotionDialog.vue')['default']
     PuzzleInfo: typeof import('./src/components/PuzzleInfo.vue')['default']
     RadarChart: typeof import('./src/components/userCabinet/sections/RadarChart.vue')['default']

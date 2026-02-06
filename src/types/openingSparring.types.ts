@@ -20,6 +20,9 @@ export interface SessionMove {
   winRate?: number
   popularity?: number
   rating?: number
+  
+  // Client-side move assessment
+  quality?: 'blunder' | 'mistake' | 'inaccuracy' | 'good' | 'best' | 'brilliant'
 
   // Playout evaluation (Cevallite API)
   evaluation?: {
@@ -31,14 +34,15 @@ export interface SessionMove {
     }
     best_move: string
     best_move_san: string
+    best_move_motifs?: string[]
     pv_uci: string[]
-    pv_san: string[]
+    pv_san: string // Formatted string from server
     depth: number
   }
   threats?: {
     opponent_threat_move: string
     opponent_threat_san: string
-    threat_description: string
+    threat_description: string | null
     threat_severity_score: number
     threat_motifs: string[]
   }
@@ -61,7 +65,7 @@ export interface SessionMove {
       chain_count: number
     }
     tactics: {
-      pins: string[]
+      pins: { piece: string; type: string }[]
       hanging_pieces: string[]
       underdefended_pieces: string[]
     }

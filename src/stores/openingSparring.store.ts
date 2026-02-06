@@ -528,12 +528,41 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     }
 
     const lastNode = pgnService.getLastMove()
+    const lastMoveInHistory = sessionHistory.value[sessionHistory.value.length - 1]
+    
+    let quality: SessionMove['quality'] = undefined
+    
+    if (evalData && lastMoveInHistory?.evaluation) {
+        const currentEval = evalData.evaluation.score_cp
+        const prevEval = lastMoveInHistory.evaluation.score_cp
+        
+        // Determination of which side just moved.
+        // sessionHistory records moves as they happen.
+        // If we are recording move N, move N-1 was the previous.
+        // We assume moves alternate White, Black, White...
+        // But better check turn of board before the move?
+        // Actually, we can check based on history length. 
+        // Even index = White moved, Odd index = Black moved (0-based)
+        const moveIndex = sessionHistory.value.length
+        const colorMoved = moveIndex % 2 === 0 ? 'white' : 'black'
+        
+        const delta = colorMoved === 'white' ? currentEval - prevEval : prevEval - currentEval
+        const loss = -delta
+        
+        if (loss > 250) quality = 'blunder'
+        else if (loss > 120) quality = 'mistake'
+        else if (loss > 50) quality = 'inaccuracy'
+        else if (loss < -50 && Math.abs(currentEval) < 200) quality = 'brilliant' // Simplistic
+        else if (uci === lastMoveInHistory.evaluation.best_move) quality = 'best'
+        else quality = 'good'
+    }
 
     sessionHistory.value.push({
       fen: lastNode?.fenBefore || boardStore.fen,
       moveUci: uci,
       san: lastNode?.san || '',
       phase: 'playout',
+      quality,
       evaluation: evalData?.evaluation,
       threats: evalData?.threats,
       features: evalData?.features,

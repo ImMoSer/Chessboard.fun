@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed, h, type CSSProperties } from 'vue'
-import { NDataTable, NText, type DataTableColumns } from 'naive-ui'
+import { NDataTable, NText, NDivider, type DataTableColumns } from 'naive-ui'
 import { useOpeningSparringStore } from '../../stores/openingSparring.store'
 import { type SessionMove } from '../../types/openingSparring.types'
+import PlayoutAnalysisTable from './PlayoutAnalysisTable.vue'
 
 const openingStore = useOpeningSparringStore()
 
@@ -12,8 +13,11 @@ interface MovePair {
   black: SessionMove | null
 }
 
+const theoryMoves = computed(() => openingStore.sessionHistory.filter(m => m.phase === 'theory'))
+const hasPlayout = computed(() => openingStore.sessionHistory.some(m => m.phase === 'playout'))
+
 const movePairs = computed<MovePair[]>(() => {
-  const history = openingStore.sessionHistory
+  const history = theoryMoves.value
   const pairs: MovePair[] = []
   
   for (let i = 0; i < history.length; i += 2) {
@@ -34,12 +38,9 @@ const renderMove = (row: MovePair, color: 'white' | 'black') => {
     const move = row[color]
     if (!move) return null
     
-    // Calculate index
-    // row.number is 1-based.
-    // Index = (row.number - 1) * 2 + (color === 'white' ? 0 : 1)
-    const index = (row.number - 1) * 2 + (color === 'white' ? 0 : 1)
+    // Calculate index in GLOBAL history
+    const index = openingStore.sessionHistory.indexOf(move)
     
-    const isPlayout = move.phase === 'playout'
     const isReview = openingStore.isReviewMode
     const isActive = isReview && openingStore.reviewMoveIndex === index
     
@@ -52,18 +53,11 @@ const renderMove = (row: MovePair, color: 'white' | 'black') => {
         minWidth: '36px',
         textAlign: 'center'
     }
-
-    if (isPlayout) {
-        style.color = '#2196f3'
-    }
     
     if (isActive) {
         style.backgroundColor = 'var(--color-accent)'
         style.color = '#fff'
         style.fontWeight = 'bold'
-    } else if (isReview) {
-        // Hover effect could be done via CSS class, but inline simplicity for now
-        // or just let the user see the pointer
     }
 
     return h(
@@ -76,7 +70,7 @@ const renderMove = (row: MovePair, color: 'white' | 'black') => {
         [
             h(NText, { 
                 strong: true, 
-                style: { color: isActive ? '#fff' : (style.color || undefined) } // Override NText color if active
+                style: { color: isActive ? '#fff' : undefined }
             }, { default: () => move.san || move.moveUci })
         ]
     )
@@ -85,25 +79,6 @@ const renderMove = (row: MovePair, color: 'white' | 'black') => {
 const renderStat = (row: MovePair, color: 'white' | 'black', stat: 'acc' | 'win' | 'rat') => {
     const move = row[color]
     if (!move) return h(NText, { depth: 3 }, { default: () => '-' })
-
-    if (move.phase === 'playout') {
-        if (stat === 'acc') {
-            const cp = move.evaluation?.score_cp
-            if (cp === undefined) return h(NText, { depth: 3 }, { default: () => '-' })
-            const val = (cp / 100).toFixed(1)
-            const displayVal = cp > 0 ? `+${val}` : val
-            let colorStyle = '#aaa'
-            if (cp > 100) colorStyle = '#4caf50'
-            else if (cp < -100) colorStyle = '#f44336'
-            return h('span', { style: { fontSize: '11px', color: colorStyle, fontWeight: 'bold' } }, displayVal)
-        }
-        if (stat === 'win') {
-            const wdl = move.evaluation?.wdl
-            if (!wdl) return h(NText, { depth: 3 }, { default: () => '-' })
-            return h('span', { style: { fontSize: '10px', color: '#888' } }, `${wdl.win}/${wdl.draw}/${wdl.loss}`)
-        }
-        return h(NText, { depth: 3 }, { default: () => '-' })
-    }
 
     let val: string | number = '-'
     let style = {}
@@ -169,6 +144,7 @@ const columns = computed<DataTableColumns<MovePair>>(() => [
     
     <div class="table-scroll-area">
         <n-data-table
+          v-if="movePairs.length > 0"
           :columns="columns"
           :data="movePairs"
           :pagination="false"
@@ -176,9 +152,106 @@ const columns = computed<DataTableColumns<MovePair>>(() => [
           size="small"
           class="history-table"
         />
+
+        <div v-if="hasPlayout" class="playout-divider-container">
+             <n-divider title-placement="center" class="playout-divider">
+                <span class="divider-text">Playout Phase</span>
+             </n-divider>
+        </div>
+
+        <PlayoutAnalysisTable v-if="hasPlayout" />
     </div>
   </div>
 </template>
+
+<style scoped lang="scss">
+.session-history-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+}
+
+.history-header {
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
+    
+    h3 {
+        margin: 0;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: var(--color-text-primary);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+}
+
+.table-scroll-area {
+    flex: 1;
+    overflow-y: auto;
+    
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+    &::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 3px;
+    }
+}
+
+.playout-divider-container {
+    padding: 0 12px;
+}
+
+.playout-divider {
+    margin: 12px 0 8px 0;
+    --n-title-text-color: var(--color-accent) !important;
+    --n-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.divider-text {
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--color-accent);
+}
+
+:deep(.history-table) {
+  background: transparent;
+
+  .n-data-table-td {
+    background-color: transparent;
+    padding: 4px 4px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 12px;
+  }
+
+  .n-data-table-th {
+    background-color: rgba(255, 255, 255, 0.05); /* Чуть светлее для заголовка */
+    font-size: 10px;
+    padding: 4px 4px !important;
+    font-weight: bold;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    position: sticky;
+    top: 0;
+    z-index: 2; /* Увеличил z-index для сгруппированных заголовков */
+    text-align: center;
+  }
+  
+  /* Разделитель между группами белых и черных */
+  .n-data-table-th[colspan="4"] {
+     border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+}
+</style>
+
 
 <style scoped lang="scss">
 .session-history-container {

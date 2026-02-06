@@ -12,14 +12,15 @@ export interface CevaliteEvaluationResponse {
     wdl: { win: number; draw: number; loss: number }
     best_move: string
     best_move_san: string
+    best_move_motifs?: string[]
     pv_uci: string[]
-    pv_san: string[]
+    pv_san: string // Formatted string from server
     depth: number
   }
   threats: {
     opponent_threat_move: string
     opponent_threat_san: string
-    threat_description: string
+    threat_description: string | null
     threat_severity_score: number
     threat_motifs: string[]
   }
@@ -39,7 +40,7 @@ export interface CevaliteEvaluationResponse {
       chain_count: number
     }
     tactics: {
-      pins: string[]
+      pins: { piece: string; type: string }[]
       hanging_pieces: string[]
       underdefended_pieces: string[]
     }
