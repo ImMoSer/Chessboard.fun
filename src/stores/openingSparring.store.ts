@@ -121,6 +121,8 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   }
 
   async function fetchStats() {
+    if (isPlayoutMode.value) return
+
     // 1. Always fetch Master stats (Source of Truth for evaluation)
     await mozerStore.fetchStats()
 
@@ -188,21 +190,46 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
 
   async function handlePlayerMove(moveUci: string) {
     if (isPlayoutMode.value) {
-        // In playout mode, we add move to history (without stats) and trigger engine
-        sessionHistory.value.push({
-            fen: boardStore.fen,
-            moveUci: moveUci,
-            san: '', // We don't have SAN easily here without chessops, leaving empty for now or need a parser
-            phase: 'playout',
-            stats: undefined
-        })
+      isProcessingMove.value = true
+      try {
+        const { serverEngineService } = await import('../services/ServerEngineService')
+        const { pgnService } = await import('../services/PgnService')
+
+        // Получаем оценку текущей позиции (после хода игрока)
+        let evalData = null
+        try {
+          evalData = await serverEngineService.evaluateThreats(boardStore.fen)
+        } catch (e) {
+          console.warn('Evaluation failed for this position (possibly mate):', e)
+        }
         
-        isProcessingMove.value = true
+        const lastNode = pgnService.getLastMove()
+
+        sessionHistory.value.push({
+          fen: lastNode?.fenBefore || boardStore.fen,
+          moveUci: moveUci,
+          san: lastNode?.san || '',
+          phase: 'playout',
+          evaluation: evalData?.evaluation,
+          threats: evalData?.threats,
+          features: evalData?.features,
+        })
+
+        // Если игра окончена после хода игрока, не запускаем ответ движка
+        if (boardStore.getGameStatus().isGameOver) {
+          isProcessingMove.value = false
+          return
+        }
+
         setTimeout(async () => {
-            await triggerEngineMove()
-            isProcessingMove.value = false
+          await triggerEngineMove()
+          isProcessingMove.value = false
         }, PLAYOUT_DELAY)
-        return
+      } catch (err) {
+        console.error('Error recording playout move:', err)
+        isProcessingMove.value = false
+      }
+      return
     }
 
     isProcessingMove.value = true
@@ -431,36 +458,53 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   }
 
   async function triggerEngineMove() {
-      // Use gameplayService to get the best move from the selected sparring partner
-      // This respects the engine choice (Server or Local) and doesn't trigger analysis panel
-      const { gameplayService } = await import('../services/GameplayService')
-      const { useControlsStore } = await import('./controls.store')
-      
-      const controlsStore = useControlsStore()
-      const selectedEngine = controlsStore.selectedEngine
+    // Если игра уже окончена, ничего не делаем
+    if (boardStore.getGameStatus().isGameOver) return
 
-      try {
-          await new Promise(resolve => setTimeout(resolve, PLAYOUT_DELAY))
-          
-          const bestMove = await gameplayService.getBestMove(selectedEngine, boardStore.fen)
+    // Use gameplayService to get the best move from the selected sparring partner
+    // This respects the engine choice (Server or Local) and doesn't trigger analysis panel
+    const { gameplayService } = await import('../services/GameplayService')
+    const { useControlsStore } = await import('./controls.store')
+    const { serverEngineService } = await import('../services/ServerEngineService')
+    const { pgnService } = await import('../services/PgnService')
 
-          if (bestMove) {
-              boardStore.applyUciMove(bestMove)
-              
-              // Record bot move in session history (playout phase)
-              sessionHistory.value.push({
-                  fen: boardStore.fen,
-                  moveUci: bestMove,
-                  san: '', // Empty SAN for now
-                  phase: 'playout',
-                  stats: undefined
-              })
-              
-              // We do not fetchStats() in playout mode as we are out of book
-          }
-      } catch (err) {
-          console.error('Error in triggerEngineMove:', err)
+    const controlsStore = useControlsStore()
+    const selectedEngine = controlsStore.selectedEngine
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, PLAYOUT_DELAY))
+
+      const bestMove = await gameplayService.getBestMove(selectedEngine, boardStore.fen)
+
+      if (bestMove) {
+        boardStore.applyUciMove(bestMove)
+
+        // Получаем оценку после хода движка
+        let evalData = null
+        try {
+          evalData = await serverEngineService.evaluateThreats(boardStore.fen)
+        } catch (e) {
+          console.warn('Evaluation failed after engine move:', e)
+        }
+        
+        const lastNode = pgnService.getLastMove()
+
+        // Record bot move in session history (playout phase)
+        sessionHistory.value.push({
+          fen: lastNode?.fenBefore || boardStore.fen,
+          moveUci: bestMove,
+          san: lastNode?.san || '',
+          phase: 'playout',
+          evaluation: evalData?.evaluation,
+          threats: evalData?.threats,
+          features: evalData?.features,
+        })
+
+        // We do not fetchStats() in playout mode as we are out of book
       }
+    } catch (err) {
+      console.error('Error in triggerEngineMove:', err)
+    }
   }
 
   function hint() {
@@ -497,6 +541,11 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     }
   }
 
+  async function generateGameReport() {
+    const { gameReviewService } = await import('../services/GameReviewService')
+    return gameReviewService.generateReport(sessionHistory.value, playerColor.value)
+  }
+
   return {
     currentStats,
     sessionHistory,
@@ -527,5 +576,6 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     reset,
     hint,
     startPlayout,
+    generateGameReport,
   }
 })

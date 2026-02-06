@@ -6,6 +6,7 @@ import { useI18n } from 'vue-i18n'
 import { pgnTreeVersion } from '../../services/PgnService'
 import { useBoardStore } from '../../stores/board.store'
 import { useMozerBookStore } from '../../stores/mozerBook.store'
+import { useOpeningSparringStore } from '../../stores/openingSparring.store'
 import MozerBookFooter from './MozerBookFooter.vue'
 import MozerBookRow from './MozerBookRow.vue'
 import TheoryExplorerModal from './TheoryExplorerModal.vue'
@@ -18,6 +19,7 @@ defineProps<{
 const { t } = useI18n()
 const boardStore = useBoardStore()
 const mozerStore = useMozerBookStore()
+const openingStore = useOpeningSparringStore()
 
 const stats = computed(() => mozerStore.currentStats)
 const loading = computed(() => mozerStore.isLoading)
@@ -46,6 +48,7 @@ function handleSelectMove(uci: string) {
 watch(
   [pgnTreeVersion, () => boardStore.fen],
   () => {
+    if (openingStore.isPlayoutMode) return
     mozerStore.fetchStats()
     showTheory.value = false // Close theory when position changes
   },
@@ -53,6 +56,7 @@ watch(
 )
 
 onMounted(() => {
+  if (openingStore.isPlayoutMode) return
   mozerStore.fetchStats()
 })
 

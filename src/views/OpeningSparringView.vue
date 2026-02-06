@@ -9,6 +9,7 @@ import MozerBook from '../components/MozerBook/MozerBook.vue'
 import OpeningSparringHeader from '../components/OpeningSparring/OpeningSparringHeader.vue'
 import OpeningSparringSettingsModal from '../components/OpeningSparring/OpeningSparringSettingsModal.vue'
 import OpeningSparringSummaryModal from '../components/OpeningSparring/OpeningSparringSummaryModal.vue'
+import GameReviewModal from '../components/OpeningSparring/GameReviewModal.vue'
 import SessionHistoryList from '../components/OpeningSparring/SessionHistoryList.vue'
 import i18n from '../services/i18n'
 import { theoryGraphService } from '../services/TheoryGraphService'
@@ -27,9 +28,23 @@ const route = useRoute()
 
 const isSettingsModalOpen = ref(true)
 const showSummaryModal = ref(false)
+const showReviewModal = ref(false)
 const isNavigatingToPlayout = ref(false)
 
 const isExamEnding = computed(() => openingStore.isTheoryOver || openingStore.isDeviation)
+
+// Watch for game over in playout mode
+watch(
+  () => gameStore.gamePhase,
+  (phase) => {
+    if (phase === 'GAMEOVER' && openingStore.isPlayoutMode) {
+      // Delay slightly to let board update final state/sound
+      setTimeout(() => {
+        showReviewModal.value = true
+      }, 1000)
+    }
+  }
+)
 
 // Automatically handle analysis panel in Exam mode
 watch(
@@ -47,7 +62,8 @@ watch(
 )
 
 const showAnalysisPanel = computed(() => {
-    return isExamEnding.value && !showSummaryModal.value && !openingStore.isPlayoutMode
+    // Show analysis only during theory summary, NOT during playout review
+    return isExamEnding.value && !showSummaryModal.value && !openingStore.isPlayoutMode && !showReviewModal.value
 })
 
 watch(showAnalysisPanel, (val) => {
@@ -108,6 +124,7 @@ onUnmounted(() => {
 async function startSession(color: 'white' | 'black', moves: string[] = [], slug?: string) {
   isSettingsModalOpen.value = false
   showSummaryModal.value = false
+  showReviewModal.value = false
   analysisStore.setPlayerColor(color)
   analysisStore.hidePanel()
 
@@ -123,8 +140,13 @@ async function startSession(color: 'white' | 'black', moves: string[] = [], slug
   gameStore.setupPuzzle(
     'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
     [],
-    () => {},
-    () => false,
+    (isWin, outcome) => {
+      console.log('[OpeningSparring] Game Over:', isWin, outcome)
+      gameStore.setGamePhase('GAMEOVER')
+    },
+    (outcome) => {
+      return outcome?.winner === openingStore.playerColor
+    },
     () => {},
     'opening-trainer',
     undefined,
@@ -144,7 +166,16 @@ async function handleRestart() {
     openingStore.reset()
     await gameStore.resetGame()
     isSettingsModalOpen.value = true
+    showReviewModal.value = false
   }
+}
+
+function handleReviewRestart() {
+    showReviewModal.value = false
+    openingStore.reset()
+    gameStore.resetGame().then(() => {
+         isSettingsModalOpen.value = true
+    })
 }
 
 async function handlePlayout() {
@@ -208,6 +239,11 @@ async function handleSummaryRestart() {
         @analyze="handleSummaryAnalyze"
         @restart="handleSummaryRestart"
       />
+      <GameReviewModal
+        :show="showReviewModal"
+        @close="showReviewModal = false"
+        @restart="handleReviewRestart"
+      />
     </template>
 
     <template #top-info>
@@ -240,7 +276,7 @@ async function handleSummaryRestart() {
     <template #right-panel>
       <AnalysisPanel v-if="showAnalysisPanel" style="margin-bottom: 12px; flex-shrink: 0;" />
       <div class="mozer-book-wrapper">
-         <MozerBook />
+         <MozerBook :blurred="openingStore.isPlayoutMode" />
       </div>
 
       <div v-if="openingStore.error" class="error-msg">

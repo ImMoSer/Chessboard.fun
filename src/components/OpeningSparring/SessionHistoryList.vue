@@ -39,8 +39,27 @@ const renderMove = (row: MovePair, color: 'white' | 'black') => {
 
 const renderStat = (row: MovePair, color: 'white' | 'black', stat: 'acc' | 'win' | 'rat') => {
     const move = row[color]
-    if (!move || move.phase === 'playout') return h(NText, { depth: 3 }, { default: () => '-' })
-    
+    if (!move) return h(NText, { depth: 3 }, { default: () => '-' })
+
+    if (move.phase === 'playout') {
+        if (stat === 'acc') {
+            const cp = move.evaluation?.score_cp
+            if (cp === undefined) return h(NText, { depth: 3 }, { default: () => '-' })
+            const val = (cp / 100).toFixed(1)
+            const displayVal = cp > 0 ? `+${val}` : val
+            let colorStyle = '#aaa'
+            if (cp > 100) colorStyle = '#4caf50'
+            else if (cp < -100) colorStyle = '#f44336'
+            return h('span', { style: { fontSize: '11px', color: colorStyle, fontWeight: 'bold' } }, displayVal)
+        }
+        if (stat === 'win') {
+            const wdl = move.evaluation?.wdl
+            if (!wdl) return h(NText, { depth: 3 }, { default: () => '-' })
+            return h('span', { style: { fontSize: '10px', color: '#888' } }, `${wdl.win}/${wdl.draw}/${wdl.loss}`)
+        }
+        return h(NText, { depth: 3 }, { default: () => '-' })
+    }
+
     let val: string | number = '-'
     let style = {}
     
