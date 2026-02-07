@@ -11,13 +11,63 @@ import { areMovesEqual } from '../utils/chess-utils'
 import { useBoardStore } from './board.store'
 import { useGameStore } from './game.store'
 import { useMozerBookStore } from './mozerBook.store'
+import { pgnService, pgnTreeVersion } from '../services/PgnService'
 
 export const useOpeningSparringStore = defineStore('openingSparring', () => {
   const boardStore = useBoardStore()
   const mozerStore = useMozerBookStore()
 
   const currentStats = computed(() => mozerStore.currentStats)
-  const sessionHistory = ref<SessionMove[]>([])
+  
+  // -- REPLACED sessionHistory ref with computed from PGN --
+  const sessionHistory = computed<SessionMove[]>(() => {
+    // Reactivity dependency
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _v = pgnTreeVersion.value
+
+    const moves: SessionMove[] = []
+    let node = pgnService.getRootNode().children[0]
+    
+    // Traverse the Main Line (assuming sparring session is linear)
+    while (node) {
+      const meta = node.metadata || {}
+      
+      // Calculate derived fields
+      const fenParts = node.fenBefore.split(' ')
+      const turn = fenParts[1] as 'w' | 'b'
+      const moveNumber = parseInt(fenParts[5] || '1', 10)
+
+      moves.push({
+        // Standard SessionMove fields
+        fen: node.fenAfter,
+        moveUci: node.uci,
+        san: node.san,
+        phase: meta.phase || 'theory',
+        stats: meta.stats,
+        
+        // PGN Context
+        ply: node.ply,
+        turn,
+        moveNumber,
+
+        // Analysis Data
+        quality: meta.quality,
+        evaluation: meta.evaluation,
+        threats: meta.threats,
+        features: meta.features,
+        
+        // Metrics
+        popularity: meta.popularity,
+        accuracy: meta.accuracy,
+        winRate: meta.winRate,
+        rating: meta.rating
+      })
+      
+      node = node.children[0]
+    }
+    return moves
+  })
+
   const isTheoryOver = ref(false)
   const isDeviation = ref(false)
   const variability = ref(5)
@@ -32,6 +82,8 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   const error = computed(() => mozerStore.error)
   const moveQueue = ref<string[]>([])
 
+  // Baseline evaluation for the start of playout
+  const theoryEndEval = ref<number | null>(null)
 
   const savedSource = localStorage.getItem('openingSparring.opponentSource') as 'master' | 'lichess' | null
   const opponentSource = ref<'master' | 'lichess'>(savedSource || 'master')
@@ -72,29 +124,33 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
 
   const averageRating = computed(() => {
     if (movesCount.value === 0) return 0
-    // If stats are missing (playout), we treat as 0 or ignore. Here treating as 0.
-    const sum = sessionHistory.value.reduce((acc, m) => acc + (m.stats?.perf ?? 0), 0)
+    const sum = sessionHistory.value.reduce((acc, m) => acc + (m.rating ?? 0), 0) // Fixed: was m.stats.perf
     return Math.round(sum / movesCount.value)
   })
 
   async function initializeSession(color: 'white' | 'black', startMoves: string[] = []) {
+    // Prevent double initialization if already in progress or same state
+    if (isProcessingMove.value && playerColor.value === color && sessionHistory.value.length > 0) {
+      console.log('[OpeningSparring] Session already initializing, skipping redundant call')
+      return
+    }
+
     reset()
     playerColor.value = color
     isProcessingMove.value = true
-
-    // Ensure GameStore doesn't try to play engine moves during theory
+    
     const gameStore = useGameStore()
     gameStore.shouldAutoPlayBot = false
     gameStore.currentGameMode = 'opening-trainer'
 
     try {
-      // Still load book for initial navigation or slug search if used in View
       await theoryGraphService.loadBook()
-
       boardStore.setupPosition('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', color)
 
       for (const move of startMoves) {
         boardStore.applyUciMove(move)
+        const node = pgnService.getLastMove()
+        if (node) pgnService.updateNode(node, { metadata: { phase: 'theory' } })
       }
 
       await fetchStats()
@@ -111,7 +167,11 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     console.log('[OpeningSparring] Resetting session')
     mozerStore.reset()
     currentLichessStats.value = null
-    sessionHistory.value = []
+    // sessionHistory is computed, no need to reset
+    // But we must reset PGN!
+    // boardStore.resetBoardState() covers pgnService.reset() usually?
+    // initializeSession calls boardStore.setupPosition which resets PGN.
+    
     isTheoryOver.value = false
     isDeviation.value = false
     openingName.value = ''
@@ -125,15 +185,13 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     finalEval.value = null
     isFinalEvaluating.value = false
     finalEvalDepth.value = 0
+    theoryEndEval.value = null
   }
 
-  // Review Mode Actions
   function enterReviewMode() {
     isReviewMode.value = true
     isPlayoutMode.value = false
-    // Set index to the last move
     reviewMoveIndex.value = sessionHistory.value.length - 1
-    // Stop any game loop if active
     const gameStore = useGameStore()
     gameStore.setGamePhase('IDLE')
   }
@@ -148,36 +206,14 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
       
       reviewMoveIndex.value = index
       
-      // Update board
       if (index === -1) {
-          // Start position
-           boardStore.setupPosition('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', playerColor.value)
+           pgnService.navigateToStart()
+           boardStore.syncBoardWithPgn()
       } else {
           const move = sessionHistory.value[index]
-          if (move) {
-              // We need the FEN AFTER the move.
-              // sessionHistory stores 'fen' which is usually the fen BEFORE the move in some contexts, or AFTER?
-              // Let's check 'processMoveQueue':
-              // sessionHistory.push({ fen: boardStore.fen ... }) where boardStore.fen is taken BEFORE push but AFTER applyUciMove?
-              // wait, in processMoveQueue:
-              // boardStore.applyUciMove is NOT called there?
-              // Ah, processMoveQueue calls triggerBotMove which calls applyUciMove?
-              // No, processMoveQueue is for player move.
-              // Wait, let's check processMoveQueue logic in the file content I read previously.
-              // It pushes to sessionHistory: fen: boardStore.fen.
-              // For player move, 'handlePlayerMove' calls 'processMoveQueue'.
-              // Does 'handlePlayerMove' apply the move? The View calls 'openingStore.handlePlayerMove(uci)'.
-              // The View's 'gameStore.setupPuzzle' callbacks call 'openingStore.handlePlayerMove'.
-              // 'gameStore' usually applies the move to the board.
-              
-              // So 'fen' in sessionHistory might be the position *after* the move if taken from boardStore.fen at that time.
-              // In triggerBotMove: boardStore.applyUciMove(...) then sessionHistory.push({ fen: boardStore.fen ... })
-              // So yes, it is the FEN AFTER the move.
-              boardStore.setupPosition(move.fen, playerColor.value)
-              boardStore.lastMove = [
-                  move.moveUci.substring(0, 2) as Key,
-                  move.moveUci.substring(2, 4) as Key
-              ]
+          if (move && move.ply) {
+              pgnService.navigateToPly(move.ply)
+              boardStore.syncBoardWithPgn()
           }
       }
   }
@@ -197,15 +233,10 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   async function fetchStats() {
     if (isPlayoutMode.value) return
 
-    // 1. Always fetch Master stats (Source of Truth for evaluation)
     await mozerStore.fetchStats()
 
-    // 2. If configured, fetch Lichess stats (Source for Bot decisions)
-    // Optimization: Only fetch Lichess stats when it is the BOT's turn.
-    // When it's the player's turn, we rely on Master stats (MozerBook) for evaluation.
     if (opponentSource.value === 'lichess' && boardStore.turn !== playerColor.value) {
         const { lichessApiService } = await import('../services/LichessApiService')
-        // Using standard speeds (blitz, rapid, classical)
         currentLichessStats.value = await lichessApiService.getStats(boardStore.fen, 'lichess', {
             ratings: opponentRatings.value,
             speeds: ['blitz', 'rapid', 'classical']
@@ -216,7 +247,6 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
 
     if (currentStats.value) {
       if (currentStats.value.summary && !openingName.value) {
-        // Fallback or use theory items if available
         const theoryItem = currentStats.value.theory?.[0]
         if (theoryItem) {
           openingName.value = theoryItem.name
@@ -230,22 +260,18 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
       if (isFinalEvaluating.value) return
 
       const targetDepth = 20
-
       isFinalEvaluating.value = true
       finalEvalDepth.value = 0
       finalEval.value = null
 
-      // We use analysisService directly to not interfere with analysisStore UI
       const { analysisService } = await import('../services/AnalysisService')
       await analysisService.initialize()
 
-      // Dynamically calculate threads: cores / 2, but between 1 and 4.
       const cores = navigator.hardwareConcurrency || 1
       const threads = Math.max(1, Math.min(4, Math.floor(cores / 2)))
       await analysisService.setThreads(threads)
 
       return new Promise<void>((resolve) => {
-          // Use multiPV = 1 for fastest assessment of the top line
           analysisService.startAnalysis(boardStore.fen, (lines) => {
               if (lines.length > 0) {
                   const bestLine = lines[0]!
@@ -264,9 +290,6 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
 
   async function handlePlayerMove(moveUci: string) {
     if (isPlayoutMode.value) {
-      // In playout mode, gameStore handles the loop.
-      // We assume gameStore called onUserMove which we handled to record stats.
-      // So nothing to do here except maybe set processing flag to false just in case.
       isProcessingMove.value = false
       return
     }
@@ -309,16 +332,11 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
       : stats.moves.reduce((acc, m) => acc + m.total, 0) || 1
 
     const popularity = (moveData.total / totalGamesInPos) * 100
-
     const maxTotal = Math.max(...stats.moves.map((m) => m.total))
     const accuracy = maxTotal > 0 ? (moveData.total / maxTotal) * 100 : 0
-
     const wins = playerColor.value === 'white' ? moveData.w_pct : moveData.l_pct
     const winRateRaw = wins + 0.5 * moveData.d_pct
     const rating = moveData.perf || 0
-
-    // Mapping MozerBook fields to TheoryMove directly (no mapping needed per se, just assignment)
-    // MozerBookMove fields: w_pct, d_pct, l_pct, perf, total... matches TheoryMove
     const moveStats = {
         uci: moveData.uci,
         san: moveData.san,
@@ -332,17 +350,30 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     if (moveData.name) openingName.value = moveData.name
     if (moveData.eco) currentEco.value = moveData.eco
 
-    sessionHistory.value.push({
-      fen: boardStore.fen,
-      moveUci,
-      san: moveData.san,
-      phase: 'theory',
-      stats: moveStats,
-      popularity,
-      accuracy,
-      winRate: winRateRaw,
-      rating,
-    })
+    // Check if the move is already applied on the board (Player move case)
+    // boardStore.lastMove is [from, to] keys.
+    const lastMoveUci = boardStore.lastMove ? boardStore.lastMove.join('') : ''
+    
+    // We strictly apply the move ONLY if it's not already the last move on the board.
+    // This fixes the "Illegal move" error when handling player moves that GameStore already applied.
+    if (lastMoveUci !== moveUci) {
+        boardStore.applyUciMove(moveUci)
+    }
+    
+    // Enrich PGN
+    const node = pgnService.getLastMove()
+    if (node) {
+        pgnService.updateNode(node, {
+            metadata: {
+                phase: 'theory',
+                stats: moveStats,
+                popularity,
+                accuracy,
+                winRate: winRateRaw,
+                rating
+            }
+        })
+    }
 
     await fetchStats()
 
@@ -354,23 +385,15 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   }
 
   async function triggerBotMove() {
-    // Determine the source of moves for the bot
     let movesPool: (MozerBookMove | LichessMove)[] = []
-
     if (opponentSource.value === 'lichess' && currentLichessStats.value) {
         movesPool = currentLichessStats.value.moves
     } else {
-        // Fallback to Master stats
         movesPool = currentStats.value?.moves || []
     }
 
     if (movesPool.length === 0) {
-      // No moves available in the chosen source
       isTheoryOver.value = true
-
-      // If we are in Lichess mode and run out of Lichess moves,
-      // check if Master moves exist. If so, maybe we shouldn't play winning sound yet?
-      // But for now, if bot has no moves, theory is over.
       if (opponentSource.value === 'master') {
           soundService.playSound('game_user_won')
       }
@@ -378,15 +401,9 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
       return
     }
 
-    // Pick a move from top N based on variability
-    // NOTE: Lichess stats structure is slightly different (white, draws, black, total implied)
-    // We need to normalize 'total' for random selection if it's Lichess
-
     const candidates = movesPool.slice(0, variability.value).map(m => {
-        // Ensure we have a 'total' property
         let total = (m as MozerBookMove).total
         if (total === undefined) {
-             // For Lichess moves
              const lm = m as LichessMove
              total = lm.white + lm.draws + lm.black
         }
@@ -411,21 +428,17 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
       random -= move.total
     }
 
-    // Now, we need to EVALUATE this move using Master Stats (MozerBook)
     const masterStats = currentStats.value
-    // Find the selected move in Master stats to get the "official" evaluation
     const masterMoveData = masterStats?.moves.find(m => areMovesEqual(m.uci, selectedMove.uci))
 
-    // Prepare data for history
     let moveStats = undefined
     let popularity = 0
     let accuracy = 0
     let winRateRaw = 0
     let rating = 0
-    let san = selectedMove.san
+    // san variable removed as it was shadowing selectedMove.san and causing unused var warning
 
     if (masterMoveData) {
-        // Case A: Move exists in Master Book -> Use Master Stats
         const totalGamesInPos = masterStats!.summary
             ? masterStats!.summary!.w + masterStats!.summary!.d + masterStats!.summary!.l
             : masterStats!.moves.reduce((acc, m) => acc + m.total, 0) || 1
@@ -437,7 +450,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
         const wins = playerColor.value === 'white' ? masterMoveData.w_pct : masterMoveData.l_pct
         winRateRaw = wins + 0.5 * masterMoveData.d_pct
         rating = masterMoveData.perf || 0
-        san = masterMoveData.san
+        // san = masterMoveData.san // Removed
 
         moveStats = {
             uci: masterMoveData.uci,
@@ -448,45 +461,28 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
             l_pct: masterMoveData.l_pct,
             perf: masterMoveData.perf
         }
-    } else {
-        // Case B: Move does NOT exist in Master Book (Bot played a "bad" or rare move)
-        // We cannot provide Master stats. We treat this as a "Deviation" event essentially.
-        // But the game continues.
-        // We might want to fill stats with 0 or nulls.
-        moveStats = undefined // No master stats
-        popularity = 0
-        accuracy = 0
-        winRateRaw = 0 // Unknown winrate
-        rating = 0
-        // San is already set from selectedMove
     }
 
     boardStore.applyUciMove(selectedMove.uci)
 
-    sessionHistory.value.push({
-      fen: boardStore.fen,
-      moveUci: selectedMove.uci,
-      san: san,
-      phase: 'theory',
-      stats: moveStats,
-      popularity,
-      accuracy,
-      winRate: winRateRaw,
-      rating
-    })
+    const node = pgnService.getLastMove()
+    if (node) {
+        pgnService.updateNode(node, {
+            metadata: {
+                phase: 'theory',
+                stats: moveStats,
+                popularity,
+                accuracy,
+                winRate: winRateRaw,
+                rating
+            }
+        })
+    }
 
     await fetchStats()
 
-    // Check if the move took us out of book (Master book)
-    // If masterMoveData was null, we are definitely out of Master book.
     if (!masterMoveData) {
-        // Option: End theory if bot leaves master book?
-        // Or continue if Lichess book still has moves?
-        // User said: "оценка ... базируются на исходя из статистики мозербука"
-        // If we leave MozerBook, we can't evaluate further moves.
-        // So effectively, theory phase ends (or switches to playout/unknown).
         isTheoryOver.value = true
-        // Maybe play a different sound? "Bot left book"
     }
 
     if (moveQueue.value.length > 0) {
@@ -498,75 +494,123 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
 
   function hint() {
     if (lives.value <= 0) return
-
     const bestMove = currentStats.value?.moves?.[0]
     if (!bestMove) return
 
     lives.value -= 1
-
-    boardStore.drawableShapes = [
+    boardStore.setDrawableShapes([
       {
         orig: bestMove.uci.substring(0, 2) as Key,
         dest: bestMove.uci.substring(2, 4) as Key,
         brush: 'green',
       },
-    ]
+    ])
     setTimeout(() => {
-      boardStore.drawableShapes = []
+      boardStore.setDrawableShapes([])
     }, 2000)
   }
 
+  // Promise chain for playout move processing
+  let recordQueue = Promise.resolve()
+
   async function _recordPlayoutMove(uci: string) {
-    const { serverEngineService } = await import('../services/ServerEngineService')
-    const { pgnService } = await import('../services/PgnService')
-
-    let evalData = null
-    try {
-      evalData = await serverEngineService.evaluateThreats(boardStore.fen)
-    } catch (e) {
-      console.warn('Evaluation failed for this position (possibly mate):', e)
+    // 1. Synchronous Context Capture
+    const currentNode = pgnService.getLastMove()
+    if (!currentNode || currentNode.uci !== uci) {
+        console.warn('[OpeningSparring] PGN Sync Error: Current node does not match played move.', currentNode?.uci, uci)
+        return
     }
 
-    const lastNode = pgnService.getLastMove()
-    const lastMoveInHistory = sessionHistory.value[sessionHistory.value.length - 1]
-    
-    let quality: SessionMove['quality'] = undefined
-    
-    if (evalData && lastMoveInHistory?.evaluation) {
-        const currentEval = evalData.evaluation.score_cp
-        const prevEval = lastMoveInHistory.evaluation.score_cp
-        
-        // Determination of which side just moved.
-        // sessionHistory records moves as they happen.
-        // If we are recording move N, move N-1 was the previous.
-        // We assume moves alternate White, Black, White...
-        // But better check turn of board before the move?
-        // Actually, we can check based on history length. 
-        // Even index = White moved, Odd index = Black moved (0-based)
-        const moveIndex = sessionHistory.value.length
-        const colorMoved = moveIndex % 2 === 0 ? 'white' : 'black'
-        
-        const delta = colorMoved === 'white' ? currentEval - prevEval : prevEval - currentEval
-        const loss = -delta
-        
-        if (loss > 250) quality = 'blunder'
-        else if (loss > 120) quality = 'mistake'
-        else if (loss > 50) quality = 'inaccuracy'
-        else if (loss < -50 && Math.abs(currentEval) < 200) quality = 'brilliant' // Simplistic
-        else if (uci === lastMoveInHistory.evaluation.best_move) quality = 'best'
-        else quality = 'good'
-    }
+    // Capture board state for evaluation *before* async
+    const fenToEvaluate = currentNode.fenAfter
+    const fenBefore = currentNode.fenBefore
+    const turnBefore = fenBefore.split(' ')[1] // 'w' or 'b'
 
-    sessionHistory.value.push({
-      fen: lastNode?.fenBefore || boardStore.fen,
-      moveUci: uci,
-      san: lastNode?.san || '',
-      phase: 'playout',
-      quality,
-      evaluation: evalData?.evaluation,
-      threats: evalData?.threats,
-      features: evalData?.features,
+    // Mark basic metadata immediately
+    pgnService.updateNode(currentNode, {
+        metadata: {
+            phase: 'playout',
+            loading: true
+        }
     })
+
+    // 2. Queue Analysis
+    recordQueue = recordQueue.then(async () => {
+        const { serverEngineService } = await import('../services/ServerEngineService')
+        
+        let evalData = null
+        try {
+            evalData = await serverEngineService.evaluateThreats(fenToEvaluate)
+        } catch (e) {
+            console.warn('[OpeningSparring] Evaluation failed:', e)
+        }
+
+        let quality: SessionMove['quality'] = undefined
+        
+        // Quality Calculation Logic
+        // We need a baseline. 
+        // A) If there is a previous move in history (theory or playout), use its eval.
+        // B) If this is the FIRST playout move, use theoryEndEval.
+        
+        const moves = sessionHistory.value
+        const myIndex = moves.findIndex(m => m.ply === currentNode.ply)
+        const prevMove = myIndex > 0 ? moves[myIndex - 1] : null
+        
+        let prevEvalCp: number | null = null
+
+        if (prevMove && prevMove.evaluation) {
+            prevEvalCp = prevMove.evaluation.score_cp
+        } else if (!prevMove && theoryEndEval.value !== null) {
+             // Logic for very first move if history empty? Unlikely.
+             // But if prevMove exists (Theory) but has no eval (because it was theory), 
+             // we check theoryEndEval.
+             prevEvalCp = theoryEndEval.value
+        } else if (prevMove && !prevMove.evaluation && theoryEndEval.value !== null) {
+             // Prev move was theory, so we use the captured theory end eval
+             prevEvalCp = theoryEndEval.value
+        }
+
+        if (evalData && prevEvalCp !== null) {
+            const currentEval = evalData.evaluation.score_cp
+            
+            // Calculate Loss based on who moved
+            // If White moved (turnBefore == 'w'), we want eval to go UP. Loss = Prev - Current.
+            // If Black moved (turnBefore == 'b'), we want eval to go DOWN. Loss = Current - Prev.
+            
+            let loss = 0
+            if (turnBefore === 'w') {
+                loss = prevEvalCp - currentEval
+            } else {
+                loss = currentEval - prevEvalCp
+            }
+
+            if (loss > 250) quality = 'blunder'
+            else if (loss > 120) quality = 'mistake'
+            else if (loss > 50) quality = 'inaccuracy'
+            else if (loss < -50 && Math.abs(currentEval) < 200) quality = 'brilliant'
+            else if (currentNode.uci === prevMove?.evaluation?.best_move) quality = 'best'
+            else quality = 'good'
+        }
+
+        // Update PGN Node with full data
+        pgnService.updateNode(currentNode, {
+            metadata: {
+                phase: 'playout',
+                loading: false,
+                quality,
+                evaluation: evalData?.evaluation,
+                threats: evalData?.threats,
+                features: evalData?.features
+            }
+        })
+    }).catch(err => {
+        console.error('[OpeningSparring] Error in playout recording:', err)
+        pgnService.updateNode(currentNode, {
+             metadata: { phase: 'playout', loading: false, error: true }
+        })
+    })
+
+    await recordQueue
   }
 
   function handlePlayoutGameOver(isWin: boolean, outcome?: { winner?: 'white' | 'black'; reason?: string }) {
@@ -575,25 +619,50 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     console.log(`[OpeningSparring] Playout Game Over. Win: ${isWin}, Reason: ${outcome?.reason}`)
   }
 
-  function startPlayout() {
+  async function startPlayout() {
     isPlayoutMode.value = true
     isFinalEvaluating.value = false
     const gameStore = useGameStore()
 
     soundService.playSound('game_play_out_start')
+    
+    // Capture Baseline Evaluation for the final theory position
+    const currentFen = boardStore.fen
+    try {
+        // We do this asynchronously but block playout recording? 
+        // No, we can just fire it. The recordQueue for the first move will wait?
+        // Actually, we should try to get it before first move processing finishes.
+        // Let's add it to the recordQueue!
+        
+        recordQueue = recordQueue.then(async () => {
+             const { serverEngineService } = await import('../services/ServerEngineService')
+             try {
+                 // Fast eval for baseline? Or full threats? 
+                 // Full threats is better to have consistent depth.
+                 const data = await serverEngineService.evaluateThreats(currentFen)
+                 theoryEndEval.value = data.evaluation.score_cp
+                 console.log('[OpeningSparring] Baseline Eval captured:', theoryEndEval.value)
+             } catch (e) {
+                 console.warn('[OpeningSparring] Failed to capture baseline eval:', e)
+             }
+        })
+    } catch (e) {
+        console.error(e)
+    }
 
     gameStore.setupPuzzle(
       boardStore.fen,
-      [], // Empty moves -> start engine mode
+      [],
       handlePlayoutGameOver,
-      (outcome) => outcome?.winner === playerColor.value, // WinCondition - check if winner matches player
-      () => {}, // OnPlayoutStart
+      (outcome) => outcome?.winner === playerColor.value,
+      () => {},
       'opening-trainer',
       undefined,
       playerColor.value,
-      (uci) => _recordPlayoutMove(uci), // onUserMove
-      (uci) => _recordPlayoutMove(uci), // onBotMove
-      true // autoPlayBot
+      (uci) => _recordPlayoutMove(uci),
+      (uci) => _recordPlayoutMove(uci),
+      true,
+      true // keepPgn: true
     )
   }
 
@@ -604,7 +673,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
 
   return {
     currentStats,
-    sessionHistory,
+    sessionHistory, // Now computed!
     averageAccuracy,
     averageWinRate,
     averageRating,

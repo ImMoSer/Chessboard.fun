@@ -31,35 +31,32 @@ const playoutPairs = computed(() => {
     const allPlayout = openingStore.sessionHistory.filter(m => m.phase === 'playout')
     if (allPlayout.length === 0) return []
     
-    // We need to know where playout started in the global history to get the correct starting move number
-    const firstPlayoutIndex = openingStore.sessionHistory.findIndex(m => m.phase === 'playout')
+    const groups = new Map<number, { white: SessionMove | null, black: SessionMove | null }>()
     
-    const pairs: PlayoutPair[] = []
-    
-    // If playout started on a Black move, the first pair will have white as null
-    let i = 0
-    if (firstPlayoutIndex % 2 !== 0) {
-        pairs.push({
-            number: Math.floor(firstPlayoutIndex / 2) + 1,
-            white: null,
-            black: allPlayout[0] || null
-        })
-        i = 1
+    for (const move of allPlayout) {
+        const num = move.moveNumber || 0
+        if (!groups.has(num)) {
+            groups.set(num, { white: null, black: null })
+        }
+        const pair = groups.get(num)!
+        // If move.turn is 'w', it means it was White's move.
+        // Wait, standard FEN "w" means "White to move".
+        // In SessionMove, we derived `turn` from `fenBefore`.
+        // If fenBefore had "w", then it was White's turn to move. Correct.
+        if (move.turn === 'w') {
+            pair.white = move
+        } else {
+            pair.black = move
+        }
     }
     
-    for (; i < allPlayout.length; i += 2) {
-        const white = allPlayout[i] || null
-        const black = allPlayout[i + 1] || null
-        const globalIndex = openingStore.sessionHistory.indexOf(white || black!)
-        
-        pairs.push({
-            number: Math.floor(globalIndex / 2) + 1,
-            white,
-            black
-        })
-    }
-    
-    return pairs
+    return Array.from(groups.entries())
+        .sort((a, b) => a[0] - b[0])
+        .map(([num, pair]) => ({
+            number: num,
+            white: pair.white,
+            black: pair.black
+        }))
 })
 
 const getQualityColor = (quality?: string) => {

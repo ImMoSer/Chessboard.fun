@@ -20,6 +20,8 @@ export interface PgnNode {
   eval?: number | undefined
   nag?: number | undefined
   isCollapsed?: boolean | undefined
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  metadata?: Record<string, any> | undefined
 }
 
 export interface NewNodeData {
@@ -546,10 +548,13 @@ class PgnServiceController {
     }
   }
 
-  public updateNode(node: PgnNode, data: Partial<Pick<PgnNode, 'comment' | 'eval' | 'nag'>>): void {
+  public updateNode(node: PgnNode, data: Partial<Pick<PgnNode, 'comment' | 'eval' | 'nag' | 'metadata'>>): void {
     if (data.comment !== undefined) node.comment = data.comment
     if (data.eval !== undefined) node.eval = data.eval
     if (data.nag !== undefined) node.nag = data.nag
+    if (data.metadata !== undefined) {
+      node.metadata = { ...node.metadata, ...data.metadata }
+    }
     treeVersion.value++
   }
 

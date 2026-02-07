@@ -117,6 +117,7 @@ export const useGameStore = defineStore('game', () => {
     onUserMove?: (uci: string) => void,
     onBotMove?: (uci: string) => void,
     autoPlayBot: boolean = true,
+    keepPgn: boolean = false,
   ) {
     try {
       const setup = parseFen(fen).unwrap()
@@ -131,7 +132,11 @@ export const useGameStore = defineStore('game', () => {
         humanPlayerColor = botTurnColor === 'white' ? 'black' : 'white'
       }
 
-      boardStore.setupPosition(fen, humanPlayerColor)
+      if (!keepPgn) {
+        boardStore.setupPosition(fen, humanPlayerColor)
+      } else {
+        boardStore.orientation = humanPlayerColor
+      }
 
       scenarioMoves.value = moves
       currentScenarioMoveIndex.value = 0

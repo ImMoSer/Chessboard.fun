@@ -13,6 +13,12 @@ export interface SessionMove {
   moveUci: string
   san: string
   phase: 'theory' | 'playout'
+  
+  // PGN Context
+  ply?: number
+  turn?: 'w' | 'b'
+  moveNumber?: number
+
   stats?: TheoryMove
 
   // Session metrics
