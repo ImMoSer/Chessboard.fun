@@ -5,14 +5,17 @@ import { useBoardStore } from '@/stores/board.store'
 import { useGameStore } from '@/stores/game.store'
 import { useThemeStore } from '@/stores/theme.store'
 import type { Key } from '@lichess-org/chessground/types'
+import { storeToRefs } from 'pinia'
 import { computed, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
+import EvalBar from './Analysis/EvalBar.vue'
 import WebChessBoard from './WebChessBoard.vue'
 
 const themeStore = useThemeStore()
 const boardStore = useBoardStore()
 const gameStore = useGameStore()
 const analysisStore = useAnalysisStore()
+const { analysisLines } = storeToRefs(analysisStore)
 const route = useRoute()
 
 const isAnimationEnabled = computed(() => themeStore.currentTheme.animationDuration > 0)
@@ -81,28 +84,41 @@ onUnmounted(() => {
           <slot name="top-info"></slot>
         </div>
 
-        <div class="board-aspect-wrapper">
-          <WebChessBoard
-            :fen="boardStore.fen"
-            :orientation="boardStore.orientation"
-            :turn-color="boardStore.turn"
-            :dests="boardStore.dests"
-            :last-move="boardStore.lastMove"
-            :check="boardStore.isCheck"
-            :promotion-state="boardStore.promotionState"
-            :drawable-shapes="boardStore.drawableShapes"
-            :is-analysis-mode="effectiveAnalysisMode"
-            :animation-enabled="isAnimationEnabled"
-            :animation-duration="themeStore.currentTheme.animationDuration"
-            @user-move="handleUserMove"
-            @check-premove="handleUserMove"
-            @complete-promotion="boardStore.completePromotion"
-            @cancel-promotion="boardStore.cancelPromotion"
-            @wheel-navigate="handleBoardWheel"
-          />
-          <!-- Center slot for overlays or additional content -->
-          <div class="center-column-overlay">
-            <slot name="center-column"></slot>
+        <div class="board-section">
+          <transition name="fade">
+            <div v-if="analysisStore.isAnalysisActive" class="eval-bar-wrapper">
+              <EvalBar
+                :score="analysisLines[0]?.score ?? null"
+                :wdl="analysisLines[0]?.wdl ?? null"
+                :turn="analysisLines[0]?.initialTurn"
+                :orientation="boardStore.orientation"
+              />
+            </div>
+          </transition>
+
+          <div class="board-aspect-wrapper">
+            <WebChessBoard
+              :fen="boardStore.fen"
+              :orientation="boardStore.orientation"
+              :turn-color="boardStore.turn"
+              :dests="boardStore.dests"
+              :last-move="boardStore.lastMove"
+              :check="boardStore.isCheck"
+              :promotion-state="boardStore.promotionState"
+              :drawable-shapes="boardStore.drawableShapes"
+              :is-analysis-mode="effectiveAnalysisMode"
+              :animation-enabled="isAnimationEnabled"
+              :animation-duration="themeStore.currentTheme.animationDuration"
+              @user-move="handleUserMove"
+              @check-premove="handleUserMove"
+              @complete-promotion="boardStore.completePromotion"
+              @cancel-promotion="boardStore.cancelPromotion"
+              @wheel-navigate="handleBoardWheel"
+            />
+            <!-- Center slot for overlays or additional content -->
+            <div class="center-column-overlay">
+              <slot name="center-column"></slot>
+            </div>
           </div>
         </div>
 
@@ -169,19 +185,28 @@ onUnmounted(() => {
 }
 
 /* Board always square, sized by viewport height logic, but constrained by panels */
+/* Board container remains a perfect square */
 .board-aspect-wrapper {
-  /*
-     Calc logic: 100vh - (padding + gaps + top/bottom panels approx height).
-     Safety margin to ensure it fits without scrolling on desktop.
-     Adjust 140px based on actual panel heights (~50px top + ~50px bottom + 40px paddings/gaps)
-  */
   width: calc(100vh - 140px);
   max-width: 100%;
   aspect-ratio: 1 / 1;
   position: relative;
   background-color: rgba(0, 0, 0, 0.1);
   border-radius: 4px;
-  flex-shrink: 1;
+  flex-shrink: 0; /* Important: don't shrink the square */
+}
+
+.board-section {
+  display: flex;
+  align-items: stretch;
+  gap: 4px; /* Tight fit */
+  height: calc(100vh - 140px);
+}
+
+.eval-bar-wrapper {
+  width: 12px;
+  height: 100%;
+  flex-shrink: 0;
 }
 
 .center-column-overlay {

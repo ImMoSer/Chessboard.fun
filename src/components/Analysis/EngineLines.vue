@@ -7,7 +7,6 @@ import { NButton, NCard, NIcon, NSelect, NSpace, NSwitch, NText, NTooltip } from
 import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import WinrateBar from '../MozerBook/WinrateBar.vue'
 
 const analysisStore = useAnalysisStore()
 const boardStore = useBoardStore()
@@ -108,17 +107,6 @@ const handleLineClick = (line: EvaluatedLineWithSan) => {
         </n-space>
       </n-space>
 
-      <!-- WDL Bar (Best Line Stats) -->
-      <transition name="fade">
-        <div v-if="analysisLines[0]?.wdl" class="wdl-wrapper">
-          <winrate-bar
-            :w="analysisLines[0].wdl.win"
-            :d="analysisLines[0].wdl.draw"
-            :l="analysisLines[0].wdl.loss"
-            :turn="analysisLines[0].initialTurn"
-          />
-        </div>
-      </transition>
     </n-card>
 
     <transition name="fade-slide">
@@ -222,11 +210,6 @@ const handleLineClick = (line: EvaluatedLineWithSan) => {
   .score-btn {
     min-width: 54px;
     border-radius: 6px;
-  }
-
-  .wdl-wrapper {
-    margin-top: 10px;
-    width: 100%;
   }
 
   .pv-text {
