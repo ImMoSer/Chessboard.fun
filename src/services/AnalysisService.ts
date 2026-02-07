@@ -5,7 +5,7 @@ import { makeSan } from 'chessops/san'
 import type { Color as ChessopsColor } from 'chessops/types'
 import { parseUci } from 'chessops/util'
 import logger from '../utils/logger'
-import type { AnalysisUpdateCallback, EvaluatedLine } from './MultiThreadEngineManager'
+import type { AnalysisUpdateCallback, EvaluatedLine, WdlStats } from './MultiThreadEngineManager'
 import { multiThreadEngineManager } from './MultiThreadEngineManager'
 import { singleThreadEngineManager } from './SingleThreadEngineManager'
 
@@ -14,6 +14,7 @@ export interface EvaluatedLineWithSan extends EvaluatedLine {
   startingFen: string
   initialFullMoveNumber: number
   initialTurn: ChessopsColor
+  wdl?: WdlStats
 }
 
 class AnalysisServiceController {
@@ -71,6 +72,12 @@ class AnalysisServiceController {
 
     await this.activeEngineManager.setOption('MultiPV', multiPV)
     await this.activeEngineManager.startAnalysis(fen, analysisUpdateCallback)
+  }
+
+  public async startNewGame() {
+    if (this.activeEngineManager === multiThreadEngineManager) {
+      await multiThreadEngineManager.startNewGame()
+    }
   }
 
   public async stopAnalysis() {

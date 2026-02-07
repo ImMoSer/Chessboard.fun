@@ -11,10 +11,17 @@ export interface ScoreInfo {
   value: number
 }
 
+export interface WdlStats {
+  win: number
+  draw: number
+  loss: number
+}
+
 export interface EvaluatedLine {
   id: number
   depth: number
   score: ScoreInfo
+  wdl?: WdlStats
   pvUci: string[]
 }
 
@@ -110,6 +117,18 @@ class MultiThreadEngineManagerController {
     }
   }
 
+  private getOptimalHashSize(): number {
+    try {
+      // Extended navigator interface to support deviceMemory
+      const nav = navigator as Navigator & { deviceMemory?: number }
+      const ramGb = nav.deviceMemory || 4
+      // If RAM >= 4GB, use 512MB. Otherwise use 64MB.
+      return ramGb >= 4 ? 512 : 64
+    } catch {
+      return 64
+    }
+  }
+
   private handleEngineMessage(message: string): void {
     const parts = message.split(' ')
 
@@ -117,6 +136,8 @@ class MultiThreadEngineManagerController {
       // Ensure NNUE is enabled and points to the correct file name (even if buffer is injected)
       this.sendCommand('setoption name Use NNUE value true')
       this.sendCommand('setoption name EvalFile value nn-4ca89e4b3abf.nnue')
+      this.sendCommand(`setoption name Hash value ${this.getOptimalHashSize()}`)
+      this.sendCommand('setoption name UCI_ShowWDL value true')
       this.sendCommand('isready')
     } else if (message === 'readyok') {
       this.isReady = true
@@ -138,6 +159,7 @@ class MultiThreadEngineManagerController {
       let currentLineId = 1,
         depth = 0
       let score: ScoreInfo | null = null
+      let wdl: WdlStats | undefined
       let pvUci: string[] = []
       const parts = line.split(' ')
       let i = 0
@@ -165,6 +187,21 @@ class MultiThreadEngineManagerController {
             }
             break
           }
+          case 'wdl': {
+            const winStr = parts[++i]
+            const drawStr = parts[++i]
+            const lossStr = parts[++i]
+
+            if (winStr && drawStr && lossStr) {
+              const win = parseInt(winStr, 10)
+              const draw = parseInt(drawStr, 10)
+              const loss = parseInt(lossStr, 10)
+              if (!isNaN(win) && !isNaN(draw) && !isNaN(loss)) {
+                wdl = { win, draw, loss }
+              }
+            }
+            break
+          }
           case 'pv':
             pvUci = parts.slice(i + 1)
             i = parts.length
@@ -173,7 +210,7 @@ class MultiThreadEngineManagerController {
         i++
       }
       if (score && pvUci.length > 0 && !isNaN(depth) && depth > 0) {
-        const parsedData = { id: currentLineId, depth, score, pvUci }
+        const parsedData: EvaluatedLine = { id: currentLineId, depth, score, wdl, pvUci }
         this.infiniteAnalysisCallback([parsedData], null)
       }
     } catch (error) {
@@ -185,9 +222,16 @@ class MultiThreadEngineManagerController {
     await this.ensureReady()
     if (!this.engine) return
     this.infiniteAnalysisCallback = callback
-    this.sendCommand('ucinewgame')
+    // ucinewgame removed to preserve hash. Use startNewGame() for explicit reset.
     this.sendCommand(`position fen ${fen}`)
     this.sendCommand('go infinite')
+  }
+
+  public async startNewGame(): Promise<void> {
+    await this.ensureReady()
+    if (!this.engine) return
+    this.sendCommand('ucinewgame')
+    this.sendCommand('isready')
   }
 
   public async stopAnalysis(): Promise<void> {

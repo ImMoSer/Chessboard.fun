@@ -107,6 +107,7 @@ export const useAnalysisStore = defineStore('analysis', () => {
     isAnalysisActive.value = !isAnalysisActive.value
 
     if (isAnalysisActive.value) {
+      await analysisService.startNewGame()
       await startCurrentPositionAnalysis()
     } else {
       analysisVersion++ // Немедленно делаем все текущие колбэки невалидными
