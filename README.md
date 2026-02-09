@@ -1,113 +1,98 @@
-# Chessboard.fun
+# ♟️ Chessboard.fun — Professional Chess Training Ecosystem
 
-An interactive web platform for chess enthusiasts, offering unique training modes, detailed statistics, and powerful analysis tools.
-
-## 🎯 Main Features
-
-### Training Modes
-
-- **🎯 Finish-Him (Conversion)** - Solve tactical puzzles and prove your advantage in endgames against Stockfish
-- **🧠 Automatic Tactical Trainer** - AI-powered personalized training across 25 tactical themes
-
-### Analysis & Statistics
-
-- **📊 Club Statistics** - Detailed statistics and leaderboards for Lichess chess clubs
-- **🏠 User Dashboard** - Personal statistics, favorite puzzles, and Lichess activity
-- **🔍 Analysis Panel** - Position analysis with Stockfish engine, variations, and PGN support
-
-## 🤖 Available Chess Bots
-
-Choose from several training bots with different skill levels:
-
-| Bot              | Rating | Engine          | Configuration                   |
-| ---------------- | ------ | --------------- | ------------------------------- |
-| 'Stockfish 2500' | 2500+  | Stockfish.js    | depth 12, contempt 100          |
-| 'MoZeR 2200+'    | 2200+  | LCZero+BadGyal8 | Human-like engine (server-side) |
-| 'Maia 2200'      | 2200+  | LCZero+Maia2200 | Human-like engine (server-side) |
-| 'Maia 1900'      | 1900+  | LCZero+Maia1900 | Human-like engine (server-side) |
-
-## 🛠️ Tech Stack
-
-- **Frontend**: TypeScript, Vue.js
-- **Backend**: n8n.io + Nest.js (for webhook processing and API)
-- **Chess Logic**: `chessops`
-- **Board Rendering**: `Chessground`
-- **Chess Engines**:
-  - Local: `Stockfish.js` + `Stockfish.wasm`
-  - Server: `LCZero` + `Maia 1900`
-- **API**: [Lichess API](https://lichess.org/api)
-
-## 🌐 Key Features
-
-- **🔗 Lichess Integration** - Login via Lichess account with full profile integration
-- **📈 Advanced Statistics** - Track tactical ratings, conversion ratings, games played, and FunCoins
-- **🧩 Lichess Puzzle & Evaluation Database** - Built on the comprehensive [Lichess puzzle database](https://database.lichess.org/#puzzles) and [evaluation database](https://database.lichess.org/#evals)
-- **🎨 Modern UI** - Clean, responsive interface built with TypeScript and Vue.js
-- **🌍 Localization** - Available in English, German, and Russian
-
-## 🤝 Contributing
-
-We welcome all contributions! If you have ideas, suggestions, or found a bug:
-
-1. Create an [issue](../../issues) to discuss your idea
-2. Fork the repository
-3. Create your feature branch
-4. Submit a [pull request](../../pulls)
-
-## 📄 License & Acknowledgements
-
-This project is licensed under the **GNU General Public License v3.0**.
-
-### Chess Engines
-
-#### Stockfish Chess Engine
-
-Game and move analysis powered by [Stockfish](https://stockfishchess.org/), an open-source chess engine distributed under GPLv3.
-
-> **Important**: Due to GPLv3 requirements, our source code is available under the same license. You can read the full text [here](https://www.gnu.org/licenses/gpl-3.0.html).
-
-#### Maia Chess Weights
-
-Human-like moves on the server are provided by **Maia Chess**, a project designed to play chess like a human. Maia uses neural networks trained on millions of human games to predict moves a player at a specific rating level would make.
-
-- [Website](https://maiachess.com/)
-- [GitHub](https://github.com/CSSLab/maia-chess)
-- [Lichess Bot](https://lichess.org/@/maia1)
-
-#### Leela Chess Zero (LCZero)
-
-To run Maia Chess neural network weights, the server uses **Leela Chess Zero**, another powerful open-source neural network chess engine.
-
-- [Website](https://lczero.org/)
-- [GitHub](https://github.com/LeelaChessZero/lc0)
-- Special thanks to dkappe for the "Bad Gyal" Leela Chess Zero weights: [Bad Gyal Weights](https://github.com/dkappe/leela-chess-weights/wiki/Bad-Gyal)
-
-### Libraries & Tools
-
-#### Chessground
-
-Interactive chessboard rendered using [Chessground](https://github.com/lichess-org/chessground) from the Lichess team ([GPLv3](https://www.gnu.org/licenses/gpl-3.0.html) License).
-
-#### Chessops
-
-Core chess logic implemented using [Chessops](https://github.com/niklasf/chessops), a modern, modular library for move generation, legality checks, and FEN/PGN handling.
-
-### Special Thanks
-
-- **Lichess** - For the amazing API and open puzzle database
-- **n8n.io** - For the flexible automation platform that forms the core of the backend
-- **All contributors** and the chess community for their support and feedback
-
-## 👨‍💻 About the Author
-
-Hello! My name is **Moser**. I was born in 1985 in Kazakhstan and have been living in Germany since 2003.
-
-By trade, I'm a mechanical engineer, but I've been passionate about chess my whole life. This project is a long-held dream of mine to create a convenient training tool, which became possible thanks to modern technologies like AI and the n8n platform.
-
-I am fluent in Russian and German, and also know some English.
-
-Thank you for using Chessboard.fun!
+**Chessboard.fun** — это высокотехнологичная интерактивная платформа, созданная для шахматистов, которые стремятся к профессиональному уровню подготовки. Мы объединяем глубину компьютерного анализа с реалистичностью человеческой игры, создавая уникальную среду для отработки дебютов, тактики и эндшпиля.
 
 ---
 
-_Made with ❤️ for chess enthusiasts everywhere_
+## 🎯 Миссия и Видение
+Мы верим, что разрыв между любительской игрой и гроссмейстерской подготовкой можно сократить с помощью правильных инструментов. 
+- **Глубина вместо упрощения**: Каждый ход анализируется профессиональными движками.
+- **Human-centric AI**: Мы не просто даем «идеальные» ходы, мы симулируем человеческие ошибки с помощью моделей Maia.
+- **Интеграция теории**: Ваша тренировка неразрывно связана с дебютным репертуаром и теорией эндшпиля.
+
+---
+
+## 🎮 Игровые режимы (Training Ecosystem)
+
+### 🥇 Diamond Hunter (Флагманская фишка)
+Превратите поиск гениальных ходов из случайности в дисциплинированный навык.
+- **Hunt & Secure**: Найдите «Бриллиант» (`!!`), отразите атаку и закрепите успех, повторив всю линию по памяти.
+- **Gravity Map**: Визуализация тактического напряжения на доске с помощью тепловых карт и направляющих стрелок.
+
+### ⚔️ Finish Him (Конвертация преимущества)
+Многие умеют выигрывать фигуры, но немногие — доводить партию до победы.
+- **Реальное сопротивление**: Выберите оппонента (от Stockfish 18 до человекоподобных Maia), который будет защищаться до последнего.
+- **План на победу**: Играйте позиции с перевесом +2.0 до мата или явной капитуляции.
+
+### 🌪️ Tornado (Тактический штурм)
+Выработка «мышечной памяти» для тактических паттернов в условиях цейтнота.
+- **Time Controls**: От 1 минуты (Bullet) до 10 минут (Classic).
+- **Thematic Focus**: Тренируйте конкретные мотивы (связки, вилки, вскрытые шахи) или используйте адаптивный микс.
+
+### 📖 Open Sparring & Repertoire
+Ваша персональная шахматная лаборатория.
+- **Interactive Study Tree**: Управляйте бесконечными деревьями вариантов с визуальной иерархией.
+- **MozerBook**: Проверяйте свои идеи против актуальной теории мастеров и рейтинговой статистики Lichess.
+- **Remote Commentator**: Получайте текстовые пояснения и стратегические подсказки в реальном времени.
+
+---
+
+## 🤖 Мозг платформы (AI & Engines)
+Система использует распределенную архитектуру движков для различных задач:
+
+| Движок | Роль | Характер игры |
+| :--- | :--- | :--- |
+| **Stockfish 18** | «Абсолютная истина» | Математически безупречен, беспощаден. |
+| **Maia 1900/2200** | «Человеческий спарринг» | Симулирует ошибки и ловушки игроков соответствующего рейтинга. |
+| **BadGyal 8** | «Тактический агрессор» | Острый, атакующий стиль, ориентированный на тактические сложности. |
+
+---
+
+## 📊 Аналитика и достижение мастерства
+Мы превращаем ваши тренировки в понятные данные через **User Cabinet**:
+- **Nightingale Rose Charts**: Тактический «отпечаток пальца», визуализирующий вашу силу в десятках различных тем.
+- **Mastery Ladder**: Трехуровневая система прогресса (**Novice**, **Pro**, **Master**) для каждой области знаний.
+- **Hall of Fame**: Соревновательные таблицы лидеров, интегрированные с вашим профилем Lichess.
+
+---
+
+## 💎 Экономика и Сообщество
+Платформа глубоко интегрирована в экосистему **Lichess Clubs**:
+- **Play-to-Earn**: Активное участие в турнирах вашего клуба дает автоматические апгрейды тиров (**Knight**, **Bishop**, **Rook**).
+- **FunCoins**: Ресурс для глубокого движкового анализа и премиальных тренировок.
+- **Transparent Status**: Профессиональные типы аккаунтов с расширенным облачным хранилищем для репертуаров.
+
+---
+
+## 🛠️ Технический стек
+- **Frontend**: Vue.js 3.5+ (Composition API), TypeScript (Strict), Vite, Pinia, Naive UI.
+- **Backend**: NestJS (Node.js), FastAPI (Python) для тяжелых вычислений.
+- **Infrastructure**: Supabase (PostgreSQL), Redis/SQLite (Caching), Docker & Kubernetes.
+- **Automation**: n8n.io (Nervous system of backend orchestration).
+- **Chess Core**: Chessground, Chessops, Stockfish.js/wasm.
+
+## 📚 Документация
+Подробные технические описания архитектуры и режимов доступны в папке `tech_docs`:
+1. [Overview & Mission](tech_docs/01_Project_Overview_Mission.md)
+2. [Technical Stack](tech_docs/02_Technical_Stack.md)
+3. [Architecture](tech_docs/03_Architecture_Overview.md)
+4. [Game Modes Details](tech_docs/04_GameModes_Overview.md)
+5. [Economy & Analytics](tech_docs/05_1_User_Cabinet.md)
+
+---
+
+## 🏛️ Благодарности (Credits)
+Реализация платформы такого масштаба была бы невозможна без открытых данных и инструментов сообщества:
+- **Lichess.org**: За API, открытую базу задач и базу оценок.
+- **Stockfish**: Сильнейший в мире шахматный движок.
+- **Leela Chess Zero (LCZero) & Maia Chess**: За нейросетевой интеллект и человекоподобную игру.
+- **Chessops & Chessground**: За безупречную шахматную логику и рендеринг доски.
+- **n8n.io**: За мощную платформу автоматизации рабочих процессов.
+
+---
+
+## 👨‍💻 Об авторе
+**Moser** (род. 1985) — инженер-механик, шахматный энтузиаст и разработчик. **Chessboard.fun** — это воплощение многолетней мечты о создании профессионального инструмента для эффективного обучения шахматам.
+
+---
+_Лицензия: GNU General Public License v3.0 | Открытый исходный код фронтенда доступен для сообщества. Сделано с ❤️ для шахматистов всего мира._
