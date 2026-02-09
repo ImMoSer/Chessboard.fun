@@ -163,7 +163,7 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
-  gap: 10px;
+  gap: 3px;
   min-width: min-content; /* Ensure it doesn't shrink below board size */
   height: 100%;
 }
@@ -199,8 +199,7 @@ onUnmounted(() => {
 .board-section {
   display: flex;
   align-items: stretch;
-  gap: 4px; /* Tight fit */
-  height: calc(100vh - 140px);
+  gap: 3px; /* Tight fit */
 }
 
 .eval-bar-wrapper {
