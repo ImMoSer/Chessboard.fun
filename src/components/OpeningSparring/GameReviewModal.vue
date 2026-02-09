@@ -1,28 +1,28 @@
 <!-- src/components/OpeningSparring/GameReviewModal.vue -->
 <script setup lang="ts">
 import {
-  BulbOutline,
-  PulseOutline,
-  RefreshOutline,
-  TrendingDownOutline,
-  SearchOutline,
+    BulbOutline,
+    PulseOutline,
+    RefreshOutline,
+    SearchOutline,
+    TrendingDownOutline,
 } from '@vicons/ionicons5'
 import {
-  NButton,
-  NGrid,
-  NGridItem,
-  NIcon,
-  NList,
-  NListItem,
-  NModal,
-  NSpace,
-  NStatistic,
-  NTag,
-  NText,
+    NButton,
+    NGrid,
+    NGridItem,
+    NIcon,
+    NList,
+    NListItem,
+    NModal,
+    NSpace,
+    NStatistic,
+    NTag,
+    NText,
 } from 'naive-ui'
 import { ref, watch } from 'vue'
-import { useOpeningSparringStore } from '../../stores/openingSparring.store'
 import type { GameReport } from '../../services/GameReviewService'
+import { useOpeningSparringStore } from '../../stores/openingSparring.store'
 
 const props = defineProps<{
   show: boolean
@@ -65,7 +65,7 @@ watch(
       </n-icon>
       <n-text>Analyzing your game...</n-text>
     </div>
-    
+
     <div v-else-if="report" class="report-content">
       <n-space vertical size="large">
         <div class="summary-text">
@@ -108,7 +108,7 @@ watch(
                     {{ moment.quality.toUpperCase() }}
                     </n-tag>
                     <n-text strong>Move {{ moment.moveNumber }}</n-text>
-                    <n-text depth="3" class="move-uci">{{ moment.moveUci }}</n-text>
+                    <n-text depth="3" class="move-san">{{ moment.moveSan }}</n-text>
                     <n-text type="error" class="score-diff">Loss: {{ (moment.scoreDiff / 100).toFixed(1) }}</n-text>
                 </div>
                 <div class="moment-explanation">
@@ -119,7 +119,7 @@ watch(
             </n-list-item>
           </n-list>
         </div>
-        
+
         <div v-else class="perfect-game">
             <n-text type="success">No significant errors found in playout phase!</n-text>
         </div>
@@ -190,11 +190,13 @@ watch(
     gap: 8px;
 }
 
-.move-uci {
-    font-family: monospace;
-    background: rgba(0,0,0,0.2);
-    padding: 2px 4px;
+.move-san {
+    font-family: inherit;
+    background: rgba(var(--color-accent-rgb), 0.15);
+    color: var(--color-accent);
+    padding: 2px 8px;
     border-radius: 4px;
+    font-weight: 700;
 }
 
 .moment-explanation {

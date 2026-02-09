@@ -109,21 +109,33 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   const movesCount = computed(() => sessionHistory.value.length)
 
   const averageAccuracy = computed(() => {
-    if (movesCount.value === 0) return 0
-    const sum = sessionHistory.value.reduce((acc, m) => acc + (m.accuracy ?? m.popularity ?? 0), 0)
-    return Math.round(sum / movesCount.value)
+    const playerMoves = sessionHistory.value.filter(m =>
+      (m.turn === 'w' && playerColor.value === 'white') ||
+      (m.turn === 'b' && playerColor.value === 'black')
+    )
+    if (playerMoves.length === 0) return 0
+    const sum = playerMoves.reduce((acc, m) => acc + (m.accuracy ?? m.popularity ?? 0), 0)
+    return Math.round(sum / playerMoves.length)
   })
 
   const averageWinRate = computed(() => {
-    if (movesCount.value === 0) return 0
-    const sum = sessionHistory.value.reduce((acc, m) => acc + (m.winRate ?? 0), 0)
-    return Math.round(sum / movesCount.value)
+    const playerMoves = sessionHistory.value.filter(m =>
+      (m.turn === 'w' && playerColor.value === 'white') ||
+      (m.turn === 'b' && playerColor.value === 'black')
+    )
+    if (playerMoves.length === 0) return 0
+    const sum = playerMoves.reduce((acc, m) => acc + (m.winRate ?? 0), 0)
+    return Math.round(sum / playerMoves.length)
   })
 
   const averageRating = computed(() => {
-    if (movesCount.value === 0) return 0
-    const sum = sessionHistory.value.reduce((acc, m) => acc + (m.rating ?? 0), 0) // Fixed: was m.stats.perf
-    return Math.round(sum / movesCount.value)
+    const playerMoves = sessionHistory.value.filter(m =>
+      (m.turn === 'w' && playerColor.value === 'white') ||
+      (m.turn === 'b' && playerColor.value === 'black')
+    )
+    if (playerMoves.length === 0) return 0
+    const sum = playerMoves.reduce((acc, m) => acc + (m.rating ?? 0), 0)
+    return Math.round(sum / playerMoves.length)
   })
 
   async function initializeSession(color: 'white' | 'black', startMoves: string[] = []) {
