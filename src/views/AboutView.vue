@@ -17,6 +17,10 @@ const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
     <h2>{{ t('about.sections.mainModesTitle') }}</h2>
     <ul>
       <li>
+        <strong>{{ t('about.modes.automaticTacticalTrainerTitle') }}</strong
+        >{{ t('about.modes.automaticTacticalTrainer') }}
+      </li>
+      <li>
         <strong>{{ t('about.modes.conversionTitle') }}</strong
         >{{ t('about.modes.conversion') }}
       </li>
@@ -61,10 +65,10 @@ const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
         <strong>{{ t('about.modes.botSelectionTitle') }}</strong
         >{{ t('about.modes.botSelectionIntro') }}
         <ul class="bot-list">
-          <li><strong>'Stockfish 2500'</strong>{{ t('about.modes.bots.stockfish_2500') }}</li>
-          <li><strong>'MoZeR 2200+'</strong>{{ t('about.modes.bots.mozer_2200') }}</li>
-          <li><strong>'Maia 2200'</strong>{{ t('about.modes.bots.maia_2200') }}</li>
-          <li><strong>'Maia 1900'</strong>{{ t('about.modes.bots.maia_1900') }}</li>
+          <li><strong>SF-18</strong>{{ t('about.modes.bots.stockfish_2500') }}</li>
+          <li><strong>BG-8</strong>{{ t('about.modes.bots.mozer_2200') }}</li>
+          <li><strong>M-2200</strong>{{ t('about.modes.bots.maia_2200') }}</li>
+          <li><strong>M-1900</strong>{{ t('about.modes.bots.maia_1900') }}</li>
         </ul>
       </li>
     </ul>

@@ -50,15 +50,33 @@
       "start": "Practice now"
     },
     "categories": {
-      "extra_pawn": { "icon": "♟️" },
-      "material_equality": { "icon": "⚖️" },
-      "bishops": { "icon": "♗" },
-      "knights": { "icon": "♘" },
-      "pawns": { "icon": "♙" },
-      "queens": { "icon": "♕" },
-      "rooks": { "icon": "♖" },
-      "exchange": { "icon": "🔄" },
-      "knight_vs_bishop": { "icon": "♘♗" }
+      "extra_pawn": {
+        "icon": "♟️"
+      },
+      "material_equality": {
+        "icon": "⚖️"
+      },
+      "bishops": {
+        "icon": "♗"
+      },
+      "knights": {
+        "icon": "♘"
+      },
+      "pawns": {
+        "icon": "♙"
+      },
+      "queens": {
+        "icon": "♕"
+      },
+      "rooks": {
+        "icon": "♖"
+      },
+      "exchange": {
+        "icon": "🔄"
+      },
+      "knight_vs_bishop": {
+        "icon": "♘♗"
+      }
     }
   },
   "common": {
@@ -85,7 +103,6 @@
         "title": "Finish Him",
         "content": "First solve a tactical puzzle, then prove your advantage in the endgame against your chosen engine. Skill Points are awarded for wins and equal the sum of material on the board (♟=1, ♞♝=3, ♜=5, ♛=9). Draws and losses give no points. Completion time is also recorded for leaderboards."
       },
-
       "tornado": {
         "title": "Tornado",
         "content": "Four time controls available: 1+1, 3+2, 5+3, and 10+5 (separate rating in each). Solve as many puzzles as possible within the time limit. Rating calculated using the Glicko2 system based on puzzle difficulty and time spent. Each solved puzzle awards 1 Skill Point."
@@ -100,7 +117,6 @@
         "title": "Theory Records",
         "content": "Player rankings by points earned in theoretical endgames. You can switch between themes to see the leaders in each category."
       },
-
       "overallSkill": {
         "title": "Overall Skill Rating",
         "content": "Total Skill Points earned across all game modes for the selected period: week, 14 days, 21 days, or month. Skill Points equal the material sum (♟=1, ♞♝=3, ♜=5, ♛=9) in Finish Him mode. In Tornado mode, each puzzle awards 1 point. Only wins count."
@@ -148,15 +164,16 @@
     "limitModal": {
       "title": "Subscription Limit Reached",
       "message": "Your current subscription tier \"{tier}\" allows saving up to {limit} chapters on the server. All other chapters are stored locally on your device and may be lost if browser cache is cleared.",
-              "confirm": "Pricing & Tiers",
-              "cancel": "Got it"
-            },
-            "sizeModal": {
-              "title": "Chapter Too Large",
-              "message": "This chapter is too large to be saved in the cloud (limit is 15,000 characters). Please split your repertoire into multiple chapters to save it to the server.",
-              "confirm": "Got it"
-            },
-            "notifications": {      "updated": "Chapter updated in cloud!",
+      "confirm": "Pricing & Tiers",
+      "cancel": "Got it"
+    },
+    "sizeModal": {
+      "title": "Chapter Too Large",
+      "message": "This chapter is too large to be saved in the cloud (limit is 15,000 characters). Please split your repertoire into multiple chapters to save it to the server.",
+      "confirm": "Got it"
+    },
+    "notifications": {
+      "updated": "Chapter updated in cloud!",
       "savedAsCopy": "Chapter saved as your own copy!",
       "saved": "Chapter saved to cloud!",
       "shareLinkCopied": "Share link copied to clipboard!",
@@ -277,7 +294,6 @@
       "evaluation": "Our Evaluation"
     }
   },
-
   "tacktics": {
     "feedback": {
       "getReady": "Press 'Play Button' to start.",
@@ -381,7 +397,6 @@
       },
       "today": "Today",
       "noData": "No data for the selected period.",
-
       "success": "Success",
       "accuracy": "Accuracy",
       "attempts": "attempts",
@@ -477,122 +492,121 @@
   },
   "about": {
     "title": "Chessboard.fun",
-    "intro": " is an interactive web platform for chess enthusiasts, offering unique training modes, detailed statistics, and powerful analysis tools.",
+    "intro": " is a professional chess training ecosystem designed to bridge the gap between amateur play and Grandmaster-level preparation through deep analysis and realistic AI sparring.",
     "sections": {
-      "mainModesTitle": "Main Modes",
-      "keyFeaturesTitle": "Key Features",
-      "techStackTitle": "Tech Stack",
-      "contributingTitle": "Contributing",
-      "licenseAndAcknowledgementsTitle": "Licensing and Acknowledgements"
+      "mainModesTitle": "Training Ecosystem",
+      "keyFeaturesTitle": "Flagship Features & Innovation",
+      "techStackTitle": "Advanced Tech Stack",
+      "contributingTitle": "Contributing & Community",
+      "licenseAndAcknowledgementsTitle": "Licensing & Acknowledgements"
     },
     "modes": {
-      "conversionTitle": "Finish-Him: ",
-      "conversion": "A unique mode where you first solve a tactical puzzle and then must prove your advantage in the endgame by playing against the Stockfish engine.",
-
-      "automaticTacticalTrainerTitle": "Automatic Tactical Trainer: ",
-      "automaticTacticalTrainer": "Unlike standard trainers, our smart system turns puzzle-solving into a personalized path to mastery. It analyzes your profile across 25 tactical themes (fork, pin, discovered attack, etc.), identifies your weakest areas, and automatically selects the puzzle that will benefit you the most right now. After each answer, your rating for that theme is instantly updated, ensuring the next puzzle perfectly matches your current skill level.",
-      "botSelectionTitle": "Chess Bot Selection: ",
-      "botSelectionIntro": "On our platform, you can choose from several chess bots for training:",
+      "conversionTitle": "Conversion Mastery (Finish Him): ",
+      "conversion": "Master the art of winning won positions. Proves your advantage against elite engines until Mate or clear resignation.",
+      "automaticTacticalTrainerTitle": "Diamond Hunter (The Search for !!): ",
+      "automaticTacticalTrainer": "Our flagship mode. Transform the discovery of brilliant moves into a repeatable skill. Use Gravity Maps to find 'Diamonds', refute blunders, and secure achievements by replaying lines from memory.",
+      "botSelectionTitle": "Engine & AI Intelligence: ",
+      "botSelectionIntro": "Choose your sparring partner based on your training goals:",
       "bots": {
-        "stockfish_2500": " (Stockfish.js - local: depth 12, contempt 100)",
-        "mozer_2200": " (LCZero+BadGyal8 - Human-like engine (server-side))",
-        "maia_2200": " (LCZero+Maia2200 - Human-like engine (server-side))",
-        "maia_1900": " (LCZero+Maia1900 - Human-like engine (server-side))"
+        "stockfish_2500": " (Stockfish 18 - Absolute truth, mathematically perfect defense)",
+        "mozer_2200": " (BadGyal 8 - Aggressive tactical opponent optimized for classification)",
+        "maia_2200": " (Maia 2200 - Master-level human-like play and realistic error patterns)",
+        "maia_1900": " (Maia 1900 - Club-level human-like play with typical amateur traps)"
       },
-      "userCabinetTitle": "User Dashboard: ",
-      "userCabinet": "Your personal dashboard with statistics for all game modes and a list of your favorite puzzles.",
-      "analysisPanelTitle": "Analysis Panel: ",
-      "analysisPanel": "A powerful tool for analyzing any position with the Stockfish engine, viewing variations, and PGN."
+      "userCabinetTitle": "Tactical Fingerprint: ",
+      "userCabinet": "Your personal command center. Visualize your technical DNA with Nightingale Rose charts across 25+ tactical themes.",
+      "analysisPanelTitle": "Strategy Studio: ",
+      "analysisPanel": "Professional variations management, infinite-depth tree navigation, and real-time MozerBook validation."
     },
     "features": {
-      "lichessIntegrationTitle": "Lichess Integration: ",
-      "lichessIntegration": "Log in via your Lichess account and use your profile.",
-      "advancedStatsTitle": "Advanced Statistics: ",
-      "advancedStats": "Track your tactical and FinishHim ratings, number of games played, FunCoins, and more.",
-      "puzzleDatabaseTitle": "Lichess Puzzle Database: ",
-      "puzzleDatabase": "All puzzles in the application are based on the vast and high-quality Lichess puzzle database: ",
-      "modernUITitle": "Modern UI: ",
-      "modernUI": "A clean, responsive, and intuitive interface built with TypeScript and Vue.js.",
-      "localizationTitle": "Localization: ",
-      "localization": "Support for English, German and Russian languages."
+      "lichessIntegrationTitle": "Lichess Verification: ",
+      "lichessIntegration": "Safe OAuth login and direct linking of achievements to your Lichess profile.",
+      "advancedStatsTitle": "Mastery Ladder: ",
+      "advancedStats": "Track your progress through Novice, Pro, and Master tiers in every endgame and opening chapter.",
+      "puzzleDatabaseTitle": "Elite Foundations: ",
+      "puzzleDatabase": "Leveraging the high-quality Lichess puzzle and evaluation databases: ",
+      "modernUITitle": "Reactive Design: ",
+      "modernUI": "A premium, high-performance interface built with Vue.js 3.5 and strict TypeScript.",
+      "localizationTitle": "Global Reach: ",
+      "localization": "Full support for English, German, and Russian localized environments."
     },
     "techStack": {
       "frontend": "Frontend: ",
-      "frontendStack": "TypeScript, Vue.js",
-      "backend": "Backend: ",
-      "backendStack": "n8n.io + Nest.js (for webhook processing and API)",
-      "chessLogic": "Chess Logic: ",
-      "chessLogicStack": "`chessops`",
-      "boardRendering": "Board Rendering: ",
-      "boardRenderingStack": "`Chessground`",
-      "chessEngine": "Chess Engine: ",
-      "chessEngineStack": "`local: Stockfish.js + Stockfish.wasm, Server: LCZero + Maia 1900`",
-      "api": "API: ",
-      "apiStack": "Lichess API ("
+      "frontendStack": "Vue 3.5 (Composition API), Vite, Pinia, Naive UI",
+      "backend": "Orchestration: ",
+      "backendStack": "NestJS (Node.js) & FastAPI (Python) distributed architecture",
+      "chessLogic": "Core Logic: ",
+      "chessLogicStack": "Chessops & Chessground high-performance engines",
+      "boardRendering": "Data Visualization: ",
+      "boardRenderingStack": "Apache ECharts for complex analytics",
+      "chessEngine": "Analysis Cluster: ",
+      "chessEngineStack": "Stockfish 18, LCZero (Maia/BadGyal), n8n workflow core",
+      "api": "Protocols: ",
+      "apiStack": "Lichess REST API & OAuth2 ("
     },
-    "contributing": "We welcome all contributions to the project! If you have ideas, suggestions, or have found a bug, please create an `issue` or a `pull request`.",
+    "contributing": "We welcome all contributions to make Chessboard.fun the ultimate training tool! If you have ideas or found a bug, please create an issue or a PR on GitHub.",
     "licenseAndAcknowledgements": {
-      "gplIntro": "This project is licensed under the GNU General Public License v3.0.",
+      "gplIntro": "This project is licensed under the GNU General Public License v3.0, promoting transparency and community growth.",
       "stockfish": {
-        "title": "Stockfish Chess Engine",
-        "text1": "Game and move analysis in this application is powered by ",
-        "text2": ", an open-source chess engine distributed under the ",
-        "gplNoteTitle": "Important Note on the GPLv3 License: ",
-        "gplNote": "The use of a library under the GPLv3 license requires us to make the source code of our own project open and available under the same or a compatible license.",
-        "projectSourceCode": "Project Source Code: Available in this repository",
-        "licenseText": "You can read the full text of the GPLv3 license here: ",
-        "gratitude": "We extend our deepest gratitude to the Stockfish team for their incredible work."
+        "title": "Stockfish 18",
+        "text1": "Analysis and truth-seeking are powered by ",
+        "text2": ", the world's strongest open-source chess engine.",
+        "gplNoteTitle": "GPLv3 Commitment: ",
+        "gplNote": "In accordance with the GPLv3, our source code is open and available for the benefit of the global chess community.",
+        "projectSourceCode": "Source Code: Repository public on GitHub",
+        "licenseText": "View full GPLv3 text: ",
+        "gratitude": "Deepest gratitude to the Stockfish team for defining the standard of chess evaluation."
       },
       "maia": {
-        "title": "Maia Chess Engine",
-        "text": "Human-like moves on the server are provided by **Maia Chess**, a project designed to play chess like a human. Maia uses neural networks trained on millions of human games to predict the moves a player at a specific rating level would make. We are grateful to the Maia team for their innovative approach to creating chess engines.",
+        "title": "Maia & BadGyal",
+        "text": "Realistic sparring is provided by **Maia Chess** and specialized **BadGyal** weights. These neural networks are trained on millions of games to predict moves that feel human, not mechanical. Special thanks to the CSSLab and dkappe for these incredible weights.",
         "links": {
-          "website": "Website",
-          "github": "GitHub",
-          "lichessBot": "Lichess Bot"
+          "website": "Maia Website",
+          "github": "Maia GitHub",
+          "lichessBot": "Spar Against Maia"
         }
       },
       "lcZero": {
         "title": "Leela Chess Zero (LCZero)",
-        "text": "To run Maia Chess neural network weights, the server uses the **Leela Chess Zero** engine, another powerful open-source neural network chess engine. Many thanks to the Leela Chess Zero community for this incredible project.",
+        "text": "Our neural engine layer runs on **LCZero**, the pioneering open-source engine that brought AI-driven chess to the masses. Respect to the LCZero community.",
         "links": {
-          "website": "Website",
-          "github": "GitHub"
+          "website": "LCZero Hub",
+          "github": "LCZero Repo"
         }
       },
       "chessground": {
         "title": "Chessground",
-        "text1": "The interactive chessboard is rendered using the ",
-        "text2": " library from the Lichess team, which is distributed under the **GPLv3 License**. ",
-        "gratitude": "Thank you to Lichess for this wonderful tool."
+        "text1": "Board rendering is powered by the ultra-fast ",
+        "text2": " engine by the Lichess team.",
+        "gratitude": "Thank you, Lichess, for the best board renderer in the world."
       },
       "chessops": {
         "title": "Chessops",
-        "text": "All core chess logic, such as move generation, legality checks, and handling of FEN/PGN formats, is implemented using the **Chessops** library. It is a modern, modular, and efficient library created by the Lichess team.",
-        "gratitude": "Thank you to the Lichess team for this reliable library."
+        "text": "Move generation, legality checks, and PGN/FEN parsing are handled by the modular **Chessops** library.",
+        "gratitude": "A vital tool for any modern chess application."
       },
-      "otherCreditsTitle": "Special Thanks",
+      "otherCreditsTitle": "Technical Foundations",
       "credits": {
-        "lichess": "Lichess - for the amazing API and open puzzle database.",
-        "n8n": "n8n.io - for the flexible automation platform that forms the core of the backend.",
-        "community": "All contributors and the chess community for their support and feedback."
+        "lichess": "Lichess.org - For the API, puzzle DB, and evaluation sets.",
+        "n8n": "n8n.io - The flexible nervous system of our backend orchestration.",
+        "community": "All contributors and testers who help refine the dream of perfect training."
       }
     },
     "author": {
-      "photoAlt": "Author Photo",
-      "title": "A few words from the author",
-      "bioPart1": "Hello! My name is Moser. I was born in 1985 in Kazakhstan and have been living in Germany since 2003.",
-      "bioPart2": "By trade, I'm a mechanical engineer, but I've been passionate about chess my whole life. This project is a long-held dream of mine to create a convenient training tool, which became possible thanks to modern technologies like AI and the n8n platform.",
-      "bioPart3": "I am fluent in Russian and German, and also know some English. Thank you for using Chessboard.fun!",
+      "photoAlt": "Project Architect",
+      "title": "The Mission & The Maker",
+      "bioPart1": "I'm Moser, a mechanical engineer and lifelong chess student. Born in Kazakhstan (1985), living in Germany (2003).",
+      "bioPart2": "Chessboard.fun is my dream of a professional tool that empowers players to study effectively, which only became possible through modern AI and workflow automation.",
+      "bioPart3": "Fluent in Russian and German, always polishing my English. Thank you for joining this journey!",
       "supportButtonText": "Buy me a coffee"
     },
     "contact": {
-      "telegram": "Telegram Channel",
+      "telegram": "Telegram",
       "email": "Email",
       "github": "GitHub",
       "separator": ": "
     },
-    "footerNote": "Made with ❤️ for chess enthusiasts everywhere"
+    "footerNote": "Built with ❤️ for those who seek chess mastery."
   },
   "tornado": {
     "modes": {
@@ -728,16 +742,36 @@
       "Master": "Master"
     },
     "categories": {
-      "auto": { "icon": "✨" },
-      "pawn_endgame": { "icon": "♔♟" },
-      "bishop_endgame": { "icon": "♗♙" },
-      "knight_endgame": { "icon": "♘♙" },
-      "queen_endgame": { "icon": "♕♙" },
-      "rook_pawn_endgame": { "icon": "♖♙" },
-      "rook_pieces_endgame": { "icon": "♖♘♗" },
-      "knight_vs_bishop": { "icon": "♘♗" },
-      "queen_pieces_endgame": { "icon": "♕♘♗" },
-      "expert_endgame": { "icon": "🎓" }
+      "auto": {
+        "icon": "✨"
+      },
+      "pawn_endgame": {
+        "icon": "♔♟"
+      },
+      "bishop_endgame": {
+        "icon": "♗♙"
+      },
+      "knight_endgame": {
+        "icon": "♘♙"
+      },
+      "queen_endgame": {
+        "icon": "♕♙"
+      },
+      "rook_pawn_endgame": {
+        "icon": "♖♙"
+      },
+      "rook_pieces_endgame": {
+        "icon": "♖♘♗"
+      },
+      "knight_vs_bishop": {
+        "icon": "♘♗"
+      },
+      "queen_pieces_endgame": {
+        "icon": "♕♘♗"
+      },
+      "expert_endgame": {
+        "icon": "🎓"
+      }
     },
     "feedback": {
       "pressNext": "Press 'Play' to start.",
