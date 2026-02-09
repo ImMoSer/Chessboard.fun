@@ -1,22 +1,26 @@
 <script setup lang="ts">
-import { computed, h } from 'vue'
-import { 
-    NDataTable, NText, NTag, NTooltip, NPopover, NIcon, 
-    type DataTableColumns,
-    type DataTableBaseColumn
-} from 'naive-ui'
-import { 
-    FlameOutline, 
-    EyeOutline, 
-    ShieldCheckmarkOutline,
-    WarningOutline,
-    ExtensionPuzzleOutline,
-    FlashOutline
-} from '@vicons/ionicons5'
-import { useOpeningSparringStore } from '../../stores/openingSparring.store'
-import { useBoardStore } from '../../stores/board.store'
-import { type SessionMove } from '../../types/openingSparring.types'
 import { type Key } from '@lichess-org/chessground/types'
+import {
+    ExtensionPuzzleOutline,
+    EyeOutline,
+    FlameOutline,
+    FlashOutline,
+    ShieldCheckmarkOutline
+} from '@vicons/ionicons5'
+import {
+    NDataTable,
+    NIcon,
+    NPopover,
+    NTag,
+    NText,
+    NTooltip,
+    type DataTableBaseColumn,
+    type DataTableColumns
+} from 'naive-ui'
+import { computed, h } from 'vue'
+import { useBoardStore } from '../../stores/board.store'
+import { useOpeningSparringStore } from '../../stores/openingSparring.store'
+import { type SessionMove } from '../../types/openingSparring.types'
 
 const openingStore = useOpeningSparringStore()
 const boardStore = useBoardStore()
@@ -30,9 +34,9 @@ interface PlayoutPair {
 const playoutPairs = computed(() => {
     const allPlayout = openingStore.sessionHistory.filter(m => m.phase === 'playout')
     if (allPlayout.length === 0) return []
-    
+
     const groups = new Map<number, { white: SessionMove | null, black: SessionMove | null }>()
-    
+
     for (const move of allPlayout) {
         const num = move.moveNumber || 0
         if (!groups.has(num)) {
@@ -49,7 +53,7 @@ const playoutPairs = computed(() => {
             pair.black = move
         }
     }
-    
+
     return Array.from(groups.entries())
         .sort((a, b) => a[0] - b[0])
         .map(([num, pair]) => ({
@@ -65,32 +69,24 @@ const getQualityColor = (quality?: string) => {
         case 'mistake': return '#ff9800'
         case 'inaccuracy': return '#ffeb3b'
         case 'good': return '#4caf50'
+        case 'great': return '#2196f3'
         case 'best': return '#2196f3'
         case 'brilliant': return '#9c27b0'
+        case 'interesting': return '#00bcd4'
         default: return 'transparent'
     }
 }
 
-const getQualityText = (quality?: string) => {
-    switch (quality) {
-        case 'blunder': return '??'
-        case 'mistake': return '?'
-        case 'inaccuracy': return '?!'
-        case 'best': return '!'
-        case 'brilliant': return '!!'
-        default: return ''
-    }
-}
 
 const renderMoveCell = (move: SessionMove | null) => {
     if (!move) return null
     const globalIndex = openingStore.sessionHistory.indexOf(move)
     const isActive = openingStore.isReviewMode && openingStore.reviewMoveIndex === globalIndex
-    
-    return h('div', { 
-        style: { 
-            display: 'flex', 
-            alignItems: 'center', 
+
+    return h('div', {
+        style: {
+            display: 'flex',
+            alignItems: 'center',
             gap: '4px',
             cursor: 'pointer',
             background: isActive ? 'var(--color-accent)' : 'transparent',
@@ -102,81 +98,80 @@ const renderMoveCell = (move: SessionMove | null) => {
         onClick: () => openingStore.setReviewMove(globalIndex)
     }, [
         h(NText, { strong: true, style: { color: isActive ? '#fff' : 'inherit', fontSize: '13px' } }, { default: () => move.san }),
-        move.quality ? h(NTag, { 
-            size: 'small', 
-            round: true, 
+        move.quality ? h(NTag, {
+            size: 'small',
+            round: true,
             bordered: false,
-            style: { 
-                backgroundColor: getQualityColor(move.quality), 
-                color: '#000', 
+            style: {
+                backgroundColor: getQualityColor(move.quality),
+                color: '#000',
                 fontWeight: '800',
                 fontSize: '9px',
                 height: '14px',
                 padding: '0 3px',
                 lineHeight: '14px'
-            } 
-        }, { default: () => getQualityText(move.quality) }) : null
+            }
+        }, { default: () => move.nag || '' }) : null
     ])
 }
 
 const renderEval = (move: SessionMove | null) => {
-    if (!move?.evaluation) return h(NText, { depth: 3 }, { default: () => '-' })
-    
+    if (!move?.evaluation) return null
+
     const cp = move.evaluation.score_cp
     const val = (cp / 100).toFixed(1)
     const displayVal = cp > 0 ? `+${val}` : val
-    
+
     let color = '#aaa'
     if (cp > 150) color = '#4caf50'
     else if (cp < -150) color = '#f44336'
-    
-    return h('div', { 
-        style: { 
-            fontWeight: 'bold', 
-            color, 
+
+    const cellContent = h('div', {
+        style: {
+            fontWeight: 'bold',
+            color,
             fontSize: '11px',
             textAlign: 'center'
-        } 
+        }
     }, displayVal)
+
+    // Tooltip for Win Prob / WDL
+    if (move.evaluation.win_prob !== undefined) {
+        let label = `Win Prob: ${move.evaluation.win_prob}%`
+        const wdl = move.evaluation.wdl
+        if (wdl && wdl.length >= 3) {
+            const w = wdl[0] as number
+            const d = wdl[1] as number
+            const l = wdl[2] as number
+            label += ` | WDL: ${(w / 10).toFixed(1)}% ${(d / 10).toFixed(1)}% ${(l / 10).toFixed(1)}%`
+        }
+        return h(NTooltip, { trigger: 'hover' }, {
+            trigger: () => cellContent,
+            default: () => label
+        })
+    }
+
+    return cellContent
 }
 
 const renderAnalysisIcons = (move: SessionMove | null) => {
     if (!move) return null
     const icons = []
 
-    // Threat
-    if (move.threats && move.threats.threat_severity_score > 0) {
-        const severity = move.threats.threat_severity_score
-        let color = '#ffeb3b'
-        if (severity > 500) color = '#f44336'
-        else if (severity > 200) color = '#ff9800'
-
-        icons.push(h(NTooltip, { trigger: 'hover' }, {
-            trigger: () => h(NIcon, { 
-                color, 
-                size: 14,
-                style: { cursor: 'pointer' },
-                onClick: (e: MouseEvent) => {
-                    e.stopPropagation()
-                    if (move.threats) {
-                        boardStore.setDrawableShapes([{
-                            orig: move.threats.opponent_threat_move.slice(0, 2) as Key,
-                            dest: move.threats.opponent_threat_move.slice(2, 4) as Key,
-                            brush: 'red'
-                        }])
-                    }
-                }
-            }, { default: () => h(FlameOutline) }),
-            default: () => move.threats?.threat_description || `Threat: ${move.threats?.opponent_threat_san}`
-        }))
+    // Accuracy Tooltip
+    if (move.accuracy !== undefined) {
+         icons.push(h(NTooltip, {}, {
+             trigger: () => h(NText, { style: { fontSize: '10px', color: '#888' } }, { default: () => `${Math.round(move.accuracy!)}%` }),
+             default: () => `Accuracy: ${move.accuracy}%`
+         }))
     }
 
     // Best Move Suggestion (if user missed it)
     if (move.evaluation && move.san !== move.evaluation.best_move_san) {
         icons.push(h(NTooltip, {}, {
-            trigger: () => h(NIcon, { 
-                color: '#2196f3', 
-                size: 14, 
+            trigger: () => h(NIcon, {
+                color: '#2196f3',
+                size: 14,
                 style: { cursor: 'pointer' },
                 onClick: (e: MouseEvent) => {
                     e.stopPropagation()
@@ -206,25 +201,29 @@ const renderAnalysisIcons = (move: SessionMove | null) => {
 }
 
 const renderFeatures = (move: SessionMove | null) => {
-    if (!move?.features) return null
-    const features = move.features
+    if (!move?.tags || move.tags.length === 0) return null
     const icons = []
-    
-    if (features.tactics.hanging_pieces.length > 0) {
-        icons.push(h(NTooltip, {}, {
-            trigger: () => h(NIcon, { color: '#ff9800', size: 12 }, { default: () => h(ExtensionPuzzleOutline) }),
-            default: () => `Hanging: ${features.tactics.hanging_pieces.join(', ')}`
-        }))
-    }
-    
-    if (!features.king_safety.is_safe_heuristic) {
-        icons.push(h(NIcon, { color: '#f44336', size: 12 }, { default: () => h(WarningOutline) }))
+
+    for (const tag of move.tags) {
+        let icon: typeof FlameOutline | null = null
+        let color = '#888'
+
+        switch (tag) {
+            case 'Capture': icon = FlameOutline; color = '#ff9800'; break
+            case 'Check': icon = FlashOutline; color = '#ffeb3b'; break
+            case 'Mate': icon = FlashOutline; color = '#f44336'; break
+            case 'Sacrifice': icon = ExtensionPuzzleOutline; color = '#9c27b0'; break
+            case 'Promotion': icon = FlashOutline; color = '#4caf50'; break
+        }
+
+        if (icon) {
+            icons.push(h(NTooltip, {}, {
+                trigger: () => h(NIcon, { color, size: 12 }, { default: () => h(icon) }),
+                default: () => tag
+            }))
+        }
     }
 
-    if (move.evaluation?.best_move_motifs?.includes('fork')) {
-        icons.push(h(NIcon, { color: '#2196f3', size: 12 }, { default: () => h(FlashOutline) }))
-    }
-    
     return h('div', { style: { display: 'flex', gap: '2px', justifyContent: 'center' } }, icons)
 }
 

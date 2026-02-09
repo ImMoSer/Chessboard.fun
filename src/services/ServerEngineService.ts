@@ -48,7 +48,30 @@ export interface CevaliteEvaluationResponse {
   }
 }
 
-class ServerEngineServiceController {
+export interface AnalysisResponse {
+  quality: {
+    verbal_score: string
+    nag: string
+    accuracy: number
+    tags: string[]
+    best_sf_move: string
+  }
+  evaluation: {
+    cp: number
+    win_prob: number
+    wdl: number[]
+    depth: number
+    lines: Array<{
+      pv: string
+      pv_san: string
+      cp: number
+      win_prob: number
+      wdl?: number[]
+    }>
+  }
+}
+
+export class ServerEngineServiceController {
   private isThinking = false
 
   constructor() {
@@ -113,17 +136,20 @@ class ServerEngineServiceController {
     }
   }
 
-  public async evaluateThreats(
-    fen: string,
+  public async analyzeMove(
+    fen_before: string,
+    move_uci: string,
     depth: number = 10,
-  ): Promise<CevaliteEvaluationResponse> {
+    multipv: number = 2,
+    time_limit: number = 200
+  ): Promise<AnalysisResponse> {
     if (!authService.getIsAuthenticated()) {
       logger.error('[ServerEngineService] User is not authenticated. Request rejected.')
       return Promise.reject(new Error('User not authenticated'))
     }
 
-    const url = `${BACKEND_API_URL}/bestmove/evaluate/threats`
-    logger.debug(`[ServerEngineService] Requesting evaluation for FEN: ${fen}`)
+    const url = `${BACKEND_API_URL}/bestmove/analyze`
+    logger.debug(`[ServerEngineService] Requesting analysis for move: ${move_uci}`)
 
     try {
       const response = await fetch(url, {
@@ -131,22 +157,47 @@ class ServerEngineServiceController {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ fen, depth }),
+        body: JSON.stringify({
+          fen_before,
+          move_uci,
+          depth,
+          multipv,
+          time_limit
+        }),
         credentials: 'include',
       })
 
       if (!response.ok) {
         const errorText = await response.text()
         throw new Error(
-          `Evaluation service returned an error: ${response.status} - ${errorText}`,
+          `Analysis service returned an error: ${response.status} - ${errorText}`,
         )
       }
 
-      const data = await response.json()
-      return Array.isArray(data) ? data[0] : data
+      return (await response.json()) as AnalysisResponse
     } catch (error) {
-      logger.error('[ServerEngineService] Failed to fetch evaluation from server:', error)
+      logger.error('[ServerEngineService] Failed to fetch analysis from server:', error)
       throw error
+    }
+  }
+
+  /** @deprecated Use analyzeMove */
+  public async evaluateThreats(
+    fen: string,
+    depth: number = 10,
+  ): Promise<unknown> {
+    // ... rest of the code as is for compatibility, but it will return error from server
+    const url = `${BACKEND_API_URL}/bestmove/evaluate/threats`
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fen, depth }),
+        credentials: 'include',
+      })
+      return await response.json()
+    } catch {
+      return { error: 'Endpoint deprecated' }
     }
   }
 

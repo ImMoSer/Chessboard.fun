@@ -54,16 +54,16 @@ class GameReviewService {
       const multiplier = playerColor === 'white' ? 1 : -1
       const advBefore = prevMove.evaluation.score_cp * multiplier
       const advAfter = move.evaluation.score_cp * multiplier
-      
+
       let cpLoss = advBefore - advAfter
       if (cpLoss < 0) cpLoss = 0
-      
+
       const effectiveLoss = Math.min(cpLoss, 500)
       totalCPLoss += effectiveLoss
       evaluatedMovesCount++
 
       const quality = this.classifyMove(effectiveLoss)
-      
+
       // Маппинг качества на ключи объекта classifications
       if (quality === 'blunder') classifications.blunders++
       else if (quality === 'mistake') classifications.mistakes++
@@ -107,7 +107,6 @@ class GameReviewService {
   }
 
   private generateExplanation(move: SessionMove, prevMove: SessionMove, loss: number): string {
-    const threats = prevMove.threats
     const evalData = prevMove.evaluation
     const explanations: string[] = []
 
@@ -115,15 +114,13 @@ class GameReviewService {
       explanations.push(`Best was ${evalData.best_move_san}.`)
     }
 
-    if (threats && threats.threat_severity_score < -100 && loss > 100) {
-      explanations.push(`Missed threat: ${threats.threat_description || threats.opponent_threat_san}.`)
-    }
-
-    const kingSafetyBefore = prevMove.features?.king_safety?.is_safe_heuristic
-    const kingSafetyAfter = move.features?.king_safety?.is_safe_heuristic
-    
-    if (kingSafetyBefore && !kingSafetyAfter) {
-      explanations.push('Exposed the King.')
+    if (move.tags && move.tags.length > 0) {
+      if (move.tags.includes('Sacrifice') && move.quality === 'brilliant') {
+        explanations.push('A brilliant sacrifice!')
+      }
+      if (move.tags.includes('Mate')) {
+        explanations.push('A checkmate threat.')
+      }
     }
 
     if (explanations.length === 0) {
@@ -135,7 +132,7 @@ class GameReviewService {
 
   private generateSummary(theoryAcc: number, acpl: number, blunders: number): string {
     const theoryText = theoryAcc > 90 ? 'Excellent theory knowledge.' : theoryAcc > 70 ? 'Solid opening play.' : 'Needs work on theory.'
-    
+
     let playoutText = ''
     if (acpl < 30) playoutText = 'Grandmaster level precision in conversion.'
     else if (acpl < 60) playoutText = 'Strong technical play.'

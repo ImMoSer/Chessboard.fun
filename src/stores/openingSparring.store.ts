@@ -4,6 +4,8 @@ import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import type { LichessMove, LichessOpeningResponse } from '../services/LichessApiService'
 import type { MozerBookMove } from '../services/MozerBookService'
+import { pgnService, pgnTreeVersion } from '../services/PgnService'
+import { type AnalysisResponse } from '../services/ServerEngineService'
 import { theoryGraphService } from '../services/TheoryGraphService'
 import { soundService } from '../services/sound.service'
 import { type SessionMove } from '../types/openingSparring.types'
@@ -11,14 +13,13 @@ import { areMovesEqual } from '../utils/chess-utils'
 import { useBoardStore } from './board.store'
 import { useGameStore } from './game.store'
 import { useMozerBookStore } from './mozerBook.store'
-import { pgnService, pgnTreeVersion } from '../services/PgnService'
 
 export const useOpeningSparringStore = defineStore('openingSparring', () => {
   const boardStore = useBoardStore()
   const mozerStore = useMozerBookStore()
 
   const currentStats = computed(() => mozerStore.currentStats)
-  
+
   // -- REPLACED sessionHistory ref with computed from PGN --
   const sessionHistory = computed<SessionMove[]>(() => {
     // Reactivity dependency
@@ -27,11 +28,11 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
 
     const moves: SessionMove[] = []
     let node = pgnService.getRootNode().children[0]
-    
+
     // Traverse the Main Line (assuming sparring session is linear)
     while (node) {
       const meta = node.metadata || {}
-      
+
       // Calculate derived fields
       const fenParts = node.fenBefore.split(' ')
       const turn = fenParts[1] as 'w' | 'b'
@@ -44,7 +45,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
         san: node.san,
         phase: meta.phase || 'theory',
         stats: meta.stats,
-        
+
         // PGN Context
         ply: node.ply,
         turn,
@@ -52,17 +53,16 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
 
         // Analysis Data
         quality: meta.quality,
+        nag: meta.nag,
         evaluation: meta.evaluation,
-        threats: meta.threats,
-        features: meta.features,
-        
+
         // Metrics
         popularity: meta.popularity,
         accuracy: meta.accuracy,
         winRate: meta.winRate,
         rating: meta.rating
       })
-      
+
       node = node.children[0]
     }
     return moves
@@ -82,8 +82,6 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   const error = computed(() => mozerStore.error)
   const moveQueue = ref<string[]>([])
 
-  // Baseline evaluation for the start of playout
-  const theoryEndEval = ref<number | null>(null)
 
   const savedSource = localStorage.getItem('openingSparring.opponentSource') as 'master' | 'lichess' | null
   const opponentSource = ref<'master' | 'lichess'>(savedSource || 'master')
@@ -96,8 +94,8 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
 
   // Persist settings
   watch([opponentSource, opponentRatings], () => {
-      localStorage.setItem('openingSparring.opponentSource', opponentSource.value)
-      localStorage.setItem('openingSparring.opponentRatings', JSON.stringify(opponentRatings.value))
+    localStorage.setItem('openingSparring.opponentSource', opponentSource.value)
+    localStorage.setItem('openingSparring.opponentRatings', JSON.stringify(opponentRatings.value))
   }, { deep: true })
 
   // Lives for Exam mode
@@ -138,7 +136,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     reset()
     playerColor.value = color
     isProcessingMove.value = true
-    
+
     const gameStore = useGameStore()
     gameStore.shouldAutoPlayBot = false
     gameStore.currentGameMode = 'opening-trainer'
@@ -171,7 +169,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     // But we must reset PGN!
     // boardStore.resetBoardState() covers pgnService.reset() usually?
     // initializeSession calls boardStore.setupPosition which resets PGN.
-    
+
     isTheoryOver.value = false
     isDeviation.value = false
     openingName.value = ''
@@ -185,7 +183,6 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     finalEval.value = null
     isFinalEvaluating.value = false
     finalEvalDepth.value = 0
-    theoryEndEval.value = null
   }
 
   function enterReviewMode() {
@@ -202,32 +199,32 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   }
 
   function setReviewMove(index: number) {
-      if (index < -1 || index >= sessionHistory.value.length) return
-      
-      reviewMoveIndex.value = index
-      
-      if (index === -1) {
-           pgnService.navigateToStart()
-           boardStore.syncBoardWithPgn()
-      } else {
-          const move = sessionHistory.value[index]
-          if (move && move.ply) {
-              pgnService.navigateToPly(move.ply)
-              boardStore.syncBoardWithPgn()
-          }
+    if (index < -1 || index >= sessionHistory.value.length) return
+
+    reviewMoveIndex.value = index
+
+    if (index === -1) {
+      pgnService.navigateToStart()
+      boardStore.syncBoardWithPgn()
+    } else {
+      const move = sessionHistory.value[index]
+      if (move && move.ply) {
+        pgnService.navigateToPly(move.ply)
+        boardStore.syncBoardWithPgn()
       }
+    }
   }
 
   function nextReviewMove() {
-      if (reviewMoveIndex.value < sessionHistory.value.length - 1) {
-          setReviewMove(reviewMoveIndex.value + 1)
-      }
+    if (reviewMoveIndex.value < sessionHistory.value.length - 1) {
+      setReviewMove(reviewMoveIndex.value + 1)
+    }
   }
 
   function prevReviewMove() {
-      if (reviewMoveIndex.value > -1) {
-          setReviewMove(reviewMoveIndex.value - 1)
-      }
+    if (reviewMoveIndex.value > -1) {
+      setReviewMove(reviewMoveIndex.value - 1)
+    }
   }
 
   async function fetchStats() {
@@ -236,13 +233,13 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     await mozerStore.fetchStats()
 
     if (opponentSource.value === 'lichess' && boardStore.turn !== playerColor.value) {
-        const { lichessApiService } = await import('../services/LichessApiService')
-        currentLichessStats.value = await lichessApiService.getStats(boardStore.fen, 'lichess', {
-            ratings: opponentRatings.value,
-            speeds: ['blitz', 'rapid', 'classical']
-        })
+      const { lichessApiService } = await import('../services/LichessApiService')
+      currentLichessStats.value = await lichessApiService.getStats(boardStore.fen, 'lichess', {
+        ratings: opponentRatings.value,
+        speeds: ['blitz', 'rapid', 'classical']
+      })
     } else {
-        currentLichessStats.value = null
+      currentLichessStats.value = null
     }
 
     if (currentStats.value) {
@@ -257,35 +254,35 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   }
 
   async function runFinalEvaluation() {
-      if (isFinalEvaluating.value) return
+    if (isFinalEvaluating.value) return
 
-      const targetDepth = 20
-      isFinalEvaluating.value = true
-      finalEvalDepth.value = 0
-      finalEval.value = null
+    const targetDepth = 20
+    isFinalEvaluating.value = true
+    finalEvalDepth.value = 0
+    finalEval.value = null
 
-      const { analysisService } = await import('../services/AnalysisService')
-      await analysisService.initialize()
+    const { analysisService } = await import('../services/AnalysisService')
+    await analysisService.initialize()
 
-      const cores = navigator.hardwareConcurrency || 1
-      const threads = Math.max(1, Math.min(4, Math.floor(cores / 2)))
-      await analysisService.setThreads(threads)
+    const cores = navigator.hardwareConcurrency || 1
+    const threads = Math.max(1, Math.min(4, Math.floor(cores / 2)))
+    await analysisService.setThreads(threads)
 
-      return new Promise<void>((resolve) => {
-          analysisService.startAnalysis(boardStore.fen, (lines) => {
-              if (lines.length > 0) {
-                  const bestLine = lines[0]!
-                  finalEvalDepth.value = bestLine.depth
+    return new Promise<void>((resolve) => {
+      analysisService.startAnalysis(boardStore.fen, (lines) => {
+        if (lines.length > 0) {
+          const bestLine = lines[0]!
+          finalEvalDepth.value = bestLine.depth
 
-                  if (bestLine.depth >= targetDepth || bestLine.score.type === 'mate') {
-                      finalEval.value = bestLine.score
-                      analysisService.stopAnalysis()
-                      isFinalEvaluating.value = false
-                      resolve()
-                  }
-              }
-          }, 1)
-      })
+          if (bestLine.depth >= targetDepth || bestLine.score.type === 'mate') {
+            finalEval.value = bestLine.score
+            analysisService.stopAnalysis()
+            isFinalEvaluating.value = false
+            resolve()
+          }
+        }
+      }, 1)
+    })
   }
 
   async function handlePlayerMove(moveUci: string) {
@@ -312,9 +309,9 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     const stats = currentStats.value
 
     if (!stats || stats.moves.length === 0) {
-        isTheoryOver.value = true
-        isProcessingMove.value = false
-        return
+      isTheoryOver.value = true
+      isProcessingMove.value = false
+      return
     }
 
     const moveData = stats.moves.find((m) => areMovesEqual(m.uci, moveUci))
@@ -338,13 +335,13 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     const winRateRaw = wins + 0.5 * moveData.d_pct
     const rating = moveData.perf || 0
     const moveStats = {
-        uci: moveData.uci,
-        san: moveData.san,
-        total: moveData.total,
-        w_pct: moveData.w_pct,
-        d_pct: moveData.d_pct,
-        l_pct: moveData.l_pct,
-        perf: moveData.perf
+      uci: moveData.uci,
+      san: moveData.san,
+      total: moveData.total,
+      w_pct: moveData.w_pct,
+      d_pct: moveData.d_pct,
+      l_pct: moveData.l_pct,
+      perf: moveData.perf
     }
 
     if (moveData.name) openingName.value = moveData.name
@@ -353,26 +350,26 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     // Check if the move is already applied on the board (Player move case)
     // boardStore.lastMove is [from, to] keys.
     const lastMoveUci = boardStore.lastMove ? boardStore.lastMove.join('') : ''
-    
+
     // We strictly apply the move ONLY if it's not already the last move on the board.
     // This fixes the "Illegal move" error when handling player moves that GameStore already applied.
     if (lastMoveUci !== moveUci) {
-        boardStore.applyUciMove(moveUci)
+      boardStore.applyUciMove(moveUci)
     }
-    
+
     // Enrich PGN
     const node = pgnService.getLastMove()
     if (node) {
-        pgnService.updateNode(node, {
-            metadata: {
-                phase: 'theory',
-                stats: moveStats,
-                popularity,
-                accuracy,
-                winRate: winRateRaw,
-                rating
-            }
-        })
+      pgnService.updateNode(node, {
+        metadata: {
+          phase: 'theory',
+          stats: moveStats,
+          popularity,
+          accuracy,
+          winRate: winRateRaw,
+          rating
+        }
+      })
     }
 
     await fetchStats()
@@ -387,33 +384,33 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   async function triggerBotMove() {
     let movesPool: (MozerBookMove | LichessMove)[] = []
     if (opponentSource.value === 'lichess' && currentLichessStats.value) {
-        movesPool = currentLichessStats.value.moves
+      movesPool = currentLichessStats.value.moves
     } else {
-        movesPool = currentStats.value?.moves || []
+      movesPool = currentStats.value?.moves || []
     }
 
     if (movesPool.length === 0) {
       isTheoryOver.value = true
       if (opponentSource.value === 'master') {
-          soundService.playSound('game_user_won')
+        soundService.playSound('game_user_won')
       }
       isProcessingMove.value = false
       return
     }
 
     const candidates = movesPool.slice(0, variability.value).map(m => {
-        let total = (m as MozerBookMove).total
-        if (total === undefined) {
-             const lm = m as LichessMove
-             total = lm.white + lm.draws + lm.black
-        }
-        return { ...m, total }
+      let total = (m as MozerBookMove).total
+      if (total === undefined) {
+        const lm = m as LichessMove
+        total = lm.white + lm.draws + lm.black
+      }
+      return { ...m, total }
     })
 
     if (candidates.length === 0) {
-        isTheoryOver.value = true
-        isProcessingMove.value = false
-        return
+      isTheoryOver.value = true
+      isProcessingMove.value = false
+      return
     }
 
     const totalGames = candidates.reduce((acc, m) => acc + m.total, 0)
@@ -439,50 +436,50 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     // san variable removed as it was shadowing selectedMove.san and causing unused var warning
 
     if (masterMoveData) {
-        const totalGamesInPos = masterStats!.summary
-            ? masterStats!.summary!.w + masterStats!.summary!.d + masterStats!.summary!.l
-            : masterStats!.moves.reduce((acc, m) => acc + m.total, 0) || 1
+      const totalGamesInPos = masterStats!.summary
+        ? masterStats!.summary!.w + masterStats!.summary!.d + masterStats!.summary!.l
+        : masterStats!.moves.reduce((acc, m) => acc + m.total, 0) || 1
 
-        popularity = (masterMoveData.total / totalGamesInPos) * 100
-        const maxTotal = Math.max(...masterStats!.moves.map((m) => m.total))
-        accuracy = maxTotal > 0 ? (masterMoveData.total / maxTotal) * 100 : 0
+      popularity = (masterMoveData.total / totalGamesInPos) * 100
+      const maxTotal = Math.max(...masterStats!.moves.map((m) => m.total))
+      accuracy = maxTotal > 0 ? (masterMoveData.total / maxTotal) * 100 : 0
 
-        const wins = playerColor.value === 'white' ? masterMoveData.w_pct : masterMoveData.l_pct
-        winRateRaw = wins + 0.5 * masterMoveData.d_pct
-        rating = masterMoveData.perf || 0
-        // san = masterMoveData.san // Removed
+      const wins = playerColor.value === 'white' ? masterMoveData.w_pct : masterMoveData.l_pct
+      winRateRaw = wins + 0.5 * masterMoveData.d_pct
+      rating = masterMoveData.perf || 0
+      // san = masterMoveData.san // Removed
 
-        moveStats = {
-            uci: masterMoveData.uci,
-            san: masterMoveData.san,
-            total: masterMoveData.total,
-            w_pct: masterMoveData.w_pct,
-            d_pct: masterMoveData.d_pct,
-            l_pct: masterMoveData.l_pct,
-            perf: masterMoveData.perf
-        }
+      moveStats = {
+        uci: masterMoveData.uci,
+        san: masterMoveData.san,
+        total: masterMoveData.total,
+        w_pct: masterMoveData.w_pct,
+        d_pct: masterMoveData.d_pct,
+        l_pct: masterMoveData.l_pct,
+        perf: masterMoveData.perf
+      }
     }
 
     boardStore.applyUciMove(selectedMove.uci)
 
     const node = pgnService.getLastMove()
     if (node) {
-        pgnService.updateNode(node, {
-            metadata: {
-                phase: 'theory',
-                stats: moveStats,
-                popularity,
-                accuracy,
-                winRate: winRateRaw,
-                rating
-            }
-        })
+      pgnService.updateNode(node, {
+        metadata: {
+          phase: 'theory',
+          stats: moveStats,
+          popularity,
+          accuracy,
+          winRate: winRateRaw,
+          rating
+        }
+      })
     }
 
     await fetchStats()
 
     if (!masterMoveData) {
-        isTheoryOver.value = true
+      isTheoryOver.value = true
     }
 
     if (moveQueue.value.length > 0) {
@@ -517,97 +514,70 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     // 1. Synchronous Context Capture
     const currentNode = pgnService.getLastMove()
     if (!currentNode || currentNode.uci !== uci) {
-        console.warn('[OpeningSparring] PGN Sync Error: Current node does not match played move.', currentNode?.uci, uci)
-        return
+      console.warn('[OpeningSparring] PGN Sync Error: Current node does not match played move.', currentNode?.uci, uci)
+      return
     }
 
-    // Capture board state for evaluation *before* async
-    const fenToEvaluate = currentNode.fenAfter
     const fenBefore = currentNode.fenBefore
-    const turnBefore = fenBefore.split(' ')[1] // 'w' or 'b'
 
     // Mark basic metadata immediately
     pgnService.updateNode(currentNode, {
-        metadata: {
-            phase: 'playout',
-            loading: true
-        }
+      metadata: {
+        phase: 'playout',
+        loading: true
+      }
     })
 
     // 2. Queue Analysis
     recordQueue = recordQueue.then(async () => {
-        const { serverEngineService } = await import('../services/ServerEngineService')
-        
-        let evalData = null
-        try {
-            evalData = await serverEngineService.evaluateThreats(fenToEvaluate)
-        } catch (e) {
-            console.warn('[OpeningSparring] Evaluation failed:', e)
-        }
+      const { serverEngineService } = await import('../services/ServerEngineService')
 
-        let quality: SessionMove['quality'] = undefined
-        
-        // Quality Calculation Logic
-        // We need a baseline. 
-        // A) If there is a previous move in history (theory or playout), use its eval.
-        // B) If this is the FIRST playout move, use theoryEndEval.
-        
-        const moves = sessionHistory.value
-        const myIndex = moves.findIndex(m => m.ply === currentNode.ply)
-        const prevMove = myIndex > 0 ? moves[myIndex - 1] : null
-        
-        let prevEvalCp: number | null = null
+      try {
+        const response = (await serverEngineService.analyzeMove(
+          fenBefore,
+          uci,
+        )) as AnalysisResponse
 
-        if (prevMove && prevMove.evaluation) {
-            prevEvalCp = prevMove.evaluation.score_cp
-        } else if (!prevMove && theoryEndEval.value !== null) {
-             // Logic for very first move if history empty? Unlikely.
-             // But if prevMove exists (Theory) but has no eval (because it was theory), 
-             // we check theoryEndEval.
-             prevEvalCp = theoryEndEval.value
-        } else if (prevMove && !prevMove.evaluation && theoryEndEval.value !== null) {
-             // Prev move was theory, so we use the captured theory end eval
-             prevEvalCp = theoryEndEval.value
-        }
+        if (response && response.quality && response.evaluation) {
+          const firstLine = response.evaluation.lines?.[0]
+          const pvSan = firstLine?.pv_san || ''
 
-        if (evalData && prevEvalCp !== null) {
-            const currentEval = evalData.evaluation.score_cp
-            
-            // Calculate Loss based on who moved
-            // If White moved (turnBefore == 'w'), we want eval to go UP. Loss = Prev - Current.
-            // If Black moved (turnBefore == 'b'), we want eval to go DOWN. Loss = Current - Prev.
-            
-            let loss = 0
-            if (turnBefore === 'w') {
-                loss = prevEvalCp - currentEval
-            } else {
-                loss = currentEval - prevEvalCp
-            }
+          // Extract best move SAN from PV string like "9... g5" or "10. d4"
+          let bestMoveSan = ''
+          if (pvSan) {
+            const parts = pvSan.split(' ')
+            const movePart = parts.find((p) => !p.includes('.'))
+            bestMoveSan = movePart || ''
+          }
 
-            if (loss > 250) quality = 'blunder'
-            else if (loss > 120) quality = 'mistake'
-            else if (loss > 50) quality = 'inaccuracy'
-            else if (loss < -50 && Math.abs(currentEval) < 200) quality = 'brilliant'
-            else if (currentNode.uci === prevMove?.evaluation?.best_move) quality = 'best'
-            else quality = 'good'
-        }
-
-        // Update PGN Node with full data
-        pgnService.updateNode(currentNode, {
+          // Update PGN Node with full data from new API
+          pgnService.updateNode(currentNode, {
             metadata: {
-                phase: 'playout',
-                loading: false,
-                quality,
-                evaluation: evalData?.evaluation,
-                threats: evalData?.threats,
-                features: evalData?.features
-            }
-        })
-    }).catch(err => {
-        console.error('[OpeningSparring] Error in playout recording:', err)
+              phase: 'playout',
+              loading: false,
+              quality: response.quality.verbal_score.toLowerCase(),
+              nag: response.quality.nag,
+              accuracy: response.quality.accuracy,
+              tags: response.quality.tags,
+              evaluation: {
+                score_cp: response.evaluation.cp,
+                win_prob: response.evaluation.win_prob,
+                wdl: response.evaluation.wdl,
+                depth: response.evaluation.depth,
+                best_move: response.quality.best_sf_move,
+                best_move_san: bestMoveSan,
+                pv_san: pvSan,
+                lines: response.evaluation.lines,
+              },
+            },
+          })
+        }
+      } catch (e) {
+        console.error('[OpeningSparring] Error in playout recording:', e)
         pgnService.updateNode(currentNode, {
-             metadata: { phase: 'playout', loading: false, error: true }
+          metadata: { phase: 'playout', loading: false, error: true }
         })
+      }
     })
 
     await recordQueue
@@ -625,37 +595,13 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     const gameStore = useGameStore()
 
     soundService.playSound('game_play_out_start')
-    
-    // Capture Baseline Evaluation for the final theory position
-    const currentFen = boardStore.fen
-    try {
-        // We do this asynchronously but block playout recording? 
-        // No, we can just fire it. The recordQueue for the first move will wait?
-        // Actually, we should try to get it before first move processing finishes.
-        // Let's add it to the recordQueue!
-        
-        recordQueue = recordQueue.then(async () => {
-             const { serverEngineService } = await import('../services/ServerEngineService')
-             try {
-                 // Fast eval for baseline? Or full threats? 
-                 // Full threats is better to have consistent depth.
-                 const data = await serverEngineService.evaluateThreats(currentFen)
-                 theoryEndEval.value = data.evaluation.score_cp
-                 console.log('[OpeningSparring] Baseline Eval captured:', theoryEndEval.value)
-             } catch (e) {
-                 console.warn('[OpeningSparring] Failed to capture baseline eval:', e)
-             }
-        })
-    } catch (e) {
-        console.error(e)
-    }
 
     gameStore.setupPuzzle(
       boardStore.fen,
       [],
       handlePlayoutGameOver,
       (outcome) => outcome?.winner === playerColor.value,
-      () => {},
+      () => { },
       'opening-trainer',
       undefined,
       playerColor.value,
