@@ -90,6 +90,13 @@
     "copyFailed": "Could not copy link.",
     "close": "Close"
   },
+  "controls": {
+    "new": "New",
+    "restart": "Restart",
+    "resign": "Resign",
+    "share": "Share",
+    "info": "Info"
+  },
   "engine": {
     "title": "Sparring Partner",
     "select": "Sparring partner"

@@ -1,100 +1,133 @@
 <script setup lang="ts">
-import { useControlsStore } from '../stores/controls.store'
+import {
+    InformationCircleOutline as InfoIcon,
+    Add as NewIcon,
+    FlagOutline as ResignIcon,
+    RefreshOutline as RestartIcon,
+    LinkOutline as ShareIcon,
+} from '@vicons/ionicons5';
+import { NButton, NIcon, NSpace, NTooltip } from 'naive-ui';
+import { useControlsStore } from '../stores/controls.store';
 
 const controlsStore = useControlsStore()
 </script>
 
 <template>
   <div class="control-panel-container">
-    <button
-      class="control-panel-button"
-      title="New"
-      :disabled="!controlsStore.canRequestNew"
-      @click="controlsStore.onRequestNew"
-    >
-      <img src="/buttons/new.svg" alt="New" />
-    </button>
-    <button
-      class="control-panel-button"
-      title="Restart"
-      :disabled="!controlsStore.canRestart"
-      @click="controlsStore.onRestart"
-    >
-      <img src="/buttons/restart.svg" alt="Restart" />
-    </button>
-    <button
-      class="control-panel-button"
-      title="Resign"
-      :disabled="!controlsStore.canResign"
-      @click="controlsStore.onResign"
-    >
-      <img src="/buttons/resign.svg" alt="Resign" />
-    </button>
-    <button
-      class="control-panel-button"
-      title="Share"
-      :disabled="!controlsStore.canShare"
-      @click="controlsStore.onShare"
-    >
-      <img src="/buttons/link.svg" alt="Share" />
-    </button>
+    <n-space justify="space-around" align="center" :size="[12, 0]">
+      <!-- New Game -->
+      <n-tooltip trigger="hover">
+        <template #trigger>
+          <n-button
+            circle
+            quaternary
+            size="large"
+            :disabled="!controlsStore.canRequestNew"
+            @click="controlsStore.onRequestNew"
+          >
+            <template #icon>
+              <n-icon><NewIcon /></n-icon>
+            </template>
+          </n-button>
+        </template>
+        {{ $t('controls.new') }}
+      </n-tooltip>
 
-    <button
-      class="control-panel-button"
-      title="Info"
-      :disabled="!controlsStore.canShowInfo"
-      @click="controlsStore.onShowInfo"
-    >
-      <img src="/buttons/info.svg" alt="Info" />
-    </button>
+      <!-- Restart -->
+      <n-tooltip trigger="hover">
+        <template #trigger>
+          <n-button
+            circle
+            quaternary
+            size="large"
+            :disabled="!controlsStore.canRestart"
+            @click="controlsStore.onRestart"
+          >
+            <template #icon>
+              <n-icon><RestartIcon /></n-icon>
+            </template>
+          </n-button>
+        </template>
+        {{ $t('controls.restart') }}
+      </n-tooltip>
+
+      <!-- Resign -->
+      <n-tooltip trigger="hover">
+        <template #trigger>
+          <n-button
+            circle
+            quaternary
+            size="large"
+            :disabled="!controlsStore.canResign"
+            @click="controlsStore.onResign"
+          >
+            <template #icon>
+              <n-icon><ResignIcon /></n-icon>
+            </template>
+          </n-button>
+        </template>
+        {{ $t('controls.resign') }}
+      </n-tooltip>
+
+      <!-- Share -->
+      <n-tooltip trigger="hover">
+        <template #trigger>
+          <n-button
+            circle
+            quaternary
+            size="large"
+            :disabled="!controlsStore.canShare"
+            @click="controlsStore.onShare"
+          >
+            <template #icon>
+              <n-icon><ShareIcon /></n-icon>
+            </template>
+          </n-button>
+        </template>
+        {{ $t('controls.share') }}
+      </n-tooltip>
+
+      <!-- Info -->
+      <n-tooltip trigger="hover">
+        <template #trigger>
+          <n-button
+            circle
+            quaternary
+            size="large"
+            :disabled="!controlsStore.canShowInfo"
+            @click="controlsStore.onShowInfo"
+          >
+            <template #icon>
+              <n-icon><InfoIcon /></n-icon>
+            </template>
+          </n-button>
+        </template>
+        {{ $t('controls.info') }}
+      </n-tooltip>
+    </n-space>
   </div>
 </template>
 
 <style scoped>
-/* Стили скопированы и адаптированы из old_snabbdom_src/shared/components/controlPanel.css */
 .control-panel-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  padding: 5px 5px;
-  gap: 5px;
-  border-color: var(--color-border);
-  border-style: solid;
-  border-width: 1px;
-  border-radius: 5px;
-}
-
-.control-panel-button {
-  background-color: transparent;
-  border: none;
-  padding: 5px;
-  cursor: pointer;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition:
-    background-color 0.2s ease,
-    opacity 0.2s ease;
-}
-
-.control-panel-button:hover:not(:disabled) {
-  background-color: var(--color-border-hover);
-}
-
-.control-panel-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.4;
-}
-
-.control-panel-button img {
-  width: 35px;
-  height: auto;
+  padding: 4px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  backdrop-filter: blur(4px);
+  width: fit-content;
+  margin: 0 auto;
 }
 
 @media (orientation: portrait) {
-  .control-panel-button img {
-    width: 32px;
+  .control-panel-container {
+    padding: 2px 8px;
+    width: 100%;
+  }
+
+  :deep(.n-button) {
+    --n-height: 40px !important;
+    --n-width: 40px !important;
   }
 }
 </style>
