@@ -1,11 +1,11 @@
 <!-- src/components/EngineSelector.vue -->
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { useControlsStore } from '@/stores/controls.store'
-import type { EngineId } from '@/types/api.types'
-import { useAuthStore } from '@/stores/auth.store'
-import { useUiStore } from '@/stores/ui.store'
 import i18n from '@/services/i18n'
+import { useAuthStore } from '@/stores/auth.store'
+import { useControlsStore } from '@/stores/controls.store'
+import { useUiStore } from '@/stores/ui.store'
+import type { EngineId } from '@/types/api.types'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 const controlsStore = useControlsStore()
 const authStore = useAuthStore()
@@ -18,10 +18,10 @@ const availableEngines = computed(() => controlsStore.availableEngines)
 const selectedEngine = computed(() => controlsStore.selectedEngine)
 
 const engineNames: Record<EngineId, string> = {
-  MOZER_2000: 'MoZeR 2200+',
-  MOZER_1900: 'Maia 1900',
-  maia_2200: 'Maia 2200',
-  SF_2200: 'Stockfish 2500',
+  MOZER_2000: 'BadGyal-8',
+  MOZER_1900: 'Maia-1900',
+  maia_2200: 'Maia-2200',
+  SF_2200: 'Stockfish (depth:10)',
 }
 
 const isOpen = ref(false)

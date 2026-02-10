@@ -59,7 +59,7 @@ const router = createRouter({
     {
       path: '/finish-him',
       name: 'finish-him-selection',
-      component: () => import('../views/AdvantageSelectionView.vue'),
+      component: () => import('../views/EndingSelectionView.vue'),
       meta: { requiresAuth: true, gameMode: 'finish-him' },
     },
     {
@@ -149,8 +149,8 @@ const router = createRouter({
     {
       path: '/theory-endings',
       name: 'theory-endings-selection',
-      component: () => import('../views/TheoryEndingSelectionView.vue'),
-      meta: { requiresAuth: true },
+      component: () => import('../views/EndingSelectionView.vue'),
+      meta: { requiresAuth: true, gameMode: 'theory' },
     },
     {
       path: '/theory-endings/play/:type?/:puzzleId?',
@@ -186,8 +186,8 @@ const router = createRouter({
     {
       path: '/practical-chess',
       name: 'practical-chess',
-      component: () => import('../views/PracticalChessSelectionView.vue'),
-      meta: { requiresAuth: true },
+      component: () => import('../views/EndingSelectionView.vue'),
+      meta: { requiresAuth: true, gameMode: 'practical' },
     },
     {
       path: '/practical-chess/play/:id?',

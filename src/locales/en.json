@@ -33,6 +33,32 @@
       "extra_pawn": "Extra Pawn",
       "material_equality": "YOU MOVE!",
       "exchange": "Exchange"
+    },
+    "icons": {
+      "auto": "✨",
+      "pawn_endgame": "♔♟",
+      "bishop_endgame": "♗♙",
+      "knight_endgame": "♘♙",
+      "queen_endgame": "♕♙",
+      "rook_endgame": "♖",
+      "rook_pawn_endgame": "♖♙",
+      "rook_pieces_endgame": "♖♘♗",
+      "knight_vs_bishop": "♘♗",
+      "queen_pieces_endgame": "♕♘♗",
+      "expert_endgame": "🎓",
+      "extra_pawn": "♟️",
+      "material_equality": "⚖️",
+      "exchange": "🔄"
+    },
+    "types": {
+      "win": "Win",
+      "draw": "Draw",
+      "advantage": "Advantage"
+    },
+    "difficulties": {
+      "Novice": "Novice",
+      "Pro": "Pro",
+      "Master": "Master"
     }
   },
   "practicalChess": {
@@ -48,35 +74,6 @@
       "difficultyLabel": "Difficulty",
       "categoryLabel": "Material setups",
       "start": "Practice now"
-    },
-    "categories": {
-      "extra_pawn": {
-        "icon": "♟️"
-      },
-      "material_equality": {
-        "icon": "⚖️"
-      },
-      "bishops": {
-        "icon": "♗"
-      },
-      "knights": {
-        "icon": "♘"
-      },
-      "pawns": {
-        "icon": "♙"
-      },
-      "queens": {
-        "icon": "♕"
-      },
-      "rooks": {
-        "icon": "♖"
-      },
-      "exchange": {
-        "icon": "🔄"
-      },
-      "knight_vs_bishop": {
-        "icon": "♘♗"
-      }
     }
   },
   "common": {
@@ -730,48 +727,6 @@
       "difficultyLabel": "Difficulty",
       "categoryLabel": "Category",
       "start": "Start Training"
-    },
-    "types": {
-      "win": "Win",
-      "draw": "Draw",
-      "advantage": "Advantage"
-    },
-    "difficulties": {
-      "Novice": "Novice",
-      "Pro": "Pro",
-      "Master": "Master"
-    },
-    "categories": {
-      "auto": {
-        "icon": "✨"
-      },
-      "pawn_endgame": {
-        "icon": "♔♟"
-      },
-      "bishop_endgame": {
-        "icon": "♗♙"
-      },
-      "knight_endgame": {
-        "icon": "♘♙"
-      },
-      "queen_endgame": {
-        "icon": "♕♙"
-      },
-      "rook_pawn_endgame": {
-        "icon": "♖♙"
-      },
-      "rook_pieces_endgame": {
-        "icon": "♖♘♗"
-      },
-      "knight_vs_bishop": {
-        "icon": "♘♗"
-      },
-      "queen_pieces_endgame": {
-        "icon": "♕♘♗"
-      },
-      "expert_endgame": {
-        "icon": "🎓"
-      }
     },
     "feedback": {
       "pressNext": "Press 'Play' to start.",
