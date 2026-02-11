@@ -1,7 +1,8 @@
 import type {
-  UserSessionProfile,
+  LeaderboardApiResponse,
   PersonalActivityStatsResponse,
   UserProfileStatsDto,
+  UserSessionProfile,
 } from '../types/api.types'
 
 export const EXAMPLE_USER_PROFILE: UserSessionProfile = {
@@ -41,69 +42,28 @@ export const EXAMPLE_USER_PROFILE: UserSessionProfile = {
 
 export const EXAMPLE_ACTIVITY_STATS: PersonalActivityStatsResponse = {
   daily: {
-    tornado: {
-      puzzles_requested: 307,
-      puzzles_solved: 307,
-    },
-    advantage: {
-      puzzles_requested: 60,
-      puzzles_solved: 57,
-    },
-    theory: {
-      puzzles_requested: 50,
-      puzzles_solved: 47,
-    },
-    'practical-chess': {
-      puzzles_requested: 0,
-      puzzles_solved: 0,
-    },
+    tornado: { puzzles_requested: 307, puzzles_solved: 307 },
+    advantage: { puzzles_requested: 60, puzzles_solved: 57 },
+    theory: { puzzles_requested: 50, puzzles_solved: 47 },
+    'practical-chess': { puzzles_requested: 0, puzzles_solved: 0 },
   },
   weekly: {
-    tornado: {
-      puzzles_requested: 2999,
-      puzzles_solved: 2973,
-    },
-    advantage: {
-      puzzles_requested: 270,
-      puzzles_solved: 228,
-    },
-    theory: {
-      puzzles_requested: 327,
-      puzzles_solved: 294,
-    },
-    'practical-chess': {
-      puzzles_requested: 0,
-      puzzles_solved: 0,
-    },
+    tornado: { puzzles_requested: 2999, puzzles_solved: 2973 },
+    advantage: { puzzles_requested: 270, puzzles_solved: 228 },
+    theory: { puzzles_requested: 327, puzzles_solved: 294 },
+    'practical-chess': { puzzles_requested: 0, puzzles_solved: 0 },
   },
   monthly: {
-    tornado: {
-      puzzles_requested: 11931,
-      puzzles_solved: 11821,
-    },
-    advantage: {
-      puzzles_requested: 1210,
-      puzzles_solved: 1047,
-    },
-    theory: {
-      puzzles_requested: 1216,
-      puzzles_solved: 1067,
-    },
-    'practical-chess': {
-      puzzles_requested: 0,
-      puzzles_solved: 0,
-    },
+    tornado: { puzzles_requested: 11931, puzzles_solved: 11821 },
+    advantage: { puzzles_requested: 1210, puzzles_solved: 1047 },
+    theory: { puzzles_requested: 1216, puzzles_solved: 1067 },
+    'practical-chess': { puzzles_requested: 0, puzzles_solved: 0 },
   },
 }
 
 export const EXAMPLE_DETAILED_STATS: UserProfileStatsDto = {
   tornado: {
-    highScores: {
-      bullet: 58,
-      blitz: 26,
-      rapid: 50,
-      classic: 22,
-    },
+    highScores: { bullet: 58, blitz: 26, rapid: 50, classic: 22 },
     modes: {
       bullet: [
         { theme: 'capturingDefender', success: 44, requested: 48, rating: 2413 },
@@ -303,4 +263,191 @@ export const EXAMPLE_DETAILED_STATS: UserProfileStatsDto = {
       'win/Master/knightBishop': { success: 18, requested: 27 },
     },
   },
+}
+
+export const EXAMPLE_HALL_OF_FAME_DATA: LeaderboardApiResponse = {
+  tornadoLeaderboard: {
+    bullet: [
+      { rank: 1, username: 'VALID_ALL', lichess_id: 'valid_all', highScore: 42, days_old: 1, subscriptionTier: 'King' },
+      { rank: 2, username: 'BlitzDemon', lichess_id: 'blitz_demon', highScore: 27, days_old: 5, subscriptionTier: 'Queen' },
+      { rank: 3, username: 'UnbalancedOne', lichess_id: 'unbalanced_one', highScore: 14, days_old: 6, subscriptionTier: 'Knight' },
+      { rank: 4, username: 'TheMatist', lichess_id: 'the_matist', highScore: 1, days_old: 0, subscriptionTier: 'Bishop' },
+    ],
+    blitz: [
+      { rank: 1, username: 'VALID_ALL', lichess_id: 'valid_all', highScore: 62, days_old: 4, subscriptionTier: 'King' },
+      { rank: 2, username: 'BlitzDemon', lichess_id: 'blitz_demon', highScore: 14, days_old: 6, subscriptionTier: 'Queen' },
+    ],
+    rapid: [
+      { rank: 1, username: 'VALID_ALL', lichess_id: 'valid_all', highScore: 77, days_old: 1, subscriptionTier: 'King' },
+      { rank: 2, username: 'BlitzDemon', lichess_id: 'blitz_demon', highScore: 25, days_old: 3, subscriptionTier: 'Queen' },
+      { rank: 3, username: 'TheMatist', lichess_id: 'the_matist', highScore: 24, days_old: 1, subscriptionTier: 'Bishop' },
+      { rank: 4, username: 'SlowThinker', lichess_id: 'slow_thinker', highScore: 13, days_old: 3, subscriptionTier: 'Rook' },
+    ],
+    classic: [
+      { rank: 1, username: 'TacticMaster', lichess_id: 'tactic_master', highScore: 29, days_old: 0, subscriptionTier: 'Pawn' },
+      { rank: 2, username: 'SlowThinker', lichess_id: 'slow_thinker', highScore: 16, days_old: 5, subscriptionTier: 'Rook' },
+    ],
+  },
+  advantageLeaderboard: {
+    pawn: [
+      { rank: 1, username: 'UnbalancedOne', lichess_id: 'unbalanced_one', score: 59, days_old: 0, subscriptionTier: 'Knight' },
+      { rank: 2, username: 'TheMatist', lichess_id: 'the_matist', score: 53, days_old: 0, subscriptionTier: 'Bishop' },
+    ],
+    knight: [
+      { rank: 1, username: 'TacticMaster', lichess_id: 'tactic_master', score: 123, days_old: 0, subscriptionTier: 'Pawn' },
+      { rank: 2, username: 'BlitzDemon', lichess_id: 'blitz_demon', score: 79, days_old: 0, subscriptionTier: 'Queen' },
+    ],
+    bishop: [
+      { rank: 1, username: 'SlowThinker', lichess_id: 'slow_thinker', score: 140, days_old: 0, subscriptionTier: 'Rook' },
+      { rank: 2, username: 'VALID_ALL', lichess_id: 'valid_all', score: 120, days_old: 0, subscriptionTier: 'King' },
+      { rank: 3, username: 'TacticMaster', lichess_id: 'tactic_master', score: 54, days_old: 0, subscriptionTier: 'Pawn' },
+    ],
+    rookPawn: [
+      { rank: 1, username: 'VALID_ALL', lichess_id: 'valid_all', score: 307, days_old: 0, subscriptionTier: 'King' },
+      { rank: 2, username: 'TheMatist', lichess_id: 'the_matist', score: 153, days_old: 0, subscriptionTier: 'Bishop' },
+    ],
+    queen: [
+      { rank: 1, username: 'TacticMaster', lichess_id: 'tactic_master', score: 202, days_old: 0, subscriptionTier: 'Pawn' },
+      { rank: 2, username: 'BlitzDemon', lichess_id: 'blitz_demon', score: 75, days_old: 0, subscriptionTier: 'Queen' },
+      { rank: 3, username: 'UnbalancedOne', lichess_id: 'unbalanced_one', score: 42, days_old: 0, subscriptionTier: 'Knight' },
+      { rank: 4, username: 'VALID_ALL', lichess_id: 'valid_all', score: 33, days_old: 0, subscriptionTier: 'King' },
+    ],
+    knightBishop: [
+      { rank: 1, username: 'UnbalancedOne', lichess_id: 'unbalanced_one', score: 139, days_old: 0, subscriptionTier: 'Knight' },
+      { rank: 2, username: 'BlitzDemon', lichess_id: 'blitz_demon', score: 82, days_old: 0, subscriptionTier: 'Queen' },
+      { rank: 3, username: 'SlowThinker', lichess_id: 'slow_thinker', score: 45, days_old: 0, subscriptionTier: 'Rook' },
+    ],
+    rookPieces: [
+      { rank: 1, username: 'TheMatist', lichess_id: 'the_matist', score: 174, days_old: 0, subscriptionTier: 'Bishop' },
+      { rank: 2, username: 'UnbalancedOne', lichess_id: 'unbalanced_one', score: 114, days_old: 0, subscriptionTier: 'Knight' },
+    ],
+    queenPieces: [
+      { rank: 1, username: 'VALID_ALL', lichess_id: 'valid_all', score: 112, days_old: 0, subscriptionTier: 'King' },
+      { rank: 2, username: 'TacticMaster', lichess_id: 'tactic_master', score: 82, days_old: 0, subscriptionTier: 'Pawn' },
+      { rank: 3, username: 'SlowThinker', lichess_id: 'slow_thinker', score: 74, days_old: 0, subscriptionTier: 'Rook' },
+      { rank: 4, username: 'UnbalancedOne', lichess_id: 'unbalanced_one', score: 37, days_old: 0, subscriptionTier: 'Knight' },
+    ],
+    expert: [
+      { rank: 1, username: 'SlowThinker', lichess_id: 'slow_thinker', score: 248, days_old: 0, subscriptionTier: 'Rook' },
+      { rank: 2, username: 'TheMatist', lichess_id: 'the_matist', score: 166, days_old: 0, subscriptionTier: 'Bishop' },
+      { rank: 3, username: 'BlitzDemon', lichess_id: 'blitz_demon', score: 150, days_old: 0, subscriptionTier: 'Queen' },
+      { rank: 4, username: 'TacticMaster', lichess_id: 'tactic_master', score: 29, days_old: 0, subscriptionTier: 'Pawn' },
+      { rank: 5, username: 'VALID_ALL', lichess_id: 'valid_all', score: 21, days_old: 0, subscriptionTier: 'King' },
+    ],
+  },
+  theoryLeaderboard: {
+    bishop: [
+      { rank: 1, username: 'TheMatist', lichess_id: 'the_matist', score: 118, days_old: 0, subscriptionTier: 'Bishop' },
+      { rank: 2, username: 'BlitzDemon', lichess_id: 'blitz_demon', score: 92, days_old: 0, subscriptionTier: 'Queen' },
+      { rank: 3, username: 'VALID_ALL', lichess_id: 'valid_all', score: 78, days_old: 0, subscriptionTier: 'King' },
+    ],
+    knight: [
+      { rank: 1, username: 'BlitzDemon', lichess_id: 'blitz_demon', score: 288, days_old: 0, subscriptionTier: 'Queen' },
+      { rank: 2, username: 'UnbalancedOne', lichess_id: 'unbalanced_one', score: 49, days_old: 0, subscriptionTier: 'Knight' },
+      { rank: 3, username: 'VALID_ALL', lichess_id: 'valid_all', score: 47, days_old: 0, subscriptionTier: 'King' },
+    ],
+    knightBishop: [
+      { rank: 1, username: 'UnbalancedOne', lichess_id: 'unbalanced_one', score: 198, days_old: 0, subscriptionTier: 'Knight' },
+      { rank: 2, username: 'TacticMaster', lichess_id: 'tactic_master', score: 122, days_old: 0, subscriptionTier: 'Pawn' },
+      { rank: 3, username: 'SlowThinker', lichess_id: 'slow_thinker', score: 98, days_old: 0, subscriptionTier: 'Rook' },
+      { rank: 4, username: 'VALID_ALL', lichess_id: 'valid_all', score: 93, days_old: 0, subscriptionTier: 'King' },
+      { rank: 5, username: 'TheMatist', lichess_id: 'the_matist', score: 45, days_old: 0, subscriptionTier: 'Bishop' },
+    ],
+    pawn: [
+      { rank: 1, username: 'BlitzDemon', lichess_id: 'blitz_demon', score: 125, days_old: 0, subscriptionTier: 'Queen' },
+      { rank: 2, username: 'UnbalancedOne', lichess_id: 'unbalanced_one', score: 122, days_old: 0, subscriptionTier: 'Knight' },
+      { rank: 3, username: 'TacticMaster', lichess_id: 'tactic_master', score: 103, days_old: 0, subscriptionTier: 'Pawn' },
+      { rank: 4, username: 'VALID_ALL', lichess_id: 'valid_all', score: 52, days_old: 0, subscriptionTier: 'King' },
+    ],
+    queen: [
+      { rank: 1, username: 'SlowThinker', lichess_id: 'slow_thinker', score: 109, days_old: 0, subscriptionTier: 'Rook' },
+      { rank: 2, username: 'VALID_ALL', lichess_id: 'valid_all', score: 91, days_old: 0, subscriptionTier: 'King' },
+    ],
+    rookPawn: [
+      { rank: 1, username: 'TheMatist', lichess_id: 'the_matist', score: 107, days_old: 0, subscriptionTier: 'Bishop' },
+      { rank: 2, username: 'UnbalancedOne', lichess_id: 'unbalanced_one', score: 83, days_old: 0, subscriptionTier: 'Knight' },
+      { rank: 3, username: 'SlowThinker', lichess_id: 'slow_thinker', score: 80, days_old: 0, subscriptionTier: 'Rook' },
+      { rank: 4, username: 'TacticMaster', lichess_id: 'tactic_master', score: 56, days_old: 0, subscriptionTier: 'Pawn' },
+      { rank: 5, username: 'BlitzDemon', lichess_id: 'blitz_demon', score: 40, days_old: 0, subscriptionTier: 'Queen' },
+    ],
+    rookPieces: [
+      { rank: 1, username: 'TheMatist', lichess_id: 'the_matist', score: 164, days_old: 0, subscriptionTier: 'Bishop' },
+      { rank: 2, username: 'SlowThinker', lichess_id: 'slow_thinker', score: 130, days_old: 0, subscriptionTier: 'Rook' },
+      { rank: 3, username: 'VALID_ALL', lichess_id: 'valid_all', score: 79, days_old: 0, subscriptionTier: 'King' },
+      { rank: 4, username: 'TacticMaster', lichess_id: 'tactic_master', score: 70, days_old: 0, subscriptionTier: 'Pawn' },
+      { rank: 5, username: 'UnbalancedOne', lichess_id: 'unbalanced_one', score: 60, days_old: 0, subscriptionTier: 'Knight' },
+    ],
+  },
+  practicalLeaderboard: {
+    extraPawn: [
+      { rank: 1, username: 'VALID_ALL', lichess_id: 'valid_all', score: 257, days_old: 0, subscriptionTier: 'King' },
+      { rank: 2, username: 'UnbalancedOne', lichess_id: 'unbalanced_one', score: 147, days_old: 0, subscriptionTier: 'Knight' },
+      { rank: 3, username: 'TheMatist', lichess_id: 'the_matist', score: 77, days_old: 0, subscriptionTier: 'Bishop' },
+    ],
+    materialEquality: [
+      { rank: 1, username: 'TacticMaster', lichess_id: 'tactic_master', score: 26, days_old: 0, subscriptionTier: 'Pawn' },
+      { rank: 2, username: 'VALID_ALL', lichess_id: 'valid_all', score: 5, days_old: 0, subscriptionTier: 'King' },
+    ],
+    bishop: [
+      { rank: 1, username: 'UnbalancedOne', lichess_id: 'unbalanced_one', score: 181, days_old: 0, subscriptionTier: 'Knight' },
+      { rank: 2, username: 'SlowThinker', lichess_id: 'slow_thinker', score: 135, days_old: 0, subscriptionTier: 'Rook' },
+      { rank: 3, username: 'TacticMaster', lichess_id: 'tactic_master', score: 85, days_old: 0, subscriptionTier: 'Pawn' },
+      { rank: 4, username: 'BlitzDemon', lichess_id: 'blitz_demon', score: 57, days_old: 0, subscriptionTier: 'Queen' },
+      { rank: 5, username: 'TheMatist', lichess_id: 'the_matist', score: 47, days_old: 0, subscriptionTier: 'Bishop' },
+    ],
+    knight: [
+      { rank: 1, username: 'VALID_ALL', lichess_id: 'valid_all', score: 215, days_old: 0, subscriptionTier: 'King' },
+      { rank: 2, username: 'UnbalancedOne', lichess_id: 'unbalanced_one', score: 74, days_old: 0, subscriptionTier: 'Knight' },
+      { rank: 3, username: 'TacticMaster', lichess_id: 'tactic_master', score: 25, days_old: 0, subscriptionTier: 'Pawn' },
+      { rank: 4, username: 'BlitzDemon', lichess_id: 'blitz_demon', score: 22, days_old: 0, subscriptionTier: 'Queen' },
+    ],
+    pawn: [
+      { rank: 1, username: 'TacticMaster', lichess_id: 'tactic_master', score: 162, days_old: 0, subscriptionTier: 'Pawn' },
+    ],
+    queen: [
+      { rank: 1, username: 'VALID_ALL', lichess_id: 'valid_all', score: 88, days_old: 0, subscriptionTier: 'King' },
+    ],
+    rook: [
+      { rank: 1, username: 'SlowThinker', lichess_id: 'slow_thinker', score: 163, days_old: 0, subscriptionTier: 'Rook' },
+      { rank: 2, username: 'TacticMaster', lichess_id: 'tactic_master', score: 46, days_old: 0, subscriptionTier: 'Pawn' },
+      { rank: 3, username: 'BlitzDemon', lichess_id: 'blitz_demon', score: 19, days_old: 0, subscriptionTier: 'Queen' },
+    ],
+    exchange: [
+      { rank: 1, username: 'TacticMaster', lichess_id: 'tactic_master', score: 149, days_old: 0, subscriptionTier: 'Pawn' },
+      { rank: 2, username: 'VALID_ALL', lichess_id: 'valid_all', score: 90, days_old: 0, subscriptionTier: 'King' },
+      { rank: 3, username: 'TheMatist', lichess_id: 'the_matist', score: 86, days_old: 0, subscriptionTier: 'Bishop' },
+      { rank: 4, username: 'BlitzDemon', lichess_id: 'blitz_demon', score: 19, days_old: 0, subscriptionTier: 'Queen' },
+    ],
+    knightBishop: [
+      { rank: 1, username: 'TheMatist', lichess_id: 'the_matist', score: 183, days_old: 0, subscriptionTier: 'Bishop' },
+      { rank: 2, username: 'VALID_ALL', lichess_id: 'valid_all', score: 128, days_old: 0, subscriptionTier: 'King' },
+      { rank: 3, username: 'SlowThinker', lichess_id: 'slow_thinker', score: 108, days_old: 0, subscriptionTier: 'Rook' },
+      { rank: 4, username: 'BlitzDemon', lichess_id: 'blitz_demon', score: 59, days_old: 0, subscriptionTier: 'Queen' },
+    ],
+  },
+  overallSkillLeaderboard: [
+    { lichess_id: 'valid_all', username: 'VALID_ALL', subscriptionTier: 'King', total_solved: 4000, total_score: 7834, solved_by_mode: { tornado: 6023, advantage: 593, theory: 440, 'practical-chess': 778, tacticalTrainer: 0 } },
+    { lichess_id: 'tactic_master', username: 'TacticMaster', subscriptionTier: 'Pawn', total_solved: 887, total_score: 1814, solved_by_mode: { tornado: 480, advantage: 490, theory: 351, 'practical-chess': 493, tacticalTrainer: 0 } },
+    { lichess_id: 'slow_thinker', username: 'SlowThinker', subscriptionTier: 'Rook', total_solved: 924, total_score: 1802, solved_by_mode: { tornado: 472, advantage: 507, theory: 417, 'practical-chess': 406, tacticalTrainer: 0 } },
+    { lichess_id: 'the_matist', username: 'TheMatist', subscriptionTier: 'Bishop', total_solved: 893, total_score: 1792, solved_by_mode: { tornado: 419, advantage: 546, theory: 434, 'practical-chess': 393, tacticalTrainer: 0 } },
+    { lichess_id: 'unbalanced_one', username: 'UnbalancedOne', subscriptionTier: 'Knight', total_solved: 789, total_score: 1562, solved_by_mode: { tornado: 257, advantage: 391, theory: 512, 'practical-chess': 402, tacticalTrainer: 0 } },
+    { lichess_id: 'blitz_demon', username: 'BlitzDemon', subscriptionTier: 'Queen', total_solved: 764, total_score: 1470, solved_by_mode: { tornado: 363, advantage: 386, theory: 545, 'practical-chess': 176, tacticalTrainer: 0 } },
+  ],
+  skillStreakLeaderboard: [
+    { lichess_id: 'valid_all', username: 'VALID_ALL', current_streak: 35, subscriptionTier: 'King', total_solved: 16854, total_score: 32334, solved_by_mode: { tornado: 24974, advantage: 2637, theory: 2146, 'practical-chess': 2577, tacticalTrainer: 0 } },
+    { lichess_id: 'the_matist', username: 'TheMatist', current_streak: 7, subscriptionTier: 'Bishop', total_solved: 872, total_score: 1759, solved_by_mode: { tornado: 419, advantage: 513, theory: 434, 'practical-chess': 393, tacticalTrainer: 0 } },
+    { lichess_id: 'tactic_master', username: 'TacticMaster', current_streak: 2, subscriptionTier: 'Pawn', total_solved: 277, total_score: 534, solved_by_mode: { tornado: 169, advantage: 131, theory: 56, 'practical-chess': 178, tacticalTrainer: 0 } },
+    { lichess_id: 'blitz_demon', username: 'BlitzDemon', current_streak: 1, subscriptionTier: 'Queen', total_solved: 126, total_score: 298, solved_by_mode: { tornado: 39, advantage: 112, theory: 125, 'practical-chess': 22, tacticalTrainer: 0 } },
+  ],
+  skillStreakMegaLeaderboard: [
+    { lichess_id: 'valid_all', username: 'VALID_ALL', current_streak: 35, subscriptionTier: 'King', total_solved: 16854, total_score: 32334, solved_by_mode: { tornado: 24974, advantage: 2637, theory: 2146, 'practical-chess': 2577, tacticalTrainer: 0 } },
+  ],
+  topTodayLeaderboard: [
+    { lichess_id: 'valid_all', username: 'VALID_ALL', subscriptionTier: 'King', total_solved: 534, total_score: 720, solved_by_mode: { tornado: 509, advantage: 37, theory: 41, 'practical-chess': 133, tacticalTrainer: 0 } },
+    { lichess_id: 'tactic_master', username: 'TacticMaster', subscriptionTier: 'Pawn', total_solved: 168, total_score: 285, solved_by_mode: { tornado: 59, advantage: 77, theory: 56, 'practical-chess': 93, tacticalTrainer: 0 } },
+    { lichess_id: 'the_matist', username: 'TheMatist', subscriptionTier: 'Bishop', total_solved: 137, total_score: 230, solved_by_mode: { tornado: 11, advantage: 72, theory: 70, 'practical-chess': 77, tacticalTrainer: 0 } },
+    { lichess_id: 'unbalanced_one', username: 'UnbalancedOne', subscriptionTier: 'Knight', total_solved: 85, total_score: 159, solved_by_mode: { tornado: 33, advantage: 0, theory: 52, 'practical-chess': 74, tacticalTrainer: 0 } },
+    { lichess_id: 'blitz_demon', username: 'BlitzDemon', subscriptionTier: 'Queen', total_solved: 71, total_score: 108, solved_by_mode: { tornado: 68, advantage: 0, theory: 40, 'practical-chess': 0, tacticalTrainer: 0 } },
+    { lichess_id: 'slow_thinker', username: 'SlowThinker', subscriptionTier: 'Rook', total_solved: 47, total_score: 53, solved_by_mode: { tornado: 53, advantage: 0, theory: 0, 'practical-chess': 0, tacticalTrainer: 0 } },
+  ],
 }
