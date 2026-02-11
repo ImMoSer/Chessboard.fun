@@ -54,6 +54,9 @@ const formattedThemes = computed(() => {
   } else if (selectedPuzzle.value.Themes) {
     // Handle both space and comma separated strings
     themesList = selectedPuzzle.value.Themes.split(/[ ,]+/).filter(Boolean)
+  } else if (selectedPuzzle.value.themes && Array.isArray(selectedPuzzle.value.themes)) {
+    // Support for TornadoBox format (lowercase 'themes' array)
+    themesList = selectedPuzzle.value.themes
   }
 
   return themesList
@@ -73,9 +76,12 @@ function selectPuzzle(puzzle: GamePuzzle) {
   selectedPuzzleId.value = puzzle.PuzzleId
   feedbackMessage.value = t('tornado.mistakes.feedback.yourTurn')
 
+  const fen = puzzle.FEN_0 || puzzle.initial_fen || ''
+  const moves = puzzle.Moves || puzzle.tactical_solution || ''
+
   gameStore.setupPuzzle(
-    puzzle.FEN_0,
-    puzzle.Moves.split(' '),
+    fen,
+    moves.split(' '),
     handlePuzzleResult,
     () => true,
     () => {},
@@ -179,7 +185,7 @@ async function handleExit() {
             }"
             @click="selectPuzzle(puzzle)"
           >
-            <ChessboardPreview :fen="puzzle.FEN_0" orientation="white" />
+            <ChessboardPreview :fen="puzzle.FEN_0 || puzzle.initial_fen || ''" orientation="white" />
           </div>
           <div v-if="mistakes.length === 0" class="no-mistakes">
             {{ t('tornado.mistakes.feedback.noMistakes') }}

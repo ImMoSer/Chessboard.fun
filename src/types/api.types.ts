@@ -280,6 +280,7 @@ export interface GamePuzzle {
   fen_final?: string
   endgame_results?: PuzzleResultEntry[]
   Themes_PG?: string[]
+  themes?: string[]
   engm_type?: AdvantageTheme | null
   difficulty_level?: string | null
   engmRating?: number

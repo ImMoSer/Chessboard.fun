@@ -48,7 +48,7 @@ function handleSelectMove(uci: string) {
 watch(
   [pgnTreeVersion, () => boardStore.fen],
   () => {
-    if (openingStore.isPlayoutMode) return
+    if (openingStore.isPlayoutMode || openingStore.isTheoryOver || openingStore.isDeviation) return
     mozerStore.fetchStats()
     showTheory.value = false // Close theory when position changes
   },
@@ -56,7 +56,7 @@ watch(
 )
 
 onMounted(() => {
-  if (openingStore.isPlayoutMode) return
+  if (openingStore.isPlayoutMode || openingStore.isTheoryOver || openingStore.isDeviation) return
   mozerStore.fetchStats()
 })
 

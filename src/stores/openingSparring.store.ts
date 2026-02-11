@@ -240,7 +240,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   }
 
   async function fetchStats() {
-    if (isPlayoutMode.value) return
+    if (isPlayoutMode.value || isTheoryOver.value || isDeviation.value) return
 
     await mozerStore.fetchStats()
 

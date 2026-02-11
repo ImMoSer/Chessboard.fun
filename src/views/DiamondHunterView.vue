@@ -89,6 +89,7 @@ async function startSession(color: 'white' | 'black') {
   // Although "Solving" phase assumes user finds move. Analysis engine would cheat.
   // So likely hide analysis.
   analysisStore.hidePanel()
+  gameStore.shouldAutoPlayBot = false
 
   router.replace({
       name: 'diamond-hunter',
@@ -105,21 +106,24 @@ async function startSession(color: 'white' | 'black') {
     'opening-trainer',
     undefined,
     color,
-    (uci) => {
-      if (diamondHunterStore.isSolving) {
-         diamondHunterStore.handleUserSolvingMove(uci)
-      } else if (diamondHunterStore.state === 'SAVING') {
-         diamondHunterStore.handleSaveMove(uci)
-      } else {
-         // In Hunt mode, user just moves.
-         // We might want to validate move legality via boardStore, which handles it.
-         // But we usually need to update state.
-         // Check if boardStore.handleUserMove was called?
-         // gameStore.handleUserMove calls this callback.
-         // So the move is already applied on board if legitimate.
-      }
-    },
-  )
+      (uci) => {
+        if (diamondHunterStore.isSolving) {
+           diamondHunterStore.handleUserSolvingMove(uci)
+        } else if (diamondHunterStore.state === 'SAVING') {
+           diamondHunterStore.handleSaveMove(uci)
+        } else {
+           // In Hunt mode, user just moves.
+           // We might want to validate move legality via boardStore, which handles it.
+           // But we usually need to update state.
+           // Check if boardStore.handleUserMove was called?
+           // gameStore.handleUserMove calls this callback.
+           // So the move is already applied on board if legitimate.
+        }
+      },
+      undefined,
+      false, // autoPlayBot: false to prevent conflict with DiamondHunterStore's own bot logic
+      true // keepPgn: true
+    )
 
   // Initialize board only
   boardStore.setupPosition('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', color)
@@ -243,23 +247,23 @@ function goBack() {
 
          <n-space justify="center" :size="20">
              <!-- If we have moves to replay (meaning we just found it initially), offer Secure option -->
-             <n-button 
-                v-if="diamondHunterStore.savingMoves.length > 0" 
-                type="primary" 
+             <n-button
+                v-if="diamondHunterStore.savingMoves.length > 0"
+                type="primary"
                 @click="diamondHunterStore.startSaveRun()"
              >
                 Secure Diamond (Replay)
              </n-button>
-             
+
              <!-- Fallback or if already secured (moves cleared) -->
-             <n-button 
+             <n-button
                 v-else
-                type="primary" 
+                type="primary"
                 @click="diamondHunterStore.stopHunt(); handleRestart()"
              >
                 Next Hunt
              </n-button>
-             
+
              <n-button secondary @click="startAnalysis">
                  <template #icon><n-icon><TelescopeOutline /></n-icon></template>
                  Analyze

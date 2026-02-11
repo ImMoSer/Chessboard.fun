@@ -657,7 +657,8 @@
         "solved": "Great! The puzzle is solved correctly.",
         "wrongMove": "Incorrect. Try to analyze the position.",
         "allSolved": "Congratulations! All mistakes are corrected.",
-        "noMistakes": "No mistakes in the last session!"
+        "noMistakes": "No mistakes in the last session!",
+        "loadFailed": "Failed to load mistakes from local storage."
       },
       "ui": {
         "analysisButton": "Analysis",
