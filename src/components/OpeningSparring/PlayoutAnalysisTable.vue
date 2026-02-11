@@ -88,14 +88,14 @@ const renderMoveCell = (move: SessionMove | null) => {
             display: 'flex',
             alignItems: 'center',
             gap: '4px',
-            cursor: 'pointer',
+            cursor: openingStore.isReviewMode ? 'pointer' : 'default',
             background: isActive ? 'var(--color-accent)' : 'transparent',
             padding: '2px 4px',
             borderRadius: '4px',
             color: isActive ? '#fff' : 'inherit',
             justifyContent: 'center'
         },
-        onClick: () => openingStore.setReviewMove(globalIndex)
+        onClick: openingStore.isReviewMode ? () => openingStore.setReviewMove(globalIndex) : undefined
     }, [
         h(NText, { strong: true, style: { color: isActive ? '#fff' : 'inherit', fontSize: '13px' } }, { default: () => move.san }),
         move.quality ? h(NTag, {

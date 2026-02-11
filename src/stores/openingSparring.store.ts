@@ -177,6 +177,8 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
         undefined,
         color,
         (uci) => handlePlayerMove(uci),
+        undefined, // onBotMove
+        false, // autoPlayBot - Disable GameStore engine bot to avoid conflict with MozerBook
       )
 
       // 4. Load theory book
