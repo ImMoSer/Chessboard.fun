@@ -1,13 +1,12 @@
-// src/stores/practicalChess.store.ts
 import type { Color as ChessgroundColor } from '@lichess-org/chessground/types'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { soundService } from '../services/sound.service'
 import { webhookService } from '../services/WebhookService'
 import type {
-    PracticalChessCategory,
-    PracticalChessDifficulty,
-    PracticalChessPuzzle,
+  PracticalChessCategory,
+  PracticalChessDifficulty,
+  PracticalPuzzle,
 } from '../types/api.types'
 import logger from '../utils/logger'
 import { useAnalysisStore } from './analysis.store'
@@ -21,8 +20,8 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
   const analysisStore = useAnalysisStore()
   const authStore = useAuthStore()
 
-  const activePuzzle = ref<PracticalChessPuzzle | null>(null)
-  const activeCategory = ref<PracticalChessCategory>('extra_pawn')
+  const activePuzzle = ref<PracticalPuzzle | null>(null)
+  const activeCategory = ref<PracticalChessCategory>('extraPawn')
   const activeDifficulty = ref<PracticalChessDifficulty>('Novice')
 
   const isProcessingGameOver = ref(false)
@@ -48,7 +47,7 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
     gameStore.setGamePhase('LOADING')
 
     try {
-      let puzzle: PracticalChessPuzzle | null = null
+      let puzzle: PracticalPuzzle | null = null
 
       if (id) {
         puzzle = await webhookService.fetchPracticalPuzzleById(id)
@@ -62,27 +61,27 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
       if (!puzzle) throw new Error('Puzzle data is null')
 
       activePuzzle.value = puzzle
-      activeCategory.value = puzzle.category
-      activeDifficulty.value = puzzle.difficulty
+      activeCategory.value = puzzle.category as PracticalChessCategory
+      activeDifficulty.value = puzzle.difficulty as PracticalChessDifficulty
 
-      if (puzzle.category === 'material_equality') {
+      if (puzzle.category === 'materialEquality') {
         isWaitingForColorSelection.value = true
         // Position board for white initially without starting game logic
-        boardStore.setupPosition(puzzle.fen_0, 'white')
+        boardStore.setupPosition(puzzle.initial_fen, 'white')
         gameStore.setGamePhase('IDLE')
         return
       }
 
       // Determine human color: user plays the side that is the winner
-      const humanColor = puzzle.winner
+      const humanColor = puzzle.winner as ChessgroundColor
       currentUserColor.value = humanColor
 
       gameStore.setupPuzzle(
-        puzzle.fen_0,
+        puzzle.initial_fen,
         [], // moves
         _handleGameOver,
         _checkWinCondition,
-        () => {}, // onPlayoutStart
+        () => { }, // onPlayoutStart
         'practical-chess',
         undefined, // onCorrectFirstMove
         humanColor,
@@ -129,22 +128,22 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
 
   async function restartPuzzle() {
     if (activePuzzle.value) {
-      if (activePuzzle.value.category === 'material_equality') {
+      if (activePuzzle.value.category === 'materialEquality') {
         isWaitingForColorSelection.value = true
-        boardStore.setupPosition(activePuzzle.value.fen_0, 'white')
+        boardStore.setupPosition(activePuzzle.value.initial_fen, 'white')
         gameStore.setGamePhase('IDLE')
         return
       }
 
       gameStore.setupPuzzle(
-        activePuzzle.value.fen_0,
+        activePuzzle.value.initial_fen,
         [], // moves
         _handleGameOver,
         _checkWinCondition,
-        () => {}, // onPlayoutStart
+        () => { }, // onPlayoutStart
         'practical-chess',
         undefined, // onCorrectFirstMove
-        activePuzzle.value.winner,
+        activePuzzle.value.winner as ChessgroundColor,
         undefined, // onUserMove
       )
     }
@@ -155,7 +154,7 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
     isWaitingForColorSelection.value = false
     currentUserColor.value = color
 
-    let fen = activePuzzle.value.fen_0
+    let fen = activePuzzle.value.initial_fen
     if (color === 'black') {
       // Replace 'w' with 'b' in the FEN side-to-move field
       // FEN format: [board] [turn] [castling] [enpassant] [halfmove] [fullmove]
@@ -176,7 +175,7 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
       [],
       _handleGameOver,
       _checkWinCondition,
-      () => {},
+      () => { },
       'practical-chess',
       undefined,
       color,

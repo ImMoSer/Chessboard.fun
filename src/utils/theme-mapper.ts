@@ -34,16 +34,18 @@ export const THEME_KEY_MAP: Record<string, string> = {
   expert_endgame: 'expert_endgame',
 
   // --- Practical ---
-  extra_pawn: 'extra_pawn',
-  material_equality: 'material_equality',
+  extraPawn: 'extra_pawn',
+  materialEquality: 'material_equality',
   exchange: 'exchange',
+  rook: 'rook_endgame',
+  pawn: 'pawn_endgame',
+  knightVsBishop: 'knight_vs_bishop',
+  bishop: 'bishop_endgame',
+  knight: 'knight_endgame',
+  queen: 'queen_endgame',
 
   // --- Legacy Mappings (Backward Compatibility) ---
-  pawn: 'pawn_endgame',
-  knight: 'knight_endgame',
-  bishop: 'bishop_endgame',
   rookPawn: 'rook_pawn_endgame',
-  queen: 'queen_endgame',
   knightBishop: 'knight_vs_bishop',
   rookPieces: 'rook_pieces_endgame',
   queenPieces: 'queen_pieces_endgame',

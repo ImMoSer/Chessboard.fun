@@ -69,8 +69,8 @@ watch(
       onRestart: finishHimStore.handleRestart,
       onResign: finishHimStore.handleResign,
       onShare: () => {
-        if (finishHimStore.activePuzzle?.PuzzleId) {
-          shareService.share('finish-him', finishHimStore.activePuzzle.PuzzleId)
+        if (finishHimStore.activePuzzle?.puzzle_id) {
+          shareService.share('finish-him', finishHimStore.activePuzzle.puzzle_id)
         }
       },
     })

@@ -8,8 +8,8 @@ import { InsufficientFunCoinsError, webhookService } from '../services/WebhookSe
 import type {
   TheoryEndingCategory,
   TheoryEndingDifficulty,
-  TheoryEndingPuzzle,
   TheoryEndingType,
+  TheoryPuzzle,
 } from '../types/api.types'
 import logger from '../utils/logger'
 import { useAnalysisStore } from './analysis.store'
@@ -28,7 +28,7 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
   const uiStore = useUiStore()
   const analysisStore = useAnalysisStore()
 
-  const activePuzzle = ref<TheoryEndingPuzzle | null>(null)
+  const activePuzzle = ref<TheoryPuzzle | null>(null)
   const activeType = ref<TheoryEndingType | null>(null)
   const activeDifficulty = ref<TheoryEndingDifficulty | null>(null)
   const activeCategory = ref<TheoryEndingCategory | null>(null)
@@ -105,7 +105,7 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
 
     try {
       const response = await webhookService.processTheoryResult({
-        puzzleId: puzzle.id,
+        puzzleId: puzzle.puzzle_id,
         wasCorrect: isWin,
       })
       if (response && response.UserStatsUpdate) {
@@ -129,7 +129,7 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
     _clearGame() // If any
 
     try {
-      let puzzle: TheoryEndingPuzzle | null = null
+      let puzzle: TheoryPuzzle | null = null
 
       if (puzzleId && type) {
         puzzle = await webhookService.fetchTheoryPuzzleById(type, puzzleId)
@@ -154,13 +154,16 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
       if (!puzzle) throw new Error('Puzzle data is null')
 
       activePuzzle.value = puzzle
-      activeType.value = puzzle.type // Ensure store state matches loaded puzzle type
-      activeDifficulty.value = puzzle.difficulty
-      activeCategory.value = puzzle.category
+      // activeType is managed by setParams or preserved if loading by ID with known type
+      if (type) activeType.value = type
+
+      activeDifficulty.value = puzzle.difficulty as TheoryEndingDifficulty
+      activeCategory.value = puzzle.category as TheoryEndingCategory
 
       // Determine human color
       let humanColor: 'white' | 'black'
-      if (puzzle.type === 'win') {
+      // Use activeType.value for game type logic
+      if (activeType.value === 'win') {
         humanColor = 'white'
       } else {
         if (puzzle.weak_side === 'even') {
@@ -171,11 +174,11 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
       }
 
       gameStore.setupPuzzle(
-        puzzle.fen,
+        puzzle.initial_fen,
         [], // No scenario moves
         _handleGameOver,
         _checkWinCondition,
-        () => {}, // No timer start callback needed
+        () => { }, // No timer start callback needed
         'theory',
         undefined,
         humanColor,
@@ -191,8 +194,8 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
             required: e.required,
             available: e.available,
           }) +
-            '\n\n' +
-            t('pricing.insufficientCoins.subMessage'),
+          '\n\n' +
+          t('pricing.insufficientCoins.subMessage'),
           {
             confirmText: t('pricing.insufficientCoins.goToPricing'),
             cancelText: t('common.close'),
@@ -234,10 +237,10 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
         )
         if (confirmed) {
           gameStore.handleGameResignation()
-          await loadNewPuzzle(activeType.value!, activePuzzle.value.id)
+          await loadNewPuzzle(activeType.value!, activePuzzle.value.puzzle_id)
         }
       } else {
-        await loadNewPuzzle(activeType.value!, activePuzzle.value.id)
+        await loadNewPuzzle(activeType.value!, activePuzzle.value.puzzle_id)
       }
     }
   }

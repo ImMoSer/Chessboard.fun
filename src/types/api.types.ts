@@ -48,7 +48,7 @@ export interface TornadoEndSessionDto {
 }
 
 export interface TornadoStartResponse {
-  puzzle: GamePuzzle
+  puzzle: TornadoPuzzle
   sessionId: string
   sessionRating: number
   sessionTheme?: string
@@ -57,7 +57,7 @@ export interface TornadoStartResponse {
 export interface TornadoNextResponse {
   sessionRating: number
   ratingDelta: number
-  nextPuzzle: GamePuzzle
+  nextPuzzle: TornadoPuzzle
   updatedThemeRatings?: Record<string, ThemeRating>
   userStatsUpdate?: UserStatsUpdate
 }
@@ -150,15 +150,15 @@ export interface UserTheoryEndingStatsDto {
 
 // --- PRACTICAL CHESS MODE ---
 export const PRACTICAL_CHESS_CATEGORIES = [
-  'extra_pawn',
-  'material_equality',
-  'bishops',
-  'knights',
-  'pawns',
-  'queens',
-  'rooks',
+  'extraPawn',
+  'materialEquality',
   'exchange',
-  'knight_vs_bishop',
+  'rook',
+  'pawn',
+  'knightVsBishop',
+  'bishop',
+  'knight',
+  'queen',
 ] as const
 
 export type PracticalChessCategory = (typeof PRACTICAL_CHESS_CATEGORIES)[number]
@@ -216,6 +216,52 @@ export interface AdvantageLeaderboardEntry {
   subscriptionTier?: string
 }
 
+export interface TornadoPuzzle {
+  puzzle_id: string
+  initial_fen: string
+  tactical_solution: string
+  tactical_rating: number
+  themes: string[]
+}
+
+export interface FinishHimPuzzle {
+  puzzle_id: string
+  initial_fen: string
+  tactical_solution: string
+  eval: number
+  material_count: number
+  material_advantage: number
+  pieces_count: number
+  engm_rating: number
+  difficulty: string
+  tactical_rating: number
+  category: string
+  sub_category?: string
+}
+
+export interface PracticalPuzzle {
+  puzzle_id: string
+  initial_fen: string
+  winner: string
+  difficulty: string
+  material_count: number
+  pieces_count: number
+  eval: number
+  category: string
+}
+
+export interface TheoryPuzzle {
+  puzzle_id: string
+  initial_fen: string
+  weak_side: string
+  pieces_count: number
+  material_count: number
+  category: string
+  only_move: boolean
+  difficulty: string
+  result: string
+}
+
 export interface GamePuzzle {
   PuzzleId: string
   id?: string
@@ -245,7 +291,16 @@ export interface GamePuzzle {
     theme_key: string
     [key: string]: unknown
   }
+  // New unified fields (optional adapters for compatibility)
+  puzzle_id?: string
+  initial_fen?: string
+  tactical_solution?: string
+  winner?: string // for Practical
+  weak_side?: string // for Theory
+  result?: string // for Theory
 }
+
+export type PuzzleUnion = TornadoPuzzle | FinishHimPuzzle | PracticalPuzzle | TheoryPuzzle | GamePuzzle
 
 
 

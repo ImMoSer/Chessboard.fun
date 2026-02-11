@@ -5,7 +5,7 @@ import { useRouter } from 'vue-router'
 import i18n from '../services/i18n'
 import { soundService } from '../services/sound.service'
 import { InsufficientFunCoinsError, webhookService } from '../services/WebhookService'
-import type { AdvantageDifficulty, AdvantageResultDto, GamePuzzle } from '../types/api.types'
+import type { AdvantageDifficulty, AdvantageResultDto, FinishHimPuzzle } from '../types/api.types'
 import logger from '../utils/logger'
 import { useAnalysisStore } from './analysis.store'
 import { useAuthStore } from './auth.store'
@@ -23,7 +23,7 @@ export const useFinishHimStore = defineStore('finishHim', () => {
   const authStore = useAuthStore()
   const analysisStore = useAnalysisStore()
 
-  const activePuzzle = ref<GamePuzzle | null>(null)
+  const activePuzzle = ref<FinishHimPuzzle | null>(null)
   const feedbackMessage = ref(t('finishHim.feedback.pressNext'))
 
   const selectedTheme = ref<string>('auto')
@@ -83,7 +83,7 @@ export const useFinishHimStore = defineStore('finishHim', () => {
     }
 
     const dto: AdvantageResultDto = {
-      puzzleId: puzzle.PuzzleId,
+      puzzleId: puzzle.puzzle_id,
       wasCorrect: isWin,
     }
 
@@ -119,7 +119,7 @@ export const useFinishHimStore = defineStore('finishHim', () => {
     feedbackMessage.value = t('common.loading')
 
     try {
-      let puzzle: GamePuzzle | null = null
+      let puzzle: FinishHimPuzzle | null = null
 
       if (puzzleId) {
         puzzle = await webhookService.fetchAdvantagePuzzleById(puzzleId)
@@ -135,11 +135,11 @@ export const useFinishHimStore = defineStore('finishHim', () => {
       activePuzzle.value = puzzle
 
       gameStore.setupPuzzle(
-        puzzle.FEN_0,
-        puzzle.Moves.split(' '),
+        puzzle.initial_fen,
+        puzzle.tactical_solution.split(' '),
         _handleGameOver,
         _checkWinCondition,
-        () => {}, // No timer start callback
+        () => { }, // No timer start callback
         'finish-him',
       )
 
@@ -153,8 +153,8 @@ export const useFinishHimStore = defineStore('finishHim', () => {
             required: e.required,
             available: e.available,
           }) +
-            '\n\n' +
-            t('pricing.insufficientCoins.subMessage'),
+          '\n\n' +
+          t('pricing.insufficientCoins.subMessage'),
           {
             confirmText: t('pricing.insufficientCoins.goToPricing'),
             cancelText: t('common.close'),
@@ -181,7 +181,7 @@ export const useFinishHimStore = defineStore('finishHim', () => {
       [], // No scenario moves, just playout
       _handleGameOver,
       _checkWinCondition,
-      () => {}, // No timer
+      () => { }, // No timer
       'finish-him',
       undefined,
       color,
@@ -220,11 +220,11 @@ export const useFinishHimStore = defineStore('finishHim', () => {
       if (confirmed) {
         gameStore.handleGameResignation()
         if (activePuzzle.value) {
-          loadNewPuzzle(activePuzzle.value.PuzzleId)
+          loadNewPuzzle(activePuzzle.value.puzzle_id)
         }
       }
     } else if (activePuzzle.value) {
-      loadNewPuzzle(activePuzzle.value.PuzzleId)
+      loadNewPuzzle(activePuzzle.value.puzzle_id)
     }
   }
 

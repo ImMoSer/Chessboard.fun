@@ -9,7 +9,7 @@ import { NCard, NGrid, NGridItem, NIcon, NSpace, NStatistic, NTable, NTag, NText
 import { usePracticalChessStore } from '../stores/practicalChess.store'
 import { useTheoryEndingsStore } from '../stores/theoryEndings.store'
 import { useTornadoStore } from '../stores/tornado.store'
-import type { GamePuzzle } from '../types/api.types'
+import type { PuzzleUnion } from '../types/api.types'
 import { getThemeTranslationKey } from '../utils/theme-mapper'
 import ChessboardPreview from './ChessboardPreview.vue'
 
@@ -30,43 +30,45 @@ const activeStore = computed(() => {
   return finishHimStore
 })
 
-const activePuzzle = computed(() => {
-  return activeStore.value.activePuzzle as
-    | (GamePuzzle & { category?: string; type?: string })
-    | null
+const activePuzzle = computed<PuzzleUnion | null>(() => {
+  return (activeStore.value.activePuzzle as PuzzleUnion) || null
 })
 
 const tacticalThemesList = computed<string[]>(() => {
   const puzzle = activePuzzle.value
   if (!puzzle) return []
 
-  // 1. Unified theme_key from backend (preferred)
-  if (puzzle.theme_key) return [puzzle.theme_key]
-  if (puzzle.meta?.theme_key) return [puzzle.meta.theme_key]
-
-  // 2. Mode-specific fallbacks
-  const gameMode = route.meta.game
-  if (gameMode === 'finish-him') {
-    if (puzzle.engmMap) return [puzzle.engmMap]
-  }
-  if (gameMode === 'practical-chess') {
-    if (puzzle.category) return [puzzle.category]
-  }
-  if (gameMode === 'theory-endings') {
-    if (puzzle.category) return [puzzle.category]
+  // 1. New 'themes' array (Tornado)
+  if ('themes' in puzzle && Array.isArray(puzzle.themes)) {
+    return puzzle.themes
   }
 
-  // 3. Legacy/Specific formats
-  if (puzzle.EngmThemes_PG) {
+  // 2. New 'category' field (Practical, Theory, FinishHim)
+  if ('category' in puzzle && typeof puzzle.category === 'string') {
+    return [puzzle.category]
+  }
+
+  // 3. Legacy properties (GamePuzzle)
+  if ('theme_key' in puzzle && puzzle.theme_key) return [puzzle.theme_key]
+
+  if ('meta' in puzzle && puzzle.meta?.theme_key) {
+     return [puzzle.meta.theme_key]
+  }
+
+  if ('engmMap' in puzzle && puzzle.engmMap) return [puzzle.engmMap]
+
+  if ('EngmThemes_PG' in puzzle && puzzle.EngmThemes_PG) {
     return puzzle.EngmThemes_PG.replace(/[{}]/g, '')
       .split(',')
       .map((t: string) => t.trim())
   }
 
-  if (puzzle.Themes_PG)
-    return Array.isArray(puzzle.Themes_PG) ? puzzle.Themes_PG : [puzzle.Themes_PG]
-  if (puzzle.Themes) return puzzle.Themes.split(' ')
-  if (puzzle.puzzle_theme) return puzzle.puzzle_theme.split(' ')
+  if ('Themes_PG' in puzzle && puzzle.Themes_PG) {
+     return Array.isArray(puzzle.Themes_PG) ? puzzle.Themes_PG : [puzzle.Themes_PG]
+  }
+
+  if ('Themes' in puzzle && puzzle.Themes) return puzzle.Themes.split(' ')
+  if ('puzzle_theme' in puzzle && puzzle.puzzle_theme) return puzzle.puzzle_theme.split(' ')
 
   return []
 })
@@ -78,24 +80,47 @@ const finishHimModeDisplay = computed(() => {
 })
 
 const finalPositionOrientation = computed(() => {
-  if (activePuzzle.value && activePuzzle.value.FEN_0) {
-    const turn = activePuzzle.value.FEN_0.split(' ')[1]
+  const puzzle = activePuzzle.value
+  if (!puzzle) return 'white'
+
+  let fen: string | undefined
+
+  if ('initial_fen' in puzzle) fen = puzzle.initial_fen
+  else if ('FEN_0' in puzzle) fen = puzzle.FEN_0
+  else if ('fen_final' in puzzle) fen = (puzzle as any).fen_final
+
+  if (fen) {
+    const turn = fen.split(' ')[1]
     return turn === 'w' ? 'black' : 'white'
-  }
-  if (activePuzzle.value && activePuzzle.value.fen_final) {
-    const turn = activePuzzle.value.fen_final.split(' ')[1]
-    return turn === 'b' ? 'white' : 'black'
   }
   return 'white'
 })
 
 const sortedResults = computed(() => {
   const puzzle = activePuzzle.value
-  const results = puzzle?.endgame_results
+  if (!puzzle || !('endgame_results' in puzzle)) return null
+
+  const results = (puzzle as any).endgame_results
   if (!results || results.length === 0) {
     return null
   }
   return [...results].sort((a, b) => a.time_in_seconds - b.time_in_seconds)
+})
+
+const puzzleGoalOrType = computed(() => {
+  const puzzle = activePuzzle.value
+  if (!puzzle) return null
+
+  if ('meta' in puzzle && puzzle.meta?.goal) return puzzle.meta.goal
+  if ('type' in puzzle && puzzle.type) return puzzle.type
+  return null
+})
+
+const puzzleFenFinal = computed(() => {
+  const puzzle = activePuzzle.value
+  if (!puzzle) return null
+  if ('fen_final' in puzzle) return puzzle.fen_final
+  return null
 })
 </script>
 
@@ -117,18 +142,19 @@ const sortedResults = computed(() => {
                 </template>
                 <n-text strong>
                   {{
-                    activePuzzle.Rating ||
-                    activePuzzle.rating ||
-                    activePuzzle.engmRating ||
-                    activePuzzle.difficulty ||
+                    ('tactical_rating' in activePuzzle && activePuzzle.tactical_rating) ||
+                    ('rating' in activePuzzle && activePuzzle.rating) ||
+                    ('Rating' in activePuzzle && activePuzzle.Rating) ||
+                    ('engmRating' in activePuzzle && activePuzzle.engmRating) ||
+                    ('difficulty' in activePuzzle && activePuzzle.difficulty) ||
                     '?'
                   }}
                 </n-text>
               </n-statistic>
             </n-grid-item>
 
-            <!-- Evaluation Display (Divide by 100 for CP to Pawn conversion) -->
-            <n-grid-item v-if="activePuzzle.eval !== undefined">
+            <!-- Evaluation Display -->
+            <n-grid-item v-if="'eval' in activePuzzle && activePuzzle.eval !== undefined">
               <n-statistic :label="t('puzzleInfo.evaluation')">
                 <template #prefix>
                   <n-icon color="#2080f0">
@@ -142,7 +168,7 @@ const sortedResults = computed(() => {
             </n-grid-item>
 
             <!-- Goal/Type Display for Theory or Finish Him -->
-            <n-grid-item v-if="activePuzzle.meta?.goal || activePuzzle.type">
+            <n-grid-item v-if="puzzleGoalOrType">
               <n-statistic :label="t('theoryEndings.selection.typeLabel')">
                 <template #prefix>
                   <n-icon color="#f0a020">
@@ -150,7 +176,7 @@ const sortedResults = computed(() => {
                   </n-icon>
                 </template>
                 <n-text strong>
-                  {{ t(`theoryEndings.types.${activePuzzle.meta?.goal || activePuzzle.type}`) }}
+                  {{ t(`theoryEndings.types.${puzzleGoalOrType}`) }}
                 </n-text>
               </n-statistic>
             </n-grid-item>
@@ -165,7 +191,7 @@ const sortedResults = computed(() => {
 
           <!-- Final Position Preview -->
           <n-card
-            v-if="activePuzzle.fen_final"
+            v-if="puzzleFenFinal"
             embedded
             :bordered="false"
             class="preview-card"
@@ -198,7 +224,7 @@ const sortedResults = computed(() => {
 
               <div class="chessboard-preview-wrapper">
                 <ChessboardPreview
-                  :fen="activePuzzle.fen_final"
+                  :fen="puzzleFenFinal"
                   :orientation="finalPositionOrientation"
                 />
               </div>

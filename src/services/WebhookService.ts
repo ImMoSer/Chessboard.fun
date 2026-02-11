@@ -1,29 +1,29 @@
 // src/services/WebhookService.ts
 import type {
-    AdvantageResultDto,
-    GamePuzzle,
-    GameResultResponse,
-    LeaderboardApiResponse,
-    OverallSolvedLeaderboardEntry,
-    PersonalActivityStatsResponse,
-    PersonalOverallSolvedResponse,
-    PersonalSolveStreakResponse,
-    PracticalChessPuzzle,
-    PracticalChessResultDto,
-    PracticalStats,
-    TheoryEndingCategory,
-    TheoryEndingDifficulty,
-    TheoryEndingPuzzle,
-    TheoryEndingResultDto,
-    TheoryEndingType,
-    TornadoEndResponse,
-    TornadoEndSessionDto,
-    TornadoMode,
-    TornadoNextPuzzleDto,
-    TornadoNextResponse,
-    TornadoStartResponse,
-    UserProfileStatsDto,
-    UserTheoryEndingStatsDto,
+  AdvantageResultDto,
+  FinishHimPuzzle,
+  GameResultResponse,
+  LeaderboardApiResponse,
+  OverallSolvedLeaderboardEntry,
+  PersonalActivityStatsResponse,
+  PersonalOverallSolvedResponse,
+  PersonalSolveStreakResponse,
+  PracticalPuzzle,
+  PracticalChessResultDto,
+  PracticalStats,
+  TheoryEndingCategory,
+  TheoryEndingDifficulty,
+  TheoryPuzzle,
+  TheoryEndingResultDto,
+  TheoryEndingType,
+  TornadoEndResponse,
+  TornadoEndSessionDto,
+  TornadoMode,
+  TornadoNextPuzzleDto,
+  TornadoNextResponse,
+  TornadoStartResponse,
+  UserProfileStatsDto,
+  UserTheoryEndingStatsDto,
 } from '../types/api.types'
 import logger from '../utils/logger'
 
@@ -161,7 +161,7 @@ class WebhookServiceController {
   public async fetchAdvantagePuzzle(
     theme?: string,
     difficulty?: string,
-  ): Promise<GamePuzzle | null> {
+  ): Promise<FinishHimPuzzle | null> {
     let path = '/advantage/start'
     const params = new URLSearchParams()
     if (theme && theme !== 'auto') params.append('theme', theme)
@@ -170,7 +170,7 @@ class WebhookServiceController {
     if (params.toString()) {
       path += `?${params.toString()}`
     }
-    return this._apiRequest<GamePuzzle>(path, 'GET', 'fetchAdvantagePuzzle')
+    return this._apiRequest<FinishHimPuzzle>(path, 'GET', 'fetchAdvantagePuzzle')
   }
 
   public async processAdvantageResult(dto: AdvantageResultDto): Promise<GameResultResponse | null> {
@@ -182,8 +182,8 @@ class WebhookServiceController {
     )
   }
 
-  public async fetchAdvantagePuzzleById(puzzleId: string): Promise<GamePuzzle | null> {
-    return this._apiRequest<GamePuzzle>(
+  public async fetchAdvantagePuzzleById(puzzleId: string): Promise<FinishHimPuzzle | null> {
+    return this._apiRequest<FinishHimPuzzle>(
       `/advantage/PuzzleId/${puzzleId}`,
       'GET',
       'fetchAdvantagePuzzleById',
@@ -195,9 +195,9 @@ class WebhookServiceController {
     type: TheoryEndingType,
     difficulty: TheoryEndingDifficulty,
     category: TheoryEndingCategory,
-  ): Promise<TheoryEndingPuzzle | null> {
+  ): Promise<TheoryPuzzle | null> {
     const path = `/theory-endings/puzzle?type=${type}&difficulty=${difficulty}&category=${category}`
-    return this._apiRequest<TheoryEndingPuzzle>(path, 'GET', 'fetchTheoryPuzzle')
+    return this._apiRequest<TheoryPuzzle>(path, 'GET', 'fetchTheoryPuzzle')
   }
 
   public async processTheoryResult(dto: TheoryEndingResultDto): Promise<GameResultResponse | null> {
@@ -219,9 +219,9 @@ class WebhookServiceController {
   public async fetchTheoryPuzzleById(
     type: TheoryEndingType,
     puzzleId: string,
-  ): Promise<TheoryEndingPuzzle | null> {
+  ): Promise<TheoryPuzzle | null> {
     const path = `/theory-endings/puzzle/${type}/${puzzleId}`
-    return this._apiRequest<TheoryEndingPuzzle>(path, 'GET', 'fetchTheoryPuzzleById')
+    return this._apiRequest<TheoryPuzzle>(path, 'GET', 'fetchTheoryPuzzleById')
   }
   // --- END THEORY ENDINGS API ---
 
@@ -229,9 +229,9 @@ class WebhookServiceController {
   public async fetchPracticalPuzzle(
     category: string,
     difficulty: string,
-  ): Promise<PracticalChessPuzzle | null> {
+  ): Promise<PracticalPuzzle | null> {
     const path = `/practical-chess/${category}/puzzle?difficulty=${difficulty}`
-    return this._apiRequest<PracticalChessPuzzle>(path, 'GET', 'fetchPracticalPuzzle')
+    return this._apiRequest<PracticalPuzzle>(path, 'GET', 'fetchPracticalPuzzle')
   }
 
   public async processPracticalResult(
@@ -250,9 +250,9 @@ class WebhookServiceController {
     return this._apiRequest<PracticalStats[]>('/practical-chess/stats', 'GET', 'fetchPracticalStats')
   }
 
-  public async fetchPracticalPuzzleById(id: string): Promise<PracticalChessPuzzle | null> {
+  public async fetchPracticalPuzzleById(id: string): Promise<PracticalPuzzle | null> {
     const path = `/practical-chess/puzzle/${id}`
-    return this._apiRequest<PracticalChessPuzzle>(path, 'GET', 'fetchPracticalPuzzleById')
+    return this._apiRequest<PracticalPuzzle>(path, 'GET', 'fetchPracticalPuzzleById')
   }
   // --- END PRACTICAL CHESS API ---
 

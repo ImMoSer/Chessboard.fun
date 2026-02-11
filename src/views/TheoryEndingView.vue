@@ -56,13 +56,13 @@ watch(
       },
       onRestart: () => {
         if (theoryStore.activePuzzle) {
-          theoryStore.loadNewPuzzle(theoryStore.activeType!, theoryStore.activePuzzle.id)
+          theoryStore.loadNewPuzzle(theoryStore.activeType!, theoryStore.activePuzzle.puzzle_id)
         }
       },
       onResign: theoryStore.handleResign,
       onShare: async () => {
         if (theoryStore.activePuzzle && theoryStore.activeType) {
-          await shareService.share('theory-endings', theoryStore.activePuzzle.id, {
+          await shareService.share('theory-endings', theoryStore.activePuzzle.puzzle_id, {
             theoryType: theoryStore.activeType,
           })
         }

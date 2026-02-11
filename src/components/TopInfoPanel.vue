@@ -2,6 +2,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
+import type { PuzzleUnion } from '@/types/api.types'
 
 import EngineSelector from '@/components/EngineSelector.vue'
 import { useControlsStore } from '@/stores/controls.store'
@@ -20,10 +21,34 @@ const finishHimStore = useFinishHimStore()
 const theoryStore = useTheoryEndingsStore()
 useControlsStore()
 
-const activePuzzle = computed(() => {
-  if (route.name === 'tornado') return tornadoStore.activePuzzle
-  if (route.name?.toString().startsWith('theory-endings')) return theoryStore.activePuzzle
-  return finishHimStore.activePuzzle
+const activePuzzle = computed<PuzzleUnion | null>(() => {
+  if (route.name === 'tornado') return tornadoStore.activePuzzle as PuzzleUnion
+  if (route.name?.toString().startsWith('theory-endings')) return theoryStore.activePuzzle as PuzzleUnion
+  return finishHimStore.activePuzzle as PuzzleUnion
+})
+
+const activeThemeKey = computed<string>(() => {
+  if (route.name === 'tornado') {
+    return (tornadoStore.sessionTheme || 'auto') as string
+  }
+  const puzzle = activePuzzle.value
+  if (!puzzle) return 'auto'
+
+  // Check for 'category' (Practical, Theory, FinishHim)
+  if ('category' in puzzle && typeof puzzle.category === 'string') {
+    return puzzle.category as string
+  }
+
+  // Check for 'themes' (TornadoPuzzle)
+  if ('themes' in puzzle && Array.isArray(puzzle.themes) && puzzle.themes.length > 0) {
+      return puzzle.themes[0] as string
+  }
+
+  // Legacy fallback
+  if ('theme_key' in puzzle && puzzle.theme_key) return puzzle.theme_key!
+  if ('meta' in puzzle && puzzle.meta?.theme_key) return puzzle.meta.theme_key!
+
+  return 'auto'
 })
 
 const formattedTimer = computed(() => {
@@ -56,15 +81,13 @@ const containerClass = computed(() => {
           {{ t('tornado.ui.ratingLabel') }}: {{ tornadoStore.sessionRating }}
         </span>
         <span
-          v-if="tornadoStore.sessionTheme || activePuzzle?.theme_key"
+          v-if="activeThemeKey !== 'auto'"
           class="session-theme-label"
         >
           {{
             t(
               'chess.themes.' +
-                getThemeTranslationKey(
-                  activePuzzle?.theme_key || tornadoStore.sessionTheme || 'auto',
-                ),
+                getThemeTranslationKey(activeThemeKey),
             )
           }}
         </span>
@@ -76,16 +99,14 @@ const containerClass = computed(() => {
 
     <!-- Общий заголовок для других режимов (Finish Him, Theory) -->
     <div
-      v-else-if="activePuzzle?.theme_key || (activePuzzle as any)?.meta?.theme_key"
+      v-else-if="activeThemeKey !== 'auto'"
       class="puzzle-title-container"
     >
       <span class="puzzle-title-label">
         {{
           t(
             'chess.themes.' +
-              getThemeTranslationKey(
-                activePuzzle?.theme_key || (activePuzzle as any)?.meta?.theme_key || 'auto',
-              ),
+              getThemeTranslationKey(activeThemeKey),
           )
         }}
       </span>
