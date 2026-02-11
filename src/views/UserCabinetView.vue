@@ -11,6 +11,8 @@ import ActivityChart from '@/components/userCabinet/sections/ActivityChart.vue'
 import ThemeRoseChart from '@/components/userCabinet/sections/ThemeRoseChart.vue'
 import TheoryStackbarChart from '@/components/userCabinet/sections/TheoryStackbarChart.vue'
 import UserProfileHeader from '@/components/userCabinet/sections/UserProfileHeader.vue'
+import { useRoute } from 'vue-router'
+import { EXAMPLE_USER_PROFILE } from '@/constants/exampleCabinetData'
 
 const { t } = useI18n()
 
@@ -27,8 +29,20 @@ const currentTornadoThemes = computed(() => {
   return detailedStats.value.tornado.modes[selectedTornadoMode.value] || []
 })
 
+const route = useRoute()
+const isExample = computed(() => route.params.id === 'example')
+
+const displayProfile = computed(() => {
+  if (isExample.value) return EXAMPLE_USER_PROFILE
+  return userProfile.value
+})
+
 onMounted(() => {
-  userCabinetStore.initializePage()
+  if (isExample.value) {
+    userCabinetStore.loadExampleData()
+  } else {
+    userCabinetStore.initializePage()
+  }
 })
 </script>
 
@@ -38,7 +52,7 @@ onMounted(() => {
       {{ error }}
     </n-alert>
 
-    <div v-else-if="!isAuthenticated || !userProfile" class="login-prompt">
+    <div v-else-if="!isExample && (!isAuthenticated || !userProfile)" class="login-prompt">
       <n-result
         status="403"
         :title="t('userCabinet.title')"
@@ -54,7 +68,7 @@ onMounted(() => {
 
     <div class="user-cabinet-content">
       <n-space vertical size="large">
-        <UserProfileHeader />
+        <UserProfileHeader :profile-override="displayProfile" />
 
         <ActivityChart />
 

@@ -101,7 +101,7 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
-      path: '/user-cabinet',
+      path: '/user-cabinet/:id?',
       name: 'user-cabinet',
       component: UserCabinetView,
       meta: { requiresAuth: true },
@@ -112,14 +112,14 @@ const router = createRouter({
       component: AboutView,
     },
     {
+      path: '/records/:id?',
+      name: 'records',
+      component: RecordsPageView,
+    },
+    {
       path: '/pricing',
       name: 'pricing',
       component: PricingView,
-    },
-    {
-      path: '/records',
-      name: 'records',
-      component: RecordsPageView,
     },
     {
       path: '/diamond-hunter/:openingSlug?/:color?',
@@ -220,6 +220,11 @@ router.beforeEach(async (to, from, next) => {
 
   const requiresAuth = to.meta.requiresAuth
   const isAuthenticated = authStore.isAuthenticated
+
+  // Bypass auth for "example" mode
+  if (to.params.id === 'example') {
+    return next()
+  }
 
   if (requiresAuth && !isAuthenticated) {
     localStorage.setItem('redirect_after_login', to.fullPath)

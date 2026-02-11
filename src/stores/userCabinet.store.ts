@@ -6,6 +6,10 @@ import { authService } from '../services/AuthService'
 import type { PersonalActivityStatsResponse, UserProfileStatsDto } from '../types/api.types'
 import logger from '../utils/logger'
 import i18n from '../services/i18n'
+import {
+  EXAMPLE_ACTIVITY_STATS,
+  EXAMPLE_DETAILED_STATS,
+} from '../constants/exampleCabinetData'
 
 const t = i18n.global.t
 
@@ -72,6 +76,15 @@ export const useUserCabinetStore = defineStore('userCabinet', () => {
     }
   }
 
+  function loadExampleData() {
+    isLoading.value = false
+    isPersonalActivityStatsLoading.value = false
+    isDetailedStatsLoading.value = false
+
+    personalActivityStats.value = EXAMPLE_ACTIVITY_STATS
+    detailedStats.value = EXAMPLE_DETAILED_STATS
+  }
+
   function setSelectedActivityPeriod(period: ActivityPeriod) {
     selectedActivityPeriod.value = period
   }
@@ -87,6 +100,7 @@ export const useUserCabinetStore = defineStore('userCabinet', () => {
     detailedStatsError,
     initializePage,
     setSelectedActivityPeriod,
-    fetchDetailedStats, // Экспортируем новый экшен
+    fetchDetailedStats,
+    loadExampleData,
   }
 })

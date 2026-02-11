@@ -1,15 +1,21 @@
 <!-- src/components/userCabinet/sections/UserProfileHeader.vue -->
 <script setup lang="ts">
 import { useAuthStore } from '@/stores/auth.store'
-import type { TornadoMode } from '@/types/api.types'
+import type { TornadoMode, UserSessionProfile } from '@/types/api.types'
 import { Calendar, Flash, Timer } from '@vicons/ionicons5'
 import { storeToRefs } from 'pinia'
 import { computed, type Component } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+const props = defineProps<{
+  profileOverride?: UserSessionProfile | null
+}>()
+
 const { t } = useI18n()
 const authStore = useAuthStore()
-const { userProfile } = storeToRefs(authStore)
+const { userProfile: storeProfile } = storeToRefs(authStore)
+
+const userProfile = computed(() => props.profileOverride || storeProfile.value)
 
 const tierToPieceMap: Record<string, string> = {
   Pawn: 'wP.svg',
