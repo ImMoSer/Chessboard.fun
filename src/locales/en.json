@@ -727,6 +727,15 @@
     }
   },
   "theoryEndings": {
+    "difficulties": {
+      "Novice": "Novice",
+      "Pro": "Pro",
+      "Master": "Master"
+    },
+    "types": {
+      "win": "Win",
+      "draw": "Draw"
+    },
     "selection": {
       "title": "Theoretical Endgames",
       "subtitle": "Practice classic positions to perfection",
