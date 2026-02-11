@@ -1,10 +1,11 @@
 // src/stores/records.store.ts
-import { ref } from 'vue'
 import { defineStore } from 'pinia'
+import { ref } from 'vue'
+import { EXAMPLE_HALL_OF_FAME_DATA } from '../constants/exampleCabinetData'
+import i18n from '../services/i18n'
 import { webhookService } from '../services/WebhookService'
 import type { LeaderboardApiResponse, SkillPeriod } from '../types/api.types'
 import logger from '../utils/logger'
-import i18n from '../services/i18n'
 
 const t = i18n.global.t
 
@@ -20,15 +21,23 @@ export const useRecordsStore = defineStore('records', () => {
   const leaderboards = ref<LeaderboardApiResponse | null>(null)
   // Выбранный период для таблицы "Overall Skill"
   const selectedSkillPeriod = ref<SkillPeriod>('7')
+  // Флаг режима "Пример"
+  const isExampleMode = ref(false)
 
   // --- ACTIONS ---
 
   /**
    * Загружает все данные для страницы рекордов.
    */
-  async function fetchLeaderboards() {
+  async function fetchLeaderboards(isExample: boolean = false) {
     isLoading.value = true
     error.value = null
+
+    if (isExample) {
+      loadExampleData()
+      return
+    }
+
     try {
       const data = await webhookService.fetchCombinedLeaderboards()
       if (!data) {
@@ -52,6 +61,10 @@ export const useRecordsStore = defineStore('records', () => {
     if (selectedSkillPeriod.value === period || !leaderboards.value) return
 
     selectedSkillPeriod.value = period
+
+    // В режиме примера данные не меняются
+    if (isExampleMode.value) return
+
     isSkillLeaderboardLoading.value = true
     try {
       const skillData = await webhookService.fetchOverallSkillLeaderboard(period)
@@ -70,13 +83,25 @@ export const useRecordsStore = defineStore('records', () => {
     }
   }
 
+  /**
+   * Загружает демонстрационные данные.
+   */
+  function loadExampleData() {
+    isExampleMode.value = true
+    leaderboards.value = EXAMPLE_HALL_OF_FAME_DATA
+    isLoading.value = false
+    error.value = null
+  }
+
   return {
     isLoading,
     isSkillLeaderboardLoading,
     error,
     leaderboards,
     selectedSkillPeriod,
+    isExampleMode,
     fetchLeaderboards,
     changeSkillPeriod,
+    loadExampleData,
   }
 })

@@ -1,8 +1,9 @@
 <!-- src/views/RecordsPageView.vue -->
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
 import { useRecordsStore } from '../stores/records.store'
 import type { SkillPeriod } from '../types/api.types'
 
@@ -17,8 +18,11 @@ const { t } = useI18n()
 const { isSkillLeaderboardLoading, error, leaderboards, selectedSkillPeriod } =
   storeToRefs(recordsStore)
 
+const route = useRoute()
+const isExample = computed(() => route.params.id === 'example')
+
 onMounted(() => {
-  recordsStore.fetchLeaderboards()
+  recordsStore.fetchLeaderboards(isExample.value)
 })
 
 const handleSkillPeriodChange = (period: SkillPeriod) => {
