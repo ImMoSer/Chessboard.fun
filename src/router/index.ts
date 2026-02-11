@@ -8,6 +8,7 @@ import { useGameStore } from '../stores/game.store'
 import { useUiStore } from '../stores/ui.store'
 
 import { useAuthStore } from '../stores/auth.store'
+import { useOpeningSparringStore } from '../stores/openingSparring.store'
 import { usePracticalChessStore } from '../stores/practicalChess.store'
 import { useTheoryEndingsStore } from '../stores/theoryEndings.store'
 import { useTornadoStore } from '../stores/tornado.store'
@@ -294,6 +295,8 @@ router.afterEach(async (to, from) => {
     !toBaseRoute?.startsWith('practical-chess')
   ) {
     usePracticalChessStore().reset()
+  } else if (fromBaseRoute === 'opening-sparring' && toBaseRoute !== 'opening-sparring') {
+    useOpeningSparringStore().reset()
   }
 })
 

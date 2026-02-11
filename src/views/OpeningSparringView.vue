@@ -6,10 +6,10 @@ import { useRoute, useRouter } from 'vue-router'
 import AnalysisPanel from '../components/AnalysisPanel.vue'
 import GameLayout from '../components/GameLayout.vue'
 import MozerBook from '../components/MozerBook/MozerBook.vue'
+import GameReviewModal from '../components/OpeningSparring/GameReviewModal.vue'
 import OpeningSparringHeader from '../components/OpeningSparring/OpeningSparringHeader.vue'
 import OpeningSparringSettingsModal from '../components/OpeningSparring/OpeningSparringSettingsModal.vue'
 import OpeningSparringSummaryModal from '../components/OpeningSparring/OpeningSparringSummaryModal.vue'
-import GameReviewModal from '../components/OpeningSparring/GameReviewModal.vue'
 import SessionHistoryList from '../components/OpeningSparring/SessionHistoryList.vue'
 import i18n from '../services/i18n'
 import { theoryGraphService } from '../services/TheoryGraphService'
@@ -78,15 +78,12 @@ watch(showAnalysisPanel, (val) => {
 })
 
 onMounted(async () => {
-  openingStore.reset()
-  analysisStore.hidePanel()
   if (route.params.openingSlug || route.params.color) {
     await handleRouteParams()
   }
 })
 
 async function handleRouteParams() {
-  await theoryGraphService.loadBook()
   let slug = route.params.openingSlug as string | undefined
   let colorParam = route.params.color as string | undefined
   let color: 'white' | 'black' = 'white'
@@ -140,23 +137,7 @@ async function startSession(color: 'white' | 'black', moves: string[] = [], slug
     router.replace({ name: 'opening-sparring' })
   }
 
-  gameStore.setupPuzzle(
-    'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
-    [],
-    (isWin, outcome) => {
-      console.log('[OpeningSparring] Game Over:', isWin, outcome)
-      gameStore.setGamePhase('GAMEOVER')
-    },
-    (outcome) => {
-      return outcome?.winner === openingStore.playerColor
-    },
-    () => {},
-    'opening-trainer',
-    undefined,
-    color,
-    (uci) => openingStore.handlePlayerMove(uci),
-  )
-
+  // initializeSession now handles GameStore setup and stats fetching internally
   await openingStore.initializeSession(color, moves)
 }
 

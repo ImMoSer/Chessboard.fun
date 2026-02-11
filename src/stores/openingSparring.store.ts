@@ -79,6 +79,9 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   const isPlayoutMode = ref(false)
   const isReviewMode = ref(false)
   const reviewMoveIndex = ref(-1)
+  // const error = computed(() => mozerStore.error) // Commented out or merged if needed.
+  // Actually openingSparring.store.ts already had 'error: computed(() => mozerStore.error)'
+  // Let's just keep the computed if it's used elsewhere or remove it if mozerStore is enough.
   const error = computed(() => mozerStore.error)
   const moveQueue = ref<string[]>([])
 
@@ -138,43 +141,71 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     return Math.round(sum / playerMoves.length)
   })
 
+  const isInitializing = ref(false)
+
   async function initializeSession(color: 'white' | 'black', startMoves: string[] = []) {
-    // Prevent double initialization if already in progress or same state
-    if (isProcessingMove.value && playerColor.value === color && sessionHistory.value.length > 0) {
-      console.log('[OpeningSparring] Session already initializing, skipping redundant call')
+    if (isInitializing.value) {
+      console.log('[OpeningSparring] Initialization already in progress, skipping')
       return
     }
 
-    reset()
-    playerColor.value = color
-    isProcessingMove.value = true
-
-    const gameStore = useGameStore()
-    gameStore.shouldAutoPlayBot = false
-    gameStore.currentGameMode = 'opening-trainer'
-
+    isInitializing.value = true
     try {
+      console.log('[OpeningSparring] Initializing session', { color, startMoves })
+
+      // 1. Reset everything first
+      reset()
+
+      // 2. Set basic state
+      playerColor.value = color
+      isProcessingMove.value = true
+
+      // 3. Configure GameStore
+      const gameStore = useGameStore()
+      gameStore.setupPuzzle(
+        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+        [],
+        (isWin, outcome) => {
+          console.log('[OpeningSparring] Game Over:', isWin, outcome)
+          gameStore.setGamePhase('GAMEOVER')
+        },
+        (outcome) => {
+          return outcome?.winner === playerColor.value
+        },
+        () => { },
+        'opening-trainer',
+        undefined,
+        color,
+        (uci) => handlePlayerMove(uci),
+      )
+
+      // 4. Load theory book
       await theoryGraphService.loadBook()
 
-      // Charge for the session
+      // 5. External services setup
       const { webhookService } = await import('../services/WebhookService')
       await webhookService.startOpeningSparring()
 
-      boardStore.setupPosition('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', color)
+      // 6. Setup board and PGN (ALREADY DONE in Step 3 via setupPuzzle)
+      // boardStore.setupPosition('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', color)
 
+      // 7. Apply start moves if any
       for (const move of startMoves) {
         boardStore.applyUciMove(move)
         const node = pgnService.getLastMove()
         if (node) pgnService.updateNode(node, { metadata: { phase: 'theory' } })
       }
 
+      // 8. Fetch stats for the starting position
       await fetchStats()
 
+      // 9. Trigger bot move if it's bot's turn
       if (boardStore.turn !== color) {
         await triggerBotMove()
       }
     } finally {
       isProcessingMove.value = false
+      isInitializing.value = false
     }
   }
 
@@ -648,6 +679,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     openingName,
     currentEco,
     isLoading,
+    isInitializing,
     isProcessingMove,
     isPlayoutMode,
     error,

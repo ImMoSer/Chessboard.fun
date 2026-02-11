@@ -48,7 +48,13 @@ function handleSelectMove(uci: string) {
 watch(
   [pgnTreeVersion, () => boardStore.fen],
   () => {
-    if (openingStore.isPlayoutMode || openingStore.isTheoryOver || openingStore.isDeviation) return
+    if (
+      openingStore.isPlayoutMode ||
+      openingStore.isTheoryOver ||
+      openingStore.isDeviation ||
+      openingStore.isInitializing
+    )
+      return
     mozerStore.fetchStats()
     showTheory.value = false // Close theory when position changes
   },
@@ -56,8 +62,8 @@ watch(
 )
 
 onMounted(() => {
-  if (openingStore.isPlayoutMode || openingStore.isTheoryOver || openingStore.isDeviation) return
-  mozerStore.fetchStats()
+  // No need for explicit fetch here as watch(immediate) covers it,
+  // and we want to avoid double fetch during mounting.
 })
 
 const theoryWithChildren = computed<TheoryItemWithChildren[]>(() => {
