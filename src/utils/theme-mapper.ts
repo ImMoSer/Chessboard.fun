@@ -2,9 +2,23 @@
 
 /**
  * Returns the translation key for a given theme.
- * Since the backend and frontend now use unified camelCase theme names,
- * and en.json keys are also camelCase, we can simply return the theme name.
+ * Handles mapping from backend/legacy keys to frontend localization keys.
  */
 export const getThemeTranslationKey = (theme: string): string => {
-  return theme
+  // Aliases for cleaner keys or legacy support
+  const aliases: Record<string, string> = {
+    // Basic Endgames
+    'pawnEndgame': 'pawn',
+    'knightEndgame': 'knight',
+    'bishopEndgame': 'bishop',
+    'rookEndgame': 'rook',
+    'queenEndgame': 'queen',
+
+    // Composite / Specific
+    'knightVsBishop': 'knightBishop',
+    'rookVsPawn': 'rookPawn',
+    // Add more aliases here if backend sends different casing/naming
+  }
+
+  return aliases[theme] || theme
 }

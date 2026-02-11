@@ -32,7 +32,13 @@
       "expert": "Expert",
       "extraPawn": "Extra Pawn",
       "materialEquality": "YOU MOVE!",
-      "exchange": "Exchange"
+      "exchange": "Exchange",
+      "whiteEndgame": "Vs White",
+      "blackEndgame": "Vs Black",
+      "queenVsRook": "Queen vs Rook",
+      "queenVsBishop": "Queen vs Bishop",
+      "knightVsKnight": "Knight vs Knight",
+      "bishopVsPawns": "Bishop vs Pawns"
     },
     "icons": {
       "auto": "✨",
