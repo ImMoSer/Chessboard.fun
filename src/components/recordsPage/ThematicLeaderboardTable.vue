@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { AdvantageLeaderboardEntry } from '@/types/api.types'
 import { getThemeTranslationKey } from '@/utils/theme-mapper'
+import { ADVANTAGE_THEMES, PRACTICAL_CHESS_CATEGORIES, THEORY_ENDING_CATEGORIES } from '@/types/api.types'
 import type { DataTableColumns } from 'naive-ui'
 import { computed, h, ref, watch, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -25,22 +26,26 @@ const activeTab = ref('')
 
 const availableThemes = computed(() => {
   const dataKeys = Object.keys(props.data)
-  const ALL_THEMES_ORDER = [
-    'pawn',
-    'knight',
-    'bishop',
-    'rookPawn',
-    'queen',
-    'knightBishop',
-    'rookPieces',
-    'queenPieces',
-    'expert',
-  ]
-  const sorted = ALL_THEMES_ORDER.filter((theme) => dataKeys.includes(theme)).concat(
-    dataKeys.filter((theme) => !ALL_THEMES_ORDER.includes(theme)),
-  )
 
-  return sorted
+  // Decide which category list to use for sorting based on the dataset content
+  // We check if the data contains keys that are specific to a certain mode
+  let order: readonly string[] = []
+
+  if (dataKeys.some(k => (ADVANTAGE_THEMES as readonly string[]).includes(k))) {
+     order = ADVANTAGE_THEMES
+  } else if (dataKeys.some(k => (THEORY_ENDING_CATEGORIES as readonly string[]).includes(k))) {
+     order = THEORY_ENDING_CATEGORIES
+  } else if (dataKeys.some(k => (PRACTICAL_CHESS_CATEGORIES as readonly string[]).includes(k))) {
+     order = PRACTICAL_CHESS_CATEGORIES
+  }
+
+  // Filter the order list to only include keys present in data
+  const sorted = order.filter(theme => dataKeys.includes(theme))
+
+  // Append any keys in data that were not in the order list (fallback)
+  const remaining = dataKeys.filter(theme => !sorted.includes(theme))
+
+  return [...sorted, ...remaining]
 })
 
 // Set default active tab when availableThemes changes or on initial load
@@ -74,23 +79,15 @@ const getThemeLabel = (theme: string) => {
 }
 
 const getThemeIcon = (theme: string) => {
+  if (theme === 'expert') return '🎓' // Fallback or special case if needed, though en.json has it
   const key = getThemeTranslationKey(theme)
-  if (te(`theoryEndings.categories.${key}.icon`)) return t(`theoryEndings.categories.${key}.icon`)
-  if (te(`practicalChess.categories.${key}.icon`)) return t(`practicalChess.categories.${key}.icon`)
-  const fallbacks: Record<string, string> = {
-    expert: '⭐',
-    pawn: '♟',
-    knight: '♞',
-    bishop: '♝',
-    rook: '♜',
-    queen: '♛',
-    king: '♚',
-    rook_pawn_endgame: '♖♙',
-    rook_pieces_endgame: '♖♘♗',
-    knight_vs_bishop: '♘♗',
-    queen_pieces_endgame: '♕♘♗',
+
+  // Try to use the unified icons from chess.icons first (same as Selection View)
+  if (te(`chess.icons.${key}`)) {
+     return t(`chess.icons.${key}`)
   }
-  return fallbacks[key] || ''
+
+  return ''
 }
 
 const columns = computed<DataTableColumns<AdvantageLeaderboardEntry>>(() => [
