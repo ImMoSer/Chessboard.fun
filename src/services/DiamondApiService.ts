@@ -48,7 +48,7 @@ class DiamondApiService {
 
     const cached = await theoryCacheService.getCachedStats<GravityResponse>(cacheKey, 'diamondGravity')
     if (cached) {
-        return cached
+      return cached
     }
 
     try {
@@ -58,6 +58,7 @@ class DiamondApiService {
           'Content-Type': 'application/json',
           Accept: 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({ fen: cleanFen }),
       })
 
@@ -71,6 +72,30 @@ class DiamondApiService {
     } catch (error) {
       logger.error(`[DiamondApiService] Error fetching ${color} gravity:`, error)
       return null
+    }
+  }
+
+  async startSession(): Promise<{ status: string } | null> {
+    try {
+      const response = await fetch(`${this.BACKEND_URL}/diamond/start`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        credentials: 'include',
+      })
+
+      if (!response.ok) {
+        if (response.status === 403) {
+          throw new Error('Insufficient FunCoins')
+        }
+        throw new Error(`Diamond Session Start Error: ${response.statusText}`)
+      }
+      return await response.json()
+    } catch (error) {
+      logger.error(`[DiamondApiService] Error starting session:`, error)
+      throw error
     }
   }
 }
