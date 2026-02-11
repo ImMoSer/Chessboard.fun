@@ -256,6 +256,14 @@ class WebhookServiceController {
   }
   // --- END PRACTICAL CHESS API ---
 
+  public async startOpeningSparring(): Promise<{ status: string } | null> {
+    return this._apiRequest<{ status: string }>(
+      '/opening/sparring/start',
+      'POST',
+      'startOpeningSparring',
+    )
+  }
+
 
 
 

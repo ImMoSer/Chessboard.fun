@@ -155,6 +155,11 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
 
     try {
       await theoryGraphService.loadBook()
+
+      // Charge for the session
+      const { webhookService } = await import('../services/WebhookService')
+      await webhookService.startOpeningSparring()
+
       boardStore.setupPosition('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', color)
 
       for (const move of startMoves) {

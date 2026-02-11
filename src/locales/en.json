@@ -482,9 +482,9 @@
       "howItWorks": "📅 How it works:",
       "p4": "Every day, the system analyzes your activity over the last 30 days (tournaments, points, and games) and awards activity points.",
       "p5": "Depending on the amount, one of the tiers is assigned:",
-      "knight": "♘ Knight — from 50 points",
-      "bishop": "♗ Bishop — from 150 points",
-      "rook": "♖ Rook — from 300 points",
+      "knight": "♘ Knight — from 300 points",
+      "bishop": "♗ Bishop — from 500 points",
+      "rook": "♖ Rook — from 1000 points",
       "p6": "✨ The tier is recalculated automatically and may change depending on your activity.",
       "p7": "No applications needed — just play, and the system will do everything itself ✅",
       "p8": "Thank you for supporting the club ❤️♟"

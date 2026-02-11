@@ -1,15 +1,28 @@
-<!-- src/views/PricingView.vue -->
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import {
+  NLayout,
+  NLayoutContent,
+  NGrid,
+  NGi,
+  NCard,
+  NAlert,
+  NText,
+  NH1,
+  NH2,
+  NTag,
+  NThing,
+  NSpace,
+  NDivider
+} from 'naive-ui'
 
 const { t } = useI18n()
 
-// --- НАЧАЛО ИЗМЕНЕНИЙ ---
-// Задаем значения и цвета для подписок как переменные
+// Subscription values and colors
 const PAWN_FUNCOINS = 100
-const KNIGHT_FUNCOINS = 200
+const KNIGHT_FUNCOINS = 300
 const BISHOP_FUNCOINS = 500
-const ROOK_FUNCOINS = 5000
+const ROOK_FUNCOINS = 1000
 const QUEEN_FUNCOINS = 10000
 
 const PAWN_COLOR = 'var(--color-accent-success-hover)'
@@ -17,355 +30,277 @@ const KNIGHT_COLOR = 'var(--color-accent-primary-hover)'
 const BISHOP_COLOR = 'var(--color-accent-warning)'
 const ROOK_COLOR = 'var(--color-violett-lichess)'
 const QUEEN_COLOR = 'var(--color-accent-error-hover)'
-// --- КОНЕЦ ИЗМЕНЕНИЙ ---
 
-// Данные для карточек подписок
 const subscriptionTiers = [
   {
     name: t('pricing.tiers.pawn.name'),
     icon: '/piece/alpha/wP.svg',
-    // --- НАЧАЛО ИЗМЕНЕНИЙ: Обновляем описание с выделением цветом и размером шрифта ---
-    description: t('pricing.tiers.pawn.description', {
-      funcoins: `<span style="color: ${PAWN_COLOR}; font-weight: bold; font-size: 1.1em;">${PAWN_FUNCOINS}</span>`,
-    }),
-    // --- КОНЕЦ ИЗМЕНЕНИЙ ---
+    funcoins: PAWN_FUNCOINS,
+    color: PAWN_COLOR,
     price: t('pricing.tiers.pawn.price'),
     highlight: true,
   },
   {
     name: t('pricing.tiers.knight.name'),
     icon: '/piece/alpha/wN.svg',
-    // --- НАЧАЛО ИЗМЕНЕНИЙ: Обновляем описание с выделением цветом и размером шрифта ---
-    description: t('pricing.tiers.knight.description', {
-      funcoins: `<span style="color: ${KNIGHT_COLOR}; font-weight: bold; font-size: 1.2em;">${KNIGHT_FUNCOINS}</span>`,
-    }),
-    // --- КОНЕЦ ИЗМЕНЕНИЙ ---
+    funcoins: KNIGHT_FUNCOINS,
+    color: KNIGHT_COLOR,
     price: t('pricing.tiers.price.bonus'),
   },
   {
     name: t('pricing.tiers.bishop.name'),
     icon: '/piece/alpha/wB.svg',
-    // --- НАЧАЛО ИЗМЕНЕНИЙ: Обновляем описание с выделением цветом и размером шрифта ---
-    description: t('pricing.tiers.bishop.description', {
-      funcoins: `<span style="color: ${BISHOP_COLOR}; font-weight: bold; font-size: 1.3em;">${BISHOP_FUNCOINS}</span>`,
-    }),
-    // --- КОНЕЦ ИЗМЕНЕНИЙ ---
+    funcoins: BISHOP_FUNCOINS,
+    color: BISHOP_COLOR,
     price: t('pricing.tiers.price.bonus'),
   },
   {
     name: t('pricing.tiers.rook.name'),
     icon: '/piece/alpha/wR.svg',
-    // --- НАЧАЛО ИЗМЕНЕНИЙ: Обновляем описание с выделением цветом и размером шрифта ---
-    description: t('pricing.tiers.rook.description', {
-      funcoins: `<span style="color: ${ROOK_COLOR}; font-weight: bold; font-size: 1.4em;">${ROOK_FUNCOINS}</span>`,
-    }),
-    // --- КОНЕЦ ИЗМЕНЕНИЙ ---
+    funcoins: ROOK_FUNCOINS,
+    color: ROOK_COLOR,
     price: t('pricing.tiers.price.bonus'),
   },
   {
     name: t('pricing.tiers.queen.name'),
     icon: '/piece/alpha/wQ.svg',
-    // --- НАЧАЛО ИЗМЕНЕНИЙ: Обновляем описание с выделением цветом и размером шрифта ---
-    description: t('pricing.tiers.queen.description', {
-      funcoins: `<span style="color: ${QUEEN_COLOR}; font-weight: bold; font-size: 1.5em;">${QUEEN_FUNCOINS}</span>`,
-    }),
-    // --- КОНЕЦ ИЗМЕНЕНИЙ ---
+    funcoins: QUEEN_FUNCOINS,
+    color: QUEEN_COLOR,
     price: t('pricing.tiers.price.soon'),
   },
 ]
 
-// Данные для стоимости режимов
-const gameCosts = [
+const bonusLevels = [
   {
-    name: t('nav.finishHim'),
-    icon: '🎯',
-    cost: 10,
+    name: t('pricing.bonusInfo.knight').split('—')[1] || 'Knight',
+    threshold: t('pricing.bonusInfo.knight').split('—')[0]?.replace('♘ ', '') || '300',
+    icon: '♘',
+    type: 'info' as const
   },
+  {
+    name: t('pricing.bonusInfo.bishop').split('—')[1] || 'Bishop',
+    threshold: t('pricing.bonusInfo.bishop').split('—')[0]?.replace('♗ ', '') || '500',
+    icon: '♗',
+    type: 'warning' as const
+  },
+  {
+    name: t('pricing.bonusInfo.rook').split('—')[1] || 'Rook',
+    threshold: t('pricing.bonusInfo.rook').split('—')[0]?.replace('♖ ', '') || '1000',
+    icon: 'error' as const, // For color consistency with Rook (violet/error)
+    iconText: '♖',
+    type: 'error' as const
+  }
+]
 
-  {
-    name: t('nav.tacktics'),
-    icon: '🧩',
-    cost: 1,
-  },
+const gameCosts = [
+  { name: t('nav.tacktics'), icon: '🧩', cost: 1 },
+  { name: t('nav.theoryEndings'), icon: '📚', cost: 5 },
+  { name: t('nav.practicalChess'), icon: '♟️', cost: 5 },
+  { name: t('nav.finishHim'), icon: '🎯', cost: 10 },
+  { name: t('nav.openingTrainer'), icon: '💎', cost: 15 },
+  { name: t('nav.openingSparring'), icon: '🤺', cost: 20 },
+  { name: t('nav.study'), icon: '📖', cost: 25 },
 ]
 </script>
 
 <template>
-  <div class="pricing-page-container">
-    <h1 class="page-title">{{ t('pricing.title') }}</h1>
+  <n-layout class="pricing-page-layout" embedded>
+    <n-layout-content content-style="padding: 24px; max-width: 1200px; margin: 0 auto;">
+      <n-space vertical size="large">
+        <n-h1 align-text class="page-title">
+          <n-text type="primary">{{ t('pricing.title') }}</n-text>
+        </n-h1>
 
-    <div class="intro-text">
-      <p>
-        {{ t('pricing.intro.p1') }}
-      </p>
-      <p class="highlight-text">
-        {{ t('pricing.intro.p2') }}
-      </p>
-    </div>
-
-    <div class="section">
-      <h2 class="section-title">{{ t('pricing.tiers.title') }}</h2>
-      <div class="tiers-grid">
-        <div
-          v-for="tier in subscriptionTiers"
-          :key="tier.name"
-          class="tier-card"
-          :class="{ highlight: tier.highlight }"
-        >
-          <img :src="tier.icon" :alt="tier.name" class="tier-icon" />
-          <!-- <h3 class="tier-name">{{ tier.name }}</h3> -->
-          <p class="tier-description" v-html="tier.description"></p>
-          <div class="tier-price">{{ tier.price }}</div>
-        </div>
-      </div>
-
-      <div class="bonus-info-section">
-        <h3 class="bonus-info-title">{{ t('pricing.bonusInfo.title') }}</h3>
-        <p>{{ t('pricing.bonusInfo.p1') }}</p>
-        <p>{{ t('pricing.bonusInfo.p2') }}</p>
-        <p>{{ t('pricing.bonusInfo.p3') }}</p>
-        <h4>{{ t('pricing.bonusInfo.howItWorks') }}</h4>
-        <p>{{ t('pricing.bonusInfo.p4') }}</p>
-        <p>{{ t('pricing.bonusInfo.p5') }}</p>
-        <ul class="bonus-levels-list">
-          <li>{{ t('pricing.bonusInfo.knight') }}</li>
-          <li>{{ t('pricing.bonusInfo.bishop') }}</li>
-          <li>{{ t('pricing.bonusInfo.rook') }}</li>
-        </ul>
-        <p>{{ t('pricing.bonusInfo.p6') }}</p>
-        <p>{{ t('pricing.bonusInfo.p7') }}</p>
-        <p>{{ t('pricing.bonusInfo.p8') }}</p>
-      </div>
-    </div>
-
-    <div class="section">
-      <h2 class="section-title">{{ t('pricing.costs.title') }}</h2>
-      <ul class="costs-list">
-        <li v-for="game in gameCosts" :key="game.name" class="cost-item">
-          <div class="cost-item-info">
-            <span class="cost-item-icon">{{ game.icon }}</span>
-            <span class="cost-item-name">{{ game.name }}</span>
+        <n-alert type="info" :bordered="false" class="intro-alert">
+          <n-text depth="2">
+            {{ t('pricing.intro.p1') }}
+          </n-text>
+          <div style="margin-top: 8px;">
+            <n-text strong type="warning">
+              {{ t('pricing.intro.p2') }}
+            </n-text>
           </div>
-          <div class="cost-item-price">
-            {{ game.cost }} <span class="funcoin-label">{{ t('pricing.costs.funcoinLabel') }}</span>
-          </div>
-        </li>
-      </ul>
-    </div>
-  </div>
+        </n-alert>
+
+        <n-divider title-placement="left">
+          <n-h2 prefix="bar" align-text type="success">
+            {{ t('pricing.tiers.title') }}
+          </n-h2>
+        </n-divider>
+
+        <n-grid cols="1 400:2 600:3 800:5" x-gap="16" y-gap="16">
+          <n-gi v-for="tier in subscriptionTiers" :key="tier.name">
+            <n-card
+              hoverable
+              class="tier-card"
+              :class="{ 'highlight-tier': tier.highlight }"
+            >
+              <template #header>
+                <n-text strong>{{ tier.name }}</n-text>
+              </template>
+              <template #header-extra>
+                <img :src="tier.icon" :alt="tier.name" style="width: 32px; height: 32px;" />
+              </template>
+
+              <n-thing>
+                <template #description>
+                  <n-text depth="3" style="font-size: 0.9em;">
+                    {{ t('pricing.tiers.pawn.description').split('{funcoins}')[0] }}
+                    <n-text :style="{ color: tier.color, fontWeight: 'bold', fontSize: '1.2em' }">
+                      {{ tier.funcoins }}
+                    </n-text>
+                    {{ t('pricing.tiers.pawn.description').split('{funcoins}')[1] }}
+                  </n-text>
+                </template>
+                <n-divider dashed style="margin: 12px 0;" />
+                <n-text strong type="success" style="font-size: 1.1em;">
+                  {{ tier.price }}
+                </n-text>
+              </n-thing>
+            </n-card>
+          </n-gi>
+        </n-grid>
+
+        <n-divider title-placement="left">
+          <n-h2 prefix="bar" align-text class="vibrant-bonus-header">
+            {{ t('pricing.bonusInfo.title') }}
+          </n-h2>
+        </n-divider>
+
+        <n-card :bordered="false" class="bonus-intro-card" embedded>
+          <n-text depth="2">
+            <p>{{ t('pricing.bonusInfo.p1') }}</p>
+            <p>{{ t('pricing.bonusInfo.p2') }}</p>
+            <p>{{ t('pricing.bonusInfo.p3') }}</p>
+          </n-text>
+        </n-card>
+
+        <n-grid cols="1 600:3" x-gap="16" y-gap="16">
+          <n-gi v-for="level in bonusLevels" :key="level.name">
+            <n-card hoverable class="bonus-level-card">
+              <template #header>
+                <n-space align="center">
+                  <n-text style="font-size: 1.5em;">{{ level.iconText || level.icon }}</n-text>
+                  <n-text strong>{{ level.name }}</n-text>
+                </n-space>
+              </template>
+              <template #header-extra>
+                <n-tag :type="level.type" round size="small">
+                  {{ level.threshold }}
+                </n-tag>
+              </template>
+              <n-text depth="3">
+                {{ t('pricing.bonusInfo.howItWorks') }}: {{ t('pricing.bonusInfo.p5') }}
+              </n-text>
+            </n-card>
+          </n-gi>
+        </n-grid>
+
+        <n-card class="bonus-footer-card" embedded :bordered="false">
+          <n-space vertical>
+            <n-text depth="3" italic style="font-size: 0.9em;">
+              <p>{{ t('pricing.bonusInfo.p6') }}</p>
+              <p>{{ t('pricing.bonusInfo.p7') }}</p>
+              <p style="text-align: center; font-weight: bold; color: var(--color-accent-primary);">{{ t('pricing.bonusInfo.p8') }}</p>
+            </n-text>
+          </n-space>
+        </n-card>
+
+        <n-divider title-placement="left">
+          <n-h2 prefix="bar" align-text type="warning">
+            {{ t('pricing.costs.title') }}
+          </n-h2>
+        </n-divider>
+
+        <n-grid cols="1 500:2 800:4" x-gap="16" y-gap="16">
+          <n-gi v-for="game in gameCosts" :key="game.name">
+            <n-card hoverable class="game-cost-card">
+              <template #header>
+                <n-space align="center">
+                  <n-text style="font-size: 1.5em;">{{ game.icon }}</n-text>
+                  <n-text strong style="font-size: 0.9em;">{{ game.name }}</n-text>
+                </n-space>
+              </template>
+              <n-thing>
+                <template #description>
+                  <n-space justify="space-between" align="center">
+                    <n-text depth="3">{{ t('pricing.costs.funcoinLabel') }}</n-text>
+                    <n-text strong type="warning" style="font-size: 1.4em;">
+                      {{ game.cost }}
+                    </n-text>
+                  </n-space>
+                </template>
+              </n-thing>
+            </n-card>
+          </n-gi>
+        </n-grid>
+      </n-space>
+    </n-layout-content>
+  </n-layout>
 </template>
 
 <style scoped>
-.pricing-page-container {
-  padding: 20px 40px;
-  box-sizing: border-box;
-  background-color: var(--color-bg-secondary);
-  color: var(--color-text-default);
-  width: 80vw;
-  max-width: 1200px;
-  margin: 20px auto;
-  border-radius: var(--panel-border-radius);
-  border: 1px solid var(--color-border-hover);
-  font-size: var(--font-size-base);
-  line-height: 1.7;
+.pricing-page-layout {
+  min-height: 100vh;
+  background-color: transparent !important;
 }
 
 .page-title {
-  font-size: var(--font-size-xxlarge);
-  color: var(--color-accent-primary);
-  text-align: center;
-  margin-bottom: 20px;
-  border-bottom: 1px solid var(--color-border-hover);
-  padding-bottom: 15px;
+  margin-bottom: 8px !important;
 }
 
-.intro-text {
-  text-align: center;
-  margin-bottom: 40px;
-  font-size: var(--font-size-base);
-  color: var(--color-text-muted);
-}
-
-.intro-text .highlight-text {
-  color: var(--color-accent-warning);
-  font-weight: var(--font-weight-bold);
-  background-color: var(--color-bg-tertiary);
-  padding: 10px;
+.intro-alert {
   border-radius: var(--panel-border-radius);
-}
-
-.section {
-  margin-bottom: 40px;
-}
-
-.section-title {
-  font-size: var(--font-size-xlarge);
-  color: var(--color-accent-success);
-  text-align: center;
-  margin-bottom: 25px;
-}
-
-.tiers-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
 }
 
 .tier-card {
-  background-color: var(--color-bg-tertiary);
-  border: 1px solid var(--color-border);
+  height: 100%;
   border-radius: var(--panel-border-radius);
-  padding: 25px 20px;
-  text-align: center;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.tier-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+.highlight-tier {
+  border: 1px solid var(--color-accent-success) !important;
+  box-shadow: 0 0 12px rgba(157, 214, 0, 0.15);
 }
 
-.tier-card.highlight {
-  border-color: var(--color-accent-success);
-  box-shadow: 0 0 15px rgba(157, 214, 0, 0.2);
+.vibrant-bonus-header {
+  color: #ff9800; /* Vibrant Orange */
+  text-shadow: 0 0 8px rgba(255, 152, 0, 0.3);
 }
 
-.tier-icon {
-  width: 60px;
-  height: 60px;
-  margin-bottom: 15px;
-}
-
-/*
-.tier-name {
-  font-size: var(--font-size-large);
-  color: var(--color-text-default);
-  margin: 0 0 10px 0;
-}
-*/
-
-.tier-description {
-  font-size: var(--font-size-small);
-  color: var(--color-text-muted);
-  min-height: 50px;
-}
-
-.tier-price {
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-accent-success);
-  margin-top: 15px;
-}
-
-.costs-list {
-  list-style: none;
-  padding: 0;
-  margin: 0 auto;
-  max-width: 600px;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-.cost-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: var(--color-bg-tertiary);
-  padding: 15px 20px;
+.bonus-intro-card {
   border-radius: var(--panel-border-radius);
-  border: 1px solid var(--color-border);
+  margin-bottom: 8px;
+  background-color: rgba(255, 152, 0, 0.05) !important;
 }
 
-.cost-item-info {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.cost-item-icon {
-  font-size: 1.8em;
-}
-
-.cost-item-name {
-  font-size: var(--font-size-large);
-  font-weight: var(--font-weight-bold);
-}
-
-.cost-item-price {
-  font-size: var(--font-size-large);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-accent-warning);
-}
-
-.cost-item-price .funcoin-label {
-  font-size: 0.7em;
-  color: var(--color-text-muted);
-  margin-left: 5px;
-}
-
-.bonus-info-section {
-  margin-top: 40px;
-  padding: 20px;
-  background-color: var(--color-bg-tertiary);
+.bonus-level-card {
+  height: 100%;
   border-radius: var(--panel-border-radius);
-  border: 1px solid var(--color-border);
-  text-align: left;
+  border: 1px solid rgba(255, 152, 0, 0.2);
+  transition: all 0.3s ease;
 }
 
-.bonus-info-title {
-  font-size: var(--font-size-large);
-  color: var(--color-accent-primary);
-  margin-bottom: 15px;
-  text-align: center;
+.bonus-level-card:hover {
+  border-color: #ff9800;
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.1);
 }
 
-.bonus-info-section h4 {
-  font-size: var(--font-size-base);
-  color: var(--color-text-default);
-  font-weight: var(--font-weight-bold);
-  margin-top: 15px;
-  margin-bottom: 10px;
+.bonus-footer-card {
+  margin-top: 16px;
+  border-radius: var(--panel-border-radius);
 }
 
-.bonus-info-section p {
-  margin-bottom: 10px;
-}
-
-.bonus-levels-list {
-  list-style: none;
-  padding-left: 0;
-  margin-bottom: 10px;
-}
-
-.bonus-levels-list li {
-  margin-bottom: 5px;
-  font-weight: var(--font-weight-bold);
+.game-cost-card {
+  height: 100%;
+  border-radius: var(--panel-border-radius);
+  transition: all 0.3s ease;
 }
 
 @media (max-width: 768px) {
-  .pricing-page-container {
-    width: 100%;
-    padding: 15px;
-    font-size: var(--font-size-small);
-  }
-
-  .page-title {
-    font-size: var(--font-size-xlarge);
-  }
-
-  .section-title {
-    font-size: var(--font-size-large);
-  }
-
-  .tiers-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .tier-card {
-    padding: 15px;
+  .pricing-page-layout :deep(.n-layout-content) {
+    padding: 12px !important;
   }
 }
 </style>
