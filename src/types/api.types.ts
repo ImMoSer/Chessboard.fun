@@ -155,7 +155,7 @@ export const PRACTICAL_CHESS_CATEGORIES = [
   'exchange',
   'rook',
   'pawn',
-  'knightVsBishop',
+  'knightBishop',
   'bishop',
   'knight',
   'queen',
