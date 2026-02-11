@@ -4,13 +4,13 @@ import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 import { useFinishHimStore } from '../stores/finishHim.store'
 
-import { BarChartOutline, FlashOutline, StarOutline, TrendingUpOutline } from '@vicons/ionicons5'
-import { NCard, NGrid, NGridItem, NIcon, NSpace, NStatistic, NTable, NTag, NText } from 'naive-ui'
+import { BarChartOutline, ExtensionPuzzleOutline, FlashOutline, GridOutline, StarOutline, TrendingUpOutline } from '@vicons/ionicons5'
+import { NCard, NDivider, NGrid, NGridItem, NIcon, NSpace, NTable, NTag, NText } from 'naive-ui'
 import { usePracticalChessStore } from '../stores/practicalChess.store'
 import { useTheoryEndingsStore } from '../stores/theoryEndings.store'
 import { useTornadoStore } from '../stores/tornado.store'
-import type { PuzzleUnion } from '../types/api.types'
-import { getThemeTranslationKey } from '../utils/theme-mapper'
+import type { GamePuzzle, PuzzleResultEntry, PuzzleUnion } from '../types/api.types'
+import { transformPuzzle, type DisplayTask } from '../utils/puzzleTransformer'
 import ChessboardPreview from './ChessboardPreview.vue'
 
 const route = useRoute()
@@ -19,8 +19,7 @@ const tornadoStore = useTornadoStore()
 const theoryStore = useTheoryEndingsStore()
 const { t } = useI18n()
 
-const isFinishHim = computed(() => route.meta.game === 'finish-him')
-
+// Active Store Logic
 const activeStore = computed(() => {
   if (route.name === 'tornado' || route.meta.game === 'tornado') return tornadoStore
   if (route.name?.toString().startsWith('theory-endings') || route.meta.game === 'theory-endings')
@@ -34,50 +33,13 @@ const activePuzzle = computed<PuzzleUnion | null>(() => {
   return (activeStore.value.activePuzzle as PuzzleUnion) || null
 })
 
-const tacticalThemesList = computed<string[]>(() => {
-  const puzzle = activePuzzle.value
-  if (!puzzle) return []
-
-  // 1. New 'themes' array (Tornado)
-  if ('themes' in puzzle && Array.isArray(puzzle.themes)) {
-    return puzzle.themes
-  }
-
-  // 2. New 'category' field (Practical, Theory, FinishHim)
-  if ('category' in puzzle && typeof puzzle.category === 'string') {
-    return [puzzle.category]
-  }
-
-  // 3. Legacy properties (GamePuzzle)
-  if ('theme_key' in puzzle && puzzle.theme_key) return [puzzle.theme_key]
-
-  if ('meta' in puzzle && puzzle.meta?.theme_key) {
-     return [puzzle.meta.theme_key]
-  }
-
-  if ('engmMap' in puzzle && puzzle.engmMap) return [puzzle.engmMap]
-
-  if ('EngmThemes_PG' in puzzle && puzzle.EngmThemes_PG) {
-    return puzzle.EngmThemes_PG.replace(/[{}]/g, '')
-      .split(',')
-      .map((t: string) => t.trim())
-  }
-
-  if ('Themes_PG' in puzzle && puzzle.Themes_PG) {
-     return Array.isArray(puzzle.Themes_PG) ? puzzle.Themes_PG : [puzzle.Themes_PG]
-  }
-
-  if ('Themes' in puzzle && puzzle.Themes) return puzzle.Themes.split(' ')
-  if ('puzzle_theme' in puzzle && puzzle.puzzle_theme) return puzzle.puzzle_theme.split(' ')
-
-  return []
+// Unified Display Task
+const displayTask = computed<DisplayTask>(() => {
+  return transformPuzzle(activePuzzle.value, t)
 })
 
-const finishHimModeDisplay = computed(() => {
-  if (route.meta.game !== 'finish-him') return null
-  const difficulty = finishHimStore.selectedDifficulty
-  return t(`theoryEndings.difficulties.${difficulty}`, { defaultValue: difficulty })
-})
+// --- Legacy / Specific Compat Helpers ---
+// (Kept for Leaderboard and Preview checks if needed, but mostly served by transformer now)
 
 const finalPositionOrientation = computed(() => {
   const puzzle = activePuzzle.value
@@ -87,7 +49,7 @@ const finalPositionOrientation = computed(() => {
 
   if ('initial_fen' in puzzle) fen = puzzle.initial_fen
   else if ('FEN_0' in puzzle) fen = puzzle.FEN_0
-  else if ('fen_final' in puzzle) fen = (puzzle as any).fen_final
+  else if ('fen_final' in puzzle) fen = (puzzle as GamePuzzle).fen_final
 
   if (fen) {
     const turn = fen.split(' ')[1]
@@ -100,96 +62,101 @@ const sortedResults = computed(() => {
   const puzzle = activePuzzle.value
   if (!puzzle || !('endgame_results' in puzzle)) return null
 
-  const results = (puzzle as any).endgame_results
+  const results = (puzzle as GamePuzzle).endgame_results
   if (!results || results.length === 0) {
     return null
   }
-  return [...results].sort((a, b) => a.time_in_seconds - b.time_in_seconds)
-})
-
-const puzzleGoalOrType = computed(() => {
-  const puzzle = activePuzzle.value
-  if (!puzzle) return null
-
-  if ('meta' in puzzle && puzzle.meta?.goal) return puzzle.meta.goal
-  if ('type' in puzzle && puzzle.type) return puzzle.type
-  return null
+  return [...results].sort((a: PuzzleResultEntry, b: PuzzleResultEntry) => a.time_in_seconds - b.time_in_seconds)
 })
 
 const puzzleFenFinal = computed(() => {
   const puzzle = activePuzzle.value
   if (!puzzle) return null
-  if ('fen_final' in puzzle) return puzzle.fen_final
+  if ('fen_final' in puzzle) return (puzzle as GamePuzzle).fen_final
   return null
 })
+
+// Icon mapping helper
+const getIcon = (iconName: string) => {
+    switch (iconName) {
+        case 'trending-up': return TrendingUpOutline;
+        case 'bar-chart': return BarChartOutline;
+        case 'flash': return FlashOutline;
+        case 'extension-puzzle': return ExtensionPuzzleOutline;
+        case 'grid': return GridOutline;
+        case 'pieces': return GridOutline; // Reuse Grid for 'pieces'
+        case 'advantage': return ExtensionPuzzleOutline; // Or maybe something better?
+        case 'material': return ExtensionPuzzleOutline;
+        default: return StarOutline; // Fallback
+    }
+}
+
+const getBadgeType = (type: string) => {
+    // NaiveUI tag types: 'default' | 'primary' | 'info' | 'success' | 'warning' | 'error'
+    return type as 'default' | 'primary' | 'info' | 'success' | 'warning' | 'error'
+}
 </script>
 
 <template>
   <div class="puzzle-info-container">
-    <!-- Current Puzzle Details -->
+    <!-- Unified Info Card -->
     <transition name="fade">
       <n-card v-if="activePuzzle" class="info-card puzzle-details" size="small" :bordered="false">
         <n-space vertical :size="16">
-          <!-- Basic Stats Row -->
-          <n-grid :cols="2" :x-gap="12" :y-gap="12">
-            <!-- Rating / Difficulty Display -->
-            <n-grid-item>
-              <n-statistic :label="t('tacktics.stats.rating')">
-                <template #prefix>
-                  <n-icon color="#18a058">
-                    <TrendingUpOutline />
-                  </n-icon>
-                </template>
-                <n-text strong>
-                  {{
-                    ('tactical_rating' in activePuzzle && activePuzzle.tactical_rating) ||
-                    ('rating' in activePuzzle && activePuzzle.rating) ||
-                    ('Rating' in activePuzzle && activePuzzle.Rating) ||
-                    ('engmRating' in activePuzzle && activePuzzle.engmRating) ||
-                    ('difficulty' in activePuzzle && activePuzzle.difficulty) ||
-                    '?'
-                  }}
-                </n-text>
-              </n-statistic>
-            </n-grid-item>
 
-            <!-- Evaluation Display -->
-            <n-grid-item v-if="'eval' in activePuzzle && activePuzzle.eval !== undefined">
-              <n-statistic :label="t('puzzleInfo.evaluation')">
-                <template #prefix>
-                  <n-icon color="#2080f0">
-                    <BarChartOutline />
-                  </n-icon>
-                </template>
-                <n-text strong>
-                  {{ (activePuzzle.eval / 100).toFixed(1) }}
-                </n-text>
-              </n-statistic>
-            </n-grid-item>
+          <!-- ZONE 1: Status Bar (Header & Badges) -->
+          <div class="zone-status-bar">
+             <div class="header-row">
+                 <div class="main-stat">
+                     <div class="stat-icon-wrapper">
+                         <n-icon :color="displayTask.header.color === 'success' ? '#18a058' : displayTask.header.color === 'warning' ? '#f0a020' : '#2080f0'" size="28" class="stat-icon">
+                            <component :is="getIcon(displayTask.header.icon || 'star')" />
+                         </n-icon>
+                     </div>
+                     <div class="stat-content">
+                         <div class="stat-label">{{ displayTask.header.label }}</div>
+                         <div class="stat-value">{{ displayTask.header.value }}</div>
+                     </div>
+                 </div>
 
-            <!-- Goal/Type Display for Theory or Finish Him -->
-            <n-grid-item v-if="puzzleGoalOrType">
-              <n-statistic :label="t('theoryEndings.selection.typeLabel')">
-                <template #prefix>
-                  <n-icon color="#f0a020">
-                    <FlashOutline />
-                  </n-icon>
-                </template>
-                <n-text strong>
-                  {{ t(`theoryEndings.types.${puzzleGoalOrType}`) }}
-                </n-text>
-              </n-statistic>
-            </n-grid-item>
+                 <!-- Badges Row -->
+                 <n-space size="small" align="center" style="margin-top: 4px;">
+                     <n-tag v-for="(badge, idx) in displayTask.badges" :key="idx" :type="getBadgeType(badge.type)" size="small" round :bordered="false">
+                         {{ badge.text }}
+                     </n-tag>
+                 </n-space>
+             </div>
+          </div>
 
-            <!-- Mode/Session info for Finish Him -->
-            <n-grid-item v-if="isFinishHim && finishHimModeDisplay">
-              <n-statistic :label="t('finishHim.stats.mode')">
-                <n-text strong>{{ finishHimModeDisplay }}</n-text>
-              </n-statistic>
-            </n-grid-item>
-          </n-grid>
+          <n-divider style="margin: 4px 0" />
 
-          <!-- Final Position Preview -->
+          <!-- ZONE 2: Material & Balance -->
+          <div v-if="displayTask.stats.length > 0" class="zone-material">
+              <n-grid :cols="2" :x-gap="12" :y-gap="12">
+                  <n-grid-item v-for="(stat, idx) in displayTask.stats" :key="idx">
+                    <div class="mini-stat">
+                        <n-space align="center" size="small">
+                             <n-icon size="16" color="#ffffff50">
+                                 <component :is="getIcon(stat.icon)" />
+                             </n-icon>
+                             <n-text depth="3" class="mini-stat-label">{{ stat.label }}</n-text>
+                        </n-space>
+                         <n-text strong class="mini-stat-value">{{ stat.value }}</n-text>
+                    </div>
+                  </n-grid-item>
+              </n-grid>
+          </div>
+
+          <!-- ZONE 3: Taxonomy Tags (Detailed Info) -->
+          <div v-if="displayTask.footerTags.length > 0" class="zone-taxonomy">
+             <n-space :size="[6, 6]" wrap>
+                 <n-tag v-for="tag in displayTask.footerTags" :key="tag" size="small" :bordered="false" class="taxonomy-tag">
+                     {{ tag }}
+                 </n-tag>
+             </n-space>
+          </div>
+
+          <!-- Final Position Preview (Legacy / Specific) -->
           <n-card
             v-if="puzzleFenFinal"
             embedded
@@ -198,21 +165,7 @@ const puzzleFenFinal = computed(() => {
             size="small"
           >
             <n-space vertical align="stretch" :size="8" style="width: 100%">
-              <!-- Display Themes instead of Final Position title if themes are present -->
-              <n-space v-if="tacticalThemesList.length > 0" justify="center" :size="[4, 4]" wrap>
-                <n-tag
-                  v-for="theme in tacticalThemesList"
-                  :key="theme"
-                  size="small"
-                  round
-                  :bordered="false"
-                  type="info"
-                >
-                  {{ t(`chess.themes.${getThemeTranslationKey(theme)}`, { defaultValue: theme }) }}
-                </n-tag>
-              </n-space>
               <n-text
-                v-else
                 depth="3"
                 strong
                 uppercase
@@ -231,7 +184,7 @@ const puzzleFenFinal = computed(() => {
             </n-space>
           </n-card>
 
-          <!-- Puzzle Local Leaderboard -->
+          <!-- Puzzle Local Leaderboard (Legacy / Specific) -->
           <div v-if="sortedResults" class="leaderboard-section">
             <n-space align="center" :size="8" class="mb-8">
               <n-icon color="#f0a020">
@@ -290,21 +243,90 @@ const puzzleFenFinal = computed(() => {
   transition: all 0.3s ease;
 }
 
-.section-title {
-  font-size: 0.75rem;
-  letter-spacing: 1.2px;
+/* ZONE 1 */
+.zone-status-bar {
+    .header-row {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .main-stat {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        .stat-icon-wrapper {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px;
+            border-radius: 12px;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .stat-content {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--color-text-secondary);
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .stat-value {
+             font-size: 1.4rem;
+             font-weight: 700;
+             line-height: 1.1;
+             font-family: monospace;
+        }
+    }
 }
 
-.section-subtitle {
-  font-size: 0.65rem;
-  letter-spacing: 1px;
+/* ZONE 2 */
+.zone-material {
+    .mini-stat {
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 8px;
+        padding: 8px 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .mini-stat-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+     .mini-stat-value {
+        font-size: 0.9rem;
+        font-family: monospace;
+    }
 }
+
+/* ZONE 3 */
+.zone-taxonomy {
+    .taxonomy-tag {
+        font-size: 0.75rem;
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--color-text-primary);
+    }
+}
+
+
+/* Legacy styles for Leaderboard & Preview */
 
 .preview-card {
   background: rgba(0, 0, 0, 0.2);
   border-radius: 10px;
   padding: 8px 4px;
-  /* Минимальные отступы для максимального размера доски */
 }
 
 .chessboard-preview-wrapper {
@@ -313,10 +335,6 @@ const puzzleFenFinal = computed(() => {
   border-radius: 1px;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.shadow-premium {
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
 }
 
 .preview-title {
@@ -346,6 +364,15 @@ const puzzleFenFinal = computed(() => {
   }
 }
 
+.leaderboard-section {
+    margin-top: 8px;
+}
+
+.section-subtitle {
+  font-size: 0.65rem;
+  letter-spacing: 1px;
+}
+
 .player-link {
   color: var(--color-accent);
   text-decoration: none;
@@ -360,28 +387,10 @@ const puzzleFenFinal = computed(() => {
   margin-bottom: 8px;
 }
 
-:deep(.n-statistic) {
-  .n-statistic-label {
-    font-size: 0.65rem;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    color: var(--color-text-secondary);
-    font-weight: 600;
-    margin-bottom: 2px;
-  }
-
-  .n-statistic-value {
-    font-size: 1.1rem;
-    font-family: monospace;
-  }
-}
-
 /* Transitions */
 .fade-enter-active,
 .fade-leave-active {
-  transition:
-    opacity 0.3s ease,
-    transform 0.3s ease;
+  transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .fade-enter-from,
