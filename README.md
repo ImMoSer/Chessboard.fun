@@ -4,6 +4,10 @@
 
 **Chessboard.fun** is a high-performance interactive platform designed for chess enthusiasts who seek a disciplined, professional-grade training environment. We combine deep engine-backed analysis with realistic, human-like AI resistance to transform study into a repeatable, high-impact skill.
 
+<p align="center">
+  <img src="tech_docs/screenshots/hero_preview.png" width="900" alt="Chessboard.fun Interface Preview">
+</p>
+
 ---
 
 ## 🚀 The Vision: Depth over Simplicity
@@ -24,10 +28,20 @@ Stop relying on luck to find brilliant moves.
 - **The "Hunt & Secure" Loop**: Find a Diamond (`!!`), refute the bot's blunder, and then **replay the entire game from memory** to secure your achievement.
 - **Gravity Map Guidance**: Visualize tactical tension with real-time arrow-based gravity mapping and "Distance" metrics.
 
+<p align="center">
+  <img src="tech_docs/screenshots/DiamondHunter&GRAVITY_MAP.png" width="800" alt="Diamond Hunter & Gravity Map">
+</p>
+
 ### 📊 Tactical Fingerprint (User Cabinet)
 Raw data transformed into actionable insights via **Apache ECharts**.
 - **Nightingale Rose Charts**: A visual DNA of your tactical strengths and weaknesses across dozens of themes (Pins, Forks, X-Rays, etc.).
 - **Mastery Ladder**: Stacked column charts tracking your progress through three tiers (**Novice**, **Pro**, **Master**) in every endgame and opening category.
+
+<p align="center">
+  <img src="tech_docs/screenshots/user_cabinet.png" width="800" alt="User Cabinet Analytics">
+</p>
+
+> **🔗 Live Experience:** [Explore the User Cabinet Demo](https://chessboard.fun/user-cabinet/example)
 
 ---
 
@@ -42,11 +56,30 @@ Raw data transformed into actionable insights via **Apache ECharts**.
 | **🧩 Practical** | Calculation & Intuition | Real-game "messy" endgames with side selection |
 | **🎓 Theoretical** | Fundamental Endgames | Structured mastery of classic endgame positions |
 
+### Professional Study Tools
+<p align="center">
+  <img src="tech_docs/screenshots/Opening_Sparring_Selection.png" width="440" alt="Mode Selection">
+  <img src="tech_docs/screenshots/StudyManager.png" width="440" alt="Study Manager">
+</p>
+
+- **Interactive Opening Sparring**: Train your repertoire against the engine with real-time feedback and theoretical notes from **MozerBook**.
+- **Specialized Endgames**: Master precision in both theoretical basics and practical "messy" endgames.
+
+<p align="center">
+  <img src="tech_docs/screenshots/Theoretical_Endgames.png" width="290" alt="Theoretical Endgames">
+  <img src="tech_docs/screenshots/Finish_Him.png" width="290" alt="Finish Him Mode">
+  <img src="tech_docs/screenshots/Practical_Chess.png" width="290" alt="Practical Chess">
+</p>
+
 ---
 
 ## 🤖 AI & Engine Architecture
 
-Our infrastructure utilizes a distributed engine cluster to provide specialized computations for every training scenario:
+Our infrastructure utilizes a distributed engine cluster to provide specialized computations for every training scenario.
+
+<p align="center">
+  <img src="tech_docs/screenshots/Opening_Sparring_Book_Ended_Analysis.png" width="800" alt="Engine Analysis Detail">
+</p>
 
 | Engine | Role | Playstyle |
 | :--- | :--- | :--- |
@@ -62,7 +95,9 @@ Our infrastructure utilizes a distributed engine cluster to provide specialized 
 We operate on an **"Active-First"** model that rewards community engagement over passive consumption.
 - **FunCoins**: Power your high-intensity engine playouts and advanced analytics.
 - **Lichess Club Bonus**: Earn automatic tier upgrades (**Knight**, **Bishop**, **Rook**) by participating in club tournaments and being an active player.
-- **Transparency**: All achievements are verified and linked directly to your **Lichess profile**.
+- **Verification**: All achievements are verified and linked directly to your **Lichess profile**.
+
+> **🏆 Hall of Fame:** [Check the Current Leaders & Records](https://chessboard.fun/records/example)
 
 ---
 
@@ -95,4 +130,5 @@ Explore our deep-dive documentation for modular details:
 Special thanks to the [Lichess.org](https://lichess.org) team, the **Stockfish** project, **LCZero**, and **Maia Chess** for the foundational tools that make this platform possible.
 
 _License: GNU General Public License v3.0 | Made with ❤️ for the global chess community._
+
 
