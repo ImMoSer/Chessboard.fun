@@ -14,6 +14,7 @@ import {
   TrophyOutline
 } from '@vicons/ionicons5'
 import { storeToRefs } from 'pinia'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 // Инициализируем хранилище, роутер и i18n
@@ -48,6 +49,29 @@ const menuItems = [
   { path: '/user-cabinet', icon: PersonOutline, labelKey: 'nav.userCabinet', color: '#faad14' },
   { path: '/records', icon: TrophyOutline, labelKey: 'welcome.buttons.leaderboards', color: '#fadb14' }
 ]
+
+// Mobile detection logic
+const isMobile = ref(false)
+const updateMobile = () => {
+  isMobile.value = window.innerWidth <= 768
+}
+
+onMounted(() => {
+  updateMobile()
+  window.addEventListener('resize', updateMobile)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', updateMobile)
+})
+
+// Filter items for mobile (hide 'study')
+const filteredMenuItems = computed(() => {
+  if (isMobile.value) {
+    return menuItems.filter((item) => item.path !== '/study')
+  }
+  return menuItems
+})
 </script>
 
 <template>
@@ -91,7 +115,7 @@ const menuItems = [
         responsive="screen"
         class="menu-grid"
       >
-        <n-grid-item v-for="item in menuItems" :key="item.path">
+        <n-grid-item v-for="item in filteredMenuItems" :key="item.path">
           <router-link :to="item.path" custom v-slot="{ navigate }">
             <n-card
               hoverable
@@ -272,25 +296,37 @@ const menuItems = [
 
 /* Mobile Adaptation */
 @media (max-width: 768px) {
+  .content-wrapper {
+    gap: 1.4vh;
+  }
+
+  .hero-section {
+    gap: 10px;
+  }
+
+  .hero-logo {
+    max-height: 14vh;
+  }
+
   .menu-grid {
-    gap: 8px !important;
+    gap: 6px !important;
   }
 
   .glass-card {
-    border-radius: 8px;
+    border-radius: 6px;
   }
 
   .card-content {
-    padding: 8px;
-    gap: 5px;
+    padding: 6px;
+    gap: 4px;
   }
 
   .card-icon {
-    font-size: 24px !important; /* Override n-icon size prop via CSS if needed, but prop binds to style usually */
+    font-size: 20px !important;
   }
 
   .card-title {
-    font-size: 0.9rem;
+    font-size: 0.75rem;
   }
 }
 </style>
