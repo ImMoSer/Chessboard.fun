@@ -135,7 +135,7 @@ body {
   font-style: var(--font-style-normal);
   font-size: var(--font-size-base);
   line-height: 1.6;
-  background-color: var(--color-bg-primary);
+  background-color: transparent;
   color: var(--color-text-default);
   height: 100%;
   overflow-y: auto;

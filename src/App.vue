@@ -9,6 +9,7 @@ import ConfirmationModal from './components/ConfirmationModal.vue'
 import InfoModal from './components/InfoModal.vue'
 import NavMenu from './components/NavMenu.vue'
 import SettingsMenu from './components/SettingsMenu.vue'
+import GalaxyBackground from './components/visuals/GalaxyBackground.vue'
 import { useFinishHimStore } from './stores/finishHim.store'
 import { useGameStore } from './stores/game.store'
 import { useUiStore } from './stores/ui.store'
@@ -152,6 +153,7 @@ onUnmounted(() => {
           <ConfirmationModal />
           <InfoModal v-if="uiStore.infoModalKey" />
         </n-layout>
+        <GalaxyBackground />
       </n-dialog-provider>
     </n-message-provider>
   </n-config-provider>
@@ -161,15 +163,16 @@ onUnmounted(() => {
 /* Global Layout Fixes */
 .root-layout {
   height: 100vh;
-  background-color: var(--color-bg-primary);
+  background-color: transparent !important;
 }
 
 .main-layout-container {
-  background-color: var(--color-bg-primary);
+  background-color: transparent !important;
 }
 
 .app-sider {
-  background-color: var(--color-bg-secondary) !important;
+  background-color: rgba(24, 24, 28, 0.6) !important;
+  backdrop-filter: blur(10px);
   z-index: 1000;
 }
 
@@ -211,7 +214,8 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: var(--color-bg-secondary) !important;
+  background-color: rgba(24, 24, 28, 0.6) !important;
+  backdrop-filter: blur(10px);
 }
 
 .mobile-drawer-content :deep(.n-drawer-header__main) {
@@ -219,7 +223,7 @@ onUnmounted(() => {
 }
 
 .page-content {
-  background-color: var(--color-bg-primary);
+  background-color: transparent !important;
   height: calc(100vh - 56px);
 }
 

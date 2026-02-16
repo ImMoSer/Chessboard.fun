@@ -273,9 +273,9 @@ onUnmounted(() => {
 
 <style scoped>
 .galaxy-wrapper {
-  position: absolute;
+  position: fixed;
   inset: 0;
-  z-index: 0;
+  z-index: -1;
   overflow: hidden;
   background: radial-gradient(circle at center, #0a0a12 0%, #020205 100%);
   pointer-events: none;

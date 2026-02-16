@@ -1,18 +1,17 @@
 <script setup lang="ts">
-import GalaxyBackground from '@/components/visuals/GalaxyBackground.vue'
 import { changeLang } from '@/services/i18n'
 import { useAuthStore } from '@/stores/auth.store'
 import {
-  BookOutline,
-  BuildOutline,
-  DiamondOutline,
-  FlashOutline,
-  HammerOutline,
-  LogInOutline,
-  PersonOutline,
-  SchoolOutline,
-  ThunderstormOutline,
-  TrophyOutline
+    BookOutline,
+    BuildOutline,
+    DiamondOutline,
+    FlashOutline,
+    HammerOutline,
+    LogInOutline,
+    PersonOutline,
+    SchoolOutline,
+    ThunderstormOutline,
+    TrophyOutline
 } from '@vicons/ionicons5'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
@@ -53,7 +52,6 @@ const menuItems = [
 
 <template>
   <div class="welcome-container">
-    <GalaxyBackground />
     <div class="content-wrapper">
 
       <!-- Hero Section -->
