@@ -1,7 +1,18 @@
-<!-- src/views/WelcomeView.vue -->
 <script setup lang="ts">
 import { changeLang } from '@/services/i18n'
 import { useAuthStore } from '@/stores/auth.store'
+import {
+  BookOutline,
+  BuildOutline,
+  DiamondOutline,
+  FlashOutline,
+  HammerOutline,
+  LogInOutline,
+  PersonOutline,
+  SchoolOutline,
+  ThunderstormOutline,
+  TrophyOutline
+} from '@vicons/ionicons5'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
 
@@ -24,349 +35,260 @@ const handleLogin = async () => {
 const handleChangeLang = (lang: 'en' | 'ru' | 'de') => {
   changeLang(lang)
 }
+
+// Конфигурация карточек меню для чистоты кода в шаблоне
+const menuItems = [
+  { path: '/finish-him', icon: HammerOutline, labelKey: 'welcome.buttons.finishHim', color: '#f5222d' },
+  { path: '/tornado', icon: ThunderstormOutline, labelKey: 'nav.tornado', color: '#1890ff' },
+  { path: '/theory-endings', icon: BookOutline, labelKey: 'welcome.buttons.theoryEndings', color: '#722ed1' },
+  { path: '/practical-chess', icon: BuildOutline, labelKey: 'welcome.buttons.practicalChess', color: '#fa8c16' },
+  { path: '/diamond-hunter', icon: DiamondOutline, labelKey: 'welcome.buttons.openingTraining', color: '#13c2c2' },
+  { path: '/opening-sparring', icon: FlashOutline, labelKey: 'welcome.buttons.openingSparring', color: '#eb2f96' },
+  { path: '/study', icon: SchoolOutline, labelKey: 'welcome.buttons.study', color: '#52c41a' },
+  { path: '/user-cabinet', icon: PersonOutline, labelKey: 'nav.userCabinet', color: '#faad14' },
+  { path: '/records', icon: TrophyOutline, labelKey: 'welcome.buttons.leaderboards', color: '#fadb14' }
+]
 </script>
 
 <template>
-  <div class="welcome-page-container">
-    <div class="welcome-content">
-      <img
-        class="welcome-logo"
-        src="/jpg/mainLogo_bg_101014.jpg"
-        :alt="t('app.title')"
-        width="1200"
-        height="240"
-      />
+  <div class="welcome-container">
+    <div class="content-wrapper">
 
-      <div class="mode-selection-container">
-        <router-link class="mode-button" to="/finish-him">
-          <span class="mode-button-icon">🔨</span>
-          <span class="mode-button-text">{{ t('welcome.buttons.finishHim') }}</span>
-        </router-link>
+      <!-- Hero Section -->
+      <div class="hero-section">
+        <img
+          src="/jpg/mainLogo_bg_101014.jpg"
+          :alt="t('app.title')"
+          class="hero-logo"
+        />
 
-        <router-link class="mode-button" to="/tornado">
-          <span class="mode-button-icon">🌪️</span>
-          <span class="mode-button-text">{{ t('nav.tornado') }}</span>
-        </router-link>
+        <!-- Login Button (Visible only if not authenticated) -->
+        <div v-if="!isAuthenticated" class="auth-section">
+          <n-button
+            type="primary"
+            size="large"
+            :loading="isLoading"
+            class="login-btn"
+            @click="handleLogin"
+          >
+            <template #icon>
+              <n-icon><LogInOutline /></n-icon>
+            </template>
+            {{ t('nav.loginWithLichess') }}
+          </n-button>
+        </div>
 
-        <router-link class="mode-button" to="/theory-endings">
-          <span class="mode-button-icon">♔♙</span>
-          <span class="mode-button-text">{{ t('welcome.buttons.theoryEndings') }}</span>
-        </router-link>
-
-        <router-link class="mode-button" to="/practical-chess">
-          <span class="mode-button-icon">♙♖</span>
-          <span class="mode-button-text">{{ t('welcome.buttons.practicalChess') }}</span>
-        </router-link>
-
-        <router-link class="mode-button training-btn" to="/diamond-hunter">
-          <span class="mode-button-icon">💎</span>
-          <span class="mode-button-text">{{ t('welcome.buttons.openingTraining') }}</span>
-        </router-link>
-
-        <router-link class="mode-button exam-btn" to="/opening-sparring">
-          <span class="mode-button-icon">🥊🥊</span>
-          <span class="mode-button-text">{{ t('welcome.buttons.openingSparring') }}</span>
-        </router-link>
-
-        <router-link class="mode-button" to="/study">
-          <span class="mode-button-icon">🎓</span>
-          <span class="mode-button-text">{{ t('welcome.buttons.study') }}</span>
-        </router-link>
-
-        <router-link class="mode-button" to="/user-cabinet">
-          <span class="mode-button-icon">🗄️</span>
-          <span class="mode-button-text">{{ t('nav.userCabinet') }}</span>
-        </router-link>
-
-
-        <router-link class="mode-button" to="/records">
-          <span class="mode-button-icon">🏆</span>
-          <span class="mode-button-text">{{ t('welcome.buttons.leaderboards') }}</span>
-        </router-link>
+        <n-text v-if="error" type="error" class="error-text">
+          {{ `Error: ${error}` }}
+        </n-text>
       </div>
 
-      <div v-if="!isAuthenticated" class="login-section">
-        <p class="login-prompt">
-          {{ t('welcome.loginPrompt') }}
-        </p>
-        <button class="login-button button-primary" @click="handleLogin" :disabled="isLoading">
-          {{ isLoading ? t('common.processing') : t('nav.loginWithLichess') }}
-        </button>
+      <!-- Mode Selection Grid -->
+      <n-grid
+        x-gap="16"
+        y-gap="16"
+        cols="2 s:3 m:3 l:3"
+        responsive="screen"
+        class="menu-grid"
+      >
+        <n-grid-item v-for="item in menuItems" :key="item.path">
+          <router-link :to="item.path" custom v-slot="{ navigate }">
+            <n-card
+              hoverable
+              class="menu-card glass-card"
+              @click="navigate"
+              :bordered="false"
+            >
+              <div class="card-content">
+                <n-icon size="32" :color="item.color" class="card-icon">
+                  <component :is="item.icon" />
+                </n-icon>
+                <n-text class="card-title">
+                  {{ t(item.labelKey) }}
+                </n-text>
+              </div>
+            </n-card>
+          </router-link>
+        </n-grid-item>
+      </n-grid>
+
+      <!-- Language Switcher -->
+      <div class="footer-section">
+        <n-space justify="center" size="small">
+          <button
+            class="lang-text-btn"
+            :class="{ active: locale === 'en' }"
+            @click="handleChangeLang('en')"
+          >
+            EN
+          </button>
+          <span class="lang-divider">|</span>
+          <button
+            class="lang-text-btn"
+            :class="{ active: locale === 'ru' }"
+            @click="handleChangeLang('ru')"
+          >
+            RU
+          </button>
+          <span class="lang-divider">|</span>
+          <button
+            class="lang-text-btn"
+            :class="{ active: locale === 'de' }"
+            @click="handleChangeLang('de')"
+          >
+            DE
+          </button>
+        </n-space>
       </div>
 
-      <p v-if="error" class="error-message">{{ `Error: ${error}` }}</p>
-    </div>
-
-    <div class="language-switcher-container">
-      <button
-        class="lang-button"
-        :class="{ active: locale === 'en' }"
-        @click="handleChangeLang('en')"
-      >
-        EN
-      </button>
-      <span class="lang-separator">|</span>
-      <button
-        class="lang-button"
-        :class="{ active: locale === 'ru' }"
-        @click="handleChangeLang('ru')"
-      >
-        RU
-      </button>
-      <span class="lang-separator">|</span>
-      <button
-        class="lang-button"
-        :class="{ active: locale === 'de' }"
-        @click="handleChangeLang('de')"
-      >
-        DE
-      </button>
     </div>
   </div>
 </template>
 
 <style scoped>
-/* Стили из welcome.css */
-.welcome-page-container {
-  position: relative;
-  /* Добавлено для создания контекста позиционирования */
+.welcome-container {
+  height: 100%;
+  width: 100%;
+  background-color: var(--color-bg-primary);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  box-sizing: border-box;
+  overflow: hidden; /* Prevent scrolling */
+}
+
+.content-wrapper {
+  width: 100%;
+  max-width: 1000px;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2vh; /* Use vh for dynamic vertical spacing */
+}
+
+.hero-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  flex-shrink: 0;
+}
+
+.hero-logo {
+  max-width: 90%;
+  max-height: 20vh; /* Limit height to fit screen */
+  width: auto;
+  height: auto;
+  border-radius: 12px;
+  /* Removed blinking animation, kept simple shadow */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.auth-section {
+  margin-top: 5px;
+}
+
+.menu-grid {
+  width: 100%;
+  flex-grow: 1; /* Allow grid to take available space */
+  display: flex; /* Fix for centering content if needed, though grid handles cols */
+  align-content: center; /* Center rows vertically if they don't fill */
+  justify-content: center;
+  max-height: 60vh;
+}
+
+/* Glassmorphism Card Style */
+.glass-card {
+  background: var(--color-bg-secondary); /* Use app theme secondary */
+  border: 1px solid var(--color-border-hover);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.glass-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--color-accent-primary);
+  background: var(--color-bg-tertiary);
+}
+
+.card-content {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
-  /* Изменено с 80vh на 100vh для полной высоты экрана */
-  text-align: center;
-  padding: 20px;
-  padding-bottom: 30px;
-  /* Добавлен отступ снизу для языкового переключателя */
-  box-sizing: border-box;
-  background-color: var(--color-bg-primary);
-  color: var(--color-text-default);
-}
-
-.language-switcher-container {
-  position: relative;
-  bottom: 20px;
-  display: flex;
   gap: 10px;
-  align-items: center;
-  z-index: 10;
-  /* Добавлен z-index для гарантии отображения поверх других элементов */
-  margin-top: 50px;
+  padding: 10px;
+  text-align: center;
+  width: 100%;
 }
 
-.lang-button {
+.card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.footer-section {
+  margin-top: auto;
+  padding: 10px 0;
+  flex-shrink: 0;
+}
+
+/* Custom Text Buttons for Language to match App style */
+.lang-text-btn {
   background: none;
   border: none;
-  color: var(--color-text-muted);
-  font-size: var(--font-size-small);
   cursor: pointer;
-  transition: color 0.2s ease;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  padding: 0 5px;
+  transition: color 0.2s;
 }
 
-.lang-button:hover {
+.lang-text-btn:hover {
   color: var(--color-text-default);
 }
 
-.lang-button.active {
-  color: var(--color-text-link);
-  font-weight: var(--font-weight-bold);
-}
-
-.lang-separator {
-  color: var(--color-text-muted);
-}
-
-.welcome-content {
-  max-width: 800px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 25px;
-}
-
-.welcome-logo {
-  max-width: 100%;
-  height: auto;
-  aspect-ratio: 1200 / 240;
-  border-radius: 20px;
-  box-shadow:
-    0 0 20px rgba(0, 191, 255, 0.6),
-    0 0 40px rgba(0, 0, 255, 0.4),
-    inset 0 0 15px rgba(0, 191, 255, 0.5);
-  animation: blue-flame-pulse 2s infinite ease-in-out;
-  border: 1px solid rgba(0, 191, 255, 0.3);
-}
-
-@keyframes blue-flame-pulse {
-  0%,
-  100% {
-    box-shadow:
-      0 0 15px rgba(0, 191, 255, 0.6),
-      0 0 30px rgba(0, 0, 255, 0.4),
-      inset 0 0 10px rgba(0, 191, 255, 0.5);
-    transform: scale(1);
-  }
-
-  50% {
-    box-shadow:
-      0 0 25px rgba(0, 255, 255, 0.8),
-      0 0 50px rgba(30, 144, 255, 0.6),
-      inset 0 0 20px rgba(0, 191, 255, 0.6);
-    transform: scale(1.005);
-  }
-}
-
-.welcome-title {
-  font-size: var(--font-size-xxlarge);
+.lang-text-btn.active {
   color: var(--color-accent-primary);
-  margin: 0;
+  font-weight: bold;
 }
 
-.mode-selection-container {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  width: 100%;
-  margin-top: 20px;
-}
-
-.mode-button {
-  background-color: var(--color-bg-secondary);
-  border: 1px solid var(--color-border-hover);
-  border-radius: var(--panel-border-radius);
-  padding: 25px 20px;
-  text-decoration: none;
-  color: var(--color-text-default);
-  font-size: var(--font-size-large);
-  font-weight: var(--font-weight-bold);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 15px;
-  transition: all 0.2s ease-in-out;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-}
-
-.mode-button:hover {
-  transform: translateY(-5px);
-  border-color: var(--color-accent-primary);
-  background-color: var(--color-bg-tertiary);
-  color: var(--color-accent-primary);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-}
-
-.mode-button-icon {
-  font-size: 3rem;
-  line-height: 1;
-}
-
-.mode-button-text {
-  line-height: 1.1;
-  font-size: var(--font-size-xlarge);
-}
-
-.training-btn:hover {
-  border-color: var(--color-accent-info) !important;
-  color: var(--color-accent-info) !important;
-}
-
-.exam-btn:hover {
-  border-color: var(--color-accent-warning) !important;
-  color: var(--color-accent-warning) !important;
-}
-
-.login-section {
-  margin-top: 30px;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 15px;
-}
-
-.login-prompt {
-  font-size: var(--font-size-base);
+.lang-divider {
   color: var(--color-text-muted);
+  opacity: 0.5;
 }
 
-.login-button.button-primary {
-  background-color: var(--color-accent-primary);
-  color: var(--color-text-dark);
-  border: 1px solid var(--color-accent-primary);
-  padding: 12px 25px;
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-bold);
-  border-radius: var(--panel-border-radius);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  min-width: 220px;
-}
-
-.login-button.button-primary:hover:not(:disabled) {
-  background-color: var(--color-text-link-hover);
-  border-color: var(--color-text-link-hover);
-  color: var(--color-text-on-accent);
-  transform: translateY(-2px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-.error-message {
-  color: var(--color-text-error);
-  background-color: rgba(229, 57, 53, 0.15);
-  border: 1px solid var(--color-accent-error);
-  padding: 10px 15px;
-  border-radius: var(--panel-border-radius);
-  font-size: var(--font-size-small);
-  width: 100%;
-  box-sizing: border-box;
-  margin-top: 10px;
-}
-
-/* Адаптация для мобильных устройств */
-@media (orientation: portrait) {
-  .welcome-page-container {
-    padding-bottom: 60px;
-    /* Уменьшенный отступ для мобильных */
+/* Mobile Adaptation */
+@media (max-width: 768px) {
+  .menu-grid {
+    gap: 8px !important;
   }
 
-  .welcome-content {
-    gap: 20px;
+  .glass-card {
+    border-radius: 8px;
   }
 
-  .welcome-title {
-    font-size: var(--font-size-xlarge);
+  .card-content {
+    padding: 8px;
+    gap: 5px;
   }
 
-  .mode-selection-container {
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
+  .card-icon {
+    font-size: 24px !important; /* Override n-icon size prop via CSS if needed, but prop binds to style usually */
   }
 
-  .mode-button {
-    padding: 10px;
-    font-size: var(--font-size-small);
-  }
-
-  .language-switcher-container {
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-
-  .lang-button {
-    font-size: var(--font-size-small);
-  }
-
-  .lang-separator {
-    font-size: var(--font-size-small);
-  }
-
-  .mode-button-text {
-    font-size: var(--font-size-large);
+  .card-title {
+    font-size: 0.9rem;
   }
 }
 </style>
