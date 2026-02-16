@@ -305,6 +305,29 @@ const onChartClick = (params: unknown) => {
   min-height: 500px;
 }
 
+@media (max-width: 768px) {
+  .theme-rose-container {
+    padding: 14px;
+  }
+
+  .chart-header {
+    gap: 11px;
+    margin-bottom: 7px;
+  }
+
+  .chart-title {
+    font-size: 0.88rem;
+  }
+
+  .chart-wrapper {
+    height: 280px;
+  }
+
+  .header-left-group {
+    gap: 6px;
+  }
+}
+
 :deep(.zoom-modal) {
   background-color: var(--color-bg-tertiary);
 }

@@ -368,10 +368,37 @@ const onChartClick = (params: unknown) => {
   min-height: 500px;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
+  .theory-chart-standalone {
+    padding: 14px;
+    margin-top: 17px;
+  }
+
+  .theory-title {
+    font-size: 1.05rem;
+  }
+
   .header-left {
+    gap: 17px;
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .title-group {
+    gap: 6px;
+  }
+
+  .chart-wrapper {
+    height: 315px;
+  }
+
+  .chart-header {
+    margin-bottom: 11px;
+  }
+}
+
+@media (max-width: 600px) {
+  .header-left {
     gap: 12px;
   }
 }

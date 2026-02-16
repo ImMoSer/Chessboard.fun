@@ -4,7 +4,7 @@ import { useAuthStore } from '@/stores/auth.store'
 import type { TornadoMode, UserSessionProfile } from '@/types/api.types'
 import { Calendar, Flash, Timer } from '@vicons/ionicons5'
 import { storeToRefs } from 'pinia'
-import { computed, type Component } from 'vue'
+import { computed, onMounted, onUnmounted, ref, type Component } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
@@ -65,6 +65,23 @@ const tornadoScores = computed(() => {
     score: userProfile.value?.tornadoHighScores?.[mode] || 0,
   }))
 })
+
+// Responsive avatar size
+const isMobile = ref(false)
+const updateMobile = () => {
+  isMobile.value = window.innerWidth <= 768
+}
+
+onMounted(() => {
+  updateMobile()
+  window.addEventListener('resize', updateMobile)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', updateMobile)
+})
+
+const avatarSize = computed(() => (isMobile.value ? 75 : 150))
 </script>
 
 <template>
@@ -76,7 +93,7 @@ const tornadoScores = computed(() => {
           <!-- KEEP CLEAR: No elements should be placed directly under the avatar -->
           <n-avatar
             round
-            :size="150"
+            :size="avatarSize"
             :src="avatarUrl"
             fallback-src="https://lichess1.org/assets/images/avatar_default.png"
             class="user-avatar"
@@ -226,6 +243,43 @@ const tornadoScores = computed(() => {
   .header-main-grid {
     grid-template-columns: 1fr;
     gap: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-main-grid {
+    gap: 17px;
+  }
+
+  .profile-basic-info {
+    gap: 17px;
+  }
+
+  .avatar-container {
+    padding: 7px;
+  }
+
+  .user-main-info {
+    min-height: auto;
+  }
+
+  .username {
+    font-size: 1.5rem;
+    margin-bottom: 4px !important;
+  }
+
+  .section-title {
+    font-size: 0.65rem;
+    margin-bottom: 11px;
+  }
+
+  .score-item {
+    gap: 7px;
+    padding: 6px;
+  }
+
+  .mode-score {
+    font-size: 0.85rem;
   }
 }
 

@@ -1,14 +1,14 @@
 <!-- src/components/userCabinet/sections/ActivityChart.vue -->
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { storeToRefs } from 'pinia'
 import { useUserCabinetStore, type ActivityPeriod } from '@/stores/userCabinet.store'
+import { BarChart } from 'echarts/charts'
+import { GridComponent, LegendComponent, TooltipComponent } from 'echarts/components'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
-import { BarChart } from 'echarts/charts'
-import { GridComponent, TooltipComponent, LegendComponent } from 'echarts/components'
+import { storeToRefs } from 'pinia'
+import { computed } from 'vue'
 import VChart from 'vue-echarts'
+import { useI18n } from 'vue-i18n'
 
 use([CanvasRenderer, BarChart, GridComponent, TooltipComponent, LegendComponent])
 
@@ -193,11 +193,17 @@ const chartOption = computed(() => {
 @media (max-width: 600px) {
   .card-header-flex {
     flex-direction: column;
-    gap: 16px;
+    gap: 11px;
     align-items: flex-start;
+  }
+  .card-title {
+    font-size: 1.1rem;
   }
   .period-tabs {
     width: 100%;
+  }
+  .chart-container {
+    height: 160px;
   }
 }
 </style>

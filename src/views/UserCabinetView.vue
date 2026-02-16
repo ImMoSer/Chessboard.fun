@@ -153,6 +153,11 @@ onMounted(() => {
 @media (max-width: 768px) {
   .user-cabinet-container {
     padding: 12px;
+    margin: 10px auto;
+  }
+
+  .charts-grid {
+    gap: 17px;
   }
 }
 </style>
