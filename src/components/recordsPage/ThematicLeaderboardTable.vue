@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import type { AdvantageLeaderboardEntry } from '@/types/api.types'
 import { ADVANTAGE_THEMES, PRACTICAL_CHESS_CATEGORIES, THEORY_ENDING_CATEGORIES } from '@/types/api.types'
-import { getThemeTranslationKey } from '@/utils/theme-mapper'
 import type { DataTableColumns } from 'naive-ui'
 import { computed, h, ref, watch, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -21,7 +20,7 @@ const props = defineProps({
   infoTopic: { type: String, required: false },
 })
 
-const { t, te } = useI18n()
+const { t } = useI18n()
 const activeTab = ref('')
 
 const availableThemes = computed(() => {
@@ -74,20 +73,30 @@ const getSubscriptionIcon = (tier?: string) => {
 }
 
 const getThemeLabel = (theme: string) => {
-  const key = getThemeTranslationKey(theme)
-  return t(`chess.themes.${key}`, { defaultValue: theme })
+  if ((ADVANTAGE_THEMES as readonly string[]).includes(theme)) {
+    return t(`chess.finishHim.category.${theme}`, { defaultValue: theme })
+  }
+  return t(`chess.endings.${theme}`, { defaultValue: theme })
 }
 
 const getThemeIcon = (theme: string) => {
-  if (theme === 'expert') return '🎓' // Fallback or special case if needed, though en.json has it
-  const key = getThemeTranslationKey(theme)
-
-  // Try to use the unified icons from chess.icons first (same as Selection View)
-  if (te(`chess.icons.${key}`)) {
-     return t(`chess.icons.${key}`)
+  if (theme === 'expert') return '🎓'
+  if (theme === 'auto') return '✨'
+  const icons: Record<string, string> = {
+    'pawn': '♔♟',
+    'bishop': '♗♙',
+    'knight': '♘♙',
+    'queen': '♕♙',
+    'rook': '♖',
+    'rookPawn': '♖♙',
+    'rookPieces': '♖♘♗',
+    'knightBishop': '♘♗',
+    'queenPieces': '♕♘♗',
+    'extraPawn': '♟️',
+    'materialEquality': '⚖️',
+    'exchange': '🔄'
   }
-
-  return ''
+  return icons[theme] || ''
 }
 
 const columns = computed<DataTableColumns<AdvantageLeaderboardEntry>>(() => [

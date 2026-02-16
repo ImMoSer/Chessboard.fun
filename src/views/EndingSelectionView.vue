@@ -15,7 +15,6 @@ import {
     type TheoryEndingDifficulty,
     type TheoryEndingType,
 } from '@/types/api.types'
-import { getThemeTranslationKey } from '@/utils/theme-mapper'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
@@ -102,10 +101,30 @@ const config = computed(() => {
   }
 })
 
+// Icons mapping for categories
 function getIcon(cat: string) {
-  if (cat === 'expert' && mode.value === 'finish-him') return null
-  const key = getThemeTranslationKey(cat)
-  return t(`chess.icons.${key}`, cat === 'auto' ? '✨' : '')
+  if (cat === 'auto') return '✨'
+  const icons: Record<string, string> = {
+    'pawn': '♔♟',
+    'bishop': '♗♙',
+    'knight': '♘♙',
+    'queen': '♕♙',
+    'rook': '♖',
+    'rookPawn': '♖♙',
+    'rookPieces': '♖♘♗',
+    'knightBishop': '♘♗',
+    'queenPieces': '♕♘♗',
+    'extraPawn': '♟️',
+    'materialEquality': '⚖️',
+    'exchange': '🔄'
+  }
+  return icons[cat] || ''
+}
+
+function getThemeKey(cat: string) {
+  if (cat === 'auto') return 'chess.tornado.auto'
+  if (mode.value === 'finish-him') return `chess.finishHim.category.${cat}`
+  return `chess.endings.${cat}`
 }
 
 function handleStart() {
@@ -195,7 +214,7 @@ function handleStart() {
                 <img src="/svg/crown-svgrepo-com.svg" class="cat-icon-svg" alt="expert" />
               </template>
               <span v-else class="cat-icon">{{ getIcon(cat) }}</span>
-              <span class="cat-name">{{ t(`chess.themes.${getThemeTranslationKey(cat)}`) }}</span>
+              <span class="cat-name">{{ t(getThemeKey(cat)) }}</span>
             </button>
           </div>
         </div>

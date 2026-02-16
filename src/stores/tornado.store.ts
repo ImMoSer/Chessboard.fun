@@ -8,7 +8,6 @@ import { InsufficientFunCoinsError, webhookService } from '../services/WebhookSe
 import type { ThemeRating, TornadoNextPuzzleDto, TornadoPuzzle } from '../types/api.types'
 import { type TornadoMode } from '../types/api.types'
 import logger from '../utils/logger'
-import { getThemeTranslationKey } from '../utils/theme-mapper'
 import { useAuthStore } from './auth.store'
 import { useGameStore } from './game.store'
 import { useUiStore } from './ui.store'
@@ -139,8 +138,8 @@ export const useTornadoStore = defineStore('tornado', () => {
 
     // Format stats message
     const themeLabel = sessionTheme.value
-      ? t(`chess.themes.${getThemeTranslationKey(sessionTheme.value)}`)
-      : t('chess.themes.auto')
+      ? t(`chess.tornado.${sessionTheme.value}`)
+      : t('chess.tornado.auto')
     const message = t('tornado.sessionEnd.stats', {
       rating: sessionRating.value,
       solved: puzzlesSolved.value,

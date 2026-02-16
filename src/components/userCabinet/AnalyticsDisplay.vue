@@ -1,6 +1,5 @@
 <!-- src/components/userCabinet/AnalyticsDisplay.vue -->
 <script setup lang="ts">
-import { getThemeTranslationKey } from '@/utils/theme-mapper'
 import { computed, ref, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
 import RadarChart from './sections/RadarChart.vue'
@@ -46,12 +45,14 @@ const sortedStats = computed(() => {
     let label = ''
     if (props.mode === 'theory') {
       const theoryData = data as TheoryStat
-      const category = t('chess.themes.' + getThemeTranslationKey(theoryData.category))
+      const category = t('chess.endings.' + theoryData.category)
       const type = t('theoryEndings.types.' + theoryData.type)
-      const diff = t('theoryEndings.difficulties.' + theoryData.difficulty.toLowerCase())
+      const diff = t('chess.difficulties.' + theoryData.difficulty)
       label = `${category} - ${diff} (${type})`
+    } else if (props.mode === 'tornado') {
+      label = t('chess.tornado.' + data.theme)
     } else {
-      label = t('chess.themes.' + getThemeTranslationKey(data.theme))
+      label = t('chess.finishHim.category.' + data.theme)
     }
 
     return {

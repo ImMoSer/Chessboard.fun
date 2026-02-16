@@ -1,13 +1,12 @@
 <!-- src/components/userCabinet/sections/TheoryStackbarChart.vue -->
 <script setup lang="ts">
-import { getThemeTranslationKey } from '@/utils/theme-mapper'
 import { ExpandOutline } from '@vicons/ionicons5'
 import { BarChart } from 'echarts/charts'
 import {
-  GridComponent,
-  LegendComponent,
-  TitleComponent,
-  TooltipComponent,
+    GridComponent,
+    LegendComponent,
+    TitleComponent,
+    TooltipComponent,
 } from 'echarts/components'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
@@ -128,9 +127,11 @@ const option = computed(() => {
         if (!p || !p[0]) return ''
         const theme = themes[p[0].dataIndex]
         if (!theme) return ''
-        const themeName = t(`chess.themes.${getThemeTranslationKey(theme)}`, {
-          defaultValue: theme,
-        })
+        const themeName = props.mode === 'theory'
+          ? t(`chess.endings.${theme}`)
+          : props.mode === 'advantage'
+            ? t(`chess.finishHim.category.${theme}`)
+            : t(`chess.endings.${theme}`) // practical
 
         let html = `<div style="padding: 4px; min-width: 150px;">
                       <b style="color: #FFFFFF; display: block; margin-bottom: 8px; border-bottom: 1px solid #5A5A5A; padding-bottom: 4px;">${themeName}</b>`
@@ -166,7 +167,9 @@ const option = computed(() => {
     xAxis: {
       type: 'category',
       data: themes.map((theme) => {
-        return t(`chess.themes.${getThemeTranslationKey(theme)}`)
+        if (props.mode === 'theory') return t(`chess.endings.${theme}`)
+        if (props.mode === 'advantage') return t(`chess.finishHim.category.${theme}`)
+        return t(`chess.endings.${theme}`)
       }),
       axisLabel: {
         color: '#CCCCCC',

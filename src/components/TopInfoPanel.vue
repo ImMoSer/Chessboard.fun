@@ -1,15 +1,14 @@
 <!-- src/components/TopInfoPanel.vue -->
 <script setup lang="ts">
+import type { PuzzleUnion } from '@/types/api.types'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import type { PuzzleUnion } from '@/types/api.types'
 
 import EngineSelector from '@/components/EngineSelector.vue'
 import { useControlsStore } from '@/stores/controls.store'
 import { useFinishHimStore } from '@/stores/finishHim.store'
 import { useTheoryEndingsStore } from '@/stores/theoryEndings.store'
 import { useTornadoStore } from '@/stores/tornado.store'
-import { getThemeTranslationKey } from '@/utils/theme-mapper'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
@@ -34,21 +33,32 @@ const activeThemeKey = computed<string>(() => {
   const puzzle = activePuzzle.value
   if (!puzzle) return 'auto'
 
-  // Check for 'category' (Practical, Theory, FinishHim)
   if ('category' in puzzle && typeof puzzle.category === 'string') {
     return puzzle.category as string
   }
 
-  // Check for 'themes' (TornadoPuzzle)
   if ('themes' in puzzle && Array.isArray(puzzle.themes) && puzzle.themes.length > 0) {
       return puzzle.themes[0] as string
   }
 
-  // Legacy fallback
-  if ('theme_key' in puzzle && puzzle.theme_key) return puzzle.theme_key!
-  if ('meta' in puzzle && puzzle.meta?.theme_key) return puzzle.meta.theme_key!
-
   return 'auto'
+})
+
+const themeTranslation = computed(() => {
+  const key = activeThemeKey.value
+  if (key === 'auto') {
+    return route.name === 'tornado' ? t('chess.tornado.auto') : t('chess.finishHim.category.auto') // or just 'Automatic'
+  }
+
+  if (route.name === 'tornado') {
+    return t(`chess.tornado.${key}`)
+  }
+
+  if (route.name?.toString().startsWith('theory-endings') || route.name?.toString().startsWith('practical-chess')) {
+    return t(`chess.endings.${key}`)
+  }
+
+  return t(`chess.finishHim.category.${key}`)
 })
 
 const formattedTimer = computed(() => {
@@ -84,12 +94,7 @@ const containerClass = computed(() => {
           v-if="activeThemeKey !== 'auto'"
           class="session-theme-label"
         >
-          {{
-            t(
-              'chess.themes.' +
-                getThemeTranslationKey(activeThemeKey),
-            )
-          }}
+          {{ themeTranslation }}
         </span>
       </div>
       <div class="tornado-timer">
@@ -103,12 +108,7 @@ const containerClass = computed(() => {
       class="puzzle-title-container"
     >
       <span class="puzzle-title-label">
-        {{
-          t(
-            'chess.themes.' +
-              getThemeTranslationKey(activeThemeKey),
-          )
-        }}
+        {{ themeTranslation }}
       </span>
     </div>
 

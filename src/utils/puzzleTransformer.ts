@@ -1,6 +1,4 @@
-
 import type { FinishHimPuzzle, GamePuzzle, PracticalPuzzle, PuzzleUnion, TheoryPuzzle, TornadoPuzzle } from '../types/api.types'
-import { getThemeTranslationKey } from './theme-mapper'
 
 export interface DisplayTaskHeader {
     value: string | number
@@ -27,6 +25,12 @@ export interface DisplayTask {
     footerTags: string[]
 }
 
+const officialTornadoThemes = new Set([
+    'fork', 'pin', 'attraction', 'discoveredAttack', 'deflection', 'skewer',
+    'promotion', 'trappedPiece', 'quietMove', 'clearance', 'capturingDefender',
+    'backRankMate', 'interference', 'xRayAttack', 'doubleCheck'
+])
+
 export function transformPuzzle(puzzle: PuzzleUnion | null, t: (key: string) => string): DisplayTask {
     // Default empty state
     const defaultTask: DisplayTask = {
@@ -39,8 +43,6 @@ export function transformPuzzle(puzzle: PuzzleUnion | null, t: (key: string) => 
     if (!puzzle) return defaultTask
 
     // --- 1. Identify Puzzle Type ---
-    // We can use duck typing or specific properties to identify the mode
-
     // TORNADO
     if ('tactical_rating' in puzzle && 'themes' in puzzle && Array.isArray((puzzle as TornadoPuzzle).themes)) {
         return transformTornado(puzzle as TornadoPuzzle, t)
@@ -56,17 +58,17 @@ export function transformPuzzle(puzzle: PuzzleUnion | null, t: (key: string) => 
         return transformPractical(puzzle as PracticalPuzzle, t)
     }
 
-    // FINISH HIM (often has engm_rating or material_advantage)
-    // Fallback for GamePuzzle that might be Finish Him
+    // FINISH HIM
     if ('engm_rating' in puzzle || 'material_advantage' in puzzle) {
         return transformFinishHim(puzzle as FinishHimPuzzle, t)
     }
 
-    // Legacy GamePuzzle or unknown
-    return transformLegacy(puzzle as GamePuzzle)
+    // Legacy or unknown
+    return transformLegacy(puzzle as GamePuzzle, t)
 }
 
 function transformTornado(puzzle: TornadoPuzzle, t: (key: string) => string): DisplayTask {
+    const themes = puzzle.themes || []
     return {
         header: {
             value: puzzle.tactical_rating || '?',
@@ -75,10 +77,12 @@ function transformTornado(puzzle: TornadoPuzzle, t: (key: string) => string): Di
             icon: 'trending-up'
         },
         badges: [
-            { text: t('chess.themes.auto'), type: 'primary' } // "Tactics" or similar generic badge
+            { text: t('chess.tornado.auto'), type: 'primary' }
         ],
-        stats: [], // Tornado doesn't usually show pieces/material
-        footerTags: puzzle.themes.map(theme => t(`chess.themes.${getThemeTranslationKey(theme)}`))
+        stats: [],
+        footerTags: themes
+            .filter(theme => officialTornadoThemes.has(theme))
+            .map(theme => t(`chess.tornado.${theme}`))
     }
 }
 
@@ -94,20 +98,16 @@ function transformTheory(puzzle: TheoryPuzzle, t: (key: string) => string): Disp
         },
         badges: [
             { text: t(`chess.difficulties.${puzzle.difficulty}`), type: getDifficultyColor(puzzle.difficulty) },
-            { text: t(`chess.themes.${puzzle.category}`), type: 'info' }
+            { text: t(`chess.endings.${puzzle.category}`), type: 'info' }
         ],
         stats: [
             { icon: 'pieces', value: puzzle.pieces_count, label: t('puzzleInfo.pieces') }
         ],
         footerTags: [
-            t(`chess.themes.${puzzle.weak_side}Endgame`) // e.g. "Black Endgame" - might need specific keys?
-            // Actually 'weak_side' is 'white' or 'black'. Let's just use capitalized
-            // Or better: "Vs White", "Vs Black"?
-            // User implementation plan said "weak_side" -> let's map it nicely if possible, or just raw
+            t(`chess.types.${puzzle.weak_side}Endgame`)
         ].filter(Boolean)
     }
 }
-
 
 function transformPractical(puzzle: PracticalPuzzle, t: (key: string) => string): DisplayTask {
     const evalValue = puzzle.eval ? (puzzle.eval / 100).toFixed(1) : '?'
@@ -121,11 +121,10 @@ function transformPractical(puzzle: PracticalPuzzle, t: (key: string) => string)
         },
         badges: [
             { text: t(`chess.difficulties.${puzzle.difficulty}`), type: getDifficultyColor(puzzle.difficulty) },
-            { text: t(`chess.themes.${puzzle.category}`), type: 'info' }
+            { text: t(`chess.endings.${puzzle.category}`), type: 'info' }
         ],
         stats: [
             { icon: 'pieces', value: puzzle.pieces_count, label: t('puzzleInfo.pieces') },
-            // Material count is also available
             { icon: 'material', value: puzzle.material_count, label: 'Mat.' }
         ],
         footerTags: []
@@ -142,21 +141,19 @@ function transformFinishHim(puzzle: FinishHimPuzzle, t: (key: string) => string)
         },
         badges: [
             { text: t(`chess.difficulties.${puzzle.difficulty}`), type: getDifficultyColor(puzzle.difficulty) },
-            // puzzle.category usually "queenPieces" etc.
-            { text: t(`chess.themes.${getThemeTranslationKey(puzzle.category)}`), type: 'primary' }
+            { text: t(`chess.finishHim.category.${puzzle.category}`), type: 'primary' }
         ],
         stats: [
             { icon: 'pieces', value: puzzle.pieces_count, label: t('puzzleInfo.pieces') },
             { icon: 'advantage', value: `+${puzzle.material_advantage}`, label: t('chess.types.advantage') }
         ],
         footerTags: [
-            puzzle.sub_category ? t(`chess.themes.${getThemeTranslationKey(puzzle.sub_category)}`) : ''
+            puzzle.sub_category ? t(`chess.finishHim.subCategory.${puzzle.sub_category}`) : ''
         ].filter(Boolean)
     }
 }
 
-function transformLegacy(puzzle: GamePuzzle): DisplayTask {
-    // Attempt to salvage whatever we can
+function transformLegacy(puzzle: GamePuzzle, t: (key: string) => string): DisplayTask {
     const headerVal = puzzle.Rating ?? puzzle.rating ?? puzzle.engmRating ?? '?'
 
     const badges: DisplayTaskBadge[] = []
@@ -165,19 +162,18 @@ function transformLegacy(puzzle: GamePuzzle): DisplayTask {
         badges.push({ text: diff, type: 'default' })
     }
 
-    // Tags from various theme fields
     const themeStr = puzzle.Themes || puzzle.puzzle_theme || puzzle.EngmThemes_PG || ''
     const tags = themeStr.split(/[,\s]+/).filter(Boolean)
 
     return {
         header: {
             value: headerVal,
-            label: 'Rating',
+            label: t('openingTrainer.stats.avgRating'),
             icon: 'trending-up'
         },
         badges,
         stats: [],
-        footerTags: tags
+        footerTags: tags // Legacy fallback remains as is, but might need t() later
     }
 }
 

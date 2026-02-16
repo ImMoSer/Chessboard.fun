@@ -1,6 +1,5 @@
 <!-- src/components/userCabinet/sections/ThemeRoseChart.vue -->
 <script setup lang="ts">
-import { getThemeTranslationKey } from '@/utils/theme-mapper'
 import { ExpandOutline } from '@vicons/ionicons5'
 import { PieChart } from 'echarts/charts'
 import { LegendComponent, TitleComponent, TooltipComponent } from 'echarts/components'
@@ -86,7 +85,11 @@ const option = computed(() => {
         const p = params as RoseParam
         const data = p.data.raw
         const accuracy = data.requested > 0 ? Math.round((data.success / data.requested) * 100) : 0
-        const themeName = t(`chess.themes.${getThemeTranslationKey(data.theme)}`)
+
+        let themeName = ''
+        if (props.activeMode === 'tornado') themeName = t(`chess.tornado.${data.theme}`)
+        else if (props.activeMode === 'advantage') themeName = t(`chess.finishHim.category.${data.theme}`)
+        else themeName = t(`chess.endings.${data.theme}`)
 
         return `
           <div style="padding: 4px; min-width: 140px;">
@@ -122,7 +125,11 @@ const option = computed(() => {
           color: '#CCCCCC',
           formatter: (params: unknown) => {
             const p = params as RoseParam
-            const themeName = t(`chess.themes.${getThemeTranslationKey(p.name)}`)
+            let themeName = ''
+            if (props.activeMode === 'tornado') themeName = t(`chess.tornado.${p.name}`)
+            else if (props.activeMode === 'advantage') themeName = t(`chess.finishHim.category.${p.name}`)
+            else themeName = t(`chess.endings.${p.name}`)
+
             return themeName.length > 10 ? themeName.slice(0, 8) + '..' : themeName
           },
         },

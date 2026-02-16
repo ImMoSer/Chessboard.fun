@@ -3,7 +3,6 @@
 import { useFinishHimStore } from '@/stores/finishHim.store'
 import { useGameStore } from '@/stores/game.store'
 import { ADVANTAGE_THEMES } from '@/types/api.types'
-import { getThemeTranslationKey } from '@/utils/theme-mapper'
 import { storeToRefs } from 'pinia'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -20,7 +19,8 @@ const dropdownRef = ref<HTMLElement | null>(null)
 const availableThemes: string[] = ['auto', ...ADVANTAGE_THEMES]
 
 const selectedThemeName = computed(() => {
-  return t(`chess.themes.${getThemeTranslationKey(selectedTheme.value)}`)
+  if (selectedTheme.value === 'auto') return t('chess.tornado.auto')
+  return t(`chess.finishHim.category.${selectedTheme.value}`)
 })
 
 const toggleDropdown = () => {
@@ -41,7 +41,8 @@ const handleClickOutside = (event: MouseEvent) => {
 }
 
 const getThemeName = (theme: string) => {
-  return t(`chess.themes.${getThemeTranslationKey(theme)}`)
+  if (theme === 'auto') return t('chess.tornado.auto')
+  return t(`chess.finishHim.category.${theme}`)
 }
 
 onMounted(() => {

@@ -8,7 +8,6 @@ import { useAnalysisStore } from '@/stores/analysis.store'
 import { useGameStore } from '@/stores/game.store'
 import { useUiStore } from '@/stores/ui.store'
 import type { GamePuzzle } from '@/types/api.types'
-import { getThemeTranslationKey } from '@/utils/theme-mapper'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
@@ -61,8 +60,7 @@ const formattedThemes = computed(() => {
 
   return themesList
     .map((theme) => {
-      const key = getThemeTranslationKey(theme)
-      return t(`chess.themes.${key}`)
+      return t(`chess.tornado.${theme}`)
     })
     .join(', ')
 })
