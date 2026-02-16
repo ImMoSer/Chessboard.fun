@@ -410,49 +410,74 @@ function handleStart() {
 /* Mobile Adaptation */
 @media (max-width: 600px) {
   .selection-card {
-    padding: 10px;
-    border-radius: 15px;
+    padding: 8px;
+    border-radius: 12px;
   }
 
   .title {
-    font-size: 1.75rem;
+    font-size: 1.25rem;
     letter-spacing: 1px;
   }
 
   .subtitle {
-    font-size: 0.9rem;
-    margin-bottom: 20px;
+    font-size: 0.65rem;
+    margin-bottom: 14px;
   }
 
   .selection-sections {
-    gap: 20px;
-    margin-bottom: 30px;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .section {
+    gap: 8px;
+  }
+
+  .section-label {
+    font-size: 0.65rem;
   }
 
   .category-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+    gap: 8px;
   }
 
   .category-btn {
-    padding: 12px;
+    padding: 8px;
+    border-radius: 10px;
+    gap: 4px;
   }
 
   .cat-icon {
-    font-size: 1.5rem;
+    font-size: 1.05rem;
+  }
+
+  .cat-icon-svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .cat-name {
+    font-size: 0.6rem;
   }
 
   .start-btn {
-    padding: 15px;
-    font-size: 1.1rem;
+    padding: 12px;
+    font-size: 0.85rem;
     letter-spacing: 2px;
+    border-radius: 10px;
   }
-  .toggle-btn {
-  flex: 1;
-  padding: 5px;
-  font-weight: 600;
-}
 
+  .toggle-group {
+    padding: 4px;
+    border-radius: 8px;
+  }
+
+  .toggle-btn {
+    padding: 6px;
+    font-size: 0.75rem;
+    border-radius: 6px;
+  }
 }
 
 @media (max-width: 400px) {
