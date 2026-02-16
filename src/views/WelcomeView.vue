@@ -2,16 +2,16 @@
 import { changeLang } from '@/services/i18n'
 import { useAuthStore } from '@/stores/auth.store'
 import {
-    BookOutline,
-    BuildOutline,
-    DiamondOutline,
-    FlashOutline,
-    HammerOutline,
-    LogInOutline,
-    PersonOutline,
-    SchoolOutline,
-    ThunderstormOutline,
-    TrophyOutline
+  BookOutline,
+  BuildOutline,
+  DiamondOutline,
+  FlashOutline,
+  HammerOutline,
+  LogInOutline,
+  PersonOutline,
+  SchoolOutline,
+  ThunderstormOutline,
+  TrophyOutline
 } from '@vicons/ionicons5'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'
@@ -202,10 +202,10 @@ const menuItems = [
 
 /* Glassmorphism Card Style */
 .glass-card {
-  background: rgba(43, 43, 61, 0.4); /* Glass effect with transparency */
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--panel-border-radius);
   transition: all 0.2s ease;
   cursor: pointer;
   height: 100%;
@@ -216,8 +216,9 @@ const menuItems = [
 
 .glass-card:hover {
   transform: translateY(-4px);
-  border-color: var(--color-accent-primary);
-  background: var(--color-bg-tertiary);
+  border-color: var(--color-neon-cyan);
+  background: var(--glass-bg-hover);
+  box-shadow: 0 0 20px rgba(0, 242, 255, 0.15);
 }
 
 .card-content {

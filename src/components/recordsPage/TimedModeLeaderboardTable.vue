@@ -1,9 +1,9 @@
 <!-- src/components/recordsPage/TimedModeLeaderboardTable.vue -->
 <script setup lang="ts">
 import type {
-  AdvantageLeaderboardEntry,
-  TornadoLeaderboardEntry,
-  TornadoMode,
+    AdvantageLeaderboardEntry,
+    TornadoLeaderboardEntry,
+    TornadoMode,
 } from '@/types/api.types'
 import type { DataTableColumns } from 'naive-ui'
 import { computed, h, type PropType } from 'vue'
@@ -129,35 +129,36 @@ const columns = computed<DataTableColumns<TornadoLeaderboardEntry | AdvantageLea
 
 <style scoped>
 .records-card {
-  background-color: var(--color-bg-secondary);
-  border-radius: 5px;
-  border: 1px solid var(--color-border-hover);
+  background-color: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  border-radius: var(--panel-border-radius);
+  border: 1px solid var(--glass-border);
   overflow: hidden;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
 }
 
 .main-header {
-  padding: 10px;
-  border-bottom: 1px solid var(--color-border-hover);
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.03);
 }
 
-.tornadoLeaderboard .main-header {
-  background-color: var(--color-accent-error-hover);
-}
-
-.advantageLeaderboard .main-header {
-  background-color: var(--color-accent-secondary-hover);
-}
+.tornadoLeaderboard .card-title { color: var(--color-neon-orange); }
+.advantageLeaderboard .card-title { color: var(--color-neon-purple); }
 
 .card-title {
-  color: var(--color-bg-primary);
-  font-size: var(--font-size-large);
+  font-size: 1.4rem;
   margin: 0;
   text-align: center;
-  font-weight: bold;
+  font-weight: 800;
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
 }
 
 .modes-container {
@@ -165,10 +166,11 @@ const columns = computed<DataTableColumns<TornadoLeaderboardEntry | AdvantageLea
 }
 
 .mode-table-wrapper {
-  margin-top: 12px;
-  border: 1px solid var(--color-border-hover);
-  border-radius: 5px;
+  margin-top: 16px;
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
   overflow: hidden;
+  background-color: rgba(0, 0, 0, 0.2);
 }
 
 .tab-label {
@@ -185,11 +187,11 @@ const columns = computed<DataTableColumns<TornadoLeaderboardEntry | AdvantageLea
 }
 
 .records-table {
-  --n-td-color-striped: var(--color-bg-tertiary);
+  --n-td-color-striped: rgba(255, 255, 255, 0.035);
 }
 
 :deep(.n-data-table-th) {
-  background-color: var(--color-bg-tertiary) !important;
+  background-color: rgba(255, 255, 255, 0.05) !important;
   color: var(--color-text-muted) !important;
   font-family: var(--font-family-primary);
   font-size: 0.95rem;

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { AdvantageLeaderboardEntry } from '@/types/api.types'
-import { getThemeTranslationKey } from '@/utils/theme-mapper'
 import { ADVANTAGE_THEMES, PRACTICAL_CHESS_CATEGORIES, THEORY_ENDING_CATEGORIES } from '@/types/api.types'
+import { getThemeTranslationKey } from '@/utils/theme-mapper'
 import type { DataTableColumns } from 'naive-ui'
 import { computed, h, ref, watch, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -192,54 +192,36 @@ const swiperModules = [Navigation, Mousewheel, FreeMode]
 
 <style scoped>
 .records-card {
-  background-color: var(--color-bg-secondary);
-  border-radius: 5px;
-  border: 1px solid var(--color-border-hover);
+  background-color: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  border-radius: var(--panel-border-radius);
+  border: 1px solid var(--glass-border);
   overflow: hidden;
-  margin-bottom: 10px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s ease;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
 }
 
 .main-header {
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--color-border-hover);
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.03);
 }
 
-.advantageLeaderboard .main-header {
-  background: linear-gradient(
-    135deg,
-    var(--color-accent-secondary-hover),
-    var(--color-accent-secondary)
-  );
-}
-
-.theoryLeaderboard .main-header {
-  background: linear-gradient(
-    135deg,
-    var(--color-accent-warning-hover),
-    var(--color-accent-warning)
-  );
-}
-
-.practicalLeaderboard .main-header {
-  background: linear-gradient(
-    135deg,
-    var(--color-accent-primary-hover),
-    var(--color-accent-primary)
-  );
-}
+.advantageLeaderboard .card-title { color: var(--color-neon-lime); }
+.theoryLeaderboard .card-title { color: var(--color-accent-warning); }
+.practicalLeaderboard .card-title { color: var(--color-neon-lime); }
 
 .card-title {
-  color: var(--color-bg-primary);
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   margin: 0;
   font-weight: 800;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
-  letter-spacing: 0.5px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
 }
 
 .modes-container {
@@ -264,32 +246,32 @@ const swiperModules = [Navigation, Mousewheel, FreeMode]
 }
 
 .theme-button {
-  min-width: 56px;
-  height: 45px;
-  padding: 0 5px;
-  border-radius: 5px;
-  background-color: var(--color-bg-tertiary);
-  border: 1px solid var(--color-border);
+  min-width: 60px;
+  height: 50px;
+  padding: 0 8px;
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  color: var(--color-text-default);
-  white-space: nowrap;
+  transition: all 0.3s ease;
+  color: var(--color-text-muted);
 }
 
 .theme-button:hover {
-  border-color: var(--color-accent-primary);
-  background-color: var(--color-bg-secondary);
+  border-color: var(--color-neon-cyan);
+  background-color: var(--glass-bg-hover);
   transform: translateY(-2px);
+  color: var(--color-text-default);
 }
 
 .theme-button.active {
-  background-color: var(--color-accent-primary);
-  border-color: var(--color-accent-primary);
-  color: white;
-  box-shadow: 0 4px 12px rgba(var(--color-accent-primary-rgb), 0.3);
+  background-color: rgba(0, 242, 255, 0.15);
+  border-color: var(--color-neon-cyan);
+  color: var(--color-neon-cyan);
+  box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
 }
 
 .theme-icon {
@@ -321,10 +303,10 @@ const swiperModules = [Navigation, Mousewheel, FreeMode]
 }
 
 .table-container {
-  border: 1px solid var(--color-border-hover);
-  border-radius: 5px;
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
   overflow: hidden;
-  background-color: var(--color-bg-primary);
+  background-color: rgba(0, 0, 0, 0.2);
 }
 
 .mode-score-value {
@@ -382,7 +364,7 @@ const swiperModules = [Navigation, Mousewheel, FreeMode]
 
 /* Naive UI Styling */
 :deep(.n-data-table-th) {
-  background-color: var(--color-bg-tertiary) !important;
+  background-color: rgba(255, 255, 255, 0.05) !important;
   color: var(--color-text-muted) !important;
   font-weight: 700;
   text-transform: uppercase;
@@ -395,6 +377,6 @@ const swiperModules = [Navigation, Mousewheel, FreeMode]
 }
 
 :deep(.records-table) {
-  --n-td-color-striped: rgba(255, 255, 255, 0.02);
+  --n-td-color-striped: rgba(255, 255, 255, 0.035);
 }
 </style>

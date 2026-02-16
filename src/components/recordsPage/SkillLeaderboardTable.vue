@@ -1,22 +1,22 @@
 <!-- src/components/recordsPage/SkillLeaderboardTable.vue -->
 <script setup lang="ts">
-import { computed, type PropType } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { use } from 'echarts/core'
-import { CanvasRenderer } from 'echarts/renderers'
+import type {
+    OverallSolvedLeaderboardEntry,
+    SkillPeriod,
+    SolveStreakLeaderboardEntry,
+} from '@/types/api.types'
 import { BarChart } from 'echarts/charts'
 import {
-  GridComponent,
-  TooltipComponent,
-  LegendComponent,
-  TitleComponent,
+    GridComponent,
+    LegendComponent,
+    TitleComponent,
+    TooltipComponent,
 } from 'echarts/components'
+import { use } from 'echarts/core'
+import { CanvasRenderer } from 'echarts/renderers'
+import { computed, type PropType } from 'vue'
 import VChart from 'vue-echarts'
-import type {
-  OverallSolvedLeaderboardEntry,
-  SkillPeriod,
-  SolveStreakLeaderboardEntry,
-} from '@/types/api.types'
+import { useI18n } from 'vue-i18n'
 import InfoIcon from '../InfoIcon.vue'
 
 use([CanvasRenderer, BarChart, GridComponent, TooltipComponent, LegendComponent, TitleComponent])
@@ -91,8 +91,8 @@ const chartOption = computed(() => {
         const entry = displayEntries[p[0].dataIndex]
         if (!entry) return ''
 
-        let html = `<div style="padding: 4px; min-width: 150px;">
-                      <b style="color: #FFFFFF; display: block; margin-bottom: 8px; border-bottom: 1px solid #5A5A5A; padding-bottom: 4px;">${entry.username}</b>`
+        let html = `<div style="padding: 8px; min-width: 150px; background: rgba(10, 11, 20, 0.95); border: 1px solid var(--glass-border); border-radius: 8px;">
+                      <b style="color: #FFFFFF; display: block; margin-bottom: 8px; border-bottom: 1px solid var(--glass-border); padding-bottom: 4px;">${entry.username}</b>`
 
         p.forEach((item) => {
           if (item.value > 0) {
@@ -235,48 +235,46 @@ const onChartClick = (params: unknown) => {
 
 <style scoped>
 .records-card {
-  background-color: var(--color-bg-secondary);
-  border-radius: 8px;
-  border: 1px solid var(--color-border-hover);
+  background-color: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  border-radius: var(--panel-border-radius);
+  border: 1px solid var(--glass-border);
   overflow: hidden;
   display: flex;
   flex-direction: column;
   transition: all 0.3s ease;
+  margin-bottom: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .card-header {
-  padding: 12px;
-  border-bottom: 1px solid var(--color-border-hover);
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.03);
 }
 
-.skillStreak .card-header {
-  background-color: var(--color-accent-success);
-}
-.skillStreakMega .card-header {
-  background-color: var(--color-violett-lichess);
-}
-.topToday .card-header {
-  background-color: var(--color-accent-warning);
-}
-.overallSkill .card-header {
-  background-color: var(--color-accent-primary);
-}
+.skillStreak .card-title { color: var(--color-neon-cyan); }
+.skillStreakMega .card-title { color: var(--color-neon-purple); }
+.topToday .card-title { color: var(--color-accent-warning); }
+.overallSkill .card-title { color: var(--color-neon-pink); }
 
 .card-title {
-  color: var(--color-bg-primary);
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   margin: 0;
   text-align: center;
-  font-weight: bold;
+  font-weight: 800;
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
 }
 
 .controls-area {
-  background-color: var(--color-bg-tertiary);
-  padding: 12px;
+  background-color: rgba(255, 255, 255, 0.03);
+  padding: 16px;
+  border-bottom: 1px solid var(--glass-border);
 }
 
 .legend-item {
@@ -299,8 +297,8 @@ const onChartClick = (params: unknown) => {
 .chart-container {
   width: 100%;
   position: relative;
-  background-color: var(--color-bg-secondary);
-  padding: 10px 0;
+  background-color: rgba(0, 0, 0, 0.1);
+  padding: 16px 0;
 }
 
 .chart {

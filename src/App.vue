@@ -29,15 +29,22 @@ const isDrawerOpen = ref(false)
 const themeOverrides: GlobalThemeOverrides = {
   common: {
     fontFamily: 'Neucha, cursive',
-    primaryColor: '#13ADF6',
-    primaryColorHover: '#0B8ACB',
-    primaryColorPressed: '#0B8ACB',
-    primaryColorSuppl: '#0B8ACB',
-    borderRadius: '5px',
+    primaryColor: '#00f2ff',
+    primaryColorHover: '#00d7e6',
+    primaryColorPressed: '#00d7e6',
+    primaryColorSuppl: '#00d7e6',
+    borderRadius: '12px',
   },
   Card: {
-    color: '#262421',
-    borderColor: '#33312E',
+    color: 'rgba(15, 17, 26, 0.45)',
+    borderColor: 'rgba(0, 242, 255, 0.15)',
+  },
+  DataTable: {
+    tdColor: 'transparent',
+    tdColorHover: 'rgba(0, 242, 255, 0.05)',
+    tdColorStriped: 'rgba(255, 255, 255, 0.03)',
+    thColor: 'rgba(255, 255, 255, 0.03)',
+    borderColor: 'rgba(0, 242, 255, 0.15)',
   },
 }
 
@@ -171,9 +178,10 @@ onUnmounted(() => {
 }
 
 .app-sider {
-  background-color: rgba(24, 24, 28, 0.6) !important;
-  backdrop-filter: blur(10px);
+  background-color: var(--glass-bg) !important;
+  backdrop-filter: var(--glass-blur);
   z-index: 1000;
+  border-right: 1px solid var(--glass-border) !important;
 }
 
 .sider-top-bar {
@@ -181,7 +189,7 @@ onUnmounted(() => {
   display: flex;
   justify-content: center;
   align-items: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--glass-border);
 }
 
 .sider-header {
@@ -214,8 +222,9 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: rgba(24, 24, 28, 0.6) !important;
-  backdrop-filter: blur(10px);
+  background-color: var(--glass-bg) !important;
+  backdrop-filter: var(--glass-blur);
+  border-bottom: 1px solid var(--glass-border) !important;
 }
 
 .mobile-drawer-content :deep(.n-drawer-header__main) {

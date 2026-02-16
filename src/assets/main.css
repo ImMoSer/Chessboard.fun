@@ -1,163 +1,80 @@
 @import '@lichess-org/chessground/assets/chessground.base.css';
 @import '@lichess-org/chessground/assets/chessground.brown.css';
 
-body {
-  font-family: var(--font-family-primary);
-}
-
 :root {
   /* --- Layout --- */
   --header-height: 60px;
-  --panel-width: 20vw;
-  --panel-gap: 10px;
-  --panel-border-radius: 3px; /* Naive UI использует более строгие радиусы (обычно 3px) */
-  --page-vertical-padding: 5px;
-  --top-board-panel-height: 20px;
-  --bottom-board-panel-height: 20px;
+  --panel-border-radius: 12px;
 
-  /* --- Backgrounds (Naive UI Dark Theme Match) --- */
-  /* Основной фон (Body) - Глубокий, холодный черный */
-  --color-bg-primary: #101014;
+  /* --- Cyber Neon Palette (Synced with Galaxy & Banner) --- */
+  --color-neon-cyan: #00f2ff;
+  --color-neon-purple: #8f00ff;
+  --color-neon-pink: #fe0396;
+  --color-neon-lime: #c6ff00;
+  --color-neon-orange: #ff4500;
+  --color-neon-white: #ffffff;
 
-  /* Поверхности (Cards, Panels) - Чуть светлее, нейтральный */
-  --color-bg-secondary: #18181c;
+  /* --- Deep Space Surfaces --- */
+  --color-bg-deep: #050508;
+  --color-bg-panel: #0a0b14;
+  --color-bg-active: #151726;
 
-  /* Активные элементы/Модалки (Popovers, Modals) */
-  --color-bg-tertiary: #2a2a2e;
+  /* --- Glassmorphism Tokens --- */
+  --glass-bg: rgba(10, 11, 20, 0.45);
+  --glass-bg-hover: rgba(0, 242, 255, 0.08);
+  --glass-border: rgba(0, 242, 255, 0.15);
+  --glass-border-active: rgba(0, 242, 255, 0.4);
+  --glass-blur: blur(12px);
 
-  /* Оверлей */
-  --color-bg-overlay: rgba(0, 0, 0, 0.45);
+  /* --- Legacy Compatibility & Semantic Mapping --- */
+  --color-bg-primary: transparent;
+  --color-bg-secondary: var(--color-bg-panel);
+  --color-bg-tertiary: var(--color-bg-active);
 
-  /* --- Borders (Naive UI Style) --- */
-  /* В Naive UI границы - это белый цвет с низкой прозрачностью (9%) */
-  --color-border: rgba(255, 255, 255, 0.09);
-  --color-border-hover: rgba(255, 255, 255, 0.13);
+  --color-accent-primary: var(--color-neon-cyan);
+  --color-accent-primary-hover: #00d7e6;
+  --color-accent-secondary: var(--color-neon-purple);
+  --color-accent-warning: #f2c97d;
+  /* Standard for Warn */
+  --color-accent-error: #e88080;
 
-  /* --- Accents & Palette --- */
-  /* Оставляем ваш синий, он отлично сочетается с нейтральным фоном Naive.
-     Дефолтный зеленый Naive (#63e2b7) можно поставить, если захотите сменить бренд-цвет. */
-  --color-blue-base: #13adf6;
-  --color-blue-dark: #0b8acb;
-
-  /* Акценты */
-  --color-accent-primary: var(--color-blue-base);
-  --color-accent-primary-hover: var(--color-blue-dark);
-
-  /* Розовый */
-  --color-accent-secondary: #ff0496;
-  --color-accent-secondary-hover: #d1047f;
-
-  /* Статусные цвета (подогнаны под яркость темной темы Naive) */
-  --color-accent-success: #63e2b7; /* Naive UI Green */
-  --color-accent-success-hover: #7fe7c4;
-
-  --color-accent-warning: #f2c97d; /* Naive UI Warning (более пастельный) */
-  --color-accent-warning-hover: #ffdf9e;
-
-  --color-accent-error: #e88080; /* Naive UI Error (более мягкий красный) */
-  --color-accent-error-hover: #f29e9e;
-
-  --color-accent-info: var(--color-accent-primary);
-  --color-accent-special: var(--color-accent-secondary);
-  --color-violett-lichess: #b72fc6;
-
-  /* --- Text Colors (Naive UI Transparency System) --- */
-  /* Naive использует белый цвет с альфа-каналом для иерархии */
-  --color-text-default: rgba(255, 255, 255, 0.82); /* Base text */
-  --color-text-muted: rgba(255, 255, 255, 0.52); /* Secondary text */
-  --color-text-on-accent: #000000; /* На ярких акцентах Naive часто использует черный текст */
-  --color-text-error: #e88080;
-  --color-text-dark: #101014;
-
-  /* Ссылки */
-  --color-text-link: var(--color-blue-base);
-  --color-text-link-hover: #60cdff;
-
-  /* --- PGN Tree Visualization (Ice Depth Theme) --- */
-  /* Эти цвета идеально ложатся на холодный фон Naive UI */
-
-  /* 1. Mainline */
-  --color-pgn_mainline: #29b6f6;
-
-  /* 2. Secondline */
-  --color-pgn_secondline: #7e57c2;
-
-  /* 3. Thirdline */
-  --color-pgn_thirdline: #78909c;
-
-  /* 4. Fourthline */
-  --color-pgn_fourthline: #616161;
-
-  /* --- PGN Font Sizes --- */
-  --font-size-pgn_mainline: 1.1rem;
-  --font-size-pgn_secondline: 0.95rem;
-  --font-size-pgn_thirdline: 0.9rem;
-  --font-size-pgn_fourthline: 0.85rem;
+  --color-text-default: rgba(255, 255, 255, 0.9);
+  --color-text-muted: rgba(255, 255, 255, 0.55);
+  --color-text-link: var(--color-neon-cyan);
 
   /* --- Typography --- */
   --font-family-primary: 'Neucha', cursive;
-  --font-weight-normal: 400;
-  --font-weight-bold: 600;
-  --font-style-normal: normal;
-
-  /* Font sizes scale */
-  --font-size-hxsmall: 0.4rem;
-  --font-size-xsmall: 0.6rem;
-  --font-size-small: 0.8rem;
   --font-size-base: 1rem;
-  --font-size-large: 1.2rem;
-  --font-size-xlarge: 1.6rem;
-  --font-size-xxlarge: 2.2rem;
-
-  /* Helpers */
-  --color-accent-primary-rgb: 19, 173, 246;
-
-  /* Medal colors */
-  --color-gold: #ffd700;
-  --color-gold-border: #e6c200;
-  --color-silver: #c0c0c0;
-  --color-silver-border: #a9a9a9;
-  --color-bronze: #cd7f32;
-  --color-bronze-border: #b8732e;
-
-
-  /* NAGs colors */
-  --color-nag-255: #ff0496;
 }
 
-/* --- Global Resets & Styles --- */
+/* --- Global Resets --- */
 html,
 body {
   margin: 0;
   padding: 0;
   font-family: var(--font-family-primary);
-  font-weight: var(--font-weight-normal);
-  font-style: var(--font-style-normal);
-  font-size: var(--font-size-base);
-  line-height: 1.6;
   background-color: transparent;
   color: var(--color-text-default);
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
-
-  /* Улучшает рендеринг шрифтов на темном фоне */
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Скроллбар (Naive UI style - тонкий и ненавязчивый) */
+/* --- Scrollbar (Neon Style) --- */
 ::-webkit-scrollbar {
-  width: 6px; /* Чуть тоньше */
-  height: 6px;
+  width: 5px;
 }
+
 ::-webkit-scrollbar-track {
-  background: transparent; /* Прозрачный трек */
+  background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2); /* Полупрозрачный тамб */
-  border-radius: 3px;
+  background: rgba(0, 242, 255, 0.2);
+  border-radius: 10px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(0, 242, 255, 0.4);
 }

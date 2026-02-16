@@ -1,20 +1,20 @@
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
 import {
-  NLayout,
-  NLayoutContent,
-  NGrid,
-  NGi,
-  NCard,
-  NAlert,
-  NText,
-  NH1,
-  NH2,
-  NTag,
-  NThing,
-  NSpace,
-  NDivider
+    NAlert,
+    NCard,
+    NDivider,
+    NGi,
+    NGrid,
+    NH1,
+    NH2,
+    NLayout,
+    NLayoutContent,
+    NSpace,
+    NTag,
+    NText,
+    NThing
 } from 'naive-ui'
+import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 
@@ -25,11 +25,11 @@ const BISHOP_FUNCOINS = 500
 const ROOK_FUNCOINS = 1000
 const QUEEN_FUNCOINS = 10000
 
-const PAWN_COLOR = 'var(--color-accent-success-hover)'
-const KNIGHT_COLOR = 'var(--color-accent-primary-hover)'
+const PAWN_COLOR = 'var(--color-neon-cyan)'
+const KNIGHT_COLOR = 'var(--color-neon-cyan)'
 const BISHOP_COLOR = 'var(--color-accent-warning)'
-const ROOK_COLOR = 'var(--color-violett-lichess)'
-const QUEEN_COLOR = 'var(--color-accent-error-hover)'
+const ROOK_COLOR = 'var(--color-neon-purple)'
+const QUEEN_COLOR = 'var(--color-accent-error)'
 
 const subscriptionTiers = [
   {
@@ -104,11 +104,11 @@ const gameCosts = [
 </script>
 
 <template>
-  <n-layout class="pricing-page-layout" embedded>
-    <n-layout-content content-style="padding: 24px; max-width: 1200px; margin: 0 auto;">
+  <n-layout class="pricing-page-layout">
+    <n-layout-content class="pricing-content" content-style="padding: 24px; max-width: 1200px; margin: 0 auto;">
       <n-space vertical size="large">
         <n-h1 align-text class="page-title">
-          <n-text type="primary">{{ t('pricing.title') }}</n-text>
+          <n-text style="color: var(--color-neon-cyan)">{{ t('pricing.title') }}</n-text>
         </n-h1>
 
         <n-alert type="info" :bordered="false" class="intro-alert">
@@ -240,62 +240,94 @@ const gameCosts = [
 </template>
 
 <style scoped>
-.pricing-page-layout {
-  min-height: 100vh;
+.pricing-page-layout,
+.pricing-content {
   background-color: transparent !important;
 }
 
 .page-title {
-  margin-bottom: 8px !important;
+  margin-bottom: 24px !important;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
 }
 
 .intro-alert {
+  background-color: var(--glass-bg) !important;
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
   border-radius: var(--panel-border-radius);
 }
 
 .tier-card {
   height: 100%;
+  background-color: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
   border-radius: var(--panel-border-radius);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.tier-card:hover {
+  border-color: var(--color-neon-cyan);
+  background-color: var(--glass-bg-hover);
+  transform: translateY(-4px);
+}
+
 .highlight-tier {
-  border: 1px solid var(--color-accent-success) !important;
-  box-shadow: 0 0 12px rgba(157, 214, 0, 0.15);
+  border: 1px solid var(--color-neon-cyan) !important;
+  box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
 }
 
 .vibrant-bonus-header {
-  color: #ff9800; /* Vibrant Orange */
-  text-shadow: 0 0 8px rgba(255, 152, 0, 0.3);
+  color: var(--color-accent-warning);
+  text-shadow: 0 0 8px rgba(242, 201, 125, 0.3);
 }
 
 .bonus-intro-card {
   border-radius: var(--panel-border-radius);
   margin-bottom: 8px;
-  background-color: rgba(255, 152, 0, 0.05) !important;
+  background-color: var(--glass-bg) !important;
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
 }
 
 .bonus-level-card {
   height: 100%;
+  background-color: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
   border-radius: var(--panel-border-radius);
-  border: 1px solid rgba(255, 152, 0, 0.2);
   transition: all 0.3s ease;
 }
 
 .bonus-level-card:hover {
-  border-color: #ff9800;
-  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.1);
+  border-color: var(--color-accent-warning);
+  background-color: var(--glass-bg-hover);
+  transform: translateY(-4px);
 }
 
 .bonus-footer-card {
   margin-top: 16px;
+  background-color: var(--glass-bg) !important;
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
   border-radius: var(--panel-border-radius);
 }
 
 .game-cost-card {
   height: 100%;
+  background-color: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
   border-radius: var(--panel-border-radius);
   transition: all 0.3s ease;
+}
+
+.game-cost-card:hover {
+  border-color: var(--color-neon-cyan);
+  background-color: var(--glass-bg-hover);
+  transform: translateY(-4px);
 }
 
 @media (max-width: 768px) {
