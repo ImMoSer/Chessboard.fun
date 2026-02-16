@@ -2,14 +2,10 @@
 import { onMounted, onUnmounted, ref } from 'vue';
 
 /**
- * GalaxyBackground.vue (Production Grade)
+ * GalaxyBackground.vue (Starscape Edition)
  *
- * High-performance 3D particle swarm background.
- * Optimizations:
- * 1. Delta Time (FPS independence)
- * 2. Sprite Caching (drawImage instead of shadowBlur)
- * 3. Array Reuse (No map/object creation in loop)
- * 4. Early-exit Connection Checks
+ * A refined, high-performance background with "fixed" stars that sway
+ * and react to mouse movements without flying away.
  */
 
 const canvasRef = ref<HTMLCanvasElement | null>(null);
@@ -17,17 +13,24 @@ let animationId: number | null = null;
 let ctx: CanvasRenderingContext2D | null = null;
 
 // --- CONFIGURATION ---
-const PARTICLE_COUNT = 150;
-const CONNECTION_DISTANCE = 150;
+const PARTICLE_COUNT = 500;     // Increased for better starscape density
+const PARTICLE_BLUR = 0.3;     // 0.1 (sharp) to 1.0 (soft glow)
+const CONNECTION_DISTANCE = 1;
 const CONNECTION_DIST_SQ = CONNECTION_DISTANCE * CONNECTION_DISTANCE;
-const FOCAL_LENGTH = 500;
+const FOCAL_LENGTH = 1000;
+
+// Mouse Interaction
 const MOUSE_RADIUS = 300;
-const ATTRACTION_FORCE = 0.03;
-const SEPARATION_FORCE = 0.1;
-const SEPARATION_DISTANCE = 50;
-const SEPARATION_DIST_SQ = SEPARATION_DISTANCE * SEPARATION_DISTANCE;
-const DAMPING = 0.92;
-const ROAM_SPEED = 0.1;
+const MOUSE_PUSH_STRENGTH = 50; // How much stars "flee" from the cursor
+
+// Sway / Organic Movement
+const SWAY_AMPLITUDE = 25;
+const SWAY_SPEED = 0.0001;
+
+// Star Sizes
+const STAR_BASE_SIZE = 1;
+const STAR_VARIATION = 3;
+const STAR_RENDER_SCALE = 10; // Overall scale multiplier in draw loop
 
 // Colors
 const PALETTE = ['#00f2ff', '#8f00ff', '#ffffff', '#7df9ff', '#b4f0ff'];
@@ -36,7 +39,7 @@ const PALETTE = ['#00f2ff', '#8f00ff', '#ffffff', '#7df9ff', '#b4f0ff'];
 const spriteCache = new Map<string, HTMLCanvasElement>();
 
 const createParticleSprite = (color: string) => {
-  const size = 32; // Sprite size
+  const size = 32;
   const offscreen = document.createElement('canvas');
   offscreen.width = size;
   offscreen.height = size;
@@ -45,9 +48,14 @@ const createParticleSprite = (color: string) => {
 
   const center = size / 2;
   const gradient = octx.createRadialGradient(center, center, 0, center, center, center);
+
+  // Blur control: Lower blur = sharper core
+  const coreEdge = 0.1 * (1 - PARTICLE_BLUR);
+  const glowEdge = Math.max(0.15, PARTICLE_BLUR);
+
   gradient.addColorStop(0, color);
-  gradient.addColorStop(0.2, color);
-  gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+  gradient.addColorStop(coreEdge, color);
+  gradient.addColorStop(glowEdge, 'rgba(0, 0, 0, 0)');
 
   octx.fillStyle = gradient;
   octx.fillRect(0, 0, size, size);
@@ -55,6 +63,7 @@ const createParticleSprite = (color: string) => {
 };
 
 const preRenderSprites = () => {
+  spriteCache.clear();
   PALETTE.forEach(color => {
     spriteCache.set(color, createParticleSprite(color));
   });
@@ -75,103 +84,76 @@ const mouse = {
 };
 
 class Particle {
+  originX: number; originY: number; originZ: number;
   x: number; y: number; z: number;
-  vx: number; vy: number; vz: number;
   size: number;
   color: string;
   noiseOffset: number;
   sprite: HTMLCanvasElement | null;
 
-  // Projected results (Object Reuse)
+  // Projected results
   px = 0; py = 0; pscale = 0;
 
   constructor() {
-    this.x = (Math.random() - 0.5) * 2000;
-    this.y = (Math.random() - 0.5) * 2000;
-    this.z = (Math.random() - 0.5) * 1000;
-    this.vx = (Math.random() - 0.5) * 5;
-    this.vy = (Math.random() - 0.5) * 5;
-    this.vz = (Math.random() - 0.5) * 5;
-    this.size = Math.random() * 1.5 + 0.5;
-    this.noiseOffset = Math.random() * 1000;
+    // Spread stars in a wider volume for parallax depth
+    this.originX = (Math.random() - 0.5) * 2500;
+    this.originY = (Math.random() - 0.5) * 2000;
+    this.originZ = (Math.random() - 0.5) * 1200;
+
+    this.x = this.originX;
+    this.y = this.originY;
+    this.z = this.originZ;
+
+    this.size = Math.random() * STAR_VARIATION + STAR_BASE_SIZE;
+    this.noiseOffset = Math.random() * 10000;
 
     this.color = PALETTE[Math.floor(Math.random() * PALETTE.length)] ?? '#ffffff';
     this.sprite = spriteCache.get(this.color) || null;
   }
 
-  update(dt: number, time: number, particles: Particle[]) {
-    const dtScale = dt / 16.6; // Scale relative to 60fps
+  update(time: number) {
+    // 1. Organic Sway
+    const swayX = Math.sin(time * SWAY_SPEED + this.noiseOffset) * SWAY_AMPLITUDE;
+    const swayY = Math.cos(time * SWAY_SPEED * 1.1 + this.noiseOffset) * SWAY_AMPLITUDE;
+    const swayZ = Math.sin(time * SWAY_SPEED * 0.8 + this.noiseOffset) * SWAY_AMPLITUDE;
 
-    // 1. Organic Roaming
-    const rx = Math.sin(time * 0.001 + this.noiseOffset) * ROAM_SPEED * dtScale;
-    const ry = Math.cos(time * 0.0012 + this.noiseOffset) * ROAM_SPEED * dtScale;
-    const rz = Math.sin(time * 0.0008 + this.noiseOffset) * ROAM_SPEED * dtScale;
-    this.vx += rx; this.vy += ry; this.vz += rz;
+    // 2. Projection (Initial for mouse math)
+    const tempScale = FOCAL_LENGTH / (FOCAL_LENGTH + this.originZ + swayZ);
+    const tempPx = (this.originX + swayX) * tempScale + width / 2;
+    const tempPy = (this.originY + swayY) * tempScale + height / 2;
 
-    // 2. Mouse Attraction
+    // 3. Mouse Reaction (Push away effect)
+    let mouseOffsetX = 0;
+    let mouseOffsetY = 0;
+
     if (mouse.isActive) {
-      const dx = mouse.x - this.px;
-      const dy = mouse.y - this.py;
-      const dSq = dx * dx + dy * dy;
+      const dx = tempPx - mouse.x;
+      const dy = tempPy - mouse.y;
+      const distSq = dx * dx + dy * dy;
 
-      if (dSq < MOUSE_RADIUS * MOUSE_RADIUS) {
-        const dist = Math.sqrt(dSq);
-        const strength = (1 - dist / MOUSE_RADIUS) * ATTRACTION_FORCE * dtScale;
-        this.vx += dx * strength;
-        this.vy += dy * strength;
-        this.vz += (Math.random() - 0.5) * strength * 5;
+      if (distSq < MOUSE_RADIUS * MOUSE_RADIUS) {
+        const dist = Math.sqrt(distSq) || 1;
+        const force = (1 - dist / MOUSE_RADIUS) * MOUSE_PUSH_STRENGTH;
+        mouseOffsetX = (dx / dist) * force;
+        mouseOffsetY = (dy / dist) * force;
       }
     }
 
-    // 3. Separation (Sampled for perf)
-    const len = particles.length;
-    for (let i = 0; i < 5; i++) {
-      const other = particles[Math.floor(Math.random() * len)];
-      if (!other || other === this) continue;
+    // 4. Final Position
+    this.x = this.originX + swayX;
+    this.y = this.originY + swayY;
+    this.z = this.originZ + swayZ;
 
-      const dx = this.x - other.x;
-      const dy = this.y - other.y;
-      const dz = this.z - other.z;
-      const dSq = dx * dx + dy * dy + dz * dz;
-
-      if (dSq < SEPARATION_DIST_SQ) {
-        const dist = Math.sqrt(dSq) || 1;
-        const force = (SEPARATION_DISTANCE - dist) / SEPARATION_DISTANCE * SEPARATION_FORCE * dtScale;
-        this.vx += (dx / dist) * force;
-        this.vy += (dy / dist) * force;
-        this.vz += (dz / dist) * force;
-      }
-    }
-
-    // 4. Integration
-    const drag = Math.pow(DAMPING, dtScale);
-    this.vx *= drag; this.vy *= drag; this.vz *= drag;
-    this.x += this.vx * dtScale;
-    this.y += this.vy * dtScale;
-    this.z += this.vz * dtScale;
-
-    // 5. Center Pull
-    const limit = 1200;
-    const distSq = this.x * this.x + this.y * this.y + this.z * this.z;
-    if (distSq > limit * limit) {
-      const dist = Math.sqrt(distSq);
-      const pull = (dist - limit) * 0.001 * dtScale;
-      this.vx -= (this.x / dist) * pull;
-      this.vy -= (this.y / dist) * pull;
-      this.vz -= (this.z / dist) * pull;
-    }
-
-    // 6. Projection
     this.pscale = FOCAL_LENGTH / (FOCAL_LENGTH + this.z);
-    this.px = this.x * this.pscale + width / 2;
-    this.py = this.y * this.pscale + height / 2;
+    this.px = this.x * this.pscale + width / 2 + mouseOffsetX;
+    this.py = this.y * this.pscale + height / 2 + mouseOffsetY;
   }
 }
 
-const particles: Particle[] = [];
+let particles: Particle[] = [];
 
 const initParticles = () => {
-  particles.length = 0;
+  particles = [];
   for (let i = 0; i < PARTICLE_COUNT; i++) {
     particles.push(new Particle());
   }
@@ -200,14 +182,7 @@ const updateSize = () => {
 const draw = (time: number) => {
   if (!ctx) return;
 
-  // Fix for first frame explosion (Delta Time stability)
-  if (!lastTime) {
-    lastTime = time;
-    animationId = requestAnimationFrame(draw);
-    return;
-  }
-
-  const dt = Math.min(time - lastTime, 100); // Cap DT to prevent large jumps
+  const dt = Math.min(time - lastTime, 100);
   lastTime = time;
   const dtScale = dt / 16.6;
 
@@ -215,27 +190,27 @@ const draw = (time: number) => {
   c.clearRect(0, 0, width, height);
 
   if (mouse.isActive) {
-    mouse.x += (mouse.targetX - mouse.x) * 0.1 * dtScale;
-    mouse.y += (mouse.targetY - mouse.y) * 0.1 * dtScale;
+    mouse.x += (mouse.targetX - mouse.x) * 0.08 * dtScale;
+    mouse.y += (mouse.targetY - mouse.y) * 0.08 * dtScale;
   }
 
   c.globalCompositeOperation = 'lighter';
 
-  // Sort by depth (less particles makes this feasible, stable for visual depth)
+  // Update and Sort
+  for (const p of particles) p.update(time);
   particles.sort((a, b) => b.z - a.z);
 
-  // Connection Phase
-  c.lineWidth = 0.4;
-  c.strokeStyle = 'rgba(180, 240, 255, 0.15)';
+  // Connection Phase (Constellations)
+  c.lineWidth = 0.5;
+  c.strokeStyle = 'rgba(180, 240, 255, 0.12)';
   for (let i = 0; i < PARTICLE_COUNT; i++) {
     const p1 = particles[i]!;
-    p1.update(dt, time, particles);
-    if (p1.pscale <= 0.25) continue;
+    if (p1.pscale <= 0.35) continue;
 
     let connections = 0;
-    for (let j = i + 1; j < PARTICLE_COUNT && connections < 3; j++) {
+    // We only connect fixed neighbors or a few close ones to avoid flickering
+    for (let j = i + 1; j < PARTICLE_COUNT && connections < 2; j++) {
       const p2 = particles[j]!;
-      // Optimization: Early exit based on DX
       const adx = Math.abs(p1.px - p2.px);
       if (adx > CONNECTION_DISTANCE) continue;
 
@@ -244,7 +219,7 @@ const draw = (time: number) => {
 
       if (dSq < CONNECTION_DIST_SQ) {
         connections++;
-        const alpha = (1 - Math.sqrt(dSq) / CONNECTION_DISTANCE) * 0.15 * Math.min(p1.pscale, p2.pscale);
+        const alpha = (1 - Math.sqrt(dSq) / CONNECTION_DISTANCE) * 0.12 * Math.min(p1.pscale, p2.pscale);
         c.globalAlpha = alpha;
         c.beginPath();
         c.moveTo(p1.px, p1.py);
@@ -255,12 +230,11 @@ const draw = (time: number) => {
   }
 
   // Draw Phase
-  for (let i = 0; i < PARTICLE_COUNT; i++) {
-    const p = particles[i]!;
-    if (p.pscale <= 0.15 || !p.sprite) continue;
+  for (const p of particles) {
+    if (p.pscale <= 0.1 || !p.sprite) continue;
 
-    const size = p.size * p.pscale * 12; // Adjusted for sprite size
-    c.globalAlpha = Math.min(p.pscale, 1);
+    const size = p.size * p.pscale * STAR_RENDER_SCALE;
+    c.globalAlpha = Math.min(p.pscale * 1.2, 1);
     c.drawImage(p.sprite, p.px - size / 2, p.py - size / 2, size, size);
   }
 
@@ -303,7 +277,7 @@ onUnmounted(() => {
   inset: 0;
   z-index: 0;
   overflow: hidden;
-  background: radial-gradient(circle at center, #10101a 0%, #050508 100%);
+  background: radial-gradient(circle at center, #0a0a12 0%, #020205 100%);
   pointer-events: none;
 }
 
@@ -311,3 +285,4 @@ onUnmounted(() => {
   display: block;
 }
 </style>
+
