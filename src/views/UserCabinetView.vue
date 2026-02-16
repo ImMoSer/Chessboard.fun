@@ -11,8 +11,8 @@ import ActivityChart from '@/components/userCabinet/sections/ActivityChart.vue'
 import ThemeRoseChart from '@/components/userCabinet/sections/ThemeRoseChart.vue'
 import TheoryStackbarChart from '@/components/userCabinet/sections/TheoryStackbarChart.vue'
 import UserProfileHeader from '@/components/userCabinet/sections/UserProfileHeader.vue'
-import { useRoute } from 'vue-router'
 import { EXAMPLE_USER_PROFILE } from '@/constants/exampleCabinetData'
+import { useRoute } from 'vue-router'
 
 const { t } = useI18n()
 
@@ -77,6 +77,7 @@ onMounted(() => {
           <ThemeRoseChart
             v-if="detailedStats && detailedStats.tornado"
             v-model:activeMode="selectedTornadoMode"
+            mode="tornado"
             :modes="['bullet', 'blitz', 'rapid', 'classic']"
             :themes="currentTornadoThemes"
             :title="t('userCabinet.stats.modes.tornado')"
@@ -84,6 +85,7 @@ onMounted(() => {
 
           <ThemeRoseChart
             v-if="detailedStats && detailedStats.advantage"
+            mode="advantage"
             :themes="detailedStats.advantage.themes"
             :title="t('userCabinet.stats.modes.advantage')"
           />

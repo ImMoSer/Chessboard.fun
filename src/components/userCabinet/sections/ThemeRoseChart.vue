@@ -11,7 +11,7 @@ import { useI18n } from 'vue-i18n'
 
 use([CanvasRenderer, PieChart, TooltipComponent, LegendComponent, TitleComponent])
 
-const { t } = useI18n()
+const { t, te } = useI18n()
 
 interface ThemeStat {
   theme: string
@@ -43,6 +43,10 @@ const props = defineProps({
   activeMode: {
     type: String,
     default: '',
+  },
+  mode: {
+    type: String as PropType<'tornado' | 'advantage' | 'theory' | 'practical'>,
+    default: 'tornado',
   },
 })
 
@@ -86,10 +90,11 @@ const option = computed(() => {
         const data = p.data.raw
         const accuracy = data.requested > 0 ? Math.round((data.success / data.requested) * 100) : 0
 
-        let themeName = ''
-        if (props.activeMode === 'tornado') themeName = t(`chess.tornado.${data.theme}`)
-        else if (props.activeMode === 'advantage') themeName = t(`chess.finishHim.category.${data.theme}`)
-        else themeName = t(`chess.endings.${data.theme}`)
+        const theme = data.theme
+        let themeName = theme
+        if (te(`chess.tornado.${theme}`)) themeName = t(`chess.tornado.${theme}`)
+        else if (te(`chess.finishHim.category.${theme}`)) themeName = t(`chess.finishHim.category.${theme}`)
+        else if (te(`chess.endings.${theme}`)) themeName = t(`chess.endings.${theme}`)
 
         return `
           <div style="padding: 4px; min-width: 140px;">
@@ -125,10 +130,11 @@ const option = computed(() => {
           color: '#CCCCCC',
           formatter: (params: unknown) => {
             const p = params as RoseParam
-            let themeName = ''
-            if (props.activeMode === 'tornado') themeName = t(`chess.tornado.${p.name}`)
-            else if (props.activeMode === 'advantage') themeName = t(`chess.finishHim.category.${p.name}`)
-            else themeName = t(`chess.endings.${p.name}`)
+            const theme = p.name
+            let themeName = theme
+            if (te(`chess.tornado.${theme}`)) themeName = t(`chess.tornado.${theme}`)
+            else if (te(`chess.finishHim.category.${theme}`)) themeName = t(`chess.finishHim.category.${theme}`)
+            else if (te(`chess.endings.${theme}`)) themeName = t(`chess.endings.${theme}`)
 
             return themeName.length > 10 ? themeName.slice(0, 8) + '..' : themeName
           },

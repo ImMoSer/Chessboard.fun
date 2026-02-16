@@ -16,7 +16,7 @@ import { useI18n } from 'vue-i18n'
 
 use([CanvasRenderer, BarChart, GridComponent, TooltipComponent, LegendComponent, TitleComponent])
 
-const { t } = useI18n()
+const { t, te } = useI18n()
 
 interface TheoryStatValue {
   success: number
@@ -127,11 +127,10 @@ const option = computed(() => {
         if (!p || !p[0]) return ''
         const theme = themes[p[0].dataIndex]
         if (!theme) return ''
-        const themeName = props.mode === 'theory'
-          ? t(`chess.endings.${theme}`)
-          : props.mode === 'advantage'
-            ? t(`chess.finishHim.category.${theme}`)
-            : t(`chess.endings.${theme}`) // practical
+        let themeName = theme
+        if (te(`chess.tornado.${theme}`)) themeName = t(`chess.tornado.${theme}`)
+        else if (te(`chess.finishHim.category.${theme}`)) themeName = t(`chess.finishHim.category.${theme}`)
+        else if (te(`chess.endings.${theme}`)) themeName = t(`chess.endings.${theme}`)
 
         let html = `<div style="padding: 4px; min-width: 150px;">
                       <b style="color: #FFFFFF; display: block; margin-bottom: 8px; border-bottom: 1px solid #5A5A5A; padding-bottom: 4px;">${themeName}</b>`
@@ -167,9 +166,10 @@ const option = computed(() => {
     xAxis: {
       type: 'category',
       data: themes.map((theme) => {
-        if (props.mode === 'theory') return t(`chess.endings.${theme}`)
-        if (props.mode === 'advantage') return t(`chess.finishHim.category.${theme}`)
-        return t(`chess.endings.${theme}`)
+        if (te(`chess.tornado.${theme}`)) return t(`chess.tornado.${theme}`)
+        if (te(`chess.finishHim.category.${theme}`)) return t(`chess.finishHim.category.${theme}`)
+        if (te(`chess.endings.${theme}`)) return t(`chess.endings.${theme}`)
+        return theme
       }),
       axisLabel: {
         color: '#CCCCCC',

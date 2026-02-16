@@ -65,7 +65,11 @@
       "knight": "Knight Endgame",
       "bishop": "Bishop Endgame",
       "queen": "Queen Endgame",
-      "knightBishop": "Knight vs Bishop"
+      "knightBishop": "Knight vs Bishop",
+      "rookPawn": "Rook & Pawn",
+      "rookPieces": "Rook & Pieces",
+      "queenPieces": "Queen & Pieces",
+      "expert": "Expert"
     },
     "types": {
       "win": "Win",
