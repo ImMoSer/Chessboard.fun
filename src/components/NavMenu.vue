@@ -1,6 +1,20 @@
 <script setup lang="ts">
-import { NMenu, type MenuOption } from 'naive-ui'
-import { computed, h } from 'vue'
+import {
+  BookOutline,
+  BuildOutline,
+  CashOutline,
+  DiamondOutline,
+  FlashOutline,
+  HammerOutline,
+  HomeOutline,
+  InformationCircleOutline,
+  PersonOutline,
+  SchoolOutline,
+  ThunderstormOutline,
+  TrophyOutline
+} from '@vicons/ionicons5'
+import { NIcon, NMenu, type MenuOption } from 'naive-ui'
+import { computed, h, type Component } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -18,67 +32,72 @@ defineProps({
 const emit = defineEmits(['select'])
 
 /**
- * Рендерит иконку с эмодзи (возвращаем к "красивым иконкам как раньше")
+ * Рендерит иконку n-icon
  */
-function renderEmojiIcon(emoji: string) {
-  return () => h('span', { style: 'font-size: 18px;' }, emoji)
+function renderIcon(icon: Component) {
+  return () => h(NIcon, null, { default: () => h(icon) })
 }
 
 const menuOptions: MenuOption[] = [
   {
     label: () => t('nav.home'),
     key: '/',
-    icon: renderEmojiIcon('🏠'),
-  },
-  {
-    label: () => t('nav.tornado'),
-    key: '/tornado',
-    icon: renderEmojiIcon('🌪️'),
+    icon: renderIcon(HomeOutline),
   },
   {
     label: () => t('nav.finishHim'),
     key: '/finish-him',
-    icon: renderEmojiIcon('🎯'),
+    icon: renderIcon(HammerOutline),
+  },
+  {
+    label: () => t('nav.tornado'),
+    key: '/tornado',
+    icon: renderIcon(ThunderstormOutline),
+  },
+  {
+    label: () => t('nav.theoryEndings'),
+    key: '/theory-endings',
+    icon: renderIcon(BookOutline),
   },
   {
     label: () => t('nav.practicalChess'),
     key: '/practical-chess',
-    icon: renderEmojiIcon('♟️'),
-  },
-  {
-    label: () => t('nav.sandbox'),
-    key: '/sandbox',
-    icon: renderEmojiIcon('🔬'),
+    icon: renderIcon(BuildOutline),
   },
   {
     label: () => t('nav.openingTrainer'),
     key: '/diamond-hunter',
-    icon: renderEmojiIcon('💎'),
+    icon: renderIcon(DiamondOutline),
   },
   {
-    label: () => t('nav.leaderboards'),
-    key: '/records',
-    icon: renderEmojiIcon('🏆'),
-  },
-  {
-    label: () => t('nav.userCabinet'),
-    key: '/user-cabinet',
-    icon: renderEmojiIcon('👤'),
-  },
-  {
-    label: () => t('nav.pricing'),
-    key: '/pricing',
-    icon: renderEmojiIcon('💰'),
+    label: () => t('nav.openingSparring'),
+    key: '/opening-sparring',
+    icon: renderIcon(FlashOutline),
   },
   {
     label: () => t('nav.study'),
     key: '/study',
-    icon: renderEmojiIcon('🎓'),
+    icon: renderIcon(SchoolOutline),
+  },
+  {
+    label: () => t('nav.leaderboards'),
+    key: '/records',
+    icon: renderIcon(TrophyOutline),
+  },
+  {
+    label: () => t('nav.userCabinet'),
+    key: '/user-cabinet',
+    icon: renderIcon(PersonOutline),
+  },
+  {
+    label: () => t('nav.pricing'),
+    key: '/pricing',
+    icon: renderIcon(CashOutline),
   },
   {
     label: () => t('nav.about'),
     key: '/about',
-    icon: renderEmojiIcon('ℹ️'),
+    icon: renderIcon(InformationCircleOutline),
   },
 ]
 

@@ -106,7 +106,7 @@ onUnmounted(() => {
             <div class="sider-header">
               <RouterLink to="/" class="logo-link">
                 <img
-                  :src="isSidebarCollapsed ? '/png/ChessBoard_fun.png' : '/png/1920_Banner.png'"
+                  :src="isSidebarCollapsed ? '/svg/ChessBoard_cube_ob.svg' : '/svg/1280х256_ob.svg'"
                   alt="Logo"
                   :class="isSidebarCollapsed ? 'logo-collapsed' : 'logo-full'"
                 />
@@ -132,7 +132,7 @@ onUnmounted(() => {
               </n-button>
 
               <RouterLink to="/" class="mobile-logo">
-                <img src="/png/ChessBoard_fun.png" alt="Logo" height="32" />
+                <img src="/svg/ChessBoard_cube_ob.svg" alt="Logo" height="32" />
               </RouterLink>
 
               <SettingsMenu />
@@ -149,7 +149,7 @@ onUnmounted(() => {
             <n-drawer-content closable class="mobile-drawer-content">
               <template #header>
                 <n-space align="center">
-                  <img src="/png/ChessBoard_fun.png" alt="Logo" height="30" />
+                  <img src="/svg/ChessBoard_cube_ob.svg" alt="Logo" height="30" />
                   <n-text strong>Chessboard.fun</n-text>
                 </n-space>
               </template>
