@@ -23,6 +23,7 @@ declare module 'vue' {
     EngineSelector: typeof import('./src/components/EngineSelector.vue')['default']
     EvalBar: typeof import('./src/components/Analysis/EvalBar.vue')['default']
     FinishHimSelection: typeof import('./src/components/FinishHimSelection.vue')['default']
+    GalaxyBackground: typeof import('./src/components/visuals/GalaxyBackground.vue')['default']
     GameLayout: typeof import('./src/components/GameLayout.vue')['default']
     GameReviewModal: typeof import('./src/components/OpeningSparring/GameReviewModal.vue')['default']
     GravityBook: typeof import('./src/components/DiamondHunter/GravityBook.vue')['default']

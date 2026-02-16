@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import GalaxyBackground from '@/components/visuals/GalaxyBackground.vue'
 import { changeLang } from '@/services/i18n'
 import { useAuthStore } from '@/stores/auth.store'
 import {
@@ -52,12 +53,13 @@ const menuItems = [
 
 <template>
   <div class="welcome-container">
+    <GalaxyBackground />
     <div class="content-wrapper">
 
       <!-- Hero Section -->
       <div class="hero-section">
         <img
-          src="/jpg/mainLogo_bg_101014.jpg"
+          src="/svg/1280х256_ob.svg"
           :alt="t('app.title')"
           class="hero-logo"
         />
@@ -149,7 +151,7 @@ const menuItems = [
 .welcome-container {
   height: 100%;
   width: 100%;
-  background-color: var(--color-bg-primary);
+  background: none;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -159,6 +161,8 @@ const menuItems = [
 }
 
 .content-wrapper {
+  position: relative;
+  z-index: 1;
   width: 100%;
   max-width: 1000px;
   max-height: 100%;
@@ -182,9 +186,7 @@ const menuItems = [
   max-height: 20vh; /* Limit height to fit screen */
   width: auto;
   height: auto;
-  border-radius: 12px;
-  /* Removed blinking animation, kept simple shadow */
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+
 }
 
 .auth-section {
@@ -202,8 +204,9 @@ const menuItems = [
 
 /* Glassmorphism Card Style */
 .glass-card {
-  background: var(--color-bg-secondary); /* Use app theme secondary */
-  border: 1px solid var(--color-border-hover);
+  background: rgba(43, 43, 61, 0.4); /* Glass effect with transparency */
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   transition: all 0.2s ease;
   cursor: pointer;
