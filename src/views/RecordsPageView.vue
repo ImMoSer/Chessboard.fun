@@ -230,12 +230,24 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
 @media (max-width: 768px) {
   .records-page {
     width: 100%;
-    padding: 10px;
-    gap: 15px;
+    padding: 14px;
+    gap: 17px;
+    margin: 10px auto;
   }
 
   .records-page__banner {
-    max-height: 150px;
+    max-height: 140px;
+  }
+
+  .records-page__grid {
+    gap: 28px;
+  }
+
+  .section-divider {
+    font-size: 1rem;
+    letter-spacing: 2px;
+    padding-bottom: 8px;
+    gap: 14px;
   }
 }
 </style>

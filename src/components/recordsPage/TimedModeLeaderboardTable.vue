@@ -207,4 +207,47 @@ const columns = computed<DataTableColumns<TornadoLeaderboardEntry | AdvantageLea
 :deep(.n-tabs-tab) {
   font-family: var(--font-family-primary);
 }
+@media (max-width: 768px) {
+  .main-header {
+    padding: 11px 14px;
+  }
+
+  .card-title {
+    font-size: 1rem;
+    letter-spacing: 1px;
+    gap: 8px;
+  }
+
+  .modes-container {
+    padding: 8px;
+  }
+
+  .mode-table-wrapper {
+    margin-top: 11px;
+    border-radius: 6px;
+  }
+
+  .mode-score-value {
+    font-size: 0.8em;
+  }
+
+  :deep(.n-data-table-th) {
+    font-size: 0.65rem;
+    padding: 7px 5px !important;
+  }
+
+  :deep(.n-data-table-td) {
+    font-size: 0.7rem;
+    padding: 7px 5px !important;
+  }
+
+  :deep(.n-tabs-tab) {
+    font-size: 0.8rem;
+    padding: 8px 10px !important;
+  }
+
+  .tab-icon {
+    font-size: 0.9rem;
+  }
+}
 </style>

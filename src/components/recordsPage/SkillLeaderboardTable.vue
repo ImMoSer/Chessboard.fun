@@ -14,7 +14,7 @@ import {
 } from 'echarts/components'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
-import { computed, type PropType } from 'vue'
+import { computed, onMounted, onUnmounted, ref, type PropType } from 'vue'
 import VChart from 'vue-echarts'
 import { useI18n } from 'vue-i18n'
 import InfoIcon from '../InfoIcon.vue'
@@ -70,6 +70,21 @@ const periodOptions = [
   { label: t('records.periods.days21'), value: '21' },
   { label: t('userCabinet.stats.periods.month'), value: '30' },
 ]
+
+// Responsive logic
+const isMobile = ref(false)
+const updateMobile = () => {
+  isMobile.value = window.innerWidth <= 768
+}
+
+onMounted(() => {
+  updateMobile()
+  window.addEventListener('resize', updateMobile)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', updateMobile)
+})
 
 const chartOption = computed(() => {
   const displayEntries = [...props.entries].slice(0, 20).reverse()
@@ -132,7 +147,7 @@ const chartOption = computed(() => {
       }),
       axisLabel: {
         color: '#CCC',
-        fontSize: 12,
+        fontSize: isMobile.value ? 9 : 12,
         fontWeight: 'bold',
       },
       axisLine: { show: false },
@@ -142,7 +157,7 @@ const chartOption = computed(() => {
       name: t(mode.nameKey),
       type: 'bar',
       stack: 'total',
-      barWidth: 24, // Fixed bar thickness
+      barWidth: isMobile.value ? 17 : 24, // Fixed bar thickness
       itemStyle: {
         color: mode.color,
       },
@@ -152,7 +167,7 @@ const chartOption = computed(() => {
         distance: 10,
         color: '#f39c12',
         fontWeight: 'bold',
-        fontSize: 14,
+        fontSize: isMobile.value ? 10 : 14,
         formatter: (params: unknown) => {
           const p = params as LabelParam
           const entry = displayEntries[p.dataIndex]
@@ -169,7 +184,9 @@ const chartOption = computed(() => {
 const dynamicHeight = computed(() => {
   const count = Math.max(props.entries.length, 1)
   const displayCount = Math.min(count, 20)
-  return `${displayCount * 45 + 40}px`
+  const perEntry = isMobile.value ? 32 : 45
+  const padding = isMobile.value ? 28 : 40
+  return `${displayCount * perEntry + padding}px`
 })
 
 const onChartClick = (params: unknown) => {
@@ -322,5 +339,28 @@ const onChartClick = (params: unknown) => {
 .is-loading {
   filter: blur(1px);
   pointer-events: none;
+}
+@media (max-width: 768px) {
+  .card-header {
+    padding: 11px 14px;
+  }
+
+  .card-title {
+    font-size: 1rem;
+    letter-spacing: 1px;
+    gap: 8px;
+  }
+
+  .controls-area {
+    padding: 11px;
+  }
+
+  .legend-item .label {
+    font-size: 0.6rem;
+  }
+
+  .chart-container {
+    padding: 11px 0;
+  }
 }
 </style>

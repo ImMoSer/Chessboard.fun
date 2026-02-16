@@ -388,4 +388,48 @@ const swiperModules = [Navigation, Mousewheel, FreeMode]
 :deep(.records-table) {
   --n-td-color-striped: rgba(255, 255, 255, 0.035);
 }
+@media (max-width: 768px) {
+  .main-header {
+    padding: 11px 14px;
+  }
+
+  .card-title {
+    font-size: 1rem;
+    letter-spacing: 1px;
+    gap: 8px;
+  }
+
+  .modes-container {
+    padding: 14px 8px;
+  }
+
+  .theme-button {
+    min-width: 42px;
+    height: 35px;
+    padding: 0 6px;
+    border-radius: 6px;
+  }
+
+  .theme-icon {
+    font-size: 1.4rem;
+  }
+
+  .theme-button.is-composite .theme-icon {
+    font-size: 1.05rem;
+  }
+
+  .mode-score-value {
+    font-size: 0.8rem;
+  }
+
+  :deep(.n-data-table-td) {
+    padding: 8px 6px !important;
+    font-size: 0.75rem;
+  }
+
+  :deep(.n-data-table-th) {
+    font-size: 0.6rem;
+    padding: 8px 6px !important;
+  }
+}
 </style>
