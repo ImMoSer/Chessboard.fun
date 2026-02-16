@@ -112,7 +112,6 @@ onUnmounted(() => {
               @user-move="handleUserMove"
               @check-premove="handleUserMove"
               @complete-promotion="boardStore.completePromotion"
-              @cancel-promotion="boardStore.cancelPromotion"
               @wheel-navigate="handleBoardWheel"
             />
             <!-- Center slot for overlays or additional content -->

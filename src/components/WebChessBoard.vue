@@ -1,19 +1,19 @@
 <!-- src/components/WebChessBoard.vue -->
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch, shallowRef, type PropType } from 'vue'
+import type { PromotionState } from '@/stores/board.store'
 import { Chessground } from '@lichess-org/chessground'
 import type { Api } from '@lichess-org/chessground/api'
 import type { Config } from '@lichess-org/chessground/config'
-import type {
-  Key,
-  Dests,
-  Color as ChessgroundColor,
-  MoveMetadata,
-} from '@lichess-org/chessground/types'
-import PromotionDialog from './PromotionDialog.vue'
-import type { Role as ChessopsRole } from 'chessops/types'
 import type { DrawShape } from '@lichess-org/chessground/draw'
-import type { PromotionState } from '@/stores/board.store'
+import type {
+    Color as ChessgroundColor,
+    Dests,
+    Key,
+    MoveMetadata,
+} from '@lichess-org/chessground/types'
+import type { Role as ChessopsRole } from 'chessops/types'
+import { onMounted, onUnmounted, ref, shallowRef, watch, type PropType } from 'vue'
+import PromotionDialog from './PromotionDialog.vue'
 
 const props = defineProps({
   fen: { type: String, required: true },
@@ -33,7 +33,6 @@ const emit = defineEmits<{
   (e: 'user-move', payload: { orig: Key; dest: Key; metadata: MoveMetadata }): void
   (e: 'check-premove', payload: { orig: Key; dest: Key }): void
   (e: 'complete-promotion', role: ChessopsRole): void
-  (e: 'cancel-promotion'): void
   (e: 'wheel-navigate', direction: 'up' | 'down'): void
 }>()
 
@@ -176,7 +175,6 @@ watch([() => props.animationEnabled, () => props.animationDuration], ([enabled, 
       :color="promotionState.color"
       :orientation="orientation"
       @piece-selected="(role) => emit('complete-promotion', role)"
-      @close="emit('cancel-promotion')"
     />
   </div>
 </template>

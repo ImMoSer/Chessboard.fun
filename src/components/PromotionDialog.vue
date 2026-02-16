@@ -1,9 +1,9 @@
 <!-- src/components/PromotionDialog.vue -->
 <script setup lang="ts">
-import { computed } from 'vue'
-import type { Role as ChessopsRole } from 'chessops/types'
-import type { Key } from '@lichess-org/chessground/types'
-import { key2pos } from '@lichess-org/chessground/util'
+import type { Key } from '@lichess-org/chessground/types';
+import { key2pos } from '@lichess-org/chessground/util';
+import type { Role as ChessopsRole } from 'chessops/types';
+import { computed } from 'vue';
 
 const props = defineProps<{
   dest: Key
@@ -13,7 +13,6 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'piece-selected', role: ChessopsRole): void
-  (e: 'close'): void
 }>()
 
 const promotionRoles: ChessopsRole[] = ['queen', 'knight', 'rook', 'bishop']
@@ -96,7 +95,7 @@ function onPieceSelected(role: ChessopsRole) {
 </script>
 
 <template>
-  <div class="promotion-overlay" @click.self="emit('close')">
+  <div class="promotion-overlay" @click.stop>
     <div
       v-for="role in promotionRoles"
       :key="role"
@@ -118,6 +117,7 @@ function onPieceSelected(role: ChessopsRole) {
   grid-template-rows: repeat(8, 1fr);
   z-index: 100;
   background-color: rgba(0, 0, 0, 0.5); /* Dim the board slightly */
+  cursor: default;
 }
 
 .promotion-square {
