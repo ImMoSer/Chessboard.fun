@@ -24,9 +24,10 @@ const { personalActivityStats, isPersonalActivityStatsLoading, selectedActivityP
   storeToRefs(userCabinetStore)
 
 const modeColors = {
-  finishHim: { solved: '#42b883', requested: 'rgba(66, 184, 131, 0.2)' },
+  finish_him: { solved: '#42b883', requested: 'rgba(66, 184, 131, 0.2)' },
   tornado: { solved: '#f39c12', requested: 'rgba(243, 156, 18, 0.2)' },
   theory: { solved: '#9b59b6', requested: 'rgba(155, 89, 182, 0.2)' },
+  'practical-chess': { solved: '#3498db', requested: 'rgba(52, 152, 219, 0.2)' },
 }
 
 const handlePeriodChange = (period: string) => {
@@ -41,7 +42,8 @@ const chartOption = computed(() => {
   const modes = [
     { key: 'theory', name: t('userCabinet.stats.modes.theory') },
     { key: 'tornado', name: t('nav.tornado') },
-    { key: 'finishHim', name: t('nav.finishHim') },
+    { key: 'finish_him', name: t('nav.finishHim') },
+    { key: 'practical-chess', name: t('records.titles.practicalLeaderboard') },
   ] as const
 
   return {
@@ -108,7 +110,7 @@ const chartOption = computed(() => {
         stack: 'total',
         barWidth: 35,
         data: modes.map((m) => ({
-          value: periodData[m.key].puzzles_solved,
+          value: periodData?.[m.key]?.puzzles_solved || 0,
           itemStyle: { color: modeColors[m.key].solved },
         })),
       },
@@ -119,7 +121,7 @@ const chartOption = computed(() => {
         data: modes.map((m) => ({
           value: Math.max(
             0,
-            periodData[m.key].puzzles_requested - periodData[m.key].puzzles_solved,
+            (periodData?.[m.key]?.puzzles_requested || 0) - (periodData?.[m.key]?.puzzles_solved || 0),
           ),
           itemStyle: { color: modeColors[m.key].requested },
         })),

@@ -756,9 +756,9 @@
   },
   "theoryEndings": {
     "difficulties": {
-      "Novice": "Novice",
-      "Pro": "Pro",
-      "Master": "Master"
+      "novice": "Novice",
+      "pro": "Pro",
+      "master": "Master"
     },
     "types": {
       "win": "Win",

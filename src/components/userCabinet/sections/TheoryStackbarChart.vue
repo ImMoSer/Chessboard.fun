@@ -85,12 +85,12 @@ onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
 })
 
-const difficulties = ['Novice', 'Pro', 'Master'] as const
+const difficulties = ['novice', 'pro', 'master'] as const
 
 const seriesColors = {
-  Novice: '#42b883', // Vue green
-  Pro: '#35495e', // Vue dark blue
-  Master: '#f39c12', // Orange
+  novice: '#42b883', // Vue green
+  pro: '#35495e', // Vue dark blue
+  master: '#f39c12', // Orange
 }
 
 // Extract unique themes from keys
@@ -211,7 +211,7 @@ const option = computed(() => {
 const onChartClick = (params: unknown) => {
   const p = params as ClickParam
   const theme = currentThemes.value[p.dataIndex]
-  const difficulty = difficulties[p.seriesIndex] ?? 'Master'
+  const difficulty = difficulties[p.seriesIndex] ?? 'master'
   const prefix = props.mode === 'theory' ? activeType.value : 'win'
 
   if (!theme) return

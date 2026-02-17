@@ -405,10 +405,13 @@ export interface ActivityModeStats {
 }
 
 export interface ActivityPeriodStats {
-  finishHim: ActivityModeStats
+  finish_him: ActivityModeStats
   tornado: ActivityModeStats
   theory: ActivityModeStats
   'practical-chess': ActivityModeStats
+  repertoire: ActivityModeStats
+  'diamond-hunter': ActivityModeStats
+  'opening-sparring': ActivityModeStats
 }
 
 export interface PersonalActivityStatsResponse {
