@@ -1,12 +1,15 @@
-// src/stores/openingSparring.store.ts
 import { type Key } from '@lichess-org/chessground/types'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
+import { analysisService } from '../services/AnalysisService'
+import { gameReviewService } from '../services/GameReviewService'
 import type { LichessMove, LichessOpeningResponse } from '../services/LichessApiService'
+import { lichessApiService } from '../services/LichessApiService'
 import type { MozerBookMove } from '../services/MozerBookService'
 import { pgnService, pgnTreeVersion } from '../services/PgnService'
-import { type AnalysisResponse } from '../services/ServerEngineService'
+import { type AnalysisResponse, serverEngineService } from '../services/ServerEngineService'
 import { theoryGraphService } from '../services/TheoryGraphService'
+import { webhookService } from '../services/WebhookService'
 import { soundService } from '../services/sound.service'
 import { type SessionMove } from '../types/openingSparring.types'
 import { areMovesEqual } from '../utils/chess-utils'
@@ -184,8 +187,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
       // 4. Load theory book
       await theoryGraphService.loadBook()
 
-      // 5. External services setup
-      const { webhookService } = await import('../services/WebhookService')
+      // 5. External services setup (Static import now)
       await webhookService.startOpeningSparring()
 
       // 6. Setup board and PGN (ALREADY DONE in Step 3 via setupPuzzle)
@@ -283,7 +285,6 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     await mozerStore.fetchStats()
 
     if (opponentSource.value === 'lichess' && boardStore.turn !== playerColor.value) {
-      const { lichessApiService } = await import('../services/LichessApiService')
       currentLichessStats.value = await lichessApiService.getStats(boardStore.fen, 'lichess', {
         ratings: opponentRatings.value,
         speeds: ['blitz', 'rapid', 'classical']
@@ -311,7 +312,6 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     finalEvalDepth.value = 0
     finalEval.value = null
 
-    const { analysisService } = await import('../services/AnalysisService')
     await analysisService.initialize()
 
     const cores = navigator.hardwareConcurrency || 1
@@ -580,8 +580,6 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
 
     // 2. Queue Analysis
     recordQueue = recordQueue.then(async () => {
-      const { serverEngineService } = await import('../services/ServerEngineService')
-
       try {
         const response = (await serverEngineService.analyzeMove(
           fenBefore,
@@ -663,7 +661,6 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   }
 
   async function generateGameReport() {
-    const { gameReviewService } = await import('../services/GameReviewService')
     return gameReviewService.generateReport(sessionHistory.value, playerColor.value)
   }
 
