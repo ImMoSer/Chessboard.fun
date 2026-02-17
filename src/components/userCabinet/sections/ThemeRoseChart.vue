@@ -73,6 +73,7 @@ const activePopup = ref<{ visible: boolean; x: number; y: number; data: PopupDat
   y: 0,
   data: null,
 })
+const { launchGame } = useGameLauncher()
 const popupRef = ref<HTMLElement | null>(null)
 
 // Close popup when clicking outside
@@ -191,8 +192,6 @@ const onImproveClick = () => {
   if (!activePopup.value.data) return
 
   const { themeId, screenMode } = activePopup.value.data
-
-  const { launchGame } = useGameLauncher()
 
   launchGame({
     mode: props.mode, // 'tornado' | 'finish_him'

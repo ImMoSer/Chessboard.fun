@@ -61,6 +61,7 @@ const props = defineProps({
 })
 
 const activeType = ref<'win' | 'draw'>('win')
+const { launchGame } = useGameLauncher()
 const showModal = ref(false)
 const activePopup = ref<{ visible: boolean; x: number; y: number; data: PopupData | null }>({
   visible: false,
@@ -264,7 +265,6 @@ const onImproveClick = () => {
   if (!activePopup.value.data) return
 
   const { themeId, clickedDifficulty } = activePopup.value.data
-  const { launchGame } = useGameLauncher()
 
   launchGame({
     mode: props.mode,

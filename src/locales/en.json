@@ -428,7 +428,8 @@
       "accuracy": "Accuracy",
       "attempts": "attempts",
       "puzzle": "Puzzle",
-      "theoryThemes": "Endgame Themes"
+      "theoryThemes": "Endgame Themes",
+      "improve": "Improve"
     },
     "telegram": {
       "title": "Telegram Integration",

@@ -2,12 +2,9 @@ import { useFinishHimStore } from '@/stores/finishHim.store'
 import { usePracticalChessStore } from '@/stores/practicalChess.store'
 import { useTheoryEndingsStore } from '@/stores/theoryEndings.store'
 import type {
-    FinishHimDifficulty,
     FinishHimTheme,
     PracticalChessCategory,
-    PracticalChessDifficulty,
     TheoryEndingCategory,
-    TheoryEndingDifficulty,
     TheoryEndingType,
     TornadoMode
 } from '@/types/api.types'
@@ -32,27 +29,18 @@ export function useGameLauncher() {
 
         console.log('[GameLauncher] Launching:', options)
 
+        const capitalizeDiff = (d?: string): 'Novice' | 'Pro' | 'Master' => {
+            if (!d) return 'Novice'
+            const lower = d.toLowerCase()
+            if (lower === 'pro') return 'Pro'
+            if (lower === 'master') return 'Master'
+            return 'Novice'
+        }
+
         // 1. FINISH HIM
         if (mode === 'finish_him') {
-            // Map complexity/mode to difficulty
-            // subMode coming from RoseChart is 'novice', 'pro', 'master' -> matches FinishHimDifficulty
-            // We need to ensure capitalization matches keys: 'Novice', 'Pro', 'Master'
-
-            let targetDiff: FinishHimDifficulty = 'Novice'
-            if (subMode) {
-                const sm = subMode.toLowerCase()
-                if (sm === 'pro') targetDiff = 'Pro'
-                else if (sm === 'master') targetDiff = 'Master'
-            } else if (difficulty) {
-                // Fallback if passed as difficulty
-                targetDiff = difficulty as FinishHimDifficulty
-            }
-
-            finishHimStore.setParams(
-                theme as FinishHimTheme,
-                targetDiff
-            )
-
+            const targetDiff = capitalizeDiff(subMode || difficulty)
+            finishHimStore.setParams(theme as FinishHimTheme, targetDiff)
             router.push({ name: 'finish-him-play' })
             return
         }
@@ -60,7 +48,7 @@ export function useGameLauncher() {
         // 2. THEORY ENDINGS
         if (mode === 'theory') {
             const targetType = (type || 'win') as TheoryEndingType
-            const targetDiff = (difficulty || 'Novice') as TheoryEndingDifficulty
+            const targetDiff = capitalizeDiff(difficulty)
 
             theoryStore.setParams(
                 targetType,
@@ -77,7 +65,7 @@ export function useGameLauncher() {
 
         // 3. PRACTICAL CHESS
         if (mode === 'practical') {
-            const targetDiff = (difficulty || 'Novice') as PracticalChessDifficulty
+            const targetDiff = capitalizeDiff(difficulty)
 
             practicalStore.selectDifficulty(targetDiff)
             practicalStore.selectCategory(theme as PracticalChessCategory)
@@ -106,7 +94,8 @@ export function useGameLauncher() {
 
             router.push({
                 name: 'tornado',
-                params: { mode: targetMode }
+                params: { mode: targetMode },
+                query: theme ? { theme } : {}
             })
             return
         }
