@@ -1,9 +1,7 @@
 <!-- src/components/practical/YouMoveSelection.vue -->
 <script setup lang="ts">
-import { usePracticalChessStore } from '@/stores/practicalChess.store'
-import { useI18n } from 'vue-i18n'
+import { usePracticalChessStore } from '@/stores/practicalChess.store';
 
-const { t } = useI18n()
 const practicalStore = usePracticalChessStore()
 
 const handleSelection = (color: 'white' | 'black') => {
@@ -12,147 +10,89 @@ const handleSelection = (color: 'white' | 'black') => {
 </script>
 
 <template>
-  <div class="you-move-panel glass-panel">
-    <h1 class="title">{{ t('practicalChess.youMove.title') }}</h1>
-    <p class="subtitle">{{ t('practicalChess.youMove.subtitle') }}</p>
+  <div class="you-move-bar">
+    <button class="side-btn black" @click="handleSelection('black')">
+      BLACK
+    </button>
 
-    <div class="options-grid">
-      <button class="option-btn white" @click="handleSelection('white')">
-        <div class="icon">♗</div>
-        <span class="label">{{ t('practicalChess.youMove.playWhite') }}</span>
-      </button>
-
-      <button class="option-btn black" @click="handleSelection('black')">
-        <div class="icon">♝</div>
-        <span class="label">{{ t('practicalChess.youMove.playBlack') }}</span>
-      </button>
+    <div class="center-text">
+       CHOOSE SIDE
     </div>
+
+    <button class="side-btn white" @click="handleSelection('white')">
+      WHITE
+    </button>
   </div>
 </template>
 
 <style scoped>
-.you-move-panel {
-  width: 100%;
-  padding: 20px 16px;
-  text-align: center;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  animation: fadeIn 0.4s ease-out;
-  box-sizing: border-box;
-  overflow: hidden;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.title {
-  font-size: 1.5rem;
-  font-weight: 900;
-  margin-bottom: 8px;
-  background: linear-gradient(135deg, #fff 0%, var(--color-accent-primary) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  word-wrap: break-word;
-}
-
-.subtitle {
-  color: var(--color-text-secondary);
-  font-size: 0.9rem;
-  margin-bottom: 24px;
-  line-height: 1.4;
-  word-wrap: break-word;
-}
-
-.options-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 12px;
-  width: 100%;
-}
-
-.option-btn {
+.you-move-bar {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 16px 8px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  background: rgba(255, 255, 255, 0.03);
-  min-width: 0;
-}
-
-.option-btn:hover {
-  transform: translateY(-3px);
-}
-
-.option-btn.white {
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0);
-}
-.option-btn.white:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.5);
-  box-shadow: 0 10px 20px rgba(255, 255, 255, 0.1);
-}
-
-.option-btn.black {
-  box-shadow: 0 0 15px rgba(212, 175, 55, 0);
-}
-.option-btn.black:hover {
-  background: rgba(212, 175, 55, 0.1);
-  border-color: rgba(212, 175, 55, 0.5);
-  box-shadow: 0 10px 20px rgba(212, 175, 55, 0.1);
-}
-
-.icon {
-  font-size: 2.2rem;
-  line-height: 1;
-}
-
-.option-btn.white .icon {
-  color: white;
-  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
-}
-
-.option-btn.black .icon {
-  color: #fbbf24;
-  filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.3));
-}
-
-.label {
-  font-weight: 700;
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  justify-content: space-between;
   width: 100%;
+  height: 100%;
+  padding: 0 20px;
+  box-sizing: border-box;
+  gap: 15px;
 }
 
-.white .label {
-  color: white;
+.center-text {
+  font-size: 1.4rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: var(--color-accent-primary);
+  text-transform: uppercase;
+  white-space: nowrap;
+  text-shadow: 0 0 10px rgba(0, 242, 255, 0.4);
 }
 
-.black .label {
+.side-btn {
+  flex: 1;
+  max-width: 180px;
+  height: 42px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  font-weight: 800;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+}
+
+.side-btn.black {
+  background: rgba(0, 0, 0, 0.6);
   color: #fbbf24;
+  border-color: rgba(251, 191, 36, 0.3);
 }
 
-@media (max-width: 480px) {
-  .options-grid {
-    grid-template-columns: 1fr;
+.side-btn.black:hover {
+  background: rgba(251, 191, 36, 0.2);
+  border-color: #fbbf24;
+  box-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
+}
+
+.side-btn.white {
+  background: rgba(255, 255, 255, 0.9);
+  color: #000;
+  border-color: #fff;
+}
+
+.side-btn.white:hover {
+  background: #fff;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 600px) {
+  .center-text {
+    font-size: 1rem;
+    letter-spacing: 1px;
+  }
+  .side-btn {
+    font-size: 0.75rem;
+    padding: 0 10px;
   }
 }
 </style>

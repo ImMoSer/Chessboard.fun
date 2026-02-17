@@ -11,9 +11,9 @@ import { usePracticalChessStore } from '../stores/practicalChess.store'
 import AnalysisPanel from '../components/AnalysisPanel.vue'
 import ControlPanel from '../components/ControlPanel.vue'
 import GameLayout from '../components/GameLayout.vue'
-import PuzzleInfo from '../components/PuzzleInfo.vue'
 import TopInfoPanel from '../components/TopInfoPanel.vue'
 import UserStats from '../components/UserStats.vue'
+import YouMoveSelection from '../components/practical/YouMoveSelection.vue'
 
 const practicalStore = usePracticalChessStore()
 const gameStore = useGameStore()
@@ -84,14 +84,13 @@ watch(
     <template #center-column> </template>
 
     <template #controls>
-      <ControlPanel />
+      <YouMoveSelection v-if="practicalStore.isWaitingForColorSelection" />
+      <ControlPanel v-else />
     </template>
 
     <template #right-panel>
       <div class="right-panel-content-wrapper">
         <AnalysisPanel v-if="analysisStore.isPanelVisible" />
-        <YouMoveSelection v-if="practicalStore.isWaitingForColorSelection" />
-        <PuzzleInfo v-else />
       </div>
     </template>
   </GameLayout>

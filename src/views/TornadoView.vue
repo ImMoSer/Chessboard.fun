@@ -6,7 +6,6 @@ import { useRoute } from 'vue-router'
 import AnalysisPanel from '../components/AnalysisPanel.vue'
 import ControlPanel from '../components/ControlPanel.vue'
 import GameLayout from '../components/GameLayout.vue'
-import PuzzleInfo from '../components/PuzzleInfo.vue'
 import TopInfoPanel from '../components/TopInfoPanel.vue'
 import TornadoStats from '../components/TornadoStats.vue'
 import UserStats from '../components/UserStats.vue'
@@ -60,7 +59,6 @@ watch(
 
     <template #right-panel>
       <div class="panel-content-wrapper">
-        <PuzzleInfo />
         <AnalysisPanel />
       </div>
     </template>

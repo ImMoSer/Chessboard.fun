@@ -263,28 +263,31 @@ onUnmounted(() => {
   .layout-main {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 4px; /* Minimal gap for mobile */
   }
 
-  /* Reorder for Mobile: Panel -> Board -> Controls -> Left -> Right */
+  /* Reorder for Mobile: Board -> Left -> Right */
   .center-stage {
     --board-size: 100vw; /* Use full width on mobile */
     order: 1;
     width: 100%;
     height: auto;
     justify-content: flex-start;
+    gap: 2px; /* Smallest gap between board and panels */
   }
 
   .left-panel {
-    order: 3;
+    order: 2; /* Left panel prioritized higher than Right */
     height: auto;
-    min-height: 200px;
+    min-height: 150px; /* Reduced min-height */
+    padding: 6px;
   }
 
   .right-panel {
-    order: 2;
+    order: 3;
     height: auto;
-    min-height: 300px;
+    min-height: 250px;
+    padding: 6px;
   }
 
   .cb-top-panel,

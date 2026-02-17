@@ -13,7 +13,6 @@ import type { TheoryEndingType } from '../types/api.types'
 import AnalysisPanel from '../components/AnalysisPanel.vue'
 import ControlPanel from '../components/ControlPanel.vue'
 import GameLayout from '../components/GameLayout.vue'
-import PuzzleInfo from '../components/PuzzleInfo.vue'
 import TopInfoPanel from '../components/TopInfoPanel.vue'
 import UserStats from '../components/UserStats.vue'
 
@@ -103,7 +102,6 @@ watch(
     <template #right-panel>
       <div class="right-panel-content-wrapper">
         <AnalysisPanel v-if="analysisStore.isPanelVisible" />
-        <PuzzleInfo />
       </div>
     </template>
   </GameLayout>
