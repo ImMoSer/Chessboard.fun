@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { useAuthStore } from '@/stores/auth.store'
 import { useUserCabinetStore } from '@/stores/userCabinet.store'
-import type { TornadoMode } from '@/types/api.types'
+import type { FinishHimDifficulty, TornadoMode } from '@/types/api.types'
 import { storeToRefs } from 'pinia'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -26,7 +26,7 @@ const { error, detailedStats } = storeToRefs(userCabinetStore)
 // ...
 
 const selectedTornadoMode = ref<TornadoMode>('blitz')
-const selectedFinishHimMode = ref<'novice' | 'pro' | 'master'>('novice') // Default mode
+const selectedFinishHimMode = ref<FinishHimDifficulty>('Novice') // Default mode
 
 const currentTornadoThemes = computed(() => {
   if (!detailedStats.value?.tornado?.modes) return []
@@ -113,7 +113,7 @@ onMounted(() => {
             v-if="detailedStats && detailedStats.finish_him"
             v-model:activeMode="selectedFinishHimMode"
             mode="finish_him"
-            :modes="['novice', 'pro', 'master']"
+            :modes="['Novice', 'Pro', 'Master']"
             :themes="currentFinishHimThemes"
             :title="t('userCabinet.stats.modes.finishHim')"
           />

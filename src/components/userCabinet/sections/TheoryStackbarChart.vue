@@ -86,12 +86,12 @@ onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
 })
 
-const difficulties = ['novice', 'pro', 'master'] as const
+const difficulties = ['Novice', 'Pro', 'Master'] as const
 
 const seriesColors = {
-  novice: '#42b883', // Vue green
-  pro: '#35495e', // Vue dark blue
-  master: '#f39c12', // Orange
+  Novice: '#42b883', // Vue green
+  Pro: '#35495e', // Vue dark blue
+  Master: '#f39c12', // Orange
 }
 
 // Extract unique themes from keys
@@ -119,15 +119,14 @@ const currentThemes = computed(() => {
     'queen',
     'queenPieces',
     'expert',
-    'extra_pawn',
-    'material_equality',
+    'extraPawn',
+    'materialEquality',
     'bishops',
     'knights',
     'pawns',
     'queens',
     'rooks',
     'exchange',
-    'knight_vs_bishop',
   ]
 
   return Array.from(themes).sort((a, b) => {
@@ -150,7 +149,7 @@ const option = computed(() => {
       show: false, // Disable default tooltip
     },
     legend: {
-      data: difficulties.map((d) => t(`theoryEndings.difficulties.${d}`)),
+      data: difficulties.map((d) => t(`theoryEndings.difficulties.${d.toLowerCase()}`)),
       textStyle: { color: '#CCCCCC' },
       bottom: 0,
     },
@@ -183,7 +182,7 @@ const option = computed(() => {
       splitLine: { lineStyle: { color: '#444' } },
     },
     series: difficulties.map((diff) => ({
-      name: t(`theoryEndings.difficulties.${diff}`),
+      name: t(`theoryEndings.difficulties.${diff.toLowerCase()}`),
       type: 'bar',
       stack: 'total',
       label: {
@@ -212,7 +211,7 @@ const option = computed(() => {
 const onChartClick = (params: unknown) => {
   const p = params as ClickParam
   const theme = currentThemes.value[p.dataIndex]
-  const difficulty = difficulties[p.seriesIndex] ?? 'master'
+  const difficulty = difficulties[p.seriesIndex] ?? 'Master'
   const prefix = props.mode === 'theory' ? activeType.value : 'win'
 
   if (!theme) return
@@ -379,7 +378,7 @@ const onImproveClick = () => {
                 class="diff-indicator"
                 :style="{ backgroundColor: item.color }"
               ></span>
-              <span class="diff-name">{{ t(`theoryEndings.difficulties.${item.difficulty}`) }}:</span>
+              <span class="diff-name">{{ t(`theoryEndings.difficulties.${item.difficulty.toLowerCase()}`) }}:</span>
             </div>
             <div class="popup-value">
               {{ item.success }}/{{ item.requested }}

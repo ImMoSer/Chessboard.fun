@@ -529,9 +529,9 @@ export type AdvantageThemeStatDto = FinishHimThemeStatDto // Temporary alias
 
 export interface FinishHimProfileDto {
   modes: {
-    novice: FinishHimThemeStatDto[]
-    pro: FinishHimThemeStatDto[]
-    master: FinishHimThemeStatDto[]
+    Novice: FinishHimThemeStatDto[]
+    Pro: FinishHimThemeStatDto[]
+    Master: FinishHimThemeStatDto[]
   }
 }
 
