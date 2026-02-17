@@ -13,6 +13,7 @@ import { useBoardStore } from '../stores/board.store'
 import { useDiamondHunterStore } from '../stores/diamondHunter.store'
 import { useGameStore } from '../stores/game.store'
 
+
 const diamondHunterStore = useDiamondHunterStore()
 const boardStore = useBoardStore()
 const gameStore = useGameStore()
@@ -159,6 +160,10 @@ function goBack() {
 
 <template>
   <GameLayout>
+    <template #top-info>
+      <TopInfoPanel />
+    </template>
+
     <template #left-panel>
         <!-- Analysis Mode -->
         <div v-if="isAnalysisView" class="analysis-container">

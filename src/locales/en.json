@@ -750,6 +750,15 @@
       "startSession": "Start Session"
     }
   },
+  "diamondHunter": {
+    "status": {
+      "idle": "IDLE",
+      "hunting": "HUNTING...",
+      "punish": "PUNISH BLUNDER!",
+      "secure": "SECURE DIAMOND!",
+      "found": "DIAMOND FOUND!"
+    }
+  },
   "theoryEndings": {
     "difficulties": {
       "Novice": "Novice",
