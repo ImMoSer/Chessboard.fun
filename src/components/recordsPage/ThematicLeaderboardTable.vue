@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { AdvantageLeaderboardEntry } from '@/types/api.types'
-import { ADVANTAGE_THEMES, PRACTICAL_CHESS_CATEGORIES, THEORY_ENDING_CATEGORIES } from '@/types/api.types'
+import type { FinishHimLeaderboardEntry, ThematicLeaderboardEntry } from '@/types/api.types'
+import { FINISH_HIM_THEMES, PRACTICAL_CHESS_CATEGORIES, THEORY_ENDING_CATEGORIES } from '@/types/api.types'
 import type { DataTableColumns } from 'naive-ui'
 import { computed, h, ref, watch, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -15,7 +15,12 @@ import { Swiper, SwiperSlide } from 'swiper/vue'
 
 const props = defineProps({
   title: { type: String, required: true },
-  data: { type: Object as PropType<Record<string, AdvantageLeaderboardEntry[]>>, required: true },
+  data: {
+    type: Object as PropType<
+      Record<string, FinishHimLeaderboardEntry[]> | Record<string, ThematicLeaderboardEntry[]>
+    >,
+    required: true,
+  },
   colorClass: { type: String, required: true },
   infoTopic: { type: String, required: false },
 })
@@ -30,8 +35,8 @@ const availableThemes = computed(() => {
   // We check if the data contains keys that are specific to a certain mode
   let order: readonly string[] = []
 
-  if (dataKeys.some(k => (ADVANTAGE_THEMES as readonly string[]).includes(k))) {
-     order = ADVANTAGE_THEMES
+  if (dataKeys.some(k => (FINISH_HIM_THEMES as readonly string[]).includes(k))) {
+     order = FINISH_HIM_THEMES
   } else if (dataKeys.some(k => (THEORY_ENDING_CATEGORIES as readonly string[]).includes(k))) {
      order = THEORY_ENDING_CATEGORIES
   } else if (dataKeys.some(k => (PRACTICAL_CHESS_CATEGORIES as readonly string[]).includes(k))) {
@@ -73,7 +78,7 @@ const getSubscriptionIcon = (tier?: string) => {
 }
 
 const getThemeLabel = (theme: string) => {
-  if ((ADVANTAGE_THEMES as readonly string[]).includes(theme)) {
+  if ((FINISH_HIM_THEMES as readonly string[]).includes(theme)) {
     return t(`chess.finishHim.category.${theme}`, { defaultValue: theme })
   }
   return t(`chess.endings.${theme}`, { defaultValue: theme })
@@ -99,7 +104,7 @@ const getThemeIcon = (theme: string) => {
   return icons[theme] || ''
 }
 
-const columns = computed<DataTableColumns<AdvantageLeaderboardEntry>>(() => [
+const columns = computed<DataTableColumns<FinishHimLeaderboardEntry | ThematicLeaderboardEntry>>(() => [
   { title: t('records.table.rank'), key: 'rank', align: 'center', width: 45 },
   {
     title: t('records.table.player'),
@@ -127,7 +132,8 @@ const columns = computed<DataTableColumns<AdvantageLeaderboardEntry>>(() => [
     key: 'score',
     align: 'right',
     render(row) {
-      return h('span', { class: 'mode-score-value' }, row.score)
+      if ('score' in row) return h('span', { class: 'mode-score-value' }, (row as ThematicLeaderboardEntry).score)
+      return h('span', { class: 'mode-score-value' }, (row as FinishHimLeaderboardEntry).best_time + 's')
     },
   },
 ])
@@ -183,7 +189,7 @@ const swiperModules = [Navigation, Mousewheel, FreeMode]
           <n-data-table
             :columns="columns"
             :data="props.data[activeTab] || []"
-            :row-key="(row: any) => row.lichess_id"
+            :row-key="(row: FinishHimLeaderboardEntry | ThematicLeaderboardEntry) => row.lichess_id"
             size="small"
             striped
             class="records-table"
@@ -217,7 +223,7 @@ const swiperModules = [Navigation, Mousewheel, FreeMode]
   background: rgba(255, 255, 255, 0.03);
 }
 
-.advantageLeaderboard .card-title { color: var(--color-neon-lime); }
+.finishHimLeaderboard .card-title { color: var(--color-neon-purple); }
 .theoryLeaderboard .card-title { color: var(--color-accent-warning); }
 .practicalLeaderboard .card-title { color: var(--color-neon-lime); }
 

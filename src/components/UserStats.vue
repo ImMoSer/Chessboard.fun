@@ -4,19 +4,19 @@ import { useAuthStore } from '@/stores/auth.store'
 import type { TornadoMode } from '@/types/api.types'
 import { GolfOutline, LockClosedOutline, RibbonOutline, WalletOutline } from '@vicons/ionicons5'
 import {
-  NAvatar,
-  NButton,
-  NCard,
-  NDivider,
-  NGrid,
-  NGridItem,
-  NIcon,
-  NNumberAnimation,
-  NSpace,
-  NStatistic,
-  NTag,
-  NText,
-  NTooltip,
+    NAvatar,
+    NButton,
+    NCard,
+    NDivider,
+    NGrid,
+    NGridItem,
+    NIcon,
+    NNumberAnimation,
+    NSpace,
+    NStatistic,
+    NTag,
+    NText,
+    NTooltip,
 } from 'naive-ui'
 import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
@@ -45,7 +45,7 @@ const localResetTimeMessage = computed(() => {
 })
 
 const activityModes = [
-  { key: 'advantage' as const, label: t('nav.finishHim'), icon: '🎯' },
+  { key: 'finishHim' as const, label: t('nav.finishHim'), icon: '🎯' },
   { key: 'tornado' as const, label: t('nav.tornado'), icon: '🌪️' },
   { key: 'practical-chess' as const, label: t('practicalChess.selection.title'), icon: '♙♖' },
   { key: 'theory' as const, label: t('nav.theoryEndings'), icon: '♔♙' },

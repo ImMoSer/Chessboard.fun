@@ -361,7 +361,7 @@
       "skillStreak": "+100 everyday",
       "skillStreakMega": "Tornado +300 Every Day",
       "topToday": "Top Today",
-      "advantageLeaderboard": "Finish Him Records",
+      "finishHimLeaderboard": "Finish Him Records",
       "theoryLeaderboard": "Theoretical Endgames",
       "practicalLeaderboard": "Practical Chess"
     },
@@ -417,7 +417,7 @@
       "modes": {
         "all": "Mode",
         "tornado": "Tornado",
-        "advantage": "Advantage",
+        "finishHim": "Finish Him",
         "theory": "Theory",
         "practical": "Practical",
         "tacticalTrainer": "Tactics"

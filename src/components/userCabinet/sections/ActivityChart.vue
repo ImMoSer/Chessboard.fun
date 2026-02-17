@@ -24,7 +24,7 @@ const { personalActivityStats, isPersonalActivityStatsLoading, selectedActivityP
   storeToRefs(userCabinetStore)
 
 const modeColors = {
-  advantage: { solved: '#42b883', requested: 'rgba(66, 184, 131, 0.2)' },
+  finishHim: { solved: '#42b883', requested: 'rgba(66, 184, 131, 0.2)' },
   tornado: { solved: '#f39c12', requested: 'rgba(243, 156, 18, 0.2)' },
   theory: { solved: '#9b59b6', requested: 'rgba(155, 89, 182, 0.2)' },
 }
@@ -41,7 +41,7 @@ const chartOption = computed(() => {
   const modes = [
     { key: 'theory', name: t('userCabinet.stats.modes.theory') },
     { key: 'tornado', name: t('nav.tornado') },
-    { key: 'advantage', name: t('userCabinet.stats.modes.advantage') },
+    { key: 'finishHim', name: t('nav.finishHim') },
   ] as const
 
   return {

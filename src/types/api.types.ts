@@ -72,10 +72,10 @@ export interface TornadoEndResponse {
 
 // --- END TORNADO --
 
-// --- ADVANTAGE MODE (Finish Him) ---
-export type AdvantageMode = TornadoMode // Reuse TornadoMode as they share the same 'time control' concept
+// --- FINISH HIM MODE ---
+export type FinishHimMode = TornadoMode // Reuse TornadoMode as they share the same 'time control' concept
 
-export const ADVANTAGE_THEMES = [
+export const FINISH_HIM_THEMES = [
   'pawn',
   'queen',
   'bishop',
@@ -87,15 +87,15 @@ export const ADVANTAGE_THEMES = [
   'expert',
 ] as const
 
-export type AdvantageTheme = (typeof ADVANTAGE_THEMES)[number]
+export type FinishHimTheme = (typeof FINISH_HIM_THEMES)[number]
 
-export type AdvantageDifficulty = 'Novice' | 'Pro' | 'Master'
+export type FinishHimDifficulty = 'Novice' | 'Pro' | 'Master'
 
-export interface AdvantageResultDto {
+export interface FinishHimResultDto {
   puzzleId: string
   wasCorrect: boolean
 }
-// --- END ADVANTAGE MODE ---
+// --- END FINISH HIM MODE ---
 // --- THEORY ENDINGS MODE ---
 export const THEORY_ENDING_CATEGORIES = [
   'bishop',
@@ -201,12 +201,13 @@ export interface PuzzleResultEntry {
 
 
 
-export interface AdvantageLeaderboardEntry {
+export interface FinishHimLeaderboardEntry {
   rank: number
   username: string
   lichess_id: string
-  score: number
+  best_time: number
   days_old: number
+  puzzle_id: string
   subscriptionTier?: string
 }
 
@@ -275,7 +276,7 @@ export interface GamePuzzle {
   endgame_results?: PuzzleResultEntry[]
   Themes_PG?: string[]
   themes?: string[]
-  engm_type?: AdvantageTheme | null
+  engm_type?: FinishHimTheme | null
   difficulty_level?: string | null
   engmRating?: number
   EngmThemes_PG?: string
@@ -309,6 +310,15 @@ export interface FinishHimLeaderboardEntry {
   subscriptionTier?: string
 }
 
+export interface ThematicLeaderboardEntry {
+  rank: number
+  username: string
+  lichess_id: string
+  score: number
+  days_old: number
+  subscriptionTier?: string
+}
+
 export interface TornadoLeaderboardEntry {
   rank: number
   username: string
@@ -319,10 +329,9 @@ export interface TornadoLeaderboardEntry {
 }
 
 export interface WorktableLeaderboards {
-  finishHimLeaderboard?: FinishHimLeaderboardEntry[]
-  advantageLeaderboard?: Record<string, AdvantageLeaderboardEntry[]>
-  theoryLeaderboard?: Record<string, AdvantageLeaderboardEntry[]>
-  practicalLeaderboard?: Record<string, AdvantageLeaderboardEntry[]>
+  finishHimLeaderboard?: Record<string, FinishHimLeaderboardEntry[]>
+  theoryLeaderboard?: Record<string, ThematicLeaderboardEntry[]>
+  practicalLeaderboard?: Record<string, ThematicLeaderboardEntry[]>
 }
 
 export type SkillPeriod = '7' | '14' | '21' | '30'
@@ -336,7 +345,7 @@ export interface LeaderboardApiResponse extends WorktableLeaderboards {
 }
 
 export interface SolvedByMode {
-  advantage: number
+  finishHim: number
   tacticalTrainer: number
   tornado: number
   theory: number
@@ -396,7 +405,7 @@ export interface ActivityModeStats {
 }
 
 export interface ActivityPeriodStats {
-  advantage: ActivityModeStats
+  finishHim: ActivityModeStats
   tornado: ActivityModeStats
   theory: ActivityModeStats
   'practical-chess': ActivityModeStats
@@ -426,7 +435,7 @@ export interface LichessUserProfile {
 }
 
 export interface PuzzlesSolvedToday {
-  advantage: number
+  finishHim: number
   tacticalTrainer: number
   tornado: number
   theory: number
@@ -512,9 +521,8 @@ export interface FinishHimThemeStatDto {
   requested: number
 }
 
-// Keeping AdvantageThemeStatDto as alias/compatibility if needed anywhere else temporarily,
-// though we should migrate. For now, let's export it as alias to avoid breaking other files immediately if they import it.
-export type AdvantageThemeStatDto = FinishHimThemeStatDto
+// FinishHimThemeStatDto is now the primary type
+export type AdvantageThemeStatDto = FinishHimThemeStatDto // Temporary alias
 
 export interface FinishHimProfileDto {
   modes: {

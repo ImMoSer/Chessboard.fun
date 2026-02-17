@@ -1,21 +1,21 @@
 // src/services/WebhookService.ts
 import type {
-  AdvantageResultDto,
   FinishHimPuzzle,
+  FinishHimResultDto,
   GameResultResponse,
   LeaderboardApiResponse,
   OverallSolvedLeaderboardEntry,
   PersonalActivityStatsResponse,
   PersonalOverallSolvedResponse,
   PersonalSolveStreakResponse,
-  PracticalPuzzle,
   PracticalChessResultDto,
+  PracticalPuzzle,
   PracticalStats,
   TheoryEndingCategory,
   TheoryEndingDifficulty,
-  TheoryPuzzle,
   TheoryEndingResultDto,
   TheoryEndingType,
+  TheoryPuzzle,
   TornadoEndResponse,
   TornadoEndSessionDto,
   TornadoMode,
@@ -157,12 +157,12 @@ class WebhookServiceController {
   }
   // --- END TORNADO API ---
 
-  // --- ADVANTAGE API ---
-  public async fetchAdvantagePuzzle(
+  // --- FINISH HIM API ---
+  public async fetchFinishHimPuzzle(
     theme?: string,
     difficulty?: string,
   ): Promise<FinishHimPuzzle | null> {
-    let path = '/advantage/start'
+    let path = '/finish-him/start'
     const params = new URLSearchParams()
     if (theme && theme !== 'auto') params.append('theme', theme)
     if (difficulty) params.append('difficulty', difficulty)
@@ -170,26 +170,26 @@ class WebhookServiceController {
     if (params.toString()) {
       path += `?${params.toString()}`
     }
-    return this._apiRequest<FinishHimPuzzle>(path, 'GET', 'fetchAdvantagePuzzle')
+    return this._apiRequest<FinishHimPuzzle>(path, 'GET', 'fetchFinishHimPuzzle')
   }
 
-  public async processAdvantageResult(dto: AdvantageResultDto): Promise<GameResultResponse | null> {
+  public async processFinishHimResult(dto: FinishHimResultDto): Promise<GameResultResponse | null> {
     return this._apiRequest<GameResultResponse>(
-      '/advantage/result',
+      '/finish-him/result',
       'POST',
-      'processAdvantageResult',
+      'processFinishHimResult',
       dto,
     )
   }
 
-  public async fetchAdvantagePuzzleById(puzzleId: string): Promise<FinishHimPuzzle | null> {
+  public async fetchFinishHimPuzzleById(puzzleId: string): Promise<FinishHimPuzzle | null> {
     return this._apiRequest<FinishHimPuzzle>(
-      `/advantage/PuzzleId/${puzzleId}`,
+      `/finish-him/PuzzleId/${puzzleId}`,
       'GET',
-      'fetchAdvantagePuzzleById',
+      'fetchFinishHimPuzzleById',
     )
   }
-  // --- END ADVANTAGE API ---
+  // --- END FINISH HIM API ---
   // --- THEORY ENDINGS API ---
   public async fetchTheoryPuzzle(
     type: TheoryEndingType,

@@ -5,7 +5,7 @@ import { useRouter } from 'vue-router'
 import i18n from '../services/i18n'
 import { soundService } from '../services/sound.service'
 import { InsufficientFunCoinsError, webhookService } from '../services/WebhookService'
-import type { AdvantageDifficulty, AdvantageResultDto, FinishHimPuzzle } from '../types/api.types'
+import type { FinishHimDifficulty, FinishHimPuzzle, FinishHimResultDto } from '../types/api.types'
 import logger from '../utils/logger'
 import { useAnalysisStore } from './analysis.store'
 import { useAuthStore } from './auth.store'
@@ -27,7 +27,7 @@ export const useFinishHimStore = defineStore('finishHim', () => {
   const feedbackMessage = ref(t('finishHim.feedback.pressNext'))
 
   const selectedTheme = ref<string>('auto')
-  const selectedDifficulty = ref<AdvantageDifficulty>('Novice')
+  const selectedDifficulty = ref<FinishHimDifficulty>('Novice')
 
   const isProcessingGameOver = ref(false)
 
@@ -82,13 +82,13 @@ export const useFinishHimStore = defineStore('finishHim', () => {
       return
     }
 
-    const dto: AdvantageResultDto = {
+    const dto: FinishHimResultDto = {
       puzzleId: puzzle.puzzle_id,
       wasCorrect: isWin,
     }
 
     try {
-      const response = await webhookService.processAdvantageResult(dto)
+      const response = await webhookService.processFinishHimResult(dto)
       if (response && response.UserStatsUpdate) {
         logger.info('[FinishHimStore] Stats sent and UserStatsUpdate received.')
         authStore.updateUserStats(response.UserStatsUpdate)
@@ -122,9 +122,9 @@ export const useFinishHimStore = defineStore('finishHim', () => {
       let puzzle: FinishHimPuzzle | null = null
 
       if (puzzleId) {
-        puzzle = await webhookService.fetchAdvantagePuzzleById(puzzleId)
+        puzzle = await webhookService.fetchFinishHimPuzzleById(puzzleId)
       } else {
-        puzzle = await webhookService.fetchAdvantagePuzzle(
+        puzzle = await webhookService.fetchFinishHimPuzzle(
           selectedTheme.value,
           selectedDifficulty.value,
         )
@@ -188,7 +188,7 @@ export const useFinishHimStore = defineStore('finishHim', () => {
     )
   }
 
-  function setParams(theme: string, difficulty: AdvantageDifficulty) {
+  function setParams(theme: string, difficulty: FinishHimDifficulty) {
     selectedTheme.value = theme
     selectedDifficulty.value = difficulty
   }

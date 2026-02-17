@@ -2,8 +2,8 @@ import { useFinishHimStore } from '@/stores/finishHim.store'
 import { usePracticalChessStore } from '@/stores/practicalChess.store'
 import { useTheoryEndingsStore } from '@/stores/theoryEndings.store'
 import type {
-    AdvantageDifficulty,
-    AdvantageTheme,
+    FinishHimDifficulty,
+    FinishHimTheme,
     PracticalChessCategory,
     PracticalChessDifficulty,
     TheoryEndingCategory,
@@ -14,7 +14,7 @@ import type {
 import { useRouter } from 'vue-router'
 
 export interface GameLaunchOptions {
-    mode: 'theory' | 'finish_him' | 'advantage' | 'practical' | 'tornado'
+    mode: 'theory' | 'finish_him' | 'practical' | 'tornado'
     theme: string
     difficulty?: string
     type?: 'win' | 'draw'
@@ -32,24 +32,24 @@ export function useGameLauncher() {
 
         console.log('[GameLauncher] Launching:', options)
 
-        // 1. FINISH HIM (Advantage)
-        if (mode === 'finish_him' || mode === 'advantage') {
+        // 1. FINISH HIM
+        if (mode === 'finish_him') {
             // Map complexity/mode to difficulty
-            // subMode coming from RoseChart is 'novice', 'pro', 'master' -> matches AdvantageDifficulty (capitalized?)
+            // subMode coming from RoseChart is 'novice', 'pro', 'master' -> matches FinishHimDifficulty
             // We need to ensure capitalization matches keys: 'Novice', 'Pro', 'Master'
 
-            let targetDiff: AdvantageDifficulty = 'Novice'
+            let targetDiff: FinishHimDifficulty = 'Novice'
             if (subMode) {
                 const sm = subMode.toLowerCase()
                 if (sm === 'pro') targetDiff = 'Pro'
                 else if (sm === 'master') targetDiff = 'Master'
             } else if (difficulty) {
                 // Fallback if passed as difficulty
-                targetDiff = difficulty as AdvantageDifficulty
+                targetDiff = difficulty as FinishHimDifficulty
             }
 
             finishHimStore.setParams(
-                theme as AdvantageTheme,
+                theme as FinishHimTheme,
                 targetDiff
             )
 

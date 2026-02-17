@@ -98,12 +98,12 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
             info-topic="tornadoLeaderboard"
           />
 
-          <!-- Advantage Leaderboard -->
+          <!-- Finish Him Leaderboard -->
           <ThematicLeaderboardTable
-            v-if="leaderboards.advantageLeaderboard"
-            :title="t('records.titles.advantageLeaderboard')"
-            :data="leaderboards.advantageLeaderboard"
-            color-class="advantageLeaderboard"
+            v-if="leaderboards.finishHimLeaderboard"
+            :title="t('records.titles.topFinishHim')"
+            :data="leaderboards.finishHimLeaderboard"
+            color-class="finishHimLeaderboard"
             info-topic="topFinishHim"
           />
 

@@ -7,8 +7,8 @@ import { useTheoryEndingsStore } from '@/stores/theoryEndings.store'
 import {
     PRACTICAL_CHESS_CATEGORIES,
     THEORY_ENDING_CATEGORIES,
-    type AdvantageDifficulty,
-    type AdvantageTheme,
+    type FinishHimDifficulty,
+    type FinishHimTheme,
     type PracticalChessCategory,
     type PracticalChessDifficulty,
     type TheoryEndingCategory,
@@ -130,8 +130,8 @@ function getThemeKey(cat: string) {
 function handleStart() {
   if (mode.value === 'finish-him') {
     finishHimStore.setParams(
-      selectedCategory.value as AdvantageTheme | 'auto',
-      selectedDifficulty.value as AdvantageDifficulty,
+      selectedCategory.value as FinishHimTheme | 'auto',
+      selectedDifficulty.value as FinishHimDifficulty,
     )
     router.push({ name: 'finish-him-play' })
   } else if (mode.value === 'theory') {

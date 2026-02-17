@@ -120,7 +120,7 @@ onMounted(() => {
         </div>
 
         <div class="charts-grid">
-          <!-- Removed TheoryStackbarChart for advantage/finish_him as requested -->
+          <!-- Removed TheoryStackbarChart for finish_him as requested -->
 
           <TheoryStackbarChart
             v-if="detailedStats && detailedStats.theory"

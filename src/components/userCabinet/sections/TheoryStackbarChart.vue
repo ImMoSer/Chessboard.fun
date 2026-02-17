@@ -55,7 +55,7 @@ const props = defineProps({
     required: true,
   },
   mode: {
-    type: String as PropType<'theory' | 'advantage' | 'practical'>,
+    type: String as PropType<'theory' | 'finish_him' | 'practical'>,
     default: 'theory',
   },
 })
@@ -267,7 +267,7 @@ const onImproveClick = () => {
   const { launchGame } = useGameLauncher()
 
   launchGame({
-    mode: props.mode as any,
+    mode: props.mode,
     theme: themeId,
     difficulty: clickedDifficulty,
     type: activeType.value
@@ -284,8 +284,8 @@ const onImproveClick = () => {
             {{
               mode === 'theory'
                 ? t('userCabinet.stats.modes.theory')
-                : mode === 'advantage'
-                  ? t('userCabinet.stats.modes.advantage')
+                : mode === 'finish_him'
+                  ? t('userCabinet.stats.modes.finishHim')
                   : t('userCabinet.stats.modes.practical')
             }}
           </h3>
@@ -326,8 +326,8 @@ const onImproveClick = () => {
       :title="
         mode === 'theory'
           ? t('userCabinet.stats.modes.theory')
-          : mode === 'advantage'
-            ? t('userCabinet.stats.modes.advantage')
+          : mode === 'finish_him'
+            ? t('userCabinet.stats.modes.finishHim')
             : t('userCabinet.stats.modes.practical')
       "
       style="width: 90vw; max-width: 1200px"
@@ -486,7 +486,7 @@ const onImproveClick = () => {
   box-sizing: border-box;
 }
 
-.mode-advantage .theory-title,
+.mode-finish_him .theory-title,
 .mode-practical .theory-title {
   color: var(--color-accent-primary);
 }

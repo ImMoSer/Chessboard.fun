@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { useFinishHimStore } from '@/stores/finishHim.store'
 import { useGameStore } from '@/stores/game.store'
-import { ADVANTAGE_THEMES } from '@/types/api.types'
+import { FINISH_HIM_THEMES } from '@/types/api.types'
 import { storeToRefs } from 'pinia'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -16,7 +16,7 @@ const { t } = useI18n()
 const isOpen = ref(false)
 const dropdownRef = ref<HTMLElement | null>(null)
 
-const availableThemes: string[] = ['auto', ...ADVANTAGE_THEMES]
+const availableThemes: string[] = ['auto', ...FINISH_HIM_THEMES]
 
 const selectedThemeName = computed(() => {
   if (selectedTheme.value === 'auto') return t('chess.tornado.auto')
@@ -29,7 +29,7 @@ const toggleDropdown = () => {
 }
 
 const handleThemeSelect = (theme: string) => {
-  // Casting or ensure store accepts string or AdvantageTheme
+  // Casting or ensure store accepts string or FinishHimTheme
   finishHimStore.setThemeAndLoadPuzzle(theme)
   isOpen.value = false
 }

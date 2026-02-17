@@ -1,9 +1,9 @@
 <!-- src/components/recordsPage/TimedModeLeaderboardTable.vue -->
 <script setup lang="ts">
 import type {
-    AdvantageLeaderboardEntry,
-    TornadoLeaderboardEntry,
-    TornadoMode,
+  FinishHimLeaderboardEntry,
+  TornadoLeaderboardEntry,
+  TornadoMode,
 } from '@/types/api.types'
 import type { DataTableColumns } from 'naive-ui'
 import { computed, h, type PropType } from 'vue'
@@ -11,7 +11,7 @@ import { useI18n } from 'vue-i18n'
 import InfoIcon from '../InfoIcon.vue'
 
 type TimedLeaderboards = {
-  [key in TornadoMode]?: (TornadoLeaderboardEntry | AdvantageLeaderboardEntry)[]
+  [key in TornadoMode]?: (TornadoLeaderboardEntry | FinishHimLeaderboardEntry)[]
 }
 
 const props = defineProps({
@@ -19,7 +19,7 @@ const props = defineProps({
   data: { type: Object as PropType<TimedLeaderboards>, required: true },
   colorClass: { type: String, required: true },
   infoTopic: { type: String, required: false },
-  mode: { type: String as PropType<'tornado' | 'advantage'>, required: true },
+  mode: { type: String as PropType<'tornado' | 'finish_him'>, required: true },
 })
 
 const { t } = useI18n()
@@ -45,7 +45,7 @@ const getSubscriptionIcon = (tier?: string) => {
   return `/piece/alpha/${tierToPieceMap[tier]}`
 }
 
-const columns = computed<DataTableColumns<TornadoLeaderboardEntry | AdvantageLeaderboardEntry>>(
+const columns = computed<DataTableColumns<TornadoLeaderboardEntry | FinishHimLeaderboardEntry>>(
   () => [
     { title: t('records.table.rank'), key: 'rank', align: 'center', width: 45 },
     {
@@ -78,7 +78,7 @@ const columns = computed<DataTableColumns<TornadoLeaderboardEntry | AdvantageLea
         const val =
           props.mode === 'tornado'
             ? (row as TornadoLeaderboardEntry).highScore
-            : (row as AdvantageLeaderboardEntry).score
+            : (row as FinishHimLeaderboardEntry).best_time
         return h('span', { class: 'mode-score-value' }, val)
       },
     },
@@ -146,7 +146,6 @@ const columns = computed<DataTableColumns<TornadoLeaderboardEntry | AdvantageLea
 }
 
 .tornadoLeaderboard .card-title { color: var(--color-neon-orange); }
-.advantageLeaderboard .card-title { color: var(--color-neon-purple); }
 
 .card-title {
   font-size: 1.4rem;

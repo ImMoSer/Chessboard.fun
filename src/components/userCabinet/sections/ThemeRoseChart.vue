@@ -58,7 +58,7 @@ const props = defineProps({
     default: '',
   },
   mode: {
-    type: String as PropType<'tornado' | 'finish_him' | 'advantage' | 'theory' | 'practical'>,
+    type: String as PropType<'tornado' | 'finish_him' | 'theory' | 'practical'>,
     default: 'tornado',
   },
 })
