@@ -59,9 +59,10 @@ const emit = defineEmits<{
 const { t } = useI18n()
 
 const skillModes = [
-  { key: 'finishHim', nameKey: 'nav.finishHim', color: '#42b883' }, // Green
+  { key: 'finish_him', nameKey: 'nav.finishHim', color: '#42b883' }, // Green
   { key: 'tornado', nameKey: 'userCabinet.stats.modes.tornado', color: '#f39c12' }, // Orange
   { key: 'theory', nameKey: 'userCabinet.stats.modes.theory', color: '#9b59b6' }, // Purple
+  { key: 'practical-chess', nameKey: 'userCabinet.stats.modes.practical', color: '#3498db' }, // Blue
 ] as const
 
 const periodOptions = [

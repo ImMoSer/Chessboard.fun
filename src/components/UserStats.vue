@@ -45,7 +45,7 @@ const localResetTimeMessage = computed(() => {
 })
 
 const activityModes = [
-  { key: 'finishHim' as const, label: t('nav.finishHim'), icon: '🎯' },
+  { key: 'finish_him' as const, label: t('nav.finishHim'), icon: '🎯' },
   { key: 'tornado' as const, label: t('nav.tornado'), icon: '🌪️' },
   { key: 'practical-chess' as const, label: t('practicalChess.selection.title'), icon: '♙♖' },
   { key: 'theory' as const, label: t('nav.theoryEndings'), icon: '♔♙' },

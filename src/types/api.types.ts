@@ -345,11 +345,11 @@ export interface LeaderboardApiResponse extends WorktableLeaderboards {
 }
 
 export interface SolvedByMode {
-  finishHim: number
-  tacticalTrainer: number
+  finish_him: number
   tornado: number
   theory: number
   'practical-chess': number
+  tacticalTrainer?: number
 }
 
 export interface OverallSolvedLeaderboardEntry {
@@ -438,11 +438,11 @@ export interface LichessUserProfile {
 }
 
 export interface PuzzlesSolvedToday {
-  finishHim: number
-  tacticalTrainer: number
+  finish_him: number
   tornado: number
   theory: number
   'practical-chess': number
+  tacticalTrainer?: number
   total: number
 }
 
