@@ -1,11 +1,10 @@
-<!-- src/components/userCabinet/sections/ThemeRoseChart.vue -->
 <script setup lang="ts">
 import { ExpandOutline } from '@vicons/ionicons5'
 import { PieChart } from 'echarts/charts'
 import { LegendComponent, TitleComponent, TooltipComponent } from 'echarts/components'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
-import { computed, ref, type PropType } from 'vue'
+import { computed, onMounted, onUnmounted, ref, type PropType } from 'vue'
 import VChart from 'vue-echarts'
 import { useI18n } from 'vue-i18n'
 
@@ -25,6 +24,19 @@ interface RoseParam {
     raw: ThemeStat
   }
   name: string
+  event: {
+    event: MouseEvent
+  }
+}
+
+interface PopupData {
+  title: string
+  rating: number
+  accuracy: number
+  success: number
+  requested: number
+  themeId: string
+  screenMode: string
 }
 
 const props = defineProps({
@@ -54,6 +66,29 @@ const emit = defineEmits<{
   (e: 'update:activeMode', value: string): void
 }>()
 
+const activePopup = ref<{ visible: boolean; x: number; y: number; data: PopupData | null }>({
+  visible: false,
+  x: 0,
+  y: 0,
+  data: null,
+})
+const popupRef = ref<HTMLElement | null>(null)
+
+// Close popup when clicking outside
+const handleClickOutside = (event: MouseEvent) => {
+  if (activePopup.value.visible && popupRef.value && !popupRef.value.contains(event.target as Node)) {
+     activePopup.value.visible = false
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
+
 const viewMode = ref<'rating' | 'accuracy'>('rating')
 const showModal = ref(false)
 
@@ -78,42 +113,7 @@ const option = computed(() => {
   return {
     backgroundColor: 'transparent',
     tooltip: {
-      trigger: 'item',
-      appendTo: 'body',
-      confine: true,
-      triggerOn: 'mousemove|click',
-      backgroundColor: '#2a2a2e', // Matching --color-bg-tertiary
-      borderColor: '#5A5A5A',
-      textStyle: { color: '#CCCCCC' },
-      formatter: (params: unknown) => {
-        const p = params as RoseParam
-        const data = p.data.raw
-        const accuracy = data.requested > 0 ? Math.round((data.success / data.requested) * 100) : 0
-
-        const theme = data.theme
-        let themeName = theme
-        if (te(`chess.tornado.${theme}`)) themeName = t(`chess.tornado.${theme}`)
-        else if (te(`chess.finishHim.category.${theme}`)) themeName = t(`chess.finishHim.category.${theme}`)
-        else if (te(`chess.endings.${theme}`)) themeName = t(`chess.endings.${theme}`)
-
-        return `
-          <div style="padding: 4px; min-width: 140px;">
-            <b style="color: #FFFFFF; display: block; margin-bottom: 8px; border-bottom: 1px solid #5A5A5A; padding-bottom: 4px;">${themeName}</b>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-              <span>${t('userCabinet.analyticsTable.rating')}:</span>
-              <span style="font-weight: bold; color: #f39c12;">${Math.round(data.rating)}</span>
-            </div>
-            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-              <span>${t('userCabinet.analyticsTable.accuracy')}:</span>
-              <span style="font-weight: bold; color: ${accuracy > 70 ? '#42b883' : '#f39c12'}">${accuracy}%</span>
-            </div>
-            <div style="display: flex; justify-content: space-between;">
-              <span>${t('userCabinet.stats.success')}:</span>
-              <span>${data.success} / ${data.requested}</span>
-            </div>
-          </div>
-        `
-      },
+      show: false, // Disable default tooltip
     },
     series: [
       {
@@ -153,7 +153,46 @@ const option = computed(() => {
 
 const onChartClick = (params: unknown) => {
   const p = params as RoseParam
-  console.log(`[Rose Click] Theme: ${p.name}, Mode: ${viewMode.value}`)
+  const data = p.data.raw
+  const accuracy = data.requested > 0 ? Math.round((data.success / data.requested) * 100) : 0
+  const theme = data.theme
+
+  let themeName = theme
+  if (te(`chess.tornado.${theme}`)) themeName = t(`chess.tornado.${theme}`)
+  else if (te(`chess.finishHim.category.${theme}`)) themeName = t(`chess.finishHim.category.${theme}`)
+  else if (te(`chess.endings.${theme}`)) themeName = t(`chess.endings.${theme}`)
+
+  const x = p.event.event.clientX
+  const y = p.event.event.clientY
+
+  // Stop propagation so the document click listener doesn't immediately close it
+  if (p.event.event.stopImmediatePropagation) {
+    p.event.event.stopImmediatePropagation()
+  }
+
+  activePopup.value = {
+    visible: true,
+    x,
+    y,
+    data: {
+      title: themeName,
+      rating: Math.round(data.rating),
+      accuracy,
+      success: data.success,
+      requested: data.requested,
+      themeId: theme,
+      screenMode: viewMode.value
+    },
+  }
+}
+
+const onImproveClick = () => {
+  if (!activePopup.value.data) return
+
+  // E.g. ThemeRoseChart.vue:156 [Rose Click] Theme: quietMove, Mode: rating
+  console.log(
+    `[Rose Click] Theme: ${activePopup.value.data.themeId}, Mode: ${activePopup.value.data.screenMode} (Improve Clicked)`
+  )
 }
 </script>
 
@@ -227,10 +266,120 @@ const onChartClick = (params: unknown) => {
         </div>
       </div>
     </n-modal>
+
+    <!-- Chart Popup -->
+    <Teleport to="body">
+      <div
+        v-if="activePopup.visible && activePopup.data"
+        ref="popupRef"
+        class="chart-popup"
+        :style="{
+          top: `${activePopup.y + 10}px`,
+          left: `${activePopup.x + 10}px`,
+        }"
+      >
+        <div class="popup-header">
+          <span class="popup-title">{{ activePopup.data.title }}</span>
+          <n-button
+            type="primary"
+            size="tiny"
+            @click="onImproveClick"
+            class="improve-btn"
+          >
+            {{ t('userCabinet.stats.improve') }}
+          </n-button>
+        </div>
+
+        <div class="popup-content">
+          <div class="popup-row">
+            <span>{{ t('userCabinet.analyticsTable.rating') }}:</span>
+            <span class="rating-val">{{ activePopup.data.rating }}</span>
+          </div>
+          <div class="popup-row">
+             <span>{{ t('userCabinet.analyticsTable.accuracy') }}:</span>
+             <span
+               class="accuracy-val"
+               :class="{ 'high-acc': activePopup.data.accuracy > 70, 'low-acc': activePopup.data.accuracy <= 70 }"
+             >
+               {{ activePopup.data.accuracy }}%
+             </span>
+          </div>
+           <div class="popup-row">
+            <span>{{ t('userCabinet.stats.success') }}:</span>
+            <span>{{ activePopup.data.success }} / {{ activePopup.data.requested }}</span>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
 <style scoped>
+.chart-popup {
+  position: fixed;
+  z-index: 9999;
+  background-color: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  min-width: 180px;
+  pointer-events: auto;
+  transform: translate(0, 0);
+}
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.popup-title {
+  font-weight: bold;
+  color: var(--color-text-primary);
+  font-size: 0.9rem;
+}
+
+.improve-btn {
+  font-size: 0.7rem;
+  padding: 0 8px;
+  height: 22px;
+}
+
+.popup-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.popup-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+.rating-val {
+  color: #f39c12;
+  font-weight: bold;
+}
+
+.accuracy-val {
+  font-weight: bold;
+}
+
+.high-acc {
+  color: var(--color-success);
+}
+
+.low-acc {
+  color: #f39c12;
+}
+
 .theme-rose-container {
   width: 100%;
   background-color: var(--color-bg-tertiary);
@@ -325,6 +474,12 @@ const onChartClick = (params: unknown) => {
 
   .header-left-group {
     gap: 6px;
+  }
+}
+
+@media (max-width: 600px) {
+  .chart-popup {
+    max-width: 90vw;
   }
 }
 

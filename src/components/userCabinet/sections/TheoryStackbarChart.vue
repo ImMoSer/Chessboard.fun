@@ -10,7 +10,7 @@ import {
 } from 'echarts/components'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
-import { computed, ref, type PropType } from 'vue'
+import { computed, onMounted, onUnmounted, ref, type PropType } from 'vue'
 import VChart from 'vue-echarts'
 import { useI18n } from 'vue-i18n'
 
@@ -23,12 +23,6 @@ interface TheoryStatValue {
   requested: number
 }
 
-interface TooltipParam {
-  dataIndex: number
-  seriesName: string
-  color: string
-}
-
 interface LabelParam {
   value: number
 }
@@ -36,6 +30,22 @@ interface LabelParam {
 interface ClickParam {
   dataIndex: number
   seriesIndex: number
+  event: {
+    event: MouseEvent
+  }
+}
+
+interface PopupData {
+  title: string
+  items: {
+    difficulty: string
+    success: number
+    requested: number
+    accuracy: number
+    color: string
+  }[]
+  themeId: string
+  clickedDifficulty: string
 }
 
 const props = defineProps({
@@ -51,6 +61,29 @@ const props = defineProps({
 
 const activeType = ref<'win' | 'draw'>('win')
 const showModal = ref(false)
+const activePopup = ref<{ visible: boolean; x: number; y: number; data: PopupData | null }>({
+  visible: false,
+  x: 0,
+  y: 0,
+  data: null,
+})
+const popupRef = ref<HTMLElement | null>(null)
+
+// Close popup when clicking outside
+const handleClickOutside = (event: MouseEvent) => {
+  if (activePopup.value.visible && popupRef.value && !popupRef.value.contains(event.target as Node)) {
+     activePopup.value.visible = false
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
+
 const difficulties = ['Novice', 'Pro', 'Master'] as const
 
 const seriesColors = {
@@ -112,44 +145,7 @@ const option = computed(() => {
   return {
     backgroundColor: 'transparent',
     tooltip: {
-      trigger: 'axis',
-      axisPointer: {
-        type: 'shadow',
-      },
-      appendTo: 'body',
-      confine: true,
-      triggerOn: 'mousemove|click',
-      backgroundColor: '#2a2a2e', // Matching --color-bg-tertiary
-      borderColor: '#5A5A5A',
-      textStyle: { color: '#CCCCCC' },
-      formatter: (params: unknown) => {
-        const p = params as TooltipParam[]
-        if (!p || !p[0]) return ''
-        const theme = themes[p[0].dataIndex]
-        if (!theme) return ''
-        let themeName = theme
-        if (te(`chess.tornado.${theme}`)) themeName = t(`chess.tornado.${theme}`)
-        else if (te(`chess.finishHim.category.${theme}`)) themeName = t(`chess.finishHim.category.${theme}`)
-        else if (te(`chess.endings.${theme}`)) themeName = t(`chess.endings.${theme}`)
-
-        let html = `<div style="padding: 4px; min-width: 150px;">
-                      <b style="color: #FFFFFF; display: block; margin-bottom: 8px; border-bottom: 1px solid #5A5A5A; padding-bottom: 4px;">${themeName}</b>`
-
-        p.forEach((item) => {
-          const diff = item.seriesName
-          const key = `${prefix}/${diff}/${theme}`
-          const stat = props.stats[key]
-          if (stat && stat.requested > 0) {
-            const accuracy = Math.round((stat.success / stat.requested) * 100)
-            html += `
-              <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                <span style="color: ${item.color}; font-weight: bold;">${t(`theoryEndings.difficulties.${diff}`)}:</span>
-                <span style="color: #FFF;">${stat.success}/${stat.requested} (${accuracy}%)</span>
-              </div>`
-          }
-        })
-        return html + '</div>'
-      },
+      show: false, // Disable default tooltip
     },
     legend: {
       data: difficulties.map((d) => t(`theoryEndings.difficulties.${d}`)),
@@ -213,10 +209,61 @@ const option = computed(() => {
 
 const onChartClick = (params: unknown) => {
   const p = params as ClickParam
-  const themeId = currentThemes.value[p.dataIndex]
-  const difficultyId = difficulties[p.seriesIndex]
+  const theme = currentThemes.value[p.dataIndex]
+  const difficulty = difficulties[p.seriesIndex] ?? 'Master'
+  const prefix = props.mode === 'theory' ? activeType.value : 'win'
+
+  if (!theme) return
+
+  let themeName = theme
+  if (te(`chess.tornado.${theme}`)) themeName = t(`chess.tornado.${theme}`)
+  else if (te(`chess.finishHim.category.${theme}`)) themeName = t(`chess.finishHim.category.${theme}`)
+  else if (te(`chess.endings.${theme}`)) themeName = t(`chess.endings.${theme}`)
+
+  const items: PopupData['items'] = []
+
+  // Collect data for all difficulties for this theme
+  difficulties.forEach(diff => {
+    const key = `${prefix}/${diff}/${theme}`
+    const stat = props.stats[key]
+    if (stat && stat.requested > 0) {
+      items.push({
+        difficulty: diff,
+        success: stat.success,
+        requested: stat.requested,
+        accuracy: Math.round((stat.success / stat.requested) * 100),
+        color: seriesColors[diff],
+      })
+    }
+  })
+
+  // Prevent popup from going offscreen (basic implementation)
+  const x = p.event.event.clientX
+  const y = p.event.event.clientY
+
+  // Stop propagation so the document click listener doesn't immediately close it
+  if (p.event.event.stopImmediatePropagation) {
+    p.event.event.stopImmediatePropagation()
+  }
+
+  activePopup.value = {
+    visible: true,
+    x,
+    y,
+    data: {
+      title: themeName,
+      items,
+      themeId: theme,
+      clickedDifficulty: difficulty
+    },
+  }
+}
+
+const onImproveClick = () => {
+  if (!activePopup.value.data) return
+
   console.log(
-    `[ECharts Click] Mode: ${props.mode}, Type: ${activeType.value}, Theme: ${themeId}, Difficulty: ${difficultyId}`,
+    `[ECharts Click] Mode: ${props.mode}, Type: ${activeType.value}, Theme: ${activePopup.value.data.themeId}, Difficulty: ${activePopup.value.data.clickedDifficulty}`
   )
 }
 </script>
@@ -290,10 +337,138 @@ const onChartClick = (params: unknown) => {
         </div>
       </div>
     </n-modal>
+
+    <!-- Chart Popup -->
+    <Teleport to="body">
+      <div
+        v-if="activePopup.visible && activePopup.data"
+        ref="popupRef"
+        class="chart-popup"
+        :style="{
+          top: `${activePopup.y + 10}px`,
+          left: `${activePopup.x + 10}px`,
+        }"
+      >
+        <div class="popup-header">
+          <span class="popup-title">{{ activePopup.data.title }}</span>
+          <n-button
+            type="primary"
+            size="tiny"
+            @click="onImproveClick"
+            class="improve-btn"
+          >
+            {{ t('userCabinet.stats.improve') }}
+          </n-button>
+        </div>
+
+        <div class="popup-content">
+          <div
+            v-for="(item, index) in activePopup.data.items"
+            :key="index"
+            class="popup-item"
+          >
+            <div class="popup-label">
+              <span
+                class="diff-indicator"
+                :style="{ backgroundColor: item.color }"
+              ></span>
+              <span class="diff-name">{{ t(`theoryEndings.difficulties.${item.difficulty}`) }}:</span>
+            </div>
+            <div class="popup-value">
+              {{ item.success }}/{{ item.requested }}
+              <span
+                class="accuracy-val"
+                :class="{ 'high-acc': item.accuracy > 70, 'low-acc': item.accuracy <= 70 }"
+              >
+                ({{ item.accuracy }}%)
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Teleport>
   </div>
 </template>
 
 <style scoped>
+.chart-popup {
+  position: fixed;
+  z-index: 9999;
+  background-color: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  min-width: 200px;
+  pointer-events: auto;
+  transform: translate(0, 0); /* Initial position */
+}
+
+/* Ensure popup stays within viewport if needed - logic for this could be added to script,
+   but for now we rely on simple positioning.
+   If it goes off screen, we might need logic to adjust x/y
+*/
+
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.popup-title {
+  font-weight: bold;
+  color: var(--color-text-primary);
+  font-size: 0.9rem;
+}
+
+.improve-btn {
+  font-size: 0.7rem;
+  padding: 0 8px;
+  height: 22px;
+}
+
+.popup-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+  font-size: 0.85rem;
+}
+
+.popup-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-text-secondary);
+}
+
+.diff-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.popup-value {
+  color: var(--color-text-primary);
+  font-weight: 500;
+}
+
+.accuracy-val {
+  margin-left: 4px;
+  font-size: 0.8rem;
+}
+
+.high-acc {
+  color: var(--color-success);
+}
+
+.low-acc {
+  color: var(--color-warning);
+}
+
 .theory-chart-standalone {
   width: 100%;
   background-color: var(--color-bg-tertiary);
@@ -400,6 +575,11 @@ const onChartClick = (params: unknown) => {
 @media (max-width: 600px) {
   .header-left {
     gap: 12px;
+  }
+
+  .chart-popup {
+    /* Adjust for mobile to keep it on screen better */
+    max-width: 90vw;
   }
 }
 
