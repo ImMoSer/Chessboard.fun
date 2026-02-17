@@ -80,7 +80,7 @@ onUnmounted(() => {
 
       <!-- Center Stage: Top Info -> Board -> Controls -->
       <div class="center-stage" ref="centerColumnRef">
-        <div v-if="$slots['top-info']" class="cb-top-panel">
+        <div class="cb-top-panel">
           <slot name="top-info"></slot>
         </div>
 
@@ -121,7 +121,7 @@ onUnmounted(() => {
           </div>
         </div>
 
-        <div v-if="$slots.controls" class="cb-down-panel">
+        <div class="cb-down-panel">
           <slot name="controls"></slot>
         </div>
       </div>
@@ -151,54 +151,50 @@ onUnmounted(() => {
   /* Columns: Left (flex) | Center (Auto/Fit Content) | Right (flex) */
   /* Using minmax for center to prevent it from disappearing, but ideally it drives the width */
   grid-template-columns: 2fr auto 3fr;
-  gap: 20px;
+  gap: 10px;
   min-height: 0;
   justify-content: center;
 }
 
 /* --- Center Stage Area --- */
 .center-stage {
+  --board-size: 88vh; /* Single source of truth for board height */
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
   justify-content: flex-start;
-  gap: 3px;
-  min-width: min-content; /* Ensure it doesn't shrink below board size */
-  height: 100%;
+  gap: 0;
+  min-width: min-content;
+  height: calc(100vh - 20px); /* Adjust for padding */
 }
 
 .cb-top-panel,
 .cb-down-panel {
   width: 100%;
+  flex: 1; /* Space divided equally */
   display: flex;
   justify-content: center;
   align-items: center;
+  min-height: 20px;
 }
 
-.cb-top-panel {
-  margin-bottom: 2px;
+/* Board always square, sized by --board-size height on desktop */
+.board-section {
+  flex: 0 0 var(--board-size);
+  height: var(--board-size);
+  display: flex;
+  align-items: stretch;
+  gap: 3px;
 }
 
-.cb-down-panel {
-  margin-top: 2px;
-}
-
-/* Board always square, sized by viewport height logic, but constrained by panels */
-/* Board container remains a perfect square */
 .board-aspect-wrapper {
-  width: calc(100vh - 140px);
-  max-width: 100%;
-  aspect-ratio: 1 / 1;
+  height: 100%; /* Fill parent Height */
+  width: auto;
+  aspect-ratio: 1 / 1; /* Maintain perfect square */
   position: relative;
   background-color: rgba(0, 0, 0, 0.1);
   border-radius: 4px;
-  flex-shrink: 0; /* Important: don't shrink the square */
-}
-
-.board-section {
-  display: flex;
-  align-items: stretch;
-  gap: 3px; /* Tight fit */
+  flex-shrink: 0;
 }
 
 .eval-bar-wrapper {
@@ -260,7 +256,7 @@ onUnmounted(() => {
   .game-layout {
     height: 100%;
     overflow-y: auto; /* Enable scroll for the whole page on mobile */
-    padding: 10px;
+    padding: 0;
     display: block; /* Stack everything */
   }
 
@@ -272,6 +268,7 @@ onUnmounted(() => {
 
   /* Reorder for Mobile: Panel -> Board -> Controls -> Left -> Right */
   .center-stage {
+    --board-size: 100vw; /* Use full width on mobile */
     order: 1;
     width: 100%;
     height: auto;
@@ -290,16 +287,25 @@ onUnmounted(() => {
     min-height: 300px;
   }
 
-  .board-aspect-wrapper {
-    width: 95vw;
-    height: 95vw; /* Maximize width on mobile */
-    margin: 5px auto;
-  }
-
   .cb-top-panel,
   .cb-down-panel {
     width: 100%;
-    min-height: auto;
+    height: 60px;
+    flex: 0 0 60px;
+  }
+
+  .board-section {
+     height: var(--board-size);
+     flex: 0 0 var(--board-size);
+     width: 100%;
+     justify-content: center;
+  }
+
+  .board-aspect-wrapper {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 1 / 1;
+    margin: 0 auto;
   }
 }
 </style>
