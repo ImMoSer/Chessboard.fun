@@ -179,15 +179,13 @@ watch([() => props.animationEnabled, () => props.animationDuration], ([enabled, 
   </div>
 </template>
 
-<style>
+<style scoped>
 .board-wrapper {
   width: 100%;
   height: 100%;
   position: absolute;
-  /* Ensure this is a positioning context for the promotion dialog overlay */
-  /* If parent provides relative/absolute, this is fine.
-     The class .board-wrapper has position: absolute in global styles usually?
-     Wait, style block below defines usage. */
+  /* Блокируем системный скролл на доске */
+  touch-action: none;
 }
 
 .chessboard {

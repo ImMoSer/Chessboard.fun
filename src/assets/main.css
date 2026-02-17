@@ -45,6 +45,9 @@
   /* --- Typography --- */
   --font-family-primary: 'Neucha', cursive;
   --font-size-base: 1rem;
+  --font-size-large: 1.5rem;
+  --font-size-xlarge: 2rem;
+  --font-size-xxlarge: 2.5rem;
 }
 
 /* --- Global Resets --- */

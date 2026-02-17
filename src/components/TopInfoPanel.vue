@@ -308,7 +308,7 @@ const containerClass = computed(() => {
 
 /* Group Info and Rating together on the left */
 .session-theme-label {
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-large);
   color: var(--color-text-link);
   white-space: nowrap;
   overflow: hidden;
@@ -562,7 +562,7 @@ const containerClass = computed(() => {
   }
 
   .session-theme-label {
-    font-size: 0.8rem;
+    font-size: var(--font-size-base);
     max-width: 150px;
   }
 
