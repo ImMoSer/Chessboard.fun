@@ -691,11 +691,6 @@
     "leaderboard": {
       "highScore": "Records"
     },
-    "stats": {
-      "title": "Your Statistics",
-      "rating": "Rating",
-      "theme": "Theme"
-    },
     "ui": {
       "ratingLabel": "Rating",
       "themeLabel": "Theme"

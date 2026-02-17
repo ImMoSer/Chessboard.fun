@@ -28,11 +28,6 @@ export const TORNADO_THEMES = [
 
 export type TornadoTheme = (typeof TORNADO_THEMES)[number]
 
-export interface ThemeRating {
-  rating: number
-  rating_deviation: number
-  volatility: number
-}
 
 export interface TornadoNextPuzzleDto {
   sessionId: string
@@ -58,7 +53,6 @@ export interface TornadoNextResponse {
   sessionRating: number
   ratingDelta: number
   nextPuzzle: TornadoPuzzle
-  updatedThemeRatings?: Record<string, ThemeRating>
   userStatsUpdate?: UserStatsUpdate
 }
 

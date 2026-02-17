@@ -7,7 +7,6 @@ import AnalysisPanel from '../components/AnalysisPanel.vue'
 import ControlPanel from '../components/ControlPanel.vue'
 import GameLayout from '../components/GameLayout.vue'
 import TopInfoPanel from '../components/TopInfoPanel.vue'
-import TornadoStats from '../components/TornadoStats.vue'
 import UserStats from '../components/UserStats.vue'
 import { useTornadoStore, type TornadoMode } from '../stores/tornado.store'
 
@@ -45,7 +44,6 @@ watch(
     <template #left-panel>
       <div class="panel-content-wrapper">
         <UserStats />
-        <TornadoStats />
       </div>
     </template>
 

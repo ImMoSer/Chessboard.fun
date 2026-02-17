@@ -5,7 +5,7 @@ import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import i18n from '../services/i18n'
 import { InsufficientFunCoinsError, webhookService } from '../services/WebhookService'
-import type { ThemeRating, TornadoNextPuzzleDto, TornadoPuzzle } from '../types/api.types'
+import type { TornadoNextPuzzleDto, TornadoPuzzle } from '../types/api.types'
 import { type TornadoMode } from '../types/api.types'
 import logger from '../utils/logger'
 import { useAuthStore } from './auth.store'
@@ -25,23 +25,6 @@ const timeControls: Record<TornadoMode, { initial: number; increment: number }> 
   classic: { initial: 10 * 60 * 1000, increment: 5 * 1000 },
 }
 
-const officialThemes = new Set([
-  'fork',
-  'pin',
-  'attraction',
-  'discoveredAttack',
-  'deflection',
-  'skewer',
-  'promotion',
-  'trappedPiece',
-  'quietMove',
-  'clearance',
-  'capturingDefender',
-  'backRankMate',
-  'interference',
-  'xRayAttack',
-  'doubleCheck',
-])
 
 export const useTornadoStore = defineStore('tornado', () => {
   const gameStore = useGameStore()
@@ -52,7 +35,6 @@ export const useTornadoStore = defineStore('tornado', () => {
   const mode = ref<TornadoMode | null>(null)
   const sessionRating = ref(600)
   const sessionTheme = ref<string | null>(null)
-  const themeRatings = ref<Record<string, ThemeRating> | null>(null)
   const activePuzzle = ref<TornadoPuzzle | null>(null)
   const mistakenPuzzles = ref<TornadoPuzzle[]>([])
   const sessionId = ref<string | null>(null)
@@ -81,7 +63,6 @@ export const useTornadoStore = defineStore('tornado', () => {
     mode.value = null
     sessionRating.value = 600
     sessionTheme.value = null
-    themeRatings.value = null
     activePuzzle.value = null
     mistakenPuzzles.value = []
     sessionId.value = null
@@ -271,15 +252,11 @@ export const useTornadoStore = defineStore('tornado', () => {
       localStorage.setItem(MISTAKES_STORAGE_KEY, JSON.stringify(mistakenPuzzles.value))
     }
 
-    const lastPuzzleThemes = (activePuzzle.value.themes || []).filter((theme) =>
-      officialThemes.has(theme),
-    )
-
     const dto: TornadoNextPuzzleDto = {
       sessionId: sessionId.value,
       lastPuzzleId: activePuzzle.value.puzzle_id,
       lastPuzzleRating: activePuzzle.value.tactical_rating,
-      lastPuzzleThemes: lastPuzzleThemes,
+      lastPuzzleThemes: activePuzzle.value.themes || [],
       wasCorrect: isCorrect,
     }
 
@@ -287,9 +264,6 @@ export const useTornadoStore = defineStore('tornado', () => {
       const response = await webhookService.getNextTornadoPuzzle(mode.value, dto)
       if (response) {
         sessionRating.value = response.sessionRating
-        if (response.updatedThemeRatings) {
-          themeRatings.value = response.updatedThemeRatings
-        }
         activePuzzle.value = response.nextPuzzle
         if (response.userStatsUpdate) {
           authStore.updateUserStats(response.userStatsUpdate)
@@ -322,7 +296,6 @@ export const useTornadoStore = defineStore('tornado', () => {
     mode,
     sessionRating,
     sessionTheme,
-    themeRatings,
     activePuzzle,
     mistakenPuzzles,
     isSessionActive,
