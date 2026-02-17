@@ -505,17 +505,29 @@ export interface TornadoProfileDto {
   }
 }
 
-export interface AdvantageThemeStatDto {
+export interface FinishHimThemeStatDto {
   theme: string
   rating: number
   success: number
   requested: number
 }
 
-export interface AdvantageProfileDto {
-  themes: AdvantageThemeStatDto[]
-  stats: Record<string, { requested: number; success: number }>
+// Keeping AdvantageThemeStatDto as alias/compatibility if needed anywhere else temporarily,
+// though we should migrate. For now, let's export it as alias to avoid breaking other files immediately if they import it.
+export type AdvantageThemeStatDto = FinishHimThemeStatDto
+
+export interface FinishHimProfileDto {
+  modes: {
+    novice: FinishHimThemeStatDto[]
+    pro: FinishHimThemeStatDto[]
+    master: FinishHimThemeStatDto[]
+  }
 }
+
+// Old AdvantageProfileDto for reference warning or removal?
+// User said "example new structure", implying replacement.
+// Let's comment out or remove the old one to force errors where it's used so we fix them.
+// export interface AdvantageProfileDto { ... }
 
 export interface TheoryEndingProfileDto {
   stats: Record<string, { requested: number; success: number }>
@@ -527,7 +539,8 @@ export interface PracticalChessProfileDto {
 
 export interface UserProfileStatsDto {
   tornado: TornadoProfileDto
-  advantage: AdvantageProfileDto
+  finish_him: FinishHimProfileDto
+  // advantage: AdvantageProfileDto // Removed in favor of finish_him
   theory: TheoryEndingProfileDto
   practical: PracticalChessProfileDto
 }

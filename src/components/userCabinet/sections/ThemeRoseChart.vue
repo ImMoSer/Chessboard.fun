@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useGameLauncher } from '@/composables/useGameLauncher'
 import { ExpandOutline } from '@vicons/ionicons5'
 import { PieChart } from 'echarts/charts'
 import { LegendComponent, TitleComponent, TooltipComponent } from 'echarts/components'
@@ -57,7 +58,7 @@ const props = defineProps({
     default: '',
   },
   mode: {
-    type: String as PropType<'tornado' | 'advantage' | 'theory' | 'practical'>,
+    type: String as PropType<'tornado' | 'finish_him' | 'advantage' | 'theory' | 'practical'>,
     default: 'tornado',
   },
 })
@@ -181,7 +182,7 @@ const onChartClick = (params: unknown) => {
       success: data.success,
       requested: data.requested,
       themeId: theme,
-      screenMode: viewMode.value
+      screenMode: props.activeMode || props.mode // Use specific activeMode (e.g. 'blitz') if available, else generic props.mode
     },
   }
 }
@@ -189,10 +190,15 @@ const onChartClick = (params: unknown) => {
 const onImproveClick = () => {
   if (!activePopup.value.data) return
 
-  // E.g. ThemeRoseChart.vue:156 [Rose Click] Theme: quietMove, Mode: rating
-  console.log(
-    `[Rose Click] Theme: ${activePopup.value.data.themeId}, Mode: ${activePopup.value.data.screenMode} (Improve Clicked)`
-  )
+  const { themeId, screenMode } = activePopup.value.data
+
+  const { launchGame } = useGameLauncher()
+
+  launchGame({
+    mode: props.mode, // 'tornado' | 'finish_him'
+    theme: themeId,
+    subMode: screenMode // 'bullet', 'blitz' etc. OR 'novice', 'pro' ...
+  })
 }
 </script>
 

@@ -22,12 +22,38 @@ const { userProfile, isAuthenticated } = storeToRefs(authStore)
 const userCabinetStore = useUserCabinetStore()
 const { error, detailedStats } = storeToRefs(userCabinetStore)
 
+// ... imports
+// ...
+
 const selectedTornadoMode = ref<TornadoMode>('blitz')
+const selectedFinishHimMode = ref<'novice' | 'pro' | 'master'>('novice') // Default mode
 
 const currentTornadoThemes = computed(() => {
   if (!detailedStats.value?.tornado?.modes) return []
   return detailedStats.value.tornado.modes[selectedTornadoMode.value] || []
 })
+
+const currentFinishHimThemes = computed(() => {
+  if (!detailedStats.value?.finish_him?.modes) return []
+  return detailedStats.value.finish_him.modes[selectedFinishHimMode.value] || []
+})
+
+
+
+// ...
+
+// In Template:
+/*
+          <ThemeRoseChart
+            v-if="detailedStats && detailedStats.finish_him"
+            v-model:activeMode="selectedFinishHimMode"
+            mode="finish_him"
+            :modes="['novice', 'pro', 'master']"
+            :themes="currentFinishHimThemes"
+            :title="t('userCabinet.stats.modes.finishHim')"
+          />
+*/
+
 
 const route = useRoute()
 const isExample = computed(() => route.params.id === 'example')
@@ -84,19 +110,17 @@ onMounted(() => {
           />
 
           <ThemeRoseChart
-            v-if="detailedStats && detailedStats.advantage"
-            mode="advantage"
-            :themes="detailedStats.advantage.themes"
-            :title="t('userCabinet.stats.modes.advantage')"
+            v-if="detailedStats && detailedStats.finish_him"
+            v-model:activeMode="selectedFinishHimMode"
+            mode="finish_him"
+            :modes="['novice', 'pro', 'master']"
+            :themes="currentFinishHimThemes"
+            :title="t('userCabinet.stats.modes.finishHim')"
           />
         </div>
 
         <div class="charts-grid">
-          <TheoryStackbarChart
-            v-if="detailedStats && detailedStats.advantage"
-            :stats="detailedStats.advantage.stats"
-            mode="advantage"
-          />
+          <!-- Removed TheoryStackbarChart for advantage/finish_him as requested -->
 
           <TheoryStackbarChart
             v-if="detailedStats && detailedStats.theory"

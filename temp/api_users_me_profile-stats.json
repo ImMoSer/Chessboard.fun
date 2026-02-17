@@ -1,0 +1,836 @@
+{
+    "tornado": {
+        "highScores": {
+            "bullet": 1105,
+            "blitz": 64,
+            "rapid": 0,
+            "classic": 0
+        },
+        "modes": {
+            "bullet": [
+                {
+                    "theme": "deflection",
+                    "success": 0,
+                    "requested": 0,
+                    "rating": 2430
+                },
+                {
+                    "theme": "pin",
+                    "success": 44,
+                    "requested": 48,
+                    "rating": 2243
+                },
+                {
+                    "theme": "doubleCheck",
+                    "success": 13,
+                    "requested": 14,
+                    "rating": 2208
+                },
+                {
+                    "theme": "promotion",
+                    "success": 36,
+                    "requested": 39,
+                    "rating": 2169
+                },
+                {
+                    "theme": "skewer",
+                    "success": 48,
+                    "requested": 52,
+                    "rating": 2154
+                },
+                {
+                    "theme": "trappedPiece",
+                    "success": 18,
+                    "requested": 19,
+                    "rating": 2119
+                },
+                {
+                    "theme": "backRankMate",
+                    "success": 44,
+                    "requested": 48,
+                    "rating": 2085
+                },
+                {
+                    "theme": "xRayAttack",
+                    "success": 12,
+                    "requested": 13,
+                    "rating": 1984
+                },
+                {
+                    "theme": "interference",
+                    "success": 13,
+                    "requested": 14,
+                    "rating": 1963
+                },
+                {
+                    "theme": "quietMove",
+                    "success": 47,
+                    "requested": 51,
+                    "rating": 1854
+                },
+                {
+                    "theme": "fork",
+                    "success": 23,
+                    "requested": 25,
+                    "rating": 1806
+                },
+                {
+                    "theme": "discoveredAttack",
+                    "success": 16,
+                    "requested": 17,
+                    "rating": 1788
+                },
+                {
+                    "theme": "capturingDefender",
+                    "success": 40,
+                    "requested": 43,
+                    "rating": 1665
+                },
+                {
+                    "theme": "attraction",
+                    "success": 48,
+                    "requested": 52,
+                    "rating": 1591
+                },
+                {
+                    "theme": "clearance",
+                    "success": 3,
+                    "requested": 6,
+                    "rating": 1183
+                }
+            ],
+            "blitz": [
+                {
+                    "theme": "quietMove",
+                    "success": 17,
+                    "requested": 18,
+                    "rating": 2474
+                },
+                {
+                    "theme": "pin",
+                    "success": 4,
+                    "requested": 4,
+                    "rating": 2463
+                },
+                {
+                    "theme": "backRankMate",
+                    "success": 32,
+                    "requested": 35,
+                    "rating": 2451
+                },
+                {
+                    "theme": "doubleCheck",
+                    "success": 20,
+                    "requested": 21,
+                    "rating": 2413
+                },
+                {
+                    "theme": "xRayAttack",
+                    "success": 14,
+                    "requested": 15,
+                    "rating": 2366
+                },
+                {
+                    "theme": "clearance",
+                    "success": 13,
+                    "requested": 14,
+                    "rating": 2286
+                },
+                {
+                    "theme": "promotion",
+                    "success": 36,
+                    "requested": 39,
+                    "rating": 2168
+                },
+                {
+                    "theme": "skewer",
+                    "success": 2,
+                    "requested": 2,
+                    "rating": 2066
+                },
+                {
+                    "theme": "discoveredAttack",
+                    "success": 34,
+                    "requested": 37,
+                    "rating": 2049
+                },
+                {
+                    "theme": "attraction",
+                    "success": 35,
+                    "requested": 38,
+                    "rating": 2030
+                },
+                {
+                    "theme": "interference",
+                    "success": 0,
+                    "requested": 0,
+                    "rating": 1990
+                },
+                {
+                    "theme": "capturingDefender",
+                    "success": 11,
+                    "requested": 12,
+                    "rating": 1924
+                },
+                {
+                    "theme": "trappedPiece",
+                    "success": 24,
+                    "requested": 26,
+                    "rating": 1884
+                },
+                {
+                    "theme": "deflection",
+                    "success": 46,
+                    "requested": 50,
+                    "rating": 1654
+                },
+                {
+                    "theme": "fork",
+                    "success": 28,
+                    "requested": 30,
+                    "rating": 1571
+                }
+            ],
+            "rapid": [
+                {
+                    "theme": "doubleCheck",
+                    "success": 29,
+                    "requested": 31,
+                    "rating": 2483
+                },
+                {
+                    "theme": "interference",
+                    "success": 12,
+                    "requested": 13,
+                    "rating": 2436
+                },
+                {
+                    "theme": "backRankMate",
+                    "success": 45,
+                    "requested": 49,
+                    "rating": 2345
+                },
+                {
+                    "theme": "attraction",
+                    "success": 25,
+                    "requested": 27,
+                    "rating": 2067
+                },
+                {
+                    "theme": "deflection",
+                    "success": 29,
+                    "requested": 31,
+                    "rating": 2011
+                },
+                {
+                    "theme": "pin",
+                    "success": 35,
+                    "requested": 38,
+                    "rating": 1922
+                },
+                {
+                    "theme": "quietMove",
+                    "success": 38,
+                    "requested": 41,
+                    "rating": 1820
+                },
+                {
+                    "theme": "skewer",
+                    "success": 11,
+                    "requested": 12,
+                    "rating": 1711
+                },
+                {
+                    "theme": "xRayAttack",
+                    "success": 32,
+                    "requested": 35,
+                    "rating": 1703
+                },
+                {
+                    "theme": "capturingDefender",
+                    "success": 47,
+                    "requested": 51,
+                    "rating": 1602
+                },
+                {
+                    "theme": "discoveredAttack",
+                    "success": 31,
+                    "requested": 34,
+                    "rating": 1593
+                },
+                {
+                    "theme": "fork",
+                    "success": 28,
+                    "requested": 30,
+                    "rating": 1573
+                },
+                {
+                    "theme": "clearance",
+                    "success": 28,
+                    "requested": 30,
+                    "rating": 1547
+                },
+                {
+                    "theme": "promotion",
+                    "success": 20,
+                    "requested": 21,
+                    "rating": 1542
+                },
+                {
+                    "theme": "trappedPiece",
+                    "success": 20,
+                    "requested": 21,
+                    "rating": 1539
+                }
+            ],
+            "classic": [
+                {
+                    "theme": "pin",
+                    "success": 47,
+                    "requested": 51,
+                    "rating": 2433
+                },
+                {
+                    "theme": "promotion",
+                    "success": 40,
+                    "requested": 43,
+                    "rating": 2366
+                },
+                {
+                    "theme": "skewer",
+                    "success": 28,
+                    "requested": 30,
+                    "rating": 2301
+                },
+                {
+                    "theme": "attraction",
+                    "success": 1,
+                    "requested": 1,
+                    "rating": 2184
+                },
+                {
+                    "theme": "interference",
+                    "success": 23,
+                    "requested": 25,
+                    "rating": 2058
+                },
+                {
+                    "theme": "backRankMate",
+                    "success": 9,
+                    "requested": 9,
+                    "rating": 2048
+                },
+                {
+                    "theme": "quietMove",
+                    "success": 17,
+                    "requested": 18,
+                    "rating": 2033
+                },
+                {
+                    "theme": "clearance",
+                    "success": 41,
+                    "requested": 45,
+                    "rating": 1855
+                },
+                {
+                    "theme": "xRayAttack",
+                    "success": 30,
+                    "requested": 32,
+                    "rating": 1809
+                },
+                {
+                    "theme": "trappedPiece",
+                    "success": 44,
+                    "requested": 48,
+                    "rating": 1808
+                },
+                {
+                    "theme": "deflection",
+                    "success": 7,
+                    "requested": 8,
+                    "rating": 1799
+                },
+                {
+                    "theme": "capturingDefender",
+                    "success": 49,
+                    "requested": 53,
+                    "rating": 1635
+                },
+                {
+                    "theme": "fork",
+                    "success": 38,
+                    "requested": 41,
+                    "rating": 1598
+                },
+                {
+                    "theme": "doubleCheck",
+                    "success": 15,
+                    "requested": 16,
+                    "rating": 1557
+                },
+                {
+                    "theme": "discoveredAttack",
+                    "success": 45,
+                    "requested": 49,
+                    "rating": 1524
+                }
+            ]
+        }
+    },
+    "finish_him": {
+        "modes": {
+            "novice": [
+                {
+                    "theme": "pawn",
+                    "rating": 0,
+                    "success": 8,
+                    "requested": 10
+                },
+                {
+                    "theme": "knight",
+                    "rating": 0,
+                    "success": 9,
+                    "requested": 11
+                },
+                {
+                    "theme": "bishop",
+                    "rating": 0,
+                    "success": 4,
+                    "requested": 5
+                },
+                {
+                    "theme": "rookPawn",
+                    "rating": 0,
+                    "success": 3,
+                    "requested": 3
+                },
+                {
+                    "theme": "queen",
+                    "rating": 0,
+                    "success": 6,
+                    "requested": 7
+                },
+                {
+                    "theme": "knightBishop",
+                    "rating": 0,
+                    "success": 8,
+                    "requested": 10
+                },
+                {
+                    "theme": "rookPieces",
+                    "rating": 0,
+                    "success": 7,
+                    "requested": 9
+                },
+                {
+                    "theme": "queenPieces",
+                    "rating": 0,
+                    "success": 2,
+                    "requested": 2
+                },
+                {
+                    "theme": "expert",
+                    "rating": 0,
+                    "success": 6,
+                    "requested": 7
+                }
+            ],
+            "pro": [
+                {
+                    "theme": "pawn",
+                    "rating": 0,
+                    "success": 1,
+                    "requested": 1
+                },
+                {
+                    "theme": "knight",
+                    "rating": 0,
+                    "success": 9,
+                    "requested": 11
+                },
+                {
+                    "theme": "bishop",
+                    "rating": 0,
+                    "success": 9,
+                    "requested": 11
+                },
+                {
+                    "theme": "rookPawn",
+                    "rating": 0,
+                    "success": 0,
+                    "requested": 0
+                },
+                {
+                    "theme": "queen",
+                    "rating": 0,
+                    "success": 3,
+                    "requested": 3
+                },
+                {
+                    "theme": "knightBishop",
+                    "rating": 0,
+                    "success": 5,
+                    "requested": 6
+                },
+                {
+                    "theme": "rookPieces",
+                    "rating": 0,
+                    "success": 4,
+                    "requested": 5
+                },
+                {
+                    "theme": "queenPieces",
+                    "rating": 0,
+                    "success": 8,
+                    "requested": 10
+                },
+                {
+                    "theme": "expert",
+                    "rating": 0,
+                    "success": 3,
+                    "requested": 3
+                }
+            ],
+            "master": [
+                {
+                    "theme": "pawn",
+                    "rating": 0,
+                    "success": 0,
+                    "requested": 0
+                },
+                {
+                    "theme": "knight",
+                    "rating": 0,
+                    "success": 1,
+                    "requested": 1
+                },
+                {
+                    "theme": "bishop",
+                    "rating": 0,
+                    "success": 7,
+                    "requested": 9
+                },
+                {
+                    "theme": "rookPawn",
+                    "rating": 0,
+                    "success": 5,
+                    "requested": 6
+                },
+                {
+                    "theme": "queen",
+                    "rating": 0,
+                    "success": 2,
+                    "requested": 2
+                },
+                {
+                    "theme": "knightBishop",
+                    "rating": 0,
+                    "success": 0,
+                    "requested": 0
+                },
+                {
+                    "theme": "rookPieces",
+                    "rating": 0,
+                    "success": 7,
+                    "requested": 9
+                },
+                {
+                    "theme": "queenPieces",
+                    "rating": 0,
+                    "success": 0,
+                    "requested": 0
+                },
+                {
+                    "theme": "expert",
+                    "rating": 0,
+                    "success": 5,
+                    "requested": 6
+                }
+            ]
+        }
+    },
+    "theory": {
+        "stats": {
+            "win/Novice/bishop": {
+                "requested": 19,
+                "success": 13
+            },
+            "win/Novice/knight": {
+                "requested": 10,
+                "success": 7
+            },
+            "win/Novice/knightBishop": {
+                "requested": 13,
+                "success": 9
+            },
+            "win/Novice/pawn": {
+                "requested": 13,
+                "success": 9
+            },
+            "win/Novice/queen": {
+                "requested": 6,
+                "success": 4
+            },
+            "win/Novice/rookPawn": {
+                "requested": 21,
+                "success": 14
+            },
+            "win/Novice/rookPieces": {
+                "requested": 3,
+                "success": 2
+            },
+            "win/Pro/bishop": {
+                "requested": 6,
+                "success": 4
+            },
+            "win/Pro/knight": {
+                "requested": 19,
+                "success": 13
+            },
+            "win/Pro/knightBishop": {
+                "requested": 0,
+                "success": 0
+            },
+            "win/Pro/pawn": {
+                "requested": 12,
+                "success": 8
+            },
+            "win/Pro/queen": {
+                "requested": 1,
+                "success": 1
+            },
+            "win/Pro/rookPawn": {
+                "requested": 12,
+                "success": 8
+            },
+            "win/Pro/rookPieces": {
+                "requested": 13,
+                "success": 9
+            },
+            "win/Master/bishop": {
+                "requested": 1,
+                "success": 1
+            },
+            "win/Master/knight": {
+                "requested": 6,
+                "success": 4
+            },
+            "win/Master/knightBishop": {
+                "requested": 9,
+                "success": 6
+            },
+            "win/Master/pawn": {
+                "requested": 0,
+                "success": 0
+            },
+            "win/Master/queen": {
+                "requested": 0,
+                "success": 0
+            },
+            "win/Master/rookPawn": {
+                "requested": 16,
+                "success": 11
+            },
+            "win/Master/rookPieces": {
+                "requested": 18,
+                "success": 12
+            },
+            "draw/Novice/bishop": {
+                "requested": 0,
+                "success": 0
+            },
+            "draw/Novice/knight": {
+                "requested": 4,
+                "success": 3
+            },
+            "draw/Novice/knightBishop": {
+                "requested": 21,
+                "success": 14
+            },
+            "draw/Novice/pawn": {
+                "requested": 4,
+                "success": 3
+            },
+            "draw/Novice/queen": {
+                "requested": 19,
+                "success": 13
+            },
+            "draw/Novice/rookPawn": {
+                "requested": 12,
+                "success": 8
+            },
+            "draw/Novice/rookPieces": {
+                "requested": 12,
+                "success": 8
+            },
+            "draw/Pro/bishop": {
+                "requested": 16,
+                "success": 11
+            },
+            "draw/Pro/knight": {
+                "requested": 1,
+                "success": 1
+            },
+            "draw/Pro/knightBishop": {
+                "requested": 9,
+                "success": 6
+            },
+            "draw/Pro/pawn": {
+                "requested": 21,
+                "success": 14
+            },
+            "draw/Pro/queen": {
+                "requested": 15,
+                "success": 10
+            },
+            "draw/Pro/rookPawn": {
+                "requested": 9,
+                "success": 6
+            },
+            "draw/Pro/rookPieces": {
+                "requested": 7,
+                "success": 5
+            },
+            "draw/Master/bishop": {
+                "requested": 1,
+                "success": 1
+            },
+            "draw/Master/knight": {
+                "requested": 13,
+                "success": 9
+            },
+            "draw/Master/knightBishop": {
+                "requested": 19,
+                "success": 13
+            },
+            "draw/Master/pawn": {
+                "requested": 7,
+                "success": 5
+            },
+            "draw/Master/queen": {
+                "requested": 18,
+                "success": 12
+            },
+            "draw/Master/rookPawn": {
+                "requested": 1,
+                "success": 1
+            },
+            "draw/Master/rookPieces": {
+                "requested": 7,
+                "success": 5
+            }
+        }
+    },
+    "practical": {
+        "stats": {
+            "win/Novice/extraPawn": {
+                "success": 7,
+                "requested": 10
+            },
+            "win/Novice/bishop": {
+                "success": 8,
+                "requested": 12
+            },
+            "win/Novice/knight": {
+                "success": 19,
+                "requested": 28
+            },
+            "win/Novice/pawn": {
+                "success": 0,
+                "requested": 0
+            },
+            "win/Novice/queen": {
+                "success": 1,
+                "requested": 1
+            },
+            "win/Novice/rook": {
+                "success": 2,
+                "requested": 3
+            },
+            "win/Novice/exchange": {
+                "success": 12,
+                "requested": 18
+            },
+            "win/Novice/knightBishop": {
+                "success": 10,
+                "requested": 15
+            },
+            "win/Pro/extraPawn": {
+                "success": 10,
+                "requested": 15
+            },
+            "win/Pro/materialEquality": {
+                "success": 0,
+                "requested": 0
+            },
+            "win/Pro/bishop": {
+                "success": 19,
+                "requested": 28
+            },
+            "win/Pro/knight": {
+                "success": 16,
+                "requested": 24
+            },
+            "win/Pro/pawn": {
+                "success": 1,
+                "requested": 1
+            },
+            "win/Pro/queen": {
+                "success": 16,
+                "requested": 24
+            },
+            "win/Pro/rook": {
+                "success": 19,
+                "requested": 28
+            },
+            "win/Pro/exchange": {
+                "success": 15,
+                "requested": 22
+            },
+            "win/Pro/knightBishop": {
+                "success": 2,
+                "requested": 3
+            },
+            "win/Master/extraPawn": {
+                "success": 7,
+                "requested": 10
+            },
+            "win/Master/materialEquality": {
+                "success": 14,
+                "requested": 21
+            },
+            "win/Master/bishop": {
+                "success": 9,
+                "requested": 13
+            },
+            "win/Master/knight": {
+                "success": 14,
+                "requested": 21
+            },
+            "win/Master/pawn": {
+                "success": 2,
+                "requested": 3
+            },
+            "win/Master/queen": {
+                "success": 16,
+                "requested": 24
+            },
+            "win/Master/rook": {
+                "success": 4,
+                "requested": 6
+            },
+            "win/Master/exchange": {
+                "success": 4,
+                "requested": 6
+            },
+            "win/Master/knightBishop": {
+                "success": 11,
+                "requested": 16
+            },
+            "win/Novice/materialEquality": {
+                "success": 7,
+                "requested": 11
+            }
+        }
+    }
+}

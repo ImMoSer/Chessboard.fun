@@ -1,0 +1,120 @@
+import { useFinishHimStore } from '@/stores/finishHim.store'
+import { usePracticalChessStore } from '@/stores/practicalChess.store'
+import { useTheoryEndingsStore } from '@/stores/theoryEndings.store'
+import type {
+    AdvantageDifficulty,
+    AdvantageTheme,
+    PracticalChessCategory,
+    PracticalChessDifficulty,
+    TheoryEndingCategory,
+    TheoryEndingDifficulty,
+    TheoryEndingType,
+    TornadoMode
+} from '@/types/api.types'
+import { useRouter } from 'vue-router'
+
+export interface GameLaunchOptions {
+    mode: 'theory' | 'finish_him' | 'advantage' | 'practical' | 'tornado'
+    theme: string
+    difficulty?: string
+    type?: 'win' | 'draw'
+    subMode?: string // For tornado (bullet, blitz...) or finish_him (novice, pro...)
+}
+
+export function useGameLauncher() {
+    const router = useRouter()
+    const finishHimStore = useFinishHimStore()
+    const theoryStore = useTheoryEndingsStore()
+    const practicalStore = usePracticalChessStore()
+
+    const launchGame = (options: GameLaunchOptions) => {
+        const { mode, theme, difficulty, type, subMode } = options
+
+        console.log('[GameLauncher] Launching:', options)
+
+        // 1. FINISH HIM (Advantage)
+        if (mode === 'finish_him' || mode === 'advantage') {
+            // Map complexity/mode to difficulty
+            // subMode coming from RoseChart is 'novice', 'pro', 'master' -> matches AdvantageDifficulty (capitalized?)
+            // We need to ensure capitalization matches keys: 'Novice', 'Pro', 'Master'
+
+            let targetDiff: AdvantageDifficulty = 'Novice'
+            if (subMode) {
+                const sm = subMode.toLowerCase()
+                if (sm === 'pro') targetDiff = 'Pro'
+                else if (sm === 'master') targetDiff = 'Master'
+            } else if (difficulty) {
+                // Fallback if passed as difficulty
+                targetDiff = difficulty as AdvantageDifficulty
+            }
+
+            finishHimStore.setParams(
+                theme as AdvantageTheme,
+                targetDiff
+            )
+
+            router.push({ name: 'finish-him-play' })
+            return
+        }
+
+        // 2. THEORY ENDINGS
+        if (mode === 'theory') {
+            const targetType = (type || 'win') as TheoryEndingType
+            const targetDiff = (difficulty || 'Novice') as TheoryEndingDifficulty
+
+            theoryStore.setParams(
+                targetType,
+                targetDiff,
+                theme as TheoryEndingCategory
+            )
+
+            router.push({
+                name: 'theory-endings-play',
+                params: { type: targetType },
+            })
+            return
+        }
+
+        // 3. PRACTICAL CHESS
+        if (mode === 'practical') {
+            const targetDiff = (difficulty || 'Novice') as PracticalChessDifficulty
+
+            practicalStore.selectDifficulty(targetDiff)
+            practicalStore.selectCategory(theme as PracticalChessCategory)
+
+            router.push({ name: 'practical-chess-play' })
+            return
+        }
+
+        // 4. TORNADO
+        if (mode === 'tornado') {
+            // mode in URL is 'bullet', 'blitz', 'rapid', 'classic'
+            const targetMode = (subMode || 'blitz') as TornadoMode
+
+            // We cannot force a theme in Tornado easily via URL yet (TornadoView logic might support it?)
+            // If user wants to improve a specific theme in Tornado, we might need a specific route or query param?
+            // Standard tornado route: /tornado/:mode
+            // Let's check TornadoView to see if it accepts theme.
+            // Current route: /tornado/:mode
+            // If we want to support theme filtering in Tornado, we might need to add it to store before pushing.
+
+            // For now, launch the mode.
+            // Optionally logic: "Tornado Theme Improvement" might actually imply going to
+            // Finish Him or Theory for that theme if it's a specific ending?
+            // But user said: "прямо из кабинета можно сразу вызвать и запустить определенный режим игры"
+            // If it's "Tornado", they probably expect Tornado game.
+
+            router.push({
+                name: 'tornado',
+                params: { mode: targetMode }
+            })
+            return
+        }
+
+        console.warn('[GameLauncher] Unknown mode:', mode)
+    }
+
+    return {
+        launchGame
+    }
+}

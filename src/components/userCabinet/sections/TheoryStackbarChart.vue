@@ -1,5 +1,6 @@
 <!-- src/components/userCabinet/sections/TheoryStackbarChart.vue -->
 <script setup lang="ts">
+import { useGameLauncher } from '@/composables/useGameLauncher'
 import { ExpandOutline } from '@vicons/ionicons5'
 import { BarChart } from 'echarts/charts'
 import {
@@ -262,9 +263,15 @@ const onChartClick = (params: unknown) => {
 const onImproveClick = () => {
   if (!activePopup.value.data) return
 
-  console.log(
-    `[ECharts Click] Mode: ${props.mode}, Type: ${activeType.value}, Theme: ${activePopup.value.data.themeId}, Difficulty: ${activePopup.value.data.clickedDifficulty}`
-  )
+  const { themeId, clickedDifficulty } = activePopup.value.data
+  const { launchGame } = useGameLauncher()
+
+  launchGame({
+    mode: props.mode as any,
+    theme: themeId,
+    difficulty: clickedDifficulty,
+    type: activeType.value
+  })
 }
 </script>
 
