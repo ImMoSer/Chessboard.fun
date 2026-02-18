@@ -102,11 +102,13 @@ export class ServerEngineServiceController {
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), MOVE_TIMEOUT_MS)
 
-      const url = new URL(SERVER_ENGINE_ENDPOINT)
-      url.searchParams.append('fen', fen)
-      url.searchParams.append('engine_name', engine_name)
+      const params = new URLSearchParams({
+        fen: fen,
+        engine_name: engine_name,
+      })
+      const url = `${SERVER_ENGINE_ENDPOINT}?${params.toString()}`
 
-      const response = await fetch(url.toString(), {
+      const response = await fetch(url, {
         method: 'GET',
         signal: controller.signal,
         credentials: 'include',
