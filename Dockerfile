@@ -25,6 +25,10 @@ RUN pnpm run build-only
 # Production stage
 FROM nginx:stable-alpine AS production-stage
 COPY --from=build-stage /app/dist /usr/share/nginx/html
+
+# ФИКС: Ограничиваем envsubst только нашими переменными, чтобы не затереть родные переменные Nginx ($host, $uri и т.д.)
+ENV NGINX_ENVSUBST_FILTER='$NEST_APP_URL $ENGINE_PY_URL $OPENING_MASTERS_URL $BRILLIANT_BOOK_URL'
+
 COPY nginx.conf /etc/nginx/templates/default.conf.template
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]
