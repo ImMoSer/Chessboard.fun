@@ -17,7 +17,7 @@ COPY . .
 
 # Build the application
 # Прописываем переменные напрямую для гарантии сборки
-ENV VITE_BACKEND_API_URL=https://api.chessboard.fun/api
+ENV VITE_BACKEND_API_URL=/api
 ENV VITE_APP_VERSION=4.7.5
 
 RUN pnpm run build-only

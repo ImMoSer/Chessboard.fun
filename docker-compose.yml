@@ -1,0 +1,28 @@
+services:
+  chess-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    # В Dokploy порты не нужны, Traefik найдет 80 сам через сеть
+    networks:
+      - app-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 128M
+          cpus: '0.1'
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+networks:
+  app-network:
+    external: true
+    name: dokploy-network
