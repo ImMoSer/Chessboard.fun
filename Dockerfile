@@ -5,6 +5,11 @@ RUN corepack enable && corepack prepare pnpm@latest --activate
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 COPY . .
+
+# ХАРДКОД ПЕРЕМЕННЫХ СБОРКИ
+# Это гарантирует, что Vite подставит правильный URL, даже если в Dokploy пусто
+ENV VITE_BACKEND_API_URL=/api
+
 RUN pnpm run build-only
 
 # Production stage
