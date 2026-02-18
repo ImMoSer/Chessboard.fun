@@ -150,7 +150,7 @@ export class ServerEngineServiceController {
       return Promise.reject(new Error('User not authenticated'))
     }
 
-    const url = `${BACKEND_API_URL}/bestmove/analyze`
+    const url = `${BACKEND_API_URL}/engine-eval/analyze`
     logger.debug(`[ServerEngineService] Requesting analysis for move: ${move_uci}`)
 
     try {
@@ -189,7 +189,7 @@ export class ServerEngineServiceController {
     depth: number = 10,
   ): Promise<unknown> {
     // ... rest of the code as is for compatibility, but it will return error from server
-    const url = `${BACKEND_API_URL}/bestmove/evaluate/threats`
+    const url = `${BACKEND_API_URL}/engine-eval/evaluate/threats`
     try {
       const response = await fetch(url, {
         method: 'POST',
