@@ -5,15 +5,15 @@ import { useFinishHimStore } from '@/stores/finishHim.store'
 import { usePracticalChessStore } from '@/stores/practicalChess.store'
 import { useTheoryEndingsStore } from '@/stores/theoryEndings.store'
 import {
-    PRACTICAL_CHESS_CATEGORIES,
-    THEORY_ENDING_CATEGORIES,
-    type FinishHimDifficulty,
-    type FinishHimTheme,
-    type PracticalChessCategory,
-    type PracticalChessDifficulty,
-    type TheoryEndingCategory,
-    type TheoryEndingDifficulty,
-    type TheoryEndingType,
+  PRACTICAL_CHESS_CATEGORIES,
+  THEORY_ENDING_CATEGORIES,
+  type FinishHimDifficulty,
+  type FinishHimTheme,
+  type PracticalChessCategory,
+  type PracticalChessDifficulty,
+  type TheoryEndingCategory,
+  type TheoryEndingDifficulty,
+  type TheoryEndingType
 } from '@/types/api.types'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -33,6 +33,7 @@ const mode = computed(() => {
   if (route.path.includes('finish-him')) return 'finish-him'
   if (route.path.includes('theory-endings')) return 'theory'
   if (route.path.includes('practical-chess')) return 'practical'
+  if (route.path.includes('tornado')) return 'tornado'
   return 'theory'
 })
 
@@ -56,6 +57,8 @@ onMounted(() => {
     selectedCategory.value = 'auto'
   } else if (mode.value === 'practical') {
     selectedCategory.value = practicalStore.activeCategory
+  } else if (mode.value === 'tornado') {
+    selectedCategory.value = 'blitz'
   }
 })
 
@@ -89,6 +92,14 @@ const config = computed(() => {
         categories: PRACTICAL_CHESS_CATEGORIES,
         categoryLabel: t('practicalChess.selection.categoryLabel'),
       }
+    case 'tornado':
+      return {
+        title: 'TORNADO',
+        subtitle: t('tornado.feedback.selectMode'),
+        accentColor: 'var(--color-neon-orange)',
+        categories: ['bullet', 'blitz', 'rapid', 'classic'],
+        categoryLabel: '',
+      }
     case 'theory':
     default:
       return {
@@ -116,7 +127,11 @@ function getIcon(cat: string) {
     'queenPieces': '♕♘♗',
     'extraPawn': '♟️',
     'materialEquality': '⚖️',
-    'exchange': '🔄'
+    'exchange': '🔄',
+    'bullet': '⚡',
+    'blitz': '🔥',
+    'rapid': '🚶',
+    'classic': '⏳'
   }
   return icons[cat] || ''
 }
@@ -124,6 +139,7 @@ function getIcon(cat: string) {
 function getThemeKey(cat: string) {
   if (cat === 'auto') return 'chess.tornado.auto'
   if (mode.value === 'finish-him') return `chess.finishHim.category.${cat}`
+  if (mode.value === 'tornado') return `tornado.modes.${cat}`
   return `chess.endings.${cat}`
 }
 
@@ -148,6 +164,8 @@ function handleStart() {
     practicalStore.selectDifficulty(selectedDifficulty.value as PracticalChessDifficulty)
     practicalStore.selectCategory(selectedCategory.value as PracticalChessCategory)
     router.push({ name: 'practical-chess-play' })
+  } else if (mode.value === 'tornado') {
+    router.push({ name: 'tornado', params: { mode: selectedCategory.value } })
   }
 }
 </script>
@@ -155,7 +173,9 @@ function handleStart() {
 <template>
   <div class="selection-container">
     <div class="glass-panel selection-card">
-      <h1 class="title" :style="{ color: config.accentColor }">{{ config.title }}</h1>
+      <h1 class="title" :class="{ 'tornado-title': mode === 'tornado' }" :style="{ color: config.accentColor }">
+        {{ config.title }}
+      </h1>
       <p class="subtitle">{{ config.subtitle }}</p>
 
       <div class="selection-sections">
@@ -176,7 +196,7 @@ function handleStart() {
         </div>
 
         <!-- Difficulty Selection -->
-        <div class="section">
+        <div v-if="mode !== 'tornado'" class="section">
           <label class="section-label">{{ t('theoryEndings.selection.difficultyLabel') }}</label>
           <div class="toggle-group">
             <button
@@ -190,9 +210,8 @@ function handleStart() {
             </button>
           </div>
         </div>
-
         <!-- Engine Selection -->
-        <div class="section">
+        <div v-if="mode !== 'tornado'" class="section">
           <label class="section-label">{{ t('engine.select') }}</label>
           <div class="engine-selector-wrapper">
             <EngineSelector />
@@ -201,13 +220,13 @@ function handleStart() {
 
         <!-- Category Selection -->
         <div class="section">
-          <label class="section-label">{{ config.categoryLabel }}</label>
-          <div class="category-grid">
+          <label v-if="config.categoryLabel" class="section-label">{{ config.categoryLabel }}</label>
+          <div class="category-grid" :class="{ 'tornado-grid': mode === 'tornado' }">
             <button
               v-for="cat in config.categories"
               :key="cat"
               class="category-btn"
-              :class="{ active: selectedCategory === cat }"
+              :class="{ active: selectedCategory === cat, 'tornado-card': mode === 'tornado' }"
               @click="selectedCategory = cat"
             >
               <template v-if="cat === 'expert' && mode === 'finish-him'">
@@ -259,6 +278,12 @@ function handleStart() {
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 2px;
+}
+
+.title.tornado-title {
+  font-size: 4rem;
+  letter-spacing: 12px;
+  margin-bottom: 15px;
 }
 
 .subtitle {
@@ -335,6 +360,11 @@ function handleStart() {
   gap: 12px;
 }
 
+.category-grid.tornado-grid {
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
 .category-btn {
   display: flex;
   flex-direction: column;
@@ -363,6 +393,23 @@ function handleStart() {
 /* Specific active background for colors */
 .category-btn.active {
   background: color-mix(in srgb, v-bind('config.accentColor') 15%, transparent);
+}
+
+.category-btn.tornado-card {
+  padding: 30px 20px;
+  min-height: 140px;
+  justify-content: center;
+}
+
+.category-btn.tornado-card .cat-icon {
+  font-size: 3.5rem;
+  margin-bottom: 8px;
+}
+
+.category-btn.tornado-card .cat-name {
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .cat-icon {
@@ -471,6 +518,31 @@ function handleStart() {
   .toggle-group {
     padding: 4px;
     border-radius: 8px;
+  }
+
+  .title.tornado-title {
+    font-size: 2rem;
+    letter-spacing: 4px;
+    margin-bottom: 15px;
+  }
+
+  .category-grid.tornado-grid {
+    gap: 12px;
+  }
+
+  .category-btn.tornado-card {
+    padding: 15px 10px;
+    min-height: 90px;
+  }
+
+  .category-btn.tornado-card .cat-icon {
+    font-size: 2.2rem;
+    margin-bottom: 4px;
+  }
+
+  .category-btn.tornado-card .cat-name {
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
   }
 
   .toggle-btn {

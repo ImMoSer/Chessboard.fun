@@ -19,7 +19,6 @@ import PricingView from '../views/PricingView.vue'
 import RecordsPageView from '../views/RecordsPageView.vue'
 import WelcomeView from '../views/WelcomeView.vue'
 
-import ModeSelectionView from '../views/ModeSelectionView.vue'
 import TornadoMistakesView from '../views/TornadoMistakesView.vue'
 import TornadoView from '../views/TornadoView.vue'
 import UserCabinetView from '../views/UserCabinetView.vue'
@@ -86,7 +85,7 @@ const router = createRouter({
     {
       path: '/tornado',
       name: 'tornado-selection',
-      component: ModeSelectionView,
+      component: () => import('../views/EndingSelectionView.vue'),
       meta: { requiresAuth: true, gameMode: 'tornado' },
     },
     {
