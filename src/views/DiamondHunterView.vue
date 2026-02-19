@@ -154,7 +154,7 @@ function startAnalysis() {
 }
 
 function goBack() {
-    router.push({ name: 'home' })
+    router.push({ name: 'welcome' })
 }
 </script>
 
@@ -220,7 +220,7 @@ function goBack() {
       <DiamondHunterSettingsModal
         v-if="isSettingsModalOpen"
         @start="startSession"
-        @close="() => {}"
+        @close="goBack"
       />
     </template>
 

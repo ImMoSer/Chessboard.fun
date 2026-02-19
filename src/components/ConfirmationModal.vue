@@ -1,6 +1,6 @@
 <!-- src/components/ConfirmationModal.vue -->
 <script setup lang="ts">
-import { useUiStore } from '@/stores/ui.store'
+import { useUiStore } from '@/stores/ui.store';
 
 const uiStore = useUiStore()
 </script>
@@ -55,7 +55,7 @@ const uiStore = useUiStore()
   border: 1px solid var(--color-border-hover);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   width: 90%;
-  max-width: 400px;
+  max-width: 350px;
   text-align: center;
 }
 
@@ -111,5 +111,13 @@ const uiStore = useUiStore()
 
 .button-extra:hover {
   background-color: var(--color-accent-success-hover);
+}
+
+@media (max-width: 400px) {
+.modal-content {
+
+  max-width: 285px;
+
+}
 }
 </style>

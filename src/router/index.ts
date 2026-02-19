@@ -2,7 +2,6 @@
 import { watch } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import i18n from '../services/i18n'
-import { useAnalysisStore } from '../stores/analysis.store'
 import { useFinishHimStore } from '../stores/finishHim.store'
 import { useGameStore } from '../stores/game.store'
 import { useUiStore } from '../stores/ui.store'
@@ -269,11 +268,6 @@ router.beforeEach(async (to, from, next) => {
 })
 
 router.afterEach(async (to, from) => {
-  const analysisStore = useAnalysisStore()
-  if (analysisStore.isPanelVisible) {
-    await analysisStore.resetAnalysisState()
-  }
-
   const fromBaseRoute = String(from.name)
   const toBaseRoute = String(to.name)
 

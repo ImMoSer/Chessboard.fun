@@ -200,12 +200,12 @@ export const useFinishHimStore = defineStore('finishHim', () => {
   }
 
   async function handleResign() {
-    if (gameStore.isGameActive) {
+    if (gameStore.gamePhase === 'PLAYING') {
       const confirmed = await uiStore.showConfirmation(
         t('gameplay.confirmExit.title'),
         t('gameplay.confirmExit.message'),
       )
-      if (confirmed) {
+      if (confirmed === 'confirm') {
         gameStore.handleGameResignation()
       }
     }

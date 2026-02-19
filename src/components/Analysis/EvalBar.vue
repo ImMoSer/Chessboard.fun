@@ -48,15 +48,6 @@ const whiteWinningChances = computed(() => {
   return 100 / (1 + Math.exp(-0.00368208 * cp))
 })
 
-const displayScore = computed(() => {
-  if (!props.score) return ''
-  if (props.score.type === 'mate') {
-    return `M${Math.abs(props.score.value)}`
-  }
-  const val = props.score.value / 100
-  return (val > 0 ? '+' : '') + val.toFixed(1)
-})
-
 const barStyle = computed(() => {
   const percent = whiteWinningChances.value
   return {
@@ -64,72 +55,42 @@ const barStyle = computed(() => {
     [props.orientation === 'white' ? 'bottom' : 'top']: 0,
   }
 })
-
-const textPosition = computed(() => {
-  const percent = whiteWinningChances.value
-  const isWhiteAdvantage = percent > 50
-
-  if (props.orientation === 'white') {
-    return isWhiteAdvantage ? 'bottom' : 'top'
-  } else {
-    return isWhiteAdvantage ? 'top' : 'bottom'
-  }
-})
 </script>
 
 <template>
-  <div class="eval-bar">
-    <div class="eval-bar-fill" :style="barStyle"></div>
-    <div
-      class="eval-score-text"
-      :class="textPosition"
-    >
-      {{ displayScore }}
+  <transition name="fade-eval" appear>
+    <div v-if="true" class="eval-bar">
+      <div class="eval-bar-fill" :style="barStyle"></div>
     </div>
-  </div>
+  </transition>
 </template>
 
 <style scoped>
 .eval-bar {
-  width: 12px;
+  width: 100%;
   height: 100%;
-  background-color: #444444; /* Dark side color */
+  background-color: #1a1a1a;
   position: relative;
   overflow: hidden;
-  border-radius: 2px;
   user-select: none;
+  box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
 }
 
 .eval-bar-fill {
   position: absolute;
   left: 0;
   width: 100%;
-  background-color: #C0C0C0; /* Light side color */
-  transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  background: linear-gradient(to bottom, #ffffff, #dcdcdc);
+  box-shadow: 0 0 10px rgba(255,255,255,0.2);
 }
 
-.eval-score-text {
-  position: absolute;
-  width: 100%;
-  text-align: center;
-  font-size: 9px;
-  font-weight: 900;
-  z-index: 10;
-  pointer-events: none;
-  font-family: 'Inter', system-ui, sans-serif;
-  left: 0;
-  right: 0;
+.fade-eval-enter-active,
+.fade-eval-leave-active {
+  transition: opacity 0.5s ease;
 }
 
-.eval-score-text.top {
-  top: 4px;
-  color: #C0C0C0;
-  text-shadow: 0 1px 2px rgba(0,0,0,1);
-}
-
-.eval-score-text.bottom {
-  bottom: 4px;
-  color: #444444;
-  text-shadow: 0 0px 1px rgba(255,255,255,0.8);
+.fade-eval-enter-from,
+.fade-eval-leave-to {
+  opacity: 0;
 }
 </style>

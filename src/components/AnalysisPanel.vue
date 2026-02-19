@@ -10,15 +10,23 @@ import {
     ChevronForwardOutline,
     PlaySkipBackOutline,
     PlaySkipForwardOutline,
+    TerminalOutline,
 } from '@vicons/ionicons5'
-import { NButton, NButtonGroup, NScrollbar, NSpace, NText } from 'naive-ui'
+import { NButton, NButtonGroup, NIcon, NScrollbar, NSelect, NText, NTooltip } from 'naive-ui'
 import { storeToRefs } from 'pinia'
 import { computed, h, type FunctionalComponent } from 'vue'
 
 const analysisStore = useAnalysisStore()
 const boardStore = useBoardStore()
 
-const { isPanelVisible, isAnalysisActive } = storeToRefs(analysisStore)
+const { isPanelVisible, isAnalysisActive, numThreads, maxThreads, isMultiThreadAvailable } = storeToRefs(analysisStore)
+
+const threadOptions = computed(() => {
+  return Array.from({ length: maxThreads.value }, (_, i) => ({
+    label: `${i + 1}`,
+    value: i + 1,
+  }))
+})
 
 const pgnRendererComponent = computed(() => {
   const rootNode = pgnService.getRootNode()
@@ -43,15 +51,14 @@ const PgnRenderer: FunctionalComponent<{ nodes: PgnNode[]; pathPrefix?: string }
   const { nodes, pathPrefix = '' } = props
   if (!nodes || nodes.length === 0) return []
 
-  const currentPath = pgnService.getCurrentPath()
   const mainlineNode = nodes[0]
   if (!mainlineNode) return []
 
   const variations = nodes.slice(1)
   const elements = []
 
-  const movePath = pathPrefix + mainlineNode.id
-  const isCurrent = movePath === currentPath
+  // Check if this specific node is the current one in the service
+  const isCurrent = mainlineNode === pgnService.getCurrentNode()
 
   if (mainlineNode.ply % 2 !== 0) {
     elements.push(
@@ -90,7 +97,7 @@ const PgnRenderer: FunctionalComponent<{ nodes: PgnNode[]; pathPrefix?: string }
 
   if (mainlineNode.children.length > 0) {
     elements.push(h('span', null, ' '))
-    elements.push(h(PgnRenderer, { nodes: mainlineNode.children, pathPrefix: movePath }))
+    elements.push(h(PgnRenderer, { nodes: mainlineNode.children }))
   }
 
   return elements
@@ -99,41 +106,57 @@ const PgnRenderer: FunctionalComponent<{ nodes: PgnNode[]; pathPrefix?: string }
 
 <template>
   <div v-if="isPanelVisible" class="analysis-container">
+    <transition name="fade-slide">
+      <div v-if="isAnalysisActive" class="analysis-header-nav">
+        <!-- Navigation -->
+        <n-button-group class="nav-group">
+          <n-button quaternary circle @click="boardStore.navigatePgn('start')">
+            <template #icon><n-icon><PlaySkipBackOutline /></n-icon></template>
+          </n-button>
+          <n-button
+            quaternary
+            circle
+            @click="boardStore.navigatePgn('backward', analysisStore.playerColor)"
+          >
+            <template #icon><n-icon><ChevronBackOutline /></n-icon></template>
+          </n-button>
+
+          <!-- Threads selection in the center -->
+          <div class="threads-nav-wrapper">
+             <n-tooltip trigger="hover">
+                <template #trigger>
+                  <n-icon size="14" depth="3" class="threads-icon">
+                    <TerminalOutline />
+                  </n-icon>
+                </template>
+                {{ $t('analysis.threads') }}
+              </n-tooltip>
+              <n-select
+                class="threads-select-nav"
+                size="tiny"
+                :bordered="false"
+                :disabled="!isMultiThreadAvailable"
+                :value="numThreads"
+                :options="threadOptions"
+                @update:value="analysisStore.setThreads"
+                :consistent-menu-width="false"
+              />
+          </div>
+
+          <n-button quaternary circle @click="boardStore.navigatePgn('forward', analysisStore.playerColor)">
+            <template #icon><n-icon><ChevronForwardOutline /></n-icon></template>
+          </n-button>
+          <n-button quaternary circle @click="boardStore.navigatePgn('end')">
+            <template #icon><n-icon><PlaySkipForwardOutline /></n-icon></template>
+          </n-button>
+        </n-button-group>
+      </div>
+    </transition>
+
     <EngineLines />
 
     <transition name="fade-slide">
-      <n-space v-if="isAnalysisActive" vertical class="analysis-body" :size="8">
-        <!-- Navigation -->
-        <n-button-group class="nav-group">
-          <n-button secondary @click="boardStore.navigatePgn('start')">
-            <template #icon
-              ><n-icon>
-                <PlaySkipBackOutline /> </n-icon
-            ></template>
-          </n-button>
-          <n-button
-            secondary
-            @click="boardStore.navigatePgn('backward', analysisStore.playerColor)"
-          >
-            <template #icon
-              ><n-icon>
-                <ChevronBackOutline /> </n-icon
-            ></template>
-          </n-button>
-          <n-button secondary @click="boardStore.navigatePgn('forward', analysisStore.playerColor)">
-            <template #icon
-              ><n-icon>
-                <ChevronForwardOutline /> </n-icon
-            ></template>
-          </n-button>
-          <n-button secondary @click="boardStore.navigatePgn('end')">
-            <template #icon
-              ><n-icon>
-                <PlaySkipForwardOutline /> </n-icon
-            ></template>
-          </n-button>
-        </n-button-group>
-
+      <div v-if="isAnalysisActive" class="analysis-body">
         <!-- PGN Display -->
         <div class="pgn-wrapper" @wheel="handlePgnWheelNavigation">
           <n-scrollbar class="pgn-scroll">
@@ -142,7 +165,7 @@ const PgnRenderer: FunctionalComponent<{ nodes: PgnNode[]; pathPrefix?: string }
             </div>
           </n-scrollbar>
         </div>
-      </n-space>
+      </div>
     </transition>
   </div>
 </template>
@@ -151,26 +174,71 @@ const PgnRenderer: FunctionalComponent<{ nodes: PgnNode[]; pathPrefix?: string }
 .analysis-container {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
   width: 100%;
 }
 
 .toolbar-card {
-  background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   border-radius: 12px;
+  backdrop-filter: var(--glass-blur);
 }
 
 .threads-select {
   width: 110px;
 }
 
+.analysis-header-nav {
+  margin-bottom: 4px;
+}
+
 .nav-group {
   width: 100%;
   display: flex;
+  align-items: center;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 4px;
+  backdrop-filter: var(--glass-blur);
 
-  button {
+  .n-button {
     flex: 1;
+    --n-border-radius: 8px !important;
+  }
+}
+
+.threads-nav-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  height: 28px;
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+
+  .threads-icon {
+    opacity: 0.6;
+    transition: opacity 0.3s;
+    &:hover { opacity: 1; }
+  }
+
+  .threads-select-nav {
+    width: 50px;
+    :deep(.n-base-selection) {
+      background: transparent !important;
+      --n-border: none !important;
+      --n-border-hover: none !important;
+      --n-border-active: none !important;
+      --n-box-shadow-focus: none !important;
+    }
+    :deep(.n-base-selection-label) {
+      padding: 0 !important;
+      font-family: monospace;
+      font-weight: 700;
+      color: var(--color-neon-cyan);
+    }
   }
 }
 
@@ -233,15 +301,16 @@ const PgnRenderer: FunctionalComponent<{ nodes: PgnNode[]; pathPrefix?: string }
 }
 
 .pgn-wrapper {
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid var(--color-border);
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--glass-border);
   border-radius: 12px;
   padding: 12px;
-  min-height: 80px;
+
   max-height: 300px;
   display: flex;
   flex-direction: column;
   transition: all 0.3s ease;
+  backdrop-filter: var(--glass-blur);
 }
 
 .pgn-scroll {
@@ -254,21 +323,42 @@ const PgnRenderer: FunctionalComponent<{ nodes: PgnNode[]; pathPrefix?: string }
   font-size: 0.95rem;
 }
 
+@media (max-width: 600px) {
+  .pgn-wrapper {
+    padding: 8px;
+    max-height: 200px;
+  }
+
+  .pgn-content {
+    line-height: 1.6;
+    font-size: 0.85rem;
+    letter-spacing: -0.2px;
+  }
+
+  :deep(.pgn-move) {
+    padding: 1px 4px;
+    margin: 0;
+  }
+}
+
 :deep(.pgn-move) {
   cursor: pointer;
   padding: 2px 6px;
   border-radius: 4px;
   margin: 0 1px;
-  transition: all 0.1s ease;
+  transition: all 0.2s ease;
+  font-weight: 500;
 
   &:hover:not(.current) {
     background: rgba(255, 255, 255, 0.08);
   }
 
   &.current {
-    background: var(--color-accent);
-    color: white;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    background: rgba(0, 163, 255, 0.3);
+    color: var(--color-neon-cyan);
+    font-weight: 800;
+    box-shadow: 0 0 10px rgba(0, 163, 255, 0.4);
+    border: 1px solid rgba(0, 163, 255, 0.3);
   }
 }
 

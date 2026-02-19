@@ -194,6 +194,10 @@ async function handleSummaryRestart() {
     await gameStore.resetGame()
     isSettingsModalOpen.value = true
 }
+
+function goBack() {
+  router.push({ name: 'welcome' })
+}
 </script>
 
 <template>
@@ -223,7 +227,7 @@ async function handleSummaryRestart() {
       <OpeningSparringSettingsModal
         v-if="isSettingsModalOpen"
         @start="startSession"
-        @close="() => {}"
+        @close="goBack"
       />
       <OpeningSparringSummaryModal
         :show="showSummaryModal"

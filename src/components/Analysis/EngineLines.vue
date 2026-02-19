@@ -2,10 +2,8 @@
 import type { EvaluatedLineWithSan } from '@/services/AnalysisService'
 import { useAnalysisStore } from '@/stores/analysis.store'
 import { useBoardStore } from '@/stores/board.store'
-import { BarChartOutline, TerminalOutline } from '@vicons/ionicons5'
-import { NButton, NCard, NIcon, NSelect, NSpace, NSwitch, NText, NTooltip } from 'naive-ui'
+import { NButton, NText, NTooltip } from 'naive-ui'
 import { storeToRefs } from 'pinia'
-import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const analysisStore = useAnalysisStore()
@@ -15,9 +13,6 @@ const { t } = useI18n()
 const {
   isAnalysisActive,
   analysisLines,
-  isMultiThreadAvailable,
-  maxThreads,
-  numThreads,
 } = storeToRefs(analysisStore)
 
 const formatScore = (line: EvaluatedLineWithSan) => {
@@ -55,12 +50,7 @@ const formatPv = (line: EvaluatedLineWithSan) => {
 }
 
 
-const threadOptions = computed(() => {
-  return Array.from({ length: maxThreads.value }, (_, i) => ({
-    label: `${i + 1}`,
-    value: i + 1,
-  }))
-})
+
 
 const handleLineClick = (line: EvaluatedLineWithSan) => {
   const uciMove = line.pvUci[0]
@@ -72,43 +62,6 @@ const handleLineClick = (line: EvaluatedLineWithSan) => {
 
 <template>
   <div class="engine-lines-container">
-    <!-- Top Toolbar -->
-    <n-card class="toolbar-card" :bordered="false" size="small">
-      <n-space align="center" justify="space-between">
-        <n-space align="center" :size="12">
-          <n-icon size="18" color="var(--color-accent)">
-            <BarChartOutline />
-          </n-icon>
-          <n-text strong>{{ t('analysis.engine') }}</n-text>
-          <n-switch
-            :value="isAnalysisActive"
-            size="small"
-            @update:value="analysisStore.toggleAnalysis"
-          />
-        </n-space>
-
-        <n-space align="center" :size="8">
-          <n-tooltip trigger="hover">
-            <template #trigger>
-              <n-icon size="16" depth="3" class="toolbar-icon">
-                <TerminalOutline />
-              </n-icon>
-            </template>
-            {{ t('analysis.threads') }}
-          </n-tooltip>
-          <n-select
-            class="threads-select"
-            size="small"
-            :disabled="!isMultiThreadAvailable"
-            :value="numThreads"
-            :options="threadOptions"
-            @update:value="analysisStore.setThreads"
-          />
-        </n-space>
-      </n-space>
-
-    </n-card>
-
     <transition name="fade-slide">
       <div v-if="isAnalysisActive" class="lines-wrapper">
         <div v-if="analysisLines.length > 0" class="lines-list">
@@ -149,9 +102,10 @@ const handleLineClick = (line: EvaluatedLineWithSan) => {
 }
 
 .toolbar-card {
-  background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   border-radius: 12px;
+  backdrop-filter: var(--glass-blur);
 }
 
 .profile-select {
@@ -168,22 +122,23 @@ const handleLineClick = (line: EvaluatedLineWithSan) => {
 
 .lines-wrapper {
   // Fixed height to prevent jumping, but allows scrolling if many lines (though we limit to 3)
-  min-height: 110px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid var(--color-border);
+  min-height: 90px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--glass-border);
   border-radius: 8px;
-  padding: 6px;
+  padding: 4px;
   overflow: hidden;
+  backdrop-filter: var(--glass-blur);
 }
 
 .loading-state,
 .empty-state {
-  height: 110px; // Match min-height of wrapper
+  height: 90px; // Match min-height of wrapper
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 4px;
 }
 
 .lines-list {

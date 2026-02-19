@@ -1,20 +1,31 @@
 <script setup lang="ts">
 import {
-    InformationCircleOutline as InfoIcon,
-    Add as NewIcon,
-    FlagOutline as ResignIcon,
-    RefreshOutline as RestartIcon,
-    LinkOutline as ShareIcon,
+  AnalyticsOutline as AnalysisIcon,
+  InformationCircleOutline as InfoIcon,
+  PlayCircleOutline as NewIcon,
+  FlagOutline as ResignIcon,
+  RefreshOutline as RestartIcon,
+  LinkOutline as ShareIcon,
 } from '@vicons/ionicons5';
 import { NButton, NIcon, NSpace, NTooltip } from 'naive-ui';
+import { useAnalysisStore } from '../stores/analysis.store';
 import { useControlsStore } from '../stores/controls.store';
 
 const controlsStore = useControlsStore()
+const analysisStore = useAnalysisStore()
+
+const toggleAnalysis = () => {
+  if (analysisStore.isAnalysisActive) {
+    analysisStore.hidePanel()
+  } else {
+    analysisStore.showPanel(true)
+  }
+}
 </script>
 
 <template>
   <div class="control-panel-container">
-    <n-space justify="space-around" align="center" :size="[12, 0]">
+    <n-space justify="center" align="center" :size="[8, 0]">
       <!-- New Game -->
       <n-tooltip trigger="hover">
         <template #trigger>
@@ -26,7 +37,9 @@ const controlsStore = useControlsStore()
             @click="controlsStore.onRequestNew"
           >
             <template #icon>
-              <n-icon><NewIcon /></n-icon>
+              <n-icon class="icon-new" :class="{ 'pulse-active': controlsStore.canRequestNew }">
+                <NewIcon />
+              </n-icon>
             </template>
           </n-button>
         </template>
@@ -44,29 +57,43 @@ const controlsStore = useControlsStore()
             @click="controlsStore.onRestart"
           >
             <template #icon>
-              <n-icon><RestartIcon /></n-icon>
+              <n-icon class="icon-restart"><RestartIcon /></n-icon>
             </template>
           </n-button>
         </template>
         {{ $t('controls.restart') }}
       </n-tooltip>
 
-      <!-- Resign -->
+      <!-- Resign OR Analysis Toggle -->
       <n-tooltip trigger="hover">
         <template #trigger>
           <n-button
+            v-if="controlsStore.canResign"
             circle
             quaternary
             size="large"
-            :disabled="!controlsStore.canResign"
             @click="controlsStore.onResign"
           >
             <template #icon>
               <n-icon><ResignIcon /></n-icon>
             </template>
           </n-button>
+
+          <n-switch
+            v-else
+            :value="analysisStore.isAnalysisActive"
+            size="medium"
+            @update:value="toggleAnalysis"
+          >
+            <template #checked-icon>
+              <n-icon class="icon-analysis-active"><AnalysisIcon /></n-icon>
+            </template>
+            <template #unchecked-icon>
+              <n-icon><AnalysisIcon /></n-icon>
+            </template>
+          </n-switch>
         </template>
-        {{ $t('controls.resign') }}
+        {{ controlsStore.canResign ? $t('controls.resign') : $t('analysis.engine') }}
       </n-tooltip>
 
       <!-- Share -->
@@ -80,7 +107,7 @@ const controlsStore = useControlsStore()
             @click="controlsStore.onShare"
           >
             <template #icon>
-              <n-icon><ShareIcon /></n-icon>
+              <n-icon class="icon-share"><ShareIcon /></n-icon>
             </template>
           </n-button>
         </template>
@@ -98,7 +125,7 @@ const controlsStore = useControlsStore()
             @click="controlsStore.onShowInfo"
           >
             <template #icon>
-              <n-icon><InfoIcon /></n-icon>
+              <n-icon class="icon-info"><InfoIcon /></n-icon>
             </template>
           </n-button>
         </template>
@@ -110,24 +137,87 @@ const controlsStore = useControlsStore()
 
 <style scoped>
 .control-panel-container {
-  padding: 4px 12px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--color-border);
+  padding: 2px 12px;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   border-radius: 12px;
-  backdrop-filter: blur(4px);
+  backdrop-filter: var(--glass-blur);
   width: fit-content;
-  margin: 0 auto;
+  margin: 5px auto 0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+}
+
+.icon-info {
+  color: var(--color-neon-cyan);
+}
+
+.icon-restart {
+  color: var(--color-neon-orange);
+}
+
+.icon-share {
+  color: var(--color-neon-purple);
+}
+
+.icon-analysis-active {
+  color: var(--color-neon-cyan);
+  filter: drop-shadow(0 0 4px var(--color-neon-cyan));
+}
+
+:deep(.n-switch.n-switch--active) {
+  --n-button-box-shadow: 0 0 8px var(--color-neon-cyan);
+}
+
+.pulse-active {
+  animation: rainbow-pulse 4s infinite ease-in-out;
+}
+
+@keyframes rainbow-pulse {
+  0% {
+    color: var(--color-neon-pink);
+    transform: scale(1);
+    filter: drop-shadow(0 0 2px var(--color-neon-pink));
+  }
+  33% {
+    color: var(--color-neon-purple);
+    filter: drop-shadow(0 0 4px var(--color-neon-purple));
+  }
+  50% {
+    transform: scale(1.15);
+  }
+  66% {
+    color: var(--color-neon-orange);
+    filter: drop-shadow(0 0 4px var(--color-neon-orange));
+  }
+  100% {
+    color: var(--color-neon-pink);
+    transform: scale(1);
+    filter: drop-shadow(0 0 2px var(--color-neon-pink));
+  }
+}
+
+:deep(.n-button.n-button--disabled) .n-icon {
+  color: var(--color-text-muted) !important;
+  animation: none !important;
+  filter: none !important;
+  opacity: 0.5;
 }
 
 @media (orientation: portrait) {
   .control-panel-container {
-    padding: 2px 8px;
+    padding: 0 4px;
     width: 100%;
+    border-radius: 8px;
+    min-height: 44px;
+    justify-content: space-around;
   }
 
   :deep(.n-button) {
-    --n-height: 40px !important;
-    --n-width: 40px !important;
+    --n-height: 44px !important;
+    --n-width: 44px !important;
   }
 }
 </style>

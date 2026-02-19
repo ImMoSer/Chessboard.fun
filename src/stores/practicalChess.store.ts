@@ -1,6 +1,7 @@
 import type { Color as ChessgroundColor } from '@lichess-org/chessground/types'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import i18n from '../services/i18n'
 import { soundService } from '../services/sound.service'
 import { webhookService } from '../services/WebhookService'
 import type {
@@ -13,12 +14,16 @@ import { useAnalysisStore } from './analysis.store'
 import { useAuthStore } from './auth.store'
 import { useBoardStore, type GameEndOutcome } from './board.store'
 import { useGameStore } from './game.store'
+import { useUiStore } from './ui.store'
+
+const t = i18n.global.t
 
 export const usePracticalChessStore = defineStore('practicalChess', () => {
   const gameStore = useGameStore()
   const boardStore = useBoardStore()
   const analysisStore = useAnalysisStore()
   const authStore = useAuthStore()
+  const uiStore = useUiStore()
 
   const activePuzzle = ref<PracticalPuzzle | null>(null)
   const activeCategory = ref<PracticalChessCategory>('extraPawn')
@@ -182,8 +187,14 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
     )
   }
 
-  function handleResign() {
-    _handleGameOver(false)
+  async function handleResign() {
+    const confirmed = await uiStore.showConfirmation(
+      t('gameplay.confirmExit.title'),
+      t('gameplay.confirmExit.message'),
+    )
+    if (confirmed === 'confirm') {
+      _handleGameOver(false)
+    }
   }
 
   function reset() {

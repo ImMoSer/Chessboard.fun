@@ -79,22 +79,24 @@ onUnmounted(() => {
       </aside>
 
       <!-- Center Stage: Top Info -> Board -> Controls -->
-      <div class="center-stage" ref="centerColumnRef">
+      <div
+        class="center-stage"
+        ref="centerColumnRef"
+      >
         <div class="cb-top-panel">
           <slot name="top-info"></slot>
         </div>
 
         <div class="board-section">
-          <transition name="fade">
-            <div v-if="analysisStore.isAnalysisActive" class="eval-bar-wrapper">
-              <EvalBar
-                :score="analysisLines[0]?.score ?? null"
-                :wdl="analysisLines[0]?.wdl ?? null"
-                :turn="analysisLines[0]?.initialTurn"
-                :orientation="boardStore.orientation"
-              />
-            </div>
-          </transition>
+          <div class="eval-bar-wrapper">
+            <EvalBar
+              v-if="analysisStore.isAnalysisActive"
+              :score="analysisLines[0]?.score ?? null"
+              :wdl="analysisLines[0]?.wdl ?? null"
+              :turn="analysisLines[0]?.initialTurn"
+              :orientation="boardStore.orientation"
+            />
+          </div>
 
           <div class="board-aspect-wrapper">
             <WebChessBoard
@@ -158,6 +160,7 @@ onUnmounted(() => {
 
 /* --- Center Stage Area --- */
 .center-stage {
+  --eval-bar-width: 4px;
   --board-size: 88vh; /* Single source of truth for board height */
   display: flex;
   flex-direction: column;
@@ -184,7 +187,7 @@ onUnmounted(() => {
   height: var(--board-size);
   display: flex;
   align-items: stretch;
-  gap: 3px;
+  gap: 0; /* No gaps allowed */
 }
 
 .board-aspect-wrapper {
@@ -198,7 +201,7 @@ onUnmounted(() => {
 }
 
 .eval-bar-wrapper {
-  width: 12px;
+  width: var(--eval-bar-width);
   height: 100%;
   flex-shrink: 0;
 }
@@ -266,49 +269,54 @@ onUnmounted(() => {
     gap: 4px; /* Minimal gap for mobile */
   }
 
-  /* Reorder for Mobile: Board -> Left -> Right */
+  /* Reorder for Mobile: Board/Controls -> Analysis (Right) -> Stats (Left) */
   .center-stage {
-    --board-size: 100vw; /* Use full width on mobile */
+    /* Always reserve space for eval bar exactly */
+    --board-size: calc(100vw - var(--eval-bar-width));
     order: 1;
-    width: 100%;
+    width: 100vw;
     height: auto;
     justify-content: flex-start;
-    gap: 2px; /* Smallest gap between board and panels */
-  }
-
-  .left-panel {
-    order: 2; /* Left panel prioritized higher than Right */
-    height: auto;
-    min-height: 150px; /* Reduced min-height */
-    padding: 6px;
+    gap: 0; /* Tightly fit */
+    overflow: hidden;
   }
 
   .right-panel {
+    order: 2;
+    height: auto;
+    min-height: 0;
+    padding: 6px;
+    background: transparent;
+    border: none;
+  }
+
+  .left-panel {
     order: 3;
     height: auto;
-    min-height: 250px;
+    min-height: 150px;
     padding: 6px;
+    margin-top: 10px;
   }
 
   .cb-top-panel,
   .cb-down-panel {
     width: 100%;
-    height: 60px;
-    flex: 0 0 60px;
+    height: 48px;
+    flex: 0 0 48px;
   }
 
   .board-section {
      height: var(--board-size);
      flex: 0 0 var(--board-size);
-     width: 100%;
      justify-content: center;
   }
 
   .board-aspect-wrapper {
-    width: 100%;
-    height: 100%;
+    width: var(--board-size);
+    height: var(--board-size);
     aspect-ratio: 1 / 1;
-    margin: 0 auto;
+    margin: 0;
+    flex-shrink: 0;
   }
 }
 </style>

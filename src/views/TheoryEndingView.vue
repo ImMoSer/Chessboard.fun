@@ -44,7 +44,7 @@ watch(
     controlsStore.setControls({
       canRequestNew: isGameOver || isIdle,
       canRestart: (isGameOver || isIdle || !gameStore.isGameActive) && !!theoryStore.activePuzzle,
-      canResign: isPlaying && gameStore.isGameActive,
+      canResign: isPlaying,
       canShare: !!theoryStore.activePuzzle,
       onRequestNew: () => {
         if (route.params.puzzleId) {

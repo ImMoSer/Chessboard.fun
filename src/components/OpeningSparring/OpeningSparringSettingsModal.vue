@@ -1,28 +1,28 @@
 <script setup lang="ts">
 import {
-  BookOutline,
-  ColorPaletteOutline,
-  FilterOutline,
-  PeopleOutline,
-  PlayOutline,
-  ServerOutline,
-  ShuffleOutline,
+    BookOutline,
+    ColorPaletteOutline,
+    FilterOutline,
+    PeopleOutline,
+    PlayOutline,
+    ServerOutline,
+    ShuffleOutline,
 } from '@vicons/ionicons5'
 import type { SelectOption } from 'naive-ui'
 import {
-  NButton,
-  NCheckbox,
-  NGi,
-  NGrid,
-  NIcon,
-  NModal,
-  NRadioButton,
-  NRadioGroup,
-  NSelect,
-  NSlider,
-  NSpace,
-  NTag,
-  NText,
+    NButton,
+    NCheckbox,
+    NGi,
+    NGrid,
+    NIcon,
+    NModal,
+    NRadioButton,
+    NRadioGroup,
+    NSelect,
+    NSlider,
+    NSpace,
+    NTag,
+    NText,
 } from 'naive-ui'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -83,7 +83,7 @@ function startSession() {
   <n-modal
     :show="true"
     preset="card"
-    :style="{ width: '600px', borderRadius: '16px' }"
+    :style="{ width: 'min(600px, calc(100vw - 32px))', borderRadius: '16px' }"
     class="settings-modal"
     :title="t('nav.openingSparring')"
     :bordered="false"
@@ -323,6 +323,48 @@ function startSession() {
 :deep(.n-select) {
   .n-base-selection {
     border-radius: 8px !important;
+  }
+}
+
+/* Mobile Adaptation (-30% fonts/paddings and responsive width) */
+@media (max-width: 600px) {
+  .modal-responsive {
+    width: calc(100% - 32px) !important;
+    margin: 0 16px;
+  }
+
+  .modal-body-layout {
+    max-height: 50vh !important;
+  }
+
+  .section-title {
+    font-size: 0.75rem;
+    .n-icon {
+      font-size: 0.9rem;
+    }
+  }
+
+  .hint-text {
+    font-size: 0.65rem;
+  }
+
+  .start-btn {
+    height: 40px;
+    font-size: 0.85rem;
+    border-radius: 8px !important;
+  }
+
+  :deep(.n-radio-button) {
+     font-size: 0.8rem;
+     padding: 0 8px;
+  }
+
+  :deep(.n-checkbox) {
+    --n-font-size: 0.8rem !important;
+  }
+
+  :deep(.n-base-selection-label) {
+     font-size: 0.85rem;
   }
 }
 </style>

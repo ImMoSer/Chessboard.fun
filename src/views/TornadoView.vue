@@ -8,6 +8,7 @@ import ControlPanel from '../components/ControlPanel.vue'
 import GameLayout from '../components/GameLayout.vue'
 import TopInfoPanel from '../components/TopInfoPanel.vue'
 import UserStats from '../components/UserStats.vue'
+import { useGameStore } from '../stores/game.store'
 import { useTornadoStore, type TornadoMode } from '../stores/tornado.store'
 
 const tornadoStore = useTornadoStore()
@@ -23,16 +24,21 @@ onMounted(() => {
   }
 })
 
+const gameStore = useGameStore()
+
 watch(
-  () => tornadoStore.isSessionActive,
+  () => [tornadoStore.isSessionActive, gameStore.gamePhase],
   () => {
+    const isPlaying = gameStore.gamePhase === 'PLAYING'
+
     controlsStore.setControls({
-      canRequestNew: true, // Always active
-      canRestart: true, // Always active
-      canResign: false, // Not used in Tornado
+      canRequestNew: true,
+      canRestart: true,
+      canResign: tornadoStore.isSessionActive && isPlaying,
       canShare: !!tornadoStore.activePuzzle,
       onRequestNew: tornadoStore.handleNew,
       onRestart: tornadoStore.handleRestart,
+      onResign: tornadoStore.handleResign,
     })
   },
   { immediate: true },

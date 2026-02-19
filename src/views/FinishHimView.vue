@@ -62,7 +62,7 @@ watch(
       canRequestNew: isGameOver || isIdle,
       canRestart:
         (isGameOver || isIdle || !gameStore.isGameActive) && !!finishHimStore.activePuzzle,
-      canResign: isPlaying && gameStore.isGameActive,
+      canResign: isPlaying,
       canShare: !!finishHimStore.activePuzzle,
       onRequestNew: () => finishHimStore.loadNewPuzzle(),
       onRestart: finishHimStore.handleRestart,

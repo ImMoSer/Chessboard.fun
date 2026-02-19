@@ -280,6 +280,18 @@ export const useTornadoStore = defineStore('tornado', () => {
     }
   }
 
+  async function handleResign() {
+    if (isSessionActive.value) {
+      const confirmed = await uiStore.showConfirmation(
+        t('gameplay.confirmExit.title'),
+        t('gameplay.confirmExit.message'),
+      )
+      if (confirmed === 'confirm') {
+        await _handleSessionEnd()
+      }
+    }
+  }
+
   function handleRestart() {
     if (mode.value) {
       logger.info(`[TornadoStore] Restarting session with mode: ${mode.value}`)
@@ -304,6 +316,7 @@ export const useTornadoStore = defineStore('tornado', () => {
     startSession,
     reset,
     handleRestart,
+    handleResign,
     handleNew,
   }
 })

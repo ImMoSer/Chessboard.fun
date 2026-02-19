@@ -38,7 +38,7 @@ watch(
       canRequestNew: isGameOver || isIdle,
       canRestart:
         (isGameOver || isIdle || !gameStore.isGameActive) && !!practicalStore.activePuzzle,
-      canResign: isPlaying && gameStore.isGameActive,
+      canResign: isPlaying,
       canShare: !!practicalStore.activePuzzle,
       onRequestNew: () => {
         if (route.params.id) {

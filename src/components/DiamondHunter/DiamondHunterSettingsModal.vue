@@ -39,9 +39,9 @@ function startSession() {
   <n-modal
     :show="true"
     preset="card"
-    :style="{ width: '400px', borderRadius: '16px' }"
+    :style="{ width: 'min(400px, calc(100vw - 32px))', borderRadius: '16px' }"
     class="settings-modal"
-    :title="'Diamond Hunter'"
+    title="Diamond Hunter"
     :bordered="false"
     @close="$emit('close')"
   >
@@ -185,5 +185,35 @@ function startSession() {
 
 :deep(.n-radio-button) {
   --n-button-border-radius: 8px !important;
+}
+
+/* Mobile Adaptation (-30% fonts/paddings and responsive width) */
+@media (max-width: 600px) {
+  .modal-responsive {
+    width: calc(100% - 32px) !important;
+    margin: 0 16px;
+  }
+
+  .section-title {
+    font-size: 0.75rem;
+    .n-icon {
+      font-size: 0.9rem;
+    }
+  }
+
+  .hint-text {
+    font-size: 0.7rem;
+  }
+
+  .start-btn {
+    height: 40px;
+    font-size: 0.85rem;
+    border-radius: 8px !important;
+  }
+
+  :deep(.n-radio-button) {
+     font-size: 0.8rem;
+     padding: 0 8px;
+  }
 }
 </style>
