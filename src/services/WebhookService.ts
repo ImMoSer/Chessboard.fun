@@ -19,8 +19,6 @@ import type {
   TornadoEndResponse,
   TornadoEndSessionDto,
   TornadoMode,
-  TornadoNextPuzzleDto,
-  TornadoNextResponse,
   TornadoStartResponse,
   UserProfileStatsDto,
   UserTheoryEndingStatsDto,
@@ -132,17 +130,7 @@ class WebhookServiceController {
     return this._apiRequest<TornadoStartResponse>(path, 'GET', 'startTornadoSession')
   }
 
-  public async getNextTornadoPuzzle(
-    mode: TornadoMode,
-    dto: TornadoNextPuzzleDto,
-  ): Promise<TornadoNextResponse | null> {
-    return this._apiRequest<TornadoNextResponse>(
-      `/tornado/next/${mode}`,
-      'POST',
-      'getNextTornadoPuzzle',
-      dto,
-    )
-  }
+
 
   public async endTornadoSession(
     mode: TornadoMode,

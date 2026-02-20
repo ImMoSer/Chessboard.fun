@@ -37,9 +37,17 @@ export interface TornadoNextPuzzleDto {
   wasCorrect: boolean
 }
 
+export interface TornadoSessionResult {
+  puzzleId: string
+  puzzleRating: number
+  puzzleThemes: string[]
+  isCorrect: boolean
+}
+
 export interface TornadoEndSessionDto {
   sessionId: string
   finalScore: number
+  results: TornadoSessionResult[]
 }
 
 export interface TornadoStartResponse {

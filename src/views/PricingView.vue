@@ -93,7 +93,7 @@ const bonusLevels = [
 ]
 
 const gameCosts = [
-  { name: t('nav.tacktics'), icon: '🧩', cost: 1 },
+  { name: t('nav.tacktics'), icon: '🧩', cost: 15 },
   { name: t('nav.theoryEndings'), icon: '📚', cost: 5 },
   { name: t('nav.practicalChess'), icon: '♟️', cost: 5 },
   { name: t('nav.finishHim'), icon: '🎯', cost: 10 },
