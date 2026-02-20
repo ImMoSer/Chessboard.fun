@@ -202,6 +202,20 @@ export const useTornadoStore = defineStore('tornado', () => {
   }
 
   async function startSession(selectedMode: TornadoMode, theme?: string) {
+    if (!timeControls[selectedMode]) {
+      logger.error(`[TornadoStore] Invalid mode attempt: ${selectedMode}`)
+      await uiStore.showConfirmation(
+        t('common.error'),
+        t('gameplay.feedback.loadFailed') || 'Invalid game mode.',
+        {
+          showCancel: false,
+          confirmText: t('common.ok'),
+        },
+      )
+      router.push('/tornado')
+      return
+    }
+
     reset()
     mode.value = selectedMode
     const controls = timeControls[selectedMode]

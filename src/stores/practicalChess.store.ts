@@ -1,6 +1,7 @@
 import type { Color as ChessgroundColor } from '@lichess-org/chessground/types'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import i18n from '../services/i18n'
 import { soundService } from '../services/sound.service'
 import { webhookService } from '../services/WebhookService'
@@ -24,6 +25,7 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
   const analysisStore = useAnalysisStore()
   const authStore = useAuthStore()
   const uiStore = useUiStore()
+  const router = useRouter()
 
   const activePuzzle = ref<PracticalPuzzle | null>(null)
   const activeCategory = ref<PracticalChessCategory>('extraPawn')
@@ -95,6 +97,16 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
     } catch (error) {
       logger.error('[PracticalChessStore] Failed to load puzzle:', error)
       gameStore.setGamePhase('IDLE')
+
+      await uiStore.showConfirmation(
+        t('common.error'),
+        t('gameplay.feedback.loadFailed') || 'Failed to load puzzle. It might not exist.',
+        {
+          showCancel: false,
+          confirmText: t('common.ok'),
+        },
+      )
+      router.push('/practical-chess')
     }
   }
 

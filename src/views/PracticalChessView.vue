@@ -28,6 +28,17 @@ onMounted(() => {
 })
 
 watch(
+  () => practicalStore.activePuzzle,
+  (newPuzzle) => {
+    if (newPuzzle?.puzzle_id && route.params.id !== newPuzzle.puzzle_id) {
+      if (route.name === 'practical-chess-play' || route.name === 'practical-chess-puzzle') {
+        router.replace({ name: 'practical-chess-puzzle', params: { id: newPuzzle.puzzle_id } })
+      }
+    }
+  },
+)
+
+watch(
   () => [gameStore.gamePhase, gameStore.isGameActive],
   () => {
     const isGameOver = gameStore.gamePhase === 'GAMEOVER'

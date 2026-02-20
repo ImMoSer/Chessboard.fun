@@ -39,17 +39,16 @@ onMounted(() => {
   }
 })
 
-// Removed watcher that updates route to puzzleId to preserve mode in URL
-/*
 watch(
   () => finishHimStore.activePuzzle,
   (newPuzzle) => {
-    if (newPuzzle && route.params.puzzleId !== newPuzzle.PuzzleId) {
-      router.replace({ name: 'finish-him', params: { puzzleId: newPuzzle.PuzzleId } })
+    if (newPuzzle?.puzzle_id && route.params.puzzleId !== newPuzzle.puzzle_id) {
+      if (route.name === 'finish-him-play' || route.name === 'finish-him-puzzle') {
+        router.replace({ name: 'finish-him-puzzle', params: { puzzleId: newPuzzle.puzzle_id } })
+      }
     }
   },
 )
-*/
 
 watch(
   () => [gameStore.gamePhase, gameStore.isGameActive],

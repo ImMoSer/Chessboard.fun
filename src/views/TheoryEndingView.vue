@@ -35,6 +35,23 @@ onMounted(() => {
 })
 
 watch(
+  () => theoryStore.activePuzzle,
+  (newPuzzle) => {
+    if (newPuzzle?.puzzle_id && route.params.puzzleId !== newPuzzle.puzzle_id) {
+      if (route.name === 'theory-endings-play' || route.name === 'theory-endings-puzzle') {
+        router.replace({
+          name: 'theory-endings-puzzle',
+          params: {
+            type: theoryStore.activeType || 'win',
+            puzzleId: newPuzzle.puzzle_id,
+          },
+        })
+      }
+    }
+  },
+)
+
+watch(
   () => [gameStore.gamePhase, gameStore.isGameActive],
   () => {
     const isGameOver = gameStore.gamePhase === 'GAMEOVER'

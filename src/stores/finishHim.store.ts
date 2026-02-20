@@ -166,8 +166,18 @@ export const useFinishHimStore = defineStore('finishHim', () => {
       } else {
         logger.error('[FinishHimStore] Failed to load puzzle:', error)
         feedbackMessage.value = t('finishHim.feedback.loadFailed')
+        gameStore.setGamePhase('IDLE')
+
+        await uiStore.showConfirmation(
+          t('common.error'),
+          t('gameplay.feedback.loadFailed') || 'Failed to load puzzle. It might not exist.',
+          {
+            showCancel: false,
+            confirmText: t('common.ok'),
+          },
+        )
+        router.push('/finish-him')
       }
-      gameStore.setGamePhase('IDLE')
     }
   }
 

@@ -68,17 +68,16 @@ const router = createRouter({
       meta: { isGame: true, requiresAuth: true, game: 'finish-him' },
     },
     {
-      path: '/finish-him/play/:puzzleId',
-      name: 'finish-him-puzzle',
+      path: '/finish-him/playout/:color/:fen',
+      name: 'finish-him-playout',
       component: FinishHimView,
       meta: { isGame: true, requiresAuth: true, game: 'finish-him' },
     },
     {
       path: '/finish-him/:puzzleId',
-      redirect: (to) => ({
-        name: 'finish-him-puzzle',
-        params: { puzzleId: to.params.puzzleId },
-      }),
+      name: 'finish-him-puzzle',
+      component: FinishHimView,
+      meta: { isGame: true, requiresAuth: true, game: 'finish-him' },
     },
 
     {
@@ -139,12 +138,7 @@ const router = createRouter({
         params: to.params,
       }),
     },
-    {
-      path: '/finish-him/playout/:color/:fen',
-      name: 'finish-him-playout',
-      component: FinishHimView,
-      meta: { isGame: true, requiresAuth: true, game: 'finish-him' },
-    },
+
     {
       path: '/theory-endings',
       name: 'theory-endings-selection',
@@ -159,10 +153,9 @@ const router = createRouter({
     },
     {
       path: '/theory-endings/:type(win|draw)/:puzzleId',
-      redirect: (to) => ({
-        name: 'theory-endings-play',
-        params: { type: to.params.type, puzzleId: to.params.puzzleId },
-      }),
+      name: 'theory-endings-puzzle',
+      component: () => import('../views/TheoryEndingView.vue'),
+      meta: { isGame: true, requiresAuth: true, game: 'theory' },
     },
     {
       path: '/study',
@@ -193,6 +186,17 @@ const router = createRouter({
       name: 'practical-chess-play',
       component: () => import('../views/PracticalChessView.vue'),
       meta: { isGame: true, requiresAuth: true, game: 'practical-chess' },
+    },
+    {
+      path: '/practical-chess/:id',
+      name: 'practical-chess-puzzle',
+      component: () => import('../views/PracticalChessView.vue'),
+      meta: { isGame: true, requiresAuth: true, game: 'practical-chess' },
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'not-found',
+      redirect: '/about',
     },
   ],
 })

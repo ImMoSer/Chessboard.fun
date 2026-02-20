@@ -247,6 +247,9 @@
     "gameOver": {
       "stalemate": "Game over: Stalemate."
     },
+    "feedback": {
+      "loadFailed": "Failed to load puzzle. It might not exist."
+    },
     "playWithDefaultEngine": "Play with default engine"
   },
   "analysis": {
