@@ -43,16 +43,17 @@ export interface TornadoEndSessionDto {
 }
 
 export interface TornadoStartResponse {
-  puzzle: TornadoPuzzle
+  puzzles: TornadoPuzzle[]
   sessionId: string
   sessionRating: number
   sessionTheme?: string
+  userStatsUpdate?: UserStatsUpdate
 }
 
 export interface TornadoNextResponse {
   sessionRating: number
   ratingDelta: number
-  nextPuzzle: TornadoPuzzle
+  puzzles: TornadoPuzzle[]
   userStatsUpdate?: UserStatsUpdate
 }
 

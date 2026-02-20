@@ -11,10 +11,12 @@ import logger from '../utils/logger'
 import { useAuthStore } from './auth.store'
 import { useGameStore } from './game.store'
 import { useUiStore } from './ui.store'
+import { Glicko2Calculator, type GlickoState } from '../utils/glicko2'
 
 export type { TornadoMode } from '../types/api.types'
 
 const t = i18n.global.t
+const glicko = new Glicko2Calculator()
 
 const MISTAKES_STORAGE_KEY = 'tornado_mistakes'
 
@@ -33,9 +35,13 @@ export const useTornadoStore = defineStore('tornado', () => {
   const authStore = useAuthStore()
 
   const mode = ref<TornadoMode | null>(null)
-  const sessionRating = ref(600)
+  const sessionRating = ref(1000)
+  const glickoState = ref<GlickoState>({ rating: 1000, rd: 350, vol: 0.06 })
+  
   const sessionTheme = ref<string | null>(null)
   const activePuzzle = ref<TornadoPuzzle | null>(null)
+  const puzzleReservoir = ref<TornadoPuzzle[]>([])
+  
   const mistakenPuzzles = ref<TornadoPuzzle[]>([])
   const sessionId = ref<string | null>(null)
 
@@ -61,9 +67,11 @@ export const useTornadoStore = defineStore('tornado', () => {
   function reset() {
     _stopTimer()
     mode.value = null
-    sessionRating.value = 600
+    sessionRating.value = 1000
+    glickoState.value = { rating: 1000, rd: 350, vol: 0.06 }
     sessionTheme.value = null
     activePuzzle.value = null
+    puzzleReservoir.value = []
     mistakenPuzzles.value = []
     sessionId.value = null
     timerValueMs.value = 0
@@ -77,6 +85,34 @@ export const useTornadoStore = defineStore('tornado', () => {
     eightSecondsWarningPlayed.value = false
     localStorage.removeItem(MISTAKES_STORAGE_KEY)
     logger.info('[TornadoStore] State has been reset.')
+  }
+
+  function _popBestPuzzle(targetRating: number): TornadoPuzzle | null {
+    if (puzzleReservoir.value.length === 0) return null
+    
+    // Находим пазл с ближайшим рейтингом
+    let bestIdx = 0
+    const first = puzzleReservoir.value[0]
+    if (!first) return null
+
+    let minDiff = Math.abs(first.tactical_rating - targetRating)
+    
+    for (let i = 1; i < puzzleReservoir.value.length; i++) {
+      const p = puzzleReservoir.value[i]
+      if (!p) continue
+
+      const diff = Math.abs(p.tactical_rating - targetRating)
+      if (diff < minDiff) {
+        minDiff = diff
+        bestIdx = i
+      }
+    }
+    
+    const puzzle = puzzleReservoir.value[bestIdx]
+    if (!puzzle) return null
+
+    puzzleReservoir.value.splice(bestIdx, 1)
+    return puzzle
   }
 
   function _startTimer() {
@@ -173,14 +209,27 @@ export const useTornadoStore = defineStore('tornado', () => {
     try {
       const response = await webhookService.startTornadoSession(selectedMode, theme)
       logger.info('[TornadoStore] Start session response:', response)
-      if (response && response.puzzle && response.sessionId) {
+      
+      // Нам прилетает массив puzzles (basket)
+      if (response && response.puzzles && response.puzzles.length > 0 && response.sessionId) {
         isSessionActive.value = true
         sessionId.value = response.sessionId
         sessionRating.value = response.sessionRating
         sessionTheme.value = response.sessionTheme || null
-        activePuzzle.value = response.puzzle
-        setupPuzzle(response.puzzle)
-        feedbackMessage.value = t('tornado.feedback.yourTurn')
+        
+        // Заполняем резервуар и берем первый пазл
+        puzzleReservoir.value = response.puzzles
+        const firstPuzzle = _popBestPuzzle(sessionRating.value)
+        
+        if (firstPuzzle) {
+          activePuzzle.value = firstPuzzle
+          setupPuzzle(firstPuzzle)
+          feedbackMessage.value = t('tornado.feedback.yourTurn')
+          
+          if (response.userStatsUpdate) {
+            authStore.updateUserStats(response.userStatsUpdate)
+          }
+        }
       } else {
         throw new Error(t('tornado.feedback.loadingFailed'))
       }
@@ -231,52 +280,79 @@ export const useTornadoStore = defineStore('tornado', () => {
     if (
       !activePuzzle.value ||
       !isSessionActive.value ||
-      isProcessingMove.value ||
       !mode.value ||
       !sessionId.value
     )
       return
-    isProcessingMove.value = true
 
+    // 1. МГНОВЕННО ОБНОВЛЯЕМ ТАЙМЕР И СТАТЫ
     if (timerValueMs.value > 10000) {
       timerValueMs.value += timeIncrementMs.value
     }
 
     puzzlesAttempted.value++
+    const lastPuzzle = activePuzzle.value
+    
     if (isCorrect) {
       puzzlesSolved.value++
       soundService.playSound('game_tacktics_success')
     } else {
       soundService.playSound('game_tacktics_error')
-      mistakenPuzzles.value.push(activePuzzle.value)
+      mistakenPuzzles.value.push(lastPuzzle)
       localStorage.setItem(MISTAKES_STORAGE_KEY, JSON.stringify(mistakenPuzzles.value))
     }
 
+    // 2. ЛОКАЛЬНЫЙ РАСЧЕТ GLICKO (МГНОВЕННО)
+    const newGlicko = glicko.calculate(
+      glickoState.value,
+      [{ rating: lastPuzzle.tactical_rating, rd: 50 }],
+      [isCorrect ? 1 : 0]
+    )
+    glickoState.value = newGlicko
+    sessionRating.value = newGlicko.rating
+
+    // 3. МГНОВЕННО БЕРЕМ СЛЕДУЮЩИЙ ПАЗЛ
+    const nextPuzzle = _popBestPuzzle(sessionRating.value)
+    if (nextPuzzle) {
+      activePuzzle.value = nextPuzzle
+      setupPuzzle(nextPuzzle)
+    } else {
+      // Если резервуар пуст, показываем загрузку (но такого быть не должно с prefetch)
+      feedbackMessage.value = t('tornado.feedback.loadingMorePuzzles')
+    }
+
+    // 4. ФОНОВАЯ СИНХРОНИЗАЦИЯ (НЕ БЛОКИРУЕМ ПОЛЬЗОВАТЕЛЯ)
     const dto: TornadoNextPuzzleDto = {
       sessionId: sessionId.value,
-      lastPuzzleId: activePuzzle.value.puzzle_id,
-      lastPuzzleRating: activePuzzle.value.tactical_rating,
-      lastPuzzleThemes: activePuzzle.value.themes || [],
+      lastPuzzleId: lastPuzzle.puzzle_id,
+      lastPuzzleRating: lastPuzzle.tactical_rating,
+      lastPuzzleThemes: lastPuzzle.themes || [],
       wasCorrect: isCorrect,
     }
 
+    // Запускаем в фоне. Если резервуар пуст, дождемся ответа для подпитки.
     try {
       const response = await webhookService.getNextTornadoPuzzle(mode.value, dto)
-      if (response) {
-        sessionRating.value = response.sessionRating
-        activePuzzle.value = response.nextPuzzle
-        if (response.userStatsUpdate) {
-          authStore.updateUserStats(response.userStatsUpdate)
+      if (response && response.puzzles) {
+        // Добавляем новые пазлы в резервуар (подпитка)
+        puzzleReservoir.value.push(...response.puzzles)
+        
+        // Если мы ждали пазл (редкий кейс), запускаем его
+        if (!activePuzzle.value || activePuzzle.value === lastPuzzle) {
+            const freshPuzzle = _popBestPuzzle(sessionRating.value)
+            if (freshPuzzle) {
+                activePuzzle.value = freshPuzzle
+                setupPuzzle(freshPuzzle)
+                feedbackMessage.value = t('tornado.feedback.yourTurn')
+            }
         }
-        setupPuzzle(response.nextPuzzle)
-      } else {
-        throw new Error(t('tornado.feedback.loadingFailed'))
       }
     } catch (error) {
-      logger.error('[TornadoStore] Failed to get next puzzle:', error)
-      await _handleSessionEnd()
-    } finally {
-      isProcessingMove.value = false
+      logger.error('[TornadoStore] Background sync failed:', error)
+      // Если это фатальная ошибка сессии, завершаем её
+      if (!isCorrect && !activePuzzle.value) {
+          await _handleSessionEnd()
+      }
     }
   }
 
