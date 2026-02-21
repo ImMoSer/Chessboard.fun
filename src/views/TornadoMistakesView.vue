@@ -1,6 +1,6 @@
 <!-- src/views/TornadoMistakesView.vue -->
 <script setup lang="ts">
-import AnalysisPanel from '@/components/AnalysisPanel.vue'
+import AnalysisPanel from '@/features/analysis/ui/AnalysisPanel.vue'
 import ChessboardPreview from '@/components/ChessboardPreview.vue'
 import GameLayout from '@/components/GameLayout.vue'
 import { soundService } from '@/services/sound.service'

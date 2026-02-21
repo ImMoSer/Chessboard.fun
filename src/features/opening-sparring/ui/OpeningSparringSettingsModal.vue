@@ -26,8 +26,8 @@ import {
 } from 'naive-ui'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { theoryGraphService } from '../../services/TheoryGraphService'
-import { useOpeningSparringStore } from '../../stores/openingSparring.store'
+import { theoryGraphService } from '@/services/TheoryGraphService'
+import { useOpeningSparringStore } from '@/stores/openingSparring.store'
 
 const emit = defineEmits(['start', 'close'])
 const { t } = useI18n()

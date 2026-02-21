@@ -10,11 +10,11 @@ import { useTheoryEndingsStore } from '../stores/theoryEndings.store'
 
 import type { TheoryEndingType } from '../types/api.types'
 
-import AnalysisPanel from '../components/AnalysisPanel.vue'
+import AnalysisPanel from '@/features/analysis/ui/AnalysisPanel.vue'
 import ControlPanel from '../components/ControlPanel.vue'
 import GameLayout from '../components/GameLayout.vue'
 import TopInfoPanel from '../components/TopInfoPanel.vue'
-import UserStats from '../components/UserStats.vue'
+import UserProfileWidget from '@/features/profile/ui/UserProfileWidget.vue'
 
 const theoryStore = useTheoryEndingsStore()
 const gameStore = useGameStore()
@@ -101,7 +101,7 @@ watch(
 <template>
   <GameLayout>
     <template #left-panel>
-      <UserStats />
+      <UserProfileWidget />
     </template>
 
     <template #top-info>

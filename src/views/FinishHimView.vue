@@ -8,11 +8,11 @@ import { useControlsStore } from '../stores/controls.store'
 import { useFinishHimStore } from '../stores/finishHim.store'
 import { useGameStore } from '../stores/game.store'
 
-import AnalysisPanel from '../components/AnalysisPanel.vue'
+import AnalysisPanel from '@/features/analysis/ui/AnalysisPanel.vue'
 import ControlPanel from '../components/ControlPanel.vue'
 import GameLayout from '../components/GameLayout.vue'
 import TopInfoPanel from '../components/TopInfoPanel.vue'
-import UserStats from '../components/UserStats.vue'
+import UserProfileWidget from '@/features/profile/ui/UserProfileWidget.vue'
 
 const finishHimStore = useFinishHimStore()
 const gameStore = useGameStore()
@@ -80,7 +80,7 @@ watch(
 <template>
   <GameLayout>
     <template #left-panel>
-      <UserStats />
+      <UserProfileWidget />
     </template>
 
     <template #top-info>

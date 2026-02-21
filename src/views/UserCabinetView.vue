@@ -16,10 +16,10 @@ import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
-import ActivityChart from '@/components/userCabinet/sections/ActivityChart.vue'
-import ThemeRoseChart from '@/components/userCabinet/sections/ThemeRoseChart.vue'
-import TheoryStackbarChart from '@/components/userCabinet/sections/TheoryStackbarChart.vue'
-import UserProfileHeader from '@/components/userCabinet/sections/UserProfileHeader.vue'
+import ActivityChart from '@/features/profile/ui/ActivityChart.vue'
+import ThemeRoseChart from '@/features/profile/ui/ThemeRoseChart.vue'
+import TheoryStackbarChart from '@/features/profile/ui/TheoryStackbarChart.vue'
+import UserProfileHeader from '@/features/profile/ui/UserProfileHeader.vue'
 
 const { t } = useI18n()
 

@@ -19,8 +19,8 @@ import {
 } from 'naive-ui'
 import { computed, h } from 'vue'
 import {  useBoardStore  } from '@/entities/board/board.store'
-import { useOpeningSparringStore } from '../../stores/openingSparring.store'
-import { type SessionMove } from '../../types/openingSparring.types'
+import { useOpeningSparringStore } from '@/stores/openingSparring.store'
+import { type SessionMove } from '@/types/openingSparring.types'
 
 const openingStore = useOpeningSparringStore()
 const boardStore = useBoardStore()

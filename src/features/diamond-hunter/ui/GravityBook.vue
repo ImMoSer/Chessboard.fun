@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed, watch } from 'vue'
-import { useDiamondHunterStore } from '../../stores/diamondHunter.store'
+import { useDiamondHunterStore } from '@/stores/diamondHunter.store'
 import {  useBoardStore  } from '@/entities/board/board.store'
-import { useAnalysisStore } from '../../stores/analysis.store'
+import { useAnalysisStore } from '@/stores/analysis.store'
 import { NDataTable, NTag, NEmpty } from 'naive-ui'
-import { type GravityMove } from '../../services/DiamondApiService'
+import { type GravityMove } from '@/services/DiamondApiService'
 import { h } from 'vue'
 
 interface GravityMoveWithPercent extends GravityMove {

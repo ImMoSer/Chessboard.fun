@@ -1,5 +1,6 @@
 <!-- src/App.vue -->
 <script setup lang="ts">
+import SettingsMenu from '@/features/settings/ui/SettingsMenu.vue'
 import InfoModal from '@/shared/ui/InfoModal.vue'
 import { MenuOutline } from '@vicons/ionicons5'
 import { darkTheme, type GlobalThemeOverrides } from 'naive-ui'
@@ -8,7 +9,6 @@ import { useI18n } from 'vue-i18n'
 import { RouterView } from 'vue-router'
 import ConfirmationModal from './components/ConfirmationModal.vue'
 import NavMenu from './components/NavMenu.vue'
-import SettingsMenu from './components/SettingsMenu.vue'
 import GalaxyBackground from './components/visuals/GalaxyBackground.vue'
 import { useFinishHimStore } from './stores/finishHim.store'
 import { useGameStore } from './stores/game.store'

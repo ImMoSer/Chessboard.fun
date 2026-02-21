@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, h, type CSSProperties } from 'vue'
 import { NDataTable, NText, NDivider, type DataTableColumns } from 'naive-ui'
-import { useOpeningSparringStore } from '../../stores/openingSparring.store'
-import { type SessionMove } from '../../types/openingSparring.types'
+import { useOpeningSparringStore } from '@/stores/openingSparring.store'
+import { type SessionMove } from '@/types/openingSparring.types'
 import PlayoutAnalysisTable from './PlayoutAnalysisTable.vue'
 
 const openingStore = useOpeningSparringStore()

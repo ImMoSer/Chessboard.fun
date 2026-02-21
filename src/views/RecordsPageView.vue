@@ -11,9 +11,9 @@ import { useRoute } from 'vue-router'
 import { EXAMPLE_HALL_OF_FAME_DATA } from '../constants/exampleCabinetData'
 
 // Импорт дочерних компонентов
-import SkillLeaderboardTable from '../components/recordsPage/SkillLeaderboardTable.vue'
-import ThematicLeaderboardTable from '../components/recordsPage/ThematicLeaderboardTable.vue'
-import TimedModeLeaderboardTable from '../components/recordsPage/TimedModeLeaderboardTable.vue'
+import SkillLeaderboardTable from '@/features/leaderboards/ui/SkillLeaderboardTable.vue'
+import ThematicLeaderboardTable from '@/features/leaderboards/ui/ThematicLeaderboardTable.vue'
+import TimedModeLeaderboardTable from '@/features/leaderboards/ui/TimedModeLeaderboardTable.vue'
 
 const { t } = useI18n()
 
