@@ -1,12 +1,12 @@
 // src/main.ts
-import './assets/main.css'
+import '@/assets/main.css'
 
+import i18n from '@/shared/config/i18n'
 import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
-import i18n from '@/shared/config/i18n'
 
 import { useAuthStore } from '@/entities/user/auth.store'
 
