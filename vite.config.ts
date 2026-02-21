@@ -5,8 +5,8 @@ import AutoImport from 'unplugin-auto-import/vite'
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
 import Components from 'unplugin-vue-components/vite'
 import { defineConfig } from 'vite'
-import VueDevTools from 'vite-plugin-vue-devtools'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
+import VueDevTools from 'vite-plugin-vue-devtools'
 import pkg from './package.json'
 
 export default defineConfig({
@@ -32,6 +32,7 @@ export default defineConfig({
       ],
     }),
     Components({
+      dirs: ['src/components', 'src/shared/ui'],
       resolvers: [NaiveUiResolver()],
     }),
 

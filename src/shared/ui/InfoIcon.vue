@@ -1,6 +1,6 @@
-// src/components/InfoIcon.vue
+// src/shared/ui/InfoIcon.vue
 <script setup lang="ts">
-import { useUiStore } from '../stores/ui.store'
+import { useUiStore } from '@/stores/ui.store'
 
 const props = defineProps({
   topic: {

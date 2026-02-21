@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import InfoIcon from '@/shared/ui/InfoIcon.vue'
 import type { FinishHimLeaderboardEntry, ThematicLeaderboardEntry } from '@/types/api.types'
 import { FINISH_HIM_THEMES, PRACTICAL_CHESS_CATEGORIES, THEORY_ENDING_CATEGORIES } from '@/types/api.types'
 import type { DataTableColumns } from 'naive-ui'
 import { computed, h, ref, watch, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
-import InfoIcon from '../InfoIcon.vue'
 
 // Swiper imports
 import 'swiper/css'

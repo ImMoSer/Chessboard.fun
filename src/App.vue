@@ -1,12 +1,12 @@
 <!-- src/App.vue -->
 <script setup lang="ts">
+import InfoModal from '@/shared/ui/InfoModal.vue'
 import { MenuOutline } from '@vicons/ionicons5'
 import { darkTheme, type GlobalThemeOverrides } from 'naive-ui'
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterView } from 'vue-router'
 import ConfirmationModal from './components/ConfirmationModal.vue'
-import InfoModal from './components/InfoModal.vue'
 import NavMenu from './components/NavMenu.vue'
 import SettingsMenu from './components/SettingsMenu.vue'
 import GalaxyBackground from './components/visuals/GalaxyBackground.vue'

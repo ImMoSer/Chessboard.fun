@@ -1,6 +1,7 @@
 // src/main.ts
 import './assets/main.css'
 
+import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 import App from './App.vue'
@@ -9,6 +10,16 @@ import i18n from './services/i18n'
 
 import { useAuthStore } from './stores/auth.store'
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+      staleTime: 1000 * 60 * 5, // 5 minutes by default
+    },
+  },
+})
+
 async function initializeApp() {
   const app = createApp(App)
   const pinia = createPinia()
@@ -16,6 +27,7 @@ async function initializeApp() {
   app.use(pinia)
   app.use(router)
   app.use(i18n)
+  app.use(VueQueryPlugin, { queryClient })
 
   const authStore = useAuthStore()
   await authStore.initialize()

@@ -26,6 +26,8 @@
   "dependencies": {
     "@lichess-org/chessground": "^10.0.1",
     "@lichess-org/stockfish-web": "^0.2.1",
+    "@tanstack/vue-query": "^5.92.9",
+    "@tanstack/vue-query-devtools": "^6.1.5",
     "@vicons/ionicons5": "^0.13.0",
     "chessops": "^0.15.0",
     "dexie": "^4.3.0",
@@ -38,7 +40,8 @@
     "vue": "^3.5.27",
     "vue-echarts": "^8.0.1",
     "vue-i18n": "^11.2.8",
-    "vue-router": "^4.6.4"
+    "vue-router": "^4.6.4",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.5",

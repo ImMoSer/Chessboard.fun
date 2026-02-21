@@ -1,14 +1,14 @@
 <!-- src/components/recordsPage/TimedModeLeaderboardTable.vue -->
 <script setup lang="ts">
+import InfoIcon from '@/shared/ui/InfoIcon.vue'
 import type {
-  FinishHimLeaderboardEntry,
-  TornadoLeaderboardEntry,
-  TornadoMode,
+    FinishHimLeaderboardEntry,
+    TornadoLeaderboardEntry,
+    TornadoMode,
 } from '@/types/api.types'
 import type { DataTableColumns } from 'naive-ui'
 import { computed, h, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
-import InfoIcon from '../InfoIcon.vue'
 
 type TimedLeaderboards = {
   [key in TornadoMode]?: (TornadoLeaderboardEntry | FinishHimLeaderboardEntry)[]

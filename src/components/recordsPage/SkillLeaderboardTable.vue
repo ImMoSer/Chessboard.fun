@@ -1,5 +1,6 @@
 <!-- src/components/recordsPage/SkillLeaderboardTable.vue -->
 <script setup lang="ts">
+import InfoIcon from '@/shared/ui/InfoIcon.vue'
 import type {
     OverallSolvedLeaderboardEntry,
     SkillPeriod,
@@ -17,7 +18,6 @@ import { CanvasRenderer } from 'echarts/renderers'
 import { computed, onMounted, onUnmounted, ref, type PropType } from 'vue'
 import VChart from 'vue-echarts'
 import { useI18n } from 'vue-i18n'
-import InfoIcon from '../InfoIcon.vue'
 
 use([CanvasRenderer, BarChart, GridComponent, TooltipComponent, LegendComponent, TitleComponent])
 

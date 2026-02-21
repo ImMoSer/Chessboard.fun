@@ -1,11 +1,11 @@
 <!-- src/components/recordsPage/SimpleLeaderboardTable.vue -->
 <script setup lang="ts">
-import { h, type PropType } from 'vue'
-import { useRouter } from 'vue-router'
-import { useI18n } from 'vue-i18n'
-import type { DataTableColumns } from 'naive-ui'
+import InfoIcon from '@/shared/ui/InfoIcon.vue'
 import type { FinishHimLeaderboardEntry } from '@/types/api.types'
-import InfoIcon from '../InfoIcon.vue'
+import type { DataTableColumns } from 'naive-ui'
+import { h, type PropType } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 
 const props = defineProps({
   title: { type: String, required: true },
