@@ -1,12 +1,12 @@
 <!-- src/components/SettingsMenu.vue -->
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed, nextTick } from 'vue'
-import { useThemeStore } from '@/stores/theme.store'
+import { useThemeStore } from '@/features/settings/model/theme.store'
 import { useAuthStore } from '@/entities/user/auth.store'
 import { useI18n } from 'vue-i18n'
-import { changeLang } from '@/services/i18n'
+import { changeLang } from '@/shared/config/i18n'
 import { storeToRefs } from 'pinia'
-import { soundService } from '@/services/sound.service'
+import { soundService } from '@/features/settings/lib/sound.service'
 
 const themeStore = useThemeStore()
 const authStore = useAuthStore()

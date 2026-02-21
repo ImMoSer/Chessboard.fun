@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { createPinia } from 'pinia'
 import { createRouter, createWebHistory } from 'vue-router'
-import i18n from '../services/i18n'
+import i18n from '@/shared/config/i18n'
 import App from '../App.vue'
 
 // Описываем группу тестов для корневого компонента App

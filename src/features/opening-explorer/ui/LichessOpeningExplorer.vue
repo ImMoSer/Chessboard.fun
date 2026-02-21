@@ -26,8 +26,8 @@ import {
   type LichessMastersParams,
   type LichessOpeningResponse,
   type LichessParams,
-} from '@/services/LichessApiService'
-import { pgnService, pgnTreeVersion } from '@/services/PgnService'
+} from '@/features/opening-explorer/api/LichessApiService'
+import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
 import {  useBoardStore  } from '@/entities/board/board.store'
 import OpeningStatsTable from './OpeningStatsTable.vue'
 

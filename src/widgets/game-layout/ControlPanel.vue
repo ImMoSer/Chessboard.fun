@@ -8,8 +8,8 @@ import {
   LinkOutline as ShareIcon,
 } from '@vicons/ionicons5';
 import { NButton, NIcon, NSpace, NTooltip } from 'naive-ui';
-import { useAnalysisStore } from '@/stores/analysis.store';
-import { useControlsStore } from '@/stores/controls.store';
+import { useAnalysisStore } from '@/features/analysis/model/analysis.store';
+import { useControlsStore } from '@/widgets/game-layout/model/controls.store';
 
 const controlsStore = useControlsStore()
 const analysisStore = useAnalysisStore()

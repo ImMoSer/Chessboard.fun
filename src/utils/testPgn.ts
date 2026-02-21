@@ -1,6 +1,6 @@
 // src/utils/testPgn.ts
 import {  useBoardStore  } from '@/entities/board/board.store'
-import { pgnService } from '@/services/PgnService'
+import { pgnService } from '@/shared/lib/pgn/PgnService'
 
 export function loadComplexTestPgn() {
   const boardStore = useBoardStore()

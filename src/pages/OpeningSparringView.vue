@@ -11,12 +11,12 @@ import OpeningSparringHeader from '@/features/opening-sparring/ui/OpeningSparrin
 import OpeningSparringSettingsModal from '@/features/opening-sparring/ui/OpeningSparringSettingsModal.vue'
 import OpeningSparringSummaryModal from '@/features/opening-sparring/ui/OpeningSparringSummaryModal.vue'
 import SessionHistoryList from '@/features/opening-sparring/ui/SessionHistoryList.vue'
-import i18n from '../services/i18n'
-import { theoryGraphService } from '../services/TheoryGraphService'
-import { useAnalysisStore } from '../stores/analysis.store'
-import { useGameStore } from '../stores/game.store'
-import { useOpeningSparringStore } from '../stores/openingSparring.store'
-import { useUiStore } from '../stores/ui.store'
+import i18n from '@/shared/config/i18n'
+import { theoryGraphService } from '@/features/theory-endings/api/TheoryGraphService'
+import { useAnalysisStore } from '@/features/analysis/model/analysis.store'
+import { useGameStore } from '@/entities/game/model/game.store'
+import { useOpeningSparringStore } from '@/features/opening-sparring/model/openingSparring.store'
+import { useUiStore } from '@/shared/ui/model/ui.store'
 
 const t = i18n.global.t
 const openingStore = useOpeningSparringStore()

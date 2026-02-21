@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { pgnService, pgnTreeVersion } from '@/services/PgnService'
+import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
 import { computed } from 'vue'
 import StudyCandidateMoves from './StudyCandidateMoves.vue'
 import StudyTreeNode from './StudyTreeNode.vue'

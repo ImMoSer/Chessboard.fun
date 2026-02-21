@@ -10,9 +10,9 @@ import { RouterView } from 'vue-router'
 import ConfirmationModal from './shared/ui/ConfirmationModal.vue'
 import NavMenu from './widgets/nav-menu/NavMenu.vue'
 import GalaxyBackground from './shared/ui/visuals/GalaxyBackground.vue'
-import { useFinishHimStore } from './stores/finishHim.store'
-import { useGameStore } from './stores/game.store'
-import { useUiStore } from './stores/ui.store'
+import { useFinishHimStore } from '@/features/finish-him/model/finishHim.store'
+import { useGameStore } from '@/entities/game/model/game.store'
+import { useUiStore } from '@/shared/ui/model/ui.store'
 
 const gameStore = useGameStore()
 const finishHimStore = useFinishHimStore()

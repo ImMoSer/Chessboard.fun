@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { changeLang } from '@/services/i18n'
+import { changeLang } from '@/shared/config/i18n'
 import { useAuthStore } from '@/entities/user/auth.store'
 import {
   BookOutline,

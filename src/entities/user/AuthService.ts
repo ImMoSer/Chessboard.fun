@@ -1,5 +1,5 @@
 // src/services/AuthService.ts
-import i18n from '@/services/i18n'
+import i18n from '@/shared/config/i18n'
 import type { AuthState, UserSessionProfile, UserStatsUpdate } from '@/types/api.types'
 import logger from '@/utils/logger'
 

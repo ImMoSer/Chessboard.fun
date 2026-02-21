@@ -1,9 +1,9 @@
 <!-- src/features/engine/ui/EngineSelector.vue -->
 <script setup lang="ts">
-import i18n from '@/services/i18n'
+import i18n from '@/shared/config/i18n'
 import { useAuthStore } from '@/entities/user/auth.store'
-import { useControlsStore } from '@/stores/controls.store'
-import { useUiStore } from '@/stores/ui.store'
+import { useControlsStore } from '@/widgets/game-layout/model/controls.store'
+import { useUiStore } from '@/shared/ui/model/ui.store'
 import type { EngineId } from '@/types/api.types'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 

@@ -23,7 +23,7 @@ import {
 } from 'naive-ui'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useOpeningSparringStore } from '@/stores/openingSparring.store'
+import { useOpeningSparringStore } from '@/features/opening-sparring/model/openingSparring.store'
 import EngineSelector from '@/features/engine/ui/EngineSelector.vue'
 
 const openingStore = useOpeningSparringStore()

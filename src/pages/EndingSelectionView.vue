@@ -1,9 +1,9 @@
 <!-- src/pages/EndingSelectionView.vue -->
 <script setup lang="ts">
 import EngineSelector from '@/features/engine/ui/EngineSelector.vue'
-import { useFinishHimStore } from '@/stores/finishHim.store'
-import { usePracticalChessStore } from '@/stores/practicalChess.store'
-import { useTheoryEndingsStore } from '@/stores/theoryEndings.store'
+import { useFinishHimStore } from '@/features/finish-him/model/finishHim.store'
+import { usePracticalChessStore } from '@/features/practical-chess/model/practicalChess.store'
+import { useTheoryEndingsStore } from '@/features/theory-endings/model/theoryEndings.store'
 import {
   PRACTICAL_CHESS_CATEGORIES,
   THEORY_ENDING_CATEGORIES,

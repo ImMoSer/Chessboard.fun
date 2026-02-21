@@ -1,6 +1,6 @@
 <!-- src/shared/ui/ConfirmationModal.vue -->
 <script setup lang="ts">
-import { useUiStore } from '@/stores/ui.store';
+import { useUiStore } from '@/shared/ui/model/ui.store';
 
 const uiStore = useUiStore()
 </script>

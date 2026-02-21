@@ -1,6 +1,6 @@
 <!-- src/shared/ui/InfoModal.vue -->
 <script setup lang="ts">
-import { useUiStore } from '@/stores/ui.store'
+import { useUiStore } from '@/shared/ui/model/ui.store'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 

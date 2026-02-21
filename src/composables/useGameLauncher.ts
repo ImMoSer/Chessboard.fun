@@ -1,6 +1,6 @@
-import { useFinishHimStore } from '@/stores/finishHim.store'
-import { usePracticalChessStore } from '@/stores/practicalChess.store'
-import { useTheoryEndingsStore } from '@/stores/theoryEndings.store'
+import { useFinishHimStore } from '@/features/finish-him/model/finishHim.store'
+import { usePracticalChessStore } from '@/features/practical-chess/model/practicalChess.store'
+import { useTheoryEndingsStore } from '@/features/theory-endings/model/theoryEndings.store'
 import type {
     FinishHimTheme,
     PracticalChessCategory,

@@ -1,9 +1,9 @@
 <!-- src/components/AnalysisPanel.vue -->
 <script setup lang="ts">
 import EngineLines from '@/features/analysis/ui/EngineLines.vue'
-import type { PgnNode } from '@/services/PgnService'
-import { pgnService, pgnTreeVersion } from '@/services/PgnService'
-import { useAnalysisStore } from '@/stores/analysis.store'
+import type { PgnNode } from '@/shared/lib/pgn/PgnService'
+import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
+import { useAnalysisStore } from '@/features/analysis/model/analysis.store'
 import {  useBoardStore  } from '@/entities/board/board.store'
 import {
     ChevronBackOutline,

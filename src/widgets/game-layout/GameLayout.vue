@@ -1,9 +1,9 @@
 <!-- src/widgets/game-layout/GameLayout.vue -->
 <script setup lang="ts">
-import { useAnalysisStore } from '@/stores/analysis.store'
+import { useAnalysisStore } from '@/features/analysis/model/analysis.store'
 import {  useBoardStore  } from '@/entities/board/board.store'
-import { useGameStore } from '@/stores/game.store'
-import { useThemeStore } from '@/stores/theme.store'
+import { useGameStore } from '@/entities/game/model/game.store'
+import { useThemeStore } from '@/features/settings/model/theme.store'
 import type { Key } from '@lichess-org/chessground/types'
 import { storeToRefs } from 'pinia'
 import { computed, onMounted, onUnmounted } from 'vue'

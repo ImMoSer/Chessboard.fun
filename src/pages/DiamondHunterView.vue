@@ -8,10 +8,10 @@ import AnalysisPanel from '@/features/analysis/ui/AnalysisPanel.vue'
 import DiamondHunterSettingsModal from '@/features/diamond-hunter/ui/DiamondHunterSettingsModal.vue'
 import GravityBook from '@/features/diamond-hunter/ui/GravityBook.vue'
 import GameLayout from '../widgets/game-layout/GameLayout.vue'
-import { useAnalysisStore } from '../stores/analysis.store'
+import { useAnalysisStore } from '@/features/analysis/model/analysis.store'
 import {  useBoardStore  } from '@/entities/board/board.store'
-import { useDiamondHunterStore } from '../stores/diamondHunter.store'
-import { useGameStore } from '../stores/game.store'
+import { useDiamondHunterStore } from '@/features/diamond-hunter/model/diamondHunter.store'
+import { useGameStore } from '@/entities/game/model/game.store'
 
 
 const diamondHunterStore = useDiamondHunterStore()

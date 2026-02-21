@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { pgnService } from '@/services/PgnService'
-import { useStudyStore, type StudyChapter } from '@/stores/study.store'
-import { useUiStore } from '@/stores/ui.store'
+import { pgnService } from '@/shared/lib/pgn/PgnService'
+import { useStudyStore, type StudyChapter } from '@/features/study/model/study.store'
+import { useUiStore } from '@/shared/ui/model/ui.store'
 import {
   NButton,
   NIcon,

@@ -1,0 +1,391 @@
+// src/stores/tornado.store.ts
+import { soundService } from '@/features/settings/lib/sound.service'
+import { defineStore } from 'pinia'
+import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import i18n from '@/shared/config/i18n'
+import { InsufficientFunCoinsError, webhookService } from '@/shared/api/WebhookService'
+import type { TornadoSessionResult, TornadoPuzzle } from '@/types/api.types'
+import { type TornadoMode } from '@/types/api.types'
+import logger from '@/utils/logger'
+import {  useAuthStore  } from '@/entities/user/auth.store'
+import { useGameStore } from '@/entities/game/model/game.store'
+import { useUiStore } from '@/shared/ui/model/ui.store'
+import { Glicko2Calculator, type GlickoState } from '@/utils/glicko2'
+
+export type { TornadoMode } from '@/types/api.types'
+
+const t = i18n.global.t
+const glicko = new Glicko2Calculator()
+
+const MISTAKES_STORAGE_KEY = 'tornado_mistakes'
+
+const timeControls: Record<TornadoMode, { initial: number; increment: number }> = {
+  bullet: { initial: 1 * 60 * 1000, increment: 1 * 1000 },
+  blitz: { initial: 3 * 60 * 1000, increment: 2 * 1000 },
+  rapid: { initial: 5 * 60 * 1000, increment: 3 * 1000 },
+  classic: { initial: 10 * 60 * 1000, increment: 5 * 1000 },
+}
+
+
+export const useTornadoStore = defineStore('tornado', () => {
+  const gameStore = useGameStore()
+  const router = useRouter()
+  const uiStore = useUiStore()
+  const authStore = useAuthStore()
+
+  const mode = ref<TornadoMode | null>(null)
+  const sessionRating = ref(1000)
+  const glickoState = ref<GlickoState>({ rating: 1000, rd: 350, vol: 0.06 })
+
+  const sessionTheme = ref<string | null>(null)
+  const activePuzzle = ref<TornadoPuzzle | null>(null)
+  const puzzleReservoir = ref<TornadoPuzzle[]>([])
+  const pendingResults = ref<TornadoSessionResult[]>([])
+
+  const mistakenPuzzles = ref<TornadoPuzzle[]>([])
+  const sessionId = ref<string | null>(null)
+
+  const timerValueMs = ref(0)
+  const timeIncrementMs = ref(0)
+  const timerId = ref<number | null>(null)
+  const isSessionActive = ref(false)
+  const feedbackMessage = ref(t('tornado.feedback.selectMode'))
+  const isProcessingMove = ref(false)
+  const puzzlesSolved = ref(0)
+  const puzzlesAttempted = ref(0)
+
+  const tenSecondsWarningPlayed = ref(false)
+  const eightSecondsWarningPlayed = ref(false)
+
+  const formattedTimer = computed(() => {
+    const totalSeconds = Math.ceil(timerValueMs.value / 1000)
+    const minutes = Math.floor(totalSeconds / 60)
+    const seconds = totalSeconds % 60
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+  })
+
+  function reset() {
+    _stopTimer()
+    mode.value = null
+    sessionRating.value = 1000
+    glickoState.value = { rating: 1000, rd: 350, vol: 0.06 }
+    sessionTheme.value = null
+    activePuzzle.value = null
+    puzzleReservoir.value = []
+    pendingResults.value = []
+    mistakenPuzzles.value = []
+    sessionId.value = null
+    timerValueMs.value = 0
+    timeIncrementMs.value = 0
+    isSessionActive.value = false
+    puzzlesSolved.value = 0
+    puzzlesAttempted.value = 0
+    feedbackMessage.value = t('tornado.feedback.selectMode')
+    isProcessingMove.value = false
+    tenSecondsWarningPlayed.value = false
+    eightSecondsWarningPlayed.value = false
+    localStorage.removeItem(MISTAKES_STORAGE_KEY)
+    logger.info('[TornadoStore] State has been reset.')
+  }
+
+  function _popBestPuzzle(targetRating: number): TornadoPuzzle | null {
+    if (puzzleReservoir.value.length === 0) return null
+
+    // Находим пазл с ближайшим рейтингом
+    let bestIdx = 0
+    const first = puzzleReservoir.value[0]
+    if (!first) return null
+
+    let minDiff = Math.abs(first.tactical_rating - targetRating)
+
+    for (let i = 1; i < puzzleReservoir.value.length; i++) {
+      const p = puzzleReservoir.value[i]
+      if (!p) continue
+
+      const diff = Math.abs(p.tactical_rating - targetRating)
+      if (diff < minDiff) {
+        minDiff = diff
+        bestIdx = i
+      }
+    }
+
+    const puzzle = puzzleReservoir.value[bestIdx]
+    if (!puzzle) return null
+
+    puzzleReservoir.value.splice(bestIdx, 1)
+    return puzzle
+  }
+
+  function _startTimer() {
+    _stopTimer()
+    if (timerValueMs.value <= 0) return
+
+    timerId.value = window.setInterval(() => {
+      timerValueMs.value -= 1000
+
+      if (timerValueMs.value <= 10000 && !tenSecondsWarningPlayed.value) {
+        soundService.playSound('board_timer_10s')
+        tenSecondsWarningPlayed.value = true
+      }
+
+      if (timerValueMs.value <= 8000 && !eightSecondsWarningPlayed.value) {
+        soundService.playSound('board_timer_8s')
+        eightSecondsWarningPlayed.value = true
+      }
+
+      if (timerValueMs.value <= 0) {
+        timerValueMs.value = 0
+        soundService.playSound('board_timer_times_up')
+        _handleSessionEnd()
+      }
+    }, 1000)
+  }
+
+  function _stopTimer() {
+    if (timerId.value) {
+      clearInterval(timerId.value)
+      timerId.value = null
+    }
+  }
+
+  async function _handleSessionEnd() {
+    if (!mode.value || !sessionId.value) return
+    _stopTimer()
+    isSessionActive.value = false
+    gameStore.setGamePhase('GAMEOVER')
+
+    // Format stats message
+    const themeLabel = sessionTheme.value
+      ? t(`chess.tornado.${sessionTheme.value}`)
+      : t('chess.tornado.auto')
+    const message = t('tornado.sessionEnd.stats', {
+      rating: sessionRating.value,
+      solved: puzzlesSolved.value,
+      total: puzzlesAttempted.value,
+      theme: themeLabel,
+    })
+
+    feedbackMessage.value = message
+
+    await webhookService.endTornadoSession(mode.value, {
+      sessionId: sessionId.value,
+      finalScore: sessionRating.value,
+      results: pendingResults.value,
+    })
+
+    const hasMistakes = mistakenPuzzles.value.length > 0
+
+    const userResponse = await uiStore.showConfirmation(t('tornado.sessionEnd.title'), message, {
+      confirmText: t('tornado.sessionEnd.newSession'),
+      cancelText: t('tornado.sessionEnd.exit'),
+      extraText: t('tornado.sessionEnd.mistakes'),
+      showExtra: hasMistakes,
+      persistent: true,
+    })
+
+    switch (userResponse) {
+      case 'extra':
+        router.push('/tornado/mistakes')
+        break
+      case 'confirm':
+        if (mode.value) {
+          startSession(mode.value) // reset() is called inside startSession
+        }
+        break
+      case 'cancel':
+      default:
+        localStorage.removeItem(MISTAKES_STORAGE_KEY)
+        router.push('/')
+        break
+    }
+  }
+
+  async function startSession(selectedMode: TornadoMode, theme?: string) {
+    if (!timeControls[selectedMode]) {
+      logger.error(`[TornadoStore] Invalid mode attempt: ${selectedMode}`)
+      await uiStore.showConfirmation(
+        t('common.error'),
+        t('gameplay.feedback.loadFailed') || 'Invalid game mode.',
+        {
+          showCancel: false,
+          confirmText: t('common.ok'),
+        },
+      )
+      router.push('/tornado')
+      return
+    }
+
+    reset()
+    mode.value = selectedMode
+    const controls = timeControls[selectedMode]
+    timerValueMs.value = controls.initial
+    timeIncrementMs.value = controls.increment
+    feedbackMessage.value = t('tornado.feedback.loadingFirstPuzzle')
+
+    try {
+      const response = await webhookService.startTornadoSession(selectedMode, theme)
+      logger.info('[TornadoStore] Start session response:', response)
+
+      // Нам прилетает массив puzzles (basket)
+      if (response && response.puzzles && response.puzzles.length > 0 && response.sessionId) {
+        isSessionActive.value = true
+        sessionId.value = response.sessionId
+        sessionRating.value = response.sessionRating
+        sessionTheme.value = response.sessionTheme || null
+
+        // Заполняем резервуар и берем первый пазл
+        puzzleReservoir.value = response.puzzles
+        const firstPuzzle = _popBestPuzzle(sessionRating.value)
+
+        if (firstPuzzle) {
+          activePuzzle.value = firstPuzzle
+          setupPuzzle(firstPuzzle)
+          feedbackMessage.value = t('tornado.feedback.yourTurn')
+
+          if (response.userStatsUpdate) {
+            authStore.updateUserStats(response.userStatsUpdate)
+          }
+        }
+      } else {
+        throw new Error(t('tornado.feedback.loadingFailed'))
+      }
+    } catch (error) {
+      if (error instanceof InsufficientFunCoinsError) {
+        const e = error as InsufficientFunCoinsError
+        const confirmed = await uiStore.showConfirmation(
+          t('pricing.insufficientCoins.title'),
+          t('pricing.insufficientCoins.message', {
+            required: e.required,
+            available: e.available,
+          }) +
+          '\n\n' +
+          t('pricing.insufficientCoins.subMessage'),
+          {
+            confirmText: t('pricing.insufficientCoins.goToPricing'),
+            cancelText: t('common.close'),
+          },
+        )
+        if (confirmed === 'confirm') {
+          router.push('/pricing')
+        }
+      } else {
+        logger.error('[TornadoStore] Failed to start session:', error)
+        feedbackMessage.value = t('tornado.feedback.startFailed')
+      }
+      isSessionActive.value = false
+    }
+  }
+
+  function setupPuzzle(puzzle: TornadoPuzzle) {
+    gameStore.setupPuzzle(
+      puzzle.initial_fen,
+      puzzle.tactical_solution.split(' '),
+      (isCorrect) => handlePuzzleResult(isCorrect),
+      () => true,
+      () => { },
+      'tornado',
+      () => {
+        if (isSessionActive.value && timerId.value === null) {
+          _startTimer()
+        }
+      },
+    )
+  }
+
+  async function handlePuzzleResult(isCorrect: boolean) {
+    if (
+      !activePuzzle.value ||
+      !isSessionActive.value ||
+      !mode.value ||
+      !sessionId.value
+    )
+      return
+
+    // 1. МГНОВЕННО ОБНОВЛЯЕМ ТАЙМЕР И СТАТЫ
+    if (timerValueMs.value > 10000) {
+      timerValueMs.value += timeIncrementMs.value
+    }
+
+    puzzlesAttempted.value++
+    const lastPuzzle = activePuzzle.value
+
+    if (isCorrect) {
+      puzzlesSolved.value++
+      soundService.playSound('game_tacktics_success')
+    } else {
+      soundService.playSound('game_tacktics_error')
+      mistakenPuzzles.value.push(lastPuzzle)
+      localStorage.setItem(MISTAKES_STORAGE_KEY, JSON.stringify(mistakenPuzzles.value))
+    }
+
+    // 2. ЛОКАЛЬНЫЙ РАСЧЕТ GLICKO (МГНОВЕННО)
+    const newGlicko = glicko.calculate(
+      glickoState.value,
+      [{ rating: lastPuzzle.tactical_rating, rd: 50 }],
+      [isCorrect ? 1 : 0]
+    )
+    glickoState.value = newGlicko
+    sessionRating.value = newGlicko.rating
+
+    // 3. МГНОВЕННО БЕРЕМ СЛЕДУЮЩИЙ ПАЗЛ
+    const nextPuzzle = _popBestPuzzle(sessionRating.value)
+    if (nextPuzzle) {
+      activePuzzle.value = nextPuzzle
+      setupPuzzle(nextPuzzle)
+    } else {
+      // Если резервуар пуст, показываем загрузку (но такого быть не должно с prefetch)
+      feedbackMessage.value = t('tornado.feedback.loadingMorePuzzles')
+    }
+
+    // 4. ДОБАВИТЬ В ЛОКАЛЬНЫЙ БУФЕР ОЖИДАНИЯ
+    pendingResults.value.push({
+      puzzleId: lastPuzzle.puzzle_id,
+      puzzleRating: lastPuzzle.tactical_rating,
+      puzzleThemes: lastPuzzle.themes || [],
+      isCorrect,
+    })
+
+    // Подпитка больше не нужна, Rainbow Basket покрывает все
+  }
+
+  async function handleResign() {
+    if (isSessionActive.value) {
+      const confirmed = await uiStore.showConfirmation(
+        t('gameplay.confirmExit.title'),
+        t('gameplay.confirmExit.message'),
+      )
+      if (confirmed === 'confirm') {
+        await _handleSessionEnd()
+      }
+    }
+  }
+
+  function handleRestart() {
+    if (mode.value) {
+      logger.info(`[TornadoStore] Restarting session with mode: ${mode.value}`)
+      startSession(mode.value)
+    }
+  }
+
+  function handleNew() {
+    reset()
+    router.push('/tornado')
+  }
+
+  return {
+    mode,
+    sessionRating,
+    sessionTheme,
+    activePuzzle,
+    mistakenPuzzles,
+    isSessionActive,
+    feedbackMessage,
+    formattedTimer,
+    startSession,
+    reset,
+    handleRestart,
+    handleResign,
+    handleNew,
+  }
+})

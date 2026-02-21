@@ -2,11 +2,11 @@
 <script setup lang="ts">
 import { onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { shareService } from '../services/share.service'
-import { useAnalysisStore } from '../stores/analysis.store'
-import { useControlsStore } from '../stores/controls.store'
-import { useGameStore } from '../stores/game.store'
-import { useTheoryEndingsStore } from '../stores/theoryEndings.store'
+import { shareService } from '@/shared/lib/share.service'
+import { useAnalysisStore } from '@/features/analysis/model/analysis.store'
+import { useControlsStore } from '@/widgets/game-layout/model/controls.store'
+import { useGameStore } from '@/entities/game/model/game.store'
+import { useTheoryEndingsStore } from '@/features/theory-endings/model/theoryEndings.store'
 
 import type { TheoryEndingType } from '../types/api.types'
 

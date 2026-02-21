@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { EvaluatedLineWithSan } from '@/services/AnalysisService'
-import { useAnalysisStore } from '@/stores/analysis.store'
+import type { EvaluatedLineWithSan } from '@/features/analysis/api/AnalysisService'
+import { useAnalysisStore } from '@/features/analysis/model/analysis.store'
 import {  useBoardStore  } from '@/entities/board/board.store'
 import { NButton, NText, NTooltip } from 'naive-ui'
 import { storeToRefs } from 'pinia'

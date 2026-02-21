@@ -2,8 +2,8 @@
 import {
     theoryChaptersService,
     type TheoryChapterTemplate,
-} from '@/services/TheoryChaptersService';
-import { useStudyStore } from '@/stores/study.store';
+} from '@/features/theory-endings/api/TheoryChaptersService';
+import { useStudyStore } from '@/features/study/model/study.store';
 import { NCard, NInput, NList, NListItem, NModal, NSpace, NText, NThing } from 'naive-ui';
 import { computed, ref } from 'vue';
 
