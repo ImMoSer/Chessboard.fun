@@ -1,29 +1,29 @@
 // src/stores/board.store.ts
-import { ref, computed } from 'vue'
-import { defineStore } from 'pinia'
-import { Chess } from 'chessops/chess'
-import { parseFen, makeFen } from 'chessops/fen'
-import { makeSan } from 'chessops/san'
-import { parseSquare, makeUci, parseUci as parseUciMove } from 'chessops/util'
-import { chessgroundDests } from 'chessops/compat'
-import { isNormal } from 'chessops/types'
+import { pgnService, type PgnNode } from '@/services/PgnService'
+import { soundService } from '@/services/sound.service'
+import { useGameStore } from '@/stores/game.store'
+import logger from '@/utils/logger'
+import type { DrawShape } from '@lichess-org/chessground/draw'
 import type {
-  Key,
-  Dests,
   Color as ChessgroundColor,
   Piece as ChessopsPiece,
+  Dests,
+  Key,
 } from '@lichess-org/chessground/types'
+import { Chess } from 'chessops/chess'
+import { chessgroundDests } from 'chessops/compat'
+import { makeFen, parseFen } from 'chessops/fen'
+import { makeSan } from 'chessops/san'
 import type {
-  Role as ChessopsRole,
   Color as ChessopsColor,
-  Outcome as ChessopsOutcome,
   Move as ChessopsMove,
+  Outcome as ChessopsOutcome,
+  Role as ChessopsRole,
 } from 'chessops/types'
-import { pgnService, type PgnNode } from '../services/PgnService'
-import logger from '../utils/logger'
-import { soundService } from '../services/sound.service'
-import type { DrawShape } from '@lichess-org/chessground/draw'
-import { useGameStore } from './game.store'
+import { isNormal } from 'chessops/types'
+import { makeUci, parseSquare, parseUci as parseUciMove } from 'chessops/util'
+import { defineStore } from 'pinia'
+import { computed, ref } from 'vue'
 
 export interface GameEndOutcome {
   winner: ChessopsColor | undefined
@@ -128,10 +128,10 @@ export const useBoardStore = defineStore('board', () => {
         // If it's currently the player's turn (gameStatus.turn === orientation),
         // it means the opponent (Bot) just moved and delivered check.
         if (gameStatus.turn === orientation.value) {
-            soundService.playSound('board_bot_checks_player')
+          soundService.playSound('board_bot_checks_player')
         } else {
-            // Otherwise, the player just moved and delivered check to the Bot.
-            soundService.playSound('board_check')
+          // Otherwise, the player just moved and delivered check to the Bot.
+          soundService.playSound('board_check')
         }
       }
     }

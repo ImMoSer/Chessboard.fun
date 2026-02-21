@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { changeLang } from '@/services/i18n'
-import { useAuthStore } from '@/stores/auth.store'
+import { useAuthStore } from '@/entities/user/auth.store'
 import {
   BookOutline,
   BuildOutline,

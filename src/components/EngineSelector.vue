@@ -1,7 +1,7 @@
 <!-- src/components/EngineSelector.vue -->
 <script setup lang="ts">
 import i18n from '@/services/i18n'
-import { useAuthStore } from '@/stores/auth.store'
+import { useAuthStore } from '@/entities/user/auth.store'
 import { useControlsStore } from '@/stores/controls.store'
 import { useUiStore } from '@/stores/ui.store'
 import type { EngineId } from '@/types/api.types'

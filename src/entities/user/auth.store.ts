@@ -1,9 +1,9 @@
 // src/stores/auth.store.ts
+import { authService } from '@/entities/user/AuthService'
+import type { UserSessionProfile, UserStatsUpdate } from '@/types/api.types'
+import logger from '@/utils/logger'
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
-import { authService } from '../services/AuthService'
-import type { UserSessionProfile, UserStatsUpdate } from '../types/api.types'
-import logger from '../utils/logger'
+import { computed, ref } from 'vue'
 
 export const useAuthStore = defineStore('auth', () => {
   // --- STATE ---

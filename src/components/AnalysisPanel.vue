@@ -4,7 +4,7 @@ import EngineLines from '@/components/Analysis/EngineLines.vue'
 import type { PgnNode } from '@/services/PgnService'
 import { pgnService, pgnTreeVersion } from '@/services/PgnService'
 import { useAnalysisStore } from '@/stores/analysis.store'
-import { useBoardStore } from '@/stores/board.store'
+import {  useBoardStore  } from '@/entities/board/board.store'
 import {
     ChevronBackOutline,
     ChevronForwardOutline,

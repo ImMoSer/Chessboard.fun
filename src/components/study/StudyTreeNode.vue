@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { PgnNode } from '@/services/PgnService'
 import { pgnService, pgnTreeVersion } from '@/services/PgnService'
-import { useBoardStore } from '@/stores/board.store'
+import {  useBoardStore  } from '@/entities/board/board.store'
 import { NDropdown, NInput, NModal } from 'naive-ui'
 import { computed, nextTick, ref } from 'vue'
 

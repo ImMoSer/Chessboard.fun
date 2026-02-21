@@ -4,7 +4,7 @@ import { computed, ref } from 'vue'
 import { mozerBookService, type MozerBookResponse } from '../services/MozerBookService'
 import { pgnService, pgnTreeVersion } from '../services/PgnService'
 import logger from '../utils/logger'
-import { useBoardStore } from './board.store'
+import {  useBoardStore  } from '@/entities/board/board.store'
 
 export const useMozerBookStore = defineStore('mozerBook', () => {
   const boardStore = useBoardStore()

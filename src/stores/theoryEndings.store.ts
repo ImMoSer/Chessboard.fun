@@ -13,8 +13,8 @@ import type {
 } from '../types/api.types'
 import logger from '../utils/logger'
 import { useAnalysisStore } from './analysis.store'
-import { useAuthStore } from './auth.store'
-import { useBoardStore, type GameEndOutcome } from './board.store'
+import {  useAuthStore  } from '@/entities/user/auth.store'
+import {  useBoardStore, type GameEndOutcome  } from '@/entities/board/board.store'
 import { useGameStore } from './game.store'
 import { useUiStore } from './ui.store'
 

@@ -1,7 +1,7 @@
 <!-- src/components/GameLayout.vue -->
 <script setup lang="ts">
 import { useAnalysisStore } from '@/stores/analysis.store'
-import { useBoardStore } from '@/stores/board.store'
+import {  useBoardStore  } from '@/entities/board/board.store'
 import { useGameStore } from '@/stores/game.store'
 import { useThemeStore } from '@/stores/theme.store'
 import type { Key } from '@lichess-org/chessground/types'
@@ -9,7 +9,7 @@ import { storeToRefs } from 'pinia'
 import { computed, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import EvalBar from './Analysis/EvalBar.vue'
-import WebChessBoard from './WebChessBoard.vue'
+import WebChessBoard from '@/entities/board/WebChessBoard.vue'
 
 const themeStore = useThemeStore()
 const boardStore = useBoardStore()

@@ -1,6 +1,6 @@
 <!-- src/views/UserCabinetView.vue -->
 <script setup lang="ts">
-import { useAuthStore } from '@/stores/auth.store'
+import { useAuthStore } from '@/entities/user/auth.store'
 import { useUserCabinetStore } from '@/stores/userCabinet.store'
 import type { FinishHimDifficulty, TornadoMode } from '@/types/api.types'
 import { storeToRefs } from 'pinia'

@@ -9,7 +9,7 @@ import DiamondHunterSettingsModal from '../components/DiamondHunter/DiamondHunte
 import GravityBook from '../components/DiamondHunter/GravityBook.vue'
 import GameLayout from '../components/GameLayout.vue'
 import { useAnalysisStore } from '../stores/analysis.store'
-import { useBoardStore } from '../stores/board.store'
+import {  useBoardStore  } from '@/entities/board/board.store'
 import { useDiamondHunterStore } from '../stores/diamondHunter.store'
 import { useGameStore } from '../stores/game.store'
 

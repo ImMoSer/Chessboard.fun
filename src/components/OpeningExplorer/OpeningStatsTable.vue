@@ -4,7 +4,7 @@ import { NDataTable, NText } from 'naive-ui'
 import { computed, h } from 'vue'
 import { useI18n } from 'vue-i18n'
 import type { LichessMove } from '../../services/LichessApiService'
-import { useBoardStore } from '../../stores/board.store'
+import {  useBoardStore  } from '@/entities/board/board.store'
 
 const props = defineProps<{
   moves: LichessMove[]

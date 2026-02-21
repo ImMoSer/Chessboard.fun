@@ -5,7 +5,7 @@ import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
 import { analysisService, type EvaluatedLineWithSan } from '../services/AnalysisService'
 import logger from '../utils/logger'
-import { useBoardStore } from './board.store'
+import {  useBoardStore  } from '@/entities/board/board.store'
 
 const THREADS_STORAGE_KEY = 'analysis_threads'
 const ARROW_STYLES = [

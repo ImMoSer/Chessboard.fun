@@ -1,50 +1,63 @@
-// src/services/MultiThreadEngineManager.ts
+// src/services/SingleThreadEngineManager.ts
 import {
-  loadMultiThreadEngine,
+  loadSingleThreadEngine,
   type EngineController,
-} from '../utils/engine.loader'
-import logger from '../utils/logger'
+} from '@/utils/engine.loader'
+import logger from '@/utils/logger'
 
-// --- Интерфейсы для анализа ---
+// --- Интерфейсы ---
 export interface ScoreInfo {
   type: 'cp' | 'mate'
   value: number
-}
-
-export interface WdlStats {
-  win: number
-  draw: number
-  loss: number
 }
 
 export interface EvaluatedLine {
   id: number
   depth: number
   score: ScoreInfo
-  wdl?: WdlStats
   pvUci: string[]
+}
+
+export interface AnalysisResult {
+  bestMoveUci: string | null
+  evaluatedLines: EvaluatedLine[]
+}
+
+export interface AnalysisOptions {
+  depth?: number
+  movetime?: number
 }
 
 export type AnalysisUpdateCallback = (lines: EvaluatedLine[], bestMoveUci?: string | null) => void
 
+type AnalysisResolve = (value: AnalysisResult | null) => void
+type AnalysisReject = (reason?: unknown) => void
+
+interface PendingRequest {
+  resolve: AnalysisResolve
+  reject: AnalysisReject
+  timeoutId: number
+  collectedLines: Map<number, EvaluatedLine>
+}
+
 /**
- * Сервис, управляющий экземпляром МНОГОПОТОЧНОГО движка для анализа.
- * Если многопоточность не поддерживается, движок не будет загружен.
+ * Сервис для управления однопоточным движком.
+ * Используется для геймплея и как фолбэк для анализа.
  */
-class MultiThreadEngineManagerController {
+class SingleThreadEngineManagerController {
   private engine: EngineController | null = null
-  private isSupported = false
   private isReady = false
   private isInitializing = false
   private initPromise: Promise<void> | null = null
   private resolveInitPromise!: () => void
   private rejectInitPromise!: (reason?: unknown) => void
 
-  private commandQueue: string[] = []
   private infiniteAnalysisCallback: AnalysisUpdateCallback | null = null
+  private pendingRequest: PendingRequest | null = null
+  private commandQueue: string[] = []
 
   constructor() {
-    logger.info('[MultiThreadEngineManager] Service created. Engine will be loaded on demand.')
+    logger.info('[SingleThreadEngineManager] Service created.')
   }
 
   public async ensureReady(): Promise<void> {
@@ -62,25 +75,13 @@ class MultiThreadEngineManagerController {
 
   private async _initEngine(): Promise<void> {
     try {
-      const loadedEngine = await loadMultiThreadEngine()
-
-      if (!loadedEngine) {
-        this.isSupported = false
-        logger.warn(`[MultiThreadEngineManager] Multi-threading not supported. Engine not loaded.`)
-        this.isInitializing = false
-        // Успешно завершаем инициализацию, просто движок не будет доступен
-        this.resolveInitPromise()
-        return
-      }
-
-      this.engine = loadedEngine
-      this.isSupported = true
+      this.engine = await loadSingleThreadEngine()
       this.engine.addMessageListener((message: string) => this.handleEngineMessage(message))
 
       const timeoutId = setTimeout(() => {
         if (!this.isReady) {
-          const errorMsg = 'UCI handshake timeout for MultiThreadEngineManager'
-          logger.error(`[MultiThreadEngineManager] ${errorMsg}`)
+          const errorMsg = 'UCI handshake timeout for SingleThreadEngineManager'
+          logger.error(`[SingleThreadEngineManager] ${errorMsg}`)
           this.rejectInitPromise(new Error(errorMsg))
         }
       }, 15000)
@@ -89,7 +90,7 @@ class MultiThreadEngineManagerController {
       this.sendCommand('uci')
     } catch (error: unknown) {
       const errorMsg = error instanceof Error ? error.message : String(error)
-      logger.error('[MultiThreadEngineManager] Failed to initialize engine:', errorMsg, error)
+      logger.error('[SingleThreadEngineManager] Failed to initialize engine:', errorMsg, error)
       this.isInitializing = false
       this.initPromise = null
       if (this.rejectInitPromise) this.rejectInitPromise(error)
@@ -106,7 +107,7 @@ class MultiThreadEngineManagerController {
       this.commandQueue.push(command)
       return
     }
-    // logger.debug(`[MultiThreadEngineManager] Sending: ${command}`)
+    // logger.debug(`[SingleThreadEngineManager] Sending: ${command}`)
     this.engine.postMessage(command)
   }
 
@@ -117,49 +118,35 @@ class MultiThreadEngineManagerController {
     }
   }
 
-  private getOptimalHashSize(): number {
-    try {
-      // Extended navigator interface to support deviceMemory
-      const nav = navigator as Navigator & { deviceMemory?: number }
-      const ramGb = nav.deviceMemory || 4
-      // If RAM >= 4GB, use 512MB. Otherwise use 64MB.
-      return ramGb >= 4 ? 512 : 64
-    } catch {
-      return 64
-    }
-  }
-
   private handleEngineMessage(message: string): void {
+    // logger.debug(`[SingleThreadEngineManager] Received: ${message}`)
     const parts = message.split(' ')
 
     if (message === 'uciok') {
-      // Ensure NNUE is enabled and points to the correct file name (even if buffer is injected)
-      this.sendCommand('setoption name Use NNUE value true')
-      this.sendCommand('setoption name EvalFile value nn-4ca89e4b3abf.nnue')
-      this.sendCommand(`setoption name Hash value ${this.getOptimalHashSize()}`)
-      this.sendCommand('setoption name UCI_ShowWDL value true')
       this.sendCommand('isready')
     } else if (message === 'readyok') {
       this.isReady = true
       this.isInitializing = false
-      logger.info('[MultiThreadEngineManager] Engine is ready.')
+      logger.info('[SingleThreadEngineManager] Engine is ready.')
       if (this.resolveInitPromise) this.resolveInitPromise()
       this.processCommandQueue()
     } else if (parts[0] === 'info') {
       this.parseInfoLine(message)
     } else if (parts[0] === 'bestmove') {
       const bestMoveUci = parts[1] && parts[1] !== '(none)' ? parts[1] : null
-      if (this.infiniteAnalysisCallback) this.infiniteAnalysisCallback([], bestMoveUci)
+      if (this.pendingRequest) {
+        this.handleBestMove(bestMoveUci)
+      } else if (this.infiniteAnalysisCallback) {
+        this.infiniteAnalysisCallback([], bestMoveUci)
+      }
     }
   }
 
   private parseInfoLine(line: string): void {
-    if (!this.infiniteAnalysisCallback) return
     try {
       let currentLineId = 1,
         depth = 0
       let score: ScoreInfo | null = null
-      let wdl: WdlStats | undefined
       let pvUci: string[] = []
       const parts = line.split(' ')
       let i = 0
@@ -187,21 +174,6 @@ class MultiThreadEngineManagerController {
             }
             break
           }
-          case 'wdl': {
-            const winStr = parts[++i]
-            const drawStr = parts[++i]
-            const lossStr = parts[++i]
-
-            if (winStr && drawStr && lossStr) {
-              const win = parseInt(winStr, 10)
-              const draw = parseInt(drawStr, 10)
-              const loss = parseInt(lossStr, 10)
-              if (!isNaN(win) && !isNaN(draw) && !isNaN(loss)) {
-                wdl = { win, draw, loss }
-              }
-            }
-            break
-          }
           case 'pv':
             pvUci = parts.slice(i + 1)
             i = parts.length
@@ -210,53 +182,94 @@ class MultiThreadEngineManagerController {
         i++
       }
       if (score && pvUci.length > 0 && !isNaN(depth) && depth > 0) {
-        const parsedData: EvaluatedLine = { id: currentLineId, depth, score, wdl, pvUci }
-        this.infiniteAnalysisCallback([parsedData], null)
+        const newLine = { id: currentLineId, depth, score, pvUci }
+        if (this.pendingRequest) {
+          this.pendingRequest.collectedLines.set(newLine.id, newLine)
+        } else if (this.infiniteAnalysisCallback) {
+          this.infiniteAnalysisCallback([newLine], null)
+        }
       }
     } catch (error) {
-      logger.warn('[MultiThreadEngineManager] Error parsing info line:', line, error)
+      logger.warn('[SingleThreadEngineManager] Error parsing info line:', line, error)
     }
+  }
+
+  private handleBestMove(bestMoveUci: string | null): void {
+    if (this.pendingRequest) {
+      clearTimeout(this.pendingRequest.timeoutId)
+      const result: AnalysisResult = {
+        bestMoveUci,
+        evaluatedLines: Array.from(this.pendingRequest.collectedLines.values()),
+      }
+      this.pendingRequest.resolve(result)
+      this.pendingRequest = null
+    }
+  }
+
+  private async getAnalysis(
+    fen: string,
+    options: AnalysisOptions = {},
+  ): Promise<AnalysisResult | null> {
+    await this.ensureReady()
+    if (this.pendingRequest || this.infiniteAnalysisCallback) {
+      logger.warn(`[SingleThreadEngineManager] getAnalysis called while busy. Aborting.`)
+      return null
+    }
+
+    return new Promise<AnalysisResult | null>((resolve, reject) => {
+      const timeoutDuration = (options.movetime || 2000) + 3000
+      this.pendingRequest = {
+        resolve,
+        reject,
+        timeoutId: window.setTimeout(() => {
+          logger.warn(`[SingleThreadEngineManager] getAnalysis timed out for FEN: ${fen}`)
+          this.sendCommand('stop')
+          reject(new Error('Stockfish analysis timeout'))
+          this.pendingRequest = null
+        }, timeoutDuration),
+        collectedLines: new Map(),
+      }
+
+      this.sendCommand('ucinewgame')
+      this.sendCommand(`position fen ${fen}`)
+      const goCommand = `go ${options.depth ? `depth ${options.depth}` : ''} ${options.movetime ? `movetime ${options.movetime}` : ''
+        }`.trim()
+      this.sendCommand(goCommand || 'go depth 10')
+    })
+  }
+
+  public async getBestMoveOnly(
+    fen: string,
+    options: { depth?: number; movetime?: number } = {},
+  ): Promise<string | null> {
+    const result = await this.getAnalysis(fen, { ...options })
+    return result?.bestMoveUci || null
   }
 
   public async startAnalysis(fen: string, callback: AnalysisUpdateCallback): Promise<void> {
     await this.ensureReady()
-    if (!this.engine) return
+    if (this.pendingRequest) {
+      logger.warn(
+        `[SingleThreadEngineManager] Cannot start analysis while a getBestMove request is pending.`,
+      )
+      return
+    }
     this.infiniteAnalysisCallback = callback
-    // ucinewgame removed to preserve hash. Use startNewGame() for explicit reset.
+    this.sendCommand('ucinewgame')
     this.sendCommand(`position fen ${fen}`)
     this.sendCommand('go infinite')
   }
 
-  public async startNewGame(): Promise<void> {
-    await this.ensureReady()
-    if (!this.engine) return
-    this.sendCommand('ucinewgame')
-    this.sendCommand('isready')
-  }
-
   public async stopAnalysis(): Promise<void> {
     await this.ensureReady()
-    if (!this.engine) return
     this.infiniteAnalysisCallback = null
     this.sendCommand('stop')
   }
 
   public async setOption(name: string, value: string | number): Promise<void> {
     await this.ensureReady()
-    if (!this.engine) return
     this.sendCommand(`setoption name ${name} value ${value}`)
-  }
-
-  public isMultiThreadingSupported(): boolean {
-    return this.isSupported
-  }
-
-  public getMaxThreads(): number {
-    // navigator.hardwareConcurrency возвращает общее количество логических процессоров.
-    // Обычно рекомендуется использовать на 1-2 меньше для отзывчивости интерфейса,
-    // но Stockfish эффективно масштабируется.
-    return Math.max(1, navigator.hardwareConcurrency || 4)
   }
 }
 
-export const multiThreadEngineManager = new MultiThreadEngineManagerController()
+export const singleThreadEngineManager = new SingleThreadEngineManagerController()

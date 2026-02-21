@@ -1,6 +1,6 @@
 <!-- src/components/UserStats.vue -->
 <script setup lang="ts">
-import { useAuthStore } from '@/stores/auth.store'
+import { useAuthStore } from '@/entities/user/auth.store'
 import type { TornadoMode } from '@/types/api.types'
 import { GolfOutline, LockClosedOutline, RibbonOutline, WalletOutline } from '@vicons/ionicons5'
 import {

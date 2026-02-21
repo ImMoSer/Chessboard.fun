@@ -5,9 +5,9 @@ import { makeSan } from 'chessops/san'
 import type { Color as ChessopsColor } from 'chessops/types'
 import { parseUci } from 'chessops/util'
 import logger from '../utils/logger'
-import type { AnalysisUpdateCallback, EvaluatedLine, WdlStats } from './MultiThreadEngineManager'
-import { multiThreadEngineManager } from './MultiThreadEngineManager'
-import { singleThreadEngineManager } from './SingleThreadEngineManager'
+import type {  AnalysisUpdateCallback, EvaluatedLine, WdlStats  } from '@/entities/engine/MultiThreadEngineManager'
+import  {  multiThreadEngineManager  } from '@/entities/engine/MultiThreadEngineManager'
+import {  singleThreadEngineManager  } from '@/entities/engine/SingleThreadEngineManager'
 
 export interface EvaluatedLineWithSan extends EvaluatedLine {
   pvSan: string[]

@@ -8,7 +8,7 @@ import { InsufficientFunCoinsError, webhookService } from '../services/WebhookSe
 import type { TornadoSessionResult, TornadoPuzzle } from '../types/api.types'
 import { type TornadoMode } from '../types/api.types'
 import logger from '../utils/logger'
-import { useAuthStore } from './auth.store'
+import {  useAuthStore  } from '@/entities/user/auth.store'
 import { useGameStore } from './game.store'
 import { useUiStore } from './ui.store'
 import { Glicko2Calculator, type GlickoState } from '../utils/glicko2'

@@ -24,7 +24,7 @@
 <script setup lang="ts">
 import { isServerEngine } from '@/services/GameplayService'
 import i18n from '@/services/i18n'
-import { useAuthStore } from '@/stores/auth.store'
+import { useAuthStore } from '@/entities/user/auth.store'
 import { useUiStore } from '@/stores/ui.store'
 import type { Color as ChessgroundColor, EngineId } from '@/types/api.types'
 import { ref, watch } from 'vue'
@@ -35,7 +35,7 @@ import GameLayout from '../components/GameLayout.vue'
 import TopInfoPanel from '../components/TopInfoPanel.vue'
 import { shareService } from '../services/share.service'
 import { useAnalysisStore } from '../stores/analysis.store'
-import { useBoardStore } from '../stores/board.store'
+import {  useBoardStore  } from '@/entities/board/board.store'
 import { useControlsStore } from '../stores/controls.store'
 import { useGameStore } from '../stores/game.store'
 

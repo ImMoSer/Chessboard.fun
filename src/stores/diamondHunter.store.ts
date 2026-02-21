@@ -8,7 +8,7 @@ import { pgnService } from '../services/PgnService'
 import { soundService } from '../services/sound.service'
 import logger from '../utils/logger'
 import { useAnalysisStore } from './analysis.store'
-import { useBoardStore } from './board.store'
+import {  useBoardStore  } from '@/entities/board/board.store'
 
 export type HunterState = 'IDLE' | 'HUNTING' | 'SOLVING' | 'REWARD' | 'FAILED' | 'SAVING'
 

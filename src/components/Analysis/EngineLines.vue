@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { EvaluatedLineWithSan } from '@/services/AnalysisService'
 import { useAnalysisStore } from '@/stores/analysis.store'
-import { useBoardStore } from '@/stores/board.store'
+import {  useBoardStore  } from '@/entities/board/board.store'
 import { NButton, NText, NTooltip } from 'naive-ui'
 import { storeToRefs } from 'pinia'
 import { useI18n } from 'vue-i18n'

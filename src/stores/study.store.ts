@@ -5,8 +5,8 @@ import { chapterApiService } from '@/services/ChapterApiService'
 import { makeFen, parseFen } from 'chessops/fen'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
-import { useBoardStore } from './board.store'
-import { useAuthStore } from './auth.store'
+import {  useBoardStore  } from '@/entities/board/board.store'
+import {  useAuthStore  } from '@/entities/user/auth.store'
 
 export interface StudyChapter {
   id: string

@@ -7,7 +7,7 @@ import {
     type RepertoireRequest,
     type RepertoireStyle,
 } from '@/services/RepertoireApiService'
-import { useBoardStore } from '@/stores/board.store'
+import {  useBoardStore  } from '@/entities/board/board.store'
 import { useStudyStore } from '@/stores/study.store'
 import { FlashOutline } from '@vicons/ionicons5'
 import {

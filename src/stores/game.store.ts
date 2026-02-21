@@ -8,7 +8,7 @@ import { pgnService } from '../services/PgnService'
 import { soundService } from '../services/sound.service'
 import logger from '../utils/logger'
 import { useAnalysisStore } from './analysis.store'
-import { useBoardStore, type GameEndOutcome } from './board.store'
+import {  useBoardStore, type GameEndOutcome  } from '@/entities/board/board.store'
 import { useControlsStore } from './controls.store'
 import { useUiStore } from './ui.store'
 
