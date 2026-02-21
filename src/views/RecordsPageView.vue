@@ -1,32 +1,63 @@
 <!-- src/views/RecordsPageView.vue -->
 <script setup lang="ts">
-import { storeToRefs } from 'pinia'
-import { computed, onMounted } from 'vue'
+import {
+    useCombinedLeaderboardsQuery,
+    useOverallSkillLeaderboardQuery,
+} from '@/shared/api/queries/leaderboard.queries'
+import type { SkillPeriod } from '@/types/api.types'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
-import { useRecordsStore } from '../stores/records.store'
-import type { SkillPeriod } from '../types/api.types'
+import { EXAMPLE_HALL_OF_FAME_DATA } from '../constants/exampleCabinetData'
 
 // Импорт дочерних компонентов
 import SkillLeaderboardTable from '../components/recordsPage/SkillLeaderboardTable.vue'
 import ThematicLeaderboardTable from '../components/recordsPage/ThematicLeaderboardTable.vue'
 import TimedModeLeaderboardTable from '../components/recordsPage/TimedModeLeaderboardTable.vue'
 
-const recordsStore = useRecordsStore()
 const { t } = useI18n()
-
-const { isSkillLeaderboardLoading, error, leaderboards, selectedSkillPeriod } =
-  storeToRefs(recordsStore)
 
 const route = useRoute()
 const isExample = computed(() => route.params.id === 'example')
+const selectedSkillPeriod = ref<SkillPeriod>('7')
 
-onMounted(() => {
-  recordsStore.fetchLeaderboards(isExample.value)
+// Vue Query fetching
+const {
+  data: combinedData,
+  isPending: isCombinedPending,
+  isError: isCombinedError,
+  error: combinedError,
+} = useCombinedLeaderboardsQuery(!isExample.value)
+
+// Overall Skill Query
+const {
+  data: overallSkillData,
+  isFetching: isSkillLeaderboardLoading, // use isFetching so it highlights during refetches
+} = useOverallSkillLeaderboardQuery(selectedSkillPeriod.value, !isExample.value)
+
+// Merged Data logic
+const leaderboards = computed(() => {
+  if (isExample.value) {
+    return EXAMPLE_HALL_OF_FAME_DATA
+  }
+  if (!combinedData.value) return null
+
+  return {
+    ...combinedData.value,
+    overallSkillLeaderboard: overallSkillData.value || combinedData.value.overallSkillLeaderboard
+  }
+})
+
+const isLoading = computed(() => {
+    return isExample.value ? false : isCombinedPending.value
+})
+
+const error = computed(() => {
+    return isExample.value ? null : (isCombinedError.value ? combinedError.value?.message : null)
 })
 
 const handleSkillPeriodChange = (period: SkillPeriod) => {
-  recordsStore.changeSkillPeriod(period)
+  selectedSkillPeriod.value = period
 }
 </script>
 
@@ -38,7 +69,11 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
       :alt="t('records.bannerAlt')"
     />
 
-    <div v-if="error" class="records-page__error-message">
+    <div v-if="isLoading" class="loading-message">
+      <n-spin size="small" /> {{ t('common.loading') }}
+    </div>
+
+    <div v-else-if="error" class="records-page__error-message">
       {{ t('common.error') }}: {{ error }}
     </div>
 
