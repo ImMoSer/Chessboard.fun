@@ -1,10 +1,12 @@
 // src/stores/theoryEndings.store.ts
-import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import i18n from '@/shared/config/i18n'
-import { soundService } from '@/features/settings/lib/sound.service'
+import { useBoardStore, type GameEndOutcome } from '@/entities/board/board.store'
+import { useGameStore } from '@/entities/game/model/game.store'
+import { useAuthStore } from '@/entities/user/auth.store'
+import { useAnalysisStore } from '@/features/analysis/model/analysis.store'
 import { InsufficientFunCoinsError, webhookService } from '@/shared/api/WebhookService'
+import i18n from '@/shared/config/i18n'
+import { soundService } from '@/shared/lib/sound/sound.service'
+import { useUiStore } from '@/shared/ui/model/ui.store'
 import type {
   TheoryEndingCategory,
   TheoryEndingDifficulty,
@@ -12,11 +14,9 @@ import type {
   TheoryPuzzle,
 } from '@/types/api.types'
 import logger from '@/utils/logger'
-import { useAnalysisStore } from '@/features/analysis/model/analysis.store'
-import {  useAuthStore  } from '@/entities/user/auth.store'
-import {  useBoardStore, type GameEndOutcome  } from '@/entities/board/board.store'
-import { useGameStore } from '@/entities/game/model/game.store'
-import { useUiStore } from '@/shared/ui/model/ui.store'
+import { defineStore } from 'pinia'
+import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 const t = i18n.global.t
 

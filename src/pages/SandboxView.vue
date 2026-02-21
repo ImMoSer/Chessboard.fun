@@ -23,18 +23,18 @@
 
 <script setup lang="ts">
 import { useBoardStore } from '@/entities/board/board.store'
-import { useAuthStore } from '@/entities/user/auth.store'
-import AnalysisPanel from '@/features/analysis/ui/AnalysisPanel.vue'
 import { isServerEngine } from '@/entities/game/lib/GameplayService'
+import { useGameStore } from '@/entities/game/model/game.store'
+import { useAuthStore } from '@/entities/user/auth.store'
+import { useAnalysisStore } from '@/features/analysis/model/analysis.store'
+import AnalysisPanel from '@/features/analysis/ui/AnalysisPanel.vue'
 import i18n from '@/shared/config/i18n'
+import { shareService } from '@/shared/lib/share.service'
 import { useUiStore } from '@/shared/ui/model/ui.store'
 import type { Color as ChessgroundColor, EngineId } from '@/types/api.types'
+import { useControlsStore } from '@/widgets/game-layout/model/controls.store'
 import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { shareService } from '@/shared/lib/share.service'
-import { useAnalysisStore } from '@/features/analysis/model/analysis.store'
-import { useControlsStore } from '@/widgets/game-layout/model/controls.store'
-import { useGameStore } from '@/entities/game/model/game.store'
 import ControlPanel from '../widgets/game-layout/ControlPanel.vue'
 import GameLayout from '../widgets/game-layout/GameLayout.vue'
 import TopInfoPanel from '../widgets/game-layout/TopInfoPanel.vue'
@@ -51,11 +51,20 @@ const t = i18n.global.t
 
 const fenInput = ref('')
 
-const loadGameFromFen = (fen: string, userColor?: ChessgroundColor) => {
+const loadGameFromFen = async (fen: string, userColor?: ChessgroundColor) => {
   if (!fen) return
   const formattedFen = fen.replace(/_/g, ' ')
   fenInput.value = formattedFen
-  gameStore.startSandboxGame(fen, userColor)
+
+  try {
+    await analysisStore.hidePanel()
+    gameStore.setBotEngineId(controlsStore.selectedEngine)
+    gameStore.startSandboxGame(fen, userColor)
+  } catch {
+    await uiStore.showConfirmation('Invalid FEN', 'The provided FEN is not valid.', {
+      showCancel: false
+    })
+  }
 }
 
 const playFen = () => {
@@ -143,6 +152,10 @@ watch(
     const isGameOver = gameStore.gamePhase === 'GAMEOVER'
     const isIdle = gameStore.gamePhase === 'IDLE'
     const isPlaying = gameStore.gamePhase === 'PLAYING'
+
+    if (isGameOver) {
+      analysisStore.showPanel(false)
+    }
 
     controlsStore.setControls({
       canRequestNew: false,

@@ -1,11 +1,12 @@
 // src/stores/analysis.store.ts
+import { useBoardStore } from '@/entities/board/board.store'
+import { useGameStore } from '@/entities/game/model/game.store'
+import { analysisService, type EvaluatedLineWithSan } from '@/features/analysis/api/AnalysisService'
+import logger from '@/utils/logger'
 import type { DrawShape } from '@lichess-org/chessground/draw'
 import type { Key } from '@lichess-org/chessground/types'
 import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
-import { analysisService, type EvaluatedLineWithSan } from '@/features/analysis/api/AnalysisService'
-import logger from '@/utils/logger'
-import {  useBoardStore  } from '@/entities/board/board.store'
 
 const THREADS_STORAGE_KEY = 'analysis_threads'
 const ARROW_STYLES = [
@@ -30,7 +31,19 @@ export const useAnalysisStore = defineStore('analysis', () => {
   // --- Внутренний механизм для предотвращения гонки состояний ---
   let analysisVersion = 0
 
+  const gameStore = useGameStore()
+
   // --- СЛЕЖЕНИЕ ЗА ИЗМЕНЕНИЯМИ ---
+  watch(
+    () => gameStore.gamePhase,
+    (phase) => {
+      if (phase === 'IDLE' && (isPanelVisible.value || isAnalysisActive.value)) {
+        logger.info('[AnalysisStore] Auto-resetting because gamePhase became IDLE')
+        resetAnalysisState()
+      }
+    }
+  )
+
   watch(
     () => boardStore.fen,
     (newFen) => {

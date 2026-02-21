@@ -1,16 +1,14 @@
 // src/stores/game.store.ts
+import { useBoardStore, type GameEndOutcome } from '@/entities/board/board.store'
+import { gameplayService } from '@/entities/game/lib/GameplayService'
+import { pgnService } from '@/shared/lib/pgn/PgnService'
+import { soundService } from '@/shared/lib/sound/sound.service'
+import type { EngineId } from '@/types/api.types'
+import logger from '@/utils/logger'
 import type { Color as ChessgroundColor, Key } from '@lichess-org/chessground/types'
 import { parseFen } from 'chessops/fen'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { gameplayService } from '@/entities/game/lib/GameplayService'
-import { pgnService } from '@/shared/lib/pgn/PgnService'
-import { soundService } from '@/features/settings/lib/sound.service'
-import logger from '@/utils/logger'
-import { useAnalysisStore } from '@/features/analysis/model/analysis.store'
-import {  useBoardStore, type GameEndOutcome  } from '@/entities/board/board.store'
-import { useControlsStore } from '@/widgets/game-layout/model/controls.store'
-import { useUiStore } from '@/shared/ui/model/ui.store'
 
 export type GamePhase = 'IDLE' | 'LOADING' | 'PLAYING' | 'GAMEOVER'
 export type GameMode =
@@ -24,7 +22,7 @@ export type GameMode =
 
 const BOT_MOVE_DELAY_MS = 50
 const FIRST_BOT_MOVE_DELAY_MS = 500
-const noop = () => {}
+const noop = () => { }
 
 export const useGameStore = defineStore('game', () => {
   const gamePhase = ref<GamePhase>('IDLE')
@@ -35,12 +33,9 @@ export const useGameStore = defineStore('game', () => {
   const userMovesCount = ref(0)
   const isGameActive = ref(false)
   const shouldAutoPlayBot = ref(true)
+  const botEngineId = ref<EngineId>('MOZER_2000')
 
   const boardStore = useBoardStore()
-  const controlsStore = useControlsStore()
-  const analysisStore = useAnalysisStore()
-  const uiStore = useUiStore()
-
   let onGameOverCallback: (isWin: boolean, outcome?: GameEndOutcome) => void = noop
   let checkWinCondition: (outcome?: GameEndOutcome) => boolean = () => false
   let onPlayoutStartCallback: () => void = noop
@@ -84,8 +79,7 @@ export const useGameStore = defineStore('game', () => {
           }
           currentScenarioMoveIndex.value++
         }
-        const selectedEngine = controlsStore.selectedEngine
-        botMoveUci = await gameplayService.getBestMove(selectedEngine, boardStore.fen)
+        botMoveUci = await gameplayService.getBestMove(botEngineId.value, boardStore.fen)
       } catch (error) {
         logger.error('[GameStore] Error getting move from gameplayService:', error)
         isGameActive.value = false
@@ -162,25 +156,16 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
-  async function startSandboxGame(rawFen: string, userColor?: ChessgroundColor) {
-    analysisStore.hidePanel()
+  function startSandboxGame(rawFen: string, userColor?: ChessgroundColor) {
     const fen = rawFen.replace(/_/g, ' ')
 
-    try {
-      parseFen(fen).unwrap()
-    } catch {
-      await uiStore.showConfirmation('Invalid FEN', 'The provided FEN is not valid.', {
-        showCancel: false,
-      })
-      return
-    }
+    parseFen(fen).unwrap() // throws if invalid FEN
 
     const onGameOver = (isWin: boolean, outcome?: GameEndOutcome) => {
       logger.info(`[Sandbox] Game over. Win: ${isWin}, Outcome: ${outcome?.reason}`)
       setGamePhase('GAMEOVER')
       const pgn = pgnService.getCurrentPgnString({ showResult: true })
       logger.info(`[Sandbox] Final PGN: ${pgn}`)
-      analysisStore.showPanel(false)
     }
 
     const winCondition = (outcome?: GameEndOutcome) => {
@@ -249,9 +234,12 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
+  function setBotEngineId(id: EngineId) {
+    botEngineId.value = id
+  }
+
   async function resetGame() {
     boardStore.resetBoardState()
-    await analysisStore.resetAnalysisState()
 
     gamePhase.value = 'IDLE'
     scenarioMoves.value = []
@@ -282,5 +270,6 @@ export const useGameStore = defineStore('game', () => {
     resetGame,
     userMovesCount,
     shouldAutoPlayBot,
+    setBotEngineId,
   }
 })
