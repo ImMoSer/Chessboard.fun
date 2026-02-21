@@ -157,6 +157,40 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
         reset()
     }
 
+    // --- Hunt Phase Validation ---
+    async function handleHuntMove(uci: string) {
+        if (state.value !== 'HUNTING') return
+
+        const playerColor = analysisStore.playerColor || 'white'
+        // Only validate if it was the player's turn
+        // (The bot's moves are already taken from gravity stats)
+        if (boardStore.turn === playerColor) {
+            // Wait, if handleHuntMove is called via callback, the move is ALREADY on the board.
+            // So boardStore.turn has already switched to the bot.
+            // We need to check the move AGAINST the gravity stats of the PREVIOUS position.
+            // Fortunately, currentGravityStats is cached for the FEN before the move.
+        }
+
+        const stats = currentGravityStats.value
+        const isValid = stats?.moves.some(m => m.uci === uci)
+
+        if (!isValid) {
+            logger.warn('DiamondHunter: User left theory during hunt. Undoing...', { uci })
+            soundService.playSound('game_tacktics_error')
+            message.value = 'Stay in theory! Follow the arrows.'
+
+            pgnService.undoLastMove()
+            boardStore.syncBoardWithPgn()
+
+            // Redraw arrows for the user
+            await updateArrows()
+        } else {
+            // Valid move: update arrows will be triggered by the FEN watcher,
+            // but we can also call it here for responsiveness if needed.
+            // Actually, the bot will move next if it's bot's turn.
+        }
+    }
+
     // --- Arrow Logic (User Turn) ---
     async function updateArrows() {
         if (state.value === 'SOLVING' || state.value === 'SAVING') return
@@ -670,6 +704,7 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
         botMove,
         completeDiamond,
         handleUserSolvingMove,
+        handleHuntMove,
         handleSaveMove, // Export for View/GameStore to call
         startSaveRun,
         fetchGravityForFen,

@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { ArrowBack, DiamondOutline, FlashOutline, TelescopeOutline } from '@vicons/ionicons5'
 import { NButton, NIcon, NModal, NNumberAnimation, NSpace, NStatistic } from 'naive-ui'
-import { onMounted, onUnmounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AnalysisPanel from '../components/AnalysisPanel.vue'
 import DiamondHunterSettingsModal from '../components/DiamondHunter/DiamondHunterSettingsModal.vue'
@@ -23,32 +23,10 @@ const route = useRoute()
 
 const isSettingsModalOpen = ref(true)
 const isAnalysisView = ref(false)
-let navigationDebounce: ReturnType<typeof setTimeout> | null = null
 
-// Sync Opening Stats with Board Position (Debounced for Navigation)
-watch(
-  () => boardStore.fen,
-  async () => {
-    // Diamond Hunter Logic
-    if (diamondHunterStore.isActive) {
-       // If it is User's turn, update arrows
-       if (boardStore.turn === analysisStore.playerColor) {
-           await diamondHunterStore.updateArrows()
-       } else {
-           // If it is Bot's turn, trigger bot move
-           await diamondHunterStore.botMove()
-       }
-    }
-
-    if (navigationDebounce) clearTimeout(navigationDebounce)
-
-    navigationDebounce = setTimeout(() => {
-        // Minimal fetch just to ensure we have data if needed??
-        // Actually diamondHunterStore fetches its own stats in updateArrows/botMove.
-        // We might not need openingStore.fetchStats at all anymore.
-    }, 100)
-  },
-)
+// Redundant FEN watcher removed.
+// Logic moved to diamondHunterStore.handleUserMove (via gameStore callback)
+// and explicit calls in startSession / handleSaveMove.
 
 onMounted(async () => {
   diamondHunterStore.reset()
@@ -112,13 +90,8 @@ async function startSession(color: 'white' | 'black') {
            diamondHunterStore.handleUserSolvingMove(uci)
         } else if (diamondHunterStore.state === 'SAVING') {
            diamondHunterStore.handleSaveMove(uci)
-        } else {
-           // In Hunt mode, user just moves.
-           // We might want to validate move legality via boardStore, which handles it.
-           // But we usually need to update state.
-           // Check if boardStore.handleUserMove was called?
-           // gameStore.handleUserMove calls this callback.
-           // So the move is already applied on board if legitimate.
+        } else if (diamondHunterStore.state === 'HUNTING') {
+           diamondHunterStore.handleHuntMove(uci)
         }
       },
       undefined,
