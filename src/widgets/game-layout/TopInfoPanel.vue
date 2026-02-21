@@ -1,10 +1,10 @@
-<!-- src/components/TopInfoPanel.vue -->
+<!-- src/widgets/game-layout/TopInfoPanel.vue -->
 <script setup lang="ts">
 import type { PuzzleUnion } from '@/types/api.types'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
-import EngineSelector from '@/components/EngineSelector.vue'
+import EngineSelector from '@/features/engine/ui/EngineSelector.vue'
 import { useControlsStore } from '@/stores/controls.store'
 import { useDiamondHunterStore } from '@/stores/diamondHunter.store'
 import { useFinishHimStore } from '@/stores/finishHim.store'

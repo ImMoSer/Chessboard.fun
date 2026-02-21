@@ -1,8 +1,8 @@
 <!-- src/views/TornadoMistakesView.vue -->
 <script setup lang="ts">
 import AnalysisPanel from '@/features/analysis/ui/AnalysisPanel.vue'
-import ChessboardPreview from '@/components/ChessboardPreview.vue'
-import GameLayout from '@/components/GameLayout.vue'
+import ChessboardPreview from '@/shared/ui/board-preview/ChessboardPreview.vue'
+import GameLayout from '@/widgets/game-layout/GameLayout.vue'
 import { soundService } from '@/services/sound.service'
 import { useAnalysisStore } from '@/stores/analysis.store'
 import { useGameStore } from '@/stores/game.store'

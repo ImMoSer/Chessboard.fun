@@ -1,4 +1,4 @@
-<!-- src/components/ChessboardPreview.vue -->
+<!-- src/shared/ui/board-preview/ChessboardPreview.vue -->
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref, watch, shallowRef } from 'vue'
 import { Chessground } from '@lichess-org/chessground'

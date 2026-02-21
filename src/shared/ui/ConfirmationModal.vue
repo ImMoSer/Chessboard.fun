@@ -1,4 +1,4 @@
-<!-- src/components/ConfirmationModal.vue -->
+<!-- src/shared/ui/ConfirmationModal.vue -->
 <script setup lang="ts">
 import { useUiStore } from '@/stores/ui.store';
 

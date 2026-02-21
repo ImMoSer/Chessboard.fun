@@ -1,4 +1,4 @@
-<!-- src/components/EngineSelector.vue -->
+<!-- src/features/engine/ui/EngineSelector.vue -->
 <script setup lang="ts">
 import i18n from '@/services/i18n'
 import { useAuthStore } from '@/entities/user/auth.store'

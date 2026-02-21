@@ -11,9 +11,9 @@ import { useTheoryEndingsStore } from '../stores/theoryEndings.store'
 import type { TheoryEndingType } from '../types/api.types'
 
 import AnalysisPanel from '@/features/analysis/ui/AnalysisPanel.vue'
-import ControlPanel from '../components/ControlPanel.vue'
-import GameLayout from '../components/GameLayout.vue'
-import TopInfoPanel from '../components/TopInfoPanel.vue'
+import ControlPanel from '../widgets/game-layout/ControlPanel.vue'
+import GameLayout from '../widgets/game-layout/GameLayout.vue'
+import TopInfoPanel from '../widgets/game-layout/TopInfoPanel.vue'
 import UserProfileWidget from '@/features/profile/ui/UserProfileWidget.vue'
 
 const theoryStore = useTheoryEndingsStore()

@@ -1,6 +1,6 @@
 <!-- src/components/AnalysisPanel.vue -->
 <script setup lang="ts">
-import EngineLines from '@/components/Analysis/EngineLines.vue'
+import EngineLines from '@/features/analysis/ui/EngineLines.vue'
 import type { PgnNode } from '@/services/PgnService'
 import { pgnService, pgnTreeVersion } from '@/services/PgnService'
 import { useAnalysisStore } from '@/stores/analysis.store'

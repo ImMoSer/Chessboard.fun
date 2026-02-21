@@ -1,4 +1,4 @@
-<!-- src/components/FinishHimSelection.vue -->
+<!-- src/features/finish-him/ui/FinishHimSelection.vue -->
 <script setup lang="ts">
 import { useFinishHimStore } from '@/stores/finishHim.store'
 import { useGameStore } from '@/stores/game.store'

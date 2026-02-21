@@ -9,11 +9,11 @@ import { useGameStore } from '../stores/game.store'
 import { usePracticalChessStore } from '../stores/practicalChess.store'
 
 import AnalysisPanel from '@/features/analysis/ui/AnalysisPanel.vue'
-import ControlPanel from '../components/ControlPanel.vue'
-import GameLayout from '../components/GameLayout.vue'
-import TopInfoPanel from '../components/TopInfoPanel.vue'
+import ControlPanel from '../widgets/game-layout/ControlPanel.vue'
+import GameLayout from '../widgets/game-layout/GameLayout.vue'
+import TopInfoPanel from '../widgets/game-layout/TopInfoPanel.vue'
 import UserProfileWidget from '@/features/profile/ui/UserProfileWidget.vue'
-import YouMoveSelection from '../components/practical/YouMoveSelection.vue'
+import YouMoveSelection from '../features/practical-chess/ui/YouMoveSelection.vue'
 
 const practicalStore = usePracticalChessStore()
 const gameStore = useGameStore()

@@ -5,9 +5,9 @@ import { NEmpty, NIcon, NScrollbar, NText } from 'naive-ui'
 import { storeToRefs } from 'pinia'
 import { computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { pgnService, pgnTreeVersion } from '../../services/PgnService'
-import { WikiUrlBuilder } from '../../services/WikiBooksService'
-import { useWikiBooksStore } from '../../stores/wikibooks.store'
+import { pgnService, pgnTreeVersion } from '@/services/PgnService'
+import { WikiUrlBuilder } from '@/services/WikiBooksService'
+import { useWikiBooksStore } from '@/stores/wikibooks.store'
 
 const { t } = useI18n()
 const store = useWikiBooksStore()
