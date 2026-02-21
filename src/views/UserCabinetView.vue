@@ -1,26 +1,65 @@
 <!-- src/views/UserCabinetView.vue -->
 <script setup lang="ts">
+import {
+    EXAMPLE_ACTIVITY_STATS,
+    EXAMPLE_DETAILED_STATS,
+    EXAMPLE_USER_PROFILE,
+} from '@/constants/exampleCabinetData'
 import { useAuthStore } from '@/entities/user/auth.store'
-import { useUserCabinetStore } from '@/stores/userCabinet.store'
+import {
+    useDetailedStatsQuery,
+    usePersonalActivityStatsQuery,
+} from '@/shared/api/queries/userCabinet.queries'
 import type { FinishHimDifficulty, TornadoMode } from '@/types/api.types'
 import { storeToRefs } from 'pinia'
-import { computed, onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute } from 'vue-router'
 
 import ActivityChart from '@/components/userCabinet/sections/ActivityChart.vue'
 import ThemeRoseChart from '@/components/userCabinet/sections/ThemeRoseChart.vue'
 import TheoryStackbarChart from '@/components/userCabinet/sections/TheoryStackbarChart.vue'
 import UserProfileHeader from '@/components/userCabinet/sections/UserProfileHeader.vue'
-import { EXAMPLE_USER_PROFILE } from '@/constants/exampleCabinetData'
-import { useRoute } from 'vue-router'
 
 const { t } = useI18n()
 
 const authStore = useAuthStore()
 const { userProfile, isAuthenticated } = storeToRefs(authStore)
 
-const userCabinetStore = useUserCabinetStore()
-const { error, detailedStats } = storeToRefs(userCabinetStore)
+const route = useRoute()
+const isExample = computed(() => route.params.id === 'example')
+
+// Vue Query fetching
+const {
+  data: personalActivityData,
+  isPending: isActivityPending,
+  isError: isActivityError,
+  error: activityError
+} = usePersonalActivityStatsQuery(!isExample.value && isAuthenticated.value)
+
+const {
+  data: detailedStatsData,
+  isError: isDetailedStatsError,
+  error: detailedError,
+} = useDetailedStatsQuery(!isExample.value && isAuthenticated.value)
+
+// Computed wrappers to support Example Mode
+const personalActivityStats = computed(() => {
+  return isExample.value ? EXAMPLE_ACTIVITY_STATS : personalActivityData.value
+})
+
+const detailedStats = computed(() => {
+  return isExample.value ? EXAMPLE_DETAILED_STATS : detailedStatsData.value
+})
+
+const error = computed(() => {
+  if (isExample.value) return null
+  if (!isAuthenticated.value) return null // Handled by login-prompt
+  if (isActivityError.value) return activityError.value?.message
+  if (isDetailedStatsError.value) return detailedError.value?.message
+  return null
+})
+
 
 // ... imports
 // ...
@@ -55,20 +94,9 @@ const currentFinishHimThemes = computed(() => {
 */
 
 
-const route = useRoute()
-const isExample = computed(() => route.params.id === 'example')
-
 const displayProfile = computed(() => {
   if (isExample.value) return EXAMPLE_USER_PROFILE
   return userProfile.value
-})
-
-onMounted(() => {
-  if (isExample.value) {
-    userCabinetStore.loadExampleData()
-  } else {
-    userCabinetStore.initializePage()
-  }
 })
 </script>
 
@@ -96,7 +124,10 @@ onMounted(() => {
       <n-space vertical size="large">
         <UserProfileHeader :profile-override="displayProfile" />
 
-        <ActivityChart />
+        <ActivityChart
+          :stats="personalActivityStats"
+          :is-loading="isExample ? false : isActivityPending"
+        />
 
         <div class="charts-grid">
           <!-- Tornado Stats Section -->

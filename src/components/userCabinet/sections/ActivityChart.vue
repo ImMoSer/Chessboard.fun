@@ -1,12 +1,12 @@
 <!-- src/components/userCabinet/sections/ActivityChart.vue -->
 <script setup lang="ts">
-import { useUserCabinetStore, type ActivityPeriod } from '@/stores/userCabinet.store'
+export type ActivityPeriod = 'daily' | 'weekly' | 'monthly'
+
 import { BarChart } from 'echarts/charts'
 import { GridComponent, LegendComponent, TooltipComponent } from 'echarts/components'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
-import { storeToRefs } from 'pinia'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import VChart from 'vue-echarts'
 import { useI18n } from 'vue-i18n'
 
@@ -18,10 +18,17 @@ interface TooltipParam {
   color: string
 }
 
+import type { PersonalActivityStatsResponse } from '@/types/api.types'
+
+const props = defineProps<{
+  stats: PersonalActivityStatsResponse | null | undefined
+  isLoading: boolean
+}>()
+
 const { t } = useI18n()
-const userCabinetStore = useUserCabinetStore()
-const { personalActivityStats, isPersonalActivityStatsLoading, selectedActivityPeriod } =
-  storeToRefs(userCabinetStore)
+
+// Local state for the selected period tab
+const selectedActivityPeriod = ref<ActivityPeriod>('daily')
 
 const modeColors = {
   finish_him: { solved: '#42b883', requested: 'rgba(66, 184, 131, 0.2)' },
@@ -31,13 +38,13 @@ const modeColors = {
 }
 
 const handlePeriodChange = (period: string) => {
-  userCabinetStore.setSelectedActivityPeriod(period as ActivityPeriod)
+  selectedActivityPeriod.value = period as ActivityPeriod
 }
 
 const chartOption = computed(() => {
-  if (!personalActivityStats.value) return {}
+  if (!props.stats) return {}
 
-  const periodData = personalActivityStats.value[selectedActivityPeriod.value]
+  const periodData = props.stats[selectedActivityPeriod.value]
 
   const modes = [
     { key: 'theory', name: t('userCabinet.stats.modes.theory') },
@@ -132,7 +139,7 @@ const chartOption = computed(() => {
 </script>
 
 <template>
-  <n-card class="activity-chart-card" :loading="isPersonalActivityStatsLoading">
+<n-card class="activity-chart-card" :loading="isLoading">
     <template #header>
       <div class="card-header-flex">
         <span class="card-title">{{ t('userCabinet.stats.global.title') }}</span>
@@ -151,7 +158,7 @@ const chartOption = computed(() => {
     </template>
 
     <div class="chart-container">
-      <v-chart v-if="personalActivityStats" class="chart" :option="chartOption" autoresize />
+      <v-chart v-if="stats" class="chart" :option="chartOption" autoresize />
       <n-empty v-else :description="t('userCabinet.stats.noData')" />
     </div>
   </n-card>
