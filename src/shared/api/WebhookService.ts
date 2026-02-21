@@ -22,8 +22,8 @@ import type {
   TornadoStartResponse,
   UserProfileStatsDto,
   UserTheoryEndingStatsDto,
-} from '@/types/api.types'
-import logger from '@/utils/logger'
+} from '@/shared/types/api.types'
+import logger from '@/shared/lib/logger'
 
 export class RateLimitError extends Error {
   public cooldownSeconds: number

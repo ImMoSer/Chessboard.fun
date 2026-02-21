@@ -5,15 +5,15 @@ import { InsufficientFunCoinsError, webhookService } from '@/shared/api/WebhookS
 import i18n from '@/shared/config/i18n'
 import { soundService } from '@/shared/lib/sound/sound.service'
 import { useUiStore } from '@/shared/ui/model/ui.store'
-import type { TornadoPuzzle, TornadoSessionResult } from '@/types/api.types'
-import { type TornadoMode } from '@/types/api.types'
-import { Glicko2Calculator, type GlickoState } from '@/utils/glicko2'
-import logger from '@/utils/logger'
+import type { TornadoPuzzle, TornadoSessionResult } from '@/shared/types/api.types'
+import { type TornadoMode } from '@/shared/types/api.types'
+import { Glicko2Calculator, type GlickoState } from '@/shared/lib/glicko2'
+import logger from '@/shared/lib/logger'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-export type { TornadoMode } from '@/types/api.types'
+export type { TornadoMode } from '@/shared/types/api.types'
 
 const t = i18n.global.t
 const glicko = new Glicko2Calculator()

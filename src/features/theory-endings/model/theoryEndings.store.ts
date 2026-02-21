@@ -12,8 +12,8 @@ import type {
   TheoryEndingDifficulty,
   TheoryEndingType,
   TheoryPuzzle,
-} from '@/types/api.types'
-import logger from '@/utils/logger'
+} from '@/shared/types/api.types'
+import logger from '@/shared/lib/logger'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'

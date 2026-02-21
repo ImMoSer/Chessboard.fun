@@ -1,5 +1,5 @@
 // src/services/sound.service.ts
-import logger from '@/utils/logger'
+import logger from '@/shared/lib/logger'
 
 // --- НАСТРОЙКИ ---
 const VOICE_VOLUME_KEY = 'user_voice_volume'

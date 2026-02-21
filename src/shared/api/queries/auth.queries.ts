@@ -1,4 +1,4 @@
-import type { UserSessionProfile } from '@/types/api.types'
+import type { UserSessionProfile } from '@/shared/types/api.types'
 import { useQuery } from '@tanstack/vue-query'
 import { apiClient } from '../client'; // Adjust if needed
 

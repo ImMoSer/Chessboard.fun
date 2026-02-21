@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { mozerBookService, type MozerBookResponse } from '@/features/mozer-book/api/MozerBookService'
 import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
-import logger from '@/utils/logger'
+import logger from '@/shared/lib/logger'
 import {  useBoardStore  } from '@/entities/board/board.store'
 
 export const useMozerBookStore = defineStore('mozerBook', () => {

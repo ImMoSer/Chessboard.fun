@@ -1,7 +1,7 @@
 // src/stores/theme.store.ts
 import { ref, reactive } from 'vue'
 import { defineStore } from 'pinia'
-import logger from '@/utils/logger'
+import logger from '@/shared/lib/logger'
 
 // --- Типы и интерфейсы ---
 export interface BoardTheme {

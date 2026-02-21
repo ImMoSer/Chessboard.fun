@@ -1,5 +1,5 @@
 // src/services/RepertoireApiService.ts
-import logger from '@/utils/logger'
+import logger from '@/shared/lib/logger'
 
 export type RepertoireStyle = 'grossmaster' | 'master' | 'hustler'
 export type RepertoireProfile = 'amateur' | 'club' | 'tournament'

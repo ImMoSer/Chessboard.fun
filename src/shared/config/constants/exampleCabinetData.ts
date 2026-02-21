@@ -3,7 +3,7 @@ import type {
   PersonalActivityStatsResponse,
   UserProfileStatsDto,
   UserSessionProfile,
-} from '../types/api.types'
+} from '@/shared/types/api.types'
 
 export const EXAMPLE_USER_PROFILE: UserSessionProfile = {
   id: 'valid_all',

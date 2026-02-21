@@ -1,7 +1,7 @@
 // src/services/AuthService.ts
 import i18n from '@/shared/config/i18n'
-import type { AuthState, UserSessionProfile, UserStatsUpdate } from '@/types/api.types'
-import logger from '@/utils/logger'
+import type { AuthState, UserSessionProfile, UserStatsUpdate } from '@/shared/types/api.types'
+import logger from '@/shared/lib/logger'
 
 const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL as string
 

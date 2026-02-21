@@ -1,7 +1,7 @@
 // src/services/WikiBooksService.ts
 import Dexie, { type Table } from 'dexie'
-import type { WikiApiResponse, WikiPageExtract } from '@/types/wikibooks.types'
-import logger from '@/utils/logger'
+import type { WikiApiResponse, WikiPageExtract } from '@/shared/types/wikibooks.types'
+import logger from '@/shared/lib/logger'
 
 // --- Slug Builder ---
 export class WikiUrlBuilder {

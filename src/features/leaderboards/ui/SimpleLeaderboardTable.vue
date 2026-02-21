@@ -1,7 +1,7 @@
 <!-- src/components/recordsPage/SimpleLeaderboardTable.vue -->
 <script setup lang="ts">
 import InfoIcon from '@/shared/ui/InfoIcon.vue'
-import type { FinishHimLeaderboardEntry } from '@/types/api.types'
+import type { FinishHimLeaderboardEntry } from '@/shared/types/api.types'
 import type { DataTableColumns } from 'naive-ui'
 import { h, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'

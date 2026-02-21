@@ -1,4 +1,4 @@
-import { type SessionMove } from '@/types/openingSparring.types'
+import { type SessionMove } from '@/shared/types/openingSparring.types'
 
 export interface MoveQuality {
   moveNumber: number

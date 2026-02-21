@@ -1,6 +1,6 @@
 // src/services/ServerEngineService.ts
 import { authService } from '@/entities/user/AuthService'
-import logger from '@/utils/logger'
+import logger from '@/shared/lib/logger'
 
 const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL as string
 const SERVER_ENGINE_ENDPOINT = `${BACKEND_API_URL}/bestmove`

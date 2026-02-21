@@ -2,8 +2,8 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import type { EngineId } from '@/types/api.types'
-import logger from '@/utils/logger'
+import type { EngineId } from '@/shared/types/api.types'
+import logger from '@/shared/lib/logger'
 import { useUiStore } from '@/shared/ui/model/ui.store'
 
 const ENGINE_STORAGE_KEY = 'user_selected_engine'

@@ -10,8 +10,8 @@ import type {
   PracticalChessCategory,
   PracticalChessDifficulty,
   PracticalPuzzle,
-} from '@/types/api.types'
-import logger from '@/utils/logger'
+} from '@/shared/types/api.types'
+import logger from '@/shared/lib/logger'
 import type { Color as ChessgroundColor } from '@lichess-org/chessground/types'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'

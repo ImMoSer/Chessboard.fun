@@ -2,8 +2,8 @@
 import {
   loadMultiThreadEngine,
   type EngineController,
-} from '@/utils/engine.loader'
-import logger from '@/utils/logger'
+} from '@/shared/lib/engine.loader'
+import logger from '@/shared/lib/logger'
 
 // --- Интерфейсы для анализа ---
 export interface ScoreInfo {

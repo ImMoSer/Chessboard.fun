@@ -1,6 +1,6 @@
 <!-- src/widgets/game-layout/TopInfoPanel.vue -->
 <script setup lang="ts">
-import type { PuzzleUnion } from '@/types/api.types'
+import type { PuzzleUnion } from '@/shared/types/api.types'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -12,7 +12,7 @@ import { useGameStore } from '@/entities/game/model/game.store'
 import { usePracticalChessStore } from '@/features/practical-chess/model/practicalChess.store'
 import { useTheoryEndingsStore } from '@/features/theory-endings/model/theoryEndings.store'
 import { useTornadoStore } from '@/features/tornado/model/tornado.store'
-import { transformPuzzle } from '@/utils/puzzleTransformer'
+import { transformPuzzle } from '@/shared/lib/puzzleTransformer'
 import { BarChartOutline, DiamondOutline, FlashOutline, TrendingUpOutline } from '@vicons/ionicons5'
 import { NIcon, NTag } from 'naive-ui'
 import { useI18n } from 'vue-i18n'

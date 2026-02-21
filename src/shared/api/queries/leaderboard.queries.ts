@@ -1,4 +1,4 @@
-import type { LeaderboardApiResponse, OverallSolvedLeaderboardEntry } from '@/types/api.types'
+import type { LeaderboardApiResponse, OverallSolvedLeaderboardEntry } from '@/shared/types/api.types'
 import { useQuery } from '@tanstack/vue-query'
 import { apiClient } from '../client'
 

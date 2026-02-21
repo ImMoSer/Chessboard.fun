@@ -7,7 +7,7 @@ import type {
     TheoryEndingCategory,
     TheoryEndingType,
     TornadoMode
-} from '@/types/api.types'
+} from '@/shared/types/api.types'
 import { useRouter } from 'vue-router'
 
 export interface GameLaunchOptions {

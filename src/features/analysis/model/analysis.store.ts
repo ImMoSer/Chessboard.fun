@@ -2,7 +2,7 @@
 import { useBoardStore } from '@/entities/board/board.store'
 import { useGameStore } from '@/entities/game/model/game.store'
 import { analysisService, type EvaluatedLineWithSan } from '@/features/analysis/api/AnalysisService'
-import logger from '@/utils/logger'
+import logger from '@/shared/lib/logger'
 import type { DrawShape } from '@lichess-org/chessground/draw'
 import type { Key } from '@lichess-org/chessground/types'
 import { defineStore } from 'pinia'

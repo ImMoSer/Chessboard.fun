@@ -1,6 +1,6 @@
 // src/services/cache.service.ts
 
-import logger from '@/utils/logger'
+import logger from '@/shared/lib/logger'
 
 class CacheServiceController {
   /**

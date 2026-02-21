@@ -5,7 +5,7 @@ import type {
     OverallSolvedLeaderboardEntry,
     SkillPeriod,
     SolveStreakLeaderboardEntry,
-} from '@/types/api.types'
+} from '@/shared/types/api.types'
 import { BarChart } from 'echarts/charts'
 import {
     GridComponent,

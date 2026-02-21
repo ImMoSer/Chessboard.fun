@@ -4,7 +4,7 @@ import en from '@/locales/en.json'
 import ru from '@/locales/ru.json'
 import de from '@/locales/de.json'
 
-import logger from '@/utils/logger'
+import logger from '@/shared/lib/logger'
 
 const LANG_STORAGE_KEY = 'user_preferred_language'
 

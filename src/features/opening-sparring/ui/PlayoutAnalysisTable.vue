@@ -20,7 +20,7 @@ import {
 import { computed, h } from 'vue'
 import {  useBoardStore  } from '@/entities/board/board.store'
 import { useOpeningSparringStore } from '@/features/opening-sparring/model/openingSparring.store'
-import { type SessionMove } from '@/types/openingSparring.types'
+import { type SessionMove } from '@/shared/types/openingSparring.types'
 
 const openingStore = useOpeningSparringStore()
 const boardStore = useBoardStore()

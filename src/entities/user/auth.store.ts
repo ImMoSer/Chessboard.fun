@@ -1,7 +1,7 @@
 // src/stores/auth.store.ts
 import { authService } from '@/entities/user/AuthService'
-import type { UserSessionProfile, UserStatsUpdate } from '@/types/api.types'
-import logger from '@/utils/logger'
+import type { UserSessionProfile, UserStatsUpdate } from '@/shared/types/api.types'
+import logger from '@/shared/lib/logger'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 

@@ -2,8 +2,8 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { wikiBooksApiService, WikiUrlBuilder } from '@/features/mozer-book/api/WikiBooksService'
-import type { WikiPageExtract } from '@/types/wikibooks.types'
-import logger from '@/utils/logger'
+import type { WikiPageExtract } from '@/shared/types/wikibooks.types'
+import logger from '@/shared/lib/logger'
 
 export const useWikiBooksStore = defineStore('wikibooks', () => {
   const wikiData = ref<WikiPageExtract | null>(null)

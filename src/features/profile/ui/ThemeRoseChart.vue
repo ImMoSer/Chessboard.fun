@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useGameLauncher } from '@/composables/useGameLauncher'
+import { useGameLauncher } from '@/shared/lib/composables/useGameLauncher'
 import { ExpandOutline } from '@vicons/ionicons5'
 import { PieChart } from 'echarts/charts'
 import { LegendComponent, TitleComponent, TooltipComponent } from 'echarts/components'

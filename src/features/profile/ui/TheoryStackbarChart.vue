@@ -1,6 +1,6 @@
 <!-- src/components/userCabinet/sections/TheoryStackbarChart.vue -->
 <script setup lang="ts">
-import { useGameLauncher } from '@/composables/useGameLauncher'
+import { useGameLauncher } from '@/shared/lib/composables/useGameLauncher'
 import { ExpandOutline } from '@vicons/ionicons5'
 import { BarChart } from 'echarts/charts'
 import {

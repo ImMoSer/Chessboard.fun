@@ -4,11 +4,11 @@ import {
     useCombinedLeaderboardsQuery,
     useOverallSkillLeaderboardQuery,
 } from '@/shared/api/queries/leaderboard.queries'
-import type { SkillPeriod } from '@/types/api.types'
+import { EXAMPLE_HALL_OF_FAME_DATA } from '@/shared/config/constants/exampleCabinetData'
+import type { SkillPeriod } from '@/shared/types/api.types'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
-import { EXAMPLE_HALL_OF_FAME_DATA } from '../constants/exampleCabinetData'
 
 // Импорт дочерних компонентов
 import SkillLeaderboardTable from '@/features/leaderboards/ui/SkillLeaderboardTable.vue'

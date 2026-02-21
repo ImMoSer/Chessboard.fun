@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { useFinishHimStore } from '@/features/finish-him/model/finishHim.store'
 import { useGameStore } from '@/entities/game/model/game.store'
-import { FINISH_HIM_THEMES } from '@/types/api.types'
+import { FINISH_HIM_THEMES } from '@/shared/types/api.types'
 import { storeToRefs } from 'pinia'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'

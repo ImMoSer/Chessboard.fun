@@ -1,6 +1,6 @@
 // src/services/MozerBookService.ts
 import { theoryCacheService } from '@/features/theory-endings/api/TheoryCacheService'
-import logger from '@/utils/logger'
+import logger from '@/shared/lib/logger'
 
 export interface MozerBookTheoryItem {
   san: string

@@ -5,7 +5,7 @@ import type {
     FinishHimLeaderboardEntry,
     TornadoLeaderboardEntry,
     TornadoMode,
-} from '@/types/api.types'
+} from '@/shared/types/api.types'
 import type { DataTableColumns } from 'naive-ui'
 import { computed, h, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'

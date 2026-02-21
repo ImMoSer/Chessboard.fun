@@ -1,20 +1,20 @@
 <!-- src/pages/TheoryEndingView.vue -->
 <script setup lang="ts">
+import { useGameStore } from '@/entities/game/model/game.store'
+import { useAnalysisStore } from '@/features/analysis/model/analysis.store'
+import { useTheoryEndingsStore } from '@/features/theory-endings/model/theoryEndings.store'
+import { shareService } from '@/shared/lib/share.service'
+import { useControlsStore } from '@/widgets/game-layout/model/controls.store'
 import { onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { shareService } from '@/shared/lib/share.service'
-import { useAnalysisStore } from '@/features/analysis/model/analysis.store'
-import { useControlsStore } from '@/widgets/game-layout/model/controls.store'
-import { useGameStore } from '@/entities/game/model/game.store'
-import { useTheoryEndingsStore } from '@/features/theory-endings/model/theoryEndings.store'
 
-import type { TheoryEndingType } from '../types/api.types'
+import type { TheoryEndingType } from '@/shared/types/api.types'
 
 import AnalysisPanel from '@/features/analysis/ui/AnalysisPanel.vue'
+import UserProfileWidget from '@/features/profile/ui/UserProfileWidget.vue'
 import ControlPanel from '../widgets/game-layout/ControlPanel.vue'
 import GameLayout from '../widgets/game-layout/GameLayout.vue'
 import TopInfoPanel from '../widgets/game-layout/TopInfoPanel.vue'
-import UserProfileWidget from '@/features/profile/ui/UserProfileWidget.vue'
 
 const theoryStore = useTheoryEndingsStore()
 const gameStore = useGameStore()

@@ -1,6 +1,6 @@
 // src/services/TheoryGraphService.ts
-import logger from '@/utils/logger'
-import { slugify } from '@/utils/slugify'
+import logger from '@/shared/lib/logger'
+import { slugify } from '@/shared/lib/slugify'
 
 // Internal types for the optimized JSON structure
 type CompressedMove = [number, number, string] // [nameIdx, ecoIdx, nextFen]

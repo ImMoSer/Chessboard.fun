@@ -14,7 +14,7 @@ import {
   type TheoryEndingCategory,
   type TheoryEndingDifficulty,
   type TheoryEndingType
-} from '@/types/api.types'
+} from '@/shared/types/api.types'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'

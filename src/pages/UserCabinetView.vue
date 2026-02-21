@@ -4,13 +4,13 @@ import {
     EXAMPLE_ACTIVITY_STATS,
     EXAMPLE_DETAILED_STATS,
     EXAMPLE_USER_PROFILE,
-} from '@/constants/exampleCabinetData'
+} from '@/shared/config/constants/exampleCabinetData'
 import { useAuthStore } from '@/entities/user/auth.store'
 import {
     useDetailedStatsQuery,
     usePersonalActivityStatsQuery,
 } from '@/shared/api/queries/userCabinet.queries'
-import type { FinishHimDifficulty, TornadoMode } from '@/types/api.types'
+import type { FinishHimDifficulty, TornadoMode } from '@/shared/types/api.types'
 import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'

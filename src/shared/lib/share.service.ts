@@ -1,8 +1,8 @@
 // src/services/share.service.ts
 import i18n from '@/shared/config/i18n'
 import { useUiStore } from '@/shared/ui/model/ui.store'
-import type { Color as ChessgroundColor, EngineId } from '@/types/api.types'
-import logger from '@/utils/logger'
+import type { Color as ChessgroundColor, EngineId } from '@/shared/types/api.types'
+import logger from '@/shared/lib/logger'
 
 type ShareMode = 'finish-him' | 'tornado' | 'sandbox' | 'theory-endings' | 'practical-chess'
 

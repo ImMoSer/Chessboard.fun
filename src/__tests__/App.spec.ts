@@ -1,10 +1,10 @@
 // src/__tests__/App.spec.ts
-import { describe, it, expect } from 'vitest'
+import App from '@/app/App.vue'
+import i18n from '@/shared/config/i18n'
 import { mount } from '@vue/test-utils'
 import { createPinia } from 'pinia'
+import { describe, expect, it } from 'vitest'
 import { createRouter, createWebHistory } from 'vue-router'
-import i18n from '@/shared/config/i18n'
-import App from '../App.vue'
 
 // Описываем группу тестов для корневого компонента App
 describe('App', () => {

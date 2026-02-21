@@ -18,7 +18,7 @@ interface TooltipParam {
   color: string
 }
 
-import type { PersonalActivityStatsResponse } from '@/types/api.types'
+import type { PersonalActivityStatsResponse } from '@/shared/types/api.types'
 
 const props = defineProps<{
   stats: PersonalActivityStatsResponse | null | undefined

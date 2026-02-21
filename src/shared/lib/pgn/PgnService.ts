@@ -5,7 +5,7 @@ import { scalachessCharPair } from 'chessops/compat'
 import { makeFen, parseFen } from 'chessops/fen'
 import { parseUci } from 'chessops/util'
 import { readonly, ref } from 'vue'
-import logger from '@/utils/logger'
+import logger from '@/shared/lib/logger'
 
 export interface PgnNode {
   id: string
