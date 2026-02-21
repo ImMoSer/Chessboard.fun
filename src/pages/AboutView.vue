@@ -1,4 +1,4 @@
-<!-- src/views/AboutView.vue -->
+<!-- src/pages/AboutView.vue -->
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 

@@ -1,4 +1,4 @@
-<!-- src/views/FinishHimView.vue -->
+<!-- src/pages/FinishHimView.vue -->
 <script setup lang="ts">
 import { onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'

@@ -1,4 +1,4 @@
-<!-- src/views/TornadoMistakesView.vue -->
+<!-- src/pages/TornadoMistakesView.vue -->
 <script setup lang="ts">
 import AnalysisPanel from '@/features/analysis/ui/AnalysisPanel.vue'
 import ChessboardPreview from '@/shared/ui/board-preview/ChessboardPreview.vue'

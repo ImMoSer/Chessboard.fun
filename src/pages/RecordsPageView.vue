@@ -1,4 +1,4 @@
-<!-- src/views/RecordsPageView.vue -->
+<!-- src/pages/RecordsPageView.vue -->
 <script setup lang="ts">
 import {
     useCombinedLeaderboardsQuery,

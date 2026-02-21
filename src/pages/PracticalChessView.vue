@@ -1,4 +1,4 @@
-<!-- src/views/TheoryEndingView.vue -->
+<!-- src/pages/PracticalChessView.vue -->
 <script setup lang="ts">
 import { onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -6,17 +6,16 @@ import { shareService } from '../services/share.service'
 import { useAnalysisStore } from '../stores/analysis.store'
 import { useControlsStore } from '../stores/controls.store'
 import { useGameStore } from '../stores/game.store'
-import { useTheoryEndingsStore } from '../stores/theoryEndings.store'
-
-import type { TheoryEndingType } from '../types/api.types'
+import { usePracticalChessStore } from '../stores/practicalChess.store'
 
 import AnalysisPanel from '@/features/analysis/ui/AnalysisPanel.vue'
 import ControlPanel from '../widgets/game-layout/ControlPanel.vue'
 import GameLayout from '../widgets/game-layout/GameLayout.vue'
 import TopInfoPanel from '../widgets/game-layout/TopInfoPanel.vue'
 import UserProfileWidget from '@/features/profile/ui/UserProfileWidget.vue'
+import YouMoveSelection from '../features/practical-chess/ui/YouMoveSelection.vue'
 
-const theoryStore = useTheoryEndingsStore()
+const practicalStore = usePracticalChessStore()
 const gameStore = useGameStore()
 const controlsStore = useControlsStore()
 const analysisStore = useAnalysisStore()
@@ -24,28 +23,16 @@ const router = useRouter()
 const route = useRoute()
 
 onMounted(() => {
-  const type = route.params.type as TheoryEndingType
-  const puzzleId = route.params.puzzleId as string
-
-  if (!type && !theoryStore.activeType) {
-    router.push('/theory-endings')
-    return
-  }
-  theoryStore.loadNewPuzzle(type, puzzleId)
+  const id = route.params.id as string
+  practicalStore.loadNewPuzzle(id)
 })
 
 watch(
-  () => theoryStore.activePuzzle,
+  () => practicalStore.activePuzzle,
   (newPuzzle) => {
-    if (newPuzzle?.puzzle_id && route.params.puzzleId !== newPuzzle.puzzle_id) {
-      if (route.name === 'theory-endings-play' || route.name === 'theory-endings-puzzle') {
-        router.replace({
-          name: 'theory-endings-puzzle',
-          params: {
-            type: theoryStore.activeType || 'win',
-            puzzleId: newPuzzle.puzzle_id,
-          },
-        })
+    if (newPuzzle?.puzzle_id && route.params.id !== newPuzzle.puzzle_id) {
+      if (route.name === 'practical-chess-play' || route.name === 'practical-chess-puzzle') {
+        router.replace({ name: 'practical-chess-puzzle', params: { id: newPuzzle.puzzle_id } })
       }
     }
   },
@@ -60,27 +47,24 @@ watch(
 
     controlsStore.setControls({
       canRequestNew: isGameOver || isIdle,
-      canRestart: (isGameOver || isIdle || !gameStore.isGameActive) && !!theoryStore.activePuzzle,
+      canRestart:
+        (isGameOver || isIdle || !gameStore.isGameActive) && !!practicalStore.activePuzzle,
       canResign: isPlaying,
-      canShare: !!theoryStore.activePuzzle,
+      canShare: !!practicalStore.activePuzzle,
       onRequestNew: () => {
-        if (route.params.puzzleId) {
-          router.push({ name: 'theory-endings-play' })
+        if (route.params.id) {
+          router.push({ name: 'practical-chess' })
         } else {
-          theoryStore.loadNewPuzzle()
+          practicalStore.loadNewPuzzle()
         }
       },
       onRestart: () => {
-        if (theoryStore.activePuzzle) {
-          theoryStore.loadNewPuzzle(theoryStore.activeType!, theoryStore.activePuzzle.puzzle_id)
-        }
+        practicalStore.restartPuzzle()
       },
-      onResign: theoryStore.handleResign,
+      onResign: practicalStore.handleResign,
       onShare: async () => {
-        if (theoryStore.activePuzzle && theoryStore.activeType) {
-          await shareService.share('theory-endings', theoryStore.activePuzzle.puzzle_id, {
-            theoryType: theoryStore.activeType,
-          })
+        if (practicalStore.activePuzzle) {
+          await shareService.share('practical-chess', practicalStore.activePuzzle.puzzle_id)
         }
       },
     })
@@ -89,10 +73,10 @@ watch(
 )
 
 watch(
-  () => route.params.puzzleId,
+  () => route.params.id,
   (newId, oldId) => {
     if (oldId && !newId) {
-      theoryStore.loadNewPuzzle()
+      practicalStore.loadNewPuzzle()
     }
   },
 )
@@ -108,12 +92,11 @@ watch(
       <TopInfoPanel />
     </template>
 
-    <template #center-column>
-      <!-- Custom overlay for type/difficulty if needed -->
-    </template>
+    <template #center-column> </template>
 
     <template #controls>
-      <ControlPanel />
+      <YouMoveSelection v-if="practicalStore.isWaitingForColorSelection" />
+      <ControlPanel v-else />
     </template>
 
     <template #right-panel>

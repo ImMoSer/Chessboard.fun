@@ -1,4 +1,4 @@
-<!-- src/views/OpeningTrainingView.vue -->
+<!-- src/pages/OpeningTrainingView.vue -->
 <script setup lang="ts">
 import { ArrowBack, DiamondOutline, FlashOutline, TelescopeOutline } from '@vicons/ionicons5'
 import { NButton, NIcon, NModal, NNumberAnimation, NSpace, NStatistic } from 'naive-ui'

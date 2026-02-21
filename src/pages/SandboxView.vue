@@ -1,4 +1,4 @@
-// src/views/SandboxView.vue
+// src/pages/SandboxView.vue
 <template>
   <GameLayout>
     <template #left-panel>
@@ -22,22 +22,22 @@
 </template>
 
 <script setup lang="ts">
+import { useBoardStore } from '@/entities/board/board.store'
+import { useAuthStore } from '@/entities/user/auth.store'
+import AnalysisPanel from '@/features/analysis/ui/AnalysisPanel.vue'
 import { isServerEngine } from '@/services/GameplayService'
 import i18n from '@/services/i18n'
-import { useAuthStore } from '@/entities/user/auth.store'
 import { useUiStore } from '@/stores/ui.store'
 import type { Color as ChessgroundColor, EngineId } from '@/types/api.types'
 import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import AnalysisPanel from '@/features/analysis/ui/AnalysisPanel.vue'
+import { shareService } from '../services/share.service'
+import { useAnalysisStore } from '../stores/analysis.store'
+import { useControlsStore } from '../stores/controls.store'
+import { useGameStore } from '../stores/game.store'
 import ControlPanel from '../widgets/game-layout/ControlPanel.vue'
 import GameLayout from '../widgets/game-layout/GameLayout.vue'
 import TopInfoPanel from '../widgets/game-layout/TopInfoPanel.vue'
-import { shareService } from '../services/share.service'
-import { useAnalysisStore } from '../stores/analysis.store'
-import {  useBoardStore  } from '@/entities/board/board.store'
-import { useControlsStore } from '../stores/controls.store'
-import { useGameStore } from '../stores/game.store'
 
 const route = useRoute()
 const router = useRouter()

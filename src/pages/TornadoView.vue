@@ -1,4 +1,4 @@
-<!-- src/views/TornadoView.vue -->
+<!-- src/pages/TornadoView.vue -->
 <script setup lang="ts">
 import { useControlsStore } from '@/stores/controls.store'
 import { onMounted, watch } from 'vue'

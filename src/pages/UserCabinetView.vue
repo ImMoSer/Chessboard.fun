@@ -1,4 +1,4 @@
-<!-- src/views/UserCabinetView.vue -->
+<!-- src/pages/UserCabinetView.vue -->
 <script setup lang="ts">
 import {
     EXAMPLE_ACTIVITY_STATS,

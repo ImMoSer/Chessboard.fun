@@ -1,4 +1,4 @@
-<!-- src/views/OpeningExamView.vue -->
+<!-- src/pages/OpeningExamView.vue -->
 <script setup lang="ts">
 import { NTag } from 'naive-ui'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
