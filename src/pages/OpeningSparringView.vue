@@ -3,6 +3,7 @@
 import { useGameStore } from '@/entities/game'
 import { theoryGraphService } from '@/entities/opening'
 import { AnalysisPanel, useAnalysisStore } from '@/features/analysis'
+import { EngineSelector } from '@/features/engine'
 import { GameReviewModal, OpeningSparringHeader, OpeningSparringSettingsModal, OpeningSparringSummaryModal, SessionHistoryList, useOpeningSparringStore } from '@/features/opening-sparring'
 import { useSparringLoop } from '@/features/opening-sparring/model/useSparringLoop'
 import i18n from '@/shared/config/i18n'
@@ -218,7 +219,7 @@ function goBack() {
         <AnalysisPanel v-if="showAnalysisPanel" style="margin-bottom: 12px; flex-shrink: 0;" />
 
         <div class="mozer-book-wrapper">
-             <MozerBook :blurred="openingStore.isPlayoutMode" />
+             <MozerBook :blurred="openingStore.isPlayoutMode" :is-paused="openingStore.isPlayoutMode" />
         </div>
       </div>
 
@@ -233,7 +234,11 @@ function goBack() {
         @playout="handleSummaryPlayout"
         @analyze="handleSummaryAnalyze"
         @restart="handleSummaryRestart"
-      />
+      >
+        <template #engine-selector>
+          <EngineSelector />
+        </template>
+      </OpeningSparringSummaryModal>
       <GameReviewModal
         :show="showReviewModal"
         @close="showReviewModal = false"

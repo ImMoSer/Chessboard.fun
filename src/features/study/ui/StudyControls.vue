@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useBoardStore } from '@/entities/board'
+import { useBoardStore } from '@/entities/game'
 import { useStudyStore } from '@/features/study'
 import { pgnService } from '@/shared/lib/pgn/PgnService'
 import { NTooltip, useMessage } from 'naive-ui'

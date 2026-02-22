@@ -12,7 +12,7 @@ import type {
 } from '@lichess-org/chessground/types'
 import type { Role as ChessopsRole } from 'chessops/types'
 import { onMounted, onUnmounted, ref, shallowRef, watch, type PropType } from 'vue'
-import type { PromotionState } from './board.store'
+import type { PromotionState } from '../model/board.store'
 import PromotionDialog from './PromotionDialog.vue'
 
 const props = defineProps({

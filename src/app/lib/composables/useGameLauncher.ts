@@ -3,20 +3,13 @@ import { usePracticalChessStore } from '@/features/practical-chess'
 import { useTheoryEndingsStore } from '@/features/theory-endings'
 import type {
     FinishHimTheme,
+    GameLaunchOptions,
     PracticalChessCategory,
     TheoryEndingCategory,
     TheoryEndingType,
     TornadoMode
 } from '@/shared/types/api.types'
 import { useRouter } from 'vue-router'
-
-export interface GameLaunchOptions {
-    mode: 'theory' | 'finish_him' | 'practical' | 'tornado'
-    theme: string
-    difficulty?: string
-    type?: 'win' | 'draw'
-    subMode?: string // For tornado (bullet, blitz...) or finish_him (novice, pro...)
-}
 
 export function useGameLauncher() {
     const router = useRouter()

@@ -1,7 +1,7 @@
 ```
 <!-- src/components/AnalysisPanel.vue -->
 <script setup lang="ts">
-import { useBoardStore } from '@/entities/board'
+import { useBoardStore } from '@/entities/game'
 import { useAnalysisStore } from '@/features/analysis'
 import { EngineLines } from '@/features/analysis'
 import type { PgnNode } from '@/shared/lib/pgn/PgnService'

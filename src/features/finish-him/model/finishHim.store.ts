@@ -1,8 +1,7 @@
 // src/stores/finishHim.store.ts
-import { useBoardStore, type GameEndOutcome } from '@/entities/board'
+import { useBoardStore, type GameEndOutcome } from '@/entities/game'
 import { useGameStore } from '@/entities/game'
 import { useAuthStore } from '@/entities/user'
-import { useAnalysisStore } from '@/features/analysis'
 import { InsufficientFunCoinsError, webhookService } from '@/shared/api/WebhookService'
 import i18n from '@/shared/config/i18n'
 import logger from '@/shared/lib/logger'
@@ -21,7 +20,6 @@ export const useFinishHimStore = defineStore('finishHim', () => {
   const gameStore = useGameStore()
   const boardStore = useBoardStore()
   const authStore = useAuthStore()
-  const analysisStore = useAnalysisStore()
 
   const activePuzzle = ref<FinishHimPuzzle | null>(null)
   const feedbackMessage = ref(t('finishHim.feedback.pressNext'))
@@ -69,8 +67,6 @@ export const useFinishHimStore = defineStore('finishHim', () => {
 
     _updateAndSendStats(isWin)
     logger.info(`[FinishHimStore] Game Over. Result: ${isWin ? 'Win' : 'Loss'}`)
-
-    analysisStore.showPanel()
   }
 
   async function _updateAndSendStats(isWin: boolean) {
@@ -110,10 +106,6 @@ export const useFinishHimStore = defineStore('finishHim', () => {
 
   async function loadNewPuzzle(puzzleId?: string) {
     isProcessingGameOver.value = false
-
-    if (analysisStore.isPanelVisible) {
-      await analysisStore.hidePanel()
-    }
 
     gameStore.setGamePhase('LOADING')
     feedbackMessage.value = t('common.loading')

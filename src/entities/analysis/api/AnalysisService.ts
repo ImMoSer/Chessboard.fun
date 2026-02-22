@@ -5,7 +5,7 @@ import {
   multiThreadEngineManager,
   singleThreadEngineManager,
   type WdlStats,
-} from '@/entities/engine'
+} from '@/shared/lib/engine'
 import logger from '@/shared/lib/logger'
 import { Chess } from 'chessops/chess'
 import { parseFen } from 'chessops/fen'

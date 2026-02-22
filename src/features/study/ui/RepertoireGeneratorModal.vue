@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useBoardStore } from '@/entities/board'
+import { useBoardStore } from '@/entities/game'
 import {
     repertoireApiService,
     type RepertoireProfile,

@@ -1,5 +1,5 @@
-import { useBoardStore } from '@/entities/board'
-import { useAnalysisStore } from '@/features/analysis'
+import { useBoardStore } from '@/entities/game'
+import { useAnalysisEngineStore } from '@/entities/analysis'
 import { diamondApiService, type GravityMove } from '@/features/diamond-hunter/api/DiamondApiService'
 import { useDiamondHunterQueries } from '@/features/diamond-hunter/api/diamondHunter.queries'
 import logger from '@/shared/lib/logger'
@@ -19,7 +19,7 @@ export interface HunterHint {
 
 export const useDiamondHunterStore = defineStore('diamondHunter', () => {
     const boardStore = useBoardStore()
-    const analysisStore = useAnalysisStore()
+    const analysisStore = useAnalysisEngineStore()
 
     const state = ref<HunterState>('IDLE')
     const isActive = computed(() => state.value !== 'IDLE')

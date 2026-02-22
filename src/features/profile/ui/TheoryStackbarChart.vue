@@ -1,6 +1,5 @@
 <!-- src/components/userCabinet/sections/TheoryStackbarChart.vue -->
 <script setup lang="ts">
-import { useGameLauncher } from '@/shared/lib/composables/useGameLauncher'
 import { ExpandOutline } from '@vicons/ionicons5'
 import { BarChart } from 'echarts/charts'
 import {
@@ -14,6 +13,7 @@ import { CanvasRenderer } from 'echarts/renderers'
 import { computed, onMounted, onUnmounted, ref, type PropType } from 'vue'
 import VChart from 'vue-echarts'
 import { useI18n } from 'vue-i18n'
+import type { GameLaunchOptions } from '@/shared/types/api.types'
 
 use([CanvasRenderer, BarChart, GridComponent, TooltipComponent, LegendComponent, TitleComponent])
 
@@ -60,8 +60,11 @@ const props = defineProps({
   },
 })
 
+const emit = defineEmits<{
+  (e: 'improve', options: GameLaunchOptions): void
+}>()
+
 const activeType = ref<'win' | 'draw'>('win')
-const { launchGame } = useGameLauncher()
 const showModal = ref(false)
 const activePopup = ref<{ visible: boolean; x: number; y: number; data: PopupData | null }>({
   visible: false,
@@ -265,7 +268,8 @@ const onImproveClick = () => {
 
   const { themeId, clickedDifficulty } = activePopup.value.data
 
-  launchGame({
+  // Emit event instead of calling launchGame directly
+  emit('improve', {
     mode: props.mode,
     theme: themeId,
     difficulty: clickedDifficulty,

@@ -1,5 +1,5 @@
-import { useBoardStore } from '@/entities/board'
-import { serverEngineService, type AnalysisResponse } from '@/entities/engine'
+import { useBoardStore } from '@/entities/game'
+import { serverEngineService, type AnalysisResponse } from '@/shared/lib/engine'
 import { useGameStore } from '@/entities/game'
 import { useOpeningSparringStore } from '@/features/opening-sparring'
 import { useOpeningSparringQueries } from '@/features/opening-sparring/api/openingSparring.queries'

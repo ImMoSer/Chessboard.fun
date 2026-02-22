@@ -1,4 +1,4 @@
-import { useBoardStore } from '@/entities/board'
+import { useBoardStore } from '@/entities/game'
 import { useAuthStore } from '@/entities/user'
 import { chapterApiService } from '@/features/study/api/ChapterApiService'
 import { studyPersistenceService } from '@/features/study/api/StudyPersistenceService'

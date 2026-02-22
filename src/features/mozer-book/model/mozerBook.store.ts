@@ -1,5 +1,5 @@
 // src/stores/mozerBook.store.ts
-import { useBoardStore } from '@/entities/board'
+import { useBoardStore } from '@/entities/game'
 import { mozerBookService, type MozerBookResponse } from '@/shared/api/mozer-book/MozerBookService'
 import logger from '@/shared/lib/logger'
 import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'

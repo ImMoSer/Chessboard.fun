@@ -1,4 +1,5 @@
 // src/stores/tornado.store.ts
+import { useBoardStore } from '@/entities/game'
 import { useGameStore } from '@/entities/game'
 import { useAuthStore } from '@/entities/user'
 import { InsufficientFunCoinsError, webhookService } from '@/shared/api/WebhookService'
@@ -29,6 +30,7 @@ const timeControls: Record<TornadoMode, { initial: number; increment: number }> 
 
 
 export const useTornadoStore = defineStore('tornado', () => {
+  const boardStore = useBoardStore()
   const gameStore = useGameStore()
   const router = useRouter()
   const uiStore = useUiStore()
@@ -86,6 +88,10 @@ export const useTornadoStore = defineStore('tornado', () => {
     tenSecondsWarningPlayed.value = false
     eightSecondsWarningPlayed.value = false
     localStorage.removeItem(MISTAKES_STORAGE_KEY)
+    
+    // Restore default board sound behavior
+    boardStore.setPlayGameStatusSounds(true)
+    
     logger.info('[TornadoStore] State has been reset.')
   }
 
@@ -217,6 +223,10 @@ export const useTornadoStore = defineStore('tornado', () => {
     }
 
     reset()
+    
+    // Disable board game-over sounds for Tornado (speed chess)
+    boardStore.setPlayGameStatusSounds(false)
+
     mode.value = selectedMode
     const controls = timeControls[selectedMode]
     timerValueMs.value = controls.initial

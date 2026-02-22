@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { useBoardStore } from '@/entities/board'
+import { useBoardStore } from '@/entities/game'
 import { useMozerBookStore } from '@/features/mozer-book'
-import { useOpeningSparringStore } from '@/features/opening-sparring'
 import { pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
 import { InformationCircleOutline, LeafOutline } from '@vicons/ionicons5'
 import { NIcon, NText } from 'naive-ui'
@@ -12,14 +11,14 @@ import MozerBookRow from './MozerBookRow.vue'
 import TheoryExplorerModal from './TheoryExplorerModal.vue'
 import { type TheoryItemWithChildren } from './types'
 
-defineProps<{
+const props = defineProps<{
   blurred?: boolean
+  isPaused?: boolean
 }>()
 
 const { t } = useI18n()
 const boardStore = useBoardStore()
 const mozerStore = useMozerBookStore()
-const openingStore = useOpeningSparringStore()
 
 const stats = computed(() => mozerStore.currentStats)
 const loading = computed(() => mozerStore.isLoading)
@@ -48,13 +47,7 @@ function handleSelectMove(uci: string) {
 watch(
   [pgnTreeVersion, () => boardStore.fen],
   () => {
-    if (
-      openingStore.isPlayoutMode ||
-      openingStore.isTheoryOver ||
-      openingStore.isDeviation ||
-      openingStore.isInitializing
-    )
-      return
+    if (props.isPaused) return
     mozerStore.fetchStats()
     showTheory.value = false // Close theory when position changes
   },

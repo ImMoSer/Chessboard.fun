@@ -1,5 +1,5 @@
 // src/stores/game.store.ts
-import { useBoardStore, type GameEndOutcome } from '@/entities/board'
+import { useBoardStore, type GameEndOutcome } from '@/entities/game'
 import logger from '@/shared/lib/logger'
 import { pgnService } from '@/shared/lib/pgn/PgnService'
 import { soundService } from '@/shared/lib/sound/sound.service'

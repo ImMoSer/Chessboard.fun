@@ -1,3 +1,6 @@
-export * from './lib/GameplayService'
 export * from './model/game.store'
-
+export { useBoardStore } from './model/board.store'
+export type { GameEndOutcome } from './model/board.store'
+export { default as WebChessBoard } from './ui/WebChessBoard.vue'
+export { default as PromotionDialog } from './ui/PromotionDialog.vue'
+export { gameplayService, isServerEngine } from './lib/GameplayService'

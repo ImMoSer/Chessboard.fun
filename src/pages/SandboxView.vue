@@ -22,11 +22,12 @@
 </template>
 
 <script setup lang="ts">
-import { useBoardStore } from '@/entities/board'
+import { useBoardStore } from '@/entities/game'
 import { isServerEngine, useGameStore } from '@/entities/game'
 import { useAuthStore } from '@/entities/user'
 import { useAnalysisStore } from '@/features/analysis'
 import { AnalysisPanel } from '@/features/analysis'
+import { useEngineSelectionStore } from '@/features/engine'
 import i18n from '@/shared/config/i18n'
 import { shareService } from '@/shared/lib/share.service'
 import type { Color as ChessgroundColor, EngineId } from '@/shared/types/api.types'
@@ -42,6 +43,7 @@ const route = useRoute()
 const router = useRouter()
 const gameStore = useGameStore()
 const controlsStore = useControlsStore()
+const engineStore = useEngineSelectionStore()
 const boardStore = useBoardStore()
 const analysisStore = useAnalysisStore()
 const authStore = useAuthStore()
@@ -57,7 +59,7 @@ const loadGameFromFen = async (fen: string, userColor?: ChessgroundColor) => {
 
   try {
     await analysisStore.hidePanel()
-    gameStore.setBotEngineId(controlsStore.selectedEngine)
+    gameStore.setBotEngineId(engineStore.selectedEngine)
     gameStore.startSandboxGame(fen, userColor)
   } catch {
     await uiStore.showConfirmation('Invalid FEN', 'The provided FEN is not valid.', {
@@ -69,7 +71,7 @@ const loadGameFromFen = async (fen: string, userColor?: ChessgroundColor) => {
 const playFen = () => {
   if (fenInput.value) {
     const urlFen = fenInput.value.replace(/ /g, '_')
-    const engineId = controlsStore.selectedEngine
+    const engineId = engineStore.selectedEngine
     const userColor = route.params.userColor as ChessgroundColor | undefined
 
     const routeParams: { fen: string; engineId: EngineId; userColor?: ChessgroundColor } = {
@@ -131,11 +133,11 @@ watch(
         return // Stop processing, will be handled by new route
       }
       // URL is valid, sync store and load game
-      controlsStore.setEngine(engineIdFromUrl, true)
+      engineStore.setEngine(engineIdFromUrl, true)
       loadGameFromFen(fen, userColorFromUrl)
     } else if (fen) {
       // Engine is NOT in URL, determine default and redirect
-      const defaultEngineId = authStore.isAuthenticated ? controlsStore.selectedEngine : 'SF_2200'
+      const defaultEngineId = authStore.isAuthenticated ? engineStore.selectedEngine : 'SF_2200'
       await router.replace({
         name: 'sandbox-with-engine',
         params: { engineId: defaultEngineId, fen },
@@ -173,7 +175,7 @@ watch(
       onResign: gameStore.handleGameResignation,
       onShare: () => {
         const urlFen = boardStore.fen.replace(/ /g, '_')
-        const engineId = controlsStore.selectedEngine
+        const engineId = engineStore.selectedEngine
         const userColor = route.params.userColor as ChessgroundColor | undefined
         shareService.share('sandbox', urlFen, { engineId, userColor })
       },

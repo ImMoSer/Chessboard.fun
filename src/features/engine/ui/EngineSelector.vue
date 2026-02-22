@@ -4,18 +4,18 @@ import { useAuthStore } from '@/entities/user'
 import i18n from '@/shared/config/i18n'
 import type { EngineId } from '@/shared/types/api.types'
 import { useUiStore } from '@/shared/ui/model/ui.store'
-import { useControlsStore } from '@/widgets/game-layout/model/controls.store'
+import { useEngineSelectionStore } from '../model/engine-selection.store'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 
-const controlsStore = useControlsStore()
+const engineStore = useEngineSelectionStore()
 const authStore = useAuthStore()
 const uiStore = useUiStore()
 const t = i18n.global.t
 
 const isAuthenticated = computed(() => authStore.isAuthenticated)
 
-const availableEngines = computed(() => controlsStore.availableEngines)
-const selectedEngine = computed(() => controlsStore.selectedEngine)
+const availableEngines = computed(() => engineStore.availableEngines)
+const selectedEngine = computed(() => engineStore.selectedEngine)
 
 const engineNames: Record<EngineId, string> = {
   MOZER_2000: 'BadGyal-8',
@@ -51,7 +51,7 @@ const handleEngineSelectorClick = async () => {
 }
 
 const selectEngine = (engine: EngineId) => {
-  controlsStore.setEngine(engine)
+  engineStore.setEngine(engine)
   isOpen.value = false
 }
 

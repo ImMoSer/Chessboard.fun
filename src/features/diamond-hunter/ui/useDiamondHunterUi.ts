@@ -1,4 +1,4 @@
-import { useBoardStore } from '@/entities/board'
+import { useBoardStore } from '@/entities/game'
 import { useDiamondHunterStore } from '@/features/diamond-hunter'
 import type { SoundEvent } from '@/shared/lib/sound/sound.service'
 import { soundService } from '@/shared/lib/sound/sound.service'

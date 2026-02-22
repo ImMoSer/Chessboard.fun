@@ -1,5 +1,5 @@
 // src/stores/theoryEndings.store.ts
-import { useBoardStore, type GameEndOutcome } from '@/entities/board'
+import { useBoardStore, type GameEndOutcome } from '@/entities/game'
 import { useGameStore } from '@/entities/game'
 import { useAuthStore } from '@/entities/user'
 import { InsufficientFunCoinsError, webhookService } from '@/shared/api/WebhookService'

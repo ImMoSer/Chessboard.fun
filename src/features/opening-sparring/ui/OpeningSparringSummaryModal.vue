@@ -24,7 +24,6 @@ import {
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useOpeningSparringStore } from '@/features/opening-sparring'
-import { EngineSelector } from '@/features/engine'
 
 const openingStore = useOpeningSparringStore()
 const { t } = useI18n()
@@ -156,7 +155,7 @@ const progressPercent = computed(() => {
                 {{ t('openingTrainer.settings.engineHint', 'Choose the engine for playout mode.') }}
             </n-text>
             <div class="engine-selector-wrapper">
-                <EngineSelector />
+                <slot name="engine-selector" />
             </div>
         </div>
 

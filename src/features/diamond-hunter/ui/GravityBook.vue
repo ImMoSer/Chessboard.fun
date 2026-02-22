@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useBoardStore } from '@/entities/board'
-import { useAnalysisStore } from '@/features/analysis'
+import { useBoardStore } from '@/entities/game'
+import { useAnalysisEngineStore } from '@/entities/analysis'
 import { useDiamondHunterStore } from '@/features/diamond-hunter'
 import { type GravityMove } from '@/features/diamond-hunter/api/DiamondApiService'
 import { NDataTable, NEmpty, NTag } from 'naive-ui'
@@ -11,7 +11,7 @@ interface GravityMoveWithPercent extends GravityMove {
 }
 
 const boardStore = useBoardStore()
-const analysisStore = useAnalysisStore()
+const analysisStore = useAnalysisEngineStore()
 const diamondStore = useDiamondHunterStore()
 
 const moves = computed<GravityMoveWithPercent[]>(() => {

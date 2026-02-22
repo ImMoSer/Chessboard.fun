@@ -1,6 +1,6 @@
 <!-- src/pages/OpeningTrainingView.vue -->
 <script setup lang="ts">
-import { useBoardStore } from '@/entities/board'
+import { useBoardStore } from '@/entities/game'
 import { useGameStore } from '@/entities/game'
 import { AnalysisPanel, useAnalysisStore } from '@/features/analysis'
 import { DiamondHunterSettingsModal, GravityBook, useDiamondHunterStore } from '@/features/diamond-hunter'

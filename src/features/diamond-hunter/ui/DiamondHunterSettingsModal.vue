@@ -15,11 +15,11 @@ import {
 } from 'naive-ui'
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useAnalysisStore } from '@/features/analysis'
+import { useAnalysisEngineStore } from '@/entities/analysis'
 
 const emit = defineEmits(['start', 'close'])
 const { t } = useI18n()
-const analysisStore = useAnalysisStore()
+const analysisStore = useAnalysisEngineStore()
 
 const selectedColor = ref<'white' | 'black'>('white')
 

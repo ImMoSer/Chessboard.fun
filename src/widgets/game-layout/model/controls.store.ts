@@ -2,11 +2,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import type { EngineId } from '@/shared/types/api.types'
-import logger from '@/shared/lib/logger'
 import { useUiStore } from '@/shared/ui/model/ui.store'
-
-const ENGINE_STORAGE_KEY = 'user_selected_engine'
 
 const noop = () => {}
 
@@ -14,25 +10,6 @@ export const useControlsStore = defineStore('controls', () => {
   const uiStore = useUiStore()
   const router = useRouter()
 
-  const availableEngines = ref<EngineId[]>(['MOZER_2000', 'maia_2200', 'MOZER_1900', 'SF_2200'])
-
-  const loadSavedEngine = (): EngineId => {
-    try {
-      const savedEngine = localStorage.getItem(ENGINE_STORAGE_KEY)
-      if (savedEngine && availableEngines.value.includes(savedEngine as EngineId)) {
-        logger.info(`[ControlsStore] Loaded saved engine: ${savedEngine}`)
-        return savedEngine as EngineId
-      }
-    } catch (error) {
-      logger.error('[ControlsStore] Failed to load engine from localStorage', error)
-    }
-    logger.info('[ControlsStore] No saved engine found, setting default: MOZER_2000')
-    return 'MOZER_2000'
-  }
-
-  const selectedEngine = ref<EngineId>(loadSavedEngine())
-
-  const isEngineSelectorOpen = ref(false)
   const canRequestNew = ref(false)
   const canRestart = ref(false)
   const canResign = ref(false)
@@ -80,49 +57,12 @@ export const useControlsStore = defineStore('controls', () => {
     setControls({})
   }
 
-  function toggleEngineSelector() {
-    isEngineSelectorOpen.value = !isEngineSelectorOpen.value
-  }
-
-  function setEngine(engineId: EngineId, fromUrlSync = false) {
-    if (selectedEngine.value === engineId) return
-
-    selectedEngine.value = engineId
-    isEngineSelectorOpen.value = false
-    try {
-      localStorage.setItem(ENGINE_STORAGE_KEY, engineId)
-      logger.info(`[ControlsStore] Saved selected engine to localStorage: ${engineId}`)
-    } catch (error) {
-      logger.error('[ControlsStore] Failed to save engine to localStorage', error)
-    }
-
-    if (fromUrlSync) return
-
-    const route = router.currentRoute.value
-    if (route.name === 'sandbox' || route.name === 'sandbox-with-engine') {
-      const fen = route.params.fen as string
-      if (fen) {
-        router.replace({
-          name: 'sandbox-with-engine',
-          params: { engineId, fen },
-        })
-      }
-    }
-  }
-
-  function setSandboxEngine() {
-    setEngine('MOZER_2000')
-  }
-
   return {
     canRequestNew,
     canRestart,
     canResign,
     canShare,
     canShowInfo,
-    availableEngines,
-    selectedEngine,
-    isEngineSelectorOpen,
     onRequestNew,
     onRestart,
     onResign,
@@ -130,8 +70,5 @@ export const useControlsStore = defineStore('controls', () => {
     onShowInfo,
     setControls,
     resetControls,
-    toggleEngineSelector,
-    setEngine,
-    setSandboxEngine,
   }
 })

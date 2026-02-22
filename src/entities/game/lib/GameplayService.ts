@@ -1,5 +1,5 @@
 // src/services/GameplayService.ts
-import { serverEngineService, singleThreadEngineManager } from '@/entities/engine'
+import { serverEngineService, singleThreadEngineManager } from '@/shared/lib/engine'
 import logger from '@/shared/lib/logger'
 import type { EngineId } from '@/shared/types/api.types'
 

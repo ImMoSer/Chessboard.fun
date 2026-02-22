@@ -564,3 +564,11 @@ export interface UserProfileStatsDto {
   theory: TheoryEndingProfileDto
   practical: PracticalChessProfileDto
 }
+
+export interface GameLaunchOptions {
+  mode: 'theory' | 'finish_him' | 'practical' | 'tornado'
+  theme: string
+  difficulty?: string
+  type?: 'win' | 'draw'
+  subMode?: string // For tornado (bullet, blitz...) or finish_him (novice, pro...)
+}

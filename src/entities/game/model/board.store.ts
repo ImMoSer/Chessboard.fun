@@ -1,5 +1,4 @@
 // src/stores/board.store.ts
-import { useGameStore } from '@/entities/game'
 import logger from '@/shared/lib/logger'
 import { pgnService, type PgnNode } from '@/shared/lib/pgn/PgnService'
 import { soundService } from '@/shared/lib/sound/sound.service'
@@ -40,8 +39,6 @@ export interface PromotionState {
 const INITIAL_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 
 export const useBoardStore = defineStore('board', () => {
-  const gameStore = useGameStore()
-
   const fen = ref<string>(INITIAL_FEN)
   const chessPosition = ref(Chess.fromSetup(parseFen(fen.value).unwrap()).unwrap())
 
@@ -54,6 +51,9 @@ export const useBoardStore = defineStore('board', () => {
   const promotionState = ref<PromotionState | null>(null)
   const drawableShapes = ref<DrawShape[]>([])
   const isAnalysisModeActive = ref(false)
+  
+  // Configuration for sounds (decoupled from GameStore)
+  const playGameStatusSounds = ref(true)
 
   function _updateBoardStateFromPgn() {
     const pgnFen = pgnService.getCurrentNavigatedFen()
@@ -104,7 +104,7 @@ export const useBoardStore = defineStore('board', () => {
       soundService.playSound('board_move')
     }
 
-    if (gameStore.currentGameMode !== 'tornado') {
+    if (playGameStatusSounds.value) {
       if (gameStatus.isGameOver && gameStatus.outcome) {
         // ... (keep existing logic)
         switch (gameStatus.outcome.reason) {
@@ -382,6 +382,10 @@ export const useBoardStore = defineStore('board', () => {
     logger.info(`[BoardStore] Analysis mode set to: ${isActive}`)
   }
 
+  function setPlayGameStatusSounds(enabled: boolean) {
+    playGameStatusSounds.value = enabled
+  }
+
   function resetBoardState() {
     pgnService.reset(INITIAL_FEN)
     _updateBoardStateFromPgn()
@@ -390,6 +394,7 @@ export const useBoardStore = defineStore('board', () => {
     promotionState.value = null
     drawableShapes.value = []
     isAnalysisModeActive.value = false
+    playGameStatusSounds.value = true // Reset sound setting
 
     logger.info('[BoardStore] Board state has been reset to initial.')
   }
@@ -404,6 +409,7 @@ export const useBoardStore = defineStore('board', () => {
     promotionState,
     drawableShapes,
     isAnalysisModeActive,
+    playGameStatusSounds,
     setupPosition,
     applyUciMove,
     handleUserMove,
@@ -416,6 +422,7 @@ export const useBoardStore = defineStore('board', () => {
     navigatePgn,
     navigateToNode,
     setAnalysisMode,
+    setPlayGameStatusSounds,
     resetBoardState,
     syncBoardWithPgn,
   }

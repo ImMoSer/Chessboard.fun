@@ -1,7 +1,7 @@
-import { useBoardStore, type GameEndOutcome } from '@/entities/board'
+import { useBoardStore, type GameEndOutcome } from '@/entities/game'
 import { useGameStore } from '@/entities/game'
 import { useAuthStore } from '@/entities/user'
-import { useAnalysisStore } from '@/features/analysis'
+import { useAnalysisEngineStore } from '@/entities/analysis'
 import { webhookService } from '@/shared/api/WebhookService'
 import i18n from '@/shared/config/i18n'
 import logger from '@/shared/lib/logger'
@@ -22,7 +22,7 @@ const t = i18n.global.t
 export const usePracticalChessStore = defineStore('practicalChess', () => {
   const gameStore = useGameStore()
   const boardStore = useBoardStore()
-  const analysisStore = useAnalysisStore()
+  const analysisStore = useAnalysisEngineStore()
   const authStore = useAuthStore()
   const uiStore = useUiStore()
   const router = useRouter()
@@ -46,10 +46,6 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
   async function loadNewPuzzle(id?: string) {
     isProcessingGameOver.value = false
     isWaitingForColorSelection.value = false
-
-    if (analysisStore.isPanelVisible) {
-      await analysisStore.hidePanel()
-    }
 
     gameStore.setGamePhase('LOADING')
 
@@ -122,7 +118,6 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
     isProcessingGameOver.value = true
 
     gameStore.setGamePhase('GAMEOVER')
-    analysisStore.showPanel()
     analysisStore.setPlayerColor(currentUserColor.value)
 
     const puzzle = activePuzzle.value

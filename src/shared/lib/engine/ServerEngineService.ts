@@ -1,5 +1,4 @@
 // src/services/ServerEngineService.ts
-import { authService } from '@/entities/user'
 import logger from '@/shared/lib/logger'
 
 const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL as string
@@ -88,11 +87,6 @@ export class ServerEngineServiceController {
       return Promise.reject(new Error('ServerEngineService is already processing a request.'))
     }
 
-    if (!authService.getIsAuthenticated()) {
-      logger.error('[ServerEngineService] User is not authenticated. Request rejected.')
-      return Promise.reject(new Error('User not authenticated'))
-    }
-
     this.isThinking = true
     logger.info(
       `[ServerEngineService] Requesting move for FEN: ${fen} using engine: ${engine_name}`,
@@ -145,11 +139,6 @@ export class ServerEngineServiceController {
     multipv: number = 2,
     time_limit: number = 200
   ): Promise<AnalysisResponse> {
-    if (!authService.getIsAuthenticated()) {
-      logger.error('[ServerEngineService] User is not authenticated. Request rejected.')
-      return Promise.reject(new Error('User not authenticated'))
-    }
-
     const url = `${BACKEND_API_URL}/engine-eval/analyze`
     logger.debug(`[ServerEngineService] Requesting analysis for move: ${move_uci}`)
 

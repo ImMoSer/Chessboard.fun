@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useGameLauncher } from '@/shared/lib/composables/useGameLauncher'
 import { ExpandOutline } from '@vicons/ionicons5'
 import { PieChart } from 'echarts/charts'
 import { LegendComponent, TitleComponent, TooltipComponent } from 'echarts/components'
@@ -8,6 +7,7 @@ import { CanvasRenderer } from 'echarts/renderers'
 import { computed, onMounted, onUnmounted, ref, type PropType } from 'vue'
 import VChart from 'vue-echarts'
 import { useI18n } from 'vue-i18n'
+import type { GameLaunchOptions } from '@/shared/types/api.types'
 
 use([CanvasRenderer, PieChart, TooltipComponent, LegendComponent, TitleComponent])
 
@@ -65,6 +65,7 @@ const props = defineProps({
 
 const emit = defineEmits<{
   (e: 'update:activeMode', value: string): void
+  (e: 'improve', options: GameLaunchOptions): void
 }>()
 
 const activePopup = ref<{ visible: boolean; x: number; y: number; data: PopupData | null }>({
@@ -73,7 +74,6 @@ const activePopup = ref<{ visible: boolean; x: number; y: number; data: PopupDat
   y: 0,
   data: null,
 })
-const { launchGame } = useGameLauncher()
 const popupRef = ref<HTMLElement | null>(null)
 
 // Close popup when clicking outside
@@ -193,7 +193,7 @@ const onImproveClick = () => {
 
   const { themeId, screenMode } = activePopup.value.data
 
-  launchGame({
+  emit('improve', {
     mode: props.mode, // 'tornado' | 'finish_him'
     theme: themeId,
     subMode: screenMode // 'bullet', 'blitz' etc. OR 'novice', 'pro' ...

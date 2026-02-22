@@ -1,6 +1,6 @@
 <!-- src/widgets/game-layout/GameLayout.vue -->
 <script setup lang="ts">
-import { useBoardStore, WebChessBoard } from '@/entities/board'
+import { useBoardStore, WebChessBoard } from '@/entities/game'
 import { useGameStore } from '@/entities/game'
 import { useAnalysisStore } from '@/features/analysis'
 import { EvalBar } from '@/features/analysis'

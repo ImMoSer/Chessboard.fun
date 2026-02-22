@@ -20,8 +20,10 @@ import { ActivityChart } from '@/features/profile'
 import { ThemeRoseChart } from '@/features/profile'
 import { TheoryStackbarChart } from '@/features/profile'
 import { UserProfileHeader } from '@/features/profile'
+import { useGameLauncher } from '@/app/lib/composables/useGameLauncher'
 
 const { t } = useI18n()
+const { launchGame } = useGameLauncher()
 
 const authStore = useAuthStore()
 const { userProfile, isAuthenticated } = storeToRefs(authStore)
@@ -138,6 +140,7 @@ const displayProfile = computed(() => {
             :modes="['bullet', 'blitz', 'rapid', 'classic']"
             :themes="currentTornadoThemes"
             :title="t('userCabinet.stats.modes.tornado')"
+            @improve="launchGame"
           />
 
           <ThemeRoseChart
@@ -147,6 +150,7 @@ const displayProfile = computed(() => {
             :modes="['Novice', 'Pro', 'Master']"
             :themes="currentFinishHimThemes"
             :title="t('userCabinet.stats.modes.finishHim')"
+            @improve="launchGame"
           />
         </div>
 
@@ -157,12 +161,14 @@ const displayProfile = computed(() => {
             v-if="detailedStats && detailedStats.theory"
             :stats="detailedStats.theory.stats"
             mode="theory"
+            @improve="launchGame"
           />
 
           <TheoryStackbarChart
             v-if="detailedStats && detailedStats.practical"
             :stats="detailedStats.practical.stats"
             mode="practical"
+            @improve="launchGame"
           />
         </div>
       </n-space>
