@@ -1,4 +1,4 @@
-import { theoryCacheService } from '@/features/theory-endings/api/TheoryCacheService'
+import { theoryCacheService } from '@/shared/api/TheoryCacheService'
 import logger from '@/shared/lib/logger'
 
 export interface GravityMove {

@@ -1,13 +1,12 @@
 import { useBoardStore } from '@/entities/board'
-import { type AnalysisResponse, serverEngineService } from '@/entities/engine'
+import { serverEngineService, type AnalysisResponse } from '@/entities/engine'
 import { useGameStore } from '@/entities/game'
+import { theoryGraphService } from '@/entities/opening'
 import { analysisService } from '@/features/analysis/api/AnalysisService'
-import { useMozerBookStore } from '@/features/mozer-book'
-import type { MozerBookMove } from '@/features/mozer-book/api/MozerBookService'
-import type { LichessMove, LichessOpeningResponse } from '@/features/opening-explorer/api/LichessApiService'
-import { lichessApiService } from '@/features/opening-explorer/api/LichessApiService'
 import { gameReviewService } from '@/features/opening-sparring/api/GameReviewService'
-import { theoryGraphService } from '@/features/theory-endings'
+import { lichessApiService, type LichessMove, type LichessOpeningResponse } from '@/shared/api/lichess-explorer/LichessApiService'
+import type { MozerBookMove } from '@/shared/api/mozer-book/MozerBookService'
+import { mozerBookService, type MozerBookResponse } from '@/shared/api/mozer-book/MozerBookService'
 import { webhookService } from '@/shared/api/WebhookService'
 import { areMovesEqual } from '@/shared/lib/chess-utils'
 import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
@@ -19,9 +18,7 @@ import { computed, ref, watch } from 'vue'
 
 export const useOpeningSparringStore = defineStore('openingSparring', () => {
   const boardStore = useBoardStore()
-  const mozerStore = useMozerBookStore()
-
-  const currentStats = computed(() => mozerStore.currentStats)
+  const currentStats = ref<MozerBookResponse | null>(null)
 
   // -- REPLACED sessionHistory ref with computed from PGN --
   const sessionHistory = computed<SessionMove[]>(() => {
@@ -77,15 +74,12 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   const playerColor = ref<'white' | 'black'>('white')
   const openingName = ref('')
   const currentEco = ref('')
-  const isLoading = computed(() => mozerStore.isLoading)
+  const isLoading = ref(false)
   const isProcessingMove = ref(false)
   const isPlayoutMode = ref(false)
   const isReviewMode = ref(false)
   const reviewMoveIndex = ref(-1)
-  // const error = computed(() => mozerStore.error) // Commented out or merged if needed.
-  // Actually openingSparring.store.ts already had 'error: computed(() => mozerStore.error)'
-  // Let's just keep the computed if it's used elsewhere or remove it if mozerStore is enough.
-  const error = computed(() => mozerStore.error)
+  const error = ref<string | null>(null)
   const moveQueue = ref<string[]>([])
 
 
@@ -215,7 +209,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
 
   function reset() {
     console.log('[OpeningSparring] Resetting session')
-    mozerStore.reset()
+    currentStats.value = null
     currentLichessStats.value = null
     // sessionHistory is computed, no need to reset
     // But we must reset PGN!
@@ -280,9 +274,16 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   }
 
   async function fetchStats() {
-    if (isPlayoutMode.value || isTheoryOver.value || isDeviation.value) return
-
-    await mozerStore.fetchStats()
+    isLoading.value = true
+    error.value = null
+    try {
+      const stats = await mozerBookService.getStats(boardStore.fen)
+      currentStats.value = stats
+    } catch (e: unknown) {
+      error.value = e instanceof Error ? e.message : String(e)
+    } finally {
+      isLoading.value = false
+    }
 
     if (opponentSource.value === 'lichess' && boardStore.turn !== playerColor.value) {
       currentLichessStats.value = await lichessApiService.getStats(boardStore.fen, 'lichess', {

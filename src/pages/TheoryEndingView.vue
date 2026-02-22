@@ -57,6 +57,13 @@ watch(
     const isGameOver = gameStore.gamePhase === 'GAMEOVER'
     const isIdle = gameStore.gamePhase === 'IDLE'
     const isPlaying = gameStore.gamePhase === 'PLAYING'
+    const isLoading = gameStore.gamePhase === 'LOADING'
+
+    if (isGameOver) {
+      analysisStore.showPanel()
+    } else if (isLoading && analysisStore.isPanelVisible) {
+      analysisStore.hidePanel()
+    }
 
     controlsStore.setControls({
       canRequestNew: isGameOver || isIdle,

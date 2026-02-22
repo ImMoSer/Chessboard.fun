@@ -1,31 +1,31 @@
 <script setup lang="ts">
 import { useBoardStore } from '@/entities/board'
 import {
-    lichessApiService,
-    type LichessMastersParams,
-    type LichessOpeningResponse,
-    type LichessParams,
-} from '@/features/opening-explorer/api/LichessApiService'
+  lichessApiService,
+  type LichessMastersParams,
+  type LichessOpeningResponse,
+  type LichessParams,
+} from '@/shared/api/lichess-explorer/LichessApiService'
 import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
 import {
-    CalendarOutline,
-    HourglassOutline,
-    ListOutline,
-    SettingsOutline,
-    TrophyOutline,
+  CalendarOutline,
+  HourglassOutline,
+  ListOutline,
+  SettingsOutline,
+  TrophyOutline,
 } from '@vicons/ionicons5'
 import {
-    NButton,
-    NButtonGroup,
-    NCheckbox,
-    NCheckboxGroup,
-    NCollapseTransition,
-    NGrid,
-    NGridItem,
-    NIcon,
-    NSlider,
-    NSpace,
-    NText,
+  NButton,
+  NButtonGroup,
+  NCheckbox,
+  NCheckboxGroup,
+  NCollapseTransition,
+  NGrid,
+  NGridItem,
+  NIcon,
+  NSlider,
+  NSpace,
+  NText,
 } from 'naive-ui'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'

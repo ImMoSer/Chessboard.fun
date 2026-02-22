@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import {
-    theoryChaptersService,
-    type TheoryChapterTemplate,
-} from '@/features/theory-endings/api/TheoryChaptersService';
+    openingChaptersService,
+    type OpeningChapterTemplate,
+} from '@/entities/opening';
 import { useStudyStore } from '@/features/study';
 import { NCard, NInput, NList, NListItem, NModal, NSpace, NText, NThing } from 'naive-ui';
 import { computed, ref } from 'vue';
@@ -13,13 +13,13 @@ defineProps<{
 
 const emit = defineEmits<{
   (e: 'update:show', value: boolean): void
-  (e: 'select', template: TheoryChapterTemplate): void
+  (e: 'select', template: OpeningChapterTemplate): void
 }>()
 
 const studyStore = useStudyStore()
 const searchQuery = ref('')
 const isLoading = ref(false)
-const chapters = ref<TheoryChapterTemplate[]>([])
+const chapters = ref<OpeningChapterTemplate[]>([])
 const selectedColor = ref<'white' | 'black'>('white')
 
 const filteredChapters = computed(() => {
@@ -27,20 +27,20 @@ const filteredChapters = computed(() => {
   if (!query) return chapters.value
 
   return chapters.value.filter(
-    (c: TheoryChapterTemplate) => c.name.toLowerCase().includes(query) || c.eco.toLowerCase().includes(query),
+    (c: OpeningChapterTemplate) => c.name.toLowerCase().includes(query) || c.eco.toLowerCase().includes(query),
   )
 })
 
 const handleOpen = async () => {
   if (!chapters.value.length) {
     isLoading.value = true
-    await theoryChaptersService.load()
-    chapters.value = theoryChaptersService.getChapters()
+    await openingChaptersService.load()
+    chapters.value = openingChaptersService.getChapters()
     isLoading.value = false
   }
 }
 
-const selectTemplate = (template: TheoryChapterTemplate) => {
+const selectTemplate = (template: OpeningChapterTemplate) => {
   try {
     studyStore.createChapterFromPgn(template.pgn, template.name, selectedColor.value)
     emit('update:show', false)

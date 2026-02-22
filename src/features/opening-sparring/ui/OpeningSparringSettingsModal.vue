@@ -1,30 +1,30 @@
 <script setup lang="ts">
+import { theoryGraphService } from '@/entities/opening'
 import { useOpeningSparringStore } from '@/features/opening-sparring'
-import { theoryGraphService } from '@/features/theory-endings'
 import {
-    BookOutline,
-    ColorPaletteOutline,
-    FilterOutline,
-    PeopleOutline,
-    PlayOutline,
-    ServerOutline,
-    ShuffleOutline,
+  BookOutline,
+  ColorPaletteOutline,
+  FilterOutline,
+  PeopleOutline,
+  PlayOutline,
+  ServerOutline,
+  ShuffleOutline,
 } from '@vicons/ionicons5'
 import type { SelectOption } from 'naive-ui'
 import {
-    NButton,
-    NCheckbox,
-    NGi,
-    NGrid,
-    NIcon,
-    NModal,
-    NRadioButton,
-    NRadioGroup,
-    NSelect,
-    NSlider,
-    NSpace,
-    NTag,
-    NText,
+  NButton,
+  NCheckbox,
+  NGi,
+  NGrid,
+  NIcon,
+  NModal,
+  NRadioButton,
+  NRadioGroup,
+  NSelect,
+  NSlider,
+  NSpace,
+  NTag,
+  NText,
 } from 'naive-ui'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'

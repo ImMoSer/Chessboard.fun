@@ -1,4 +1,4 @@
-import { type MozerBookMove, type MozerBookTheoryItem } from '@/features/mozer-book/api/MozerBookService'
+import { type MozerBookMove, type MozerBookTheoryItem } from '@/shared/api/mozer-book/MozerBookService'
 
 export interface MozerBookMoveExtended extends MozerBookMove {
   children: MozerBookTheoryItem[]

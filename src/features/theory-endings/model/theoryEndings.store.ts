@@ -2,7 +2,6 @@
 import { useBoardStore, type GameEndOutcome } from '@/entities/board'
 import { useGameStore } from '@/entities/game'
 import { useAuthStore } from '@/entities/user'
-import { useAnalysisStore } from '@/features/analysis'
 import { InsufficientFunCoinsError, webhookService } from '@/shared/api/WebhookService'
 import i18n from '@/shared/config/i18n'
 import logger from '@/shared/lib/logger'
@@ -26,7 +25,6 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
   const authStore = useAuthStore()
   const router = useRouter()
   const uiStore = useUiStore()
-  const analysisStore = useAnalysisStore()
 
   const activePuzzle = ref<TheoryPuzzle | null>(null)
   const activeType = ref<TheoryEndingType | null>(null)
@@ -90,8 +88,6 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
 
     _updateAndSendStats(isWin)
     logger.info(`[TheoryEndingsStore] Game Over. Result: ${isWin ? 'Success' : 'Failure'}`)
-
-    analysisStore.showPanel()
   }
 
   async function _updateAndSendStats(isWin: boolean) {
@@ -120,10 +116,6 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
 
   async function loadNewPuzzle(type?: TheoryEndingType, puzzleId?: string) {
     isProcessingGameOver.value = false
-
-    if (analysisStore.isPanelVisible) {
-      await analysisStore.hidePanel()
-    }
 
     gameStore.setGamePhase('LOADING')
     _clearGame() // If any
