@@ -1,16 +1,11 @@
 import { useBoardStore } from '@/entities/board'
-import { serverEngineService, type AnalysisResponse } from '@/entities/engine'
 import { useGameStore } from '@/entities/game'
 import { theoryGraphService } from '@/entities/opening'
 import { analysisService } from '@/features/analysis/api/AnalysisService'
 import { gameReviewService } from '@/features/opening-sparring/api/GameReviewService'
-import { lichessApiService, type LichessMove, type LichessOpeningResponse } from '@/shared/api/lichess-explorer/LichessApiService'
-import type { MozerBookMove } from '@/shared/api/mozer-book/MozerBookService'
-import { mozerBookService, type MozerBookResponse } from '@/shared/api/mozer-book/MozerBookService'
+import { useOpeningSparringQueries } from '@/features/opening-sparring/api/openingSparring.queries'
 import { webhookService } from '@/shared/api/WebhookService'
-import { areMovesEqual } from '@/shared/lib/chess-utils'
 import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
-import { soundService } from '@/shared/lib/sound/sound.service'
 import { type SessionMove } from '@/shared/types/openingSparring.types'
 import { type Key } from '@lichess-org/chessground/types'
 import { defineStore } from 'pinia'
@@ -18,7 +13,6 @@ import { computed, ref, watch } from 'vue'
 
 export const useOpeningSparringStore = defineStore('openingSparring', () => {
   const boardStore = useBoardStore()
-  const currentStats = ref<MozerBookResponse | null>(null)
 
   // -- REPLACED sessionHistory ref with computed from PGN --
   const sessionHistory = computed<SessionMove[]>(() => {
@@ -90,7 +84,20 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   const defaultRatings = [1200, 1400, 1600, 1800, 2000, 2200]
   const opponentRatings = ref<number[]>(savedRatings ? JSON.parse(savedRatings) : defaultRatings)
 
-  const currentLichessStats = ref<LichessOpeningResponse | null>(null)
+  // --- Vue Query Integration ---
+  const fen = computed(() => boardStore.fen)
+  const shouldFetchLichess = computed(() => boardStore.turn !== playerColor.value)
+
+  const { mozerQuery, lichessQuery } = useOpeningSparringQueries({
+    fen,
+    source: opponentSource,
+    shouldFetchLichess,
+    lichessRatings: opponentRatings,
+  })
+
+  const currentStats = computed(() => mozerQuery.data.value ?? null)
+  const currentLichessStats = computed(() => lichessQuery.data.value ?? null)
+  const isStatsLoading = computed(() => mozerQuery.isFetching.value || lichessQuery.isFetching.value)
 
   // Persist settings
   watch([opponentSource, opponentRatings], () => {
@@ -140,7 +147,13 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
 
   const isInitializing = ref(false)
 
-  async function initializeSession(color: 'white' | 'black', startMoves: string[] = []) {
+  // Dependencies for initialization
+  interface InitCallbacks {
+    onPlayerMove: (uci: string) => void
+    onBotMove: () => Promise<void>
+  }
+
+  async function initializeSession(color: 'white' | 'black', startMoves: string[] = [], callbacks: InitCallbacks) {
     if (isInitializing.value) {
       console.log('[OpeningSparring] Initialization already in progress, skipping')
       return
@@ -150,14 +163,10 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     try {
       console.log('[OpeningSparring] Initializing session', { color, startMoves })
 
-      // 1. Reset everything first
       reset()
-
-      // 2. Set basic state
       playerColor.value = color
       isProcessingMove.value = true
 
-      // 3. Configure GameStore
       const gameStore = useGameStore()
       gameStore.setupPuzzle(
         'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
@@ -173,33 +182,30 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
         'opening-trainer',
         undefined,
         color,
-        (uci) => handlePlayerMove(uci),
-        undefined, // onBotMove
-        false, // autoPlayBot - Disable GameStore engine bot to avoid conflict with MozerBook
+        (uci) => callbacks.onPlayerMove(uci),
+        undefined, // onBotMove handled by the hook
+        false,
       )
 
-      // 4. Load theory book
       await theoryGraphService.loadBook()
-
-      // 5. External services setup (Static import now)
       await webhookService.startOpeningSparring()
 
-      // 6. Setup board and PGN (ALREADY DONE in Step 3 via setupPuzzle)
-      // boardStore.setupPosition('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', color)
-
-      // 7. Apply start moves if any
       for (const move of startMoves) {
         boardStore.applyUciMove(move)
         const node = pgnService.getLastMove()
         if (node) pgnService.updateNode(node, { metadata: { phase: 'theory' } })
       }
 
-      // 8. Fetch stats for the starting position
-      await fetchStats()
+      // Instead of manual fetchStats(), we wait for Vue Query to resolve if needed,
+      // but typically we just wait to see whose turn it is
+      // We assume queries are automatically triggered by reactivity now.
 
-      // 9. Trigger bot move if it's bot's turn
+      // If Bot turn, trigger hook callback
       if (boardStore.turn !== color) {
-        await triggerBotMove()
+        // Delay briefly to allow queries to begin fetching
+        setTimeout(() => {
+          callbacks.onBotMove()
+        }, 100)
       }
     } finally {
       isProcessingMove.value = false
@@ -209,8 +215,6 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
 
   function reset() {
     console.log('[OpeningSparring] Resetting session')
-    currentStats.value = null
-    currentLichessStats.value = null
     // sessionHistory is computed, no need to reset
     // But we must reset PGN!
     // boardStore.resetBoardState() covers pgnService.reset() usually?
@@ -273,37 +277,16 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     }
   }
 
-  async function fetchStats() {
-    isLoading.value = true
-    error.value = null
-    try {
-      const stats = await mozerBookService.getStats(boardStore.fen)
-      currentStats.value = stats
-    } catch (e: unknown) {
-      error.value = e instanceof Error ? e.message : String(e)
-    } finally {
-      isLoading.value = false
-    }
-
-    if (opponentSource.value === 'lichess' && boardStore.turn !== playerColor.value) {
-      currentLichessStats.value = await lichessApiService.getStats(boardStore.fen, 'lichess', {
-        ratings: opponentRatings.value,
-        speeds: ['blitz', 'rapid', 'classical']
-      })
-    } else {
-      currentLichessStats.value = null
-    }
-
-    if (currentStats.value) {
-      if (currentStats.value.summary && !openingName.value) {
-        const theoryItem = currentStats.value.theory?.[0]
-        if (theoryItem) {
-          openingName.value = theoryItem.name
-          if (theoryItem.eco) currentEco.value = theoryItem.eco
-        }
+  watch(() => currentStats.value, (stats) => {
+    // Sync names on successful load automatically
+    if (stats && stats.summary && !openingName.value) {
+      const theoryItem = stats.theory?.[0]
+      if (theoryItem) {
+        openingName.value = theoryItem.name
+        if (theoryItem.eco) currentEco.value = theoryItem.eco
       }
     }
-  }
+  }, { immediate: true })
 
   async function runFinalEvaluation() {
     if (isFinalEvaluating.value) return
@@ -336,209 +319,8 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     })
   }
 
-  async function handlePlayerMove(moveUci: string) {
-    if (isPlayoutMode.value) {
-      isProcessingMove.value = false
-      return
-    }
-
-    isProcessingMove.value = true
-    moveQueue.value.push(moveUci)
-    try {
-      await processMoveQueue()
-    } catch {
-      isProcessingMove.value = false
-    }
-  }
-
-  async function processMoveQueue() {
-    if (moveQueue.value.length === 0) {
-      return
-    }
-
-    const moveUci = moveQueue.value.shift()!
-    const stats = currentStats.value
-
-    if (!stats || stats.moves.length === 0) {
-      isTheoryOver.value = true
-      isProcessingMove.value = false
-      return
-    }
-
-    const moveData = stats.moves.find((m) => areMovesEqual(m.uci, moveUci))
-
-    if (!moveData) {
-      isDeviation.value = true
-      soundService.playSound('game_user_won')
-      moveQueue.value = []
-      isProcessingMove.value = false
-      return
-    }
-
-    const totalGamesInPos = stats.summary
-      ? stats.summary.w + stats.summary.d + stats.summary.l
-      : stats.moves.reduce((acc, m) => acc + m.total, 0) || 1
-
-    const popularity = (moveData.total / totalGamesInPos) * 100
-    const maxTotal = Math.max(...stats.moves.map((m) => m.total))
-    const accuracy = maxTotal > 0 ? (moveData.total / maxTotal) * 100 : 0
-    const wins = playerColor.value === 'white' ? moveData.w_pct : moveData.l_pct
-    const winRateRaw = wins + 0.5 * moveData.d_pct
-    const rating = moveData.perf || 0
-    const moveStats = {
-      uci: moveData.uci,
-      san: moveData.san,
-      total: moveData.total,
-      w_pct: moveData.w_pct,
-      d_pct: moveData.d_pct,
-      l_pct: moveData.l_pct,
-      perf: moveData.perf
-    }
-
-    if (moveData.name) openingName.value = moveData.name
-    if (moveData.eco) currentEco.value = moveData.eco
-
-    // Check if the move is already applied on the board (Player move case)
-    // boardStore.lastMove is [from, to] keys.
-    const lastMoveUci = boardStore.lastMove ? boardStore.lastMove.join('') : ''
-
-    // We strictly apply the move ONLY if it's not already the last move on the board.
-    // This fixes the "Illegal move" error when handling player moves that GameStore already applied.
-    if (lastMoveUci !== moveUci) {
-      boardStore.applyUciMove(moveUci)
-    }
-
-    // Enrich PGN
-    const node = pgnService.getLastMove()
-    if (node) {
-      pgnService.updateNode(node, {
-        metadata: {
-          phase: 'theory',
-          stats: moveStats,
-          popularity,
-          accuracy,
-          winRate: winRateRaw,
-          rating
-        }
-      })
-    }
-
-    await fetchStats()
-
-    if (!isTheoryOver.value && !isDeviation.value) {
-      await triggerBotMove()
-    } else {
-      isProcessingMove.value = false
-    }
-  }
-
-  async function triggerBotMove() {
-    let movesPool: (MozerBookMove | LichessMove)[] = []
-    if (opponentSource.value === 'lichess' && currentLichessStats.value) {
-      movesPool = currentLichessStats.value.moves
-    } else {
-      movesPool = currentStats.value?.moves || []
-    }
-
-    if (movesPool.length === 0) {
-      isTheoryOver.value = true
-      if (opponentSource.value === 'master') {
-        soundService.playSound('game_user_won')
-      }
-      isProcessingMove.value = false
-      return
-    }
-
-    const candidates = movesPool.slice(0, variability.value).map(m => {
-      let total = (m as MozerBookMove).total
-      if (total === undefined) {
-        const lm = m as LichessMove
-        total = lm.white + lm.draws + lm.black
-      }
-      return { ...m, total }
-    })
-
-    if (candidates.length === 0) {
-      isTheoryOver.value = true
-      isProcessingMove.value = false
-      return
-    }
-
-    const totalGames = candidates.reduce((acc, m) => acc + m.total, 0)
-    let random = Math.random() * totalGames
-    let selectedMove = candidates[0]!
-
-    for (const move of candidates) {
-      if (random < move.total) {
-        selectedMove = move
-        break
-      }
-      random -= move.total
-    }
-
-    const masterStats = currentStats.value
-    const masterMoveData = masterStats?.moves.find(m => areMovesEqual(m.uci, selectedMove.uci))
-
-    let moveStats = undefined
-    let popularity = 0
-    let accuracy = 0
-    let winRateRaw = 0
-    let rating = 0
-    // san variable removed as it was shadowing selectedMove.san and causing unused var warning
-
-    if (masterMoveData) {
-      const totalGamesInPos = masterStats!.summary
-        ? masterStats!.summary!.w + masterStats!.summary!.d + masterStats!.summary!.l
-        : masterStats!.moves.reduce((acc, m) => acc + m.total, 0) || 1
-
-      popularity = (masterMoveData.total / totalGamesInPos) * 100
-      const maxTotal = Math.max(...masterStats!.moves.map((m) => m.total))
-      accuracy = maxTotal > 0 ? (masterMoveData.total / maxTotal) * 100 : 0
-
-      const wins = playerColor.value === 'white' ? masterMoveData.w_pct : masterMoveData.l_pct
-      winRateRaw = wins + 0.5 * masterMoveData.d_pct
-      rating = masterMoveData.perf || 0
-      // san = masterMoveData.san // Removed
-
-      moveStats = {
-        uci: masterMoveData.uci,
-        san: masterMoveData.san,
-        total: masterMoveData.total,
-        w_pct: masterMoveData.w_pct,
-        d_pct: masterMoveData.d_pct,
-        l_pct: masterMoveData.l_pct,
-        perf: masterMoveData.perf
-      }
-    }
-
-    boardStore.applyUciMove(selectedMove.uci)
-
-    const node = pgnService.getLastMove()
-    if (node) {
-      pgnService.updateNode(node, {
-        metadata: {
-          phase: 'theory',
-          stats: moveStats,
-          popularity,
-          accuracy,
-          winRate: winRateRaw,
-          rating
-        }
-      })
-    }
-
-    await fetchStats()
-
-    if (!masterMoveData) {
-      isTheoryOver.value = true
-    }
-
-    if (moveQueue.value.length > 0) {
-      await processMoveQueue()
-    } else {
-      isProcessingMove.value = false
-    }
-  }
+  // Removed: handlePlayerMove, processMoveQueue, triggerBotMove, startPlayout
+  // The Game Loop is now in useSparringLoop composable
 
   function hint() {
     if (lives.value <= 0) return
@@ -556,109 +338,6 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     setTimeout(() => {
       boardStore.setDrawableShapes([])
     }, 2000)
-  }
-
-  // Promise chain for playout move processing
-  let recordQueue = Promise.resolve()
-
-  async function _recordPlayoutMove(uci: string) {
-    // 1. Synchronous Context Capture
-    const currentNode = pgnService.getLastMove()
-    if (!currentNode || currentNode.uci !== uci) {
-      console.warn('[OpeningSparring] PGN Sync Error: Current node does not match played move.', currentNode?.uci, uci)
-      return
-    }
-
-    const fenBefore = currentNode.fenBefore
-
-    // Mark basic metadata immediately
-    pgnService.updateNode(currentNode, {
-      metadata: {
-        phase: 'playout',
-        loading: true
-      }
-    })
-
-    // 2. Queue Analysis
-    recordQueue = recordQueue.then(async () => {
-      try {
-        const response = (await serverEngineService.analyzeMove(
-          fenBefore,
-          uci,
-        )) as AnalysisResponse
-
-        if (response && response.quality && response.evaluation) {
-          const firstLine = response.evaluation.lines?.[0]
-          const pvSan = firstLine?.pv_san || ''
-
-          // Extract best move SAN from PV string like "9... g5" or "10. d4"
-          let bestMoveSan = ''
-          if (pvSan) {
-            const parts = pvSan.split(' ')
-            const movePart = parts.find((p) => !p.includes('.'))
-            bestMoveSan = movePart || ''
-          }
-
-          // Update PGN Node with full data from new API
-          pgnService.updateNode(currentNode, {
-            metadata: {
-              phase: 'playout',
-              loading: false,
-              quality: response.quality.verbal_score.toLowerCase(),
-              nag: response.quality.nag,
-              accuracy: response.quality.accuracy,
-              tags: response.quality.tags,
-              evaluation: {
-                score_cp: response.evaluation.cp,
-                win_prob: response.evaluation.win_prob,
-                wdl: response.evaluation.wdl,
-                depth: response.evaluation.depth,
-                best_move: response.quality.best_sf_move,
-                best_move_san: bestMoveSan,
-                pv_san: pvSan,
-                lines: response.evaluation.lines,
-              },
-            },
-          })
-        }
-      } catch (e) {
-        console.error('[OpeningSparring] Error in playout recording:', e)
-        pgnService.updateNode(currentNode, {
-          metadata: { phase: 'playout', loading: false, error: true }
-        })
-      }
-    })
-
-    await recordQueue
-  }
-
-  function handlePlayoutGameOver(isWin: boolean, outcome?: { winner?: 'white' | 'black'; reason?: string }) {
-    const gameStore = useGameStore()
-    gameStore.setGamePhase('GAMEOVER')
-    console.log(`[OpeningSparring] Playout Game Over. Win: ${isWin}, Reason: ${outcome?.reason}`)
-  }
-
-  async function startPlayout() {
-    isPlayoutMode.value = true
-    isFinalEvaluating.value = false
-    const gameStore = useGameStore()
-
-    soundService.playSound('game_play_out_start')
-
-    gameStore.setupPuzzle(
-      boardStore.fen,
-      [],
-      handlePlayoutGameOver,
-      (outcome) => outcome?.winner === playerColor.value,
-      () => { },
-      'opening-trainer',
-      undefined,
-      playerColor.value,
-      (uci) => _recordPlayoutMove(uci),
-      (uci) => _recordPlayoutMove(uci),
-      true,
-      true // keepPgn: true
-    )
   }
 
   async function generateGameReport() {
@@ -683,20 +362,22 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     isProcessingMove,
     isPlayoutMode,
     error,
+    moveQueue,
     lives,
     finalEval,
     isFinalEvaluating,
     finalEvalDepth,
     opponentSource,
     opponentRatings,
+    currentLichessStats,
+    isStatsLoading,
     initializeSession,
-    handlePlayerMove,
-    fetchStats,
+    handlePlayerMove: () => { console.warn('Called removed handlePlayerMove from store. Use useSparringLoop instead.') },
+    triggerBotMove: () => { console.warn('Called removed triggerBotMove from store. Use useSparringLoop instead.') },
+    generateGameReport,
     runFinalEvaluation,
     reset,
     hint,
-    startPlayout,
-    generateGameReport,
     isReviewMode,
     reviewMoveIndex,
     enterReviewMode,

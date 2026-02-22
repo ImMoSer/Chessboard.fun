@@ -32,7 +32,7 @@ interface PlayoutPair {
 }
 
 const playoutPairs = computed(() => {
-    const allPlayout = openingStore.sessionHistory.filter(m => m.phase === 'playout')
+    const allPlayout = openingStore.sessionHistory.filter((m: SessionMove) => m.phase === 'playout')
     if (allPlayout.length === 0) return []
 
     const groups = new Map<number, { white: SessionMove | null, black: SessionMove | null }>()

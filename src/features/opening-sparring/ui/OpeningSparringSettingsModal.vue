@@ -2,29 +2,29 @@
 import { theoryGraphService } from '@/entities/opening'
 import { useOpeningSparringStore } from '@/features/opening-sparring'
 import {
-  BookOutline,
-  ColorPaletteOutline,
-  FilterOutline,
-  PeopleOutline,
-  PlayOutline,
-  ServerOutline,
-  ShuffleOutline,
+    BookOutline,
+    ColorPaletteOutline,
+    FilterOutline,
+    PeopleOutline,
+    PlayOutline,
+    ServerOutline,
+    ShuffleOutline,
 } from '@vicons/ionicons5'
 import type { SelectOption } from 'naive-ui'
 import {
-  NButton,
-  NCheckbox,
-  NGi,
-  NGrid,
-  NIcon,
-  NModal,
-  NRadioButton,
-  NRadioGroup,
-  NSelect,
-  NSlider,
-  NSpace,
-  NTag,
-  NText,
+    NButton,
+    NCheckbox,
+    NGi,
+    NGrid,
+    NIcon,
+    NModal,
+    NRadioButton,
+    NRadioGroup,
+    NSelect,
+    NSlider,
+    NSpace,
+    NTag,
+    NText,
 } from 'naive-ui'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -60,7 +60,7 @@ function toggleRating(rating: number, checked: boolean) {
         current.delete(rating)
     }
     // Sort to keep consistent order, though not strictly required by API
-    openingStore.opponentRatings = Array.from(current).sort((a, b) => a - b)
+    openingStore.opponentRatings = Array.from(current).sort((a: number, b: number) => a - b)
 }
 
 onMounted(async () => {

@@ -4,6 +4,7 @@ import { useGameStore } from '@/entities/game'
 import { theoryGraphService } from '@/entities/opening'
 import { AnalysisPanel, useAnalysisStore } from '@/features/analysis'
 import { GameReviewModal, OpeningSparringHeader, OpeningSparringSettingsModal, OpeningSparringSummaryModal, SessionHistoryList, useOpeningSparringStore } from '@/features/opening-sparring'
+import { useSparringLoop } from '@/features/opening-sparring/model/useSparringLoop'
 import i18n from '@/shared/config/i18n'
 import { useUiStore } from '@/shared/ui/model/ui.store'
 import { NTag } from 'naive-ui'
@@ -19,6 +20,7 @@ const uiStore = useUiStore()
 const analysisStore = useAnalysisStore()
 const router = useRouter()
 const route = useRoute()
+const loop = useSparringLoop()
 
 const isSettingsModalOpen = ref(true)
 const showSummaryModal = ref(false)
@@ -132,7 +134,10 @@ async function startSession(color: 'white' | 'black', moves: string[] = [], slug
   }
 
   // initializeSession now handles GameStore setup and stats fetching internally
-  await openingStore.initializeSession(color, moves)
+  await openingStore.initializeSession(color, moves, {
+      onPlayerMove: (uci) => loop.handlePlayerMove(uci),
+      onBotMove: () => loop.triggerBotMove()
+  })
 }
 
 async function handleRestart() {
@@ -169,13 +174,12 @@ async function handlePlayout() {
     'Continue this position against the selected engine right here?',
   )
   if (confirmed) {
-    openingStore.startPlayout()
+    loop.startPlayout()
   }
 }
-
 function handleSummaryPlayout() {
     showSummaryModal.value = false
-    openingStore.startPlayout()
+    loop.startPlayout()
 }
 
 function handleSummaryAnalyze() {

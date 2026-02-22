@@ -1,0 +1,33 @@
+
+> chessboard-vue@4.0.0 type-check C:\CHESS_APP\chess_frontend
+> vue-tsc --build
+
+src/features/opening-sparring/api/openingSparring.queries.ts(22,19): error TS2769: No overload matches this call.
+  Overload 1 of 3, '(options: DefinedInitialQueryOptions<MozerBookResponse | null, Error, MozerBookResponse | null, readonly unknown[]>, queryClient?: QueryClient | undefined): UseQueryDefinedReturnType<...>', gave the following error.
+    Type '() => readonly ["opening-sparring", "mozer", string]' is not assignable to type 'MaybeRefDeep<readonly unknown[]>'.
+  Overload 2 of 3, '(options: UndefinedInitialQueryOptions<MozerBookResponse | null, Error, MozerBookResponse | null, readonly unknown[]>, queryClient?: QueryClient | undefined): UseQueryReturnType<...>', gave the following error.
+    Type '() => readonly ["opening-sparring", "mozer", string]' is not assignable to type 'MaybeRefDeep<readonly unknown[]>'.
+  Overload 3 of 3, '(options: MaybeRefOrGetter<UseQueryOptions<MozerBookResponse | null, Error, MozerBookResponse | null, MozerBookResponse | null, readonly unknown[]>>, queryClient?: QueryClient | undefined): UseQueryReturnType<...>', gave the following error.
+    Type '() => readonly ["opening-sparring", "mozer", string]' is not assignable to type 'MaybeRefDeep<readonly unknown[]>'.
+src/features/opening-sparring/api/openingSparring.queries.ts(31,19): error TS2769: No overload matches this call.
+  Overload 1 of 3, '(options: DefinedInitialQueryOptions<LichessOpeningResponse | null, Error, LichessOpeningResponse | null, readonly unknown[]>, queryClient?: QueryClient | undefined): UseQueryDefinedReturnType<...>', gave the following error.
+    Type '() => readonly ["opening-sparring", "lichess", string, string]' is not assignable to type 'MaybeRefDeep<readonly unknown[]>'.
+  Overload 2 of 3, '(options: UndefinedInitialQueryOptions<LichessOpeningResponse | null, Error, LichessOpeningResponse | null, readonly unknown[]>, queryClient?: QueryClient | undefined): UseQueryReturnType<...>', gave the following error.
+    Type '() => readonly ["opening-sparring", "lichess", string, string]' is not assignable to type 'MaybeRefDeep<readonly unknown[]>'.
+  Overload 3 of 3, '(options: MaybeRefOrGetter<UseQueryOptions<LichessOpeningResponse | null, Error, LichessOpeningResponse | null, LichessOpeningResponse | null, readonly unknown[]>>, queryClient?: QueryClient | undefined): UseQueryReturnType<...>', gave the following error.
+    Type '() => readonly ["opening-sparring", "lichess", string, string]' is not assignable to type 'MaybeRefDeep<readonly unknown[]>'.
+src/features/opening-sparring/model/openingSparring.store.ts(359,5): error TS18004: No value exists in scope for the shorthand property 'hint'. Either declare one or provide an initializer.
+src/features/opening-sparring/model/useSparringLoop.ts(82,44): error TS7006: Parameter 'm' implicitly has an 'any' type.
+src/features/opening-sparring/model/useSparringLoop.ts(94,35): error TS7006: Parameter 'acc' implicitly has an 'any' type.
+src/features/opening-sparring/model/useSparringLoop.ts(94,40): error TS7006: Parameter 'm' implicitly has an 'any' type.
+src/features/opening-sparring/model/useSparringLoop.ts(97,55): error TS7006: Parameter 'm' implicitly has an 'any' type.
+src/features/opening-sparring/model/useSparringLoop.ts(190,56): error TS7006: Parameter 'm' implicitly has an 'any' type.
+src/features/opening-sparring/model/useSparringLoop.ts(201,46): error TS7006: Parameter 'acc' implicitly has an 'any' type.
+src/features/opening-sparring/model/useSparringLoop.ts(201,51): error TS7006: Parameter 'm' implicitly has an 'any' type.
+src/features/opening-sparring/model/useSparringLoop.ts(204,66): error TS7006: Parameter 'm' implicitly has an 'any' type.
+src/features/opening-sparring/ui/OpeningSparringSettingsModal.vue(63,71): error TS18046: 'a' is of type 'unknown'.
+src/features/opening-sparring/ui/OpeningSparringSettingsModal.vue(63,75): error TS18046: 'b' is of type 'unknown'.
+src/features/opening-sparring/ui/PlayoutAnalysisTable.vue(35,59): error TS7006: Parameter 'm' implicitly has an 'any' type.
+src/features/opening-sparring/ui/SessionHistoryList.vue(16,71): error TS7006: Parameter 'm' implicitly has an 'any' type.
+src/features/opening-sparring/ui/SessionHistoryList.vue(17,68): error TS7006: Parameter 'm' implicitly has an 'any' type.
+ ELIFECYCLE  Command failed with exit code 2.

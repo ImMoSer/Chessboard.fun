@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed, h, type CSSProperties } from 'vue'
-import { NDataTable, NText, NDivider, type DataTableColumns } from 'naive-ui'
 import { useOpeningSparringStore } from '@/features/opening-sparring'
 import { type SessionMove } from '@/shared/types/openingSparring.types'
+import { NDataTable, NDivider, NText, type DataTableColumns } from 'naive-ui'
+import { computed, h, type CSSProperties } from 'vue'
 import PlayoutAnalysisTable from './PlayoutAnalysisTable.vue'
 
 const openingStore = useOpeningSparringStore()
@@ -13,17 +13,17 @@ interface MovePair {
   black: SessionMove | null
 }
 
-const theoryMoves = computed(() => openingStore.sessionHistory.filter(m => m.phase === 'theory'))
-const hasPlayout = computed(() => openingStore.sessionHistory.some(m => m.phase === 'playout'))
+const theoryMoves = computed(() => openingStore.sessionHistory.filter((m: SessionMove) => m.phase === 'theory'))
+const hasPlayout = computed(() => openingStore.sessionHistory.some((m: SessionMove) => m.phase === 'playout'))
 
 const movePairs = computed<MovePair[]>(() => {
   const history = theoryMoves.value
   const pairs: MovePair[] = []
-  
+
   for (let i = 0; i < history.length; i += 2) {
     const white = history[i] || null
     const black = history[i + 1] || null
-    
+
     pairs.push({
       number: Math.floor(i / 2) + 1,
       white,
@@ -37,13 +37,13 @@ const movePairs = computed<MovePair[]>(() => {
 const renderMove = (row: MovePair, color: 'white' | 'black') => {
     const move = row[color]
     if (!move) return null
-    
+
     // Calculate index in GLOBAL history
     const index = openingStore.sessionHistory.indexOf(move)
-    
+
     const isReview = openingStore.isReviewMode
     const isActive = isReview && openingStore.reviewMoveIndex === index
-    
+
     const style: CSSProperties = {
         cursor: isReview ? 'pointer' : 'default',
         padding: '2px 6px',
@@ -53,7 +53,7 @@ const renderMove = (row: MovePair, color: 'white' | 'black') => {
         minWidth: '36px',
         textAlign: 'center'
     }
-    
+
     if (isActive) {
         style.backgroundColor = 'var(--color-accent)'
         style.color = '#fff'
@@ -68,8 +68,8 @@ const renderMove = (row: MovePair, color: 'white' | 'black') => {
             class: isReview ? 'review-move' : ''
         },
         [
-            h(NText, { 
-                strong: true, 
+            h(NText, {
+                strong: true,
                 style: { color: isActive ? '#fff' : undefined }
             }, { default: () => move.san || move.moveUci })
         ]
@@ -82,7 +82,7 @@ const renderStat = (row: MovePair, color: 'white' | 'black', stat: 'acc' | 'win'
 
     let val: string | number = '-'
     let style = {}
-    
+
     if (stat === 'acc') {
         const acc = Math.round(move.accuracy || move.popularity || 0)
         val = `${acc}%`
@@ -97,7 +97,7 @@ const renderStat = (row: MovePair, color: 'white' | 'black', stat: 'acc' | 'win'
         if (val === 0) val = '-'
         style = { color: '#aaa' }
     }
-    
+
     return h('span', { style: { fontSize: '11px', ...style } }, val)
 }
 
@@ -141,7 +141,7 @@ const columns = computed<DataTableColumns<MovePair>>(() => [
     <div class="history-header">
         <h3>Session History</h3>
     </div>
-    
+
     <div class="table-scroll-area">
         <n-data-table
           v-if="movePairs.length > 0"
@@ -180,7 +180,7 @@ const columns = computed<DataTableColumns<MovePair>>(() => [
     background: rgba(255, 255, 255, 0.03);
     border-bottom: 1px solid var(--color-border);
     flex-shrink: 0;
-    
+
     h3 {
         margin: 0;
         font-size: 0.85rem;
@@ -194,7 +194,7 @@ const columns = computed<DataTableColumns<MovePair>>(() => [
 .table-scroll-area {
     flex: 1;
     overflow-y: auto;
-    
+
     &::-webkit-scrollbar {
         width: 6px;
     }
@@ -244,7 +244,7 @@ const columns = computed<DataTableColumns<MovePair>>(() => [
     z-index: 2; /* Увеличил z-index для сгруппированных заголовков */
     text-align: center;
   }
-  
+
   /* Разделитель между группами белых и черных */
   .n-data-table-th[colspan="4"] {
      border-bottom: 1px solid rgba(255,255,255,0.1);
@@ -269,7 +269,7 @@ const columns = computed<DataTableColumns<MovePair>>(() => [
     background: rgba(255, 255, 255, 0.03);
     border-bottom: 1px solid var(--color-border);
     flex-shrink: 0;
-    
+
     h3 {
         margin: 0;
         font-size: 0.85rem;
@@ -283,7 +283,7 @@ const columns = computed<DataTableColumns<MovePair>>(() => [
 .table-scroll-area {
     flex: 1;
     overflow-y: auto;
-    
+
     &::-webkit-scrollbar {
         width: 6px;
     }
@@ -315,7 +315,7 @@ const columns = computed<DataTableColumns<MovePair>>(() => [
     z-index: 2; /* Увеличил z-index для сгруппированных заголовков */
     text-align: center;
   }
-  
+
   /* Разделитель между группами белых и черных */
   .n-data-table-th[colspan="4"] {
      border-bottom: 1px solid rgba(255,255,255,0.1);
