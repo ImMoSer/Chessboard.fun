@@ -1,22 +1,22 @@
 <!-- src/pages/OpeningExamView.vue -->
 <script setup lang="ts">
-import { NTag } from 'naive-ui'
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useGameStore } from '@/entities/game'
+import { useAnalysisStore } from '@/features/analysis/model/analysis.store'
 import AnalysisPanel from '@/features/analysis/ui/AnalysisPanel.vue'
-import GameLayout from '../widgets/game-layout/GameLayout.vue'
-import MozerBook from '../features/mozer-book/ui/MozerBook.vue'
+import { useOpeningSparringStore } from '@/features/opening-sparring/model/openingSparring.store'
 import GameReviewModal from '@/features/opening-sparring/ui/GameReviewModal.vue'
 import OpeningSparringHeader from '@/features/opening-sparring/ui/OpeningSparringHeader.vue'
 import OpeningSparringSettingsModal from '@/features/opening-sparring/ui/OpeningSparringSettingsModal.vue'
 import OpeningSparringSummaryModal from '@/features/opening-sparring/ui/OpeningSparringSummaryModal.vue'
 import SessionHistoryList from '@/features/opening-sparring/ui/SessionHistoryList.vue'
-import i18n from '@/shared/config/i18n'
 import { theoryGraphService } from '@/features/theory-endings/api/TheoryGraphService'
-import { useAnalysisStore } from '@/features/analysis/model/analysis.store'
-import { useGameStore } from '@/entities/game/model/game.store'
-import { useOpeningSparringStore } from '@/features/opening-sparring/model/openingSparring.store'
+import i18n from '@/shared/config/i18n'
 import { useUiStore } from '@/shared/ui/model/ui.store'
+import { NTag } from 'naive-ui'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import MozerBook from '../features/mozer-book/ui/MozerBook.vue'
+import GameLayout from '../widgets/game-layout/GameLayout.vue'
 
 const t = i18n.global.t
 const openingStore = useOpeningSparringStore()

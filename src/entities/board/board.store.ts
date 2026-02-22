@@ -1,8 +1,8 @@
 // src/stores/board.store.ts
-import { useGameStore } from '@/entities/game/model/game.store'
+import { useGameStore } from '@/entities/game'
+import logger from '@/shared/lib/logger'
 import { pgnService, type PgnNode } from '@/shared/lib/pgn/PgnService'
 import { soundService } from '@/shared/lib/sound/sound.service'
-import logger from '@/shared/lib/logger'
 import type { DrawShape } from '@lichess-org/chessground/draw'
 import type {
   Color as ChessgroundColor,

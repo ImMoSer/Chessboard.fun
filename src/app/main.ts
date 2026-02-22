@@ -8,7 +8,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 
-import { useAuthStore } from '@/entities/user/auth.store'
+import { useAuthStore } from '@/entities/user'
 
 const queryClient = new QueryClient({
   defaultOptions: {

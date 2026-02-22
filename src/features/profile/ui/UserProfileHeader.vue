@@ -1,6 +1,6 @@
 <!-- src/components/userCabinet/sections/UserProfileHeader.vue -->
 <script setup lang="ts">
-import { useAuthStore } from '@/entities/user/auth.store'
+import { useAuthStore } from '@/entities/user'
 import type { TornadoMode, UserSessionProfile } from '@/shared/types/api.types'
 import { Calendar, Flash, Timer } from '@vicons/ionicons5'
 import { storeToRefs } from 'pinia'

@@ -1,10 +1,10 @@
 <script setup lang="ts">
+import { useBoardStore } from '@/entities/board'
+import type { LichessMove } from '@/features/opening-explorer/api/LichessApiService'
 import type { DataTableColumns } from 'naive-ui'
 import { NDataTable, NText } from 'naive-ui'
 import { computed, h } from 'vue'
 import { useI18n } from 'vue-i18n'
-import type { LichessMove } from '@/features/opening-explorer/api/LichessApiService'
-import {  useBoardStore  } from '@/entities/board/board.store'
 
 const props = defineProps<{
   moves: LichessMove[]

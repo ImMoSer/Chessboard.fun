@@ -1,5 +1,5 @@
 // src/services/ServerEngineService.ts
-import { authService } from '@/entities/user/AuthService'
+import { authService } from '@/entities/user'
 import logger from '@/shared/lib/logger'
 
 const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL as string

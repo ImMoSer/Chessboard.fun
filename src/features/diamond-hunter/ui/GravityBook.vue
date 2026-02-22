@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { computed, watch } from 'vue'
-import { useDiamondHunterStore } from '@/features/diamond-hunter/model/diamondHunter.store'
-import {  useBoardStore  } from '@/entities/board/board.store'
+import { useBoardStore } from '@/entities/board'
 import { useAnalysisStore } from '@/features/analysis/model/analysis.store'
-import { NDataTable, NTag, NEmpty } from 'naive-ui'
 import { type GravityMove } from '@/features/diamond-hunter/api/DiamondApiService'
-import { h } from 'vue'
+import { useDiamondHunterStore } from '@/features/diamond-hunter/model/diamondHunter.store'
+import { NDataTable, NEmpty, NTag } from 'naive-ui'
+import { computed, h, watch } from 'vue'
 
 interface GravityMoveWithPercent extends GravityMove {
   percent: string
@@ -18,9 +17,9 @@ const diamondStore = useDiamondHunterStore()
 const moves = computed<GravityMoveWithPercent[]>(() => {
     const stats = diamondStore.currentGravityStats
     if (!stats || !stats.moves) return []
-    
+
     const totalWeight = stats.moves.reduce((acc, m) => acc + m.weight, 0)
-    
+
     return [...stats.moves].map(m => ({
         ...m,
         percent: totalWeight > 0 ? ((m.weight / totalWeight) * 100).toFixed(1) : '0.0'
@@ -68,7 +67,7 @@ const columns = [
         // Render Dist with visual cues
         const tags = []
         tags.push(row.dist.toString())
-        
+
         if (row.dist <= 3) {
             return [row.dist, ' ', h(NTag, { type: 'success', size: 'tiny', bordered: false }, { default: () => '!' })]
         } else if (row.dist <= 5) {
@@ -85,12 +84,12 @@ const columns = [
     render(row: GravityMoveWithPercent) {
         if (!row.nag) return ''
         let type: 'default' | 'error' | 'primary' | 'info' | 'success' | 'warning' = 'default'
-        
+
         if (row.nag === 3) type = 'success' // !!
         if (row.nag === 255) type = 'primary' // !!! (Win)
         if (row.nag === 4) type = 'error' // ??
         if (row.nag === 7) type = 'info' // Only
-        
+
         return h(NTag, { type, size: 'small', bordered: false }, { default: () => row.nag_str })
     }
   }

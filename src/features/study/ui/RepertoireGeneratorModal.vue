@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { pgnParserService } from '@/shared/lib/pgn/PgnParserService'
-import { pgnService, type PgnNode } from '@/shared/lib/pgn/PgnService'
+import { useBoardStore } from '@/entities/board'
 import {
     repertoireApiService,
     type RepertoireProfile,
     type RepertoireRequest,
     type RepertoireStyle,
 } from '@/features/study/api/RepertoireApiService'
-import {  useBoardStore  } from '@/entities/board/board.store'
 import { useStudyStore } from '@/features/study/model/study.store'
+import { pgnParserService } from '@/shared/lib/pgn/PgnParserService'
+import { pgnService, type PgnNode } from '@/shared/lib/pgn/PgnService'
 import { FlashOutline } from '@vicons/ionicons5'
 import {
     NButton,

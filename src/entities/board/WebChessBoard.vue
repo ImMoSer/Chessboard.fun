@@ -1,7 +1,5 @@
 <!-- src/components/WebChessBoard.vue -->
 <script setup lang="ts">
-import type { PromotionState } from '@/entities/board/board.store'
-import PromotionDialog from '@/entities/board/PromotionDialog.vue'
 import { Chessground } from '@lichess-org/chessground'
 import type { Api } from '@lichess-org/chessground/api'
 import type { Config } from '@lichess-org/chessground/config'
@@ -14,6 +12,8 @@ import type {
 } from '@lichess-org/chessground/types'
 import type { Role as ChessopsRole } from 'chessops/types'
 import { onMounted, onUnmounted, ref, shallowRef, watch, type PropType } from 'vue'
+import type { PromotionState } from './board.store'
+import PromotionDialog from './PromotionDialog.vue'
 
 const props = defineProps({
   fen: { type: String, required: true },

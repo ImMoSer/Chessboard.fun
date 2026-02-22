@@ -1,12 +1,12 @@
 <!-- src/pages/TornadoMistakesView.vue -->
 <script setup lang="ts">
-import { useGameStore } from '@/entities/game/model/game.store'
+import { useGameStore } from '@/entities/game'
 import { useAnalysisStore } from '@/features/analysis/model/analysis.store'
 import AnalysisPanel from '@/features/analysis/ui/AnalysisPanel.vue'
 import { soundService } from '@/shared/lib/sound/sound.service'
+import type { GamePuzzle } from '@/shared/types/api.types'
 import ChessboardPreview from '@/shared/ui/board-preview/ChessboardPreview.vue'
 import { useUiStore } from '@/shared/ui/model/ui.store'
-import type { GamePuzzle } from '@/shared/types/api.types'
 import GameLayout from '@/widgets/game-layout/GameLayout.vue'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'

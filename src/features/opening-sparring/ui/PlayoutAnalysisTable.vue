@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useBoardStore } from '@/entities/board'
+import { useOpeningSparringStore } from '@/features/opening-sparring/model/openingSparring.store'
+import { type SessionMove } from '@/shared/types/openingSparring.types'
 import { type Key } from '@lichess-org/chessground/types'
 import {
     ExtensionPuzzleOutline,
@@ -18,9 +21,6 @@ import {
     type DataTableColumns
 } from 'naive-ui'
 import { computed, h } from 'vue'
-import {  useBoardStore  } from '@/entities/board/board.store'
-import { useOpeningSparringStore } from '@/features/opening-sparring/model/openingSparring.store'
-import { type SessionMove } from '@/shared/types/openingSparring.types'
 
 const openingStore = useOpeningSparringStore()
 const boardStore = useBoardStore()

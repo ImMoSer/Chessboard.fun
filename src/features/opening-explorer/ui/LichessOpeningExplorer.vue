@@ -1,34 +1,34 @@
 <script setup lang="ts">
+import { useBoardStore } from '@/entities/board'
 import {
-  CalendarOutline,
-  HourglassOutline,
-  ListOutline,
-  SettingsOutline,
-  TrophyOutline,
+    lichessApiService,
+    type LichessMastersParams,
+    type LichessOpeningResponse,
+    type LichessParams,
+} from '@/features/opening-explorer/api/LichessApiService'
+import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
+import {
+    CalendarOutline,
+    HourglassOutline,
+    ListOutline,
+    SettingsOutline,
+    TrophyOutline,
 } from '@vicons/ionicons5'
 import {
-  NButton,
-  NButtonGroup,
-  NCheckbox,
-  NCheckboxGroup,
-  NCollapseTransition,
-  NGrid,
-  NGridItem,
-  NIcon,
-  NSlider,
-  NSpace,
-  NText,
+    NButton,
+    NButtonGroup,
+    NCheckbox,
+    NCheckboxGroup,
+    NCollapseTransition,
+    NGrid,
+    NGridItem,
+    NIcon,
+    NSlider,
+    NSpace,
+    NText,
 } from 'naive-ui'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import {
-  lichessApiService,
-  type LichessMastersParams,
-  type LichessOpeningResponse,
-  type LichessParams,
-} from '@/features/opening-explorer/api/LichessApiService'
-import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
-import {  useBoardStore  } from '@/entities/board/board.store'
 import OpeningStatsTable from './OpeningStatsTable.vue'
 
 

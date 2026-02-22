@@ -1,17 +1,17 @@
 <!-- src/pages/OpeningTrainingView.vue -->
 <script setup lang="ts">
+import { useBoardStore } from '@/entities/board'
+import { useGameStore } from '@/entities/game'
+import { useAnalysisStore } from '@/features/analysis/model/analysis.store'
+import AnalysisPanel from '@/features/analysis/ui/AnalysisPanel.vue'
+import { useDiamondHunterStore } from '@/features/diamond-hunter/model/diamondHunter.store'
+import DiamondHunterSettingsModal from '@/features/diamond-hunter/ui/DiamondHunterSettingsModal.vue'
+import GravityBook from '@/features/diamond-hunter/ui/GravityBook.vue'
 import { ArrowBack, DiamondOutline, FlashOutline, TelescopeOutline } from '@vicons/ionicons5'
 import { NButton, NIcon, NModal, NNumberAnimation, NSpace, NStatistic } from 'naive-ui'
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import AnalysisPanel from '@/features/analysis/ui/AnalysisPanel.vue'
-import DiamondHunterSettingsModal from '@/features/diamond-hunter/ui/DiamondHunterSettingsModal.vue'
-import GravityBook from '@/features/diamond-hunter/ui/GravityBook.vue'
 import GameLayout from '../widgets/game-layout/GameLayout.vue'
-import { useAnalysisStore } from '@/features/analysis/model/analysis.store'
-import {  useBoardStore  } from '@/entities/board/board.store'
-import { useDiamondHunterStore } from '@/features/diamond-hunter/model/diamondHunter.store'
-import { useGameStore } from '@/entities/game/model/game.store'
 
 
 const diamondHunterStore = useDiamondHunterStore()

@@ -1,6 +1,6 @@
 <!-- src/pages/TheoryEndingView.vue -->
 <script setup lang="ts">
-import { useGameStore } from '@/entities/game/model/game.store'
+import { useGameStore } from '@/entities/game'
 import { useAnalysisStore } from '@/features/analysis/model/analysis.store'
 import { useTheoryEndingsStore } from '@/features/theory-endings/model/theoryEndings.store'
 import { shareService } from '@/shared/lib/share.service'

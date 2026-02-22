@@ -1,6 +1,6 @@
 <!-- src/components/SettingsMenu.vue -->
 <script setup lang="ts">
-import { useAuthStore } from '@/entities/user/auth.store'
+import { useAuthStore } from '@/entities/user'
 import { useThemeStore } from '@/features/settings/model/theme.store'
 import { changeLang } from '@/shared/config/i18n'
 import { soundService } from '@/shared/lib/sound/sound.service'

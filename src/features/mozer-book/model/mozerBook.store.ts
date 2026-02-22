@@ -1,10 +1,10 @@
 // src/stores/mozerBook.store.ts
+import { useBoardStore } from '@/entities/board'
+import { mozerBookService, type MozerBookResponse } from '@/features/mozer-book/api/MozerBookService'
+import logger from '@/shared/lib/logger'
+import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import { mozerBookService, type MozerBookResponse } from '@/features/mozer-book/api/MozerBookService'
-import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
-import logger from '@/shared/lib/logger'
-import {  useBoardStore  } from '@/entities/board/board.store'
 
 export const useMozerBookStore = defineStore('mozerBook', () => {
   const boardStore = useBoardStore()
@@ -36,7 +36,7 @@ export const useMozerBookStore = defineStore('mozerBook', () => {
 
     // 2. Return in-flight request if matching
     if (pendingRequest.value && pendingFen.value === fen && !force) {
-        return pendingRequest.value
+      return pendingRequest.value
     }
 
     isLoading.value = true
@@ -44,33 +44,33 @@ export const useMozerBookStore = defineStore('mozerBook', () => {
     pendingFen.value = fen
 
     const promise = (async () => {
-        try {
-            logger.info(`[MozerBookStore] Fetching stats for FEN: ${fen}`)
-            const data = await mozerBookService.getStats(fen)
-            if (data) {
-                // Only update state if this is still the relevant FEN
-                // (though usually we want to cache it anyway)
-                if (fen === pendingFen.value) {
-                     currentStats.value = data
-                     lastFetchedFen.value = fen
-                }
-                return data
-            }
-            return null
-        } catch (e: unknown) {
-            if (fen === pendingFen.value) {
-                const msg = e instanceof Error ? e.message : String(e)
-                error.value = msg || 'Failed to fetch MozerBook stats'
-            }
-            logger.error(`[MozerBookStore] Error:`, e)
-            return null
-        } finally {
-            if (fen === pendingFen.value) {
-                isLoading.value = false
-                pendingRequest.value = null
-                pendingFen.value = null
-            }
+      try {
+        logger.info(`[MozerBookStore] Fetching stats for FEN: ${fen}`)
+        const data = await mozerBookService.getStats(fen)
+        if (data) {
+          // Only update state if this is still the relevant FEN
+          // (though usually we want to cache it anyway)
+          if (fen === pendingFen.value) {
+            currentStats.value = data
+            lastFetchedFen.value = fen
+          }
+          return data
         }
+        return null
+      } catch (e: unknown) {
+        if (fen === pendingFen.value) {
+          const msg = e instanceof Error ? e.message : String(e)
+          error.value = msg || 'Failed to fetch MozerBook stats'
+        }
+        logger.error(`[MozerBookStore] Error:`, e)
+        return null
+      } finally {
+        if (fen === pendingFen.value) {
+          isLoading.value = false
+          pendingRequest.value = null
+          pendingFen.value = null
+        }
+      }
     })()
 
     pendingRequest.value = promise
@@ -92,14 +92,14 @@ export const useMozerBookStore = defineStore('mozerBook', () => {
   // However, Diamond Hunter usually looks at the board's current FEN.
 
   async function getStatsForFen(fen: string): Promise<MozerBookResponse | null> {
-      // If the requested FEN matches our current store state, just ensure it's loaded.
-      if (fen === currentFen.value) {
-          return fetchStats()
-      }
+    // If the requested FEN matches our current store state, just ensure it's loaded.
+    if (fen === currentFen.value) {
+      return fetchStats()
+    }
 
-      // Otherwise, fetch independently (stateless for the store UI, but using API)
-      // We don't want to break the UI by loading other FENs into `currentStats`.
-      return mozerBookService.getStats(fen)
+    // Otherwise, fetch independently (stateless for the store UI, but using API)
+    // We don't want to break the UI by loading other FENs into `currentStats`.
+    return mozerBookService.getStats(fen)
   }
 
   return {

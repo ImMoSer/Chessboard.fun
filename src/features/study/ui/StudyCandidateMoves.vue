@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import { useBoardStore } from '@/entities/board'
 import { pgnService, pgnTreeVersion, type PgnNode } from '@/shared/lib/pgn/PgnService'
-import {  useBoardStore  } from '@/entities/board/board.store'
 import { computed } from 'vue'
 
 const boardStore = useBoardStore()

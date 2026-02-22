@@ -1,19 +1,19 @@
 <!-- src/pages/PracticalChessView.vue -->
 <script setup lang="ts">
+import { useGameStore } from '@/entities/game'
+import { useAnalysisStore } from '@/features/analysis/model/analysis.store'
+import { usePracticalChessStore } from '@/features/practical-chess/model/practicalChess.store'
+import { shareService } from '@/shared/lib/share.service'
+import { useControlsStore } from '@/widgets/game-layout/model/controls.store'
 import { onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { shareService } from '@/shared/lib/share.service'
-import { useAnalysisStore } from '@/features/analysis/model/analysis.store'
-import { useControlsStore } from '@/widgets/game-layout/model/controls.store'
-import { useGameStore } from '@/entities/game/model/game.store'
-import { usePracticalChessStore } from '@/features/practical-chess/model/practicalChess.store'
 
 import AnalysisPanel from '@/features/analysis/ui/AnalysisPanel.vue'
+import UserProfileWidget from '@/features/profile/ui/UserProfileWidget.vue'
+import YouMoveSelection from '../features/practical-chess/ui/YouMoveSelection.vue'
 import ControlPanel from '../widgets/game-layout/ControlPanel.vue'
 import GameLayout from '../widgets/game-layout/GameLayout.vue'
 import TopInfoPanel from '../widgets/game-layout/TopInfoPanel.vue'
-import UserProfileWidget from '@/features/profile/ui/UserProfileWidget.vue'
-import YouMoveSelection from '../features/practical-chess/ui/YouMoveSelection.vue'
 
 const practicalStore = usePracticalChessStore()
 const gameStore = useGameStore()
