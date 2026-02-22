@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { useBoardStore } from '@/entities/board'
 import { useAnalysisStore } from '@/features/analysis'
-import { type GravityMove } from '@/features/diamond-hunter/api/DiamondApiService'
 import { useDiamondHunterStore } from '@/features/diamond-hunter'
+import { type GravityMove } from '@/features/diamond-hunter/api/DiamondApiService'
 import { NDataTable, NEmpty, NTag } from 'naive-ui'
 import { computed, h, watch } from 'vue'
 
@@ -104,10 +104,8 @@ watch(() => boardStore.fen, async (newFen) => {
     // We only fetch manually in Analysis/Idle mode.
     if (diamondStore.isActive) return
 
-    // If store already has data for this FEN, don't re-fetch
-    if (diamondStore.currentGravityStats && diamondStore.lastFetchedFen === newFen) {
-        return
-    }
+    // Vue query handles deduplication and caching for us.
+    // We just trigger the store action, which returns instantly if cached.
     await diamondStore.fetchGravityForFen(newFen)
 }, { immediate: true })
 

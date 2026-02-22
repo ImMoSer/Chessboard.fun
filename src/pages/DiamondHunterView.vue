@@ -2,11 +2,9 @@
 <script setup lang="ts">
 import { useBoardStore } from '@/entities/board'
 import { useGameStore } from '@/entities/game'
-import { useAnalysisStore } from '@/features/analysis'
-import { AnalysisPanel } from '@/features/analysis'
-import { useDiamondHunterStore } from '@/features/diamond-hunter'
-import { DiamondHunterSettingsModal } from '@/features/diamond-hunter'
-import { GravityBook } from '@/features/diamond-hunter'
+import { AnalysisPanel, useAnalysisStore } from '@/features/analysis'
+import { DiamondHunterSettingsModal, GravityBook, useDiamondHunterStore } from '@/features/diamond-hunter'
+import { useDiamondHunterUi } from '@/features/diamond-hunter/ui/useDiamondHunterUi'
 import { ArrowBack, DiamondOutline, FlashOutline, TelescopeOutline } from '@vicons/ionicons5'
 import { NButton, NIcon, NModal, NNumberAnimation, NSpace, NStatistic } from 'naive-ui'
 import { onMounted, onUnmounted, ref } from 'vue'
@@ -20,6 +18,9 @@ const gameStore = useGameStore()
 const analysisStore = useAnalysisStore()
 const router = useRouter()
 const route = useRoute()
+
+// Initialize UI interactions
+useDiamondHunterUi()
 
 const isSettingsModalOpen = ref(true)
 const isAnalysisView = ref(false)

@@ -1,19 +1,21 @@
-import { checkDiamondLimit, db, recordBrilliant, recordDiamond } from '@/db/DiamondDatabase'
 import { useBoardStore } from '@/entities/board'
 import { useAnalysisStore } from '@/features/analysis'
 import { diamondApiService, type GravityMove } from '@/features/diamond-hunter/api/DiamondApiService'
+import { useDiamondHunterQueries } from '@/features/diamond-hunter/api/diamondHunter.queries'
 import logger from '@/shared/lib/logger'
 import { pgnService } from '@/shared/lib/pgn/PgnService'
-import { soundService } from '@/shared/lib/sound/sound.service'
-import type { DrawShape } from '@lichess-org/chessground/draw'
-import type { Key } from '@lichess-org/chessground/types'
+import type { SoundEvent } from '@/shared/lib/sound/sound.service'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 
 export type HunterState = 'IDLE' | 'HUNTING' | 'SOLVING' | 'REWARD' | 'FAILED' | 'SAVING'
 
-// Arrow Colors: 1st=Green, 2nd=Blue, 3rd=Yellow
-const ARROW_COLORS = ['green', 'blue', 'yellow']
+export interface HunterHint {
+    orig: string
+    dest?: string
+    type: 'arrow' | 'blunder' | 'victory' | 'correct' | 'expected'
+    dist?: number
+}
 
 export const useDiamondHunterStore = defineStore('diamondHunter', () => {
     const boardStore = useBoardStore()
@@ -29,6 +31,10 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
     const isProcessing = ref(false)
     const showTheoryEndModal = ref(false)
 
+    // UI Hints state
+    const hints = ref<HunterHint[]>([])
+    const soundTrigger = ref<SoundEvent | null>(null)
+
     // Saving Mode State
     const savingPgn = ref<string | null>(null)
     const savingMoves = ref<string[]>([])
@@ -36,76 +42,32 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
     const savingPlayerColor = ref<'white' | 'black'>('white')
     const isReplayActive = ref(false)
 
-    // Current Gravity Stats (Cached)
-    const currentGravityStats = ref<{ moves: GravityMove[] } | null>(null)
-    const lastFetchedFen = ref('')
-    const lastFetchedPlayerColor = ref<string | null>(null)
+    const {
+        diamondsCountQuery,
+        brilliantsCountQuery,
+        recordBrilliantMutation,
+        recordDiamondMutation,
+        checkDiamondLimit,
+        fetchGravityForFen: fetchGravityQuery,
+    } = useDiamondHunterQueries()
 
-    // In-flight request deduplication
-    const pendingRequest = ref<Promise<{ moves: GravityMove[] } | null> | null>(null)
-    const pendingFen = ref<string | null>(null)
+    // Current Gravity Stats (To validate moves)
+    const currentGravityStats = ref<{ moves: GravityMove[] } | null>(null)
 
     // Tracks the FEN of the position the user is currently trying to SOLVE.
     const puzzleFen = ref<string>('')
 
     // Stats
-    const totalDiamonds = ref(0)
-    const totalBrilliants = ref(0)
+    const totalDiamonds = computed(() => diamondsCountQuery.data?.value ?? 0)
+    const totalBrilliants = computed(() => brilliantsCountQuery.data?.value ?? 0)
 
-    // Load initial stats
-    db.diamonds.count().then(count => {
-        totalDiamonds.value = count
-    })
-    db.brilliants.count().then(count => {
-        totalBrilliants.value = count
-    })
-
-    async function fetchGravityForFen(fen: string, force = false) {
+    async function fetchGravityForFen(fen: string) {
         const playerColor = analysisStore.playerColor
         if (!playerColor) return null
 
-        // 1. Return cached data if valid (FEN + PlayerColor match)
-        if (!force &&
-            fen === lastFetchedFen.value &&
-            playerColor === lastFetchedPlayerColor.value &&
-            currentGravityStats.value
-        ) {
-            return currentGravityStats.value
-        }
-
-        // 2. Return in-flight promise if matching FEN
-        if (pendingRequest.value && pendingFen.value === fen && !force) {
-            return pendingRequest.value
-        }
-
-        // 3. Create new request
-        pendingFen.value = fen
-
-        const promise = (async () => {
-            try {
-                let response
-                if (playerColor === 'white') {
-                    response = await diamondApiService.getWhiteGravity(fen)
-                } else {
-                    response = await diamondApiService.getBlackGravity(fen)
-                }
-
-                if (fen === pendingFen.value) {
-                    currentGravityStats.value = response
-                    lastFetchedFen.value = fen
-                    lastFetchedPlayerColor.value = playerColor
-                }
-                return response
-            } finally {
-                if (fen === pendingFen.value) {
-                    pendingRequest.value = null
-                    pendingFen.value = null
-                }
-            }
-        })()
-
-        pendingRequest.value = promise
-        return promise
+        const response = await fetchGravityQuery(playerColor, fen)
+        currentGravityStats.value = response
+        return response
     }
 
     async function startHunt() {
@@ -137,11 +99,10 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
 
     function reset() {
         state.value = 'IDLE'
-        boardStore.setDrawableShapes([])
+        hints.value = []
+        soundTrigger.value = null
         message.value = ''
         currentGravityStats.value = null
-        lastFetchedFen.value = ''
-        lastFetchedPlayerColor.value = null
         showTheoryEndModal.value = false
         currentDiamondHash.value = null
         currentBlunderMove.value = null
@@ -176,7 +137,7 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
 
         if (!isValid) {
             logger.warn('DiamondHunter: User left theory during hunt. Undoing...', { uci })
-            soundService.playSound('game_tacktics_error')
+            soundTrigger.value = 'game_tacktics_error'
             message.value = 'Stay in theory! Follow the arrows.'
 
             pgnService.undoLastMove()
@@ -218,23 +179,12 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
         const sortedMoves = [...response.moves].sort((a, b) => b.weight - a.weight)
         const topMoves = sortedMoves.slice(0, 3)
 
-        const shapes: DrawShape[] = topMoves.map((move, index) => {
-            const shape: DrawShape = {
-                orig: move.uci.substring(0, 2) as Key,
-                dest: move.uci.substring(2, 4) as Key,
-                brush: ARROW_COLORS[index],
-            }
-
-            if (move.dist <= 3) {
-                shape.label = { text: '!', fill: '#00C853' }
-            } else if (move.dist <= 5) {
-                shape.label = { text: '!?', fill: '#2196F3' }
-            }
-
-            return shape
-        })
-
-        boardStore.setDrawableShapes(shapes)
+        hints.value = topMoves.map((move) => ({
+            orig: move.uci.substring(0, 2),
+            dest: move.uci.substring(2, 4),
+            type: 'arrow',
+            dist: move.dist
+        }))
     }
 
     // --- Bot Logic (System Turn) ---
@@ -317,19 +267,15 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
         state.value = 'SOLVING'
         message.value = 'Tactics available! Punishment time!'
 
-        const dest = move.uci.substring(2, 4) as Key
-        boardStore.setDrawableShapes([{
-            orig: dest,
-            brush: 'red',
-            label: { text: '??', fill: '#D32F2F' }
-        }])
+        const dest = move.uci.substring(2, 4)
+        hints.value = [{ orig: dest, type: 'blunder' }]
 
-        soundService.playSound('blunder')
+        soundTrigger.value = 'blunder'
 
         setTimeout(() => {
             // Check if we are still solving to avoid clearing other shapes if state changed rapidly
             if (state.value === 'SOLVING') {
-                boardStore.setDrawableShapes([])
+                hints.value = []
             }
         }, 2000)
     }
@@ -354,14 +300,9 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
             // Increment happens in completeDiamond after DB write for accuracy,
             // but we can optimistic update or wait. Let's wait.
 
-            const orig = uci.substring(0, 2) as Key
-            const dest = uci.substring(2, 4) as Key
-            boardStore.setDrawableShapes([{
-                orig,
-                dest,
-                brush: 'purple',
-                label: { text: '!!!', fill: '#9C27B0' }
-            }])
+            const orig = uci.substring(0, 2)
+            const dest = uci.substring(2, 4)
+            hints.value = [{ orig, dest, type: 'victory' }]
 
             await completeDiamond()
         } else if (moveStats?.nag === 3) {
@@ -369,27 +310,22 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
 
             // Record Brilliant
             if (currentDiamondHash.value) {
-                recordBrilliant(currentDiamondHash.value, boardStore.fen, 'pgn-placeholder')
-                    .then(() => db.brilliants.count())
-                    .then(count => totalBrilliants.value = count)
-            } else {
-                totalBrilliants.value++
+                recordBrilliantMutation.mutate({
+                    hash: currentDiamondHash.value,
+                    fen: boardStore.fen,
+                    pgn: 'pgn-placeholder'
+                })
             }
 
-            const orig = uci.substring(0, 2) as Key
-            const dest = uci.substring(2, 4) as Key
-            boardStore.setDrawableShapes([{
-                orig,
-                dest,
-                brush: 'green',
-                label: { text: '!!', fill: '#00C853' }
-            }])
+            const orig = uci.substring(0, 2)
+            const dest = uci.substring(2, 4)
+            hints.value = [{ orig, dest, type: 'correct' }]
 
             setTimeout(() => botSolvingResponse(), 1000)
         } else {
             logger.warn('DiamondHunter: Incorrect refutation, retrying...')
             message.value = "Incorrect! Try again..."
-            soundService.playSound('game_user_lost')
+            soundTrigger.value = 'game_user_lost'
 
             if (currentDiamondHash.value && currentBlunderMove.value) {
                 setTimeout(async () => {
@@ -452,11 +388,14 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
             const allowed = await checkDiamondLimit(currentDiamondHash.value)
             if (allowed) {
                 message.value = "Diamond Secured! 💎"
-                soundService.playSound('game_user_won')
+                soundTrigger.value = 'game_user_won'
                 // Save the NEW PGN (which includes the full replay + solution)
                 const finalPgn = pgnService.getCurrentPgnString()
-                await recordDiamond(currentDiamondHash.value, boardStore.fen, finalPgn)
-                totalDiamonds.value = await db.diamonds.count()
+                await recordDiamondMutation.mutateAsync({
+                    hash: currentDiamondHash.value,
+                    fen: boardStore.fen,
+                    pgn: finalPgn
+                })
             } else {
                 message.value = "Limit reached, but great memory!"
             }
@@ -522,7 +461,7 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
 
         state.value = 'REWARD'
         message.value = "Diamond Found! 💎"
-        soundService.playSound('game_user_won')
+        soundTrigger.value = 'game_user_won'
     }
 
     // --- Saving Mode (Replay) Logic ---
@@ -535,7 +474,7 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
 
         // Reset Board to Start
         boardStore.setupPosition('start', savingPlayerColor.value)
-        boardStore.setDrawableShapes([])
+        hints.value = []
 
         // If first move is bot's, play it
         if (savingPlayerColor.value === 'black' && savingMoves.value.length > 0) {
@@ -558,14 +497,9 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
             savingMoveIndex.value++
 
             // Visual Feedback for correct move
-            const orig = uci.substring(0, 2) as Key
-            const dest = uci.substring(2, 4) as Key
-            boardStore.setDrawableShapes([{
-                orig,
-                dest,
-                brush: 'green',
-                label: { text: '!', fill: '#00C853' }
-            }])
+            const orig = uci.substring(0, 2)
+            const dest = uci.substring(2, 4)
+            hints.value = [{ orig, dest, type: 'correct' }]
 
             // Check if finished (Users last move was the move BEFORE blunder?)
             // If the array ends with the Blunder (Bot move), then the Bot will play it next.
@@ -581,20 +515,14 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
             }
         } else {
             // Incorrect move
-            soundService.playSound('game_tacktics_error')
+            soundTrigger.value = 'game_tacktics_error'
             pgnService.undoLastMove()
             boardStore.syncBoardWithPgn()
 
             // Show arrow for expected move
-            const orig = expectedMove.substring(0, 2) as Key
-            const dest = expectedMove.substring(2, 4) as Key
-
-            boardStore.setDrawableShapes([{
-                orig,
-                dest,
-                brush: 'red',
-                label: { text: 'Here!', fill: '#D32F2F' }
-            }])
+            const orig = expectedMove.substring(0, 2)
+            const dest = expectedMove.substring(2, 4)
+            hints.value = [{ orig, dest, type: 'expected' }]
         }
     }
 
@@ -649,18 +577,17 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
         // Highlight the blunder (last move played)
         const lastMove = boardStore.lastMove
         if (lastMove) {
-            boardStore.setDrawableShapes([{
-                orig: lastMove[0],
-                dest: lastMove[1],
-                brush: 'red',
-                label: { text: '??', fill: '#D32F2F' }
-            }])
+            hints.value = [{ orig: lastMove[0], dest: lastMove[1], type: 'blunder' }]
         }
-        soundService.playSound('blunder')
+        soundTrigger.value = 'blunder'
     }
 
     function closeTheoryModal() {
         showTheoryEndModal.value = false
+    }
+
+    function clearSoundTrigger() {
+        soundTrigger.value = null
     }
 
     // --- Reactivity ---
@@ -695,7 +622,9 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
         totalDiamonds,
         totalBrilliants,
         currentGravityStats,
-        lastFetchedFen,
+        hints,
+        soundTrigger,
+        clearSoundTrigger,
         savingPgn,
         savingMoves,
         startHunt,
