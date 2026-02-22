@@ -1,8 +1,9 @@
-import { globalIgnores } from 'eslint/config'
-import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript'
-import pluginVue from 'eslint-plugin-vue'
 import pluginVitest from '@vitest/eslint-plugin'
 import skipFormatting from '@vue/eslint-config-prettier/skip-formatting'
+import { defineConfigWithVueTs, vueTsConfigs } from '@vue/eslint-config-typescript'
+import boundaries from 'eslint-plugin-boundaries'
+import pluginVue from 'eslint-plugin-vue'
+import { globalIgnores } from 'eslint/config'
 
 // To allow more languages other than `ts` in `.vue` files, uncomment the following lines:
 // import { configureVueProject } from '@vue/eslint-config-typescript'
@@ -25,6 +26,89 @@ export default defineConfigWithVueTs(
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-empty-object-type': 'off',
       'vue/multi-word-component-names': 'off',
+    }
+  },
+
+  {
+    plugins: {
+      boundaries
+    },
+    settings: {
+      'boundaries/elements': [
+        {
+          type: 'app',
+          pattern: 'src/app/*'
+        },
+        {
+          type: 'pages',
+          pattern: 'src/pages/*'
+        },
+        {
+          type: 'widgets',
+          pattern: 'src/widgets/*'
+        },
+        {
+          type: 'features',
+          pattern: 'src/features/*',
+          capture: ['featureName']
+        },
+        {
+          type: 'entities',
+          pattern: 'src/entities/*',
+          capture: ['entityName']
+        },
+        {
+          type: 'shared',
+          pattern: 'src/shared/*'
+        }
+      ],
+      'boundaries/ignore': ['**/*.test.ts', '**/*.spec.ts', 'src/__tests__/**/*'],
+      'import/resolver': {
+        typescript: {
+          alwaysTryTypes: true,
+          project: './tsconfig.app.json'
+        }
+      }
+    },
+    rules: {
+      'boundaries/element-types': [
+        'error',
+        {
+          default: 'disallow',
+          message: '${file.type} is not allowed to import ${dependency.type}',
+          rules: [
+            {
+              from: 'shared',
+              allow: ['shared']
+            },
+            {
+              from: 'entities',
+              allow: ['shared', ['entities', { entityName: '${from.entityName}' }]]
+            },
+            {
+              from: 'features',
+              allow: [
+                'shared',
+                'entities',
+                ['features', { featureName: '${from.featureName}' }]
+              ]
+            },
+            {
+              from: 'widgets',
+              allow: ['shared', 'entities', 'features', 'widgets']
+            },
+            {
+              from: 'pages',
+              allow: ['shared', 'entities', 'features', 'widgets', 'pages']
+            },
+            {
+              from: 'app',
+              allow: ['shared', 'entities', 'features', 'widgets', 'pages', 'app']
+            }
+          ]
+        }
+      ],
+      'boundaries/no-private': 'error'
     }
   },
 
