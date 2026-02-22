@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useOpeningSparringStore } from '@/features/opening-sparring'
+import { theoryGraphService } from '@/features/theory-endings'
 import {
     BookOutline,
     ColorPaletteOutline,
@@ -26,8 +28,6 @@ import {
 } from 'naive-ui'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { theoryGraphService } from '@/features/theory-endings/api/TheoryGraphService'
-import { useOpeningSparringStore } from '@/features/opening-sparring/model/openingSparring.store'
 
 const emit = defineEmits(['start', 'close'])
 const { t } = useI18n()

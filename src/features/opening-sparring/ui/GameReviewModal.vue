@@ -22,7 +22,7 @@ import {
 } from 'naive-ui'
 import { ref, watch } from 'vue'
 import type { GameReport } from '@/features/opening-sparring/api/GameReviewService'
-import { useOpeningSparringStore } from '@/features/opening-sparring/model/openingSparring.store'
+import { useOpeningSparringStore } from '@/features/opening-sparring'
 
 const props = defineProps<{
   show: boolean

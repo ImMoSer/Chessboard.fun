@@ -1,7 +1,7 @@
 <!-- src/features/finish-him/ui/FinishHimSelection.vue -->
 <script setup lang="ts">
 import { useGameStore } from '@/entities/game'
-import { useFinishHimStore } from '@/features/finish-him/model/finishHim.store'
+import { useFinishHimStore } from '@/features/finish-him'
 import { FINISH_HIM_THEMES } from '@/shared/types/api.types'
 import { storeToRefs } from 'pinia'
 import { computed, onMounted, onUnmounted, ref } from 'vue'

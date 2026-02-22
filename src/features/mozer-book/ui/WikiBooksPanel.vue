@@ -7,7 +7,7 @@ import { computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
 import { WikiUrlBuilder } from '@/features/mozer-book/api/WikiBooksService'
-import { useWikiBooksStore } from '@/features/mozer-book/model/wikibooks.store'
+import { useWikiBooksStore } from '@/features/mozer-book'
 
 const { t } = useI18n()
 const store = useWikiBooksStore()

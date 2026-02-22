@@ -1,4 +1,4 @@
-import { type StudyChapter } from '@/features/study/model/study.store'
+import { type StudyChapter } from '@/features/study'
 import { type PgnNode } from '@/shared/lib/pgn/PgnService'
 import { studyDb } from '@/db/StudyDatabase'
 import { toRaw } from 'vue'

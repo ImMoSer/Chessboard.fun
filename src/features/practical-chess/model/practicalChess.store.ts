@@ -1,7 +1,7 @@
 import { useBoardStore, type GameEndOutcome } from '@/entities/board'
 import { useGameStore } from '@/entities/game'
 import { useAuthStore } from '@/entities/user'
-import { useAnalysisStore } from '@/features/analysis/model/analysis.store'
+import { useAnalysisStore } from '@/features/analysis'
 import { webhookService } from '@/shared/api/WebhookService'
 import i18n from '@/shared/config/i18n'
 import logger from '@/shared/lib/logger'

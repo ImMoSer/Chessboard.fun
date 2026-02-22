@@ -2,9 +2,9 @@
 <script setup lang="ts">
 import { useBoardStore, WebChessBoard } from '@/entities/board'
 import { useGameStore } from '@/entities/game'
-import { useAnalysisStore } from '@/features/analysis/model/analysis.store'
-import EvalBar from '@/features/analysis/ui/EvalBar.vue'
-import { useThemeStore } from '@/features/settings/model/theme.store'
+import { useAnalysisStore } from '@/features/analysis'
+import { EvalBar } from '@/features/analysis'
+import { useThemeStore } from '@/features/settings'
 import type { Key } from '@lichess-org/chessground/types'
 import { storeToRefs } from 'pinia'
 import { computed, onMounted, onUnmounted } from 'vue'

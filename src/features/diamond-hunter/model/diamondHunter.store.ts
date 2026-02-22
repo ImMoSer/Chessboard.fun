@@ -1,6 +1,6 @@
 import { checkDiamondLimit, db, recordBrilliant, recordDiamond } from '@/db/DiamondDatabase'
 import { useBoardStore } from '@/entities/board'
-import { useAnalysisStore } from '@/features/analysis/model/analysis.store'
+import { useAnalysisStore } from '@/features/analysis'
 import { diamondApiService, type GravityMove } from '@/features/diamond-hunter/api/DiamondApiService'
 import logger from '@/shared/lib/logger'
 import { pgnService } from '@/shared/lib/pgn/PgnService'

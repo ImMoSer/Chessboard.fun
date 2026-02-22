@@ -1,8 +1,8 @@
 <!-- src/App.vue -->
 <script setup lang="ts">
 import { useGameStore } from '@/entities/game'
-import { useFinishHimStore } from '@/features/finish-him/model/finishHim.store'
-import SettingsMenu from '@/features/settings/ui/SettingsMenu.vue'
+import { useFinishHimStore } from '@/features/finish-him'
+import { SettingsMenu } from '@/features/settings'
 import ConfirmationModal from '@/shared/ui/ConfirmationModal.vue'
 import InfoModal from '@/shared/ui/InfoModal.vue'
 import { useUiStore } from '@/shared/ui/model/ui.store'

@@ -1,15 +1,9 @@
 <!-- src/pages/OpeningExamView.vue -->
 <script setup lang="ts">
 import { useGameStore } from '@/entities/game'
-import { useAnalysisStore } from '@/features/analysis/model/analysis.store'
-import AnalysisPanel from '@/features/analysis/ui/AnalysisPanel.vue'
-import { useOpeningSparringStore } from '@/features/opening-sparring/model/openingSparring.store'
-import GameReviewModal from '@/features/opening-sparring/ui/GameReviewModal.vue'
-import OpeningSparringHeader from '@/features/opening-sparring/ui/OpeningSparringHeader.vue'
-import OpeningSparringSettingsModal from '@/features/opening-sparring/ui/OpeningSparringSettingsModal.vue'
-import OpeningSparringSummaryModal from '@/features/opening-sparring/ui/OpeningSparringSummaryModal.vue'
-import SessionHistoryList from '@/features/opening-sparring/ui/SessionHistoryList.vue'
-import { theoryGraphService } from '@/features/theory-endings/api/TheoryGraphService'
+import { AnalysisPanel, useAnalysisStore } from '@/features/analysis'
+import { GameReviewModal, OpeningSparringHeader, OpeningSparringSettingsModal, OpeningSparringSummaryModal, SessionHistoryList, useOpeningSparringStore } from '@/features/opening-sparring'
+import { theoryGraphService } from '@/features/theory-endings'
 import i18n from '@/shared/config/i18n'
 import { useUiStore } from '@/shared/ui/model/ui.store'
 import { NTag } from 'naive-ui'

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { pgnService } from '@/shared/lib/pgn/PgnService'
-import { useStudyStore, type StudyChapter } from '@/features/study/model/study.store'
+import { useStudyStore, type StudyChapter } from '@/features/study'
 import { useUiStore } from '@/shared/ui/model/ui.store'
 import {
   NButton,

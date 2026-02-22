@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useBoardStore } from '@/entities/board'
-import { useMozerBookStore } from '@/features/mozer-book/model/mozerBook.store'
-import { useOpeningSparringStore } from '@/features/opening-sparring/model/openingSparring.store'
+import { useMozerBookStore } from '@/features/mozer-book'
+import { useOpeningSparringStore } from '@/features/opening-sparring'
 import { pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
 import { InformationCircleOutline, LeafOutline } from '@vicons/ionicons5'
 import { NIcon, NText } from 'naive-ui'

@@ -1,9 +1,9 @@
 <!-- src/pages/TornadoView.vue -->
 <script setup lang="ts">
 import { useGameStore } from '@/entities/game'
-import AnalysisPanel from '@/features/analysis/ui/AnalysisPanel.vue'
-import UserProfileWidget from '@/features/profile/ui/UserProfileWidget.vue'
-import { useTornadoStore, type TornadoMode } from '@/features/tornado/model/tornado.store'
+import { AnalysisPanel } from '@/features/analysis'
+import { UserProfileWidget } from '@/features/profile'
+import { useTornadoStore, type TornadoMode } from '@/features/tornado'
 import { useControlsStore } from '@/widgets/game-layout/model/controls.store'
 import { onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'

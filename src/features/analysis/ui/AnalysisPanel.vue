@@ -2,8 +2,8 @@
 <!-- src/components/AnalysisPanel.vue -->
 <script setup lang="ts">
 import { useBoardStore } from '@/entities/board'
-import { useAnalysisStore } from '@/features/analysis/model/analysis.store'
-import EngineLines from '@/features/analysis/ui/EngineLines.vue'
+import { useAnalysisStore } from '@/features/analysis'
+import { EngineLines } from '@/features/analysis'
 import type { PgnNode } from '@/shared/lib/pgn/PgnService'
 import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
 import {

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { useBoardStore } from '@/entities/board'
-import { useAnalysisStore } from '@/features/analysis/model/analysis.store'
+import { useAnalysisStore } from '@/features/analysis'
 import { type GravityMove } from '@/features/diamond-hunter/api/DiamondApiService'
-import { useDiamondHunterStore } from '@/features/diamond-hunter/model/diamondHunter.store'
+import { useDiamondHunterStore } from '@/features/diamond-hunter'
 import { NDataTable, NEmpty, NTag } from 'naive-ui'
 import { computed, h, watch } from 'vue'
 

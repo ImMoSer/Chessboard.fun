@@ -11,9 +11,9 @@ import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
 // Импорт дочерних компонентов
-import SkillLeaderboardTable from '@/features/leaderboards/ui/SkillLeaderboardTable.vue'
-import ThematicLeaderboardTable from '@/features/leaderboards/ui/ThematicLeaderboardTable.vue'
-import TimedModeLeaderboardTable from '@/features/leaderboards/ui/TimedModeLeaderboardTable.vue'
+import { SkillLeaderboardTable } from '@/features/leaderboards'
+import { ThematicLeaderboardTable } from '@/features/leaderboards'
+import { TimedModeLeaderboardTable } from '@/features/leaderboards'
 
 const { t } = useI18n()
 

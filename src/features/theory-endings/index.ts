@@ -1,2 +1,3 @@
-export * from './model/theoryEndings.store';
+export { theoryGraphService } from './api/TheoryGraphService'
+export * from './model/theoryEndings.store'
 

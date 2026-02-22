@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, h, type CSSProperties } from 'vue'
 import { NDataTable, NText, NDivider, type DataTableColumns } from 'naive-ui'
-import { useOpeningSparringStore } from '@/features/opening-sparring/model/openingSparring.store'
+import { useOpeningSparringStore } from '@/features/opening-sparring'
 import { type SessionMove } from '@/shared/types/openingSparring.types'
 import PlayoutAnalysisTable from './PlayoutAnalysisTable.vue'
 

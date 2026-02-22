@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useBoardStore } from '@/entities/board'
-import { useOpeningSparringStore } from '@/features/opening-sparring/model/openingSparring.store'
+import { useOpeningSparringStore } from '@/features/opening-sparring'
 import { type SessionMove } from '@/shared/types/openingSparring.types'
 import { type Key } from '@lichess-org/chessground/types'
 import {

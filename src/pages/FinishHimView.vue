@@ -1,15 +1,15 @@
 <!-- src/pages/FinishHimView.vue -->
 <script setup lang="ts">
 import { useGameStore } from '@/entities/game'
-import { useAnalysisStore } from '@/features/analysis/model/analysis.store'
-import { useFinishHimStore } from '@/features/finish-him/model/finishHim.store'
+import { useAnalysisStore } from '@/features/analysis'
+import { useFinishHimStore } from '@/features/finish-him'
 import { shareService } from '@/shared/lib/share.service'
 import { useControlsStore } from '@/widgets/game-layout/model/controls.store'
 import { onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import AnalysisPanel from '@/features/analysis/ui/AnalysisPanel.vue'
-import UserProfileWidget from '@/features/profile/ui/UserProfileWidget.vue'
+import { AnalysisPanel } from '@/features/analysis'
+import { UserProfileWidget } from '@/features/profile'
 import ControlPanel from '../widgets/game-layout/ControlPanel.vue'
 import GameLayout from '../widgets/game-layout/GameLayout.vue'
 import TopInfoPanel from '../widgets/game-layout/TopInfoPanel.vue'

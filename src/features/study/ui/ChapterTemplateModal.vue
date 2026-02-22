@@ -3,7 +3,7 @@ import {
     theoryChaptersService,
     type TheoryChapterTemplate,
 } from '@/features/theory-endings/api/TheoryChaptersService';
-import { useStudyStore } from '@/features/study/model/study.store';
+import { useStudyStore } from '@/features/study';
 import { NCard, NInput, NList, NListItem, NModal, NSpace, NText, NThing } from 'naive-ui';
 import { computed, ref } from 'vue';
 

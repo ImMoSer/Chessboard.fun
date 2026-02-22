@@ -15,7 +15,7 @@ import {
 } from 'naive-ui'
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useAnalysisStore } from '@/features/analysis/model/analysis.store'
+import { useAnalysisStore } from '@/features/analysis'
 
 const emit = defineEmits(['start', 'close'])
 const { t } = useI18n()
