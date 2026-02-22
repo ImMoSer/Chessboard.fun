@@ -1,17 +1,17 @@
-import { useBoardStore, type GameEndOutcome } from '@/entities/board/board.store'
-import { useGameStore } from '@/entities/game/model/game.store'
-import { useAuthStore } from '@/entities/user/auth.store'
+import { useBoardStore, type GameEndOutcome } from '@/entities/board'
+import { useGameStore } from '@/entities/game'
+import { useAuthStore } from '@/entities/user'
 import { useAnalysisStore } from '@/features/analysis/model/analysis.store'
 import { webhookService } from '@/shared/api/WebhookService'
 import i18n from '@/shared/config/i18n'
+import logger from '@/shared/lib/logger'
 import { soundService } from '@/shared/lib/sound/sound.service'
-import { useUiStore } from '@/shared/ui/model/ui.store'
 import type {
   PracticalChessCategory,
   PracticalChessDifficulty,
   PracticalPuzzle,
 } from '@/shared/types/api.types'
-import logger from '@/shared/lib/logger'
+import { useUiStore } from '@/shared/ui/model/ui.store'
 import type { Color as ChessgroundColor } from '@lichess-org/chessground/types'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'

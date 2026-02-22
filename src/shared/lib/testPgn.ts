@@ -1,9 +1,12 @@
-// src/utils/testPgn.ts
-import {  useBoardStore  } from '@/entities/board/board.store'
-import { pgnService } from '@/shared/lib/pgn/PgnService'
+import { pgnService, type PgnNode } from '@/shared/lib/pgn/PgnService'
 
-export function loadComplexTestPgn() {
-  const boardStore = useBoardStore()
+export interface ITestBoardStore {
+  resetBoardState(): void
+  applyUciMove(uci: string): void
+  navigateToNode(node: PgnNode): void
+}
+
+export function loadComplexTestPgn(boardStore: ITestBoardStore) {
 
   // 1. Reset
   boardStore.resetBoardState()

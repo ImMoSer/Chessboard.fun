@@ -1,12 +1,12 @@
 // src/router/index.ts
-import { useGameStore } from '@/entities/game/model/game.store'
+import { useGameStore } from '@/entities/game'
 import { useFinishHimStore } from '@/features/finish-him/model/finishHim.store'
 import i18n from '@/shared/config/i18n'
 import { useUiStore } from '@/shared/ui/model/ui.store'
 import { watch } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
-import { useAuthStore } from '@/entities/user/auth.store'
+import { useAuthStore } from '@/entities/user'
 import { useOpeningSparringStore } from '@/features/opening-sparring/model/openingSparring.store'
 import { usePracticalChessStore } from '@/features/practical-chess/model/practicalChess.store'
 import { useTheoryEndingsStore } from '@/features/theory-endings/model/theoryEndings.store'

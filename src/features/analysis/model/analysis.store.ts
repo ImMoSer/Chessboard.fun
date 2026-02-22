@@ -1,6 +1,6 @@
 // src/stores/analysis.store.ts
-import { useBoardStore } from '@/entities/board/board.store'
-import { useGameStore } from '@/entities/game/model/game.store'
+import { useBoardStore } from '@/entities/board'
+import { useGameStore } from '@/entities/game'
 import { analysisService, type EvaluatedLineWithSan } from '@/features/analysis/api/AnalysisService'
 import logger from '@/shared/lib/logger'
 import type { DrawShape } from '@lichess-org/chessground/draw'

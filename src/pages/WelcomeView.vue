@@ -1,17 +1,17 @@
 <script setup lang="ts">
+import { useAuthStore } from '@/entities/user'
 import { changeLang } from '@/shared/config/i18n'
-import { useAuthStore } from '@/entities/user/auth.store'
 import {
-  BookOutline,
-  BuildOutline,
-  DiamondOutline,
-  FlashOutline,
-  HammerOutline,
-  LogInOutline,
-  PersonOutline,
-  SchoolOutline,
-  ThunderstormOutline,
-  TrophyOutline
+    BookOutline,
+    BuildOutline,
+    DiamondOutline,
+    FlashOutline,
+    HammerOutline,
+    LogInOutline,
+    PersonOutline,
+    SchoolOutline,
+    ThunderstormOutline,
+    TrophyOutline
 } from '@vicons/ionicons5'
 import { storeToRefs } from 'pinia'
 import { computed, onMounted, onUnmounted, ref } from 'vue'

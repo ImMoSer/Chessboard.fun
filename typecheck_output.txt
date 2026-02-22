@@ -1,0 +1,4 @@
+
+> chessboard-vue@4.0.0 type-check C:\CHESS_APP\chess_frontend
+> vue-tsc --build
+

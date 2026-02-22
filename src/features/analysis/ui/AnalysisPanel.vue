@@ -1,16 +1,15 @@
+```
 <!-- src/components/AnalysisPanel.vue -->
 <script setup lang="ts">
+import { useBoardStore } from '@/entities/board'
+import { useAnalysisStore } from '@/features/analysis/model/analysis.store'
 import EngineLines from '@/features/analysis/ui/EngineLines.vue'
 import type { PgnNode } from '@/shared/lib/pgn/PgnService'
 import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
-import { useAnalysisStore } from '@/features/analysis/model/analysis.store'
-import {  useBoardStore  } from '@/entities/board/board.store'
 import {
-    ChevronBackOutline,
-    ChevronForwardOutline,
-    PlaySkipBackOutline,
-    PlaySkipForwardOutline,
-    TerminalOutline,
+  ChevronBackOutline,
+  PlaySkipForwardOutline,
+  TerminalOutline,
 } from '@vicons/ionicons5'
 import { NButton, NButtonGroup, NIcon, NScrollbar, NSelect, NText, NTooltip } from 'naive-ui'
 import { storeToRefs } from 'pinia'

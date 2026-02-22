@@ -5,19 +5,13 @@ import {
 } from '@/shared/lib/engine.loader'
 import logger from '@/shared/lib/logger'
 
+import {
+  type AnalysisUpdateCallback,
+  type EvaluatedLine,
+  type ScoreInfo,
+} from './types'
+
 // --- Интерфейсы ---
-export interface ScoreInfo {
-  type: 'cp' | 'mate'
-  value: number
-}
-
-export interface EvaluatedLine {
-  id: number
-  depth: number
-  score: ScoreInfo
-  pvUci: string[]
-}
-
 export interface AnalysisResult {
   bestMoveUci: string | null
   evaluatedLines: EvaluatedLine[]
@@ -27,8 +21,6 @@ export interface AnalysisOptions {
   depth?: number
   movetime?: number
 }
-
-export type AnalysisUpdateCallback = (lines: EvaluatedLine[], bestMoveUci?: string | null) => void
 
 type AnalysisResolve = (value: AnalysisResult | null) => void
 type AnalysisReject = (reason?: unknown) => void

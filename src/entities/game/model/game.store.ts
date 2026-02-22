@@ -1,14 +1,14 @@
 // src/stores/game.store.ts
-import { useBoardStore, type GameEndOutcome } from '@/entities/board/board.store'
-import { gameplayService } from '@/entities/game/lib/GameplayService'
+import { useBoardStore, type GameEndOutcome } from '@/entities/board'
+import logger from '@/shared/lib/logger'
 import { pgnService } from '@/shared/lib/pgn/PgnService'
 import { soundService } from '@/shared/lib/sound/sound.service'
 import type { EngineId } from '@/shared/types/api.types'
-import logger from '@/shared/lib/logger'
 import type { Color as ChessgroundColor, Key } from '@lichess-org/chessground/types'
 import { parseFen } from 'chessops/fen'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { gameplayService } from '../lib/GameplayService'
 
 export type GamePhase = 'IDLE' | 'LOADING' | 'PLAYING' | 'GAMEOVER'
 export type GameMode =

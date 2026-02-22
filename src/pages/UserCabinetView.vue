@@ -1,15 +1,15 @@
 <!-- src/pages/UserCabinetView.vue -->
 <script setup lang="ts">
+import { useAuthStore } from '@/entities/user'
+import {
+    useDetailedStatsQuery,
+    usePersonalActivityStatsQuery,
+} from '@/shared/api/queries/userCabinet.queries'
 import {
     EXAMPLE_ACTIVITY_STATS,
     EXAMPLE_DETAILED_STATS,
     EXAMPLE_USER_PROFILE,
 } from '@/shared/config/constants/exampleCabinetData'
-import { useAuthStore } from '@/entities/user/auth.store'
-import {
-    useDetailedStatsQuery,
-    usePersonalActivityStatsQuery,
-} from '@/shared/api/queries/userCabinet.queries'
 import type { FinishHimDifficulty, TornadoMode } from '@/shared/types/api.types'
 import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'

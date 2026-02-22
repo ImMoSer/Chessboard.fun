@@ -1,13 +1,17 @@
 // src/services/AnalysisService.ts
+import {
+  type AnalysisUpdateCallback,
+  type EvaluatedLine,
+  multiThreadEngineManager,
+  singleThreadEngineManager,
+  type WdlStats,
+} from '@/entities/engine'
+import logger from '@/shared/lib/logger'
 import { Chess } from 'chessops/chess'
 import { parseFen } from 'chessops/fen'
 import { makeSan } from 'chessops/san'
 import type { Color as ChessopsColor } from 'chessops/types'
 import { parseUci } from 'chessops/util'
-import logger from '@/shared/lib/logger'
-import type {  AnalysisUpdateCallback, EvaluatedLine, WdlStats  } from '@/entities/engine/MultiThreadEngineManager'
-import  {  multiThreadEngineManager  } from '@/entities/engine/MultiThreadEngineManager'
-import {  singleThreadEngineManager  } from '@/entities/engine/SingleThreadEngineManager'
 
 export interface EvaluatedLineWithSan extends EvaluatedLine {
   pvSan: string[]

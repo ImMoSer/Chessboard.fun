@@ -1,12 +1,12 @@
+import { useBoardStore } from '@/entities/board'
+import { useAuthStore } from '@/entities/user'
+import { chapterApiService } from '@/features/study/api/ChapterApiService'
+import { studyPersistenceService } from '@/features/study/api/StudyPersistenceService'
 import { pgnParserService } from '@/shared/lib/pgn/PgnParserService'
 import { pgnService, pgnTreeVersion, type PgnNode } from '@/shared/lib/pgn/PgnService'
-import { studyPersistenceService } from '@/features/study/api/StudyPersistenceService'
-import { chapterApiService } from '@/features/study/api/ChapterApiService'
 import { makeFen, parseFen } from 'chessops/fen'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
-import {  useBoardStore  } from '@/entities/board/board.store'
-import {  useAuthStore  } from '@/entities/user/auth.store'
 
 export interface StudyChapter {
   id: string
@@ -178,7 +178,7 @@ export const useStudyStore = defineStore('study', () => {
     const index = chapters.value.findIndex((c) => c.id === id)
     if (index !== -1) {
       const chapterToDelete = chapters.value[index]
-      
+
       // If it's a cloud chapter, try to delete from server first
       if (chapterToDelete?.slug) {
         try {

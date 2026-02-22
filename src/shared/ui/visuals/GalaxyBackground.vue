@@ -25,7 +25,7 @@ const MOUSE_PUSH_STRENGTH = 50; // How much stars "flee" from the cursor
 
 // Sway / Organic Movement
 const SWAY_AMPLITUDE = 25;
-const SWAY_SPEED = 0.0001;
+const SWAY_SPEED = 0.0003;
 
 // Star Sizes
 const STAR_BASE_SIZE = 1;

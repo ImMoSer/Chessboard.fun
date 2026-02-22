@@ -22,16 +22,15 @@
 </template>
 
 <script setup lang="ts">
-import { useBoardStore } from '@/entities/board/board.store'
-import { isServerEngine } from '@/entities/game/lib/GameplayService'
-import { useGameStore } from '@/entities/game/model/game.store'
-import { useAuthStore } from '@/entities/user/auth.store'
+import { useBoardStore } from '@/entities/board'
+import { isServerEngine, useGameStore } from '@/entities/game'
+import { useAuthStore } from '@/entities/user'
 import { useAnalysisStore } from '@/features/analysis/model/analysis.store'
 import AnalysisPanel from '@/features/analysis/ui/AnalysisPanel.vue'
 import i18n from '@/shared/config/i18n'
 import { shareService } from '@/shared/lib/share.service'
-import { useUiStore } from '@/shared/ui/model/ui.store'
 import type { Color as ChessgroundColor, EngineId } from '@/shared/types/api.types'
+import { useUiStore } from '@/shared/ui/model/ui.store'
 import { useControlsStore } from '@/widgets/game-layout/model/controls.store'
 import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
