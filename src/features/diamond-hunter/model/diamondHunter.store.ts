@@ -214,7 +214,11 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
             logger.warn('DiamondHunter: User left theory during hunt. Move blocked.', { uci })
             soundTrigger.value = 'game_tacktics_error'
             message.value = 'Stay in theory! Follow the arrows.'
-            await updateArrows()
+            // Small delay to ensure GameStore.handleUserMove -> boardStore.syncBoardWithPgn()
+            // has finished its cleanup before we redraw arrows.
+            setTimeout(() => {
+              updateArrows()
+            }, 50)
             return false
           }
           return true
