@@ -465,8 +465,8 @@ export interface TodayActivity {
 }
 
 export interface UserStatsUpdate {
-  id: string
-  username: string
+  id?: string
+  username?: string
   FunCoins: number
   today_activity?: TodayActivity
   tornadoHighScores?: {
@@ -478,9 +478,10 @@ export interface UserStatsUpdate {
 }
 
 export interface GameResultResponse {
-  status: string
+  success: boolean
+  status?: string
   message?: string
-  UserStatsUpdate?: UserStatsUpdate
+  userStatsUpdate?: UserStatsUpdate
 }
 
 export interface UserSessionProfile extends LichessUserProfile {

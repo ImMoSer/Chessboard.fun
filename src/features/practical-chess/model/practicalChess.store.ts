@@ -139,8 +139,8 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
         puzzleId: puzzle.puzzle_id,
         wasCorrect: isWin,
       })
-      if (response && response.UserStatsUpdate) {
-        authStore.updateUserStats(response.UserStatsUpdate)
+      if (response && response.userStatsUpdate) {
+        authStore.updateUserStats(response.userStatsUpdate)
       } else {
         await authStore.checkSession()
       }

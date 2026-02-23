@@ -1,7 +1,7 @@
 // src/services/AuthService.ts
 import i18n from '@/shared/config/i18n'
-import type { AuthState, UserSessionProfile, UserStatsUpdate } from '@/shared/types/api.types'
 import logger from '@/shared/lib/logger'
+import type { AuthState, UserSessionProfile, UserStatsUpdate } from '@/shared/types/api.types'
 
 const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL as string
 
@@ -178,19 +178,31 @@ class AuthServiceController {
   }
 
   public updateUserStatsFromResponse(statsUpdate: UserStatsUpdate) {
-    if (this.state.userProfile && this.state.userProfile.id === statsUpdate.id) {
-      const newProfile = {
-        ...this.state.userProfile,
-        ...statsUpdate,
-      }
-      this._setState({ userProfile: newProfile })
-      localStorage.setItem('user_profile', JSON.stringify(newProfile))
-      logger.info('[AuthService] User stats updated from game result.', statsUpdate)
-    } else {
-      logger.warn(
-        '[AuthService] updateUserStatsFromResponse called but no user is logged in or ID mismatch.',
-      )
+    if (!this.state.userProfile) {
+      logger.warn('[AuthService] updateUserStatsFromResponse: No user is currently logged in.')
+      return
     }
+
+    const currentUserId = this.state.userProfile.id
+    const updateUserId = statsUpdate.id
+
+    // Если ID передан в обновлении, он должен совпадать с текущим профилем.
+    // Если ID не передан, мы доверяем контексту сессии, в которой пришел ответ.
+    if (updateUserId && updateUserId.toLowerCase() !== currentUserId.toLowerCase()) {
+      logger.error(
+        `[AuthService] updateUserStatsFromResponse: ID mismatch! Profile ID: ${currentUserId}, Update ID: ${updateUserId}`,
+      )
+      return
+    }
+
+    const newProfile = {
+      ...this.state.userProfile,
+      ...statsUpdate,
+    }
+
+    this._setState({ userProfile: newProfile })
+    localStorage.setItem('user_profile', JSON.stringify(newProfile))
+    logger.info('[AuthService] User stats updated from game result.', statsUpdate)
   }
 }
 

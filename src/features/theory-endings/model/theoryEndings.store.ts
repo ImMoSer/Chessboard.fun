@@ -100,8 +100,8 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
         puzzleId: puzzle.puzzle_id,
         wasCorrect: isWin,
       })
-      if (response && response.UserStatsUpdate) {
-        authStore.updateUserStats(response.UserStatsUpdate)
+      if (response && response.userStatsUpdate) {
+        authStore.updateUserStats(response.userStatsUpdate)
       } else {
         await authStore.checkSession()
       }
@@ -207,8 +207,8 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
             required: e.required,
             available: e.available,
           }) +
-            '\n\n' +
-            t('pricing.insufficientCoins.subMessage'),
+          '\n\n' +
+          t('pricing.insufficientCoins.subMessage'),
           {
             confirmText: t('pricing.insufficientCoins.goToPricing'),
             cancelText: t('common.close'),

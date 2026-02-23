@@ -156,14 +156,14 @@ export const useGameStore = defineStore('game', () => {
     }
     userMovesCount.value++
 
-    // Временно игнорируем старый `_checkAndHandleGameOver` если есть стратегия,
-    // стратегия может сама захотеть проверить это. Но для надежности - проверяем.
+    const strategyAtStart = currentStrategy.value;
+
     const isGameOver = _checkAndHandleGameOver()
 
-    if (currentStrategy.value) {
-      await currentStrategy.value.onUserMoveExecuted?.(uciMove, boardStore.fen)
+    if (strategyAtStart) {
+      await strategyAtStart.onUserMoveExecuted?.(uciMove, boardStore.fen)
 
-      if (!isGameOver) {
+      if (!isGameOver && currentStrategy.value === strategyAtStart) {
         await _triggerBotMove()
       }
     }

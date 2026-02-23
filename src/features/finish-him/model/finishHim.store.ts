@@ -140,12 +140,12 @@ export const useFinishHimStore = defineStore('finishHim', () => {
 
     try {
       const response = await webhookService.processFinishHimResult(dto)
-      if (response && response.UserStatsUpdate) {
-        logger.info('[FinishHimStore] Stats sent and UserStatsUpdate received.')
-        authStore.updateUserStats(response.UserStatsUpdate)
+      if (response && response.userStatsUpdate) {
+        logger.info('[FinishHimStore] Stats sent and userStatsUpdate received.')
+        authStore.updateUserStats(response.userStatsUpdate)
       } else {
         logger.warn(
-          '[FinishHimStore] Did not receive UserStatsUpdate, falling back to full profile refresh.',
+          '[FinishHimStore] Did not receive userStatsUpdate, falling back to full profile refresh.',
           response,
         )
         await authStore.checkSession()
