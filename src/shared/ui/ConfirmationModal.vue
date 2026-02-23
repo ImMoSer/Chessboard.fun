@@ -1,6 +1,6 @@
 <!-- src/shared/ui/ConfirmationModal.vue -->
 <script setup lang="ts">
-import { useUiStore } from '@/shared/ui/model/ui.store';
+import { useUiStore } from '@/shared/ui/model/ui.store'
 
 const uiStore = useUiStore()
 </script>
@@ -114,10 +114,8 @@ const uiStore = useUiStore()
 }
 
 @media (max-width: 400px) {
-.modal-content {
-
-  max-width: 285px;
-
-}
+  .modal-content {
+    max-width: 285px;
+  }
 }
 </style>

@@ -46,9 +46,7 @@ class AnalysisServiceController {
     } else {
       await singleThreadEngineManager.ensureReady()
       this.activeEngineManager = singleThreadEngineManager
-      logger.info(
-        `[AnalysisService] Initialized with Single-Threaded Engine fallback.`,
-      )
+      logger.info(`[AnalysisService] Initialized with Single-Threaded Engine fallback.`)
     }
   }
 
@@ -60,7 +58,11 @@ class AnalysisServiceController {
     return this.isMultiThreadAvailable() ? multiThreadEngineManager.getMaxThreads() : 1
   }
 
-  public async startAnalysis(fen: string, callback: (lines: EvaluatedLineWithSan[]) => void, multiPV = 3) {
+  public async startAnalysis(
+    fen: string,
+    callback: (lines: EvaluatedLineWithSan[]) => void,
+    multiPV = 3,
+  ) {
     if (!this.activeEngineManager) {
       logger.error('[AnalysisService] Cannot start analysis, no engine manager is active.')
       return

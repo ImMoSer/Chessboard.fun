@@ -2,9 +2,9 @@
 <script setup lang="ts">
 import InfoIcon from '@/shared/ui/InfoIcon.vue'
 import type {
-    FinishHimLeaderboardEntry,
-    TornadoLeaderboardEntry,
-    TornadoMode,
+  FinishHimLeaderboardEntry,
+  TornadoLeaderboardEntry,
+  TornadoMode,
 } from '@/shared/types/api.types'
 import type { DataTableColumns } from 'naive-ui'
 import { computed, h, type PropType } from 'vue'
@@ -145,7 +145,9 @@ const columns = computed<DataTableColumns<TornadoLeaderboardEntry | FinishHimLea
   background: rgba(255, 255, 255, 0.03);
 }
 
-.tornadoLeaderboard .card-title { color: var(--color-neon-orange); }
+.tornadoLeaderboard .card-title {
+  color: var(--color-neon-orange);
+}
 
 .card-title {
   font-size: 1.4rem;

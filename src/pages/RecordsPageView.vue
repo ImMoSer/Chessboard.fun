@@ -1,8 +1,8 @@
 <!-- src/pages/RecordsPageView.vue -->
 <script setup lang="ts">
 import {
-    useCombinedLeaderboardsQuery,
-    useOverallSkillLeaderboardQuery,
+  useCombinedLeaderboardsQuery,
+  useOverallSkillLeaderboardQuery,
 } from '@/shared/api/queries/leaderboard.queries'
 import { EXAMPLE_HALL_OF_FAME_DATA } from '@/shared/config/constants/exampleCabinetData'
 import type { SkillPeriod } from '@/shared/types/api.types'
@@ -44,16 +44,16 @@ const leaderboards = computed(() => {
 
   return {
     ...combinedData.value,
-    overallSkillLeaderboard: overallSkillData.value || combinedData.value.overallSkillLeaderboard
+    overallSkillLeaderboard: overallSkillData.value || combinedData.value.overallSkillLeaderboard,
   }
 })
 
 const isLoading = computed(() => {
-    return isExample.value ? false : isCombinedPending.value
+  return isExample.value ? false : isCombinedPending.value
 })
 
 const error = computed(() => {
-    return isExample.value ? null : (isCombinedError.value ? combinedError.value?.message : null)
+  return isExample.value ? null : isCombinedError.value ? combinedError.value?.message : null
 })
 
 const handleSkillPeriodChange = (period: SkillPeriod) => {

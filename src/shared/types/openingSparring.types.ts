@@ -5,7 +5,7 @@ export interface TheoryMove {
   w_pct: number // Win percentage (0-100)
   d_pct: number // Draw percentage (0-100)
   l_pct: number // Loss percentage (0-100)
-  perf: number  // Performance rating
+  perf: number // Performance rating
 }
 
 export interface SessionMove {
@@ -28,7 +28,15 @@ export interface SessionMove {
   rating?: number
 
   // Client-side move assessment
-  quality?: 'blunder' | 'mistake' | 'inaccuracy' | 'good' | 'great' | 'best' | 'brilliant' | 'interesting'
+  quality?:
+    | 'blunder'
+    | 'mistake'
+    | 'inaccuracy'
+    | 'good'
+    | 'great'
+    | 'best'
+    | 'brilliant'
+    | 'interesting'
   nag?: string
   tags?: string[]
 

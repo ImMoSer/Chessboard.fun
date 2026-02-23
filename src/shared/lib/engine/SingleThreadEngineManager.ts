@@ -1,15 +1,8 @@
 // src/services/SingleThreadEngineManager.ts
-import {
-  loadSingleThreadEngine,
-  type EngineController,
-} from '@/shared/lib/engine.loader'
+import { loadSingleThreadEngine, type EngineController } from '@/shared/lib/engine.loader'
 import logger from '@/shared/lib/logger'
 
-import {
-  type AnalysisUpdateCallback,
-  type EvaluatedLine,
-  type ScoreInfo,
-} from './types'
+import { type AnalysisUpdateCallback, type EvaluatedLine, type ScoreInfo } from './types'
 
 // --- Интерфейсы ---
 export interface AnalysisResult {
@@ -224,8 +217,9 @@ class SingleThreadEngineManagerController {
 
       this.sendCommand('ucinewgame')
       this.sendCommand(`position fen ${fen}`)
-      const goCommand = `go ${options.depth ? `depth ${options.depth}` : ''} ${options.movetime ? `movetime ${options.movetime}` : ''
-        }`.trim()
+      const goCommand = `go ${options.depth ? `depth ${options.depth}` : ''} ${
+        options.movetime ? `movetime ${options.movetime}` : ''
+      }`.trim()
       this.sendCommand(goCommand || 'go depth 10')
     })
   }

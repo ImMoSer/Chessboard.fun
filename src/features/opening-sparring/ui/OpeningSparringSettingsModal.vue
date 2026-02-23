@@ -2,29 +2,29 @@
 import { theoryGraphService } from '@/entities/opening'
 import { useOpeningSparringStore } from '@/features/opening-sparring'
 import {
-    BookOutline,
-    ColorPaletteOutline,
-    FilterOutline,
-    PeopleOutline,
-    PlayOutline,
-    ServerOutline,
-    ShuffleOutline,
+  BookOutline,
+  ColorPaletteOutline,
+  FilterOutline,
+  PeopleOutline,
+  PlayOutline,
+  ServerOutline,
+  ShuffleOutline,
 } from '@vicons/ionicons5'
 import type { SelectOption } from 'naive-ui'
 import {
-    NButton,
-    NCheckbox,
-    NGi,
-    NGrid,
-    NIcon,
-    NModal,
-    NRadioButton,
-    NRadioGroup,
-    NSelect,
-    NSlider,
-    NSpace,
-    NTag,
-    NText,
+  NButton,
+  NCheckbox,
+  NGi,
+  NGrid,
+  NIcon,
+  NModal,
+  NRadioButton,
+  NRadioGroup,
+  NSelect,
+  NSlider,
+  NSpace,
+  NTag,
+  NText,
 } from 'naive-ui'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -53,14 +53,14 @@ const openingOptions = computed<SelectOption[]>(() => {
 const allRatings = [1200, 1400, 1600, 1800, 2000, 2200]
 
 function toggleRating(rating: number, checked: boolean) {
-    const current = new Set(openingStore.opponentRatings)
-    if (checked) {
-        current.add(rating)
-    } else {
-        current.delete(rating)
-    }
-    // Sort to keep consistent order, though not strictly required by API
-    openingStore.opponentRatings = Array.from(current).sort((a: number, b: number) => a - b)
+  const current = new Set(openingStore.opponentRatings)
+  if (checked) {
+    current.add(rating)
+  } else {
+    current.delete(rating)
+  }
+  // Sort to keep consistent order, though not strictly required by API
+  openingStore.opponentRatings = Array.from(current).sort((a: number, b: number) => a - b)
 }
 
 onMounted(async () => {
@@ -95,7 +95,7 @@ function startSession() {
       </n-icon>
     </template>
 
-    <div class="modal-body-layout" style="max-height: 60vh; overflow-y: auto; padding-right: 8px;">
+    <div class="modal-body-layout" style="max-height: 60vh; overflow-y: auto; padding-right: 8px">
       <n-space vertical :size="32">
         <!-- 1. Color Selection -->
         <div class="setting-section">
@@ -143,48 +143,58 @@ function startSession() {
 
         <!-- 4. Opponent Source -->
         <div class="setting-section">
-            <n-space align="center" :size="12" class="section-title">
-                <n-icon>
-                    <PeopleOutline />
-                </n-icon>
-                <n-text strong>{{ t('openingTrainer.settings.opponentSource', 'Opponent Base') }}</n-text>
-            </n-space>
-            <n-radio-group v-model:value="openingStore.opponentSource" size="large" expand>
-                <n-radio-button value="master">
-                    <n-space align="center" justify="center" :size="8">
-                         <n-icon><ServerOutline /></n-icon>
-                         <span>Master Base (2200+)</span>
-                    </n-space>
-                </n-radio-button>
-                <n-radio-button value="lichess">
-                    <n-space align="center" justify="center" :size="8">
-                        <n-icon><PeopleOutline /></n-icon>
-                        <span>Lichess Players</span>
-                    </n-space>
-                </n-radio-button>
-            </n-radio-group>
+          <n-space align="center" :size="12" class="section-title">
+            <n-icon>
+              <PeopleOutline />
+            </n-icon>
+            <n-text strong>{{
+              t('openingTrainer.settings.opponentSource', 'Opponent Base')
+            }}</n-text>
+          </n-space>
+          <n-radio-group v-model:value="openingStore.opponentSource" size="large" expand>
+            <n-radio-button value="master">
+              <n-space align="center" justify="center" :size="8">
+                <n-icon><ServerOutline /></n-icon>
+                <span>Master Base (2200+)</span>
+              </n-space>
+            </n-radio-button>
+            <n-radio-button value="lichess">
+              <n-space align="center" justify="center" :size="8">
+                <n-icon><PeopleOutline /></n-icon>
+                <span>Lichess Players</span>
+              </n-space>
+            </n-radio-button>
+          </n-radio-group>
 
-            <div v-if="openingStore.opponentSource === 'lichess'" class="rating-selector">
-                <n-text depth="3" class="hint-text" style="margin-bottom: 8px; display: block;">
-                   {{ t('openingTrainer.settings.selectRatings', 'Select Opponent Ratings') }}
-                </n-text>
-                <n-grid :x-gap="12" :y-gap="8" :cols="2">
-                    <n-gi v-for="rating in allRatings" :key="rating">
-                        <n-checkbox
-                            :checked="openingStore.opponentRatings.includes(rating)"
-                            @update:checked="(val) => toggleRating(rating, val)"
-                            size="large"
-                        >
-                            {{ rating }}
-                        </n-checkbox>
-                    </n-gi>
-                </n-grid>
-            </div>
-            <n-text depth="3" class="hint-text">
-                {{ openingStore.opponentSource === 'master'
-                   ? t('openingTrainer.settings.masterHint', 'Bot plays optimal moves from Master games.')
-                   : t('openingTrainer.settings.lichessHint', 'Bot simulates human play styles based on selected ratings.') }}
+          <div v-if="openingStore.opponentSource === 'lichess'" class="rating-selector">
+            <n-text depth="3" class="hint-text" style="margin-bottom: 8px; display: block">
+              {{ t('openingTrainer.settings.selectRatings', 'Select Opponent Ratings') }}
             </n-text>
+            <n-grid :x-gap="12" :y-gap="8" :cols="2">
+              <n-gi v-for="rating in allRatings" :key="rating">
+                <n-checkbox
+                  :checked="openingStore.opponentRatings.includes(rating)"
+                  @update:checked="(val) => toggleRating(rating, val)"
+                  size="large"
+                >
+                  {{ rating }}
+                </n-checkbox>
+              </n-gi>
+            </n-grid>
+          </div>
+          <n-text depth="3" class="hint-text">
+            {{
+              openingStore.opponentSource === 'master'
+                ? t(
+                    'openingTrainer.settings.masterHint',
+                    'Bot plays optimal moves from Master games.',
+                  )
+                : t(
+                    'openingTrainer.settings.lichessHint',
+                    'Bot simulates human play styles based on selected ratings.',
+                  )
+            }}
+          </n-text>
         </div>
 
         <!-- 5. Variability -->
@@ -209,7 +219,6 @@ function startSession() {
             {{ t('openingTrainer.settings.variabilityHint') }}
           </n-text>
         </div>
-
       </n-space>
     </div>
 
@@ -291,7 +300,6 @@ function startSession() {
   margin-top: 4px;
 }
 
-
 .start-btn {
   height: 52px;
   font-size: 1.1rem;
@@ -355,8 +363,8 @@ function startSession() {
   }
 
   :deep(.n-radio-button) {
-     font-size: 0.8rem;
-     padding: 0 8px;
+    font-size: 0.8rem;
+    padding: 0 8px;
   }
 
   :deep(.n-checkbox) {
@@ -364,7 +372,7 @@ function startSession() {
   }
 
   :deep(.n-base-selection-label) {
-     font-size: 0.85rem;
+    font-size: 0.85rem;
   }
 }
 </style>

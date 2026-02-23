@@ -23,14 +23,14 @@ export const useAnalysisStore = defineStore('analysis', () => {
   const isPanelVisible = ref(false)
 
   // --- ENTITY STATE PROXIES ---
-  const { 
-    isAnalysisActive, 
-    isLoading, 
-    analysisLines, 
-    isMultiThreadAvailable, 
-    maxThreads, 
-    numThreads, 
-    playerColor 
+  const {
+    isAnalysisActive,
+    isLoading,
+    analysisLines,
+    isMultiThreadAvailable,
+    maxThreads,
+    numThreads,
+    playerColor,
   } = storeToRefs(engineStore)
 
   // --- LOGIC ---
@@ -41,7 +41,7 @@ export const useAnalysisStore = defineStore('analysis', () => {
         logger.info('[AnalysisFeature] Auto-resetting because gamePhase became IDLE')
         resetAnalysisState()
       }
-    }
+    },
   )
 
   watch(
@@ -52,21 +52,21 @@ export const useAnalysisStore = defineStore('analysis', () => {
         // Delegate to engineStore
         engineStore.startAnalysis(newFen)
       }
-    }
+    },
   )
 
   // Watch lines to update board arrows (Pure Feature Logic)
   watch(analysisLines, (lines) => {
-      // Only draw arrows if this feature is "active" (panel visible or toggled on)
-      if (isAnalysisActive.value) {
-          drawAnalysisArrows(lines)
-      }
+    // Only draw arrows if this feature is "active" (panel visible or toggled on)
+    if (isAnalysisActive.value) {
+      drawAnalysisArrows(lines)
+    }
   })
 
   // --- ACTIONS ---
   async function showPanel(startActive = false) {
     isPanelVisible.value = true
-    
+
     // Initialize Engine
     await engineStore.initialize()
     boardStore.setAnalysisMode(true)
@@ -80,7 +80,7 @@ export const useAnalysisStore = defineStore('analysis', () => {
     await resetAnalysisState()
     logger.info('[AnalysisFeature] Panel hidden.')
   }
-  
+
   async function toggleAnalysis() {
     if (!isAnalysisActive.value) {
       await engineStore.startNewGame()
@@ -92,10 +92,10 @@ export const useAnalysisStore = defineStore('analysis', () => {
   }
 
   async function setThreads(count: number) {
-      await engineStore.setThreads(count)
-      if (isAnalysisActive.value) {
-          await engineStore.startAnalysis(boardStore.fen)
-      }
+    await engineStore.setThreads(count)
+    if (isAnalysisActive.value) {
+      await engineStore.startAnalysis(boardStore.fen)
+    }
   }
 
   function drawAnalysisArrows(lines: EvaluatedLineWithSan[]) {
@@ -124,7 +124,7 @@ export const useAnalysisStore = defineStore('analysis', () => {
   async function resetAnalysisState() {
     const wasActive = isAnalysisActive.value
     isPanelVisible.value = false
-    
+
     if (wasActive) {
       await engineStore.stopAnalysis()
     }
@@ -140,7 +140,7 @@ export const useAnalysisStore = defineStore('analysis', () => {
   return {
     // Feature State
     isPanelVisible,
-    
+
     // Entity State (Proxied)
     isAnalysisActive,
     isLoading,

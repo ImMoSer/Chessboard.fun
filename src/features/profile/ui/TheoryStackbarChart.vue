@@ -76,8 +76,12 @@ const popupRef = ref<HTMLElement | null>(null)
 
 // Close popup when clicking outside
 const handleClickOutside = (event: MouseEvent) => {
-  if (activePopup.value.visible && popupRef.value && !popupRef.value.contains(event.target as Node)) {
-     activePopup.value.visible = false
+  if (
+    activePopup.value.visible &&
+    popupRef.value &&
+    !popupRef.value.contains(event.target as Node)
+  ) {
+    activePopup.value.visible = false
   }
 }
 
@@ -221,13 +225,14 @@ const onChartClick = (params: unknown) => {
 
   let themeName = theme
   if (te(`chess.tornado.${theme}`)) themeName = t(`chess.tornado.${theme}`)
-  else if (te(`chess.finishHim.category.${theme}`)) themeName = t(`chess.finishHim.category.${theme}`)
+  else if (te(`chess.finishHim.category.${theme}`))
+    themeName = t(`chess.finishHim.category.${theme}`)
   else if (te(`chess.endings.${theme}`)) themeName = t(`chess.endings.${theme}`)
 
   const items: PopupData['items'] = []
 
   // Collect data for all difficulties for this theme
-  difficulties.forEach(diff => {
+  difficulties.forEach((diff) => {
     const key = `${prefix}/${diff}/${theme}`
     const stat = props.stats[key]
     if (stat && stat.requested > 0) {
@@ -258,7 +263,7 @@ const onChartClick = (params: unknown) => {
       title: themeName,
       items,
       themeId: theme,
-      clickedDifficulty: difficulty
+      clickedDifficulty: difficulty,
     },
   }
 }
@@ -273,7 +278,7 @@ const onImproveClick = () => {
     mode: props.mode,
     theme: themeId,
     difficulty: clickedDifficulty,
-    type: activeType.value
+    type: activeType.value,
   })
 }
 </script>
@@ -361,28 +366,18 @@ const onImproveClick = () => {
       >
         <div class="popup-header">
           <span class="popup-title">{{ activePopup.data.title }}</span>
-          <n-button
-            type="primary"
-            size="tiny"
-            @click="onImproveClick"
-            class="improve-btn"
-          >
+          <n-button type="primary" size="tiny" @click="onImproveClick" class="improve-btn">
             {{ t('userCabinet.stats.improve') }}
           </n-button>
         </div>
 
         <div class="popup-content">
-          <div
-            v-for="(item, index) in activePopup.data.items"
-            :key="index"
-            class="popup-item"
-          >
+          <div v-for="(item, index) in activePopup.data.items" :key="index" class="popup-item">
             <div class="popup-label">
-              <span
-                class="diff-indicator"
-                :style="{ backgroundColor: item.color }"
-              ></span>
-              <span class="diff-name">{{ t(`theoryEndings.difficulties.${item.difficulty.toLowerCase()}`) }}:</span>
+              <span class="diff-indicator" :style="{ backgroundColor: item.color }"></span>
+              <span class="diff-name"
+                >{{ t(`theoryEndings.difficulties.${item.difficulty.toLowerCase()}`) }}:</span
+              >
             </div>
             <div class="popup-value">
               {{ item.success }}/{{ item.requested }}

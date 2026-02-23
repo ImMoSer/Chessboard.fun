@@ -31,7 +31,7 @@ const calculateScore = (item: TheoryItemWithChildren) => {
   if (item.total === 0) return 0
   // Score always represents White points (1-0)
   const whiteScore = item.w_pct + item.d_pct * 0.5
-  return props.turn === 'white' ? whiteScore : (100 - whiteScore)
+  return props.turn === 'white' ? whiteScore : 100 - whiteScore
 }
 </script>
 
@@ -101,15 +101,17 @@ const calculateScore = (item: TheoryItemWithChildren) => {
                         <div class="card-stats-values">
                           <span class="stat-score">{{ calculateScore(item).toFixed(1) }}%</span>
                           <span class="stat-sep">|</span>
-                          <span class="stat-draw"
-                            >{{ item.d_pct.toFixed(1) }}% draw</span
-                          >
+                          <span class="stat-draw">{{ item.d_pct.toFixed(1) }}% draw</span>
                           <span class="stat-sep">|</span>
                           <span class="stat-perf">Perf: {{ Math.round(item.perf) }}</span>
                           <span v-if="(item.wt ?? 0) > 0" class="stat-sep">|</span>
-                          <span v-if="(item.wt ?? 0) > 0" class="stat-trap white">WTrp: {{ Math.round(((item.wt ?? 0) / 255) * 100) }}%</span>
+                          <span v-if="(item.wt ?? 0) > 0" class="stat-trap white"
+                            >WTrp: {{ Math.round(((item.wt ?? 0) / 255) * 100) }}%</span
+                          >
                           <span v-if="(item.bt ?? 0) > 0" class="stat-sep">|</span>
-                          <span v-if="(item.bt ?? 0) > 0" class="stat-trap black">BTrp: {{ Math.round(((item.bt ?? 0) / 255) * 100) }}%</span>
+                          <span v-if="(item.bt ?? 0) > 0" class="stat-trap black"
+                            >BTrp: {{ Math.round(((item.bt ?? 0) / 255) * 100) }}%</span
+                          >
                         </div>
                       </div>
                     </div>

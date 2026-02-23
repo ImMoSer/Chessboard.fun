@@ -2,16 +2,16 @@
 import { useAuthStore } from '@/entities/user'
 import { changeLang } from '@/shared/config/i18n'
 import {
-    BookOutline,
-    BuildOutline,
-    DiamondOutline,
-    FlashOutline,
-    HammerOutline,
-    LogInOutline,
-    PersonOutline,
-    SchoolOutline,
-    ThunderstormOutline,
-    TrophyOutline
+  BookOutline,
+  BuildOutline,
+  DiamondOutline,
+  FlashOutline,
+  HammerOutline,
+  LogInOutline,
+  PersonOutline,
+  SchoolOutline,
+  ThunderstormOutline,
+  TrophyOutline,
 } from '@vicons/ionicons5'
 import { storeToRefs } from 'pinia'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
@@ -39,15 +39,45 @@ const handleChangeLang = (lang: 'en' | 'ru' | 'de') => {
 
 // Конфигурация карточек меню для чистоты кода в шаблоне
 const menuItems = [
-  { path: '/finish-him', icon: HammerOutline, labelKey: 'welcome.buttons.finishHim', color: '#f5222d' },
+  {
+    path: '/finish-him',
+    icon: HammerOutline,
+    labelKey: 'welcome.buttons.finishHim',
+    color: '#f5222d',
+  },
   { path: '/tornado', icon: ThunderstormOutline, labelKey: 'nav.tornado', color: '#1890ff' },
-  { path: '/theory-endings', icon: BookOutline, labelKey: 'welcome.buttons.theoryEndings', color: '#722ed1' },
-  { path: '/practical-chess', icon: BuildOutline, labelKey: 'welcome.buttons.practicalChess', color: '#fa8c16' },
-  { path: '/diamond-hunter', icon: DiamondOutline, labelKey: 'welcome.buttons.openingTraining', color: '#13c2c2' },
-  { path: '/opening-sparring', icon: FlashOutline, labelKey: 'welcome.buttons.openingSparring', color: '#eb2f96' },
+  {
+    path: '/theory-endings',
+    icon: BookOutline,
+    labelKey: 'welcome.buttons.theoryEndings',
+    color: '#722ed1',
+  },
+  {
+    path: '/practical-chess',
+    icon: BuildOutline,
+    labelKey: 'welcome.buttons.practicalChess',
+    color: '#fa8c16',
+  },
+  {
+    path: '/diamond-hunter',
+    icon: DiamondOutline,
+    labelKey: 'welcome.buttons.openingTraining',
+    color: '#13c2c2',
+  },
+  {
+    path: '/opening-sparring',
+    icon: FlashOutline,
+    labelKey: 'welcome.buttons.openingSparring',
+    color: '#eb2f96',
+  },
   { path: '/study', icon: SchoolOutline, labelKey: 'welcome.buttons.study', color: '#52c41a' },
   { path: '/user-cabinet', icon: PersonOutline, labelKey: 'nav.userCabinet', color: '#faad14' },
-  { path: '/records', icon: TrophyOutline, labelKey: 'welcome.buttons.leaderboards', color: '#fadb14' }
+  {
+    path: '/records',
+    icon: TrophyOutline,
+    labelKey: 'welcome.buttons.leaderboards',
+    color: '#fadb14',
+  },
 ]
 
 // Mobile detection logic
@@ -77,14 +107,9 @@ const filteredMenuItems = computed(() => {
 <template>
   <div class="welcome-container">
     <div class="content-wrapper">
-
       <!-- Hero Section -->
       <div class="hero-section">
-        <img
-          src="/svg/1280х256_ob.svg"
-          :alt="t('app.title')"
-          class="hero-logo"
-        />
+        <img src="/svg/1280х256_ob.svg" :alt="t('app.title')" class="hero-logo" />
 
         <!-- Login Button (Visible only if not authenticated) -->
         <div v-if="!isAuthenticated" class="auth-section">
@@ -108,21 +133,10 @@ const filteredMenuItems = computed(() => {
       </div>
 
       <!-- Mode Selection Grid -->
-      <n-grid
-        x-gap="16"
-        y-gap="16"
-        cols="2 s:3 m:3 l:3"
-        responsive="screen"
-        class="menu-grid"
-      >
+      <n-grid x-gap="16" y-gap="16" cols="2 s:3 m:3 l:3" responsive="screen" class="menu-grid">
         <n-grid-item v-for="item in filteredMenuItems" :key="item.path">
           <router-link :to="item.path" custom v-slot="{ navigate }">
-            <n-card
-              hoverable
-              class="menu-card glass-card"
-              @click="navigate"
-              :bordered="false"
-            >
+            <n-card hoverable class="menu-card glass-card" @click="navigate" :bordered="false">
               <div class="card-content">
                 <n-icon size="32" :color="item.color" class="card-icon">
                   <component :is="item.icon" />
@@ -164,7 +178,6 @@ const filteredMenuItems = computed(() => {
           </button>
         </n-space>
       </div>
-
     </div>
   </div>
 </template>
@@ -208,7 +221,6 @@ const filteredMenuItems = computed(() => {
   max-height: 20vh; /* Limit height to fit screen */
   width: auto;
   height: auto;
-
 }
 
 .auth-section {

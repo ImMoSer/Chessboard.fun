@@ -6,7 +6,6 @@ import { useRoute } from 'vue-router'
 
 import { useGameStore } from '@/entities/game'
 import { useDiamondHunterStore } from '@/features/diamond-hunter'
-import { EngineSelector } from '@/features/engine'
 import { useFinishHimStore } from '@/features/finish-him'
 import { usePracticalChessStore } from '@/features/practical-chess'
 import { useTheoryEndingsStore } from '@/features/theory-endings'
@@ -31,8 +30,10 @@ useControlsStore()
 
 const activePuzzle = computed<PuzzleUnion | null>(() => {
   if (route.name === 'tornado') return tornadoStore.activePuzzle as PuzzleUnion
-  if (route.name?.toString().startsWith('theory-endings')) return theoryStore.activePuzzle as PuzzleUnion
-  if (route.name?.toString().startsWith('practical-chess')) return practicalStore.activePuzzle as PuzzleUnion
+  if (route.name?.toString().startsWith('theory-endings'))
+    return theoryStore.activePuzzle as PuzzleUnion
+  if (route.name?.toString().startsWith('practical-chess'))
+    return practicalStore.activePuzzle as PuzzleUnion
   return finishHimStore.activePuzzle as PuzzleUnion
 })
 
@@ -60,7 +61,7 @@ const activeThemeKey = computed<string>(() => {
   }
 
   if ('themes' in puzzle && Array.isArray(puzzle.themes) && puzzle.themes.length > 0) {
-      return puzzle.themes[0] as string
+    return puzzle.themes[0] as string
   }
 
   return 'auto'
@@ -76,7 +77,10 @@ const themeTranslation = computed(() => {
     return t(`chess.tornado.${key}`)
   }
 
-  if (route.name?.toString().startsWith('theory-endings') || route.name?.toString().startsWith('practical-chess')) {
+  if (
+    route.name?.toString().startsWith('theory-endings') ||
+    route.name?.toString().startsWith('practical-chess')
+  ) {
     return t(`chess.endings.${key}`)
   }
 
@@ -223,10 +227,7 @@ const containerClass = computed(() => {
     </div>
 
     <!-- Diamond Hunter Mode -->
-    <div
-      v-else-if="route.name === 'diamond-hunter'"
-      class="diamond-hunter-info"
-    >
+    <div v-else-if="route.name === 'diamond-hunter'" class="diamond-hunter-info">
       <div class="hunter-status">
         <span v-if="diamondHunterStore.state === 'HUNTING'">
           {{ t('diamondHunter.status.hunting') || 'HUNTING...' }}
@@ -237,13 +238,11 @@ const containerClass = computed(() => {
         <span v-else-if="diamondHunterStore.state === 'SAVING'" class="pulsate-blue">
           {{ t('diamondHunter.status.secure') || 'SECURE DIAMOND!' }}
         </span>
-         <span v-else-if="diamondHunterStore.state === 'REWARD'" style="color: #00C853">
+        <span v-else-if="diamondHunterStore.state === 'REWARD'" style="color: #00c853">
           {{ t('diamondHunter.status.found') || 'DIAMOND FOUND!' }}
         </span>
         <span v-else>{{ t('diamondHunter.status.idle') || 'IDLE' }}</span>
       </div>
-
-
 
       <div class="hunter-stats-group">
         <div class="stat-item">
@@ -262,27 +261,14 @@ const containerClass = computed(() => {
     </div>
 
     <!-- Общий заголовок для других режимов -->
-    <div
-      v-else-if="activeThemeKey !== 'auto'"
-      class="puzzle-title-container"
-    >
+    <div v-else-if="activeThemeKey !== 'auto'" class="puzzle-title-container">
       <span class="puzzle-title-label">
         {{ themeTranslation }}
       </span>
     </div>
-
-    <div
-      v-if="
-        ['sandbox', 'sandbox-with-engine', 'sandbox-with-engine-and-color'].includes(
-          route.name as string,
-        )
-      "
-      class="engine-selector-container"
-    >
-      <img src="/buttons/robot.svg" alt="Select Engine" class="robot-icon" />
-      <EngineSelector />
-    </div>
   </div>
+
+
 </template>
 
 <style scoped>
@@ -463,7 +449,7 @@ const containerClass = computed(() => {
 }
 
 .diamond-title {
-  color: #00C853 !important;
+  color: #00c853 !important;
 }
 
 .hunter-stats-group {
@@ -487,11 +473,11 @@ const containerClass = computed(() => {
 }
 
 .diamond-text {
-  color: #9C27B0;
+  color: #9c27b0;
 }
 
 .brilliant-text {
-  color: #00C853;
+  color: #00c853;
 }
 
 .pulsate-red {
@@ -500,14 +486,20 @@ const containerClass = computed(() => {
 }
 
 .pulsate-blue {
-  color: #448AFF;
+  color: #448aff;
   animation: pulsate 1.5s infinite;
 }
 
 @keyframes pulsate {
-  0% { opacity: 1; }
-  50% { opacity: 0.5; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 /* --- OTHER MODES --- */
@@ -549,7 +541,8 @@ const containerClass = computed(() => {
     justify-content: space-between;
   }
 
-  .tornado-timer, .session-rating-value {
+  .tornado-timer,
+  .session-rating-value {
     font-size: 1.5rem; /* Slightly smaller but still prominent */
   }
 

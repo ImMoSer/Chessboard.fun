@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import {
-    NAlert,
-    NCard,
-    NDivider,
-    NGi,
-    NGrid,
-    NH1,
-    NH2,
-    NLayout,
-    NLayoutContent,
-    NSpace,
-    NTag,
-    NText,
-    NThing
+  NAlert,
+  NCard,
+  NDivider,
+  NGi,
+  NGrid,
+  NH1,
+  NH2,
+  NLayout,
+  NLayoutContent,
+  NSpace,
+  NTag,
+  NText,
+  NThing,
 } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
 
@@ -75,21 +75,21 @@ const bonusLevels = [
     name: t('pricing.bonusInfo.knight').split('—')[1] || 'Knight',
     threshold: t('pricing.bonusInfo.knight').split('—')[0]?.replace('♘ ', '') || '300',
     icon: '♘',
-    type: 'info' as const
+    type: 'info' as const,
   },
   {
     name: t('pricing.bonusInfo.bishop').split('—')[1] || 'Bishop',
     threshold: t('pricing.bonusInfo.bishop').split('—')[0]?.replace('♗ ', '') || '500',
     icon: '♗',
-    type: 'warning' as const
+    type: 'warning' as const,
   },
   {
     name: t('pricing.bonusInfo.rook').split('—')[1] || 'Rook',
     threshold: t('pricing.bonusInfo.rook').split('—')[0]?.replace('♖ ', '') || '1000',
     icon: 'error' as const, // For color consistency with Rook (violet/error)
     iconText: '♖',
-    type: 'error' as const
-  }
+    type: 'error' as const,
+  },
 ]
 
 const gameCosts = [
@@ -105,7 +105,10 @@ const gameCosts = [
 
 <template>
   <n-layout class="pricing-page-layout">
-    <n-layout-content class="pricing-content" content-style="padding: 24px; max-width: 1200px; margin: 0 auto;">
+    <n-layout-content
+      class="pricing-content"
+      content-style="padding: 24px; max-width: 1200px; margin: 0 auto;"
+    >
       <n-space vertical size="large">
         <n-h1 align-text class="page-title">
           <n-text style="color: var(--color-neon-cyan)">{{ t('pricing.title') }}</n-text>
@@ -115,7 +118,7 @@ const gameCosts = [
           <n-text depth="2">
             {{ t('pricing.intro.p1') }}
           </n-text>
-          <div style="margin-top: 8px;">
+          <div style="margin-top: 8px">
             <n-text strong type="warning">
               {{ t('pricing.intro.p2') }}
             </n-text>
@@ -130,21 +133,17 @@ const gameCosts = [
 
         <n-grid cols="1 400:2 600:3 800:5" x-gap="16" y-gap="16">
           <n-gi v-for="tier in subscriptionTiers" :key="tier.name">
-            <n-card
-              hoverable
-              class="tier-card"
-              :class="{ 'highlight-tier': tier.highlight }"
-            >
+            <n-card hoverable class="tier-card" :class="{ 'highlight-tier': tier.highlight }">
               <template #header>
                 <n-text strong>{{ tier.name }}</n-text>
               </template>
               <template #header-extra>
-                <img :src="tier.icon" :alt="tier.name" style="width: 32px; height: 32px;" />
+                <img :src="tier.icon" :alt="tier.name" style="width: 32px; height: 32px" />
               </template>
 
               <n-thing>
                 <template #description>
-                  <n-text depth="3" style="font-size: 0.9em;">
+                  <n-text depth="3" style="font-size: 0.9em">
                     {{ t('pricing.tiers.pawn.description').split('{funcoins}')[0] }}
                     <n-text :style="{ color: tier.color, fontWeight: 'bold', fontSize: '1.2em' }">
                       {{ tier.funcoins }}
@@ -152,8 +151,8 @@ const gameCosts = [
                     {{ t('pricing.tiers.pawn.description').split('{funcoins}')[1] }}
                   </n-text>
                 </template>
-                <n-divider dashed style="margin: 12px 0;" />
-                <n-text strong type="success" style="font-size: 1.1em;">
+                <n-divider dashed style="margin: 12px 0" />
+                <n-text strong type="success" style="font-size: 1.1em">
                   {{ tier.price }}
                 </n-text>
               </n-thing>
@@ -180,7 +179,7 @@ const gameCosts = [
             <n-card hoverable class="bonus-level-card">
               <template #header>
                 <n-space align="center">
-                  <n-text style="font-size: 1.5em;">{{ level.iconText || level.icon }}</n-text>
+                  <n-text style="font-size: 1.5em">{{ level.iconText || level.icon }}</n-text>
                   <n-text strong>{{ level.name }}</n-text>
                 </n-space>
               </template>
@@ -198,10 +197,12 @@ const gameCosts = [
 
         <n-card class="bonus-footer-card" embedded :bordered="false">
           <n-space vertical>
-            <n-text depth="3" italic style="font-size: 0.9em;">
+            <n-text depth="3" italic style="font-size: 0.9em">
               <p>{{ t('pricing.bonusInfo.p6') }}</p>
               <p>{{ t('pricing.bonusInfo.p7') }}</p>
-              <p style="text-align: center; font-weight: bold; color: var(--color-accent-primary);">{{ t('pricing.bonusInfo.p8') }}</p>
+              <p style="text-align: center; font-weight: bold; color: var(--color-accent-primary)">
+                {{ t('pricing.bonusInfo.p8') }}
+              </p>
             </n-text>
           </n-space>
         </n-card>
@@ -217,15 +218,15 @@ const gameCosts = [
             <n-card hoverable class="game-cost-card">
               <template #header>
                 <n-space align="center">
-                  <n-text style="font-size: 1.5em;">{{ game.icon }}</n-text>
-                  <n-text strong style="font-size: 0.9em;">{{ game.name }}</n-text>
+                  <n-text style="font-size: 1.5em">{{ game.icon }}</n-text>
+                  <n-text strong style="font-size: 0.9em">{{ game.name }}</n-text>
                 </n-space>
               </template>
               <n-thing>
                 <template #description>
                   <n-space justify="space-between" align="center">
                     <n-text depth="3">{{ t('pricing.costs.funcoinLabel') }}</n-text>
-                    <n-text strong type="warning" style="font-size: 1.4em;">
+                    <n-text strong type="warning" style="font-size: 1.4em">
                       {{ game.cost }}
                     </n-text>
                   </n-space>

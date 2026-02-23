@@ -110,7 +110,10 @@ class LichessApiService {
       return this.activeRequests.get(cacheKey)!
     }
 
-    const cached = await theoryCacheService.getCachedStats<LichessOpeningResponse>(cacheKey, cacheSource)
+    const cached = await theoryCacheService.getCachedStats<LichessOpeningResponse>(
+      cacheKey,
+      cacheSource,
+    )
     if (cached) {
       return source === 'lichess' ? this.normalizeLichessData(cached) : cached
     }

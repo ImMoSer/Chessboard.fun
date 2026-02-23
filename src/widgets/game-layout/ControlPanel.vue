@@ -6,10 +6,10 @@ import {
   FlagOutline as ResignIcon,
   RefreshOutline as RestartIcon,
   LinkOutline as ShareIcon,
-} from '@vicons/ionicons5';
-import { NButton, NIcon, NSpace, NTooltip } from 'naive-ui';
-import { useAnalysisStore } from '@/features/analysis';
-import { useControlsStore } from '@/widgets/game-layout/model/controls.store';
+} from '@vicons/ionicons5'
+import { NButton, NIcon, NSpace, NTooltip } from 'naive-ui'
+import { useAnalysisStore } from '@/features/analysis'
+import { useControlsStore } from '@/widgets/game-layout/model/controls.store'
 
 const controlsStore = useControlsStore()
 const analysisStore = useAnalysisStore()

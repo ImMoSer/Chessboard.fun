@@ -31,7 +31,6 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import OpeningStatsTable from './OpeningStatsTable.vue'
 
-
 defineProps<{
   blurred?: boolean
 }>()
@@ -171,7 +170,6 @@ onMounted(() => {
           <n-button :secondary="source !== 'masters'" @click="source = 'masters'">
             Masters
           </n-button>
-
         </n-button-group>
       </div>
       <div class="header-right">
@@ -287,9 +285,12 @@ onMounted(() => {
     </n-collapse-transition>
 
     <div class="table-container">
-    <div v-if="!stats" class="empty-state">
-      <n-text depth="3">{{ t('openingTrainer.noStats', 'No statistics available for this position') }}</n-text>
-    </div>      <OpeningStatsTable
+      <div v-if="!stats" class="empty-state">
+        <n-text depth="3">{{
+          t('openingTrainer.noStats', 'No statistics available for this position')
+        }}</n-text>
+      </div>
+      <OpeningStatsTable
         v-if="stats"
         :moves="stats.moves"
         :isReviewMode="true"
@@ -301,8 +302,6 @@ onMounted(() => {
         :avg-score="stats.avgScore"
         @select-move="handleSelectMove"
       />
-
-
 
       <!-- Top Games Section -->
       <div v-if="stats && sortedTopGames.length > 0" class="top-games-section">

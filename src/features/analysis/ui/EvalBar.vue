@@ -73,7 +73,7 @@ const barStyle = computed(() => {
   position: relative;
   overflow: hidden;
   user-select: none;
-  box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
 }
 
 .eval-bar-fill {
@@ -81,7 +81,7 @@ const barStyle = computed(() => {
   left: 0;
   width: 100%;
   background: linear-gradient(to bottom, #ffffff, #dcdcdc);
-  box-shadow: 0 0 10px rgba(255,255,255,0.2);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
 }
 
 .fade-eval-enter-active,

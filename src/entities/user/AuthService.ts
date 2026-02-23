@@ -39,7 +39,9 @@ class AuthServiceController {
           userProfile: userProfile,
           isProcessing: false, // Мы уже что-то знаем, можем начать работать
         }
-        logger.info(`[AuthService] Restored profile for "${userProfile.username}" from localStorage.`)
+        logger.info(
+          `[AuthService] Restored profile for "${userProfile.username}" from localStorage.`,
+        )
       } else {
         this.state = {
           ...this.state,

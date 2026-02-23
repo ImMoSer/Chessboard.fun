@@ -60,7 +60,7 @@ interface LichessModule {
   setNnueBuffer(buffer: ArrayBuffer | Uint8Array): void
   getRecommendedNnue?(): string
   addMessageListener?: never // Этого метода нет в оригинале
-  postMessage?: never      // Этого метода нет в оригинале
+  postMessage?: never // Этого метода нет в оригинале
 }
 
 /**
@@ -78,15 +78,15 @@ export function loadMultiThreadEngine(): Promise<EngineController | null> {
   const loaderPath = '/stockfish/nnue/sf_18_smallnet.js'
 
   logger.info(`[EngineLoader] Loading multi-threaded engine (NNUE) from ${loaderPath}`)
-  
+
   return new Promise(async (resolve, reject) => {
     try {
       // Используем динамический импорт для загрузки ESM модуля
       const module = await import(/* @vite-ignore */ loaderPath)
-      
+
       // Lichess stockfish-web экспортирует фабрику как default export
       const StockfishFactory = module.default || module.Stockfish || module
-      
+
       if (typeof StockfishFactory !== 'function') {
         throw new Error('[EngineLoader] Stockfish factory is not a function.')
       }
@@ -99,7 +99,7 @@ export function loadMultiThreadEngine(): Promise<EngineController | null> {
       try {
         // Инициализируем движок.
         // Передаем callback 'listen', который будет транслировать сообщения нашим подписчикам.
-        const engineInstance = await StockfishFactory({
+        const engineInstance = (await StockfishFactory({
           locateFile: (path: string, prefix: string) => {
             if (path.endsWith('.wasm')) {
               return `/stockfish/nnue/${path}`
@@ -107,12 +107,12 @@ export function loadMultiThreadEngine(): Promise<EngineController | null> {
             return prefix + path
           },
           listen: (line: string) => {
-             listeners.forEach((callback) => callback(line))
-          }
-        }) as LichessModule
-        
+            listeners.forEach((callback) => callback(line))
+          },
+        })) as LichessModule
+
         logger.info('[EngineLoader] Multi-threaded Stockfish instance created successfully.')
-        
+
         // Получаем рекомендуемое имя файла от самого движка
         let nnueFileName = 'nn-4ca89e4b3abf.nnue' // Fallback
         if (typeof engineInstance.getRecommendedNnue === 'function') {
@@ -123,7 +123,7 @@ export function loadMultiThreadEngine(): Promise<EngineController | null> {
             logger.warn('[EngineLoader] Failed to get recommended NNUE name, using fallback.', e)
           }
         }
-        
+
         const nnuePath = `/stockfish/nnue/${nnueFileName}`
 
         // Load and set NNUE network
@@ -131,28 +131,31 @@ export function loadMultiThreadEngine(): Promise<EngineController | null> {
           logger.info(`[EngineLoader] Fetching NNUE file from ${nnuePath}...`)
           const response = await fetch(nnuePath)
           if (!response.ok) {
-             if (response.status === 404) {
-               logger.error(`[EngineLoader] NNUE file not found! Please download ${nnueFileName} and place it in public/stockfish/nnue/`)
-             }
+            if (response.status === 404) {
+              logger.error(
+                `[EngineLoader] NNUE file not found! Please download ${nnueFileName} and place it in public/stockfish/nnue/`,
+              )
+            }
             throw new Error(`Failed to fetch NNUE file: ${response.status} ${response.statusText}`)
           }
           const buffer = await response.arrayBuffer()
-          logger.info(`[EngineLoader] NNUE file fetched (${buffer.byteLength} bytes). Setting buffer...`)
-          
-          if (typeof engineInstance.setNnueBuffer === 'function') {
-             engineInstance.setNnueBuffer(new Uint8Array(buffer))
-             logger.info('[EngineLoader] NNUE buffer set successfully.')
-          } else {
-             logger.warn('[EngineLoader] setNnueBuffer function not found on engine instance!')
-          }
+          logger.info(
+            `[EngineLoader] NNUE file fetched (${buffer.byteLength} bytes). Setting buffer...`,
+          )
 
+          if (typeof engineInstance.setNnueBuffer === 'function') {
+            engineInstance.setNnueBuffer(new Uint8Array(buffer))
+            logger.info('[EngineLoader] NNUE buffer set successfully.')
+          } else {
+            logger.warn('[EngineLoader] setNnueBuffer function not found on engine instance!')
+          }
         } catch (nnueError) {
           logger.error('[EngineLoader] Critical error loading NNUE file:', nnueError)
           // Можно реджектить, если без сети движок бесполезен
           reject(nnueError)
           return
         }
-        
+
         // Создаем адаптер, чтобы движок выглядел как EngineController
         const engineAdapter: EngineController = {
           postMessage: (command: string) => {
@@ -166,18 +169,14 @@ export function loadMultiThreadEngine(): Promise<EngineController | null> {
             // Можно просто очистить слушателей.
             listeners.length = 0
             logger.warn('[EngineLoader] Terminate called on main-thread WASM engine (no-op).')
-          }
+          },
         }
 
         resolve(engineAdapter)
       } catch (error) {
-        logger.error(
-          '[EngineLoader] Error initializing multi-threaded Stockfish instance.',
-          error,
-        )
+        logger.error('[EngineLoader] Error initializing multi-threaded Stockfish instance.', error)
         reject(error)
       }
-
     } catch (error) {
       logger.error(`[EngineLoader] Failed to load module: ${loaderPath}`, error)
       reject(error)

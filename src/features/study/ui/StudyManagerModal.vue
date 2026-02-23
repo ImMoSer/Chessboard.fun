@@ -206,51 +206,70 @@ function downloadChapter(chapter: StudyChapter, e: Event) {
             >
               <NThing>
                 <template #avatar>
-                   <div
-                     class="color-dot"
-                     :class="chapter.color"
-                     :title="chapter.color ? `For ${chapter.color}` : 'No color'"
-                   ></div>
+                  <div
+                    class="color-dot"
+                    :class="chapter.color"
+                    :title="chapter.color ? `For ${chapter.color}` : 'No color'"
+                  ></div>
                 </template>
 
                 <template #header>
-                    <div v-if="editingId === chapter.id" class="edit-input-wrapper">
-                        <input
-                            ref="editInputRef"
-                            v-model="editName"
-                            @click.stop
-                            @blur="finishEdit"
-                            @keyup.enter="finishEdit"
-                            class="native-edit-input"
-                        />
-                    </div>
-                    <span v-else>{{ index + 1 }}. {{ chapter.name }}</span>
+                  <div v-if="editingId === chapter.id" class="edit-input-wrapper">
+                    <input
+                      ref="editInputRef"
+                      v-model="editName"
+                      @click.stop
+                      @blur="finishEdit"
+                      @keyup.enter="finishEdit"
+                      class="native-edit-input"
+                    />
+                  </div>
+                  <span v-else>{{ index + 1 }}. {{ chapter.name }}</span>
                 </template>
 
-                 <template #header-extra>
-                    <NTag v-if="chapter.slug" size="small" type="info" :bordered="false">
-                        <template #icon><NIcon><CloudOutline /></NIcon></template>
-                        Cloud
-                    </NTag>
-                 </template>
+                <template #header-extra>
+                  <NTag v-if="chapter.slug" size="small" type="info" :bordered="false">
+                    <template #icon
+                      ><NIcon><CloudOutline /></NIcon
+                    ></template>
+                    Cloud
+                  </NTag>
+                </template>
 
-                 <template #action>
-                    <NSpace v-if="editingId !== chapter.id" size="small">
-                        <NButton size="tiny" secondary circle @click="(e) => downloadChapter(chapter, e)">
-                             <template #icon><NIcon><DownloadOutline /></NIcon></template>
-                        </NButton>
-                        <NButton size="tiny" secondary circle @click="(e) => startEdit(chapter, e)">
-                             <template #icon><NIcon><PencilOutline /></NIcon></template>
-                        </NButton>
-                         <NButton size="tiny" secondary circle type="error" @click="(e) => confirmDelete(chapter, e)">
-                             <template #icon><NIcon><TrashOutline /></NIcon></template>
-                        </NButton>
-                    </NSpace>
-                 </template>
+                <template #action>
+                  <NSpace v-if="editingId !== chapter.id" size="small">
+                    <NButton
+                      size="tiny"
+                      secondary
+                      circle
+                      @click="(e) => downloadChapter(chapter, e)"
+                    >
+                      <template #icon
+                        ><NIcon><DownloadOutline /></NIcon
+                      ></template>
+                    </NButton>
+                    <NButton size="tiny" secondary circle @click="(e) => startEdit(chapter, e)">
+                      <template #icon
+                        ><NIcon><PencilOutline /></NIcon
+                      ></template>
+                    </NButton>
+                    <NButton
+                      size="tiny"
+                      secondary
+                      circle
+                      type="error"
+                      @click="(e) => confirmDelete(chapter, e)"
+                    >
+                      <template #icon
+                        ><NIcon><TrashOutline /></NIcon
+                      ></template>
+                    </NButton>
+                  </NSpace>
+                </template>
               </NThing>
             </NListItem>
-             <div v-if="studyStore.chapters.length === 0" class="empty-state">
-                No chapters yet. Create one!
+            <div v-if="studyStore.chapters.length === 0" class="empty-state">
+              No chapters yet. Create one!
             </div>
           </NList>
         </NSpace>
@@ -289,10 +308,15 @@ function downloadChapter(chapter: StudyChapter, e: Event) {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  border: 1px solid rgba(255,255,255,0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
-.color-dot.white { background: #eee; }
-.color-dot.black { background: #333; border-color: #666; }
+.color-dot.white {
+  background: #eee;
+}
+.color-dot.black {
+  background: #333;
+  border-color: #666;
+}
 
 .active {
   background-color: rgba(var(--color-primary-rgb), 0.1);
@@ -300,17 +324,17 @@ function downloadChapter(chapter: StudyChapter, e: Event) {
 }
 
 .empty-state {
-    text-align: center;
-    padding: 20px;
-    color: var(--color-text-secondary);
+  text-align: center;
+  padding: 20px;
+  color: var(--color-text-secondary);
 }
 
 .native-edit-input {
-    background: var(--color-bg-primary);
-    border: 1px solid var(--color-primary);
-    color: var(--color-text-primary);
-    padding: 2px 5px;
-    border-radius: 4px;
-    width: 100%;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-primary);
+  color: var(--color-text-primary);
+  padding: 2px 5px;
+  border-radius: 4px;
+  width: 100%;
 }
 </style>

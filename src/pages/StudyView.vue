@@ -216,21 +216,21 @@ watch(
 
     <template #left-panel>
       <div class="explorer-wrapper">
-         <div class="explorer-toggle">
-            <button :class="{ active: explorerMode === 'mozer' }" @click="explorerMode = 'mozer'">
-              MozerBook
-            </button>
-            <button :class="{ active: explorerMode === 'lichess' }" @click="explorerMode = 'lichess'">
-              Lichess
-            </button>
-          </div>
-          <MozerBook v-if="explorerMode === 'mozer'" class="explorer-component" />
-          <LichessOpeningExplorer v-else class="explorer-component" />
+        <div class="explorer-toggle">
+          <button :class="{ active: explorerMode === 'mozer' }" @click="explorerMode = 'mozer'">
+            MozerBook
+          </button>
+          <button :class="{ active: explorerMode === 'lichess' }" @click="explorerMode = 'lichess'">
+            Lichess
+          </button>
+        </div>
+        <MozerBook v-if="explorerMode === 'mozer'" class="explorer-component" />
+        <LichessOpeningExplorer v-else class="explorer-component" />
       </div>
     </template>
 
     <template #controls>
-       <StudyControls />
+      <StudyControls />
     </template>
 
     <template #right-panel>
@@ -288,7 +288,10 @@ watch(
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s,
+    border-color 0.2s;
 }
 
 .icon-btn:hover {
@@ -320,8 +323,12 @@ watch(
 }
 
 @keyframes rotation {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .chapter-title {
@@ -420,8 +427,8 @@ watch(
 
 @media (orientation: portrait) {
   .chapter-title {
-     max-width: 150px;
-     font-size: 0.9rem;
+    max-width: 150px;
+    font-size: 0.9rem;
   }
 }
 </style>

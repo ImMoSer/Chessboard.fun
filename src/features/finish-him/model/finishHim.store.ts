@@ -1,12 +1,20 @@
 // src/stores/finishHim.store.ts
-import { useBoardStore, type GameEndOutcome } from '@/entities/game'
-import { useGameStore } from '@/entities/game'
+import {
+  gameplayService,
+  useGameStore,
+  type GameStatusInfo,
+  type IGameplayStrategy,
+} from '@/entities/game'
 import { useAuthStore } from '@/entities/user'
 import { InsufficientFunCoinsError, webhookService } from '@/shared/api/WebhookService'
 import i18n from '@/shared/config/i18n'
 import logger from '@/shared/lib/logger'
 import { soundService } from '@/shared/lib/sound/sound.service'
-import type { FinishHimDifficulty, FinishHimPuzzle, FinishHimResultDto } from '@/shared/types/api.types'
+import type {
+  FinishHimDifficulty,
+  FinishHimPuzzle,
+  FinishHimResultDto,
+} from '@/shared/types/api.types'
 import { useUiStore } from '@/shared/ui/model/ui.store'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
@@ -18,7 +26,6 @@ export const useFinishHimStore = defineStore('finishHim', () => {
   const uiStore = useUiStore()
   const router = useRouter()
   const gameStore = useGameStore()
-  const boardStore = useBoardStore()
   const authStore = useAuthStore()
 
   const activePuzzle = ref<FinishHimPuzzle | null>(null)
@@ -36,13 +43,61 @@ export const useFinishHimStore = defineStore('finishHim', () => {
     logger.info('[FinishHimStore] Local state has been reset.')
   }
 
-  function _checkWinCondition(outcome?: GameEndOutcome): boolean {
-    if (!outcome) return false
-    const humanColor = boardStore.orientation
-    return outcome.reason === 'checkmate' && outcome.winner === humanColor
+  function _createStrategy(
+    puzzle: FinishHimPuzzle | null,
+    fallbackColor: 'white' | 'black' = 'white',
+  ): IGameplayStrategy {
+    const scenarioMoves = puzzle ? puzzle.tactical_solution.split(' ') : []
+    let currentScenarioIndex = 0
+    let isPlayoutMode = puzzle === null // Если пазла нет (прямой вызов startPlayoutFromFen), сразу переходим в плейаут
+    const humanColor = fallbackColor // Или вытягивается из доски, но лучше прокинуть явно
+
+    return {
+      config: {
+        botDelayMs: 500,
+      },
+      checkWinCondition(currentState: GameStatusInfo): boolean {
+        return (
+          currentState.outcome?.reason === 'checkmate' &&
+          currentState.outcome?.winner === humanColor
+        )
+      },
+      onUserMoveExecuted(uciMove: string) {
+        if (isPlayoutMode) return
+
+        const expectedMove = scenarioMoves[currentScenarioIndex]
+        if (uciMove === expectedMove) {
+          currentScenarioIndex++
+        } else {
+          // Игрок свернул со сценария. Переходим в Плейаут
+          isPlayoutMode = true
+          currentScenarioIndex = scenarioMoves.length
+          soundService.playSound('game_play_out_start')
+        }
+      },
+      requestBotMove: async (fen: string) => {
+        if (!isPlayoutMode && currentScenarioIndex < scenarioMoves.length) {
+          const move = scenarioMoves[currentScenarioIndex] || null
+          currentScenarioIndex++
+          return move
+        }
+
+        // Живой движок (Mozer/Stockfish)
+        try {
+          return await gameplayService.getBestMove('MOZER_2000', fen)
+        } catch (error) {
+          logger.error('[FinishHimStrategy] Failed to get bot move.', error)
+          return null
+        }
+      },
+      onGameOver(status: GameStatusInfo) {
+        const isWin = this.checkWinCondition!(status)
+        _handleGameOver(isWin, status.outcome)
+      },
+    }
   }
 
-  function _handleGameOver(isWin: boolean, outcome?: GameEndOutcome) {
+  function _handleGameOver(isWin: boolean, outcome?: { reason?: string; winner?: string }) {
     if (gameStore.gamePhase === 'GAMEOVER' || isProcessingGameOver.value) {
       return
     }
@@ -126,14 +181,7 @@ export const useFinishHimStore = defineStore('finishHim', () => {
 
       activePuzzle.value = puzzle
 
-      gameStore.setupPuzzle(
-        puzzle.initial_fen,
-        puzzle.tactical_solution.split(' '),
-        _handleGameOver,
-        _checkWinCondition,
-        () => { }, // No timer start callback
-        'finish-him',
-      )
+      gameStore.startWithStrategy(puzzle.initial_fen, _createStrategy(puzzle), undefined, false)
 
       feedbackMessage.value = t('finishHim.feedback.yourTurn')
     } catch (error) {
@@ -145,8 +193,8 @@ export const useFinishHimStore = defineStore('finishHim', () => {
             required: e.required,
             available: e.available,
           }) +
-          '\n\n' +
-          t('pricing.insufficientCoins.subMessage'),
+            '\n\n' +
+            t('pricing.insufficientCoins.subMessage'),
           {
             confirmText: t('pricing.insufficientCoins.goToPricing'),
             cancelText: t('common.close'),
@@ -178,16 +226,7 @@ export const useFinishHimStore = defineStore('finishHim', () => {
     gameStore.setGamePhase('LOADING')
     feedbackMessage.value = t('finishHim.feedback.yourTurnPlayout')
 
-    gameStore.setupPuzzle(
-      fen,
-      [], // No scenario moves, just playout
-      _handleGameOver,
-      _checkWinCondition,
-      () => { }, // No timer
-      'finish-him',
-      undefined,
-      color,
-    )
+    gameStore.startWithStrategy(fen, _createStrategy(null, color), color, false)
   }
 
   function setParams(theme: string, difficulty: FinishHimDifficulty) {

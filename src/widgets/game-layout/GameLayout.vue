@@ -78,10 +78,7 @@ onUnmounted(() => {
       </aside>
 
       <!-- Center Stage: Top Info -> Board -> Controls -->
-      <div
-        class="center-stage"
-        ref="centerColumnRef"
-      >
+      <div class="center-stage" ref="centerColumnRef">
         <div class="cb-top-panel">
           <slot name="top-info"></slot>
         </div>
@@ -305,9 +302,9 @@ onUnmounted(() => {
   }
 
   .board-section {
-     height: var(--board-size);
-     flex: 0 0 var(--board-size);
-     justify-content: center;
+    height: var(--board-size);
+    flex: 0 0 var(--board-size);
+    justify-content: center;
   }
 
   .board-aspect-wrapper {

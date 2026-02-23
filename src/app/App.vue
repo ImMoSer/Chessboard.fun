@@ -52,7 +52,6 @@ const openDrawer = () => {
   isDrawerOpen.value = true
 }
 
-
 // Обработчик для перезагрузки/закрытия страницы
 const beforeUnloadHandler = (event: BeforeUnloadEvent) => {
   if (gameStore.isGameActive) {
@@ -118,11 +117,7 @@ onUnmounted(() => {
 
           <n-layout class="main-layout-container">
             <!-- Mobile Header (Portrait) -->
-            <n-layout-header
-              v-if="!isLandscape"
-              bordered
-              class="mobile-header"
-            >
+            <n-layout-header v-if="!isLandscape" bordered class="mobile-header">
               <n-button quaternary circle @click="openDrawer">
                 <template #icon>
                   <n-icon>

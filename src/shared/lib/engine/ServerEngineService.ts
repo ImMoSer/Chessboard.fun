@@ -137,7 +137,7 @@ export class ServerEngineServiceController {
     move_uci: string,
     depth: number = 10,
     multipv: number = 2,
-    time_limit: number = 200
+    time_limit: number = 200,
   ): Promise<AnalysisResponse> {
     const url = `${BACKEND_API_URL}/engine-eval/analyze`
     logger.debug(`[ServerEngineService] Requesting analysis for move: ${move_uci}`)
@@ -153,16 +153,14 @@ export class ServerEngineServiceController {
           move_uci,
           depth,
           multipv,
-          time_limit
+          time_limit,
         }),
         credentials: 'include',
       })
 
       if (!response.ok) {
         const errorText = await response.text()
-        throw new Error(
-          `Analysis service returned an error: ${response.status} - ${errorText}`,
-        )
+        throw new Error(`Analysis service returned an error: ${response.status} - ${errorText}`)
       }
 
       return (await response.json()) as AnalysisResponse
@@ -173,10 +171,7 @@ export class ServerEngineServiceController {
   }
 
   /** @deprecated Use analyzeMove */
-  public async evaluateThreats(
-    fen: string,
-    depth: number = 10,
-  ): Promise<unknown> {
+  public async evaluateThreats(fen: string, depth: number = 10): Promise<unknown> {
     // ... rest of the code as is for compatibility, but it will return error from server
     const url = `${BACKEND_API_URL}/engine-eval/evaluate/threats`
     try {

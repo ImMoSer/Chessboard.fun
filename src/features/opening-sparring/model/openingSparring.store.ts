@@ -1,7 +1,6 @@
-import { useBoardStore } from '@/entities/game'
-import { useGameStore } from '@/entities/game'
-import { theoryGraphService } from '@/entities/opening'
 import { analysisService } from '@/entities/analysis'
+import { useBoardStore, useGameStore, type IGameplayStrategy } from '@/entities/game'
+import { theoryGraphService } from '@/entities/opening'
 import { gameReviewService } from '@/features/opening-sparring/api/GameReviewService'
 import { useOpeningSparringQueries } from '@/features/opening-sparring/api/openingSparring.queries'
 import { webhookService } from '@/shared/api/WebhookService'
@@ -54,7 +53,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
         popularity: meta.popularity,
         accuracy: meta.accuracy,
         winRate: meta.winRate,
-        rating: meta.rating
+        rating: meta.rating,
       })
 
       node = node.children[0]
@@ -76,8 +75,10 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   const error = ref<string | null>(null)
   const moveQueue = ref<string[]>([])
 
-
-  const savedSource = localStorage.getItem('openingSparring.opponentSource') as 'master' | 'lichess' | null
+  const savedSource = localStorage.getItem('openingSparring.opponentSource') as
+    | 'master'
+    | 'lichess'
+    | null
   const opponentSource = ref<'master' | 'lichess'>(savedSource || 'master')
 
   const savedRatings = localStorage.getItem('openingSparring.opponentRatings')
@@ -97,13 +98,19 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
 
   const currentStats = computed(() => mozerQuery.data.value ?? null)
   const currentLichessStats = computed(() => lichessQuery.data.value ?? null)
-  const isStatsLoading = computed(() => mozerQuery.isFetching.value || lichessQuery.isFetching.value)
+  const isStatsLoading = computed(
+    () => mozerQuery.isFetching.value || lichessQuery.isFetching.value,
+  )
 
   // Persist settings
-  watch([opponentSource, opponentRatings], () => {
-    localStorage.setItem('openingSparring.opponentSource', opponentSource.value)
-    localStorage.setItem('openingSparring.opponentRatings', JSON.stringify(opponentRatings.value))
-  }, { deep: true })
+  watch(
+    [opponentSource, opponentRatings],
+    () => {
+      localStorage.setItem('openingSparring.opponentSource', opponentSource.value)
+      localStorage.setItem('openingSparring.opponentRatings', JSON.stringify(opponentRatings.value))
+    },
+    { deep: true },
+  )
 
   // Lives for Exam mode
   const lives = ref(3)
@@ -116,9 +123,10 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   const movesCount = computed(() => sessionHistory.value.length)
 
   const averageAccuracy = computed(() => {
-    const playerMoves = sessionHistory.value.filter(m =>
-      (m.turn === 'w' && playerColor.value === 'white') ||
-      (m.turn === 'b' && playerColor.value === 'black')
+    const playerMoves = sessionHistory.value.filter(
+      (m) =>
+        (m.turn === 'w' && playerColor.value === 'white') ||
+        (m.turn === 'b' && playerColor.value === 'black'),
     )
     if (playerMoves.length === 0) return 0
     const sum = playerMoves.reduce((acc, m) => acc + (m.accuracy ?? m.popularity ?? 0), 0)
@@ -126,9 +134,10 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   })
 
   const averageWinRate = computed(() => {
-    const playerMoves = sessionHistory.value.filter(m =>
-      (m.turn === 'w' && playerColor.value === 'white') ||
-      (m.turn === 'b' && playerColor.value === 'black')
+    const playerMoves = sessionHistory.value.filter(
+      (m) =>
+        (m.turn === 'w' && playerColor.value === 'white') ||
+        (m.turn === 'b' && playerColor.value === 'black'),
     )
     if (playerMoves.length === 0) return 0
     const sum = playerMoves.reduce((acc, m) => acc + (m.winRate ?? 0), 0)
@@ -136,9 +145,10 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   })
 
   const averageRating = computed(() => {
-    const playerMoves = sessionHistory.value.filter(m =>
-      (m.turn === 'w' && playerColor.value === 'white') ||
-      (m.turn === 'b' && playerColor.value === 'black')
+    const playerMoves = sessionHistory.value.filter(
+      (m) =>
+        (m.turn === 'w' && playerColor.value === 'white') ||
+        (m.turn === 'b' && playerColor.value === 'black'),
     )
     if (playerMoves.length === 0) return 0
     const sum = playerMoves.reduce((acc, m) => acc + (m.rating ?? 0), 0)
@@ -147,13 +157,11 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
 
   const isInitializing = ref(false)
 
-  // Dependencies for initialization
-  interface InitCallbacks {
-    onPlayerMove: (uci: string) => void
-    onBotMove: () => Promise<void>
-  }
-
-  async function initializeSession(color: 'white' | 'black', startMoves: string[] = [], callbacks: InitCallbacks) {
+  async function initializeSession(
+    color: 'white' | 'black',
+    startMoves: string[] = [],
+    strategy: IGameplayStrategy,
+  ) {
     if (isInitializing.value) {
       console.log('[OpeningSparring] Initialization already in progress, skipping')
       return
@@ -167,46 +175,30 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
       playerColor.value = color
       isProcessingMove.value = true
 
-      const gameStore = useGameStore()
-      gameStore.setupPuzzle(
-        'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
-        [],
-        (isWin, outcome) => {
-          console.log('[OpeningSparring] Game Over:', isWin, outcome)
-          gameStore.setGamePhase('GAMEOVER')
-        },
-        (outcome) => {
-          return outcome?.winner === playerColor.value
-        },
-        () => { },
-        'opening-trainer',
-        undefined,
-        color,
-        (uci) => callbacks.onPlayerMove(uci),
-        undefined, // onBotMove handled by the hook
-        false,
-      )
-
-      await theoryGraphService.loadBook()
-      await webhookService.startOpeningSparring()
-
+      // 1. Manually setup board and history with startMoves BEFORE passing to GameStore
+      boardStore.setupPosition('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', color)
       for (const move of startMoves) {
         boardStore.applyUciMove(move)
         const node = pgnService.getLastMove()
         if (node) pgnService.updateNode(node, { metadata: { phase: 'theory' } })
       }
 
-      // Instead of manual fetchStats(), we wait for Vue Query to resolve if needed,
-      // but typically we just wait to see whose turn it is
-      // We assume queries are automatically triggered by reactivity now.
+      const sessionStartFen = boardStore.fen
 
-      // If Bot turn, trigger hook callback
-      if (boardStore.turn !== color) {
-        // Delay briefly to allow queries to begin fetching
-        setTimeout(() => {
-          callbacks.onBotMove()
-        }, 100)
-      }
+      // 2. Pass control to GameStore Dual-Boot logic
+      const gameStore = useGameStore()
+      gameStore.startWithStrategy(
+        sessionStartFen,
+        strategy,
+        color,
+        true // keepPgn: true (we just built it)
+      )
+
+      await theoryGraphService.loadBook()
+      await webhookService.startOpeningSparring()
+
+      // The bot move will be triggered automatically by GameStore if `boardStore.turn !== color`
+
     } finally {
       isProcessingMove.value = false
       isInitializing.value = false
@@ -277,16 +269,20 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     }
   }
 
-  watch(() => currentStats.value, (stats) => {
-    // Sync names on successful load automatically
-    if (stats && stats.summary && !openingName.value) {
-      const theoryItem = stats.theory?.[0]
-      if (theoryItem) {
-        openingName.value = theoryItem.name
-        if (theoryItem.eco) currentEco.value = theoryItem.eco
+  watch(
+    () => currentStats.value,
+    (stats) => {
+      // Sync names on successful load automatically
+      if (stats && stats.summary && !openingName.value) {
+        const theoryItem = stats.theory?.[0]
+        if (theoryItem) {
+          openingName.value = theoryItem.name
+          if (theoryItem.eco) currentEco.value = theoryItem.eco
+        }
       }
-    }
-  }, { immediate: true })
+    },
+    { immediate: true },
+  )
 
   async function runFinalEvaluation() {
     if (isFinalEvaluating.value) return
@@ -303,19 +299,23 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     await analysisService.setThreads(threads)
 
     return new Promise<void>((resolve) => {
-      analysisService.startAnalysis(boardStore.fen, (lines) => {
-        if (lines.length > 0) {
-          const bestLine = lines[0]!
-          finalEvalDepth.value = bestLine.depth
+      analysisService.startAnalysis(
+        boardStore.fen,
+        (lines) => {
+          if (lines.length > 0) {
+            const bestLine = lines[0]!
+            finalEvalDepth.value = bestLine.depth
 
-          if (bestLine.depth >= targetDepth || bestLine.score.type === 'mate') {
-            finalEval.value = bestLine.score
-            analysisService.stopAnalysis()
-            isFinalEvaluating.value = false
-            resolve()
+            if (bestLine.depth >= targetDepth || bestLine.score.type === 'mate') {
+              finalEval.value = bestLine.score
+              analysisService.stopAnalysis()
+              isFinalEvaluating.value = false
+              resolve()
+            }
           }
-        }
-      }, 1)
+        },
+        1,
+      )
     })
   }
 
@@ -372,8 +372,12 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     currentLichessStats,
     isStatsLoading,
     initializeSession,
-    handlePlayerMove: () => { console.warn('Called removed handlePlayerMove from store. Use useSparringLoop instead.') },
-    triggerBotMove: () => { console.warn('Called removed triggerBotMove from store. Use useSparringLoop instead.') },
+    handlePlayerMove: () => {
+      console.warn('Called removed handlePlayerMove from store. Use useSparringLoop instead.')
+    },
+    triggerBotMove: () => {
+      console.warn('Called removed triggerBotMove from store. Use useSparringLoop instead.')
+    },
     generateGameReport,
     runFinalEvaluation,
     reset,

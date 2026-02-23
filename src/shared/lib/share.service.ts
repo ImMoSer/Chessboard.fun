@@ -1,10 +1,10 @@
 // src/services/share.service.ts
 import i18n from '@/shared/config/i18n'
-import { useUiStore } from '@/shared/ui/model/ui.store'
-import type { Color as ChessgroundColor, EngineId } from '@/shared/types/api.types'
 import logger from '@/shared/lib/logger'
+import type { Color as ChessgroundColor, EngineId } from '@/shared/types/api.types'
+import { useUiStore } from '@/shared/ui/model/ui.store'
 
-type ShareMode = 'finish-him' | 'tornado' | 'sandbox' | 'theory-endings' | 'practical-chess'
+type ShareMode = 'finish-him' | 'tornado' | 'theory-endings' | 'practical-chess'
 
 class ShareServiceController {
   /**
@@ -80,14 +80,6 @@ class ShareServiceController {
 
     if (mode === 'theory-endings' && options?.theoryType) {
       url = `${window.location.origin}/theory-endings/${options.theoryType}/${id}`
-    } else if (mode === 'sandbox') {
-      if (options?.engineId && options?.userColor) {
-        url = `${window.location.origin}/sandbox/play/${options.engineId}/${options.userColor}/${id}`
-      } else if (options?.engineId) {
-        url = `${window.location.origin}/sandbox/play/${options.engineId}/${id}`
-      } else {
-        url = `${window.location.origin}/sandbox/play/${id}`
-      }
     }
 
     const shareData = {

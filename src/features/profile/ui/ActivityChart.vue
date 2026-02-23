@@ -128,7 +128,8 @@ const chartOption = computed(() => {
         data: modes.map((m) => ({
           value: Math.max(
             0,
-            (periodData?.[m.key]?.puzzles_requested || 0) - (periodData?.[m.key]?.puzzles_solved || 0),
+            (periodData?.[m.key]?.puzzles_requested || 0) -
+              (periodData?.[m.key]?.puzzles_solved || 0),
           ),
           itemStyle: { color: modeColors[m.key].requested },
         })),
@@ -139,7 +140,7 @@ const chartOption = computed(() => {
 </script>
 
 <template>
-<n-card class="activity-chart-card" :loading="isLoading">
+  <n-card class="activity-chart-card" :loading="isLoading">
     <template #header>
       <div class="card-header-flex">
         <span class="card-title">{{ t('userCabinet.stats.global.title') }}</span>

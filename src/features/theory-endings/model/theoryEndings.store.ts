@@ -1,6 +1,11 @@
 // src/stores/theoryEndings.store.ts
-import { useBoardStore, type GameEndOutcome } from '@/entities/game'
-import { useGameStore } from '@/entities/game'
+import {
+  gameplayService,
+  useGameStore,
+  type GameEndOutcome,
+  type GameStatusInfo,
+  type IGameplayStrategy,
+} from '@/entities/game'
 import { useAuthStore } from '@/entities/user'
 import { InsufficientFunCoinsError, webhookService } from '@/shared/api/WebhookService'
 import i18n from '@/shared/config/i18n'
@@ -21,7 +26,6 @@ const t = i18n.global.t
 
 export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
   const gameStore = useGameStore()
-  const boardStore = useBoardStore()
   const authStore = useAuthStore()
   const router = useRouter()
   const uiStore = useUiStore()
@@ -51,16 +55,7 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
     activeCategory.value = cat
   }
 
-  function _checkWinCondition(outcome?: GameEndOutcome): boolean {
-    if (!outcome) return false
-    const humanColor = boardStore.orientation
-    if (activeType.value === 'win') {
-      return outcome.winner === humanColor && outcome.reason === 'checkmate'
-    } else {
-      // Draw mode: any draw (winner is undefined) or win for human is success
-      return outcome.winner === humanColor || outcome.winner === undefined
-    }
-  }
+  // Эти функции перенесены внутрь объекта strategy ниже
 
   function _handleGameOver(isWin: boolean, outcome?: GameEndOutcome) {
     if (gameStore.gamePhase === 'GAMEOVER' || isProcessingGameOver.value) {
@@ -68,7 +63,8 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
     }
     isProcessingGameOver.value = true
 
-    gameStore.setGamePhase('GAMEOVER')
+    // Strategy API set the phase already, but keeping this for local state flags
+    // (if any we decide to add later)
 
     if (isWin) {
       soundService.playSound('game_user_won')
@@ -165,16 +161,41 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
         }
       }
 
-      gameStore.setupPuzzle(
-        puzzle.initial_fen,
-        [], // No scenario moves
-        _handleGameOver,
-        _checkWinCondition,
-        () => { }, // No timer start callback needed
-        'theory',
-        undefined,
-        humanColor,
-      )
+      const strategy: IGameplayStrategy = {
+        config: {
+          botDelayMs: 500, // В TheoryEndings классическая задержка
+        },
+
+        checkWinCondition(currentState: GameStatusInfo): boolean {
+          const outcome = currentState.outcome
+          if (!outcome) return false
+
+          if (activeType.value === 'win') {
+            return outcome.winner === humanColor && outcome.reason === 'checkmate'
+          } else {
+            // Draw mode: any draw (winner is undefined) or win for human is success
+            return outcome.winner === humanColor || outcome.winner === undefined
+          }
+        },
+
+        requestBotMove: async (fen: string) => {
+          // Вызываем тяжелый Stockfish (или Mozer) через gameplayService
+          // В будущем можно забирать engineId из настроек фичи, пока используем дефолт ядра
+          try {
+            return await gameplayService.getBestMove('MOZER_2000', fen)
+          } catch (error) {
+            logger.error('[TheoryEndingsStrategy] Failed to get bot move.', error)
+            return null
+          }
+        },
+
+        onGameOver(status: GameStatusInfo) {
+          const isWin = this.checkWinCondition!(status)
+          _handleGameOver(isWin, status.outcome)
+        },
+      }
+
+      gameStore.startWithStrategy(puzzle.initial_fen, strategy, humanColor, false)
 
       feedbackMessage.value = t('finishHim.feedback.yourTurn')
     } catch (error) {
@@ -186,8 +207,8 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
             required: e.required,
             available: e.available,
           }) +
-          '\n\n' +
-          t('pricing.insufficientCoins.subMessage'),
+            '\n\n' +
+            t('pricing.insufficientCoins.subMessage'),
           {
             confirmText: t('pricing.insufficientCoins.goToPricing'),
             cancelText: t('common.close'),

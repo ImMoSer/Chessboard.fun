@@ -30,7 +30,10 @@ class DiamondApiService {
     return this.fetchGravity('black', fen)
   }
 
-  private async fetchGravity(color: 'white' | 'black', fen: string): Promise<GravityResponse | null> {
+  private async fetchGravity(
+    color: 'white' | 'black',
+    fen: string,
+  ): Promise<GravityResponse | null> {
     const cleanFen = this.toCleanFen(fen)
 
     // 1. Check Cache
@@ -46,7 +49,10 @@ class DiamondApiService {
     // So we MUST prefix the key.
     const cacheKey = `gravity:${color}:${cleanFen}`
 
-    const cached = await theoryCacheService.getCachedStats<GravityResponse>(cacheKey, 'diamondGravity')
+    const cached = await theoryCacheService.getCachedStats<GravityResponse>(
+      cacheKey,
+      'diamondGravity',
+    )
     if (cached) {
       return cached
     }

@@ -2,13 +2,13 @@
 <script setup lang="ts">
 import { useAuthStore } from '@/entities/user'
 import {
-    useDetailedStatsQuery,
-    usePersonalActivityStatsQuery,
+  useDetailedStatsQuery,
+  usePersonalActivityStatsQuery,
 } from '@/shared/api/queries/userCabinet.queries'
 import {
-    EXAMPLE_ACTIVITY_STATS,
-    EXAMPLE_DETAILED_STATS,
-    EXAMPLE_USER_PROFILE,
+  EXAMPLE_ACTIVITY_STATS,
+  EXAMPLE_DETAILED_STATS,
+  EXAMPLE_USER_PROFILE,
 } from '@/shared/config/constants/exampleCabinetData'
 import type { FinishHimDifficulty, TornadoMode } from '@/shared/types/api.types'
 import { storeToRefs } from 'pinia'
@@ -36,7 +36,7 @@ const {
   data: personalActivityData,
   isPending: isActivityPending,
   isError: isActivityError,
-  error: activityError
+  error: activityError,
 } = usePersonalActivityStatsQuery(!isExample.value && isAuthenticated.value)
 
 const {
@@ -62,7 +62,6 @@ const error = computed(() => {
   return null
 })
 
-
 // ... imports
 // ...
 
@@ -79,8 +78,6 @@ const currentFinishHimThemes = computed(() => {
   return detailedStats.value.finish_him.modes[selectedFinishHimMode.value] || []
 })
 
-
-
 // ...
 
 // In Template:
@@ -94,7 +91,6 @@ const currentFinishHimThemes = computed(() => {
             :title="t('userCabinet.stats.modes.finishHim')"
           />
 */
-
 
 const displayProfile = computed(() => {
   if (isExample.value) return EXAMPLE_USER_PROFILE

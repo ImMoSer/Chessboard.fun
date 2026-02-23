@@ -51,7 +51,10 @@ class TheoryCacheService {
     return theoryDb.openings
   }
 
-  async getCachedStats<T = unknown>(fen: string, source: CacheSource = 'lichess'): Promise<T | null> {
+  async getCachedStats<T = unknown>(
+    fen: string,
+    source: CacheSource = 'lichess',
+  ): Promise<T | null> {
     try {
       const table = this.getTable(source)
       const record = await table.get(fen)

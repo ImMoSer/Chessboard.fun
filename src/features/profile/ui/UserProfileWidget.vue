@@ -4,19 +4,19 @@ import { useAuthStore } from '@/entities/user'
 import type { TornadoMode } from '@/shared/types/api.types'
 import { GolfOutline, LockClosedOutline, RibbonOutline, WalletOutline } from '@vicons/ionicons5'
 import {
-    NAvatar,
-    NButton,
-    NCard,
-    NDivider,
-    NGrid,
-    NGridItem,
-    NIcon,
-    NNumberAnimation,
-    NSpace,
-    NStatistic,
-    NTag,
-    NText,
-    NTooltip,
+  NAvatar,
+  NButton,
+  NCard,
+  NDivider,
+  NGrid,
+  NGridItem,
+  NIcon,
+  NNumberAnimation,
+  NSpace,
+  NStatistic,
+  NTag,
+  NText,
+  NTooltip,
 } from 'naive-ui'
 import { storeToRefs } from 'pinia'
 import { computed } from 'vue'

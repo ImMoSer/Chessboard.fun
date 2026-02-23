@@ -10,10 +10,7 @@ const analysisStore = useAnalysisStore()
 const boardStore = useBoardStore()
 const { t } = useI18n()
 
-const {
-  isAnalysisActive,
-  analysisLines,
-} = storeToRefs(analysisStore)
+const { isAnalysisActive, analysisLines } = storeToRefs(analysisStore)
 
 const formatScore = (line: EvaluatedLineWithSan) => {
   if (line.score.type === 'cp') {
@@ -48,9 +45,6 @@ const formatPv = (line: EvaluatedLineWithSan) => {
   })
   return pvString.trim()
 }
-
-
-
 
 const handleLineClick = (line: EvaluatedLineWithSan) => {
   const uciMove = line.pvUci[0]

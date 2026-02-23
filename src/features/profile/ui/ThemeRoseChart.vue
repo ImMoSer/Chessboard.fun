@@ -78,8 +78,12 @@ const popupRef = ref<HTMLElement | null>(null)
 
 // Close popup when clicking outside
 const handleClickOutside = (event: MouseEvent) => {
-  if (activePopup.value.visible && popupRef.value && !popupRef.value.contains(event.target as Node)) {
-     activePopup.value.visible = false
+  if (
+    activePopup.value.visible &&
+    popupRef.value &&
+    !popupRef.value.contains(event.target as Node)
+  ) {
+    activePopup.value.visible = false
   }
 }
 
@@ -135,7 +139,8 @@ const option = computed(() => {
             const theme = p.name
             let themeName = theme
             if (te(`chess.tornado.${theme}`)) themeName = t(`chess.tornado.${theme}`)
-            else if (te(`chess.finishHim.category.${theme}`)) themeName = t(`chess.finishHim.category.${theme}`)
+            else if (te(`chess.finishHim.category.${theme}`))
+              themeName = t(`chess.finishHim.category.${theme}`)
             else if (te(`chess.endings.${theme}`)) themeName = t(`chess.endings.${theme}`)
 
             return themeName.length > 10 ? themeName.slice(0, 8) + '..' : themeName
@@ -161,7 +166,8 @@ const onChartClick = (params: unknown) => {
 
   let themeName = theme
   if (te(`chess.tornado.${theme}`)) themeName = t(`chess.tornado.${theme}`)
-  else if (te(`chess.finishHim.category.${theme}`)) themeName = t(`chess.finishHim.category.${theme}`)
+  else if (te(`chess.finishHim.category.${theme}`))
+    themeName = t(`chess.finishHim.category.${theme}`)
   else if (te(`chess.endings.${theme}`)) themeName = t(`chess.endings.${theme}`)
 
   const x = p.event.event.clientX
@@ -183,7 +189,7 @@ const onChartClick = (params: unknown) => {
       success: data.success,
       requested: data.requested,
       themeId: theme,
-      screenMode: props.activeMode || props.mode // Use specific activeMode (e.g. 'blitz') if available, else generic props.mode
+      screenMode: props.activeMode || props.mode, // Use specific activeMode (e.g. 'blitz') if available, else generic props.mode
     },
   }
 }
@@ -196,7 +202,7 @@ const onImproveClick = () => {
   emit('improve', {
     mode: props.mode, // 'tornado' | 'finish_him'
     theme: themeId,
-    subMode: screenMode // 'bullet', 'blitz' etc. OR 'novice', 'pro' ...
+    subMode: screenMode, // 'bullet', 'blitz' etc. OR 'novice', 'pro' ...
   })
 }
 </script>
@@ -285,12 +291,7 @@ const onImproveClick = () => {
       >
         <div class="popup-header">
           <span class="popup-title">{{ activePopup.data.title }}</span>
-          <n-button
-            type="primary"
-            size="tiny"
-            @click="onImproveClick"
-            class="improve-btn"
-          >
+          <n-button type="primary" size="tiny" @click="onImproveClick" class="improve-btn">
             {{ t('userCabinet.stats.improve') }}
           </n-button>
         </div>
@@ -301,15 +302,18 @@ const onImproveClick = () => {
             <span class="rating-val">{{ activePopup.data.rating }}</span>
           </div>
           <div class="popup-row">
-             <span>{{ t('userCabinet.analyticsTable.accuracy') }}:</span>
-             <span
-               class="accuracy-val"
-               :class="{ 'high-acc': activePopup.data.accuracy > 70, 'low-acc': activePopup.data.accuracy <= 70 }"
-             >
-               {{ activePopup.data.accuracy }}%
-             </span>
+            <span>{{ t('userCabinet.analyticsTable.accuracy') }}:</span>
+            <span
+              class="accuracy-val"
+              :class="{
+                'high-acc': activePopup.data.accuracy > 70,
+                'low-acc': activePopup.data.accuracy <= 70,
+              }"
+            >
+              {{ activePopup.data.accuracy }}%
+            </span>
           </div>
-           <div class="popup-row">
+          <div class="popup-row">
             <span>{{ t('userCabinet.stats.success') }}:</span>
             <span>{{ activePopup.data.success }} / {{ activePopup.data.requested }}</span>
           </div>

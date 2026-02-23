@@ -1,6 +1,6 @@
 <!-- src/features/practical-chess/ui/YouMoveSelection.vue -->
 <script setup lang="ts">
-import { usePracticalChessStore } from '@/features/practical-chess';
+import { usePracticalChessStore } from '@/features/practical-chess'
 
 const practicalStore = usePracticalChessStore()
 
@@ -11,17 +11,11 @@ const handleSelection = (color: 'white' | 'black') => {
 
 <template>
   <div class="you-move-bar">
-    <button class="side-btn black" @click="handleSelection('black')">
-      BLACK
-    </button>
+    <button class="side-btn black" @click="handleSelection('black')">BLACK</button>
 
-    <div class="center-text">
-       CHOOSE SIDE
-    </div>
+    <div class="center-text">CHOOSE SIDE</div>
 
-    <button class="side-btn white" @click="handleSelection('white')">
-      WHITE
-    </button>
+    <button class="side-btn white" @click="handleSelection('white')">WHITE</button>
   </div>
 </template>
 

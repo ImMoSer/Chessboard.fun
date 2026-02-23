@@ -1,61 +1,39 @@
 <!-- src/pages/TornadoMistakesView.vue -->
 <script setup lang="ts">
 import { useGameStore } from '@/entities/game'
-import { useAnalysisStore } from '@/features/analysis'
-import { AnalysisPanel } from '@/features/analysis'
-import { soundService } from '@/shared/lib/sound/sound.service'
-import type { GamePuzzle } from '@/shared/types/api.types'
+import { AnalysisPanel, useAnalysisStore } from '@/features/analysis'
 import ChessboardPreview from '@/shared/ui/board-preview/ChessboardPreview.vue'
 import { useUiStore } from '@/shared/ui/model/ui.store'
 import GameLayout from '@/widgets/game-layout/GameLayout.vue'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
 
-// --- CONSTANTS ---
-const MISTAKES_STORAGE_KEY = 'tornado_mistakes'
-
+import { useTornadoMistakesStore } from '@/features/tornado/model/tornadoMistakes.store'
+import type { GamePuzzle } from '@/shared/types/api.types'
 // --- STORES ---
 const gameStore = useGameStore()
 const analysisStore = useAnalysisStore()
 const uiStore = useUiStore()
+const mistakesStore = useTornadoMistakesStore()
 const router = useRouter()
 const { t } = useI18n()
 
-// --- STATE ---
-const mistakes = ref<GamePuzzle[]>([])
-const solvedStatus = ref<Record<string, boolean>>({})
-const selectedPuzzleId = ref<string | null>(null)
-const feedbackMessage = ref(t('tornado.mistakes.feedback.selectPuzzle'))
-const isAttemptMade = ref(false)
-
 // --- COMPUTED ---
-const selectedPuzzle = computed(() => {
-  return mistakes.value.find((p) => p.PuzzleId === selectedPuzzleId.value) || null
-})
-
-const unsolvedMistakes = computed(() => {
-  return mistakes.value.filter((p) => !solvedStatus.value[p.PuzzleId])
-})
-
-const allMistakesSolved = computed(() => {
-  if (mistakes.value.length === 0) return false
-  return mistakes.value.every((p) => solvedStatus.value[p.PuzzleId])
-})
-
 const formattedThemes = computed(() => {
-  if (!selectedPuzzle.value) return ''
+  if (!mistakesStore.selectedPuzzle) return ''
 
   let themesList: string[] = []
+  const selectedPuzzle = mistakesStore.selectedPuzzle
 
-  if (selectedPuzzle.value.Themes_PG && Array.isArray(selectedPuzzle.value.Themes_PG)) {
-    themesList = selectedPuzzle.value.Themes_PG
-  } else if (selectedPuzzle.value.Themes) {
+  if (selectedPuzzle.Themes_PG && Array.isArray(selectedPuzzle.Themes_PG)) {
+    themesList = selectedPuzzle.Themes_PG
+  } else if (selectedPuzzle.Themes) {
     // Handle both space and comma separated strings
-    themesList = selectedPuzzle.value.Themes.split(/[ ,]+/).filter(Boolean)
-  } else if (selectedPuzzle.value.themes && Array.isArray(selectedPuzzle.value.themes)) {
+    themesList = selectedPuzzle.Themes.split(/[ ,]+/).filter(Boolean)
+  } else if (selectedPuzzle.themes && Array.isArray(selectedPuzzle.themes)) {
     // Support for TornadoBox format (lowercase 'themes' array)
-    themesList = selectedPuzzle.value.themes
+    themesList = selectedPuzzle.themes
   }
 
   return themesList
@@ -66,84 +44,45 @@ const formattedThemes = computed(() => {
 })
 
 // --- METHODS ---
-function selectPuzzle(puzzle: GamePuzzle) {
+function selectNextUnsolvedPuzzle() {
+  const currentIndex = mistakesStore.mistakes.findIndex((p) => p.PuzzleId === mistakesStore.selectedPuzzleId)
+  const nextPuzzles = [
+    ...mistakesStore.mistakes.slice(currentIndex + 1),
+    ...mistakesStore.mistakes.slice(0, currentIndex + 1),
+  ]
+
+  const nextUnsolved = nextPuzzles.find((p) => !mistakesStore.solvedStatus[p.PuzzleId])
+
+  if (nextUnsolved) {
+    handleSelectPuzzle(nextUnsolved)
+  } else if (mistakesStore.allMistakesSolved) {
+    mistakesStore.feedbackMessage = t('tornado.mistakes.feedback.allSolved')
+  }
+}
+
+function handleSelectPuzzle(puzzle: GamePuzzle) {
   if (analysisStore.isPanelVisible) {
     analysisStore.hidePanel()
   }
-  isAttemptMade.value = false
-  selectedPuzzleId.value = puzzle.PuzzleId
-  feedbackMessage.value = t('tornado.mistakes.feedback.yourTurn')
-
-  const fen = puzzle.FEN_0 || puzzle.initial_fen || ''
-  const moves = puzzle.Moves || puzzle.tactical_solution || ''
-
-  gameStore.setupPuzzle(
-    fen,
-    moves.split(' '),
-    handlePuzzleResult,
-    () => true,
-    () => {},
-    'tornado',
-  )
-}
-
-function handlePuzzleResult(isCorrect: boolean) {
-  if (!selectedPuzzle.value) return
-  isAttemptMade.value = true
-  if (isCorrect) {
-    solvedStatus.value[selectedPuzzle.value.PuzzleId] = true
-    feedbackMessage.value = t('tornado.mistakes.feedback.solved')
-    soundService.playSound('game_tacktics_success')
-  } else {
-    feedbackMessage.value = t('tornado.mistakes.feedback.wrongMove')
-    soundService.playSound('game_tacktics_error')
-  }
-}
-
-function selectNextUnsolvedPuzzle() {
-  const currentIndex = mistakes.value.findIndex((p) => p.PuzzleId === selectedPuzzleId.value)
-  const nextPuzzles = [
-    ...mistakes.value.slice(currentIndex + 1),
-    ...mistakes.value.slice(0, currentIndex + 1),
-  ]
-
-  const nextUnsolved = nextPuzzles.find((p) => !solvedStatus.value[p.PuzzleId])
-
-  if (nextUnsolved) {
-    selectPuzzle(nextUnsolved)
-  } else if (allMistakesSolved.value) {
-    feedbackMessage.value = t('tornado.mistakes.feedback.allSolved')
-  }
+  mistakesStore.selectPuzzle(puzzle)
 }
 
 function showAnalysis() {
-  if (isAttemptMade.value) {
+  if (mistakesStore.isAttemptMade) {
     analysisStore.showPanel(true)
   }
 }
 
 // --- LIFECYCLE & ROUTE GUARDS ---
 onMounted(() => {
-  const storedMistakes = localStorage.getItem(MISTAKES_STORAGE_KEY)
-  if (storedMistakes) {
-    try {
-      const parsedMistakes: GamePuzzle[] = JSON.parse(storedMistakes)
-      mistakes.value = parsedMistakes
-      parsedMistakes.forEach((p) => {
-        solvedStatus.value[p.PuzzleId] = false
-      })
-      if (parsedMistakes.length > 0) {
-        const firstMistake = parsedMistakes[0]
-        if (firstMistake) {
-          selectPuzzle(firstMistake)
-        }
-      } else {
-        feedbackMessage.value = t('tornado.mistakes.feedback.noMistakes')
-      }
-    } catch (e) {
-      console.error('Error parsing mistakes from localStorage', e)
-      feedbackMessage.value = t('tornado.mistakes.feedback.loadFailed')
+  const loaded = mistakesStore.loadMistakes()
+  if (loaded && mistakesStore.mistakes.length > 0) {
+    const firstMistake = mistakesStore.mistakes[0]
+    if (firstMistake) {
+      handleSelectPuzzle(firstMistake)
     }
+  } else if (!loaded) {
+    mistakesStore.feedbackMessage = t('tornado.mistakes.feedback.noMistakes')
   }
 })
 
@@ -153,7 +92,7 @@ onBeforeRouteLeave(async (to, from, next) => {
     t('tornado.mistakes.exit.message'),
   )
   if (userResponse === 'confirm') {
-    localStorage.removeItem(MISTAKES_STORAGE_KEY)
+    mistakesStore.clearMistakes()
     gameStore.resetGame()
     next()
   } else {
@@ -173,19 +112,22 @@ async function handleExit() {
         <h4>{{ t('tornado.mistakes.title') }}</h4>
         <div class="mistakes-list-scrollable">
           <div
-            v-for="puzzle in unsolvedMistakes"
+            v-for="puzzle in mistakesStore.unsolvedMistakes"
             :key="puzzle.PuzzleId"
             class="mistake-item"
             :class="{
-              active: puzzle.PuzzleId === selectedPuzzleId,
-              solved: solvedStatus[puzzle.PuzzleId],
-              unsolved: !solvedStatus[puzzle.PuzzleId],
+              active: puzzle.PuzzleId === mistakesStore.selectedPuzzleId,
+              solved: mistakesStore.solvedStatus[puzzle.PuzzleId],
+              unsolved: !mistakesStore.solvedStatus[puzzle.PuzzleId],
             }"
-            @click="selectPuzzle(puzzle)"
+            @click="handleSelectPuzzle(puzzle)"
           >
-            <ChessboardPreview :fen="puzzle.FEN_0 || puzzle.initial_fen || ''" orientation="white" />
+            <ChessboardPreview
+              :fen="puzzle.FEN_0 || puzzle.initial_fen || ''"
+              orientation="white"
+            />
           </div>
-          <div v-if="mistakes.length === 0" class="no-mistakes">
+          <div v-if="mistakesStore.mistakes.length === 0" class="no-mistakes">
             {{ t('tornado.mistakes.feedback.noMistakes') }}
           </div>
         </div>
@@ -194,20 +136,20 @@ async function handleExit() {
 
     <template #top-info>
       <div class="top-feedback-panel">
-        {{ feedbackMessage }}
+        {{ mistakesStore.feedbackMessage }}
       </div>
     </template>
 
     <template #right-panel>
       <div class="controls-container">
-        <div v-if="selectedPuzzle" class="puzzle-info-box">
+        <div v-if="mistakesStore.selectedPuzzle" class="puzzle-info-box">
           <div class="info-row">
             <span class="label">{{ t('tornado.mistakes.info.id') }}:</span>
-            <span class="value">#{{ selectedPuzzle.PuzzleId }}</span>
+            <span class="value">#{{ mistakesStore.selectedPuzzle.PuzzleId }}</span>
           </div>
           <div class="info-row">
             <span class="label">{{ t('tornado.mistakes.info.rating') }}:</span>
-            <span class="value">{{ selectedPuzzle.Rating }}</span>
+            <span class="value">{{ mistakesStore.selectedPuzzle.Rating }}</span>
           </div>
           <div class="info-row">
             <span class="label">{{ t('tornado.mistakes.info.theme') }}:</span>
@@ -216,12 +158,12 @@ async function handleExit() {
         </div>
 
         <div class="action-buttons">
-          <button @click="showAnalysis" :disabled="!isAttemptMade" class="action-btn analysis-btn">
+          <button @click="showAnalysis" :disabled="!mistakesStore.isAttemptMade" class="action-btn analysis-btn">
             {{ t('tornado.mistakes.ui.analysisButton') }}
           </button>
           <button
             @click="selectNextUnsolvedPuzzle"
-            :disabled="unsolvedMistakes.length <= 1 || allMistakesSolved"
+            :disabled="mistakesStore.unsolvedMistakes.length <= 1 || mistakesStore.allMistakesSolved"
             class="action-btn next-btn"
           >
             {{ t('tornado.mistakes.ui.nextButton') }}

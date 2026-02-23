@@ -1,7 +1,12 @@
-import { useBoardStore, type GameEndOutcome } from '@/entities/game'
-import { useGameStore } from '@/entities/game'
-import { useAuthStore } from '@/entities/user'
 import { useAnalysisEngineStore } from '@/entities/analysis'
+import {
+  gameplayService,
+  useGameStore,
+  type GameStatusInfo,
+  type IGameCoreApi,
+  type IGameplayStrategy,
+} from '@/entities/game'
+import { useAuthStore } from '@/entities/user'
 import { webhookService } from '@/shared/api/WebhookService'
 import i18n from '@/shared/config/i18n'
 import logger from '@/shared/lib/logger'
@@ -21,7 +26,6 @@ const t = i18n.global.t
 
 export const usePracticalChessStore = defineStore('practicalChess', () => {
   const gameStore = useGameStore()
-  const boardStore = useBoardStore()
   const analysisStore = useAnalysisEngineStore()
   const authStore = useAuthStore()
   const uiStore = useUiStore()
@@ -41,6 +45,31 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
 
   function selectDifficulty(diff: PracticalChessDifficulty) {
     activeDifficulty.value = diff
+  }
+
+  function _createStrategy(): IGameplayStrategy {
+    return {
+      onGameStart(api: IGameCoreApi) {
+        if (isWaitingForColorSelection.value) {
+          api.setPaused(true)
+        }
+      },
+      checkWinCondition(currentState: GameStatusInfo): boolean {
+        return currentState.outcome?.winner === currentUserColor.value
+      },
+      requestBotMove: async (fen: string) => {
+        try {
+          return await gameplayService.getBestMove('MOZER_2000', fen)
+        } catch (error) {
+          logger.error('[PracticalChessStrategy] Failed to get bot move.', error)
+          return null
+        }
+      },
+      onGameOver(status: GameStatusInfo) {
+        const isWin = this.checkWinCondition!(status)
+        _handleGameOver(isWin)
+      },
+    }
   }
 
   async function loadNewPuzzle(id?: string) {
@@ -69,9 +98,8 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
 
       if (puzzle.category === 'materialEquality') {
         isWaitingForColorSelection.value = true
-        // Position board for white initially without starting game logic
-        boardStore.setupPosition(puzzle.initial_fen, 'white')
-        gameStore.setGamePhase('IDLE')
+        currentUserColor.value = 'white'
+        gameStore.startWithStrategy(puzzle.initial_fen, _createStrategy(), 'white')
         return
       }
 
@@ -79,17 +107,7 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
       const humanColor = puzzle.winner as ChessgroundColor
       currentUserColor.value = humanColor
 
-      gameStore.setupPuzzle(
-        puzzle.initial_fen,
-        [], // moves
-        _handleGameOver,
-        _checkWinCondition,
-        () => { }, // onPlayoutStart
-        'practical-chess',
-        undefined, // onCorrectFirstMove
-        humanColor,
-        undefined, // onUserMove
-      )
+      gameStore.startWithStrategy(puzzle.initial_fen, _createStrategy(), humanColor)
     } catch (error) {
       logger.error('[PracticalChessStore] Failed to load puzzle:', error)
       gameStore.setGamePhase('IDLE')
@@ -104,13 +122,6 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
       )
       router.push('/practical-chess')
     }
-  }
-
-  function _checkWinCondition(outcome?: GameEndOutcome): boolean {
-    if (!activePuzzle.value || !outcome) return false
-
-    // User wins if they won the game with their chosen color
-    return outcome.winner === currentUserColor.value
   }
 
   async function _handleGameOver(isWin: boolean) {
@@ -142,21 +153,14 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
     if (activePuzzle.value) {
       if (activePuzzle.value.category === 'materialEquality') {
         isWaitingForColorSelection.value = true
-        boardStore.setupPosition(activePuzzle.value.initial_fen, 'white')
-        gameStore.setGamePhase('IDLE')
+        gameStore.startWithStrategy(activePuzzle.value.initial_fen, _createStrategy(), 'white')
         return
       }
 
-      gameStore.setupPuzzle(
+      gameStore.startWithStrategy(
         activePuzzle.value.initial_fen,
-        [], // moves
-        _handleGameOver,
-        _checkWinCondition,
-        () => { }, // onPlayoutStart
-        'practical-chess',
-        undefined, // onCorrectFirstMove
+        _createStrategy(),
         activePuzzle.value.winner as ChessgroundColor,
-        undefined, // onUserMove
       )
     }
   }
@@ -182,16 +186,7 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
     // Play the "YOU MOVE!" sound
     soundService.playSound('game_you_move')
 
-    gameStore.setupPuzzle(
-      fen,
-      [],
-      _handleGameOver,
-      _checkWinCondition,
-      () => { },
-      'practical-chess',
-      undefined,
-      color,
-    )
+    gameStore.startWithStrategy(fen, _createStrategy(), color)
   }
 
   async function handleResign() {

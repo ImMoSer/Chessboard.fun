@@ -4,7 +4,14 @@ import { useGameStore } from '@/entities/game'
 import { theoryGraphService } from '@/entities/opening'
 import { AnalysisPanel, useAnalysisStore } from '@/features/analysis'
 import { EngineSelector } from '@/features/engine'
-import { GameReviewModal, OpeningSparringHeader, OpeningSparringSettingsModal, OpeningSparringSummaryModal, SessionHistoryList, useOpeningSparringStore } from '@/features/opening-sparring'
+import {
+    GameReviewModal,
+    OpeningSparringHeader,
+    OpeningSparringSettingsModal,
+    OpeningSparringSummaryModal,
+    SessionHistoryList,
+    useOpeningSparringStore,
+} from '@/features/opening-sparring'
 import { useSparringLoop } from '@/features/opening-sparring/model/useSparringLoop'
 import i18n from '@/shared/config/i18n'
 import { useUiStore } from '@/shared/ui/model/ui.store'
@@ -40,7 +47,7 @@ watch(
         showReviewModal.value = true
       }, 1000)
     }
-  }
+  },
 )
 
 // Automatically handle analysis panel in Exam mode
@@ -48,8 +55,8 @@ watch(
   isExamEnding,
   async (isEnding) => {
     if (isEnding && !openingStore.isPlayoutMode && !openingStore.isReviewMode) {
-        showSummaryModal.value = true
-        await openingStore.runFinalEvaluation()
+      showSummaryModal.value = true
+      await openingStore.runFinalEvaluation()
     } else if (!isEnding) {
       analysisStore.hidePanel()
       showSummaryModal.value = false
@@ -59,19 +66,25 @@ watch(
 )
 
 const showAnalysisPanel = computed(() => {
-    // Show analysis only during theory summary, NOT during playout review or Review Mode
-    return isExamEnding.value && !showSummaryModal.value && !openingStore.isPlayoutMode && !showReviewModal.value && !openingStore.isReviewMode
+  // Show analysis only during theory summary, NOT during playout review or Review Mode
+  return (
+    isExamEnding.value &&
+    !showSummaryModal.value &&
+    !openingStore.isPlayoutMode &&
+    !showReviewModal.value &&
+    !openingStore.isReviewMode
+  )
 })
 
 watch(showAnalysisPanel, (val) => {
-    if (val) {
-        analysisStore.showPanel(true)
-    } else {
-        // Only hide if we are NOT in review mode (review mode handles analysis manually)
-        if (!openingStore.isReviewMode) {
-            analysisStore.hidePanel()
-        }
+  if (val) {
+    analysisStore.showPanel(true)
+  } else {
+    // Only hide if we are NOT in review mode (review mode handles analysis manually)
+    if (!openingStore.isReviewMode) {
+      analysisStore.hidePanel()
     }
+  }
 })
 
 onMounted(async () => {
@@ -135,10 +148,7 @@ async function startSession(color: 'white' | 'black', moves: string[] = [], slug
   }
 
   // initializeSession now handles GameStore setup and stats fetching internally
-  await openingStore.initializeSession(color, moves, {
-      onPlayerMove: (uci) => loop.handlePlayerMove(uci),
-      onBotMove: () => loop.triggerBotMove()
-  })
+  await openingStore.initializeSession(color, moves, loop.createStrategy())
 }
 
 async function handleRestart() {
@@ -155,18 +165,18 @@ async function handleRestart() {
 }
 
 function handleReviewRestart() {
-    showReviewModal.value = false
-    openingStore.reset()
-    gameStore.resetGame().then(() => {
-         isSettingsModalOpen.value = true
-    })
+  showReviewModal.value = false
+  openingStore.reset()
+  gameStore.resetGame().then(() => {
+    isSettingsModalOpen.value = true
+  })
 }
 
 async function handleReviewAnalyze() {
-    showReviewModal.value = false
-    openingStore.enterReviewMode()
-    // Start engine
-    await analysisStore.showPanel(true)
+  showReviewModal.value = false
+  openingStore.enterReviewMode()
+  // Start engine
+  await analysisStore.showPanel(true)
 }
 
 async function handlePlayout() {
@@ -179,19 +189,19 @@ async function handlePlayout() {
   }
 }
 function handleSummaryPlayout() {
-    showSummaryModal.value = false
-    loop.startPlayout()
+  showSummaryModal.value = false
+  loop.startPlayout()
 }
 
 function handleSummaryAnalyze() {
-    showSummaryModal.value = false
+  showSummaryModal.value = false
 }
 
 async function handleSummaryRestart() {
-    showSummaryModal.value = false
-    openingStore.reset()
-    await gameStore.resetGame()
-    isSettingsModalOpen.value = true
+  showSummaryModal.value = false
+  openingStore.reset()
+  await gameStore.resetGame()
+  isSettingsModalOpen.value = true
 }
 
 function goBack() {
@@ -216,10 +226,13 @@ function goBack() {
           @playout="handlePlayout"
         />
 
-        <AnalysisPanel v-if="showAnalysisPanel" style="margin-bottom: 12px; flex-shrink: 0;" />
+        <AnalysisPanel v-if="showAnalysisPanel" style="margin-bottom: 12px; flex-shrink: 0" />
 
         <div class="mozer-book-wrapper">
-             <MozerBook :blurred="openingStore.isPlayoutMode" :is-paused="openingStore.isPlayoutMode" />
+          <MozerBook
+            :blurred="openingStore.isPlayoutMode"
+            :is-paused="openingStore.isPlayoutMode"
+          />
         </div>
       </div>
 
@@ -260,9 +273,7 @@ function goBack() {
           {{ openingStore.currentEco }}
         </n-tag>
         <div class="opening-name-text">
-          <template v-if="openingStore.movesCount === 0">
-            START POSITION
-          </template>
+          <template v-if="openingStore.movesCount === 0"> START POSITION </template>
           <template v-else>
             {{ openingStore.openingName || t('openingTrainer.header.searching') }}
           </template>
@@ -276,11 +287,11 @@ function goBack() {
 
     <template #right-panel>
       <div v-if="openingStore.isReviewMode" class="review-engine-container">
-          <EngineLines />
+        <EngineLines />
       </div>
 
       <div class="history-list-wrapper">
-          <SessionHistoryList />
+        <SessionHistoryList />
       </div>
 
       <div v-if="openingStore.error" class="error-msg">
@@ -299,19 +310,19 @@ function goBack() {
 }
 
 .mozer-book-wrapper {
-    flex: 1;
-    min-height: 0; /* Important for flex child scroll */
+  flex: 1;
+  min-height: 0; /* Important for flex child scroll */
 }
 
 .history-list-wrapper {
-    flex: 1;
-    min-height: 0;
-    overflow: hidden;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .review-engine-container {
-    margin-bottom: 12px;
-    flex-shrink: 0;
+  margin-bottom: 12px;
+  flex-shrink: 0;
 }
 
 .loader-overlay {

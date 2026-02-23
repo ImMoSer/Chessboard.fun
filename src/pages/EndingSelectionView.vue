@@ -13,7 +13,7 @@ import {
   type PracticalChessDifficulty,
   type TheoryEndingCategory,
   type TheoryEndingDifficulty,
-  type TheoryEndingType
+  type TheoryEndingType,
 } from '@/shared/types/api.types'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -116,22 +116,22 @@ const config = computed(() => {
 function getIcon(cat: string) {
   if (cat === 'auto') return '✨'
   const icons: Record<string, string> = {
-    'pawn': '♔♟',
-    'bishop': '♗♙',
-    'knight': '♘♙',
-    'queen': '♕♙',
-    'rook': '♖',
-    'rookPawn': '♖♙',
-    'rookPieces': '♖♘♗',
-    'knightBishop': '♘♗',
-    'queenPieces': '♕♘♗',
-    'extraPawn': '♟️',
-    'materialEquality': '⚖️',
-    'exchange': '🔄',
-    'bullet': '⚡',
-    'blitz': '🔥',
-    'rapid': '🚶',
-    'classic': '⏳'
+    pawn: '♔♟',
+    bishop: '♗♙',
+    knight: '♘♙',
+    queen: '♕♙',
+    rook: '♖',
+    rookPawn: '♖♙',
+    rookPieces: '♖♘♗',
+    knightBishop: '♘♗',
+    queenPieces: '♕♘♗',
+    extraPawn: '♟️',
+    materialEquality: '⚖️',
+    exchange: '🔄',
+    bullet: '⚡',
+    blitz: '🔥',
+    rapid: '🚶',
+    classic: '⏳',
   }
   return icons[cat] || ''
 }
@@ -173,7 +173,11 @@ function handleStart() {
 <template>
   <div class="selection-container">
     <div class="glass-panel selection-card">
-      <h1 class="title" :class="{ 'tornado-title': mode === 'tornado' }" :style="{ color: config.accentColor }">
+      <h1
+        class="title"
+        :class="{ 'tornado-title': mode === 'tornado' }"
+        :style="{ color: config.accentColor }"
+      >
         {{ config.title }}
       </h1>
       <p class="subtitle">{{ config.subtitle }}</p>
@@ -184,7 +188,7 @@ function handleStart() {
           <label class="section-label">{{ t('theoryEndings.selection.typeLabel') }}</label>
           <div class="toggle-group">
             <button
-              v-for="type in (['win', 'draw'] as const)"
+              v-for="type in ['win', 'draw'] as const"
               :key="type"
               class="toggle-btn"
               :class="{ active: selectedType === type }"
@@ -220,7 +224,9 @@ function handleStart() {
 
         <!-- Category Selection -->
         <div class="section">
-          <label v-if="config.categoryLabel" class="section-label">{{ config.categoryLabel }}</label>
+          <label v-if="config.categoryLabel" class="section-label">{{
+            config.categoryLabel
+          }}</label>
           <div class="category-grid" :class="{ 'tornado-grid': mode === 'tornado' }">
             <button
               v-for="cat in config.categories"
@@ -242,7 +248,9 @@ function handleStart() {
       <div class="actions">
         <button
           class="start-btn"
-          :style="{ background: `linear-gradient(135deg, ${config.accentColor}, var(--color-accent-secondary))` }"
+          :style="{
+            background: `linear-gradient(135deg, ${config.accentColor}, var(--color-accent-secondary))`,
+          }"
           @click="handleStart"
         >
           {{ t('theoryEndings.selection.start') }}

@@ -2,16 +2,16 @@
 <script setup lang="ts">
 import InfoIcon from '@/shared/ui/InfoIcon.vue'
 import type {
-    OverallSolvedLeaderboardEntry,
-    SkillPeriod,
-    SolveStreakLeaderboardEntry,
+  OverallSolvedLeaderboardEntry,
+  SkillPeriod,
+  SolveStreakLeaderboardEntry,
 } from '@/shared/types/api.types'
 import { BarChart } from 'echarts/charts'
 import {
-    GridComponent,
-    LegendComponent,
-    TitleComponent,
-    TooltipComponent,
+  GridComponent,
+  LegendComponent,
+  TitleComponent,
+  TooltipComponent,
 } from 'echarts/components'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
@@ -235,10 +235,7 @@ const onChartClick = (params: unknown) => {
       </div>
     </n-space>
 
-    <div
-      class="chart-container"
-      :style="{ height: dynamicHeight }"
-    >
+    <div class="chart-container" :style="{ height: dynamicHeight }">
       <v-chart
         v-if="entries.length > 0"
         class="chart"
@@ -271,10 +268,18 @@ const onChartClick = (params: unknown) => {
   background: rgba(255, 255, 255, 0.03);
 }
 
-.skillStreak .card-title { color: var(--color-neon-cyan); }
-.skillStreakMega .card-title { color: var(--color-neon-purple); }
-.topToday .card-title { color: var(--color-accent-warning); }
-.overallSkill .card-title { color: var(--color-neon-pink); }
+.skillStreak .card-title {
+  color: var(--color-neon-cyan);
+}
+.skillStreakMega .card-title {
+  color: var(--color-neon-purple);
+}
+.topToday .card-title {
+  color: var(--color-accent-warning);
+}
+.overallSkill .card-title {
+  color: var(--color-neon-pink);
+}
 
 .card-title {
   font-size: 1.4rem;

@@ -31,30 +31,7 @@ const router = createRouter({
       component: WelcomeView,
     },
 
-    {
-      path: '/sandbox',
-      name: 'sandbox-base',
-      redirect:
-        '/sandbox/play/MOZER_2000/white/rnbqkbnr/ppp1pppp/8/3p4/3PP3/8/PPP2PPP/RNBQKBNR b KQkq - 0 2',
-    },
-    {
-      path: '/sandbox/play/:engineId([A-Z0-9_]+)/:userColor(white|black)/:fen(.+)',
-      name: 'sandbox-with-engine-and-color',
-      component: () => import('@/pages/SandboxView.vue'),
-      meta: { isGame: true, game: 'sandbox', requiresAuth: true },
-    },
-    {
-      path: '/sandbox/play/:engineId([A-Z0-9_]+)/:fen(.+)',
-      name: 'sandbox-with-engine',
-      component: () => import('@/pages/SandboxView.vue'),
-      meta: { isGame: true, game: 'sandbox', requiresAuth: true },
-    },
-    {
-      path: '/sandbox/play/:fen(.+)', // :fen(.+) for supporting FENs with slashes
-      name: 'sandbox',
-      component: () => import('@/pages/SandboxView.vue'),
-      meta: { isGame: true, game: 'sandbox', requiresAuth: true },
-    },
+
     {
       path: '/finish-him',
       name: 'finish-him-selection',

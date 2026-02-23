@@ -51,7 +51,7 @@ export const useBoardStore = defineStore('board', () => {
   const promotionState = ref<PromotionState | null>(null)
   const drawableShapes = ref<DrawShape[]>([])
   const isAnalysisModeActive = ref(false)
-  
+
   // Configuration for sounds (decoupled from GameStore)
   const playGameStatusSounds = ref(true)
 

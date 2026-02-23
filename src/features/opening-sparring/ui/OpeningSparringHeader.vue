@@ -1,11 +1,5 @@
 <script setup lang="ts">
-import {
-  BulbOutline,
-  Heart,
-  HeartOutline,
-  RefreshOutline,
-  TrophyOutline
-} from '@vicons/ionicons5';
+import { BulbOutline, Heart, HeartOutline, RefreshOutline, TrophyOutline } from '@vicons/ionicons5'
 import {
   NButton,
   NCard,
@@ -15,9 +9,9 @@ import {
   NPageHeader,
   NSpace,
   NStatistic,
-  NTag
-} from 'naive-ui';
-import { useI18n } from 'vue-i18n';
+  NTag,
+} from 'naive-ui'
+import { useI18n } from 'vue-i18n'
 
 defineProps<{
   averageAccuracy: number
@@ -107,8 +101,7 @@ const { t } = useI18n()
               <n-grid-item>
                 <n-button block secondary @click="emit('restart')">
                   <template #icon
-                    ><n-icon>
-                      <RefreshOutline /> </n-icon
+                    ><n-icon> <RefreshOutline /> </n-icon
                   ></template>
                   {{ t('openingTrainer.header.newSession') }}
                 </n-button>
@@ -121,8 +114,7 @@ const { t } = useI18n()
                   :disabled="isPlayoutMode || (lives !== undefined && lives <= 0)"
                 >
                   <template #icon
-                    ><n-icon>
-                      <BulbOutline /> </n-icon
+                    ><n-icon> <BulbOutline /> </n-icon
                   ></template>
                   {{ t('openingTrainer.header.hint') }}
                 </n-button>
@@ -143,7 +135,6 @@ const { t } = useI18n()
 }
 
 /* Title styles removed as title moved to top-info panel */
-
 
 .stats-section {
   margin-top: 16px;

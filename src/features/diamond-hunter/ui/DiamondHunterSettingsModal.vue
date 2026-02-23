@@ -1,18 +1,6 @@
 <script setup lang="ts">
-import {
-    ColorPaletteOutline,
-    DiamondOutline,
-    PlayOutline,
-} from '@vicons/ionicons5'
-import {
-    NButton,
-    NIcon,
-    NModal,
-    NRadioButton,
-    NRadioGroup,
-    NSpace,
-    NText,
-} from 'naive-ui'
+import { ColorPaletteOutline, DiamondOutline, PlayOutline } from '@vicons/ionicons5'
+import { NButton, NIcon, NModal, NRadioButton, NRadioGroup, NSpace, NText } from 'naive-ui'
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAnalysisEngineStore } from '@/entities/analysis'
@@ -77,10 +65,9 @@ function startSession() {
           </n-radio-group>
         </div>
 
-         <n-text depth="3" class="hint-text" style="text-align: center; display: block;">
-            Find hidden tactical diamonds. Limit: 2 per day.
-          </n-text>
-
+        <n-text depth="3" class="hint-text" style="text-align: center; display: block">
+          Find hidden tactical diamonds. Limit: 2 per day.
+        </n-text>
       </n-space>
     </div>
 
@@ -167,7 +154,7 @@ function startSession() {
 .start-btn {
   height: 52px;
   font-size: 1.1rem;
-  background: #00C853 !important; /* Green for Diamond Hunter */
+  background: #00c853 !important; /* Green for Diamond Hunter */
   color: white !important;
   border: none !important;
   border-radius: 12px !important;
@@ -212,8 +199,8 @@ function startSession() {
   }
 
   :deep(.n-radio-button) {
-     font-size: 0.8rem;
-     padding: 0 8px;
+    font-size: 0.8rem;
+    padding: 0 8px;
   }
 }
 </style>

@@ -1,11 +1,8 @@
 <script setup lang="ts">
-import {
-    openingChaptersService,
-    type OpeningChapterTemplate,
-} from '@/entities/opening';
-import { useStudyStore } from '@/features/study';
-import { NCard, NInput, NList, NListItem, NModal, NSpace, NText, NThing } from 'naive-ui';
-import { computed, ref } from 'vue';
+import { openingChaptersService, type OpeningChapterTemplate } from '@/entities/opening'
+import { useStudyStore } from '@/features/study'
+import { NCard, NInput, NList, NListItem, NModal, NSpace, NText, NThing } from 'naive-ui'
+import { computed, ref } from 'vue'
 
 defineProps<{
   show: boolean
@@ -27,7 +24,8 @@ const filteredChapters = computed(() => {
   if (!query) return chapters.value
 
   return chapters.value.filter(
-    (c: OpeningChapterTemplate) => c.name.toLowerCase().includes(query) || c.eco.toLowerCase().includes(query),
+    (c: OpeningChapterTemplate) =>
+      c.name.toLowerCase().includes(query) || c.eco.toLowerCase().includes(query),
   )
 })
 

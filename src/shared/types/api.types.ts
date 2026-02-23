@@ -28,7 +28,6 @@ export const TORNADO_THEMES = [
 
 export type TornadoTheme = (typeof TORNADO_THEMES)[number]
 
-
 export interface TornadoNextPuzzleDto {
   sessionId: string
   lastPuzzleId: string
@@ -208,8 +207,6 @@ export interface PuzzleResultEntry {
   record_timestamp_ms: number
 }
 
-
-
 export interface FinishHimLeaderboardEntry {
   rank: number
   username: string
@@ -305,9 +302,12 @@ export interface GamePuzzle {
   result?: string // for Theory
 }
 
-export type PuzzleUnion = TornadoPuzzle | FinishHimPuzzle | PracticalPuzzle | TheoryPuzzle | GamePuzzle
-
-
+export type PuzzleUnion =
+  | TornadoPuzzle
+  | FinishHimPuzzle
+  | PracticalPuzzle
+  | TheoryPuzzle
+  | GamePuzzle
 
 export interface FinishHimLeaderboardEntry {
   rank: number
@@ -406,8 +406,6 @@ export interface PersonalSolveStreakResponse {
   daily_summary: DailySolvedSummary[]
 }
 
-
-
 export interface ActivityModeStats {
   puzzles_requested: number
   puzzles_solved: number
@@ -429,7 +427,14 @@ export interface PersonalActivityStatsResponse {
   monthly: ActivityPeriodStats
 }
 
-export type SubscriptionTier = 'Pawn' | 'Knight' | 'Bishop' | 'Rook' | 'Queen' | 'King' | 'administrator'
+export type SubscriptionTier =
+  | 'Pawn'
+  | 'Knight'
+  | 'Bishop'
+  | 'Rook'
+  | 'Queen'
+  | 'King'
+  | 'administrator'
 
 export interface LichessUserProfile {
   id: string
@@ -500,7 +505,6 @@ export interface AuthState {
   isProcessing: boolean
   error: string | null
 }
-
 
 // --- Типы для детальной статистики в кабинете пользователя ---
 

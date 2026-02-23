@@ -1,2 +1,1 @@
-export * from './model/tornado.store';
-
+export * from './model/tornado.store'

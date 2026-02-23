@@ -130,8 +130,6 @@ class WebhookServiceController {
     return this._apiRequest<TornadoStartResponse>(path, 'GET', 'startTornadoSession')
   }
 
-
-
   public async endTornadoSession(
     mode: TornadoMode,
     dto: TornadoEndSessionDto,
@@ -235,7 +233,11 @@ class WebhookServiceController {
   }
 
   public async fetchPracticalStats(): Promise<PracticalStats[] | null> {
-    return this._apiRequest<PracticalStats[]>('/practical-chess/stats', 'GET', 'fetchPracticalStats')
+    return this._apiRequest<PracticalStats[]>(
+      '/practical-chess/stats',
+      'GET',
+      'fetchPracticalStats',
+    )
   }
 
   public async fetchPracticalPuzzleById(id: string): Promise<PracticalPuzzle | null> {
@@ -251,10 +253,6 @@ class WebhookServiceController {
       'startOpeningSparring',
     )
   }
-
-
-
-
 
   public async fetchCombinedLeaderboards(): Promise<LeaderboardApiResponse | null> {
     return this._apiRequest<LeaderboardApiResponse>(

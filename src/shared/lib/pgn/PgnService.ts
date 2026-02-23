@@ -548,7 +548,10 @@ class PgnServiceController {
     }
   }
 
-  public updateNode(node: PgnNode, data: Partial<Pick<PgnNode, 'comment' | 'eval' | 'nag' | 'metadata'>>): void {
+  public updateNode(
+    node: PgnNode,
+    data: Partial<Pick<PgnNode, 'comment' | 'eval' | 'nag' | 'metadata'>>,
+  ): void {
     if (data.comment !== undefined) node.comment = data.comment
     if (data.eval !== undefined) node.eval = data.eval
     if (data.nag !== undefined) node.nag = data.nag

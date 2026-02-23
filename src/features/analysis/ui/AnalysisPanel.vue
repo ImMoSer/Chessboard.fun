@@ -6,11 +6,7 @@ import { useAnalysisStore } from '@/features/analysis'
 import { EngineLines } from '@/features/analysis'
 import type { PgnNode } from '@/shared/lib/pgn/PgnService'
 import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
-import {
-  ChevronBackOutline,
-  PlaySkipForwardOutline,
-  TerminalOutline,
-} from '@vicons/ionicons5'
+import { ChevronBackOutline, PlaySkipForwardOutline, TerminalOutline } from '@vicons/ionicons5'
 import { NButton, NButtonGroup, NIcon, NScrollbar, NSelect, NText, NTooltip } from 'naive-ui'
 import { storeToRefs } from 'pinia'
 import { computed, h, type FunctionalComponent } from 'vue'
@@ -18,7 +14,8 @@ import { computed, h, type FunctionalComponent } from 'vue'
 const analysisStore = useAnalysisStore()
 const boardStore = useBoardStore()
 
-const { isPanelVisible, isAnalysisActive, numThreads, maxThreads, isMultiThreadAvailable } = storeToRefs(analysisStore)
+const { isPanelVisible, isAnalysisActive, numThreads, maxThreads, isMultiThreadAvailable } =
+  storeToRefs(analysisStore)
 
 const threadOptions = computed(() => {
   return Array.from({ length: maxThreads.value }, (_, i) => ({
@@ -110,43 +107,55 @@ const PgnRenderer: FunctionalComponent<{ nodes: PgnNode[]; pathPrefix?: string }
         <!-- Navigation -->
         <n-button-group class="nav-group">
           <n-button quaternary circle @click="boardStore.navigatePgn('start')">
-            <template #icon><n-icon><PlaySkipBackOutline /></n-icon></template>
+            <template #icon
+              ><n-icon><PlaySkipBackOutline /></n-icon
+            ></template>
           </n-button>
           <n-button
             quaternary
             circle
             @click="boardStore.navigatePgn('backward', analysisStore.playerColor)"
           >
-            <template #icon><n-icon><ChevronBackOutline /></n-icon></template>
+            <template #icon
+              ><n-icon><ChevronBackOutline /></n-icon
+            ></template>
           </n-button>
 
           <!-- Threads selection in the center -->
           <div class="threads-nav-wrapper">
-             <n-tooltip trigger="hover">
-                <template #trigger>
-                  <n-icon size="14" depth="3" class="threads-icon">
-                    <TerminalOutline />
-                  </n-icon>
-                </template>
-                {{ $t('analysis.threads') }}
-              </n-tooltip>
-              <n-select
-                class="threads-select-nav"
-                size="tiny"
-                :bordered="false"
-                :disabled="!isMultiThreadAvailable"
-                :value="numThreads"
-                :options="threadOptions"
-                @update:value="analysisStore.setThreads"
-                :consistent-menu-width="false"
-              />
+            <n-tooltip trigger="hover">
+              <template #trigger>
+                <n-icon size="14" depth="3" class="threads-icon">
+                  <TerminalOutline />
+                </n-icon>
+              </template>
+              {{ $t('analysis.threads') }}
+            </n-tooltip>
+            <n-select
+              class="threads-select-nav"
+              size="tiny"
+              :bordered="false"
+              :disabled="!isMultiThreadAvailable"
+              :value="numThreads"
+              :options="threadOptions"
+              @update:value="analysisStore.setThreads"
+              :consistent-menu-width="false"
+            />
           </div>
 
-          <n-button quaternary circle @click="boardStore.navigatePgn('forward', analysisStore.playerColor)">
-            <template #icon><n-icon><ChevronForwardOutline /></n-icon></template>
+          <n-button
+            quaternary
+            circle
+            @click="boardStore.navigatePgn('forward', analysisStore.playerColor)"
+          >
+            <template #icon
+              ><n-icon><ChevronForwardOutline /></n-icon
+            ></template>
           </n-button>
           <n-button quaternary circle @click="boardStore.navigatePgn('end')">
-            <template #icon><n-icon><PlaySkipForwardOutline /></n-icon></template>
+            <template #icon
+              ><n-icon><PlaySkipForwardOutline /></n-icon
+            ></template>
           </n-button>
         </n-button-group>
       </div>
@@ -220,7 +229,9 @@ const PgnRenderer: FunctionalComponent<{ nodes: PgnNode[]; pathPrefix?: string }
   .threads-icon {
     opacity: 0.6;
     transition: opacity 0.3s;
-    &:hover { opacity: 1; }
+    &:hover {
+      opacity: 1;
+    }
   }
 
   .threads-select-nav {

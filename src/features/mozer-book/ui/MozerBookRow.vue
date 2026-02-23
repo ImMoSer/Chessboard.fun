@@ -132,7 +132,6 @@ function handleClick() {
   padding-right: 4px;
 }
 
-
 .move-text {
   font-weight: bold;
   font-size: 14px;

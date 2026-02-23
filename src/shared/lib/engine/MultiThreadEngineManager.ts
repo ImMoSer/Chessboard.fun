@@ -1,8 +1,5 @@
 // src/services/MultiThreadEngineManager.ts
-import {
-  loadMultiThreadEngine,
-  type EngineController,
-} from '@/shared/lib/engine.loader'
+import { loadMultiThreadEngine, type EngineController } from '@/shared/lib/engine.loader'
 import logger from '@/shared/lib/logger'
 
 import {

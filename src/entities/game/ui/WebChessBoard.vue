@@ -5,10 +5,10 @@ import type { Api } from '@lichess-org/chessground/api'
 import type { Config } from '@lichess-org/chessground/config'
 import type { DrawShape } from '@lichess-org/chessground/draw'
 import type {
-    Color as ChessgroundColor,
-    Dests,
-    Key,
-    MoveMetadata,
+  Color as ChessgroundColor,
+  Dests,
+  Key,
+  MoveMetadata,
 } from '@lichess-org/chessground/types'
 import type { Role as ChessopsRole } from 'chessops/types'
 import { onMounted, onUnmounted, ref, shallowRef, watch, type PropType } from 'vue'

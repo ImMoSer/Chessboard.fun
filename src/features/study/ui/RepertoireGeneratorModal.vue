@@ -1,23 +1,16 @@
 <script setup lang="ts">
 import { useBoardStore } from '@/entities/game'
 import {
-    repertoireApiService,
-    type RepertoireProfile,
-    type RepertoireRequest,
-    type RepertoireStyle,
+  repertoireApiService,
+  type RepertoireProfile,
+  type RepertoireRequest,
+  type RepertoireStyle,
 } from '@/features/study/api/RepertoireApiService'
 import { useStudyStore } from '@/features/study'
 import { pgnParserService } from '@/shared/lib/pgn/PgnParserService'
 import { pgnService, type PgnNode } from '@/shared/lib/pgn/PgnService'
 import { FlashOutline } from '@vicons/ionicons5'
-import {
-    NButton,
-    NIcon,
-    NModal,
-    NSelect,
-    NSpace,
-    useMessage
-} from 'naive-ui'
+import { NButton, NIcon, NModal, NSelect, NSpace, useMessage } from 'naive-ui'
 import { computed, ref } from 'vue'
 
 defineProps<{
@@ -140,7 +133,7 @@ const handleGenerateRepertoire = async () => {
         Generating for <strong>{{ studyStore.activeChapter.color }}</strong> from current position.
       </div>
       <div v-else class="warning-text">
-         Warning: Chapter color is not set. Please set it in Study Manager.
+        Warning: Chapter color is not set. Please set it in Study Manager.
       </div>
 
       <!-- Profile Selector -->
@@ -165,12 +158,14 @@ const handleGenerateRepertoire = async () => {
       <NSpace justify="end">
         <NButton @click="emit('update:show', false)">Cancel</NButton>
         <NButton
-            type="primary"
-            :loading="isGenerating"
-            :disabled="!studyStore.activeChapter?.color"
-            @click="handleGenerateRepertoire"
+          type="primary"
+          :loading="isGenerating"
+          :disabled="!studyStore.activeChapter?.color"
+          @click="handleGenerateRepertoire"
         >
-          <template #icon><NIcon><FlashOutline /></NIcon></template>
+          <template #icon
+            ><NIcon><FlashOutline /></NIcon
+          ></template>
           Generate {{ selectedStyleCleanName }}
         </NButton>
       </NSpace>
@@ -217,6 +212,6 @@ const handleGenerateRepertoire = async () => {
 }
 
 .warning-text {
-    color: #ff5252;
+  color: #ff5252;
 }
 </style>

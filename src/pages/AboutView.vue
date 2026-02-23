@@ -1,6 +1,6 @@
 <!-- src/pages/AboutView.vue -->
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n';
+import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
@@ -24,7 +24,6 @@ const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
         <strong>{{ t('about.modes.conversionTitle') }}</strong
         >{{ t('about.modes.conversion') }}
       </li>
-
 
       <li>
         <strong>{{ t('about.modes.userCabinetTitle') }}</strong

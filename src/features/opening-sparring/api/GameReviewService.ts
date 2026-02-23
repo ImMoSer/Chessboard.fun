@@ -64,7 +64,9 @@ class GameReviewService {
         // In playout mode, we calculate loss relative to the BEST option.
 
         // Find best move CP in lines
-        const bestLine = move.evaluation.lines?.find(l => l.pv.startsWith(bestSfMove)) || move.evaluation.lines?.[0]
+        const bestLine =
+          move.evaluation.lines?.find((l) => l.pv.startsWith(bestSfMove)) ||
+          move.evaluation.lines?.[0]
         if (bestLine) {
           const multiplier = playerColor === 'white' ? 1 : -1
           // Loss = (Best EV - Played EV) for white, (Played EV - Best EV) for black
@@ -126,7 +128,7 @@ class GameReviewService {
     }
 
     if (move.tags && move.tags.length > 0) {
-      const relevantTags = move.tags.filter(t => ['Mate', 'Hanging', 'Fork', 'Pin'].includes(t))
+      const relevantTags = move.tags.filter((t) => ['Mate', 'Hanging', 'Fork', 'Pin'].includes(t))
       if (relevantTags.length > 0) {
         explanations.push(`Tactical error: ${relevantTags.join(', ')}.`)
       }
@@ -140,7 +142,12 @@ class GameReviewService {
   }
 
   private generateSummary(theoryAcc: number, acpl: number, blunders: number): string {
-    const theoryText = theoryAcc > 90 ? 'Excellent theory knowledge.' : theoryAcc > 70 ? 'Solid opening play.' : 'Needs work on theory.'
+    const theoryText =
+      theoryAcc > 90
+        ? 'Excellent theory knowledge.'
+        : theoryAcc > 70
+          ? 'Solid opening play.'
+          : 'Needs work on theory.'
 
     let playoutText = ''
     if (acpl < 30) playoutText = 'Grandmaster level precision.'
@@ -148,7 +155,12 @@ class GameReviewService {
     else if (acpl < 100) playoutText = 'Decent play, but some inaccuracies.'
     else playoutText = 'Focus on tactical awareness.'
 
-    const advice = blunders > 1 ? 'Focus on blunder checking.' : blunders === 1 ? 'One oversight cost you.' : 'Zero blunders! Very solid.'
+    const advice =
+      blunders > 1
+        ? 'Focus on blunder checking.'
+        : blunders === 1
+          ? 'One oversight cost you.'
+          : 'Zero blunders! Very solid.'
 
     return `${theoryText} ${playoutText} ${advice}`
   }

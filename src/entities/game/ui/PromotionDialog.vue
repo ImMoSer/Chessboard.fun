@@ -1,9 +1,9 @@
 <!-- src/components/PromotionDialog.vue -->
 <script setup lang="ts">
-import type { Key } from '@lichess-org/chessground/types';
-import { key2pos } from '@lichess-org/chessground/util';
-import type { Role as ChessopsRole } from 'chessops/types';
-import { computed } from 'vue';
+import type { Key } from '@lichess-org/chessground/types'
+import { key2pos } from '@lichess-org/chessground/util'
+import type { Role as ChessopsRole } from 'chessops/types'
+import { computed } from 'vue'
 
 const props = defineProps<{
   dest: Key

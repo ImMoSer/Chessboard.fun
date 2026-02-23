@@ -11,7 +11,7 @@ import {
   PersonOutline,
   SchoolOutline,
   ThunderstormOutline,
-  TrophyOutline
+  TrophyOutline,
 } from '@vicons/ionicons5'
 import { NIcon, NMenu, type MenuOption } from 'naive-ui'
 import { computed, h, type Component } from 'vue'

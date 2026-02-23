@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import InfoIcon from '@/shared/ui/InfoIcon.vue'
 import type { FinishHimLeaderboardEntry, ThematicLeaderboardEntry } from '@/shared/types/api.types'
-import { FINISH_HIM_THEMES, PRACTICAL_CHESS_CATEGORIES, THEORY_ENDING_CATEGORIES } from '@/shared/types/api.types'
+import {
+  FINISH_HIM_THEMES,
+  PRACTICAL_CHESS_CATEGORIES,
+  THEORY_ENDING_CATEGORIES,
+} from '@/shared/types/api.types'
 import type { DataTableColumns } from 'naive-ui'
 import { computed, h, ref, watch, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -35,19 +39,19 @@ const availableThemes = computed(() => {
   // We check if the data contains keys that are specific to a certain mode
   let order: readonly string[] = []
 
-  if (dataKeys.some(k => (FINISH_HIM_THEMES as readonly string[]).includes(k))) {
-     order = FINISH_HIM_THEMES
-  } else if (dataKeys.some(k => (THEORY_ENDING_CATEGORIES as readonly string[]).includes(k))) {
-     order = THEORY_ENDING_CATEGORIES
-  } else if (dataKeys.some(k => (PRACTICAL_CHESS_CATEGORIES as readonly string[]).includes(k))) {
-     order = PRACTICAL_CHESS_CATEGORIES
+  if (dataKeys.some((k) => (FINISH_HIM_THEMES as readonly string[]).includes(k))) {
+    order = FINISH_HIM_THEMES
+  } else if (dataKeys.some((k) => (THEORY_ENDING_CATEGORIES as readonly string[]).includes(k))) {
+    order = THEORY_ENDING_CATEGORIES
+  } else if (dataKeys.some((k) => (PRACTICAL_CHESS_CATEGORIES as readonly string[]).includes(k))) {
+    order = PRACTICAL_CHESS_CATEGORIES
   }
 
   // Filter the order list to only include keys present in data
-  const sorted = order.filter(theme => dataKeys.includes(theme))
+  const sorted = order.filter((theme) => dataKeys.includes(theme))
 
   // Append any keys in data that were not in the order list (fallback)
-  const remaining = dataKeys.filter(theme => !sorted.includes(theme))
+  const remaining = dataKeys.filter((theme) => !sorted.includes(theme))
 
   return [...sorted, ...remaining]
 })
@@ -88,55 +92,62 @@ const getThemeIcon = (theme: string) => {
   if (theme === 'expert') return '🎓'
   if (theme === 'auto') return '✨'
   const icons: Record<string, string> = {
-    'pawn': '♔♟',
-    'bishop': '♗♙',
-    'knight': '♘♙',
-    'queen': '♕♙',
-    'rook': '♖',
-    'rookPawn': '♖♙',
-    'rookPieces': '♖♘♗',
-    'knightBishop': '♘♗',
-    'queenPieces': '♕♘♗',
-    'extraPawn': '♟️',
-    'materialEquality': '⚖️',
-    'exchange': '🔄'
+    pawn: '♔♟',
+    bishop: '♗♙',
+    knight: '♘♙',
+    queen: '♕♙',
+    rook: '♖',
+    rookPawn: '♖♙',
+    rookPieces: '♖♘♗',
+    knightBishop: '♘♗',
+    queenPieces: '♕♘♗',
+    extraPawn: '♟️',
+    materialEquality: '⚖️',
+    exchange: '🔄',
   }
   return icons[theme] || ''
 }
 
-const columns = computed<DataTableColumns<FinishHimLeaderboardEntry | ThematicLeaderboardEntry>>(() => [
-  { title: t('records.table.rank'), key: 'rank', align: 'center', width: 45 },
-  {
-    title: t('records.table.player'),
-    key: 'username',
-    minWidth: 160,
-    ellipsis: { tooltip: true },
-    render(row) {
-      const icon = getSubscriptionIcon(row.subscriptionTier)
-      return h('div', { style: { display: 'flex', alignItems: 'center' } }, [
-        icon ? h('img', { src: icon, style: { height: '25px', marginRight: '5px' } }) : null,
-        h(
-          'n-a',
-          {
-            href: `https://lichess.org/@/${row.lichess_id}`,
-            target: '_blank',
-            style: { fontWeight: 'bold' },
-          },
-          row.username,
-        ),
-      ])
+const columns = computed<DataTableColumns<FinishHimLeaderboardEntry | ThematicLeaderboardEntry>>(
+  () => [
+    { title: t('records.table.rank'), key: 'rank', align: 'center', width: 45 },
+    {
+      title: t('records.table.player'),
+      key: 'username',
+      minWidth: 160,
+      ellipsis: { tooltip: true },
+      render(row) {
+        const icon = getSubscriptionIcon(row.subscriptionTier)
+        return h('div', { style: { display: 'flex', alignItems: 'center' } }, [
+          icon ? h('img', { src: icon, style: { height: '25px', marginRight: '5px' } }) : null,
+          h(
+            'n-a',
+            {
+              href: `https://lichess.org/@/${row.lichess_id}`,
+              target: '_blank',
+              style: { fontWeight: 'bold' },
+            },
+            row.username,
+          ),
+        ])
+      },
     },
-  },
-  {
-    title: t('records.table.score'),
-    key: 'score',
-    align: 'right',
-    render(row) {
-      if ('score' in row) return h('span', { class: 'mode-score-value' }, (row as ThematicLeaderboardEntry).score)
-      return h('span', { class: 'mode-score-value' }, (row as FinishHimLeaderboardEntry).best_time + 's')
+    {
+      title: t('records.table.score'),
+      key: 'score',
+      align: 'right',
+      render(row) {
+        if ('score' in row)
+          return h('span', { class: 'mode-score-value' }, (row as ThematicLeaderboardEntry).score)
+        return h(
+          'span',
+          { class: 'mode-score-value' },
+          (row as FinishHimLeaderboardEntry).best_time + 's',
+        )
+      },
     },
-  },
-])
+  ],
+)
 
 const swiperModules = [Navigation, Mousewheel, FreeMode]
 </script>
@@ -223,9 +234,15 @@ const swiperModules = [Navigation, Mousewheel, FreeMode]
   background: rgba(255, 255, 255, 0.03);
 }
 
-.finishHimLeaderboard .card-title { color: var(--color-neon-purple); }
-.theoryLeaderboard .card-title { color: var(--color-accent-warning); }
-.practicalLeaderboard .card-title { color: var(--color-neon-lime); }
+.finishHimLeaderboard .card-title {
+  color: var(--color-neon-purple);
+}
+.theoryLeaderboard .card-title {
+  color: var(--color-accent-warning);
+}
+.practicalLeaderboard .card-title {
+  color: var(--color-neon-lime);
+}
 
 .card-title {
   font-size: 1.4rem;

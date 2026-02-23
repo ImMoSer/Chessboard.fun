@@ -6,4 +6,3 @@ export { default as MozerBookRow } from './ui/MozerBookRow.vue'
 export { default as TheoryExplorerModal } from './ui/TheoryExplorerModal.vue'
 export { default as WikiBooksPanel } from './ui/WikiBooksPanel.vue'
 export { default as WinrateBar } from './ui/WinrateBar.vue'
-

@@ -1,6 +1,5 @@
 // src/stores/tornado.store.ts
-import { useBoardStore } from '@/entities/game'
-import { useGameStore } from '@/entities/game'
+import { useBoardStore, useGameStore, type IGameplayStrategy } from '@/entities/game'
 import { useAuthStore } from '@/entities/user'
 import { InsufficientFunCoinsError, webhookService } from '@/shared/api/WebhookService'
 import i18n from '@/shared/config/i18n'
@@ -27,7 +26,6 @@ const timeControls: Record<TornadoMode, { initial: number; increment: number }> 
   rapid: { initial: 5 * 60 * 1000, increment: 3 * 1000 },
   classic: { initial: 10 * 60 * 1000, increment: 5 * 1000 },
 }
-
 
 export const useTornadoStore = defineStore('tornado', () => {
   const boardStore = useBoardStore()
@@ -88,10 +86,10 @@ export const useTornadoStore = defineStore('tornado', () => {
     tenSecondsWarningPlayed.value = false
     eightSecondsWarningPlayed.value = false
     localStorage.removeItem(MISTAKES_STORAGE_KEY)
-    
+
     // Restore default board sound behavior
     boardStore.setPlayGameStatusSounds(true)
-    
+
     logger.info('[TornadoStore] State has been reset.')
   }
 
@@ -223,7 +221,7 @@ export const useTornadoStore = defineStore('tornado', () => {
     }
 
     reset()
-    
+
     // Disable board game-over sounds for Tornado (speed chess)
     boardStore.setPlayGameStatusSounds(false)
 
@@ -269,8 +267,8 @@ export const useTornadoStore = defineStore('tornado', () => {
             required: e.required,
             available: e.available,
           }) +
-          '\n\n' +
-          t('pricing.insufficientCoins.subMessage'),
+            '\n\n' +
+            t('pricing.insufficientCoins.subMessage'),
           {
             confirmText: t('pricing.insufficientCoins.goToPricing'),
             cancelText: t('common.close'),
@@ -288,29 +286,57 @@ export const useTornadoStore = defineStore('tornado', () => {
   }
 
   function setupPuzzle(puzzle: TornadoPuzzle) {
-    gameStore.setupPuzzle(
-      puzzle.initial_fen,
-      puzzle.tactical_solution.split(' '),
-      (isCorrect) => handlePuzzleResult(isCorrect),
-      () => true,
-      () => { },
-      'tornado',
-      () => {
+    const scenarioMoves = puzzle.tactical_solution.split(' ')
+    let currentScenarioIndex = 0
+
+    const strategy: IGameplayStrategy = {
+      config: {
+        botDelayMs: 50,
+        playGameStatusSounds: false, // Выключаем звуки окончания игры
+      },
+
+      validateUserMove() {
+        // Ошибочные ходы в Торнадо не отбрасываются доской (как в Diamond),
+        // они просто мгновенно фейлят весь пазл. Значит pre-validation всегда true.
+        return true
+      },
+
+      onUserMoveExecuted(uciMove: string) {
         if (isSessionActive.value && timerId.value === null) {
-          _startTimer()
+          _startTimer() // Таймер стартует при первом ходе
+        }
+
+        const expectedMove = scenarioMoves[currentScenarioIndex]
+
+        if (uciMove === expectedMove) {
+          currentScenarioIndex++
+
+          if (currentScenarioIndex >= scenarioMoves.length) {
+            handlePuzzleResult(true) // Пазл решен успешно
+          }
+        } else {
+          handlePuzzleResult(false) // Ошибка - провал пазла
         }
       },
-    )
+
+      requestBotMove: async () => {
+        // Бот ходит мгновенно по сценарию
+        if (currentScenarioIndex < scenarioMoves.length) {
+          const move = scenarioMoves[currentScenarioIndex] || null
+          currentScenarioIndex++
+          return move
+        }
+        return null
+      },
+
+      checkWinCondition: () => false, // Не используется напрямую, Торнадо рулит через handlePuzzleResult
+    }
+
+    gameStore.startWithStrategy(puzzle.initial_fen, strategy, undefined, false)
   }
 
   async function handlePuzzleResult(isCorrect: boolean) {
-    if (
-      !activePuzzle.value ||
-      !isSessionActive.value ||
-      !mode.value ||
-      !sessionId.value
-    )
-      return
+    if (!activePuzzle.value || !isSessionActive.value || !mode.value || !sessionId.value) return
 
     // 1. МГНОВЕННО ОБНОВЛЯЕМ ТАЙМЕР И СТАТЫ
     if (timerValueMs.value > 10000) {
@@ -333,7 +359,7 @@ export const useTornadoStore = defineStore('tornado', () => {
     const newGlicko = glicko.calculate(
       glickoState.value,
       [{ rating: lastPuzzle.tactical_rating, rd: 50 }],
-      [isCorrect ? 1 : 0]
+      [isCorrect ? 1 : 0],
     )
     glickoState.value = newGlicko
     sessionRating.value = newGlicko.rating

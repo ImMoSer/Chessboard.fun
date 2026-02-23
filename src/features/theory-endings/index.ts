@@ -1,2 +1,1 @@
-export * from './model/theoryEndings.store';
-
+export * from './model/theoryEndings.store'

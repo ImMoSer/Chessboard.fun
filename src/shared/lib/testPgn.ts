@@ -7,7 +7,6 @@ export interface ITestBoardStore {
 }
 
 export function loadComplexTestPgn(boardStore: ITestBoardStore) {
-
   // 1. Reset
   boardStore.resetBoardState()
   const root = pgnService.getRootNode()
