@@ -1,13 +1,15 @@
 import { useAnalysisEngineStore } from '@/entities/analysis'
 import { useBoardStore, type IGameplayStrategy } from '@/entities/game'
+import { type TopInfoDisplay, type TopInfoStat } from '@/entities/puzzle'
 import {
   diamondApiService,
   type GravityMove,
 } from '@/features/diamond-hunter/api/DiamondApiService'
 import { useDiamondHunterQueries } from '@/features/diamond-hunter/api/diamondHunter.queries'
+import i18n from '@/shared/config/i18n'
 import logger from '@/shared/lib/logger'
 import { pgnService } from '@/shared/lib/pgn/PgnService'
-import type { SoundEvent } from '@/shared/lib/sound/sound.service'
+import type { SoundEvent } from '@/shared/lib/sound.service'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 
@@ -469,8 +471,29 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
     soundTrigger.value = null
   }
 
+  const t = i18n.global.t
+
   return {
     state,
+    topInfoDisplay: computed<TopInfoDisplay>(() => {
+      const stats: TopInfoStat[] = [
+        { icon: 'diamond', value: totalDiamonds.value, color: '#9C27B0' },
+        { icon: 'flash', value: totalBrilliants.value, color: '#00C853' },
+      ]
+
+      let title = t('diamondHunter.status.idle')
+      if (state.value === 'HUNTING') title = t('diamondHunter.status.hunting')
+      else if (state.value === 'SOLVING') title = t('diamondHunter.status.punish')
+      else if (state.value === 'SAVING') title = t('diamondHunter.status.secure')
+      else if (state.value === 'REWARD') title = t('diamondHunter.status.found')
+
+      return {
+        title,
+        badges: [],
+        stats,
+        customType: 'diamond-hunter',
+      }
+    }),
     isActive,
     isSolving,
     message,

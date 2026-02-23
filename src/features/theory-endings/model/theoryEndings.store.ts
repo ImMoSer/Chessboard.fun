@@ -6,11 +6,12 @@ import {
   type GameStatusInfo,
   type IGameplayStrategy,
 } from '@/entities/game'
+import { type TopInfoDisplay } from '@/entities/puzzle'
 import { useAuthStore } from '@/entities/user'
 import { InsufficientFunCoinsError } from '@/shared/api/client'
 import i18n from '@/shared/config/i18n'
 import logger from '@/shared/lib/logger'
-import { soundService } from '@/shared/lib/sound/sound.service'
+import { soundService } from '@/shared/lib/sound.service'
 import type {
   TheoryEndingCategory,
   TheoryEndingDifficulty,
@@ -281,6 +282,27 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
   return {
     gamePhase: computed(() => gameStore.gamePhase),
     activePuzzle,
+    topInfoDisplay: computed<TopInfoDisplay>(() => {
+      const puzzle = activePuzzle.value
+      if (!puzzle) return { title: '', badges: [], stats: [] }
+
+      const resultKey = puzzle.result === 'win' ? 'win' : 'draw'
+
+      return {
+        title: t(`chess.endings.${activeCategory.value}`),
+        mainValue: t(`chess.types.${resultKey}`),
+        mainIcon: 'flash',
+        mainColor: puzzle.result === 'win' ? '#f0a020' : '#2080f0',
+        badges: [
+          {
+            text: t(`chess.difficulties.${puzzle.difficulty}`),
+            type: puzzle.difficulty === 'Novice' ? 'success' : puzzle.difficulty === 'Pro' ? 'warning' : 'error',
+          },
+        ],
+        stats: [{ icon: 'pieces', value: puzzle.pieces_count, label: t('puzzleInfo.pieces') }],
+        secondaryText: t(`chess.types.${puzzle.weak_side}Endgame`),
+      }
+    }),
     activeType,
     activeDifficulty,
     activeCategory,

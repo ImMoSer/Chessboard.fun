@@ -1,11 +1,12 @@
 // src/stores/tornado.store.ts
 import { useBoardStore, useGameStore, type IGameplayStrategy } from '@/entities/game'
+import { type TopInfoDisplay } from '@/entities/puzzle'
 import { useAuthStore } from '@/entities/user'
 import { InsufficientFunCoinsError } from '@/shared/api/client'
 import i18n from '@/shared/config/i18n'
 import { Glicko2Calculator, type GlickoState } from '@/shared/lib/glicko2'
 import logger from '@/shared/lib/logger'
-import { soundService } from '@/shared/lib/sound/sound.service'
+import { soundService } from '@/shared/lib/sound.service'
 import type { TornadoPuzzle, TornadoSessionResult } from '@/shared/types/api.types'
 import { type TornadoMode } from '@/shared/types/api.types'
 import { useUiStore } from '@/shared/ui/model/ui.store'
@@ -430,7 +431,21 @@ export const useTornadoStore = defineStore('tornado', () => {
     mistakenPuzzles,
     isSessionActive,
     feedbackMessage,
-    formattedTimer,
+    topInfoDisplay: computed<TopInfoDisplay>(() => ({
+      title: sessionTheme.value ? t(`chess.tornado.${sessionTheme.value}`) : t('chess.tornado.auto'),
+      mainValue: formattedTimer.value,
+      mainColor: 'var(--color-accent-warning)',
+      badges: [{ text: t('chess.tornado.auto'), type: 'primary' }],
+      stats: [
+        {
+          icon: 'trending-up',
+          value: sessionRating.value,
+          color: 'var(--color-neon-orange)',
+          label: t('puzzleInfo.tacticalRating'),
+        },
+      ],
+      customType: 'tornado',
+    })),
     startSession,
     reset,
     handleRestart,

@@ -1,11 +1,11 @@
 import { gameplayService, useBoardStore, useGameStore, type GameStatusInfo, type IGameplayStrategy } from '@/entities/game'
+import { mozerBookService, type MozerBookMove } from '@/entities/opening'
 import { useOpeningSparringStore } from '@/features/opening-sparring'
 import { useOpeningSparringQueries } from '@/features/opening-sparring/api/openingSparring.queries'
-import { mozerBookService, type MozerBookMove } from '@/entities/opening'
 import { areMovesEqual } from '@/shared/lib/chess-utils'
 import { serverEngineService, type AnalysisResponse } from '@/shared/lib/engine'
 import { pgnService } from '@/shared/lib/pgn/PgnService'
-import { soundService } from '@/shared/lib/sound/sound.service'
+import { soundService } from '@/shared/lib/sound.service'
 import { computed } from 'vue'
 
 /**

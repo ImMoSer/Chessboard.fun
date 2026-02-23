@@ -6,10 +6,11 @@ import {
   type IGameCoreApi,
   type IGameplayStrategy,
 } from '@/entities/game'
+import { type TopInfoDisplay } from '@/entities/puzzle'
 import { useAuthStore } from '@/entities/user'
 import i18n from '@/shared/config/i18n'
 import logger from '@/shared/lib/logger'
-import { soundService } from '@/shared/lib/sound/sound.service'
+import { soundService } from '@/shared/lib/sound.service'
 import type {
   PracticalChessCategory,
   PracticalChessDifficulty,
@@ -18,7 +19,7 @@ import type {
 import { useUiStore } from '@/shared/ui/model/ui.store'
 import type { Color as ChessgroundColor } from '@lichess-org/chessground/types'
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePracticalChessQueries } from '../api/practicalChess.queries'
 
@@ -208,6 +209,29 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
 
   return {
     activePuzzle,
+    topInfoDisplay: computed<TopInfoDisplay>(() => {
+      const puzzle = activePuzzle.value
+      if (!puzzle) return { title: '', badges: [], stats: [] }
+
+      const evalValue = puzzle.eval ? (puzzle.eval / 100).toFixed(1) : '?'
+
+      return {
+        title: t(`chess.endings.${activeCategory.value}`),
+        mainValue: evalValue,
+        mainIcon: 'bar-chart',
+        mainColor: '#2080f0',
+        badges: [
+          {
+            text: t(`chess.difficulties.${puzzle.difficulty}`),
+            type: puzzle.difficulty === 'Novice' ? 'success' : puzzle.difficulty === 'Pro' ? 'warning' : 'error',
+          },
+        ],
+        stats: [
+          { icon: 'pieces', value: puzzle.pieces_count, label: t('puzzleInfo.pieces') },
+          { icon: 'material', value: puzzle.material_count, label: 'Mat.' },
+        ],
+      }
+    }),
     activeCategory,
     activeDifficulty,
     selectCategory,

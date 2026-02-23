@@ -1,7 +1,7 @@
 // src/stores/board.store.ts
 import logger from '@/shared/lib/logger'
 import { pgnService, type PgnNode } from '@/shared/lib/pgn/PgnService'
-import { soundService } from '@/shared/lib/sound/sound.service'
+import { soundService } from '@/shared/lib/sound.service'
 import type { DrawShape } from '@lichess-org/chessground/draw'
 import type {
   Color as ChessgroundColor,

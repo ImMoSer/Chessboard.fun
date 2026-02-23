@@ -5,11 +5,12 @@ import {
   type GameStatusInfo,
   type IGameplayStrategy,
 } from '@/entities/game'
+import { type TopInfoDisplay } from '@/entities/puzzle'
 import { useAuthStore } from '@/entities/user'
 import { InsufficientFunCoinsError } from '@/shared/api/client'
 import i18n from '@/shared/config/i18n'
 import logger from '@/shared/lib/logger'
-import { soundService } from '@/shared/lib/sound/sound.service'
+import { soundService } from '@/shared/lib/sound.service'
 import type {
   FinishHimDifficulty,
   FinishHimPuzzle,
@@ -292,6 +293,28 @@ export const useFinishHimStore = defineStore('finishHim', () => {
   return {
     gamePhase: computed(() => gameStore.gamePhase),
     activePuzzle,
+    topInfoDisplay: computed<TopInfoDisplay>(() => {
+      const puzzle = activePuzzle.value
+      if (!puzzle) return { title: '', badges: [], stats: [] }
+
+      return {
+        title: t(`chess.finishHim.category.${puzzle.category}`),
+        mainValue: puzzle.engm_rating || puzzle.tactical_rating || '?',
+        mainIcon: 'trending-up',
+        mainColor: '#18a058',
+        badges: [
+          {
+            text: t(`chess.difficulties.${puzzle.difficulty}`),
+            type: puzzle.difficulty === 'Novice' ? 'success' : puzzle.difficulty === 'Pro' ? 'warning' : 'error',
+          },
+        ],
+        stats: [
+          { icon: 'pieces', value: puzzle.pieces_count, label: t('puzzleInfo.pieces') },
+          { icon: 'advantage', value: `+${puzzle.material_advantage}`, label: t('chess.types.advantage') },
+        ],
+        secondaryText: puzzle.sub_category ? t(`chess.finishHim.subCategory.${puzzle.sub_category}`) : undefined,
+      }
+    }),
     feedbackMessage,
     selectedTheme,
     selectedDifficulty,

@@ -217,9 +217,8 @@ class SingleThreadEngineManagerController {
 
       this.sendCommand('ucinewgame')
       this.sendCommand(`position fen ${fen}`)
-      const goCommand = `go ${options.depth ? `depth ${options.depth}` : ''} ${
-        options.movetime ? `movetime ${options.movetime}` : ''
-      }`.trim()
+      const goCommand = `go ${options.depth ? `depth ${options.depth}` : ''} ${options.movetime ? `movetime ${options.movetime}` : ''
+        }`.trim()
       this.sendCommand(goCommand || 'go depth 10')
     })
   }

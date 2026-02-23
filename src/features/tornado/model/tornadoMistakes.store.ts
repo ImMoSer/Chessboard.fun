@@ -1,7 +1,7 @@
 import { useGameStore, type IGameplayStrategy } from '@/entities/game'
 
 import i18n from '@/shared/config/i18n'
-import { soundService } from '@/shared/lib/sound/sound.service'
+import { soundService } from '@/shared/lib/sound.service'
 import type { GamePuzzle } from '@/shared/types/api.types'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'

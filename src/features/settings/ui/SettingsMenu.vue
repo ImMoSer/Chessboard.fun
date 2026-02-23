@@ -3,7 +3,7 @@
 import { useAuthStore } from '@/entities/user'
 import { useThemeStore } from '@/features/settings'
 import { changeLang } from '@/shared/config/i18n'
-import { soundService } from '@/shared/lib/sound/sound.service'
+import { soundService } from '@/shared/lib/sound.service'
 import { storeToRefs } from 'pinia'
 import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
