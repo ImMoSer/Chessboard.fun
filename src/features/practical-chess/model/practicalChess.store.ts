@@ -7,7 +7,6 @@ import {
   type IGameplayStrategy,
 } from '@/entities/game'
 import { useAuthStore } from '@/entities/user'
-import { webhookService } from '@/shared/api/WebhookService'
 import i18n from '@/shared/config/i18n'
 import logger from '@/shared/lib/logger'
 import { soundService } from '@/shared/lib/sound/sound.service'
@@ -21,6 +20,7 @@ import type { Color as ChessgroundColor } from '@lichess-org/chessground/types'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { usePracticalChessQueries } from '../api/practicalChess.queries'
 
 const t = i18n.global.t
 
@@ -34,10 +34,17 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
   const activePuzzle = ref<PracticalPuzzle | null>(null)
   const activeCategory = ref<PracticalChessCategory>('extraPawn')
   const activeDifficulty = ref<PracticalChessDifficulty>('Novice')
+  const requestedPuzzleId = ref<string | undefined>(undefined)
 
   const isProcessingGameOver = ref(false)
   const isWaitingForColorSelection = ref(false)
   const currentUserColor = ref<ChessgroundColor>('white')
+
+  const { puzzleQuery, resultMutation } = usePracticalChessQueries({
+    category: activeCategory,
+    difficulty: activeDifficulty,
+    puzzleId: requestedPuzzleId,
+  })
 
   function selectCategory(cat: PracticalChessCategory) {
     activeCategory.value = cat
@@ -79,16 +86,8 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
     gameStore.setGamePhase('LOADING')
 
     try {
-      let puzzle: PracticalPuzzle | null = null
-
-      if (id) {
-        puzzle = await webhookService.fetchPracticalPuzzleById(id)
-      } else {
-        puzzle = await webhookService.fetchPracticalPuzzle(
-          activeCategory.value,
-          activeDifficulty.value,
-        )
-      }
+      requestedPuzzleId.value = id
+      const { data: puzzle } = await puzzleQuery.refetch()
 
       if (!puzzle) throw new Error('Puzzle data is null')
 
@@ -135,9 +134,12 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
     if (!puzzle) return
 
     try {
-      const response = await webhookService.processPracticalResult(puzzle.category, {
-        puzzleId: puzzle.puzzle_id,
-        wasCorrect: isWin,
+      const response = await resultMutation.mutateAsync({
+        category: puzzle.category,
+        dto: {
+          puzzleId: puzzle.puzzle_id,
+          wasCorrect: isWin,
+        },
       })
       if (response && response.userStatsUpdate) {
         authStore.updateUserStats(response.userStatsUpdate)
