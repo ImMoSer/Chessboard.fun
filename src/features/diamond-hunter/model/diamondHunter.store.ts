@@ -75,7 +75,7 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
 
   async function startHunt() {
     logger.info('DiamondHunter: Starting hunt')
-    reset() // Ensure clean slate
+    reset()
 
     try {
       await diamondApiService.startSession()
@@ -124,130 +124,6 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
     reset()
   }
 
-  function createStrategy(): IGameplayStrategy {
-    return {
-      config: {
-        botDelayMs: 20, // Fast by default as per global rules
-        initialBotDelayMs: 300,
-      },
-
-      async validateUserMove(uci: string): Promise<boolean> {
-        if (state.value === 'HUNTING') {
-          const stats = currentGravityStats.value
-          const isValid = stats?.moves.some((m) => m.uci === uci)
-
-          if (!isValid) {
-            logger.warn('DiamondHunter: User left theory during hunt. Move disabled.', { uci })
-            soundTrigger.value = 'game_tacktics_error'
-            message.value = 'Stay in theory! Follow the arrows.'
-            await updateArrows()
-            return false
-          }
-          return true
-        }
-
-        if (state.value === 'SAVING') {
-          const expectedMove = savingMoves.value[savingMoveIndex.value]
-          if (!expectedMove) return false
-
-          if (uci !== expectedMove) {
-            soundTrigger.value = 'game_tacktics_error'
-            const orig = expectedMove.substring(0, 2)
-            const dest = expectedMove.substring(2, 4)
-            hints.value = [{ orig, dest, type: 'expected' }]
-            return false
-          }
-          return true
-        }
-
-        return true
-      },
-
-      async onUserMoveExecuted(uciMove: string) {
-        if (state.value === 'SOLVING') {
-          await handleUserSolvingMove(uciMove)
-        } else if (state.value === 'SAVING') {
-          savingMoveIndex.value++
-          const orig = uciMove.substring(0, 2)
-          const dest = uciMove.substring(2, 4)
-          hints.value = [{ orig, dest, type: 'correct' }]
-
-          if (savingMoveIndex.value >= savingMoves.value.length) {
-            await transitionToSolving()
-          }
-        } else if (state.value === 'HUNTING') {
-          // Handled by GameStore loop triggering next bot move or arrows
-        }
-      },
-
-      async requestBotMove(fen: string): Promise<string | null> {
-        if (state.value === 'SAVING') {
-          if (savingMoveIndex.value >= savingMoves.value.length) return null
-          return savingMoves.value[savingMoveIndex.value] || null
-        }
-
-        if (state.value !== 'HUNTING') return null
-
-        const playerColor = analysisStore.playerColor || 'white'
-        if (boardStore.turn === playerColor) return null
-
-        const response = await fetchGravityForFen(fen)
-
-        if (!response || !response.moves || response.moves.length === 0) {
-          logger.info('DiamondHunter: Theory ended (Bot turn)')
-          showTheoryEndModal.value = true
-          state.value = 'IDLE'
-          return null
-        }
-
-        const candidates = [...response.moves].sort((a, b) => b.weight - a.weight).slice(0, 5)
-        let selectedMove: GravityMove | undefined = candidates[0]
-
-        if (candidates.length > 0) {
-          const totalWeight = candidates.reduce((sum, m) => sum + m.weight, 0)
-          let randomValue = Math.random() * totalWeight
-
-          for (const move of candidates) {
-            randomValue -= move.weight
-            if (randomValue <= 0) {
-              selectedMove = move
-              break
-            }
-          }
-        }
-
-        return selectedMove?.uci || null
-      },
-
-      async onBotMoveExecuted(uci: string) {
-        if (state.value === 'SAVING') {
-          savingMoveIndex.value++
-          if (savingMoveIndex.value >= savingMoves.value.length) {
-            await transitionToSolving()
-          }
-          return
-        }
-
-        if (state.value === 'HUNTING') {
-          // Check if the move we just played was a blunder
-          const stats = currentGravityStats.value
-          const moveData = stats?.moves.find((m) => m.uci === uci)
-
-          if (moveData?.nag === 4) {
-            await playBlunder(moveData)
-          }
-        }
-      },
-
-      checkWinCondition: () => false,
-    }
-  }
-
-  // --- Hunt Phase Validation ---
-  async function handleHuntMove() {
-    // Deprecated, logic moved to createStrategy
-  }
-
   // --- Arrow Logic (User Turn) ---
   async function updateArrows() {
     if (state.value === 'SOLVING' || state.value === 'SAVING') return
@@ -282,118 +158,200 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
     }))
   }
 
-  /**
-   * @deprecated Use GameStore strategy loop instead.
-   * Kept for manual triggers if absolutely necessary.
-   */
-  async function botMove() {
-    // We now let GameStore handle this.
-    // However, if we need to force it (e.g. at start):
-    // const gameStore = useGameStore();
-    // gameStore._triggerBotMove();
+  // --- Solving Logic ---
+  async function handleUserSolvingMove(uci: string) {
+    if (state.value !== 'SOLVING') return
+
+    const lastNode = pgnService.getLastMove()
+    if (!lastNode) return
+
+    const response = await fetchGravityForFen(lastNode.fenBefore)
+    const moveStats = response?.moves.find((m: GravityMove) => m.uci === uci)
+
+    if (moveStats?.nag === 3) {
+      logger.info('DiamondHunter: Brilliant recorded')
+      if (currentDiamondHash.value) {
+        recordBrilliantMutation.mutate({
+          hash: currentDiamondHash.value,
+          fen: boardStore.fen,
+          pgn: pgnService.getCurrentPgnString(),
+        })
+      }
+
+      const orig = uci.substring(0, 2)
+      const dest = uci.substring(2, 4)
+      hints.value = [{ orig, dest, type: 'correct' }]
+      puzzleFen.value = boardStore.fen
+      message.value = 'Brilliant! Keep punishing!'
+
+    } else if (moveStats?.nag === 255) {
+      logger.info('DiamondHunter: Punishment successful (Diamond Found)')
+      const orig = uci.substring(0, 2)
+      const dest = uci.substring(2, 4)
+
+      hints.value = [{ orig, dest, type: 'victory' }]
+      message.value = 'VICTORY !!!'
+
+      setTimeout(() => {
+        completeDiamond()
+      }, 1000)
+    }
+  }
+
+  function createStrategy(): IGameplayStrategy {
+    return {
+      config: {
+        botDelayMs: 20,
+        initialBotDelayMs: 300,
+      },
+
+      async validateUserMove(uci: string): Promise<boolean> {
+        if (state.value === 'HUNTING') {
+          const stats = currentGravityStats.value
+          const isValid = stats?.moves.some((m) => m.uci === uci)
+
+          if (!isValid) {
+            logger.warn('DiamondHunter: User left theory during hunt. Move blocked.', { uci })
+            soundTrigger.value = 'game_tacktics_error'
+            message.value = 'Stay in theory! Follow the arrows.'
+            await updateArrows()
+            return false
+          }
+          return true
+        }
+
+        if (state.value === 'SOLVING') {
+          const validationFen = boardStore.fen
+          const response = await fetchGravityForFen(validationFen)
+          const moveStats = response?.moves.find((m: GravityMove) => m.uci === uci)
+          const isCorrect = moveStats?.nag === 255 || moveStats?.nag === 3
+
+          if (!isCorrect) {
+            logger.warn('DiamondHunter: Incorrect refutation attempt blocked.', { uci })
+            soundTrigger.value = 'game_tacktics_error'
+            message.value = 'Incorrect! That is not the punishment.'
+            return false
+          }
+          return true
+        }
+
+        if (state.value === 'SAVING') {
+          const expectedMove = savingMoves.value[savingMoveIndex.value]
+          if (!expectedMove) return false
+
+          if (uci !== expectedMove) {
+            logger.warn('DiamondHunter: Memory error during saving.', { uci, expected: expectedMove })
+            soundTrigger.value = 'game_tacktics_error'
+            message.value = 'Memory error! Observe the path.'
+            const orig = expectedMove.substring(0, 2)
+            const dest = expectedMove.substring(2, 4)
+            hints.value = [{ orig, dest, type: 'expected' }]
+            setTimeout(() => {
+              if (state.value === 'SAVING') hints.value = []
+            }, 2000)
+            return false
+          }
+          return true
+        }
+        return true
+      },
+
+      async onUserMoveExecuted(uciMove: string) {
+        if (state.value === 'SOLVING') {
+          await handleUserSolvingMove(uciMove)
+        } else if (state.value === 'SAVING') {
+          savingMoveIndex.value++
+          const orig = uciMove.substring(0, 2)
+          const dest = uciMove.substring(2, 4)
+          hints.value = [{ orig, dest, type: 'correct' }]
+          if (savingMoveIndex.value >= savingMoves.value.length) {
+            await transitionToSolving()
+          }
+        }
+      },
+
+      async requestBotMove(fen: string): Promise<string | null> {
+        if (state.value === 'SAVING') {
+          if (savingMoveIndex.value >= savingMoves.value.length) return null
+          return savingMoves.value[savingMoveIndex.value] || null
+        }
+
+        if (state.value === 'SOLVING') {
+          const response = await fetchGravityForFen(fen)
+          if (!response || !response.moves || response.moves.length === 0) return null
+          const forced = response.moves.find((m) => m.nag === 7 || m.nag === 4) || response.moves[0]
+          return forced?.uci || null
+        }
+
+        if (state.value !== 'HUNTING') return null
+
+        const playerColor = analysisStore.playerColor || 'white'
+        if (boardStore.turn === playerColor) return null
+
+        const response = await fetchGravityForFen(fen)
+        if (!response || !response.moves || response.moves.length === 0) {
+          logger.info('DiamondHunter: Theory ended (Bot turn)')
+          showTheoryEndModal.value = true
+          state.value = 'IDLE'
+          return null
+        }
+
+        const candidates = [...response.moves].sort((a, b) => b.weight - a.weight).slice(0, 5)
+        let selectedMove: GravityMove | undefined = candidates[0]
+        if (candidates.length > 0) {
+          const totalWeight = candidates.reduce((sum, m) => sum + m.weight, 0)
+          let randomValue = Math.random() * totalWeight
+          for (const move of candidates) {
+            randomValue -= move.weight
+            if (randomValue <= 0) {
+              selectedMove = move
+              break
+            }
+          }
+        }
+        return selectedMove?.uci || null
+      },
+
+      async onBotMoveExecuted(uci: string) {
+        if (state.value === 'SAVING') {
+          savingMoveIndex.value++
+          if (savingMoveIndex.value >= savingMoves.value.length) {
+            await transitionToSolving()
+          }
+          return
+        }
+
+        if (state.value === 'HUNTING') {
+          const stats = currentGravityStats.value
+          const moveData = stats?.moves.find((m) => m.uci === uci)
+          if (moveData?.nag === 4) {
+            await playBlunder(moveData)
+          }
+        }
+      },
+
+      checkWinCondition: () => false,
+    }
   }
 
   async function playBlunder(move: GravityMove) {
     currentDiamondHash.value = boardStore.fen
     currentBlunderMove.value = move
-
-    // PGN Node for the blunder is already added by BoardStore.applyUciMove
-    // which was called by GameStore._triggerBotMove.
     const blunderNode = pgnService.getCurrentNode()
     if (blunderNode) {
       pgnService.updateNode(blunderNode, { nag: 4 })
     }
-
     puzzleFen.value = boardStore.fen
     state.value = 'SOLVING'
     message.value = 'Tactics available! Punishment time!'
-
     const dest = move.uci.substring(2, 4)
     hints.value = [{ orig: dest, type: 'blunder' }]
-
     soundTrigger.value = 'blunder'
-
     setTimeout(() => {
       if (state.value === 'SOLVING') {
         hints.value = []
       }
     }, 2000)
-  }
-
-  // --- Solving Logic ---
-  async function handleUserSolvingMove(uci: string) {
-    if (state.value === 'SAVING') {
-      // Handled by Strategy.onUserMoveExecuted
-      return
-    }
-
-    if (state.value !== 'SOLVING') return
-
-    const validationFen = puzzleFen.value
-    if (!validationFen) return
-
-    const response = await fetchGravityForFen(validationFen)
-    const moveStats = response?.moves.find((m: GravityMove) => m.uci === uci)
-
-    if (moveStats?.nag === 255) {
-      logger.info('DiamondHunter: Victory (NAG 255)')
-      const orig = uci.substring(0, 2)
-      const dest = uci.substring(2, 4)
-      hints.value = [{ orig, dest, type: 'victory' }]
-      await completeDiamond()
-    } else if (moveStats?.nag === 3) {
-      logger.info('DiamondHunter: Brilliant (NAG 3)')
-      if (currentDiamondHash.value) {
-        recordBrilliantMutation.mutate({
-          hash: currentDiamondHash.value,
-          fen: boardStore.fen,
-          pgn: 'pgn-placeholder',
-        })
-      }
-      const orig = uci.substring(0, 2)
-      const dest = uci.substring(2, 4)
-      hints.value = [{ orig, dest, type: 'correct' }]
-      setTimeout(() => botSolvingResponse(), 1000)
-    } else {
-      logger.warn('DiamondHunter: Incorrect refutation, retrying...')
-      message.value = 'Incorrect! Try again...'
-      soundTrigger.value = 'game_user_lost'
-
-      if (currentDiamondHash.value && currentBlunderMove.value) {
-        setTimeout(async () => {
-          if (state.value !== 'SOLVING') return
-          let safetyCounter = 0
-          while (
-            boardStore.fen !== currentDiamondHash.value &&
-            safetyCounter < 10
-          ) {
-            pgnService.deleteCurrentNode()
-            boardStore.syncBoardWithPgn()
-            safetyCounter++
-          }
-          if (currentBlunderMove.value) {
-            await playBlunder(currentBlunderMove.value)
-          }
-        }, 1500)
-      } else {
-        state.value = 'FAILED'
-      }
-    }
-  }
-
-  async function botSolvingResponse() {
-    if (state.value !== 'SOLVING') return
-    const fen = boardStore.fen
-    const response = await fetchGravityForFen(fen)
-    if (!response || !response.moves || response.moves.length === 0) return
-    const blunder = response.moves.find((m: GravityMove) => m.nag === 4)
-    const forced = response.moves.find((m: GravityMove) => m.nag === 7) || response.moves[0]
-    if (blunder) {
-      await playBlunder(blunder)
-    } else if (forced) {
-      boardStore.applyUciMove(forced.uci)
-      puzzleFen.value = boardStore.fen
-    }
   }
 
   async function completeDiamond() {
@@ -437,7 +395,6 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
         tracer = tracer.parent
       }
       savingMoves.value = pathFromRoot
-      logger.info('DiamondHunter: Blunder found. Replay path set:', savingMoves.value)
     } else {
       const fullPath: string[] = []
       let n = pgnService.getCurrentNode()
@@ -461,8 +418,6 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
     const color = analysisStore.playerColor || 'white'
     boardStore.setupPosition('start', color)
     hints.value = []
-
-    // GameStore handles the loop now via strategy.requestBotMove
   }
 
   async function transitionToSolving() {
@@ -514,10 +469,8 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
     startHunt,
     stopHunt,
     updateArrows,
-    botMove,
     completeDiamond,
     handleUserSolvingMove,
-    handleHuntMove,
     startSaveRun,
     fetchGravityForFen,
     showTheoryEndModal,
