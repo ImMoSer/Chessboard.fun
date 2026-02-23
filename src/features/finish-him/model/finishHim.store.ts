@@ -54,7 +54,7 @@ export const useFinishHimStore = defineStore('finishHim', () => {
 
     return {
       config: {
-        botDelayMs: 500,
+        initialBotDelayMs: 300,
       },
       checkWinCondition(currentState: GameStatusInfo): boolean {
         return (

@@ -305,7 +305,6 @@ export function useSparringLoop() {
   function createStrategy(): IGameplayStrategy {
     return {
       config: {
-        botDelayMs: 400,
       },
       async validateUserMove() {
         return true

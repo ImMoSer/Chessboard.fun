@@ -49,11 +49,11 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
-  async function _triggerBotMove() {
+  async function _triggerBotMove(overrideDelay?: number) {
     if (currentStrategy.value) {
       const uci = await currentStrategy.value.requestBotMove?.(boardStore.fen)
 
-      const delay = currentStrategy.value.config?.botDelayMs ?? 200
+      const delay = overrideDelay ?? currentStrategy.value.config?.botDelayMs ?? 20
       if (delay > 0) {
         await new Promise((resolve) => setTimeout(resolve, delay))
       }
@@ -111,7 +111,7 @@ export const useGameStore = defineStore('game', () => {
 
       const isBotTurn = setup.turn !== humanPlayerColor
       if (isBotTurn) {
-        _triggerBotMove()
+        _triggerBotMove(strategy.config?.initialBotDelayMs)
       }
     } catch (error) {
       logger.error('[GameStore] Invalid FEN provided for startWithStrategy:', fen, error)

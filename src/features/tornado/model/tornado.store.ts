@@ -267,8 +267,8 @@ export const useTornadoStore = defineStore('tornado', () => {
             required: e.required,
             available: e.available,
           }) +
-            '\n\n' +
-            t('pricing.insufficientCoins.subMessage'),
+          '\n\n' +
+          t('pricing.insufficientCoins.subMessage'),
           {
             confirmText: t('pricing.insufficientCoins.goToPricing'),
             cancelText: t('common.close'),
@@ -291,8 +291,7 @@ export const useTornadoStore = defineStore('tornado', () => {
 
     const strategy: IGameplayStrategy = {
       config: {
-        botDelayMs: 50,
-        playGameStatusSounds: false, // Выключаем звуки окончания игры
+        initialBotDelayMs: 300,
       },
 
       validateUserMove() {

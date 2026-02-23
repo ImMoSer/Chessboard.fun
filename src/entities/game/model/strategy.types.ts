@@ -17,6 +17,7 @@ export interface IGameCoreApi {
 export interface IGameplayStrategy {
   config?: {
     botDelayMs?: number
+    initialBotDelayMs?: number
     playGameStatusSounds?: boolean
   }
 

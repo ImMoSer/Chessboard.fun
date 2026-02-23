@@ -163,7 +163,7 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
 
       const strategy: IGameplayStrategy = {
         config: {
-          botDelayMs: 500, // В TheoryEndings классическая задержка
+          // Используется системная задержка 20мс
         },
 
         checkWinCondition(currentState: GameStatusInfo): boolean {

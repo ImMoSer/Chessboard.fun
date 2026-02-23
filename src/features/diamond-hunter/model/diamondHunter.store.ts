@@ -124,7 +124,6 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
   function createStrategy(): IGameplayStrategy {
     return {
       config: {
-        botDelayMs: 500, // или динамически
       },
 
       // Эта функция вызовется ПЕРЕД тем, как ход применится к доске
