@@ -6,7 +6,7 @@ import {
   type IGameplayStrategy,
 } from '@/entities/game'
 import { useAuthStore } from '@/entities/user'
-import { InsufficientFunCoinsError, webhookService } from '@/shared/api/WebhookService'
+import { InsufficientFunCoinsError } from '@/shared/api/WebhookService'
 import i18n from '@/shared/config/i18n'
 import logger from '@/shared/lib/logger'
 import { soundService } from '@/shared/lib/sound/sound.service'
@@ -20,6 +20,7 @@ import { parseFen } from 'chessops/fen'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useFinishHimQueries } from '../api/finishHim.queries'
 
 const t = i18n.global.t
 
@@ -34,8 +35,15 @@ export const useFinishHimStore = defineStore('finishHim', () => {
 
   const selectedTheme = ref<string>('auto')
   const selectedDifficulty = ref<FinishHimDifficulty>('Novice')
+  const requestedPuzzleId = ref<string | undefined>(undefined)
 
   const isProcessingGameOver = ref(false)
+
+  const { puzzleQuery, resultMutation } = useFinishHimQueries({
+    theme: selectedTheme,
+    difficulty: selectedDifficulty,
+    puzzleId: requestedPuzzleId,
+  })
 
   function reset() {
     activePuzzle.value = null
@@ -139,7 +147,7 @@ export const useFinishHimStore = defineStore('finishHim', () => {
     }
 
     try {
-      const response = await webhookService.processFinishHimResult(dto)
+      const response = await resultMutation.mutateAsync(dto)
       if (response && response.userStatsUpdate) {
         logger.info('[FinishHimStore] Stats sent and userStatsUpdate received.')
         authStore.updateUserStats(response.userStatsUpdate)
@@ -166,16 +174,8 @@ export const useFinishHimStore = defineStore('finishHim', () => {
     feedbackMessage.value = t('common.loading')
 
     try {
-      let puzzle: FinishHimPuzzle | null = null
-
-      if (puzzleId) {
-        puzzle = await webhookService.fetchFinishHimPuzzleById(puzzleId)
-      } else {
-        puzzle = await webhookService.fetchFinishHimPuzzle(
-          selectedTheme.value,
-          selectedDifficulty.value,
-        )
-      }
+      requestedPuzzleId.value = puzzleId
+      const { data: puzzle } = await puzzleQuery.refetch()
 
       if (!puzzle) throw new Error('Puzzle data is null')
 
