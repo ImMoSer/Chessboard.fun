@@ -2,15 +2,15 @@
 <script setup lang="ts">
 import { useGameStore } from '@/entities/game'
 import { theoryGraphService } from '@/entities/opening'
-import { AnalysisPanel, useAnalysisStore } from '@/features/analysis'
+import { AnalysisPanel, EngineLines, useAnalysisStore } from '@/features/analysis'
 import { EngineSelector } from '@/features/engine'
 import {
-    GameReviewModal,
-    OpeningSparringHeader,
-    OpeningSparringSettingsModal,
-    OpeningSparringSummaryModal,
-    SessionHistoryList,
-    useOpeningSparringStore,
+  GameReviewModal,
+  OpeningSparringHeader,
+  OpeningSparringSettingsModal,
+  OpeningSparringSummaryModal,
+  SessionHistoryList,
+  useOpeningSparringStore,
 } from '@/features/opening-sparring'
 import { useSparringLoop } from '@/features/opening-sparring/model/useSparringLoop'
 import i18n from '@/shared/config/i18n'

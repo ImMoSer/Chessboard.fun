@@ -1,8 +1,7 @@
 import { gameplayService, useBoardStore, useGameStore, type GameStatusInfo, type IGameplayStrategy } from '@/entities/game'
 import { useOpeningSparringStore } from '@/features/opening-sparring'
 import { useOpeningSparringQueries } from '@/features/opening-sparring/api/openingSparring.queries'
-import { type LichessMove } from '@/shared/api/lichess-explorer/LichessApiService'
-import type { MozerBookMove } from '@/shared/api/mozer-book/MozerBookService'
+import { mozerBookService, type MozerBookMove } from '@/shared/api/mozer-book/MozerBookService'
 import { areMovesEqual } from '@/shared/lib/chess-utils'
 import { serverEngineService, type AnalysisResponse } from '@/shared/lib/engine'
 import { pgnService } from '@/shared/lib/pgn/PgnService'
@@ -43,9 +42,10 @@ export function useSparringLoop() {
 
   async function enrichUserMove(moveUci: string) {
     store.isProcessingMove = true
-    const stats = store.currentStats
+    const stats = store.activeTheoryStats
 
-    if (!stats || stats.moves.length === 0) {
+    if (!stats || !stats.moves || stats.moves.length === 0) {
+      console.log('[OpeningSparring] Theory over: No stats available for enrichment.')
       store.isTheoryOver = true
       store.isProcessingMove = false
       return
@@ -54,6 +54,7 @@ export function useSparringLoop() {
     const moveData = stats.moves.find((m: MozerBookMove) => areMovesEqual(m.uci, moveUci))
 
     if (!moveData) {
+      console.log('[OpeningSparring] Deviation detected:', moveUci)
       store.isDeviation = true
       soundService.playSound('game_user_won')
       store.isProcessingMove = false
@@ -83,12 +84,6 @@ export function useSparringLoop() {
     if (moveData.name) store.openingName = moveData.name
     if (moveData.eco) store.currentEco = moveData.eco
 
-    // В Dual-Boot ход уже на доске
-    const lastMoveUci = boardStore.lastMove ? boardStore.lastMove.join('') : ''
-    if (lastMoveUci !== moveUci) {
-      boardStore.applyUciMove(moveUci)
-    }
-
     // Enrich PGN
     const node = pgnService.getLastMove()
     if (node) {
@@ -104,35 +99,32 @@ export function useSparringLoop() {
       })
     }
 
+    // Refresh reactive stats for UI
     await fetchStats()
+
+    // Advance stable theory stats for next move
+    store.activeTheoryStats = await mozerBookService.getStats(boardStore.fen)
+
     store.isProcessingMove = false
   }
 
   async function getTheoryBotMoveUci(): Promise<string | null> {
-    let movesPool: (MozerBookMove | LichessMove)[] = []
-    if (store.opponentSource === 'lichess' && store.currentLichessStats) {
-      movesPool = store.currentLichessStats.moves
-    } else {
-      movesPool = store.currentStats?.moves || []
-    }
-
-    if (movesPool.length === 0) {
+    const stats = store.activeTheoryStats
+    if (!stats || !stats.moves || stats.moves.length === 0) {
       store.isTheoryOver = true
-      if (store.opponentSource === 'master') {
-        soundService.playSound('game_user_won')
-      }
       return null
     }
 
+    // Determine candidate moves
+    // Note: If opponentSource is Lichess, we might want to prioritize Lichess stats here,
+    // but the stable 'activeTheoryStats' follows Mozer for baseline theory consistency.
+    // Future improvement: Support stable Lichess stats too.
+    const movesPool = stats.moves
+
     const candidates = movesPool
       .slice(0, store.variability)
-      .map((m: MozerBookMove | LichessMove) => {
-        let total = (m as MozerBookMove).total
-        if (total === undefined) {
-          const lm = m as LichessMove
-          total = lm.white + lm.draws + lm.black
-        }
-        return { uci: m.uci, total }
+      .map((m: MozerBookMove) => {
+        return { uci: m.uci, total: m.total }
       })
 
     if (candidates.length === 0) {
@@ -156,8 +148,8 @@ export function useSparringLoop() {
   }
 
   async function enrichBotMove(selectedUci: string) {
-    const masterStats = store.currentStats
-    const masterMoveData = masterStats?.moves.find((m: MozerBookMove) =>
+    const stats = store.activeTheoryStats
+    const moveData = stats?.moves.find((m: MozerBookMove) =>
       areMovesEqual(m.uci, selectedUci),
     )
 
@@ -167,27 +159,27 @@ export function useSparringLoop() {
     let winRateRaw = 0
     let rating = 0
 
-    if (masterMoveData) {
-      const totalGamesInPos = masterStats!.summary
-        ? masterStats!.summary!.w + masterStats!.summary!.d + masterStats!.summary!.l
-        : masterStats!.moves.reduce((acc: number, m: MozerBookMove) => acc + m.total, 0) || 1
+    if (moveData) {
+      const totalGamesInPos = stats!.summary
+        ? stats!.summary!.w + stats!.summary!.d + stats!.summary!.l
+        : stats!.moves.reduce((acc: number, m: MozerBookMove) => acc + m.total, 0) || 1
 
-      popularity = (masterMoveData.total / totalGamesInPos) * 100
-      const maxTotal = Math.max(...masterStats!.moves.map((m: MozerBookMove) => m.total))
-      accuracy = maxTotal > 0 ? (masterMoveData.total / maxTotal) * 100 : 0
+      popularity = (moveData.total / totalGamesInPos) * 100
+      const maxTotal = Math.max(...stats!.moves.map((m: MozerBookMove) => m.total))
+      accuracy = maxTotal > 0 ? (moveData.total / maxTotal) * 100 : 0
 
-      const wins = store.playerColor === 'white' ? masterMoveData.w_pct : masterMoveData.l_pct
-      winRateRaw = wins + 0.5 * masterMoveData.d_pct
-      rating = masterMoveData.perf || 0
+      const wins = store.playerColor === 'white' ? moveData.w_pct : moveData.l_pct
+      winRateRaw = wins + 0.5 * moveData.d_pct
+      rating = moveData.perf || 0
 
       moveStats = {
-        uci: masterMoveData.uci,
-        san: masterMoveData.san,
-        total: masterMoveData.total,
-        w_pct: masterMoveData.w_pct,
-        d_pct: masterMoveData.d_pct,
-        l_pct: masterMoveData.l_pct,
-        perf: masterMoveData.perf,
+        uci: moveData.uci,
+        san: moveData.san,
+        total: moveData.total,
+        w_pct: moveData.w_pct,
+        d_pct: moveData.d_pct,
+        l_pct: moveData.l_pct,
+        perf: moveData.perf,
       }
     }
 
@@ -205,9 +197,13 @@ export function useSparringLoop() {
       })
     }
 
+    // Refresh reactive stats for UI
     await fetchStats()
 
-    if (!masterMoveData) {
+    // Advance stable theory stats for next move
+    store.activeTheoryStats = await mozerBookService.getStats(boardStore.fen)
+
+    if (!moveData) {
       store.isTheoryOver = true
     }
   }
@@ -317,18 +313,19 @@ export function useSparringLoop() {
         }
       },
       async requestBotMove(fen: string): Promise<string | null> {
-        if (store.isTheoryOver || store.isDeviation) return null
-
-        store.isProcessingMove = true
         if (store.isPlayoutMode) {
+          store.isProcessingMove = true
           const gameStore = useGameStore()
           const botEngineId = gameStore.botEngineId
           const uci = await gameplayService.getBestMove(botEngineId, fen)
           return uci
-        } else {
-          const uci = await getTheoryBotMoveUci()
-          return uci
         }
+
+        if (store.isTheoryOver || store.isDeviation) return null
+
+        store.isProcessingMove = true
+        const uci = await getTheoryBotMoveUci()
+        return uci
       },
       async onBotMoveExecuted(uci: string) {
         if (store.isPlayoutMode) {

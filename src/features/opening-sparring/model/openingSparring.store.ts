@@ -2,13 +2,15 @@ import { analysisService } from '@/entities/analysis'
 import { useBoardStore, useGameStore, type IGameplayStrategy } from '@/entities/game'
 import { theoryGraphService } from '@/entities/opening'
 import { gameReviewService } from '@/features/opening-sparring/api/GameReviewService'
-import { useOpeningSparringQueries } from '@/features/opening-sparring/api/openingSparring.queries'
+import { mozerBookService, type MozerBookResponse } from '@/shared/api/mozer-book/MozerBookService'
 import { webhookService } from '@/shared/api/WebhookService'
 import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
 import { type SessionMove } from '@/shared/types/openingSparring.types'
 import { type Key } from '@lichess-org/chessground/types'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
+
+import { useOpeningSparringQueries } from '../api/openingSparring.queries'
 
 export const useOpeningSparringStore = defineStore('openingSparring', () => {
   const boardStore = useBoardStore()
@@ -85,7 +87,10 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   const defaultRatings = [1200, 1400, 1600, 1800, 2000, 2200]
   const opponentRatings = ref<number[]>(savedRatings ? JSON.parse(savedRatings) : defaultRatings)
 
-  // --- Vue Query Integration ---
+  // --- stable theory state for game loop ---
+  const activeTheoryStats = ref<MozerBookResponse | null>(null)
+
+  // --- Vue Query Integration (Reactive for UI) ---
   const fen = computed(() => boardStore.fen)
   const shouldFetchLichess = computed(() => boardStore.turn !== playerColor.value)
 
@@ -184,6 +189,9 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
       }
 
       const sessionStartFen = boardStore.fen
+
+      // Load initial theory stats for the starting position
+      activeTheoryStats.value = await mozerBookService.getStats(sessionStartFen)
 
       // 2. Pass control to GameStore Dual-Boot logic
       const gameStore = useGameStore()
@@ -361,6 +369,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     isInitializing,
     isProcessingMove,
     isPlayoutMode,
+    activeTheoryStats,
     error,
     moveQueue,
     lives,
