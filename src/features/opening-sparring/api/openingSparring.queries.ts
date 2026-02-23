@@ -1,9 +1,9 @@
 import { useMutation, useQuery } from '@tanstack/vue-query'
 import { computed, type Ref } from 'vue'
 
+import { apiClient } from '@/shared/api/client'
 import { lichessApiService } from '@/shared/api/lichess-explorer/LichessApiService'
 import { mozerBookService } from '@/shared/api/mozer-book/MozerBookService'
-import { webhookService } from '@/shared/api/WebhookService'
 
 export const OPENING_SPARRING_KEYS = {
   all: ['opening-sparring'] as const,
@@ -46,7 +46,9 @@ export function useOpeningSparringQueries(options?: {
   })
 
   const startSparringMutation = useMutation({
-    mutationFn: () => webhookService.startOpeningSparring(),
+    mutationFn: () => apiClient<{ status: string }>('/opening/sparring/start', {
+      method: 'POST'
+    }),
   })
 
   return {

@@ -1,8 +1,10 @@
-import { webhookService } from '@/shared/api/WebhookService'
+import { apiClient } from '@/shared/api/client'
 import type {
+    GameResultResponse,
     PracticalChessCategory,
     PracticalChessDifficulty,
-    PracticalChessResultDto
+    PracticalChessResultDto,
+    PracticalPuzzle
 } from '@/shared/types/api.types'
 import { useMutation, useQuery } from '@tanstack/vue-query'
 import { computed, type Ref } from 'vue'
@@ -30,11 +32,10 @@ export function usePracticalChessQueries(params?: {
         }),
         queryFn: async () => {
             if (params?.puzzleId?.value) {
-                return await webhookService.fetchPracticalPuzzleById(params.puzzleId.value)
+                return await apiClient<PracticalPuzzle>(`/practical-chess/puzzle/${params.puzzleId.value}`)
             }
-            return await webhookService.fetchPracticalPuzzle(
-                params?.category.value ?? 'extraPawn',
-                params?.difficulty.value ?? 'Novice'
+            return await apiClient<PracticalPuzzle>(
+                `/practical-chess/puzzle?category=${params?.category.value ?? 'extraPawn'}&difficulty=${params?.difficulty.value ?? 'Novice'}`
             )
         },
         enabled: false,
@@ -43,7 +44,10 @@ export function usePracticalChessQueries(params?: {
 
     const resultMutation = useMutation({
         mutationFn: (args: { category: string; dto: PracticalChessResultDto }) =>
-            webhookService.processPracticalResult(args.category, args.dto),
+            apiClient<GameResultResponse>(`/practical-chess/result/${args.category}`, {
+                method: 'POST',
+                body: JSON.stringify(args.dto)
+            }),
     })
 
     return {

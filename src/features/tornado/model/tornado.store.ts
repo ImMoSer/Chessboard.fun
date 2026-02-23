@@ -1,7 +1,7 @@
 // src/stores/tornado.store.ts
 import { useBoardStore, useGameStore, type IGameplayStrategy } from '@/entities/game'
 import { useAuthStore } from '@/entities/user'
-import { InsufficientFunCoinsError } from '@/shared/api/WebhookService'
+import { InsufficientFunCoinsError } from '@/shared/api/client'
 import i18n from '@/shared/config/i18n'
 import { Glicko2Calculator, type GlickoState } from '@/shared/lib/glicko2'
 import logger from '@/shared/lib/logger'

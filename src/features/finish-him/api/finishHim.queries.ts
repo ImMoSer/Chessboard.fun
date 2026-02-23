@@ -1,5 +1,10 @@
-import { webhookService } from '@/shared/api/WebhookService'
-import type { FinishHimDifficulty, FinishHimResultDto } from '@/shared/types/api.types'
+import { apiClient } from '@/shared/api/client'
+import type {
+    FinishHimDifficulty,
+    FinishHimPuzzle,
+    FinishHimResultDto,
+    GameResultResponse
+} from '@/shared/types/api.types'
 import { useMutation, useQuery } from '@tanstack/vue-query'
 import { computed, type Ref } from 'vue'
 
@@ -23,11 +28,10 @@ export function useFinishHimQueries(params?: {
         }),
         queryFn: async () => {
             if (params?.puzzleId?.value) {
-                return await webhookService.fetchFinishHimPuzzleById(params.puzzleId.value)
+                return await apiClient<FinishHimPuzzle>(`/finish-him/puzzle/${params.puzzleId.value}`)
             }
-            return await webhookService.fetchFinishHimPuzzle(
-                params?.theme.value ?? 'auto',
-                params?.difficulty.value ?? 'Novice'
+            return await apiClient<FinishHimPuzzle>(
+                `/finish-him/puzzle?theme=${params?.theme.value ?? 'auto'}&difficulty=${params?.difficulty.value ?? 'Novice'}`
             )
         },
         enabled: false, // Загрузка инициируется вручную через refetch()
@@ -35,7 +39,11 @@ export function useFinishHimQueries(params?: {
     })
 
     const resultMutation = useMutation({
-        mutationFn: (dto: FinishHimResultDto) => webhookService.processFinishHimResult(dto),
+        mutationFn: (dto: FinishHimResultDto) =>
+            apiClient<GameResultResponse>('/finish-him/result', {
+                method: 'POST',
+                body: JSON.stringify(dto)
+            }),
     })
 
     return {

@@ -1,9 +1,11 @@
-import { webhookService } from '@/shared/api/WebhookService'
+import { apiClient } from '@/shared/api/client'
 import type {
+    GameResultResponse,
     TheoryEndingCategory,
     TheoryEndingDifficulty,
     TheoryEndingResultDto,
-    TheoryEndingType
+    TheoryEndingType,
+    TheoryPuzzle
 } from '@/shared/types/api.types'
 import { useMutation, useQuery } from '@tanstack/vue-query'
 import { computed, type Ref } from 'vue'
@@ -40,11 +42,13 @@ export function useTheoryEndingsQueries(params?: {
             const cat = params?.category.value
 
             if (id && type) {
-                return await webhookService.fetchTheoryPuzzleById(type, id)
+                return await apiClient<TheoryPuzzle>(`/theory-endings/puzzle/${type}/${id}`)
             }
 
             if (type && diff && cat) {
-                return await webhookService.fetchTheoryPuzzle(type, diff, cat)
+                return await apiClient<TheoryPuzzle>(
+                    `/theory-endings/puzzle?type=${type}&difficulty=${diff}&category=${cat}`
+                )
             }
 
             throw new Error('Missing parameters for Theory Ending puzzle fetch')
@@ -54,7 +58,11 @@ export function useTheoryEndingsQueries(params?: {
     })
 
     const resultMutation = useMutation({
-        mutationFn: (dto: TheoryEndingResultDto) => webhookService.processTheoryResult(dto),
+        mutationFn: (dto: TheoryEndingResultDto) =>
+            apiClient<GameResultResponse>('/theory-endings/result', {
+                method: 'POST',
+                body: JSON.stringify(dto)
+            }),
     })
 
     return {

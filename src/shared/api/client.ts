@@ -1,25 +1,14 @@
 import { z } from 'zod'
 
+import { ApiError, InsufficientFunCoinsError, RateLimitError } from './errors'
+export { ApiError, InsufficientFunCoinsError, RateLimitError }
+
 export const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL as string
 
 if (!BACKEND_API_URL) {
   console.error(
     '[API Client] Critical Configuration Error: VITE_BACKEND_API_URL is not defined in your .env file.',
   )
-}
-
-/**
- * Base error class for API requests
- */
-export class ApiError extends Error {
-  constructor(
-    public status: number,
-    message: string,
-    public data?: unknown,
-  ) {
-    super(message)
-    this.name = 'ApiError'
-  }
 }
 
 /**
@@ -47,6 +36,20 @@ export async function apiClient<T>(
   })
 
   if (!response.ok) {
+    if (response.status === 429) {
+      const r = response.headers.get('Retry-After')
+      throw new RateLimitError('Rate limit exceeded', r ? parseInt(r, 10) : 60)
+    }
+
+    if (response.status === 403) {
+      const errorData = await response.json()
+      throw new InsufficientFunCoinsError(
+        errorData.message || 'Forbidden',
+        errorData.required || 0,
+        errorData.available || 0,
+      )
+    }
+
     let errorData
     try {
       errorData = await response.json()

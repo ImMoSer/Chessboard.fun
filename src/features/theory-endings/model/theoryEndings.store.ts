@@ -7,7 +7,7 @@ import {
   type IGameplayStrategy,
 } from '@/entities/game'
 import { useAuthStore } from '@/entities/user'
-import { InsufficientFunCoinsError } from '@/shared/api/WebhookService'
+import { InsufficientFunCoinsError } from '@/shared/api/client'
 import i18n from '@/shared/config/i18n'
 import logger from '@/shared/lib/logger'
 import { soundService } from '@/shared/lib/sound/sound.service'
