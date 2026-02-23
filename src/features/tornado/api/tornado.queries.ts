@@ -15,14 +15,14 @@ export const TORNADO_KEYS = {
 export function useTornadoQueries() {
   const startSessionMutation = useMutation({
     mutationFn: (args: { mode: TornadoMode; theme?: string }) =>
-      apiClient<TornadoStartResponse>(`/tornado/session/start/${args.mode}${args.theme ? `?theme=${args.theme}` : ''}`, {
-        method: 'POST'
+      apiClient<TornadoStartResponse>(`/tornado/start/${args.mode}${args.theme ? `?theme=${args.theme}` : ''}`, {
+        method: 'GET'
       }),
   })
 
   const endSessionMutation = useMutation({
     mutationFn: (args: { mode: TornadoMode; dto: TornadoEndSessionDto }) =>
-      apiClient<TornadoEndResponse>(`/tornado/session/end/${args.mode}`, {
+      apiClient<TornadoEndResponse>(`/tornado/end-session/${args.mode}`, {
         method: 'POST',
         body: JSON.stringify(args.dto)
       }),

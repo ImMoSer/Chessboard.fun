@@ -28,10 +28,10 @@ export function useFinishHimQueries(params?: {
         }),
         queryFn: async () => {
             if (params?.puzzleId?.value) {
-                return await apiClient<FinishHimPuzzle>(`/finish-him/puzzle/${params.puzzleId.value}`)
+                return await apiClient<FinishHimPuzzle>(`/finish-him/PuzzleId/${params.puzzleId.value}`)
             }
             return await apiClient<FinishHimPuzzle>(
-                `/finish-him/puzzle?theme=${params?.theme.value ?? 'auto'}&difficulty=${params?.difficulty.value ?? 'Novice'}`
+                `/finish-him/start?theme=${params?.theme.value ?? 'auto'}&difficulty=${params?.difficulty.value ?? 'Novice'}`
             )
         },
         enabled: false, // Загрузка инициируется вручную через refetch()

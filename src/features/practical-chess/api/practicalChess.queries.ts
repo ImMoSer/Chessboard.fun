@@ -34,8 +34,9 @@ export function usePracticalChessQueries(params?: {
             if (params?.puzzleId?.value) {
                 return await apiClient<PracticalPuzzle>(`/practical-chess/puzzle/${params.puzzleId.value}`)
             }
+            const category = params?.category.value ?? 'extraPawn'
             return await apiClient<PracticalPuzzle>(
-                `/practical-chess/puzzle?category=${params?.category.value ?? 'extraPawn'}&difficulty=${params?.difficulty.value ?? 'Novice'}`
+                `/practical-chess/${category}/puzzle?difficulty=${params?.difficulty.value ?? 'Novice'}`
             )
         },
         enabled: false,
@@ -44,7 +45,7 @@ export function usePracticalChessQueries(params?: {
 
     const resultMutation = useMutation({
         mutationFn: (args: { category: string; dto: PracticalChessResultDto }) =>
-            apiClient<GameResultResponse>(`/practical-chess/result/${args.category}`, {
+            apiClient<GameResultResponse>(`/practical-chess/${args.category}/process-result`, {
                 method: 'POST',
                 body: JSON.stringify(args.dto)
             }),
