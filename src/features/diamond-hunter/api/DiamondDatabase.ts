@@ -16,7 +16,7 @@ export interface BrilliantRecord {
   collectedAt: number
 }
 
-export class DiamondDatabase extends Dexie {
+class DiamondDatabase extends Dexie {
   diamonds!: EntityTable<DiamondRecord, 'id'>
   brilliants!: EntityTable<BrilliantRecord, 'id'>
 

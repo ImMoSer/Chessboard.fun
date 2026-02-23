@@ -25,9 +25,7 @@ export const engineConfigs: Record<EngineId, EngineConfig> = {
   maia_2200: { type: 'server', model: 'maia_2200', fallback: true },
 }
 
-export function isServerEngine(engineId: EngineId): boolean {
-  return engineConfigs[engineId]?.type === 'server'
-}
+
 
 class GameplayServiceController {
   constructor() {

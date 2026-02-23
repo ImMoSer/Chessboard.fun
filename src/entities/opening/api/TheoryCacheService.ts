@@ -10,7 +10,7 @@ export interface TheoryStats {
 
 export type CacheSource = 'lichess' | 'masters' | 'lichessMasters' | 'mozerBook' | 'diamondGravity'
 
-export class TheoryDatabase extends Dexie {
+class TheoryDatabase extends Dexie {
   openings!: Table<TheoryStats>
   lichessMasters!: Table<TheoryStats>
   mozerBook!: Table<TheoryStats>
