@@ -3,7 +3,7 @@ import { useBoardStore, useGameStore, type IGameplayStrategy } from '@/entities/
 import { theoryGraphService } from '@/entities/opening'
 import { gameReviewService } from '@/features/opening-sparring/api/GameReviewService'
 import { mozerBookService, type MozerBookResponse } from '@/shared/api/mozer-book/MozerBookService'
-import { webhookService } from '@/shared/api/WebhookService'
+import logger from '@/shared/lib/logger'
 import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
 import { type SessionMove } from '@/shared/types/openingSparring.types'
 import { type Key } from '@lichess-org/chessground/types'
@@ -94,7 +94,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   const fen = computed(() => boardStore.fen)
   const shouldFetchLichess = computed(() => boardStore.turn !== playerColor.value)
 
-  const { mozerQuery, lichessQuery } = useOpeningSparringQueries({
+  const { mozerQuery, lichessQuery, startSparringMutation } = useOpeningSparringQueries({
     fen,
     source: opponentSource,
     shouldFetchLichess,
@@ -203,7 +203,12 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
       )
 
       await theoryGraphService.loadBook()
-      await webhookService.startOpeningSparring()
+
+      try {
+        await startSparringMutation.mutateAsync()
+      } catch (err) {
+        logger.error('[OpeningSparring] Failed to start session on backend', err)
+      }
 
       // The bot move will be triggered automatically by GameStore if `boardStore.turn !== color`
 
