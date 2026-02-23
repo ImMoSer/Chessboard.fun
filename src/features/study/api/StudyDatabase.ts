@@ -1,5 +1,5 @@
 import Dexie, { type Table } from 'dexie'
-import { type StudyChapter } from '@/features/study'
+import { type StudyChapter } from '../model/study.store'
 
 export class StudyDatabase extends Dexie {
   chapters!: Table<StudyChapter>

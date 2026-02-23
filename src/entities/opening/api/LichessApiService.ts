@@ -1,6 +1,6 @@
 // src/services/LichessApiService.ts
-import { theoryCacheService } from '@/shared/api/TheoryCacheService'
 import logger from '@/shared/lib/logger'
+import { theoryCacheService } from './TheoryCacheService'
 
 export interface LichessMove {
   uci: string

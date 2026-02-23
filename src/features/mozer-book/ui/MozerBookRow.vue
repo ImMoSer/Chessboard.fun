@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type MozerBookMove } from '@/shared/api/mozer-book/MozerBookService'
+import { type MozerBookMove } from '@/entities/opening'
 import { NTooltip } from 'naive-ui'
 import { computed } from 'vue'
 import WinrateBar from './WinrateBar.vue'

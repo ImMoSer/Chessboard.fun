@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useBoardStore } from '@/entities/game'
-import type { LichessMove } from '@/shared/api/lichess-explorer/LichessApiService'
+import type { LichessMove } from '@/entities/opening'
 import type { DataTableColumns } from 'naive-ui'
 import { NDataTable, NText } from 'naive-ui'
 import { computed, h } from 'vue'

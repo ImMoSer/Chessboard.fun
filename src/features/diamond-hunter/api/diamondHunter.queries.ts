@@ -1,6 +1,6 @@
-import { checkDiamondLimit, db, recordBrilliant, recordDiamond, removeLastBrilliant } from '@/db/DiamondDatabase'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { diamondApiService, type GravityMove } from './DiamondApiService'
+import { checkDiamondLimit, db, recordBrilliant, recordDiamond, removeLastBrilliant } from './DiamondDatabase'
 
 export const DIAMOND_HUNTER_KEYS = {
   all: ['diamond-hunter'] as const,

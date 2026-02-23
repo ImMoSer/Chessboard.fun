@@ -1,7 +1,7 @@
 import { gameplayService, useBoardStore, useGameStore, type GameStatusInfo, type IGameplayStrategy } from '@/entities/game'
 import { useOpeningSparringStore } from '@/features/opening-sparring'
 import { useOpeningSparringQueries } from '@/features/opening-sparring/api/openingSparring.queries'
-import { mozerBookService, type MozerBookMove } from '@/shared/api/mozer-book/MozerBookService'
+import { mozerBookService, type MozerBookMove } from '@/entities/opening'
 import { areMovesEqual } from '@/shared/lib/chess-utils'
 import { serverEngineService, type AnalysisResponse } from '@/shared/lib/engine'
 import { pgnService } from '@/shared/lib/pgn/PgnService'

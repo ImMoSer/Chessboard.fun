@@ -1,7 +1,7 @@
 import {
   type MozerBookMove,
   type MozerBookTheoryItem,
-} from '@/shared/api/mozer-book/MozerBookService'
+} from '@/entities/opening'
 
 export interface MozerBookMoveExtended extends MozerBookMove {
   children: MozerBookTheoryItem[]

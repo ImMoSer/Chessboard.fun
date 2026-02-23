@@ -1,6 +1,6 @@
 // src/stores/mozerBook.store.ts
 import { useBoardStore } from '@/entities/game'
-import { mozerBookService, type MozerBookResponse } from '@/shared/api/mozer-book/MozerBookService'
+import { mozerBookService, type MozerBookResponse } from '@/entities/opening'
 import logger from '@/shared/lib/logger'
 import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
 import { defineStore } from 'pinia'

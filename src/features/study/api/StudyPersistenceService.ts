@@ -1,7 +1,7 @@
 import { type StudyChapter } from '@/features/study'
 import { type PgnNode } from '@/shared/lib/pgn/PgnService'
-import { studyDb } from '@/db/StudyDatabase'
 import { toRaw } from 'vue'
+import { studyDb } from './StudyDatabase'
 
 class StudyPersistenceService {
   /**

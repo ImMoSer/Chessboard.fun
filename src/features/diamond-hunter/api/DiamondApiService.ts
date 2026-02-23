@@ -1,4 +1,4 @@
-import { theoryCacheService } from '@/shared/api/TheoryCacheService'
+import { theoryCacheService } from '@/entities/opening'
 import logger from '@/shared/lib/logger'
 
 export interface GravityMove {

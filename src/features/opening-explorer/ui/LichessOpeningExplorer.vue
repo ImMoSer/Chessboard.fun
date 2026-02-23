@@ -5,7 +5,7 @@ import {
   type LichessMastersParams,
   type LichessOpeningResponse,
   type LichessParams,
-} from '@/shared/api/lichess-explorer/LichessApiService'
+} from '@/entities/opening'
 import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
 import {
   CalendarOutline,
