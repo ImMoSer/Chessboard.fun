@@ -193,8 +193,8 @@ export const useFinishHimStore = defineStore('finishHim', () => {
             required: e.required,
             available: e.available,
           }) +
-            '\n\n' +
-            t('pricing.insufficientCoins.subMessage'),
+          '\n\n' +
+          t('pricing.insufficientCoins.subMessage'),
           {
             confirmText: t('pricing.insufficientCoins.goToPricing'),
             cancelText: t('common.close'),
@@ -284,11 +284,6 @@ export const useFinishHimStore = defineStore('finishHim', () => {
     router.push('/finish-him') // Go back to selection
   }
 
-  function handleUnloadResignation() {
-    if (!activePuzzle.value || !authStore.userProfile) {
-      return
-    }
-  }
 
   return {
     gamePhase: computed(() => gameStore.gamePhase),
@@ -305,6 +300,5 @@ export const useFinishHimStore = defineStore('finishHim', () => {
     reset,
     setParams,
     setThemeAndLoadPuzzle,
-    handleUnloadResignation,
   }
 })

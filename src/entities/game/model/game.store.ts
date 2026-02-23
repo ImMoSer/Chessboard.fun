@@ -10,18 +10,8 @@ import { ref } from 'vue'
 import type { IGameCoreApi, IGameplayStrategy } from './strategy.types'
 
 export type GamePhase = 'IDLE' | 'LOADING' | 'PLAYING' | 'GAMEOVER'
-export type GameMode =
-  | 'finish-him'
-  | 'tornado'
-  | 'sandbox'
-  | 'opening-trainer'
-  | 'theory'
-  | 'practical-chess'
-  | null
-
 export const useGameStore = defineStore('game', () => {
   const gamePhase = ref<GamePhase>('IDLE')
-  const currentGameMode = ref<GameMode>(null)
 
   const userMovesCount = ref(0)
   const isGameActive = ref(false)
@@ -100,7 +90,6 @@ export const useGameStore = defineStore('game', () => {
       const setup = parseFen(fen).unwrap()
 
       currentStrategy.value = strategy
-      currentGameMode.value = null // Очищаем старый режим
 
       const humanPlayerColor = userColor || (setup.turn === 'white' ? 'black' : 'white')
 
@@ -195,7 +184,6 @@ export const useGameStore = defineStore('game', () => {
     boardStore.resetBoardState()
 
     gamePhase.value = 'IDLE'
-    currentGameMode.value = null
     currentStrategy.value = null
     userMovesCount.value = 0
     isGameActive.value = false
@@ -206,7 +194,6 @@ export const useGameStore = defineStore('game', () => {
   return {
     gamePhase,
     isGameActive,
-    currentGameMode,
     currentStrategy,
     startWithStrategy,
     handleUserMove,

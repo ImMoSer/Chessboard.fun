@@ -2,11 +2,10 @@
 <!-- src/components/AnalysisPanel.vue -->
 <script setup lang="ts">
 import { useBoardStore } from '@/entities/game'
-import { useAnalysisStore } from '@/features/analysis'
-import { EngineLines } from '@/features/analysis'
+import { EngineLines, useAnalysisStore } from '@/features/analysis'
 import type { PgnNode } from '@/shared/lib/pgn/PgnService'
 import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
-import { ChevronBackOutline, PlaySkipForwardOutline, TerminalOutline } from '@vicons/ionicons5'
+import { ChevronBackOutline, ChevronForwardOutline, PlaySkipBackOutline, PlaySkipForwardOutline, TerminalOutline } from '@vicons/ionicons5'
 import { NButton, NButtonGroup, NIcon, NScrollbar, NSelect, NText, NTooltip } from 'naive-ui'
 import { storeToRefs } from 'pinia'
 import { computed, h, type FunctionalComponent } from 'vue'

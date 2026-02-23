@@ -1,7 +1,6 @@
 <!-- src/App.vue -->
 <script setup lang="ts">
 import { useGameStore } from '@/entities/game'
-import { useFinishHimStore } from '@/features/finish-him'
 import { SettingsMenu } from '@/features/settings'
 import ConfirmationModal from '@/shared/ui/ConfirmationModal.vue'
 import InfoModal from '@/shared/ui/InfoModal.vue'
@@ -15,7 +14,6 @@ import { useI18n } from 'vue-i18n'
 import { RouterView } from 'vue-router'
 
 const gameStore = useGameStore()
-const finishHimStore = useFinishHimStore()
 const uiStore = useUiStore()
 const { t } = useI18n()
 
@@ -58,9 +56,6 @@ const beforeUnloadHandler = (event: BeforeUnloadEvent) => {
     event.preventDefault()
     event.returnValue = t('gameplay.confirmExit.browserMessage')
     gameStore.handleGameResignation()
-    if (gameStore.currentGameMode === 'finish-him') {
-      finishHimStore.handleUnloadResignation()
-    }
   }
 }
 
