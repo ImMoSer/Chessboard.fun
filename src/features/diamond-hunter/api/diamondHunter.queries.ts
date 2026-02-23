@@ -1,4 +1,4 @@
-import { checkDiamondLimit, db, recordBrilliant, recordDiamond } from '@/db/DiamondDatabase'
+import { checkDiamondLimit, db, recordBrilliant, recordDiamond, removeLastBrilliant } from '@/db/DiamondDatabase'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { diamondApiService, type GravityMove } from './DiamondApiService'
 
@@ -46,6 +46,15 @@ export function useDiamondHunterQueries() {
     },
   })
 
+  const removeBrilliantMutation = useMutation({
+    mutationFn: async () => {
+      return await removeLastBrilliant()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: DIAMOND_HUNTER_KEYS.db.brilliantsCount() })
+    },
+  })
+
   // 3. Gravity Fetcher (Imperative)
   // We use fetchQuery so we can call it on demand from the store actions,
   // while still utilizing deduplication and caching.
@@ -74,6 +83,7 @@ export function useDiamondHunterQueries() {
     // Mutations
     recordBrilliantMutation,
     recordDiamondMutation,
+    removeBrilliantMutation,
 
     // Services
     checkDiamondLimit,

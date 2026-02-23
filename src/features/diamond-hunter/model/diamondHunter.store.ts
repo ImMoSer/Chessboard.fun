@@ -50,6 +50,7 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
     brilliantsCountQuery,
     recordBrilliantMutation,
     recordDiamondMutation,
+    removeBrilliantMutation,
     checkDiamondLimit,
     fetchGravityForFen: fetchGravityQuery,
   } = useDiamondHunterQueries()
@@ -249,6 +250,12 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
             message.value = 'Memory error! Observe the path.'
             const orig = expectedMove.substring(0, 2)
             const dest = expectedMove.substring(2, 4)
+
+            // Penalty: remove one brilliant if available
+            if (totalBrilliants.value > 0) {
+              logger.info('DiamondHunter: Applying penalty for memory error (-1 Brilliant)')
+              removeBrilliantMutation.mutate()
+            }
 
             // Small delay to show hint AFTER boardStore.syncBoardWithPgn()
             setTimeout(() => {

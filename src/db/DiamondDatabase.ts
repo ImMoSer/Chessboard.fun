@@ -64,3 +64,10 @@ export async function recordBrilliant(hash: string, fen: string, pgn: string): P
     collectedAt: Date.now(),
   } as BrilliantRecord)
 }
+
+export async function removeLastBrilliant(): Promise<void> {
+  const lastRecord = await db.brilliants.orderBy('collectedAt').last()
+  if (lastRecord?.id !== undefined) {
+    await db.brilliants.delete(lastRecord.id)
+  }
+}

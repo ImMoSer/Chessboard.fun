@@ -53,7 +53,7 @@ export const useGameStore = defineStore('game', () => {
     if (currentStrategy.value) {
       const uci = await currentStrategy.value.requestBotMove?.(boardStore.fen)
 
-      const delay = overrideDelay ?? currentStrategy.value.config?.botDelayMs ?? 500
+      const delay = overrideDelay ?? currentStrategy.value.config?.botDelayMs ?? 50
       if (delay > 0) {
         await new Promise((resolve) => setTimeout(resolve, delay))
       }
