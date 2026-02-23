@@ -7,13 +7,14 @@ import {
   type IGameplayStrategy,
 } from '@/entities/game'
 import { useAuthStore } from '@/entities/user'
-import { InsufficientFunCoinsError, webhookService } from '@/shared/api/WebhookService'
+import { InsufficientFunCoinsError } from '@/shared/api/WebhookService'
 import i18n from '@/shared/config/i18n'
 import logger from '@/shared/lib/logger'
 import { soundService } from '@/shared/lib/sound/sound.service'
 import type {
   TheoryEndingCategory,
   TheoryEndingDifficulty,
+  TheoryEndingResultDto,
   TheoryEndingType,
   TheoryPuzzle,
 } from '@/shared/types/api.types'
@@ -21,6 +22,7 @@ import { useUiStore } from '@/shared/ui/model/ui.store'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useTheoryEndingsQueries } from '../api/theoryEndings.queries'
 
 const t = i18n.global.t
 
@@ -34,9 +36,17 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
   const activeType = ref<TheoryEndingType | null>(null)
   const activeDifficulty = ref<TheoryEndingDifficulty | null>(null)
   const activeCategory = ref<TheoryEndingCategory | null>(null)
+  const requestedPuzzleId = ref<string | undefined>(undefined)
 
   const feedbackMessage = ref(t('theoryEndings.feedback.pressNext'))
   const isProcessingGameOver = ref(false)
+
+  const { puzzleQuery, resultMutation } = useTheoryEndingsQueries({
+    type: activeType,
+    difficulty: activeDifficulty,
+    category: activeCategory,
+    puzzleId: requestedPuzzleId,
+  })
 
   function reset() {
     activePuzzle.value = null
@@ -95,11 +105,13 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
       return
     }
 
+    const dto: TheoryEndingResultDto = {
+      puzzleId: puzzle.puzzle_id,
+      wasCorrect: isWin,
+    }
+
     try {
-      const response = await webhookService.processTheoryResult({
-        puzzleId: puzzle.puzzle_id,
-        wasCorrect: isWin,
-      })
+      const response = await resultMutation.mutateAsync(dto)
       if (response && response.userStatsUpdate) {
         authStore.updateUserStats(response.userStatsUpdate)
       } else {
@@ -117,27 +129,10 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
     _clearGame() // If any
 
     try {
-      let puzzle: TheoryPuzzle | null = null
+      requestedPuzzleId.value = puzzleId
+      if (type) activeType.value = type
 
-      if (puzzleId && type) {
-        puzzle = await webhookService.fetchTheoryPuzzleById(type, puzzleId)
-      }
-
-      if (!puzzle) {
-        // If no specific puzzleId, use selection params
-        const targetType = type || activeType.value
-        const targetDifficulty = activeDifficulty.value
-        const targetCategory = activeCategory.value
-
-        if (!targetType || !targetDifficulty || !targetCategory) {
-          throw new Error('Params not selected for Theory Endings')
-        }
-        puzzle = await webhookService.fetchTheoryPuzzle(
-          targetType,
-          targetDifficulty,
-          targetCategory,
-        )
-      }
+      const { data: puzzle } = await puzzleQuery.refetch()
 
       if (!puzzle) throw new Error('Puzzle data is null')
 
