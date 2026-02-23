@@ -5,10 +5,10 @@ import type { Api } from '@lichess-org/chessground/api'
 import type { Config } from '@lichess-org/chessground/config'
 import type { DrawShape } from '@lichess-org/chessground/draw'
 import type {
-    Color as ChessgroundColor,
-    Dests,
-    Key,
-    MoveMetadata,
+  Color as ChessgroundColor,
+  Dests,
+  Key,
+  MoveMetadata,
 } from '@lichess-org/chessground/types'
 import type { Role as ChessopsRole } from 'chessops/types'
 import { onMounted, onUnmounted, ref, shallowRef, watch, type PropType } from 'vue'
@@ -32,7 +32,8 @@ const props = defineProps({
 
 const emit = defineEmits<{
   (e: 'user-move', payload: { orig: Key; dest: Key; metadata: MoveMetadata }): void
-  (e: 'check-premove', payload: { orig: Key; dest: Key }): void
+  (e: 'set-premove', payload: { orig: Key; dest: Key }): void
+  (e: 'unset-premove'): void
   (e: 'complete-promotion', role: ChessopsRole): void
   (e: 'wheel-navigate', direction: 'up' | 'down'): void
 }>()
@@ -67,6 +68,14 @@ onMounted(() => {
         enabled: true,
         showDests: true,
         castle: true,
+        events: {
+          set: (orig, dest) => {
+            emit('set-premove', { orig, dest })
+          },
+          unset: () => {
+            emit('unset-premove')
+          },
+        },
       },
       animation: {
         enabled: props.animationEnabled,
@@ -102,13 +111,6 @@ watch(
       fen: newFen,
       turnColor: props.turnColor, // Ensure turn color is synced with FEN
     })
-
-    // Premove Logic
-    const premove = ground.value.state.premovable.current
-    if (premove) {
-      const [orig, dest] = premove
-      emit('check-premove', { orig, dest })
-    }
   },
 )
 

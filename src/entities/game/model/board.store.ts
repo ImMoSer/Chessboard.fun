@@ -52,6 +52,7 @@ export const useBoardStore = defineStore('board', () => {
   const promotionState = ref<PromotionState | null>(null)
   const drawableShapes = ref<DrawShape[]>([])
   const isAnalysisModeActive = ref(false)
+  const queuedPremove = ref<{ orig: Key; dest: Key } | null>(null)
 
   // Configuration for sounds (decoupled from GameStore)
   const playGameStatusSounds = ref(true)
@@ -166,8 +167,6 @@ export const useBoardStore = defineStore('board', () => {
     const node = pgnService.addNode({ san, uci, fenBefore, fenAfter })
     if (!node) {
       logger.error(`[_applyUciMove] Failed to add node to PGN tree.`)
-      // Revert board? No, visual board is already updated mostly?
-      // Actually, if we fail to add to tree, we should probably warn user.
     } else {
       logger.info(`[_applyUciMove] Node added successfully. ID: ${node.id}`)
     }
@@ -175,6 +174,7 @@ export const useBoardStore = defineStore('board', () => {
     _playSoundsForMove(move, pieceOnDestBefore)
     // Verify sync
     _updateBoardStateFromPgn()
+
     return true
   }
 
@@ -283,6 +283,18 @@ export const useBoardStore = defineStore('board', () => {
   function cancelPromotion() {
     if (promotionState.value) {
       promotionState.value.onComplete(null)
+    }
+  }
+
+  function setPremove(orig: Key, dest: Key) {
+    logger.info(`[BoardStore] Setting queued premove: ${orig}-${dest}`)
+    queuedPremove.value = { orig, dest }
+  }
+
+  function clearPremove() {
+    if (queuedPremove.value) {
+      logger.info('[BoardStore] Clearing queued premove')
+      queuedPremove.value = null
     }
   }
 
@@ -413,12 +425,15 @@ export const useBoardStore = defineStore('board', () => {
     isAnalysisModeActive,
     playGameStatusSounds,
     boardSyncCounter,
+    queuedPremove,
     setupPosition,
     applyUciMove,
     handleUserMove,
     handleAnalysisMove,
     completePromotion,
     cancelPromotion,
+    setPremove,
+    clearPremove,
     flipBoard,
     getGameStatus,
     setDrawableShapes,

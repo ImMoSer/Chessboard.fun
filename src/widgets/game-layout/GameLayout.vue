@@ -107,7 +107,8 @@ onUnmounted(() => {
               :animation-duration="themeStore.currentTheme.animationDuration"
               :board-sync-counter="boardStore.boardSyncCounter"
               @user-move="handleUserMove"
-              @check-premove="handleUserMove"
+              @set-premove="({ orig, dest }) => boardStore.setPremove(orig, dest)"
+              @unset-premove="() => boardStore.clearPremove()"
               @complete-promotion="boardStore.completePromotion"
               @wheel-navigate="handleBoardWheel"
             />
