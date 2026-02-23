@@ -22,7 +22,6 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useFinishHimQueries } from '../api/finishHim.queries'
-
 const t = i18n.global.t
 
 export const useFinishHimStore = defineStore('finishHim', () => {
@@ -30,7 +29,6 @@ export const useFinishHimStore = defineStore('finishHim', () => {
   const router = useRouter()
   const gameStore = useGameStore()
   const authStore = useAuthStore()
-
   const activePuzzle = ref<FinishHimPuzzle | null>(null)
   const feedbackMessage = ref(t('finishHim.feedback.pressNext'))
 
@@ -93,7 +91,7 @@ export const useFinishHimStore = defineStore('finishHim', () => {
 
         // Живой движок (Mozer/Stockfish)
         try {
-          return await gameplayService.getBestMove('MOZER_2000', fen)
+          return await gameplayService.getBestMove(gameStore.botEngineId, fen)
         } catch (error) {
           logger.error('[FinishHimStrategy] Failed to get bot move.', error)
           return null

@@ -1,3 +1,4 @@
+import { useGameStore } from '@/entities/game'
 import logger from '@/shared/lib/logger'
 import type { EngineId } from '@/shared/types/api.types'
 import { defineStore } from 'pinia'
@@ -36,6 +37,8 @@ export const useEngineSelectionStore = defineStore('engine-selection', () => {
     try {
       localStorage.setItem(ENGINE_STORAGE_KEY, engineId)
       logger.info(`[EngineSelectionStore] Saved selected engine: ${engineId}`)
+      const gameStore = useGameStore()
+      gameStore.setBotEngineId(engineId)
     } catch (error) {
       logger.error('[EngineSelectionStore] Failed to save engine', error)
     }

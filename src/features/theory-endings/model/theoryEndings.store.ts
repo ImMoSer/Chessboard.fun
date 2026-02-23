@@ -24,7 +24,6 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTheoryEndingsQueries } from '../api/theoryEndings.queries'
-
 const t = i18n.global.t
 
 export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
@@ -32,7 +31,6 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
   const authStore = useAuthStore()
   const router = useRouter()
   const uiStore = useUiStore()
-
   const activePuzzle = ref<TheoryPuzzle | null>(null)
   const activeType = ref<TheoryEndingType | null>(null)
   const activeDifficulty = ref<TheoryEndingDifficulty | null>(null)
@@ -176,9 +174,8 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
 
         requestBotMove: async (fen: string) => {
           // Вызываем тяжелый Stockfish (или Mozer) через gameplayService
-          // В будущем можно забирать engineId из настроек фичи, пока используем дефолт ядра
           try {
-            return await gameplayService.getBestMove('MOZER_2000', fen)
+            return await gameplayService.getBestMove(gameStore.botEngineId, fen)
           } catch (error) {
             logger.error('[TheoryEndingsStrategy] Failed to get bot move.', error)
             return null

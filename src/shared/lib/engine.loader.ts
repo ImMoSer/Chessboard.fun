@@ -19,7 +19,7 @@ export interface EngineController {
 
 export function loadSingleThreadEngine(): Promise<EngineController> {
   // Используем Lite Single версию из npm пакета stockfish
-  const loaderPath = '/stockfish/single/stockfish-17.1-lite-single-03e3232.js'
+  const loaderPath = '/stockfish/single/stockfish-18-lite-single.js'
   logger.info(`[EngineLoader] Loading single-threaded engine from ${loaderPath}`)
   return new Promise((resolve, reject) => {
     try {

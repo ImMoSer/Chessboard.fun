@@ -5,47 +5,7 @@ const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL as string
 const SERVER_ENGINE_ENDPOINT = `${BACKEND_API_URL}/bestmove`
 const MOVE_TIMEOUT_MS = 15000
 
-export interface CevaliteEvaluationResponse {
-  evaluation: {
-    score_cp: number
-    wdl: { win: number; draw: number; loss: number }
-    best_move: string
-    best_move_san: string
-    best_move_motifs?: string[]
-    pv_uci: string[]
-    pv_san: string // Formatted string from server
-    depth: number
-  }
-  threats: {
-    opponent_threat_move: string
-    opponent_threat_san: string
-    threat_description: string | null
-    threat_severity_score: number
-    threat_motifs: string[]
-  }
-  features: {
-    mobility: { white: number; black: number }
-    king_safety: {
-      square: string
-      open_files: string[]
-      pawn_shield: boolean
-      ring_attackers: number
-      is_safe_heuristic: boolean
-    }
-    pawn_structure: {
-      passed_pawns: string[]
-      isolated_pawns: string[]
-      doubled_pawns: boolean
-      chain_count: number
-    }
-    tactics: {
-      pins: { piece: string; type: string }[]
-      hanging_pieces: string[]
-      underdefended_pieces: string[]
-    }
-    ascii: string
-  }
-}
+
 
 export interface AnalysisResponse {
   quality: {
@@ -170,22 +130,6 @@ export class ServerEngineServiceController {
     }
   }
 
-  /** @deprecated Use analyzeMove */
-  public async evaluateThreats(fen: string, depth: number = 10): Promise<unknown> {
-    // ... rest of the code as is for compatibility, but it will return error from server
-    const url = `${BACKEND_API_URL}/engine-eval/evaluate/threats`
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fen, depth }),
-        credentials: 'include',
-      })
-      return await response.json()
-    } catch {
-      return { error: 'Endpoint deprecated' }
-    }
-  }
 
   public terminate(): void {
     logger.info('[ServerEngineService] Terminate called (no-op for server implementation).')

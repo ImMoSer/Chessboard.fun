@@ -22,7 +22,6 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePracticalChessQueries } from '../api/practicalChess.queries'
-
 const t = i18n.global.t
 
 export const usePracticalChessStore = defineStore('practicalChess', () => {
@@ -31,7 +30,6 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
   const authStore = useAuthStore()
   const uiStore = useUiStore()
   const router = useRouter()
-
   const activePuzzle = ref<PracticalPuzzle | null>(null)
   const activeCategory = ref<PracticalChessCategory>('extraPawn')
   const activeDifficulty = ref<PracticalChessDifficulty>('Novice')
@@ -67,7 +65,7 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
       },
       requestBotMove: async (fen: string) => {
         try {
-          return await gameplayService.getBestMove('MOZER_2000', fen)
+          return await gameplayService.getBestMove(gameStore.botEngineId, fen)
         } catch (error) {
           logger.error('[PracticalChessStrategy] Failed to get bot move.', error)
           return null

@@ -4,8 +4,8 @@ import { useAuthStore } from '@/entities/user'
 import i18n from '@/shared/config/i18n'
 import type { EngineId } from '@/shared/types/api.types'
 import { useUiStore } from '@/shared/ui/model/ui.store'
-import { useEngineSelectionStore } from '../model/engine-selection.store'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { useEngineSelectionStore } from '../model/engine-selection.store'
 
 const engineStore = useEngineSelectionStore()
 const authStore = useAuthStore()

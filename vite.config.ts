@@ -47,11 +47,11 @@ export default defineConfig({
           dest: 'stockfish/nnue',
         },
         {
-          src: 'node_modules/stockfish/src/stockfish-17.1-lite-single-03e3232.js',
+          src: 'node_modules/stockfish/bin/stockfish-18-lite-single.js',
           dest: 'stockfish/single',
         },
         {
-          src: 'node_modules/stockfish/src/stockfish-17.1-lite-single-03e3232.wasm',
+          src: 'node_modules/stockfish/bin/stockfish-18-lite-single.wasm',
           dest: 'stockfish/single',
         },
       ],
