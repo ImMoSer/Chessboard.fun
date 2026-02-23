@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { diamondApiService, type GravityMove } from './DiamondApiService'
 import { checkDiamondLimit, db, recordBrilliant, recordDiamond, removeLastBrilliant } from './DiamondDatabase'
 
-export const DIAMOND_HUNTER_KEYS = {
+const DIAMOND_HUNTER_KEYS = {
   all: ['diamond-hunter'] as const,
   gravity: (playerColor: string, fen: string) =>
     [...DIAMOND_HUNTER_KEYS.all, 'gravity', playerColor, fen] as const,

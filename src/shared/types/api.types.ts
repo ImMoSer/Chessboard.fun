@@ -8,33 +8,7 @@ export type Color = 'white' | 'black'
 // --- TORNADO MODE ---
 export type TornadoMode = 'bullet' | 'blitz' | 'rapid' | 'classic'
 
-export const TORNADO_THEMES = [
-  'fork',
-  'pin',
-  'attraction',
-  'discoveredAttack',
-  'deflection',
-  'skewer',
-  'promotion',
-  'trappedPiece',
-  'quietMove',
-  'clearance',
-  'capturingDefender',
-  'backRankMate',
-  'interference',
-  'xRayAttack',
-  'doubleCheck',
-] as const
 
-export type TornadoTheme = (typeof TORNADO_THEMES)[number]
-
-export interface TornadoNextPuzzleDto {
-  sessionId: string
-  lastPuzzleId: string
-  lastPuzzleRating: number
-  lastPuzzleThemes: string[]
-  wasCorrect: boolean
-}
 
 export interface TornadoSessionResult {
   puzzleId: string
@@ -57,13 +31,6 @@ export interface TornadoStartResponse {
   userStatsUpdate?: UserStatsUpdate
 }
 
-export interface TornadoNextResponse {
-  sessionRating: number
-  ratingDelta: number
-  puzzles: TornadoPuzzle[]
-  userStatsUpdate?: UserStatsUpdate
-}
-
 export interface TornadoRecord {
   id: string
   userId: string
@@ -81,7 +48,6 @@ export interface TornadoEndResponse {
 // --- END TORNADO --
 
 // --- FINISH HIM MODE ---
-export type FinishHimMode = TornadoMode // Reuse TornadoMode as they share the same 'time control' concept
 
 export const FINISH_HIM_THEMES = [
   'pawn',
@@ -120,34 +86,12 @@ export type TheoryEndingCategory = (typeof THEORY_ENDING_CATEGORIES)[number]
 export type TheoryEndingDifficulty = 'Novice' | 'Pro' | 'Master'
 
 export type TheoryEndingType = 'win' | 'draw'
-
-export interface TheoryEndingPuzzle extends GamePuzzle {
-  id: string
-  fen: string
-  bw_value: number
-  category: TheoryEndingCategory
-  difficulty: TheoryEndingDifficulty
-  side_to_move: 'white' | 'black'
-  weak_side: 'white' | 'black' | 'even'
-  only_move: boolean
-  type: TheoryEndingType
-}
-
 export interface TheoryEndingResultDto {
   puzzleId: string
   wasCorrect: boolean
 }
 
-export interface TheoryEndingStatItem {
-  requested: number
-  success: number
-}
 
-export interface UserTheoryEndingStatsDto {
-  userId: string
-  stats: Record<string, TheoryEndingStatItem>
-  history: string[]
-}
 // --- END THEORY ENDINGS ---
 
 // --- PRACTICAL CHESS MODE ---
@@ -166,39 +110,13 @@ export const PRACTICAL_CHESS_CATEGORIES = [
 export type PracticalChessCategory = (typeof PRACTICAL_CHESS_CATEGORIES)[number]
 
 export type PracticalChessDifficulty = 'Novice' | 'Pro' | 'Master'
-
-export interface PracticalChessPuzzle extends GamePuzzle {
-  puzzle_id: string
-  fen_0: string
-  winner: 'white' | 'black'
-  difficulty: PracticalChessDifficulty
-  bw_value?: number
-  count_pieces?: number
-  eval?: number
-  category: PracticalChessCategory
-}
-
 export interface PracticalChessResultDto {
   puzzleId: string
   wasCorrect: boolean
 }
 
-export interface PracticalChessStatItem {
-  puzzles_attempted: number
-  puzzles_solved: number
-  category: PracticalChessCategory
-}
 
-export interface PracticalStats {
-  user_id: string
-  category: PracticalChessCategory
-  difficulty: PracticalChessDifficulty
-  puzzles_solved: number
-  puzzles_attempted: number
-}
 // --- END PRACTICAL CHESS ---
-
-export type WebhookSuccessResponse<T> = T | null
 
 export interface PuzzleResultEntry {
   username: string
@@ -302,12 +220,7 @@ export interface GamePuzzle {
   result?: string // for Theory
 }
 
-export type PuzzleUnion =
-  | TornadoPuzzle
-  | FinishHimPuzzle
-  | PracticalPuzzle
-  | TheoryPuzzle
-  | GamePuzzle
+
 
 export interface FinishHimLeaderboardEntry {
   rank: number
@@ -337,7 +250,7 @@ export interface TornadoLeaderboardEntry {
   subscriptionTier?: string
 }
 
-export interface WorktableLeaderboards {
+interface WorktableLeaderboards {
   finishHimLeaderboard?: Record<string, FinishHimLeaderboardEntry[]>
   theoryLeaderboard?: Record<string, ThematicLeaderboardEntry[]>
   practicalLeaderboard?: Record<string, ThematicLeaderboardEntry[]>
@@ -380,33 +293,7 @@ export interface SolveStreakLeaderboardEntry {
   solved_by_mode: SolvedByMode
 }
 
-export interface PersonalOverallSolvedPeriod {
-  lichess_id: string
-  username: string
-  subscriptionTier: string
-  total_solved: number
-  solved_by_mode: SolvedByMode
-}
-
-export type PersonalOverallSolvedResponse = Record<
-  '7_days' | '14_days' | '21_days' | '30_days',
-  PersonalOverallSolvedPeriod
->
-
-export interface DailySolvedSummary {
-  date: string // "YYYY-MM-DD"
-  total_solved: number
-  solved_by_mode: SolvedByMode
-}
-
-export interface PersonalSolveStreakResponse {
-  lichess_id: string
-  username: string
-  current_streak: number
-  daily_summary: DailySolvedSummary[]
-}
-
-export interface ActivityModeStats {
+interface ActivityModeStats {
   puzzles_requested: number
   puzzles_solved: number
 }
@@ -436,7 +323,7 @@ export type SubscriptionTier =
   | 'King'
   | 'administrator'
 
-export interface LichessUserProfile {
+interface LichessUserProfile {
   id: string
   username: string
   email?: string
@@ -451,7 +338,7 @@ export interface LichessUserProfile {
   }
 }
 
-export interface PuzzlesSolvedToday {
+interface PuzzlesSolvedToday {
   finish_him: number
   tornado: number
   theory: number
@@ -509,7 +396,7 @@ export interface AuthState {
 
 // --- Типы для детальной статистики в кабинете пользователя ---
 
-export interface TornadoThemeStatDto {
+interface TornadoThemeStatDto {
   theme: string
   success: number
   requested: number
@@ -531,15 +418,12 @@ export interface TornadoProfileDto {
   }
 }
 
-export interface FinishHimThemeStatDto {
+interface FinishHimThemeStatDto {
   theme: string
   rating: number
   success: number
   requested: number
 }
-
-// FinishHimThemeStatDto is now the primary type
-export type AdvantageThemeStatDto = FinishHimThemeStatDto // Temporary alias
 
 export interface FinishHimProfileDto {
   modes: {

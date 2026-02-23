@@ -9,7 +9,7 @@ import type {
 import { useMutation, useQuery } from '@tanstack/vue-query'
 import { computed, type Ref } from 'vue'
 
-export const PRACTICAL_CHESS_KEYS = {
+const PRACTICAL_CHESS_KEYS = {
     all: ['practical-chess'] as const,
     puzzles: () => [...PRACTICAL_CHESS_KEYS.all, 'puzzles'] as const,
     puzzle: (id: string) => [...PRACTICAL_CHESS_KEYS.puzzles(), id] as const,

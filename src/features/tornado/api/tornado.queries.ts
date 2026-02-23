@@ -1,16 +1,12 @@
-import { apiClient } from '@/shared/api/client'
+import { apiClient } from '@/shared/api/client';
 import type {
   TornadoEndResponse,
   TornadoEndSessionDto,
   TornadoMode,
   TornadoStartResponse
-} from '@/shared/types/api.types'
-import { useMutation } from '@tanstack/vue-query'
+} from '@/shared/types/api.types';
+import { useMutation } from '@tanstack/vue-query';
 
-export const TORNADO_KEYS = {
-  all: ['tornado'] as const,
-  session: (id: string) => [...TORNADO_KEYS.all, 'session', id] as const,
-}
 
 export function useTornadoQueries() {
   const startSessionMutation = useMutation({

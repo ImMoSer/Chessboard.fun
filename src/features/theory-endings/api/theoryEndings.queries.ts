@@ -10,7 +10,7 @@ import type {
 import { useMutation, useQuery } from '@tanstack/vue-query'
 import { computed, type Ref } from 'vue'
 
-export const THEORY_ENDINGS_KEYS = {
+const THEORY_ENDINGS_KEYS = {
     all: ['theory-endings'] as const,
     puzzles: () => [...THEORY_ENDINGS_KEYS.all, 'puzzles'] as const,
     puzzle: (type: TheoryEndingType, id: string) => [...THEORY_ENDINGS_KEYS.puzzles(), type, id] as const,

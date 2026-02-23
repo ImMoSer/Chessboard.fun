@@ -8,7 +8,7 @@ import type {
 import { useMutation, useQuery } from '@tanstack/vue-query'
 import { computed, type Ref } from 'vue'
 
-export const FINISH_HIM_KEYS = {
+const FINISH_HIM_KEYS = {
     all: ['finish-him'] as const,
     puzzles: () => [...FINISH_HIM_KEYS.all, 'puzzles'] as const,
     puzzle: (id: string) => [...FINISH_HIM_KEYS.puzzles(), id] as const,

@@ -1,11 +1,10 @@
 import { useMutation, useQuery } from '@tanstack/vue-query'
 import { computed, type Ref } from 'vue'
 
+import { lichessApiService, mozerBookService } from '@/entities/opening'
 import { apiClient } from '@/shared/api/client'
-import { lichessApiService } from '@/entities/opening'
-import { mozerBookService } from '@/entities/opening'
 
-export const OPENING_SPARRING_KEYS = {
+const OPENING_SPARRING_KEYS = {
   all: ['opening-sparring'] as const,
   mozerStats: (fen: string) => [...OPENING_SPARRING_KEYS.all, 'mozer', fen] as const,
   lichessStats: (fen: string, ratings: number[]) =>

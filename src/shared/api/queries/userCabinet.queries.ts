@@ -2,7 +2,7 @@ import type { PersonalActivityStatsResponse, UserProfileStatsDto } from '@/share
 import { useQuery } from '@tanstack/vue-query'
 import { apiClient } from '../client'
 
-export const USER_CABINET_KEYS = {
+const USER_CABINET_KEYS = {
   all: ['user-cabinet'] as const,
   personalActivity: () => [...USER_CABINET_KEYS.all, 'personal-activity'] as const,
   detailedStats: () => [...USER_CABINET_KEYS.all, 'detailed-stats'] as const,

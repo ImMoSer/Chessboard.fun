@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/vue-query'
 import { apiClient } from '../client'
 
 // Константы ключей для кэширования
-export const LEADERBOARD_KEYS = {
+const LEADERBOARD_KEYS = {
   all: ['leaderboards'] as const,
   combined: () => [...LEADERBOARD_KEYS.all, 'combined'] as const,
   overallSkill: (period: string) => [...LEADERBOARD_KEYS.all, 'overall-skill', period] as const,
