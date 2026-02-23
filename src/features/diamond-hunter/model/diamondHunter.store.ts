@@ -249,7 +249,13 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
             message.value = 'Memory error! Observe the path.'
             const orig = expectedMove.substring(0, 2)
             const dest = expectedMove.substring(2, 4)
-            hints.value = [{ orig, dest, type: 'expected' }]
+
+            // Small delay to show hint AFTER boardStore.syncBoardWithPgn()
+            setTimeout(() => {
+              hints.value = [{ orig, dest, type: 'expected' }]
+            }, 50)
+
+            // Auto-clear helper arrow after bit of time
             setTimeout(() => {
               if (state.value === 'SAVING') hints.value = []
             }, 2000)
