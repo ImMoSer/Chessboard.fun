@@ -9,6 +9,7 @@ import { soundService } from '@/shared/lib/sound/sound.service'
 import type { TornadoPuzzle, TornadoSessionResult } from '@/shared/types/api.types'
 import { type TornadoMode } from '@/shared/types/api.types'
 import { useUiStore } from '@/shared/ui/model/ui.store'
+import { parseFen } from 'chessops/fen'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -331,7 +332,10 @@ export const useTornadoStore = defineStore('tornado', () => {
       checkWinCondition: () => false, // Не используется напрямую, Торнадо рулит через handlePuzzleResult
     }
 
-    gameStore.startWithStrategy(puzzle.initial_fen, strategy, undefined, false)
+    const setup = parseFen(puzzle.initial_fen).unwrap()
+    const humanColor = setup.turn === 'white' ? 'black' : 'white'
+
+    gameStore.startWithStrategy(puzzle.initial_fen, strategy, humanColor, false)
   }
 
   async function handlePuzzleResult(isCorrect: boolean) {

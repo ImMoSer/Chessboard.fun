@@ -95,16 +95,20 @@ export const useGameStore = defineStore('game', () => {
   function startWithStrategy(
     fen: string,
     strategy: IGameplayStrategy,
-    userColor?: ChessgroundColor,
+    userColor: ChessgroundColor,
     keepPgn: boolean = false,
   ) {
     try {
       logger.info('[GameStore] Starting game with Strategy Context.')
       const setup = parseFen(fen).unwrap()
 
+      if (!userColor) {
+        throw new Error('[GameStore] userColor is required for startWithStrategy. The director (feature) must explicitly define the side.')
+      }
+
       currentStrategy.value = strategy
 
-      const humanPlayerColor = userColor || (setup.turn === 'white' ? 'black' : 'white')
+      const humanPlayerColor = userColor
 
       if (!keepPgn) {
         boardStore.setupPosition(fen, humanPlayerColor)

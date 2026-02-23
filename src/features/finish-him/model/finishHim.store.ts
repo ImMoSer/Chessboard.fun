@@ -16,6 +16,7 @@ import type {
   FinishHimResultDto,
 } from '@/shared/types/api.types'
 import { useUiStore } from '@/shared/ui/model/ui.store'
+import { parseFen } from 'chessops/fen'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -45,12 +46,11 @@ export const useFinishHimStore = defineStore('finishHim', () => {
 
   function _createStrategy(
     puzzle: FinishHimPuzzle | null,
-    fallbackColor: 'white' | 'black' = 'white',
+    humanColor: 'white' | 'black',
   ): IGameplayStrategy {
     const scenarioMoves = puzzle ? puzzle.tactical_solution.split(' ') : []
     let currentScenarioIndex = 0
     let isPlayoutMode = puzzle === null // Если пазла нет (прямой вызов startPlayoutFromFen), сразу переходим в плейаут
-    const humanColor = fallbackColor // Или вытягивается из доски, но лучше прокинуть явно
 
     return {
       config: {
@@ -181,7 +181,11 @@ export const useFinishHimStore = defineStore('finishHim', () => {
 
       activePuzzle.value = puzzle
 
-      gameStore.startWithStrategy(puzzle.initial_fen, _createStrategy(puzzle), undefined, false)
+      // Explicitly determine human color from FEN turn
+      const setup = parseFen(puzzle.initial_fen).unwrap()
+      const humanColor = setup.turn === 'white' ? 'black' : 'white'
+
+      gameStore.startWithStrategy(puzzle.initial_fen, _createStrategy(puzzle, humanColor), humanColor, false)
 
       feedbackMessage.value = t('finishHim.feedback.yourTurn')
     } catch (error) {
