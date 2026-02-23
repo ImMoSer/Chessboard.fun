@@ -1,7 +1,7 @@
 // src/stores/tornado.store.ts
 import { useBoardStore, useGameStore, type IGameplayStrategy } from '@/entities/game'
 import { useAuthStore } from '@/entities/user'
-import { InsufficientFunCoinsError, webhookService } from '@/shared/api/WebhookService'
+import { InsufficientFunCoinsError } from '@/shared/api/WebhookService'
 import i18n from '@/shared/config/i18n'
 import { Glicko2Calculator, type GlickoState } from '@/shared/lib/glicko2'
 import logger from '@/shared/lib/logger'
@@ -13,6 +13,7 @@ import { parseFen } from 'chessops/fen'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useTornadoQueries } from '../api/tornado.queries'
 
 export type { TornadoMode } from '@/shared/types/api.types'
 
@@ -34,6 +35,8 @@ export const useTornadoStore = defineStore('tornado', () => {
   const router = useRouter()
   const uiStore = useUiStore()
   const authStore = useAuthStore()
+
+  const { startSessionMutation, endSessionMutation } = useTornadoQueries()
 
   const mode = ref<TornadoMode | null>(null)
   const sessionRating = ref(1000)
@@ -173,11 +176,18 @@ export const useTornadoStore = defineStore('tornado', () => {
 
     feedbackMessage.value = message
 
-    await webhookService.endTornadoSession(mode.value, {
-      sessionId: sessionId.value,
-      finalScore: sessionRating.value,
-      results: pendingResults.value,
-    })
+    try {
+      await endSessionMutation.mutateAsync({
+        mode: mode.value,
+        dto: {
+          sessionId: sessionId.value,
+          finalScore: sessionRating.value,
+          results: pendingResults.value,
+        },
+      })
+    } catch (error) {
+      logger.error('[TornadoStore] Error ending session:', error)
+    }
 
     const hasMistakes = mistakenPuzzles.value.length > 0
 
@@ -233,7 +243,7 @@ export const useTornadoStore = defineStore('tornado', () => {
     feedbackMessage.value = t('tornado.feedback.loadingFirstPuzzle')
 
     try {
-      const response = await webhookService.startTornadoSession(selectedMode, theme)
+      const response = await startSessionMutation.mutateAsync({ mode: selectedMode, theme })
       logger.info('[TornadoStore] Start session response:', response)
 
       // Нам прилетает массив puzzles (basket)
