@@ -1,9 +1,7 @@
 <!-- src/widgets/game-layout/GameLayout.vue -->
 <script setup lang="ts">
-import { useBoardStore, WebChessBoard } from '@/entities/game'
-import { useGameStore } from '@/entities/game'
-import { useAnalysisStore } from '@/features/analysis'
-import { EvalBar } from '@/features/analysis'
+import { useBoardStore, useGameStore, WebChessBoard } from '@/entities/game'
+import { EvalBar, useAnalysisStore } from '@/features/analysis'
 import { useThemeStore } from '@/features/settings'
 import type { Key } from '@lichess-org/chessground/types'
 import { storeToRefs } from 'pinia'
@@ -107,6 +105,7 @@ onUnmounted(() => {
               :is-analysis-mode="effectiveAnalysisMode"
               :animation-enabled="isAnimationEnabled"
               :animation-duration="themeStore.currentTheme.animationDuration"
+              :board-sync-counter="boardStore.boardSyncCounter"
               @user-move="handleUserMove"
               @check-premove="handleUserMove"
               @complete-promotion="boardStore.completePromotion"

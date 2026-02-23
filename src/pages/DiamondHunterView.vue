@@ -1,4 +1,4 @@
-<!-- src/pages/OpeningTrainingView.vue -->
+<!-- src/pages/DiamondHunterView.vue -->
 <script setup lang="ts">
 import { useBoardStore, useGameStore } from '@/entities/game'
 import { AnalysisPanel, useAnalysisStore } from '@/features/analysis'
@@ -13,6 +13,7 @@ import { NButton, NIcon, NModal, NNumberAnimation, NSpace, NStatistic } from 'na
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import GameLayout from '../widgets/game-layout/GameLayout.vue'
+import TopInfoPanel from '../widgets/game-layout/TopInfoPanel.vue'
 
 const diamondHunterStore = useDiamondHunterStore()
 const boardStore = useBoardStore()
@@ -91,14 +92,6 @@ async function startSession(color: 'white' | 'black') {
   boardStore.setupPosition('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', color)
 
   diamondHunterStore.startHunt()
-
-  // Manual Trigger: If it is not user's turn, force bot move.
-  // The watcher might have missed the initial state change if it happened before HUNTING mode.
-  if (boardStore.turn !== color) {
-    await diamondHunterStore.botMove()
-  } else {
-    await diamondHunterStore.updateArrows()
-  }
 }
 
 async function handleRestart() {
@@ -216,16 +209,16 @@ function goBack() {
           <n-button
             type="primary"
             @click="
-              diamondHunterStore.closeTheoryModal()
-              handleRestart()
+              diamondHunterStore.closeTheoryModal();
+              handleRestart();
             "
             >Restart</n-button
           >
           <n-button
             secondary
             @click="
-              diamondHunterStore.closeTheoryModal()
-              startAnalysis()
+              diamondHunterStore.closeTheoryModal();
+              startAnalysis();
             "
           >
             <template #icon
@@ -266,8 +259,8 @@ function goBack() {
             v-else
             type="primary"
             @click="
-              diamondHunterStore.stopHunt()
-              handleRestart()
+              diamondHunterStore.stopHunt();
+              handleRestart();
             "
           >
             Next Hunt
@@ -301,8 +294,8 @@ function goBack() {
           <n-button
             type="primary"
             @click="
-              diamondHunterStore.stopHunt()
-              handleRestart()
+              diamondHunterStore.stopHunt();
+              handleRestart();
             "
             >Try Again</n-button
           >

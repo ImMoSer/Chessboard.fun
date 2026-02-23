@@ -40,6 +40,7 @@ const INITIAL_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 
 export const useBoardStore = defineStore('board', () => {
   const fen = ref<string>(INITIAL_FEN)
+  const boardSyncCounter = ref(0)
   const chessPosition = ref(Chess.fromSetup(parseFen(fen.value).unwrap()).unwrap())
 
   const turn = computed(() => chessPosition.value.turn)
@@ -70,6 +71,7 @@ export const useBoardStore = defineStore('board', () => {
 
   function syncBoardWithPgn() {
     _updateBoardStateFromPgn()
+    boardSyncCounter.value++
   }
 
   function setupPosition(newFen: string, newOrientation?: ChessgroundColor) {
@@ -410,6 +412,7 @@ export const useBoardStore = defineStore('board', () => {
     drawableShapes,
     isAnalysisModeActive,
     playGameStatusSounds,
+    boardSyncCounter,
     setupPosition,
     applyUciMove,
     handleUserMove,
