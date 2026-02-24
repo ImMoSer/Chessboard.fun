@@ -18,6 +18,7 @@ export const EXAMPLE_USER_PROFILE: UserSessionProfile = {
   createdAt: 1770792222695,
   profile: {},
   FunCoins: 100,
+  base_puzzle_rating: 1500,
   subscriptionTier: 'King',
   TierExpire: null,
   tornadoHighScores: {

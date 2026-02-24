@@ -21,6 +21,7 @@ import { ThemeRoseChart } from '@/features/profile'
 import { TheoryStackbarChart } from '@/features/profile'
 import { UserProfileHeader } from '@/features/profile'
 import { useGameLauncher } from '@/app/lib/composables/useGameLauncher'
+import { normalizeProfileStats } from '@/shared/lib/statsNormalizer'
 
 const { t } = useI18n()
 const { launchGame } = useGameLauncher()
@@ -50,8 +51,15 @@ const personalActivityStats = computed(() => {
   return isExample.value ? EXAMPLE_ACTIVITY_STATS : personalActivityData.value
 })
 
+const displayProfile = computed(() => {
+  if (isExample.value) return EXAMPLE_USER_PROFILE
+  return userProfile.value
+})
+
 const detailedStats = computed(() => {
-  return isExample.value ? EXAMPLE_DETAILED_STATS : detailedStatsData.value
+  const stats = isExample.value ? EXAMPLE_DETAILED_STATS : detailedStatsData.value
+  const baseRating = displayProfile.value?.base_puzzle_rating || 1000
+  return normalizeProfileStats(stats || null, baseRating)
 })
 
 const error = computed(() => {
@@ -92,10 +100,6 @@ const currentFinishHimThemes = computed(() => {
           />
 */
 
-const displayProfile = computed(() => {
-  if (isExample.value) return EXAMPLE_USER_PROFILE
-  return userProfile.value
-})
 </script>
 
 <template>

@@ -8,6 +8,25 @@ export type Color = 'white' | 'black'
 // --- TORNADO MODE ---
 export type TornadoMode = 'bullet' | 'blitz' | 'rapid' | 'classic'
 
+export const TORNADO_THEMES = [
+  'fork',
+  'pin',
+  'attraction',
+  'discoveredAttack',
+  'deflection',
+  'skewer',
+  'promotion',
+  'trappedPiece',
+  'quietMove',
+  'clearance',
+  'capturingDefender',
+  'backRankMate',
+  'interference',
+  'xRayAttack',
+  'doubleCheck',
+] as const
+
+export type TornadoTheme = (typeof TORNADO_THEMES)[number]
 
 
 export interface TornadoSessionResult {
@@ -373,6 +392,7 @@ export interface GameResultResponse {
 
 export interface UserSessionProfile extends LichessUserProfile {
   FunCoins: number
+  base_puzzle_rating: number
   subscriptionTier: SubscriptionTier
   validatedAt?: number
   TierExpire?: string | null
