@@ -1,7 +1,7 @@
+import logger from '@/shared/lib/logger'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { analysisService, type EvaluatedLineWithSan } from '../api/AnalysisService'
-import logger from '@/shared/lib/logger'
 
 export const useAnalysisEngineStore = defineStore('analysis-engine', () => {
   const isAnalysisActive = ref(false)
@@ -59,6 +59,10 @@ export const useAnalysisEngineStore = defineStore('analysis-engine', () => {
     const currentVersion = analysisVersion
 
     await analysisService.stopAnalysis()
+
+    // Check if interrupted by stopAnalysis during the await above
+    if (analysisVersion !== currentVersion) return
+
     isLoading.value = true
     analysisLines.value = []
 
@@ -80,6 +84,14 @@ export const useAnalysisEngineStore = defineStore('analysis-engine', () => {
         onLinesUpdate(sortedLines)
       }
     })
+
+    // RACE CONDITION GUARD: If stopAnalysis or another startAnalysis was called
+    // while we were waiting for the asyc operations above, we must abort and
+    // NOT set the active flag back to true.
+    if (analysisVersion !== currentVersion) {
+      logger.info(`[AnalysisEngineStore] Aborted start for FEN: ${fen} due to version change.`)
+      return
+    }
 
     isAnalysisActive.value = true
     logger.info(`[AnalysisEngineStore] Started for FEN: ${fen}`)

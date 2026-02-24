@@ -1,5 +1,3 @@
-```
-<!-- src/components/AnalysisPanel.vue -->
 <script setup lang="ts">
 import { useBoardStore } from '@/entities/game'
 import { EngineLines, useAnalysisStore } from '@/features/analysis'
@@ -8,10 +6,14 @@ import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
 import { ChevronBackOutline, ChevronForwardOutline, PlaySkipBackOutline, PlaySkipForwardOutline, TerminalOutline } from '@vicons/ionicons5'
 import { NButton, NButtonGroup, NIcon, NScrollbar, NSelect, NText, NTooltip } from 'naive-ui'
 import { storeToRefs } from 'pinia'
-import { computed, h, type FunctionalComponent } from 'vue'
+import { computed, h, onUnmounted, type FunctionalComponent } from 'vue'
 
 const analysisStore = useAnalysisStore()
 const boardStore = useBoardStore()
+
+onUnmounted(() => {
+  analysisStore.resetAnalysisState()
+})
 
 const { isPanelVisible, isAnalysisActive, numThreads, maxThreads, isMultiThreadAvailable } =
   storeToRefs(analysisStore)
