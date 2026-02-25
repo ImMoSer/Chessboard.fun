@@ -20,7 +20,7 @@ import { ActivityChart } from '@/features/profile'
 import { ThemeRoseChart } from '@/features/profile'
 import { TheoryStackbarChart } from '@/features/profile'
 import { UserProfileHeader } from '@/features/profile'
-import { useGameLauncher } from '@/app/lib/composables/useGameLauncher'
+import { useGameLauncher } from '../lib/composables/useGameLauncher'
 import { normalizeProfileStats } from '@/shared/lib/statsNormalizer'
 
 const { t } = useI18n()

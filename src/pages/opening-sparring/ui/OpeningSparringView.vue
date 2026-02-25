@@ -11,14 +11,14 @@ import {
   OpeningSparringSummaryModal,
   SessionHistoryList,
   useOpeningSparringStore,
+  useSparringLoop,
 } from '@/features/opening-sparring'
-import { useSparringLoop } from '@/features/opening-sparring/model/useSparringLoop'
 import i18n from '@/shared/config/i18n'
 import { useUiStore } from '@/shared/ui/model/ui.store'
 import { NTag } from 'naive-ui'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import MozerBook from '../features/mozer-book/ui/MozerBook.vue'
+import { MozerBook } from '@/features/mozer-book'
 import { GameLayout } from '@/widgets/game-layout'
 
 const t = i18n.global.t

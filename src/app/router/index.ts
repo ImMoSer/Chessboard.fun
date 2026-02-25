@@ -12,15 +12,15 @@ import { usePracticalChessStore } from '@/features/practical-chess'
 import { useTheoryEndingsStore } from '@/features/theory-endings'
 import { useTornadoStore } from '@/features/tornado'
 
-import AboutView from '@/pages/AboutView.vue'
-import FinishHimView from '@/pages/FinishHimView.vue'
-import PricingView from '@/pages/PricingView.vue'
-import RecordsPageView from '@/pages/RecordsPageView.vue'
-import WelcomeView from '@/pages/WelcomeView.vue'
+import { AboutPage } from '@/pages/about'
+import { FinishHimPage } from '@/pages/finish-him'
+import { PricingPage } from '@/pages/pricing'
+import { RecordsPagePage as RecordsPage } from '@/pages/records-page'
+import { WelcomePage } from '@/pages/welcome'
 
-import TornadoMistakesView from '@/pages/TornadoMistakesView.vue'
-import TornadoView from '@/pages/TornadoView.vue'
-import UserCabinetView from '@/pages/UserCabinetView.vue'
+import { TornadoMistakesPage } from '@/pages/tornado-mistakes'
+import { TornadoPage } from '@/pages/tornado'
+import { UserCabinetPage } from '@/pages/user-cabinet'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -28,84 +28,84 @@ const router = createRouter({
     {
       path: '/',
       name: 'welcome',
-      component: WelcomeView,
+      component: WelcomePage,
     },
 
 
     {
       path: '/finish-him',
       name: 'finish-him-selection',
-      component: () => import('@/pages/EndingSelectionView.vue'),
+      component: () => import('@/pages/ending-selection').then(m => m.EndingSelectionPage),
       meta: { requiresAuth: true, gameMode: 'finish-him' },
     },
     {
       path: '/finish-him/play',
       name: 'finish-him-play',
-      component: FinishHimView,
+      component: FinishHimPage,
       meta: { isGame: true, requiresAuth: true, game: 'finish-him' },
     },
     {
       path: '/finish-him/playout/:color/:fen',
       name: 'finish-him-playout',
-      component: FinishHimView,
+      component: FinishHimPage,
       meta: { isGame: true, requiresAuth: true, game: 'finish-him' },
     },
     {
       path: '/finish-him/:puzzleId',
       name: 'finish-him-puzzle',
-      component: FinishHimView,
+      component: FinishHimPage,
       meta: { isGame: true, requiresAuth: true, game: 'finish-him' },
     },
 
     {
       path: '/tornado',
       name: 'tornado-selection',
-      component: () => import('@/pages/EndingSelectionView.vue'),
+      component: () => import('@/pages/ending-selection').then(m => m.EndingSelectionPage),
       meta: { requiresAuth: true, gameMode: 'tornado' },
     },
     {
       path: '/tornado/:mode',
       name: 'tornado',
-      component: TornadoView,
+      component: TornadoPage,
       meta: { isGame: true, requiresAuth: true, game: 'tornado' },
     },
     {
       path: '/tornado/mistakes',
       name: 'tornado-mistakes',
-      component: TornadoMistakesView,
+      component: TornadoMistakesPage,
       meta: { requiresAuth: true },
     },
     {
       path: '/user-cabinet/:id?',
       name: 'user-cabinet',
-      component: UserCabinetView,
+      component: UserCabinetPage,
       meta: { requiresAuth: true },
     },
     {
       path: '/about',
       name: 'about',
-      component: AboutView,
+      component: AboutPage,
     },
     {
       path: '/records/:id?',
       name: 'records',
-      component: RecordsPageView,
+      component: RecordsPage,
     },
     {
       path: '/pricing',
       name: 'pricing',
-      component: PricingView,
+      component: PricingPage,
     },
     {
       path: '/diamond-hunter/:openingSlug?/:color?',
       name: 'diamond-hunter',
-      component: () => import('@/pages/DiamondHunterView.vue'),
+      component: () => import('@/pages/diamond-hunter').then(m => m.DiamondHunterPage),
       meta: { isGame: true, game: 'opening-training', requiresAuth: true },
     },
     {
       path: '/opening-sparring/:openingSlug?/:color?',
       name: 'opening-sparring',
-      component: () => import('@/pages/OpeningSparringView.vue'),
+      component: () => import('@/pages/opening-sparring').then(m => m.OpeningSparringPage),
       meta: { isGame: true, game: 'opening-sparring', requiresAuth: true },
     },
     {
@@ -119,55 +119,55 @@ const router = createRouter({
     {
       path: '/theory-endings',
       name: 'theory-endings-selection',
-      component: () => import('@/pages/EndingSelectionView.vue'),
+      component: () => import('@/pages/ending-selection').then(m => m.EndingSelectionPage),
       meta: { requiresAuth: true, gameMode: 'theory' },
     },
     {
       path: '/theory-endings/play/:type?/:puzzleId?',
       name: 'theory-endings-play',
-      component: () => import('@/pages/TheoryEndingView.vue'),
+      component: () => import('@/pages/theory-ending').then(m => m.TheoryEndingPage),
       meta: { isGame: true, requiresAuth: true, game: 'theory' },
     },
     {
       path: '/theory-endings/:type(win|draw)/:puzzleId',
       name: 'theory-endings-puzzle',
-      component: () => import('@/pages/TheoryEndingView.vue'),
+      component: () => import('@/pages/theory-ending').then(m => m.TheoryEndingPage),
       meta: { isGame: true, requiresAuth: true, game: 'theory' },
     },
     {
       path: '/study',
       name: 'study',
-      component: () => import('@/pages/StudyView.vue'),
+      component: () => import('@/pages/study').then(m => m.StudyPage),
       meta: { isGame: true, game: 'study', requiresAuth: true }, // Optional requiresAuth
     },
     {
       path: '/study/chapter/:slug',
       name: 'study-chapter',
-      component: () => import('@/pages/StudyView.vue'),
+      component: () => import('@/pages/study').then(m => m.StudyPage),
       meta: { isGame: true, game: 'study', requiresAuth: true },
     },
     {
       path: '/study/local/:id',
       name: 'study-local',
-      component: () => import('@/pages/StudyView.vue'),
+      component: () => import('@/pages/study').then(m => m.StudyPage),
       meta: { isGame: true, game: 'study', requiresAuth: true },
     },
     {
       path: '/practical-chess',
       name: 'practical-chess',
-      component: () => import('@/pages/EndingSelectionView.vue'),
+      component: () => import('@/pages/ending-selection').then(m => m.EndingSelectionPage),
       meta: { requiresAuth: true, gameMode: 'practical' },
     },
     {
       path: '/practical-chess/play/:id?',
       name: 'practical-chess-play',
-      component: () => import('@/pages/PracticalChessView.vue'),
+      component: () => import('@/pages/practical-chess').then(m => m.PracticalChessPage),
       meta: { isGame: true, requiresAuth: true, game: 'practical-chess' },
     },
     {
       path: '/practical-chess/:id',
       name: 'practical-chess-puzzle',
-      component: () => import('@/pages/PracticalChessView.vue'),
+      component: () => import('@/pages/practical-chess').then(m => m.PracticalChessPage),
       meta: { isGame: true, requiresAuth: true, game: 'practical-chess' },
     },
     {

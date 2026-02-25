@@ -1,4 +1,5 @@
 export * from './model/openingSparring.store'
+export { useSparringLoop } from './model/useSparringLoop'
 export { default as GameReviewModal } from './ui/GameReviewModal.vue'
 export { default as OpeningSparringHeader } from './ui/OpeningSparringHeader.vue'
 export { default as OpeningSparringSettingsModal } from './ui/OpeningSparringSettingsModal.vue'

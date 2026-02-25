@@ -6,8 +6,8 @@ import {
   DiamondHunterSettingsModal,
   GravityBook,
   useDiamondHunterStore,
+  useDiamondHunterUi,
 } from '@/features/diamond-hunter'
-import { useDiamondHunterUi } from '@/features/diamond-hunter/ui/useDiamondHunterUi'
 import { ArrowBack, DiamondOutline, FlashOutline, TelescopeOutline } from '@vicons/ionicons5'
 import { NButton, NIcon, NModal, NNumberAnimation, NSpace, NStatistic } from 'naive-ui'
 import { onMounted, onUnmounted, ref } from 'vue'

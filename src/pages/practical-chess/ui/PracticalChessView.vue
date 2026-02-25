@@ -9,7 +9,7 @@ import { useRoute, useRouter } from 'vue-router'
 
 import { AnalysisPanel } from '@/features/analysis'
 import { UserProfileWidget } from '@/features/profile'
-import YouMoveSelection from '../features/practical-chess/ui/YouMoveSelection.vue'
+import { YouMoveSelection } from '@/features/practical-chess'
 import { ControlPanel, GameLayout, TopInfoPanel, useControlsStore } from '@/widgets/game-layout'
 
 const practicalStore = usePracticalChessStore()

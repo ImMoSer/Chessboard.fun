@@ -9,7 +9,7 @@ import { computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { onBeforeRouteLeave, useRouter } from 'vue-router'
 
-import { useTornadoMistakesStore } from '@/features/tornado/model/tornadoMistakes.store'
+import { useTornadoMistakesStore } from '@/features/tornado'
 import type { GamePuzzle } from '@/shared/types/api.types'
 // --- STORES ---
 const gameStore = useGameStore()
