@@ -40,9 +40,14 @@ export const useAnalysisEngineStore = defineStore('analysis-engine', () => {
     localStorage.setItem('analysis_threads', String(newCount))
 
     if (isAnalysisActive.value) {
-      // Trigger re-analysis logic if needed (handled by consumer usually, or we can expose a 'restart' signal)
-      // For pure entity, we might just update the config.
-      // The service.setThreads call happens when analysis starts or here?
+      // First stop the engine properly
+      await analysisService.stopAnalysis()
+      // Then set the option (which now internally waits for readyok)
+      await analysisService.setThreads(newCount)
+      // The consumer or a higher-level watch will likely trigger startAnalysis again
+      // with the current FEN to resume.
+    } else {
+      // If not active, just pre-set the option for the next start
       await analysisService.setThreads(newCount)
     }
   }
@@ -66,7 +71,7 @@ export const useAnalysisEngineStore = defineStore('analysis-engine', () => {
     isLoading.value = true
     analysisLines.value = []
 
-    await analysisService.setThreads(numThreads.value)
+    // REMOVED redundant setThreads call. Threads are now set only during init or manual change.
 
     await analysisService.startAnalysis(fen, (lines) => {
       if (!isAnalysisActive.value || analysisVersion !== currentVersion) return
