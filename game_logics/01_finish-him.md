@@ -4,19 +4,19 @@
 
 ## 1. Схема взаимодействия (Flow)
 
-1.  **Selection:** Пользователь выбирает тему (например, "King Side Attack") и сложность в `FinishHimSelection`.
-2.  **Loading:** `useFinishHimStore` запрашивает пазл у API (`webhookService.fetchFinishHimPuzzle`).
-3.  **Handover:** Стор фичи передает управление в `useGameStore` через `setupPuzzle`, делегируя низкоуровневую обработку шахматной логики.
+1.  **Selection:** Пользователь выбирает тему (например, "King Side Attack") и сложность в `EndingSelectionPage` (путь `/finish-him`).
+2.  **Loading:** `FinishHimView` при монтировании вызывает `loadNewPuzzle`. `useFinishHimStore` инициирует запрос через `puzzleQuery.refetch()` (используя `apiClient`).
+3.  **Strategy Setup:** Стор фичи создает объект `IGameplayStrategy` через фабрику `_createStrategy` и передает его в `useGameStore.startWithStrategy`.
 4.  **Gameplay:** 
-    - `useGameStore` управляет очередностью ходов.
-    - Ответные ходы бота генерируются либо из сценария пазла, либо через `gameplayService` (Stockfish/Mozer).
-5.  **Validation:** После каждого хода вызывается `_checkWinCondition` (проверка мата).
-6.  **Reporting:** При завершении `_handleGameOver` отправляет результат на бэкенд для обновления статистики и рейтинга Glicko-2.
+    - `useGameStore` управляет циклом ходов.
+    - Ответные ходы бота генерируются либо из `tactical_solution` (сценарий), либо через `gameplayService.getBestMove` (Stockfish/Mozer), если сценарий исчерпан или нарушен.
+5.  **Validation:** После каждого хода `GameStore` проверяет состояние доски. При завершении вызывается `strategy.onGameOver`.
+6.  **Reporting:** `FinishHimStore` обрабатывает завершение, проигрывает звуки и отправляет результат на бэкенд через `resultMutation`.
 
 ## 2. Структура данных и API
 
 ### Объект FinishHimPuzzle
-Интерфейс данных, получаемый от `webhookService.fetchFinishHimPuzzle`:
+Данные приходят от эндпоинта `/finish-him/start` или `/finish-him/PuzzleId/{id}`:
 
 | Поле | Тип | Описание |
 | :--- | :--- | :--- |
@@ -26,96 +26,72 @@
 | `engm_rating` | `number` | Внутренний рейтинг сложности (EGM). |
 | `category` | `string` | Тематическая категория (например, `pawn`, `queen`). |
 
-**Важно:** Сценарная линия ходов (`tactical_solution`) парсится фронтендом в массив `string[]` при вызове `setupPuzzle`.
+**Важно:** Сценарная линия ходов (`tactical_solution`) парсится в массив `string[]` внутри стратегии.
 
 
 ## 2. Ключевые компоненты и их задачи
 
 ### [Feature] useFinishHimStore (`src/features/finish-him/model/finishHim.store.ts`)
-- **Управление состоянием:** Хранит ID текущего пазла, выбранную тему и сложность.
-- **Сообщения (Feedback):** Формирует локализованные подсказки ("Ваш ход", "Вы победили" и т.д.).
-- **Интеграция с API:** Вызывает методы `webhookService` для получения данных и сохранения результатов.
-- **Обработка GameOver:** Решает, как именно завершилась игра для конкретного режима (победа/поражение/сдача).
-- **Звуковое сопровождение (Game-Level):**
-    - `app_game_entry`: при входе в режим.
-    - `game_user_won` / `game_user_lost`: при финальном результате (в `_handleGameOver`).
+- **Управление состоянием:** Хранит активный пазл, параметры выбора (тема, сложность) и состояние обработки GameOver.
+- **Фабрика стратегии:** Инкапсулирует логику конкретно этого режима в объект `IGameplayStrategy`.
+- **Сообщения (Feedback):** Формирует локализованные подсказки через `feedbackMessage`.
+- **Интеграция с API:** Использует `useFinishHimQueries` для сетевого взаимодействия. Обновляет профиль пользователя (`authStore.updateUserStats`) после успешной отправки результата.
+- **Звуковое сопровождение:**
+    - `app_game_entry`: при инициализации режима.
+    - `game_user_won` / `game_user_lost`: при финальном результате.
 
 ### [Entity] useGameStore (`src/entities/game/model/game.store.ts`)
-- **Технический цикл:** Реализует паттерн "Strategy" для разных игровых режимов.
-- **Scenario Moves:** Отрабатывает жестко заданные ходы из пазла (если они есть), прежде чем переключиться на живой расчет движком.
+- **Движок игры:** Универсальный контроллер, который принимает стратегию и исполняет её.
 - **Управление фазами:** Переключает состояния `IDLE` -> `LOADING` -> `PLAYING` -> `GAMEOVER`.
-- **Взаимодействие с Ботом:** Вызывает `gameplayService.getBestMove` и передает результат в `boardStore`.
+- **Оркестрация ходов:** Вызывает `handleUserMove` на доске, проверяет мат и запрашивает ответ бота у стратегии.
 
 ### [Entity] useBoardStore (`src/entities/game/model/board.store.ts`)
-- **Chess Core:** Инкапсулирует библиотеку `chessops` для валидации ходов и генерации FEN.
-- **Звуковое сопровождение (Board-Level):** (Метод `_playSoundsForMove`)
-    - `board_move`, `board_capture`, `board_promote`: базовые шахматные звуки.
-    - `board_check`, `board_checkmate`, `board_draw_*`: звуки состояния игры (могут быть отключены флагом `playGameStatusSounds`).
-- **Синхронизация с PGN:** Каждый ход автоматически передается в `pgnService`.
+- **Chess Core:** Работа с `chessops`, валидация ходов, генерация FEN/PGN.
+- **Звуки доски:** `board_move`, `board_capture` и т.д. (автоматически при применении хода).
 
 ## 3. Подробная логика взаимодействия (Связка)
 
-Процесс совершения хода в режиме Finish Him:
-
-1.  **User UI -> boardStore.handleUserMove:** Шахматная доска (Chessground) инициирует движение фигуры. `boardStore` проверяет легальность хода через `chessops`.
-2.  **boardStore -> pgnService:** Если ход легален, он записывается в историю.
-3.  **boardStore -> SoundService:** Издается звук `board_move` или `board_capture`.
-4.  **GameStore.handleUserMove:** Получает подтверждение, что ход сделан. Проверяет, не является ли этот ход "сценарным" (из пазла).
-5.  **Validation:** `GameStore` опрашивает `boardStore.getGameStatus()`. Если на доске мат — вызывается коллбэк победы в `FinishHimStore`.
-6.  **Bot Response:** Если игра продолжается, `GameStore` запрашивает ход у `gameplayService`. Тот, в свою очередь, обращается к серверному Mozer или локальному Stockfish.
-7.  **Bot Move -> boardStore.applyUciMove:** Полученный ход применяется к доске, запуская цикл звуков и PGN-записей заново.
+1.  **User Move:** `WebChessBoard` -> `GameLayout.handleUserMove` -> `gameStore.handleUserMove`.
+2.  **Strategy Validation:** Если в стратегии есть `validateUserMove`, ядро спрашивает разрешение на ход.
+3.  **Board Update:** Ход применяется в `boardStore`.
+4.  **Deviation Control (в стратегии Finish Him):**
+    - В `onUserMoveExecuted` сравнивается ход игрока с `expectedMove` из сценария.
+    - Если ходы не совпадают — `isPlayoutMode` становится `true`, проигрывается звук `game_play_out_start`.
+5.  **Bot Response:** `gameStore` вызывает `strategy.requestBotMove`. 
+    - Если `isPlayoutMode == false`, возвращается следующий ход из сценария.
+    - Если `isPlayoutMode == true`, запрашивается живой расчет у `gameplayService` (Stockfish/Mozer).
+6.  **GameOver:** Когда `boardStore.getGameStatus()` возвращает `isGameOver: true`, ядро вызывает `strategy.onGameOver`.
 
 ## 4. Особенности бизнес-логики
 
-### Контроль отклонений (Deviation Control)
-Во время "сценарной" фазы (пока не исчерпаны ходы из `tactical_solution`) система работает по следующему алгоритму:
-1. Игрок делает ход.
-2. `GameStore.handleUserMove` сравнивает UCI-код хода со следующим ходом в сценарии.
-3. **Если ход совпадает:** Индекс сценария увеличивается, игра продолжается по плану.
-4. **Если ход отличается (но легален):** 
-   - Сценарий немедленно прерывается.
-   - Индекс `currentScenarioMoveIndex` устанавливается в конец массива.
-   - Система мгновенно переходит в фазу "плейаут" (живая игра против движка).
-   - Издается звук `game_play_out_start`.
-   - Ответный ход генерируется движком (`Stockfish/Mozer`) из текущей (новой) позиции.
+### Экономика (FunCoins)
+- **Списание:** Происходит на бэкенде при вызове эндпоинта `/start`.
+- **Ошибка 402:** Если монет недостаточно, `apiClient` выбрасывает `InsufficientFunCoinsError`. Стор перехватывает её и показывает модальное окно с предложением перейти в магазин.
 
-**Итог:** Ход игрока никогда не отклоняется системой (нет "неправильных" ходов, если они по правилам шахмат), но "рельсы" сценария отключаются при первом же отклонении.
+### Условие победы
+- Победителем считается игрок, поставивший мат (`outcome.winner === humanColor`). 
+- Пат, ничья или сдача (Resign) интерпретируются как поражение в контексте задачи "Finish Him" (реализация перевеса не достигнута).
 
-### Экономика и Транзакционность (FunCoins)
-- **Атомарность:** Списание FunCoins и получение данных пазла происходит на стороне бэкенда в рамках одного запроса `fetchFinishHimPuzzle`.
-- **Обработка ошибок:**
-  - Если запрос завершился сетевой ошибкой (`Network Error`), FunCoins на бэкенде не списываются (или транзакция откатывается базой данных).
-  - Стор фичи перехватывает ошибку, выводит уведомление `loadFailed` и не вызывает `setupPuzzle`.
-  - Механизм "отката" на фронтенде не требуется, так как баланс пользователя (`authStore.userProfile.FunCoins`) обновляется только при успешном ответе сервера или следующем запросе профиля.
-- **Недостаточно средств:** Если у пользователя 0 монет, сервер возвращает статус `402 (Payment Required)`, который обрабатывается в сторе вызовом модального окна покупки.
-
-### Прочие правила
-- **Условие победы:** Строго мат со стороны игрока. Патовые ситуации или ничьи интерпретируются как поражение (т.к. преимущество не реализовано).
-- **Плейаут (Playout):** Если "сценарные" ходы пазла закончились, но мат не поставлен, игра переходит в режим свободного доигрывания против движка.
-- **Статистика:** Обновление статистики (`_updateAndSendStats`) происходит асинхронно после завершения игры. В случае ошибки отправки результата, данные о победе могут быть потеряны (очередь оффлайн-отправки пока не реализована).
-- **Раздельный рейтинг:** Статистика побед/поражений сохраняется отдельно для каждой сложности (`Novice`, `Pro`, `Master`).
-- **Интеграция с анализом:** После завершения игры (`isGameOver`), `FinishHimView` автоматически вызывает `analysisStore.showPanel()`. Это позволяет пользователю разобрать альтернативные пути реализации преимущества с помощью мощного облачного или локального движка. Панель анализа скрывается при загрузке нового пазла.
+### Интеграция с анализом
+- В `FinishHimView` настроен вотчер на `gamePhase`. При переходе в `GAMEOVER` автоматически вызывается `analysisStore.showPanel()`, позволяя пользователю разобрать ошибки или альтернативные пути.
 
 
-## 5. Зависимости и FSD-риски
+## 5. Зависимости и структура (FSD)
 
 ```mermaid
 graph TD
-    FinishHimView --> useFinishHimStore
-    FinishHimView --> useGameStore
+    FinishHimPage[Pages: FinishHimPage] --> useFinishHimStore
+    FinishHimPage --> useGameStore
+    FinishHimPage --> GameLayout[Widgets: GameLayout]
+    
+    useFinishHimStore --> useFinishHimQueries
     useFinishHimStore --> useGameStore
-    useFinishHimStore --> webhookService
-    useGameStore --> boardStore
-    useGameStore --> gameplayService
-    boardStore --> pgnService
-    boardStore --> soundService
+    
+    useGameStore --> useBoardStore
+    useGameStore --> IGameplayStrategy[Interface: IGameplayStrategy]
+    
+    useFinishHimQueries --> apiClient
 ```
 
-**Критическое замечание для Ревизора:**
-Связка `useGameStore` и `useBoardStore` имеет признаки сильной связанности (tight coupling). `GameStore` знает о деталях `boardStore`, а `boardStore` берет на себя логику звуков состояний игры, которая в идеале должна контролироваться режимом. Также `boardStore` напрямую зависит от `pgnService` (Shared layer), что делает его "тяжелым" объектом.
-
-## 6. Краткое резюме по Finish Him:
-
-Режим завязан на useFinishHimStore, который является высокоуровневой оберткой над универсальным useGameStore.
-Ключевая особенность — переход от "сценарных" ходов (из БД) к "живому" доигрыванию (против Stockfish), если мат не был поставлен сразу.
-Бизнес-логика (рейтинги, оплата за попытки) инкапсулирована в фиче, не загрязняя сущности.
+**Ключевое изменение после рефакторинга:**
+Логика режима полностью отделена от ядра доски. `useGameStore` ничего не знает о "пазлах" или "сценариях" — он просто выполняет команды, которые дает ему стратегия, предоставленная фичей `finish-him`.
