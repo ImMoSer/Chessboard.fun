@@ -11,7 +11,7 @@ import {
 } from '@vicons/ionicons5'
 import { NIcon, NTag } from 'naive-ui'
 import { computed, markRaw, type Component } from 'vue'
-import { useTopInfo } from './model/useTopInfo'
+import { useTopInfo } from '../model/useTopInfo'
 
 const { displayInfo } = useTopInfo()
 const gameStore = useGameStore()

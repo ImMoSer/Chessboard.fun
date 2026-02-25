@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useBoardStore } from '@/entities/game'
-import { EngineLines, useAnalysisStore } from '@/features/analysis'
+import { EngineLines, useAnalysisStore } from '../index'
 import type { PgnNode } from '@/shared/lib/pgn/PgnService'
 import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
 import { ChevronBackOutline, ChevronForwardOutline, PlaySkipBackOutline, PlaySkipForwardOutline, TerminalOutline } from '@vicons/ionicons5'

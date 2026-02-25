@@ -1,2 +1,2 @@
-export * from './auth.store'
-export * from './AuthService'
+export * from './model/auth.store'
+export * from './api/AuthService'

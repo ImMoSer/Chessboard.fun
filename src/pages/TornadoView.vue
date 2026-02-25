@@ -4,12 +4,9 @@ import { useGameStore } from '@/entities/game'
 import { AnalysisPanel } from '@/features/analysis'
 import { UserProfileWidget } from '@/features/profile'
 import { useTornadoStore, type TornadoMode } from '@/features/tornado'
-import { useControlsStore } from '@/widgets/game-layout/model/controls.store'
 import { onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import ControlPanel from '../widgets/game-layout/ControlPanel.vue'
-import GameLayout from '../widgets/game-layout/GameLayout.vue'
-import TopInfoPanel from '../widgets/game-layout/TopInfoPanel.vue'
+import { ControlPanel, GameLayout, TopInfoPanel, useControlsStore } from '@/widgets/game-layout'
 
 const tornadoStore = useTornadoStore()
 const controlsStore = useControlsStore()

@@ -4,8 +4,8 @@ import { type TopInfoDisplay, type TopInfoStat } from '@/entities/puzzle'
 import {
   diamondApiService,
   type GravityMove,
-} from '@/features/diamond-hunter/api/DiamondApiService'
-import { useDiamondHunterQueries } from '@/features/diamond-hunter/api/diamondHunter.queries'
+} from '../api/DiamondApiService'
+import { useDiamondHunterQueries } from '../api/diamondHunter.queries'
 import i18n from '@/shared/config/i18n'
 import logger from '@/shared/lib/logger'
 import { pgnService } from '@/shared/lib/pgn/PgnService'

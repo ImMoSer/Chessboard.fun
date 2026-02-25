@@ -21,8 +21,8 @@ import {
   NText,
 } from 'naive-ui'
 import { ref, watch } from 'vue'
-import type { GameReport } from '@/features/opening-sparring/api/GameReviewService'
-import { useOpeningSparringStore } from '@/features/opening-sparring'
+import type { GameReport } from '../api/GameReviewService'
+import { useOpeningSparringStore } from '../index'
 
 const props = defineProps<{
   show: boolean

@@ -1,6 +1,6 @@
 <!-- src/features/practical-chess/ui/YouMoveSelection.vue -->
 <script setup lang="ts">
-import { usePracticalChessStore } from '@/features/practical-chess'
+import { usePracticalChessStore } from '../index'
 
 const practicalStore = usePracticalChessStore()
 

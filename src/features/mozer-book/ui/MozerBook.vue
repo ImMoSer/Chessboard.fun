@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useBoardStore } from '@/entities/game'
-import { useMozerBookStore } from '@/features/mozer-book'
+import { useMozerBookStore } from '../index'
 import { pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
 import { InformationCircleOutline, LeafOutline } from '@vicons/ionicons5'
 import { NIcon, NText } from 'naive-ui'

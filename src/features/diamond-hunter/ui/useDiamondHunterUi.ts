@@ -1,5 +1,5 @@
 import { useBoardStore } from '@/entities/game'
-import { useDiamondHunterStore } from '@/features/diamond-hunter'
+import { useDiamondHunterStore } from '../index'
 import type { SoundEvent } from '@/shared/lib/sound.service'
 import { soundService } from '@/shared/lib/sound.service'
 import type { DrawShape } from '@lichess-org/chessground/draw'

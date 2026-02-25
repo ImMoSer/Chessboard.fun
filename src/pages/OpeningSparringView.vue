@@ -19,7 +19,7 @@ import { NTag } from 'naive-ui'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import MozerBook from '../features/mozer-book/ui/MozerBook.vue'
-import GameLayout from '../widgets/game-layout/GameLayout.vue'
+import { GameLayout } from '@/widgets/game-layout'
 
 const t = i18n.global.t
 const openingStore = useOpeningSparringStore()

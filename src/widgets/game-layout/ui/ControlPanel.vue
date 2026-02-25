@@ -9,7 +9,7 @@ import {
 } from '@vicons/ionicons5'
 import { NButton, NIcon, NSpace, NTooltip } from 'naive-ui'
 import { useAnalysisStore } from '@/features/analysis'
-import { useControlsStore } from '@/widgets/game-layout/model/controls.store'
+import { useControlsStore } from '../model/controls.store'
 
 const controlsStore = useControlsStore()
 const analysisStore = useAnalysisStore()

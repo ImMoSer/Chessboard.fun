@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { openingChaptersService, type OpeningChapterTemplate } from '@/entities/opening'
-import { useStudyStore } from '@/features/study'
+import { useStudyStore } from '../index'
 import { NCard, NInput, NList, NListItem, NModal, NSpace, NText, NThing } from 'naive-ui'
 import { computed, ref } from 'vue'
 

@@ -1,7 +1,7 @@
 <!-- src/components/SettingsMenu.vue -->
 <script setup lang="ts">
 import { useAuthStore } from '@/entities/user'
-import { useThemeStore } from '@/features/settings'
+import { useThemeStore } from '../index'
 import { changeLang } from '@/shared/config/i18n'
 import { soundService } from '@/shared/lib/sound.service'
 import { storeToRefs } from 'pinia'

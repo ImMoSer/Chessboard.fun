@@ -1,5 +1,5 @@
 // src/stores/game.store.ts
-import { useBoardStore } from '@/entities/game'
+import { useBoardStore } from './board.store'
 import logger from '@/shared/lib/logger'
 import type { EngineId } from '@/shared/types/api.types'
 import type { Color as ChessgroundColor, Key } from '@lichess-org/chessground/types'

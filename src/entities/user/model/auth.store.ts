@@ -3,7 +3,7 @@ import logger from '@/shared/lib/logger'
 import type { UserSessionProfile, UserStatsUpdate } from '@/shared/types/api.types'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import { authService } from './AuthService'
+import { authService } from '../api/AuthService'
 
 export const useAuthStore = defineStore('auth', () => {
   // --- STATE ---

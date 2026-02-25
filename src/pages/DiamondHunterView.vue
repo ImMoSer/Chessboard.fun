@@ -12,8 +12,7 @@ import { ArrowBack, DiamondOutline, FlashOutline, TelescopeOutline } from '@vico
 import { NButton, NIcon, NModal, NNumberAnimation, NSpace, NStatistic } from 'naive-ui'
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import GameLayout from '../widgets/game-layout/GameLayout.vue'
-import TopInfoPanel from '../widgets/game-layout/TopInfoPanel.vue'
+import { GameLayout, TopInfoPanel } from '@/widgets/game-layout'
 
 const diamondHunterStore = useDiamondHunterStore()
 const boardStore = useBoardStore()

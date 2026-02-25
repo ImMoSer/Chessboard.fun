@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { theoryGraphService } from '@/entities/opening'
-import { useOpeningSparringStore } from '@/features/opening-sparring'
+import { useOpeningSparringStore } from '../index'
 import {
   BookOutline,
   ColorPaletteOutline,

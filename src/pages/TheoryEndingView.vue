@@ -4,7 +4,6 @@ import { useGameStore } from '@/entities/game'
 import { useAnalysisStore } from '@/features/analysis'
 import { useTheoryEndingsStore } from '@/features/theory-endings'
 import { shareService } from '@/shared/lib/share.service'
-import { useControlsStore } from '@/widgets/game-layout/model/controls.store'
 import { onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -12,9 +11,7 @@ import type { TheoryEndingType } from '@/shared/types/api.types'
 
 import { AnalysisPanel } from '@/features/analysis'
 import { UserProfileWidget } from '@/features/profile'
-import ControlPanel from '../widgets/game-layout/ControlPanel.vue'
-import GameLayout from '../widgets/game-layout/GameLayout.vue'
-import TopInfoPanel from '../widgets/game-layout/TopInfoPanel.vue'
+import { ControlPanel, GameLayout, TopInfoPanel, useControlsStore } from '@/widgets/game-layout'
 
 const theoryStore = useTheoryEndingsStore()
 const gameStore = useGameStore()

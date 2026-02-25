@@ -1,7 +1,7 @@
 import { analysisService } from '@/entities/analysis'
 import { useBoardStore, useGameStore, type IGameplayStrategy } from '@/entities/game'
 import { theoryGraphService } from '@/entities/opening'
-import { gameReviewService } from '@/features/opening-sparring/api/GameReviewService'
+import { gameReviewService } from '../api/GameReviewService'
 import { mozerBookService, type MozerBookResponse } from '@/entities/opening'
 import logger from '@/shared/lib/logger'
 import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'

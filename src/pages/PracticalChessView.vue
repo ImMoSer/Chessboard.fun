@@ -4,16 +4,13 @@ import { useGameStore } from '@/entities/game'
 import { useAnalysisStore } from '@/features/analysis'
 import { usePracticalChessStore } from '@/features/practical-chess'
 import { shareService } from '@/shared/lib/share.service'
-import { useControlsStore } from '@/widgets/game-layout/model/controls.store'
 import { onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import { AnalysisPanel } from '@/features/analysis'
 import { UserProfileWidget } from '@/features/profile'
 import YouMoveSelection from '../features/practical-chess/ui/YouMoveSelection.vue'
-import ControlPanel from '../widgets/game-layout/ControlPanel.vue'
-import GameLayout from '../widgets/game-layout/GameLayout.vue'
-import TopInfoPanel from '../widgets/game-layout/TopInfoPanel.vue'
+import { ControlPanel, GameLayout, TopInfoPanel, useControlsStore } from '@/widgets/game-layout'
 
 const practicalStore = usePracticalChessStore()
 const gameStore = useGameStore()

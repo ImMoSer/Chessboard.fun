@@ -5,8 +5,8 @@ import {
   type RepertoireProfile,
   type RepertoireRequest,
   type RepertoireStyle,
-} from '@/features/study/api/RepertoireApiService'
-import { useStudyStore } from '@/features/study'
+} from '../api/RepertoireApiService'
+import { useStudyStore } from '../index'
 import { pgnParserService } from '@/shared/lib/pgn/PgnParserService'
 import { pgnService, type PgnNode } from '@/shared/lib/pgn/PgnService'
 import { FlashOutline } from '@vicons/ionicons5'

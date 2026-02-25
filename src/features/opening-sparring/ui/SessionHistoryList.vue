@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useOpeningSparringStore } from '@/features/opening-sparring'
+import { useOpeningSparringStore } from '../index'
 import { type SessionMove } from '@/shared/types/openingSparring.types'
 import { NDataTable, NDivider, NText, type DataTableColumns } from 'naive-ui'
 import { computed, h, type CSSProperties } from 'vue'
