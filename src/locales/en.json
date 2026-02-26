@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "Chessboard.fun"
+    "title": "EXTRAPAWN"
   },
   "chess": {
     "finishHim": {
@@ -521,7 +521,7 @@
     }
   },
   "about": {
-    "title": "Chessboard.fun",
+    "title": "EXTRAPAWN",
     "intro": " is a professional chess training ecosystem designed to bridge the gap between amateur play and Grandmaster-level preparation through deep analysis and realistic AI sparring.",
     "sections": {
       "mainModesTitle": "Training Ecosystem",
@@ -574,7 +574,7 @@
       "api": "Protocols: ",
       "apiStack": "Lichess REST API & OAuth2 ("
     },
-    "contributing": "We welcome all contributions to make Chessboard.fun the ultimate training tool! If you have ideas or found a bug, please create an issue or a PR on GitHub.",
+    "contributing": "We welcome all contributions to make EXTRAPAWN the ultimate training tool! If you have ideas or found a bug, please create an issue or a PR on GitHub.",
     "licenseAndAcknowledgements": {
       "gplIntro": "This project is licensed under the GNU General Public License v3.0, promoting transparency and community growth.",
       "stockfish": {
@@ -626,7 +626,7 @@
       "photoAlt": "Project Architect",
       "title": "The Mission & The Maker",
       "bioPart1": "I'm Moser, a mechanical engineer and lifelong chess student. Born in Kazakhstan (1985), living in Germany (2003).",
-      "bioPart2": "Chessboard.fun is my dream of a professional tool that empowers players to study effectively, which only became possible through modern AI and workflow automation.",
+      "bioPart2": "EXTRAPAWN is my dream of a professional tool that empowers players to study effectively, which only became possible through modern AI and workflow automation.",
       "bioPart3": "Fluent in Russian and German, always polishing my English. Thank you for joining this journey!",
       "supportButtonText": "Buy me a coffee"
     },

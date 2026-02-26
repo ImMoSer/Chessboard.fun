@@ -1,6 +1,6 @@
 <!-- src/pages/AboutView.vue -->
 <script setup lang="ts">
-import { useI18n } from 'vue-i18n'
+import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n()
 const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
@@ -12,7 +12,7 @@ const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
       {{ t('about.title') }}
       <span class="app-version"> ({{ appVersion }})</span>
     </h1>
-    <p><strong>Chessboard.fun</strong>{{ t('about.intro') }}</p>
+    <p><strong>EXTRAPAWN</strong>{{ t('about.intro') }}</p>
 
     <h2>{{ t('about.sections.mainModesTitle') }}</h2>
     <ul>
@@ -230,7 +230,7 @@ const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
       <p>
         {{ t('about.contact.telegram') }}{{ t('about.contact.separator')
         }}<a href="https://t.me/Chessboard_fun" target="_blank" rel="noopener noreferrer"
-          >https://t.me/Chessboard.fun</a
+          >https://t.me/EXTRAPAWN</a
         >
       </p>
       <p>
@@ -240,10 +240,10 @@ const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
       <p>
         {{ t('about.contact.github') }}{{ t('about.contact.separator')
         }}<a
-          href="https://github.com/ImMoSer/Chessboard.fun"
+          href="https://github.com/ImMoSer/extrapawn.com"
           target="_blank"
           rel="noopener noreferrer"
-          >https://github.com/ImMoSer/Chessboard.fun</a
+          >https://github.com/ImMoSer/EXTRAPAWN</a
         >
       </p>
     </div>

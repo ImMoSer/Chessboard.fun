@@ -26,7 +26,7 @@ const isDrawerOpen = ref(false)
  */
 const themeOverrides: GlobalThemeOverrides = {
   common: {
-    fontFamily: 'Neucha, cursive',
+    fontFamily: 'Outfit, sans-serif',
     primaryColor: '#00f2ff',
     primaryColorHover: '#00d7e6',
     primaryColorPressed: '#00d7e6',
@@ -100,10 +100,15 @@ onUnmounted(() => {
             <div class="sider-header">
               <RouterLink to="/" class="logo-link">
                 <img
-                  :src="isSidebarCollapsed ? '/svg/ChessBoard_cube_ob.svg' : '/svg/1280х256_ob.svg'"
+                  v-if="isSidebarCollapsed"
+                  src="/png/extra_pawn_black.png"
                   alt="Logo"
-                  :class="isSidebarCollapsed ? 'logo-collapsed' : 'logo-full'"
+                  class="logo-collapsed"
                 />
+                <div v-else class="brand-wrapper-sidebar">
+                  <img src="/png/extra_pawn_black.png" alt="EXTRAPAWN" class="sidebar-logo-icon" />
+                  <span class="brand-text sidebar-brand-name">EXTRAPAWN</span>
+                </div>
               </RouterLink>
             </div>
 
@@ -122,7 +127,7 @@ onUnmounted(() => {
               </n-button>
 
               <RouterLink to="/" class="mobile-logo">
-                <img src="/svg/ChessBoard_cube_ob.svg" alt="Logo" height="32" />
+                <img src="/png/extra_pawn_black.png" alt="Logo" height="32" />
               </RouterLink>
 
               <SettingsMenu />
@@ -139,8 +144,8 @@ onUnmounted(() => {
             <n-drawer-content closable class="mobile-drawer-content">
               <template #header>
                 <n-space align="center">
-                  <img src="/svg/ChessBoard_cube_ob.svg" alt="Logo" height="30" />
-                  <n-text strong>Chessboard.fun</n-text>
+                  <img src="/png/extra_pawn_black.png" alt="Logo" height="30" />
+                  <n-text strong class="brand-text" style="font-size: 1.2rem; letter-spacing: 0.05em;">EXTRAPAWN</n-text>
                 </n-space>
               </template>
               <NavMenu @select="isDrawerOpen = false" />
@@ -202,8 +207,28 @@ onUnmounted(() => {
 }
 
 .logo-collapsed {
-  width: 30px;
-  height: 30px;
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+.brand-wrapper-sidebar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.sidebar-logo-icon {
+  height: 36px;
+  width: auto;
+  object-fit: contain;
+}
+
+.sidebar-brand-name {
+  font-size: 1.5rem;
+  letter-spacing: 0.05em;
+  margin: 0;
 }
 
 .mobile-header {

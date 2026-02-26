@@ -1,7 +1,7 @@
 # 1. Project Overview & Mission
 
 ## Vision
-The Chess App (Chessboard.fun) is a high-performance, professional-grade interactive platform designed for chess enthusiasts who seek more than just casual play. Our mission is to provide advanced training environments that bridge the gap between amateur play and grandmaster-level preparation.
+The Chess App (extrapawn.com) is a high-performance, professional-grade interactive platform designed for chess enthusiasts who seek more than just casual play. Our mission is to provide advanced training environments that bridge the gap between amateur play and grandmaster-level preparation.
 
 We focus on:
 - **Depth over Simplicity**: Providing detailed, engine-backed analysis and unique training modes.

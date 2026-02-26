@@ -4,7 +4,7 @@
 
 Hello! My name is **Moser**. I was born in 1985 in Kazakhstan and have been living in Germany since 2003.
 
-By trade, I'm a mechanical engineer with a lifelong passion for chess. **Chessboard.fun** is a long-held dream of mine: to create a professional-grade training tool that empowers players to study effectively. This project only became possible thanks to the convergence of modern AI technologies and the power of the **n8n** automation platform.
+By trade, I'm a mechanical engineer with a lifelong passion for chess. **extrapawn.com** is a long-held dream of mine: to create a professional-grade training tool that empowers players to study effectively. This project only became possible thanks to the convergence of modern AI technologies and the power of the **n8n** automation platform.
 
 I am fluent in Russian and German, and I am continually improving my English as I collaborate with the global chess community.
 
@@ -41,7 +41,7 @@ Our analytical depth is powered by the giants of modern chess engine development
 
 ## 🤝 Contributing & Community
 
-We welcome all contributions to make **Chessboard.fun** the best training tool available!
+We welcome all contributions to make **extrapawn.com** the best training tool available!
 
 If you have ideas, suggestions, or have found a bug:
 1.  **[Create an Issue](../../issues)** to discuss your idea.

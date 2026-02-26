@@ -43,40 +43,40 @@ const menuItems = [
     path: '/finish-him',
     icon: HammerOutline,
     labelKey: 'welcome.buttons.finishHim',
-    color: '#f5222d',
+    color: 'var(--color-neon-pink)',
   },
-  { path: '/tornado', icon: ThunderstormOutline, labelKey: 'nav.tornado', color: '#1890ff' },
+  { path: '/tornado', icon: ThunderstormOutline, labelKey: 'nav.tornado', color: 'var(--color-neon-cyan)' },
   {
     path: '/theory-endings',
     icon: BookOutline,
     labelKey: 'welcome.buttons.theoryEndings',
-    color: '#722ed1',
+    color: 'var(--color-neon-purple)',
   },
   {
     path: '/practical-chess',
     icon: BuildOutline,
     labelKey: 'welcome.buttons.practicalChess',
-    color: '#fa8c16',
+    color: 'var(--color-neon-orange)',
   },
   {
     path: '/diamond-hunter',
     icon: DiamondOutline,
     labelKey: 'welcome.buttons.openingTraining',
-    color: '#13c2c2',
+    color: 'var(--color-neon-lime)',
   },
   {
     path: '/opening-sparring',
     icon: FlashOutline,
     labelKey: 'welcome.buttons.openingSparring',
-    color: '#eb2f96',
+    color: 'var(--color-neon-pink)',
   },
-  { path: '/study', icon: SchoolOutline, labelKey: 'welcome.buttons.study', color: '#52c41a' },
-  { path: '/user-cabinet', icon: PersonOutline, labelKey: 'nav.userCabinet', color: '#faad14' },
+  { path: '/study', icon: SchoolOutline, labelKey: 'welcome.buttons.study', color: 'var(--color-neon-lime)' },
+  { path: '/user-cabinet', icon: PersonOutline, labelKey: 'nav.userCabinet', color: 'var(--color-neon-orange)' },
   {
     path: '/records',
     icon: TrophyOutline,
     labelKey: 'welcome.buttons.leaderboards',
-    color: '#fadb14',
+    color: 'var(--color-neon-yellow)',
   },
 ]
 
@@ -109,7 +109,10 @@ const filteredMenuItems = computed(() => {
     <div class="content-wrapper">
       <!-- Hero Section -->
       <div class="hero-section">
-        <img src="/svg/1280х256_ob.svg" :alt="t('app.title')" class="hero-logo" />
+        <div class="brand-wrapper">
+          <img src="/png/extra_pawn_black.png" alt="EXTRAPAWN" class="hero-logo" />
+          <h1 class="brand-name brand-text">EXTRAPAWN</h1>
+        </div>
 
         <!-- Login Button (Visible only if not authenticated) -->
         <div v-if="!isAuthenticated" class="auth-section">
@@ -217,10 +220,32 @@ const filteredMenuItems = computed(() => {
 }
 
 .hero-logo {
-  max-width: 90%;
-  max-height: 20vh; /* Limit height to fit screen */
+  height: clamp(100px, 25vh, 500px);
   width: auto;
-  height: auto;
+  filter: drop-shadow(0 0 15px rgba(0, 242, 255, 0.2));
+}
+
+.brand-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  animation: float 6s ease-in-out infinite;
+}
+
+.brand-name {
+  margin: 0;
+  font-size: clamp(2rem, 6vw, 4.5rem);
+  line-height: 1;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 
 .auth-section {
@@ -316,8 +341,17 @@ const filteredMenuItems = computed(() => {
     gap: 10px;
   }
 
+  .brand-wrapper {
+    flex-direction: column;
+    gap: 8px;
+  }
+
   .hero-logo {
-    max-height: 14vh;
+    height: 15vh;
+  }
+
+  .brand-name {
+    font-size: 2.2rem;
   }
 
   .menu-grid {

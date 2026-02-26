@@ -1,11 +1,11 @@
-# ♟️ Chessboard.fun — Professional Chess Training Ecosystem
+# ♟️ extrapawn.com — Professional Chess Training Ecosystem
 
 **Bridge the gap between amateur play and Grandmaster-level preparation.**
 
-**Chessboard.fun** is a high-performance interactive platform designed for chess enthusiasts who seek a disciplined, professional-grade training environment. We combine deep engine-backed analysis with realistic, human-like AI resistance to transform study into a repeatable, high-impact skill.
+**extrapawn.com** is a high-performance interactive platform designed for chess enthusiasts who seek a disciplined, professional-grade training environment. We combine deep engine-backed analysis with realistic, human-like AI resistance to transform study into a repeatable, high-impact skill.
 
 <p align="center">
-  <img src="tech_docs/screenshots/hero_preview.png" width="900" alt="Chessboard.fun Interface Preview">
+  <img src="tech_docs/screenshots/hero_preview.png" width="900" alt="extrapawn.com Interface Preview">
 </p>
 
 ---
@@ -14,7 +14,7 @@
 
 > "I've always dreamed of a tool that doesn't just show you the engine's best move, but teaches you how to *find* it, *convert* it, and *memorize* it." — **Moser**, Project Architect
 
-Most chess platforms focus on casual play or simple puzzles. **Chessboard.fun** is different. We believe that true improvement requires:
+Most chess platforms focus on casual play or simple puzzles. **extrapawn.com** is different. We believe that true improvement requires:
 - **Analytical Depth**: Every position is verified by a distributed cluster of elite engines.
 - **Human-Centric AI**: We use specialized neural networks (Maia) to simulate the mistakes, traps, and "stubbornness" of real human opponents.
 - **The Memorization Loop**: It's not enough to find a brilliant move once; our "Secure" system ensures you internalize the logic forever.
@@ -41,7 +41,7 @@ Raw data transformed into actionable insights via **Apache ECharts**.
   <img src="tech_docs/screenshots/user_cabinet.png" width="800" alt="User Cabinet Analytics">
 </p>
 
-> **🔗 Live Experience:** [Explore the User Cabinet Demo](https://chessboard.fun/user-cabinet/example)
+> **🔗 Live Experience:** [Explore the User Cabinet Demo](https://extrapawn.com/user-cabinet/example)
 
 ---
 
@@ -97,7 +97,7 @@ We operate on an **"Active-First"** model that rewards community engagement over
 - **Lichess Club Bonus**: Earn automatic tier upgrades (**Knight**, **Bishop**, **Rook**) by participating in club tournaments and being an active player.
 - **Verification**: All achievements are verified and linked directly to your **Lichess profile**.
 
-> **🏆 Hall of Fame:** [Check the Current Leaders & Records](https://chessboard.fun/records/example)
+> **🏆 Hall of Fame:** [Check the Current Leaders & Records](https://extrapawn.com/records/example)
 
 ---
 
@@ -125,7 +125,7 @@ Explore our deep-dive documentation for modular details:
 
 ## ❤️ About the Author & Acknowledgments
 
-**Moser** — A mechanical engineer and lifelong chess enthusiast. **Chessboard.fun** represents the convergence of modern AI and a long-held dream to create professional-grade training tools.
+**Moser** — A mechanical engineer and lifelong chess enthusiast. **extrapawn.com** represents the convergence of modern AI and a long-held dream to create professional-grade training tools.
 
 Special thanks to the [Lichess.org](https://lichess.org) team, the **Stockfish** project, **LCZero**, and **Maia Chess** for the foundational tools that make this platform possible.
 
