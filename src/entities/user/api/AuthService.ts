@@ -162,8 +162,8 @@ class AuthServiceController {
     return this.state.error
   }
 
-  public getFunCoins(): number | null {
-    return this.state.userProfile?.FunCoins ?? null
+  public getPawnCoins(): number | null {
+    return this.state.userProfile?.PawnCoins ?? null
   }
 
   public updateUserProfile(updatedData: Partial<UserSessionProfile>) {

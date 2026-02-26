@@ -399,7 +399,7 @@
       "tierPermanent": " (permanent)"
     },
     "stats": {
-      "funcoinsLabel": "FunCoins",
+      "pawncoinsLabel": "PawnCoins",
       "endgameSkillLabel": "Endgame Skill",
       "puzzlesSolved": "Puzzles Solved",
       "skillEarned": "Skill Today",
@@ -470,24 +470,24 @@
       "title": "Subscription Tiers",
       "pawn": {
         "name": "Pawn",
-        "description": "Daily replenishment up to {funcoins} FunCoins",
+        "description": "Daily replenishment up to {pawncoins} PawnCoins",
         "price": "Free forever"
       },
       "knight": {
         "name": "Knight",
-        "description": "Daily replenishment up to {funcoins} FunCoins"
+        "description": "Daily replenishment up to {pawncoins} PawnCoins"
       },
       "bishop": {
         "name": "Bishop",
-        "description": "Daily replenishment up to {funcoins} FunCoins"
+        "description": "Daily replenishment up to {pawncoins} PawnCoins"
       },
       "rook": {
         "name": "Rook",
-        "description": "Daily replenishment up to {funcoins} FunCoins"
+        "description": "Daily replenishment up to {pawncoins} PawnCoins"
       },
       "queen": {
         "name": "Queen",
-        "description": "Daily replenishment up to {funcoins} FunCoins"
+        "description": "Daily replenishment up to {pawncoins} PawnCoins"
       },
       "price": {
         "soon": "Price will be announced",
@@ -511,11 +511,11 @@
     },
     "costs": {
       "title": "Game Mode Costs",
-      "funcoinLabel": "FunCoins"
+      "pawncoinLabel": "PawnCoins"
     },
     "insufficientCoins": {
-      "title": "Insufficient FunCoins",
-      "message": "Starting this game requires {required} FunCoins. You currently have: {available}.",
+      "title": "Insufficient PawnCoins",
+      "message": "Starting this game requires {required} PawnCoins. You currently have: {available}.",
       "subMessage": "You can learn more about how to top up your balance on the pricing page.",
       "goToPricing": "Go to Pricing"
     }

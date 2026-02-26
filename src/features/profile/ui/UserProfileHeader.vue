@@ -113,10 +113,11 @@ const avatarSize = computed(() => (isMobile.value ? 75 : 150))
 
           <div class="funcoins-stat">
             <n-statistic
-              :label="t('userCabinet.stats.funcoinsLabel')"
-              :value="userProfile.FunCoins"
+              :label="t('userCabinet.stats.pawncoinsLabel')"
+              :value="(userProfile.dailyLimit || 0) - (userProfile.spentToday || 0)"
             >
               <template #prefix>🪙</template>
+              <template #suffix> / {{ userProfile.dailyLimit || 0 }}</template>
             </n-statistic>
           </div>
         </div>

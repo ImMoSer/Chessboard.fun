@@ -1,20 +1,20 @@
 // src/stores/finishHim.store.ts
 import {
-  gameplayService,
-  useGameStore,
-  type GameStatusInfo,
-  type IGameplayStrategy,
+    gameplayService,
+    useGameStore,
+    type GameStatusInfo,
+    type IGameplayStrategy,
 } from '@/entities/game'
 import { type TopInfoDisplay } from '@/entities/puzzle'
 import { useAuthStore } from '@/entities/user'
-import { InsufficientFunCoinsError } from '@/shared/api/client'
+import { InsufficientPawnCoinsError } from '@/shared/api/client'
 import i18n from '@/shared/config/i18n'
 import logger from '@/shared/lib/logger'
 import { soundService } from '@/shared/lib/sound.service'
 import type {
-  FinishHimDifficulty,
-  FinishHimPuzzle,
-  FinishHimResultDto,
+    FinishHimDifficulty,
+    FinishHimPuzzle,
+    FinishHimResultDto,
 } from '@/shared/types/api.types'
 import { useUiStore } from '@/shared/ui/model/ui.store'
 import { parseFen } from 'chessops/fen'
@@ -188,8 +188,8 @@ export const useFinishHimStore = defineStore('finishHim', () => {
 
       feedbackMessage.value = t('finishHim.feedback.yourTurn')
     } catch (error) {
-      if (error instanceof InsufficientFunCoinsError) {
-        const e = error as InsufficientFunCoinsError
+      if (error instanceof InsufficientPawnCoinsError) {
+        const e = error as InsufficientPawnCoinsError
         const confirmed = await uiStore.showConfirmation(
           t('pricing.insufficientCoins.title'),
           t('pricing.insufficientCoins.message', {

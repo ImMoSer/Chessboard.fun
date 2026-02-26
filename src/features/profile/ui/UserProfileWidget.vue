@@ -4,19 +4,19 @@ import { useAuthStore } from '@/entities/user'
 import type { TornadoMode } from '@/shared/types/api.types'
 import { GolfOutline, LockClosedOutline, RibbonOutline, WalletOutline } from '@vicons/ionicons5'
 import {
-  NAvatar,
-  NButton,
-  NCard,
-  NDivider,
-  NGrid,
-  NGridItem,
-  NIcon,
-  NNumberAnimation,
-  NSpace,
-  NStatistic,
-  NTag,
-  NText,
-  NTooltip,
+    NAvatar,
+    NButton,
+    NCard,
+    NDivider,
+    NGrid,
+    NGridItem,
+    NIcon,
+    NNumberAnimation,
+    NSpace,
+    NStatistic,
+    NTag,
+    NText,
+    NTooltip,
 } from 'naive-ui'
 import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
@@ -113,13 +113,14 @@ const avatarUrl = computed(() => {
               </n-space>
             </n-space>
 
-            <n-statistic :label="t('userCabinet.stats.funcoinsLabel')" class="header-funcoins">
+            <n-statistic :label="t('userCabinet.stats.pawncoinsLabel')" class="header-funcoins">
               <template #prefix>
                 <n-icon color="#f0a020">
                   <WalletOutline />
                 </n-icon>
               </template>
-              <n-number-animation :from="0" :to="userProfile.FunCoins" />
+              <n-number-animation :from="0" :to="(userProfile.dailyLimit || 0) - (userProfile.spentToday || 0)" />
+              <span class="limit-text"> / {{ userProfile.dailyLimit || 0 }}</span>
             </n-statistic>
           </n-space>
 
@@ -245,6 +246,12 @@ const avatarUrl = computed(() => {
   font-size: 1.3rem;
   font-weight: 900;
   font-family: monospace;
+}
+
+.limit-text {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  font-weight: bold;
 }
 
 .mini-stat-box {

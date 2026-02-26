@@ -229,7 +229,7 @@ const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
     <div class="contact-info">
       <p>
         {{ t('about.contact.telegram') }}{{ t('about.contact.separator')
-        }}<a href="https://t.me/Chessboard_fun" target="_blank" rel="noopener noreferrer"
+        }}<a href="https://t.me/extrapawn" target="_blank" rel="noopener noreferrer"
           >https://t.me/EXTRAPAWN</a
         >
       </p>

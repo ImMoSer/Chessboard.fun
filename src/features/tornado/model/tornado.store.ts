@@ -2,7 +2,7 @@
 import { useBoardStore, useGameStore, type IGameplayStrategy } from '@/entities/game'
 import { type TopInfoDisplay } from '@/entities/puzzle'
 import { useAuthStore } from '@/entities/user'
-import { InsufficientFunCoinsError } from '@/shared/api/client'
+import { InsufficientPawnCoinsError } from '@/shared/api/client'
 import i18n from '@/shared/config/i18n'
 import { Glicko2Calculator, type GlickoState } from '@/shared/lib/glicko2'
 import logger from '@/shared/lib/logger'
@@ -271,8 +271,8 @@ export const useTornadoStore = defineStore('tornado', () => {
         throw new Error(t('tornado.feedback.loadingFailed'))
       }
     } catch (error) {
-      if (error instanceof InsufficientFunCoinsError) {
-        const e = error as InsufficientFunCoinsError
+      if (error instanceof InsufficientPawnCoinsError) {
+        const e = error as InsufficientPawnCoinsError
         const confirmed = await uiStore.showConfirmation(
           t('pricing.insufficientCoins.title'),
           t('pricing.insufficientCoins.message', {

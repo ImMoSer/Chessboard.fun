@@ -21,12 +21,12 @@ export class RateLimitError extends Error {
     }
 }
 
-export class InsufficientFunCoinsError extends Error {
+export class InsufficientPawnCoinsError extends Error {
     public required: number
     public available: number
     constructor(message: string, required: number = 0, available: number = 0) {
         super(message)
-        this.name = 'InsufficientFunCoinsError'
+        this.name = 'InsufficientPawnCoinsError'
         this.required = required
         this.available = available
     }

@@ -1,8 +1,8 @@
 import type {
-  LeaderboardApiResponse,
-  PersonalActivityStatsResponse,
-  UserProfileStatsDto,
-  UserSessionProfile,
+    LeaderboardApiResponse,
+    PersonalActivityStatsResponse,
+    UserProfileStatsDto,
+    UserSessionProfile,
 } from '@/shared/types/api.types'
 
 export const EXAMPLE_USER_PROFILE: UserSessionProfile = {
@@ -17,7 +17,9 @@ export const EXAMPLE_USER_PROFILE: UserSessionProfile = {
   },
   createdAt: 1770792222695,
   profile: {},
-  FunCoins: 100,
+  PawnCoins: 100,
+  dailyLimit: 100,
+  spentToday: 0,
   base_puzzle_rating: 1500,
   subscriptionTier: 'King',
   TierExpire: null,

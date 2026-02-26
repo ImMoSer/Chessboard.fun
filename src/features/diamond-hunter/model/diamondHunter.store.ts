@@ -1,17 +1,17 @@
 import { useAnalysisEngineStore } from '@/entities/analysis'
 import { useBoardStore, type IGameplayStrategy } from '@/entities/game'
 import { type TopInfoDisplay, type TopInfoStat } from '@/entities/puzzle'
-import {
-  diamondApiService,
-  type GravityMove,
-} from '../api/DiamondApiService'
-import { useDiamondHunterQueries } from '../api/diamondHunter.queries'
 import i18n from '@/shared/config/i18n'
 import logger from '@/shared/lib/logger'
 import { pgnService } from '@/shared/lib/pgn/PgnService'
 import type { SoundEvent } from '@/shared/lib/sound.service'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
+import {
+    diamondApiService,
+    type GravityMove,
+} from '../api/DiamondApiService'
+import { useDiamondHunterQueries } from '../api/diamondHunter.queries'
 
 export type HunterState = 'IDLE' | 'HUNTING' | 'SOLVING' | 'REWARD' | 'FAILED' | 'SAVING'
 
@@ -84,8 +84,8 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
       await diamondApiService.startSession()
     } catch (e: unknown) {
       const err = e as Error
-      if (err.message === 'Insufficient FunCoins') {
-        message.value = 'Insufficient FunCoins to start Diamond Hunter!'
+      if (err.message === 'Insufficient PawnCoins') {
+        message.value = 'Insufficient PawnCoins to start Diamond Hunter!'
         return
       }
       message.value = 'Failed to start Diamond Hunter session.'

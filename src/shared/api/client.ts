@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
-import { ApiError, InsufficientFunCoinsError, RateLimitError } from './errors'
-export { ApiError, InsufficientFunCoinsError, RateLimitError }
+import { ApiError, InsufficientPawnCoinsError, RateLimitError } from './errors'
+export { ApiError, InsufficientPawnCoinsError, RateLimitError }
 
 export const BACKEND_API_URL = import.meta.env.VITE_BACKEND_API_URL as string
 
@@ -43,7 +43,7 @@ export async function apiClient<T>(
 
     if (response.status === 403) {
       const errorData = await response.json()
-      throw new InsufficientFunCoinsError(
+      throw new InsufficientPawnCoinsError(
         errorData.message || 'Forbidden',
         errorData.required || 0,
         errorData.available || 0,

@@ -94,7 +94,7 @@ class DiamondApiService {
 
       if (!response.ok) {
         if (response.status === 403) {
-          throw new Error('Insufficient FunCoins')
+          throw new Error('Insufficient PawnCoins')
         }
         throw new Error(`Diamond Session Start Error: ${response.statusText}`)
       }

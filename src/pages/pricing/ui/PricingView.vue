@@ -1,29 +1,29 @@
 <script setup lang="ts">
 import {
-  NAlert,
-  NCard,
-  NDivider,
-  NGi,
-  NGrid,
-  NH1,
-  NH2,
-  NLayout,
-  NLayoutContent,
-  NSpace,
-  NTag,
-  NText,
-  NThing,
+    NAlert,
+    NCard,
+    NDivider,
+    NGi,
+    NGrid,
+    NH1,
+    NH2,
+    NLayout,
+    NLayoutContent,
+    NSpace,
+    NTag,
+    NText,
+    NThing,
 } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 
 // Subscription values and colors
-const PAWN_FUNCOINS = 100
-const KNIGHT_FUNCOINS = 300
-const BISHOP_FUNCOINS = 500
-const ROOK_FUNCOINS = 1000
-const QUEEN_FUNCOINS = 10000
+const PAWN_COINS = 100
+const KNIGHT_COINS = 300
+const BISHOP_COINS = 500
+const ROOK_COINS = 1000
+const QUEEN_COINS = 10000
 
 const PAWN_COLOR = 'var(--color-neon-cyan)'
 const KNIGHT_COLOR = 'var(--color-neon-cyan)'
@@ -35,7 +35,7 @@ const subscriptionTiers = [
   {
     name: t('pricing.tiers.pawn.name'),
     icon: '/piece/alpha/wP.svg',
-    funcoins: PAWN_FUNCOINS,
+    pawncoins: PAWN_COINS,
     color: PAWN_COLOR,
     price: t('pricing.tiers.pawn.price'),
     highlight: true,
@@ -43,28 +43,28 @@ const subscriptionTiers = [
   {
     name: t('pricing.tiers.knight.name'),
     icon: '/piece/alpha/wN.svg',
-    funcoins: KNIGHT_FUNCOINS,
+    pawncoins: KNIGHT_COINS,
     color: KNIGHT_COLOR,
     price: t('pricing.tiers.price.bonus'),
   },
   {
     name: t('pricing.tiers.bishop.name'),
     icon: '/piece/alpha/wB.svg',
-    funcoins: BISHOP_FUNCOINS,
+    pawncoins: BISHOP_COINS,
     color: BISHOP_COLOR,
     price: t('pricing.tiers.price.bonus'),
   },
   {
     name: t('pricing.tiers.rook.name'),
     icon: '/piece/alpha/wR.svg',
-    funcoins: ROOK_FUNCOINS,
+    pawncoins: ROOK_COINS,
     color: ROOK_COLOR,
     price: t('pricing.tiers.price.bonus'),
   },
   {
     name: t('pricing.tiers.queen.name'),
     icon: '/piece/alpha/wQ.svg',
-    funcoins: QUEEN_FUNCOINS,
+    pawncoins: QUEEN_COINS,
     color: QUEEN_COLOR,
     price: t('pricing.tiers.price.soon'),
   },
@@ -144,11 +144,11 @@ const gameCosts = [
               <n-thing>
                 <template #description>
                   <n-text depth="3" style="font-size: 0.9em">
-                    {{ t('pricing.tiers.pawn.description').split('{funcoins}')[0] }}
+                    {{ t('pricing.tiers.pawn.description').split('{pawncoins}')[0] }}
                     <n-text :style="{ color: tier.color, fontWeight: 'bold', fontSize: '1.2em' }">
-                      {{ tier.funcoins }}
+                      {{ tier.pawncoins }}
                     </n-text>
-                    {{ t('pricing.tiers.pawn.description').split('{funcoins}')[1] }}
+                    {{ t('pricing.tiers.pawn.description').split('{pawncoins}')[1] }}
                   </n-text>
                 </template>
                 <n-divider dashed style="margin: 12px 0" />
@@ -225,7 +225,7 @@ const gameCosts = [
               <n-thing>
                 <template #description>
                   <n-space justify="space-between" align="center">
-                    <n-text depth="3">{{ t('pricing.costs.funcoinLabel') }}</n-text>
+                    <n-text depth="3">{{ t('pricing.costs.pawncoinLabel') }}</n-text>
                     <n-text strong type="warning" style="font-size: 1.4em">
                       {{ game.cost }}
                     </n-text>

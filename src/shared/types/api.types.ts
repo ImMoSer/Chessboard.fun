@@ -373,7 +373,9 @@ export interface TodayActivity {
 export interface UserStatsUpdate {
   id?: string
   username?: string
-  FunCoins: number
+  PawnCoins: number
+  dailyLimit?: number
+  spentToday?: number
   today_activity?: TodayActivity
   tornadoHighScores?: {
     blitz?: number
@@ -391,7 +393,9 @@ export interface GameResultResponse {
 }
 
 export interface UserSessionProfile extends LichessUserProfile {
-  FunCoins: number
+  PawnCoins: number
+  dailyLimit: number
+  spentToday: number
   base_puzzle_rating: number
   subscriptionTier: SubscriptionTier
   validatedAt?: number
