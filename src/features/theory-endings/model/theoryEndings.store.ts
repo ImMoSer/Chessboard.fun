@@ -1,10 +1,10 @@
 // src/stores/theoryEndings.store.ts
 import {
-    gameplayService,
-    useGameStore,
-    type GameEndOutcome,
-    type GameStatusInfo,
-    type IGameplayStrategy,
+  gameplayService,
+  useGameStore,
+  type GameEndOutcome,
+  type GameStatusInfo,
+  type IGameplayStrategy,
 } from '@/entities/game'
 import { type TopInfoDisplay } from '@/entities/puzzle'
 import { useAuthStore } from '@/entities/user'
@@ -13,11 +13,11 @@ import i18n from '@/shared/config/i18n'
 import logger from '@/shared/lib/logger'
 import { soundService } from '@/shared/lib/sound.service'
 import type {
-    TheoryEndingCategory,
-    TheoryEndingDifficulty,
-    TheoryEndingResultDto,
-    TheoryEndingType,
-    TheoryPuzzle,
+  TheoryEndingCategory,
+  TheoryEndingDifficulty,
+  TheoryEndingResultDto,
+  TheoryEndingType,
+  TheoryPuzzle,
 } from '@/shared/types/api.types'
 import { useUiStore } from '@/shared/ui/model/ui.store'
 import { defineStore } from 'pinia'
@@ -72,8 +72,8 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
     }
     isProcessingGameOver.value = true
 
-    // Strategy API set the phase already, but keeping this for local state flags
-    // (if any we decide to add later)
+    // Explicitly set game phase, Strategy API doesn't do this by itself
+    gameStore.setGamePhase('GAMEOVER')
 
     if (isWin) {
       soundService.playSound('game_user_won')
