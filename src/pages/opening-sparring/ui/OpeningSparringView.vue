@@ -253,11 +253,13 @@ watch(
   () => [gameStore.gamePhase, openingStore.isPlayoutMode, isExamEnding.value],
   () => {
     const isPlaying = gameStore.gamePhase === 'PLAYING'
+    const isTheoryPhase = !isExamEnding.value
+    const isSparringActive = isTheoryPhase || openingStore.isPlayoutMode
 
     controlsStore.setControls({
       canRequestNew: true,
       canRestart: true,
-      canResign: isPlaying && !isExamEnding.value && !openingStore.isReviewMode,
+      canResign: isPlaying && isSparringActive && !openingStore.isReviewMode,
       canShare: false,
       onRequestNew: handleNewGame,
       onRestart: handleRestart,
