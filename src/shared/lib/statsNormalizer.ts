@@ -1,17 +1,17 @@
 import {
-    FINISH_HIM_THEMES,
-    PRACTICAL_CHESS_CATEGORIES,
-    THEORY_ENDING_CATEGORIES,
-    TORNADO_THEMES,
-    type FinishHimProfileDto,
-    type PracticalChessProfileDto,
-    type TheoryEndingProfileDto,
-    type TornadoProfileDto,
-    type UserProfileStatsDto,
+  FINISH_HIM_THEMES,
+  PRACTICAL_CHESS_CATEGORIES,
+  THEORY_ENDING_CATEGORIES,
+  TORNADO_THEMES,
+  type FinishHimProfileDto,
+  type PracticalChessProfileDto,
+  type TheoryEndingProfileDto,
+  type TornadoProfileDto,
+  type UserProfileStatsDto,
 } from '@/shared/types/api.types'
 
-const BASE_SUCCESS = 6
-const BASE_REQUESTED = 10
+const BASE_SUCCESS = 1
+const BASE_REQUESTED = 2
 
 export function normalizeProfileStats(
     apiStats: UserProfileStatsDto | undefined | null,
