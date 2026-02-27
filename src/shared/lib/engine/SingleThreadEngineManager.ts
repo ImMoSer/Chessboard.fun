@@ -245,6 +245,27 @@ class SingleThreadEngineManagerController {
     this.sendCommand('go infinite')
   }
 
+  public async calculateFixedDepth(fen: string, depth: number, multiPv: number = 3): Promise<EvaluatedLine[]> {
+    await this.ensureReady()
+    
+    return new Promise((resolve) => {
+      this.pendingRequest = {
+        resolve: (result) => resolve(result ? result.evaluatedLines.sort((a, b) => a.id - b.id) : []),
+        reject: () => resolve([]),
+        timeoutId: window.setTimeout(() => {
+          this.sendCommand('stop')
+          resolve([])
+          this.pendingRequest = null
+        }, 10000), // generous timeout for fixed depth
+        collectedLines: new Map()
+      }
+
+      this.sendCommand(`setoption name MultiPV value ${multiPv}`)
+      this.sendCommand(`position fen ${fen}`)
+      this.sendCommand(`go depth ${depth}`)
+    })
+  }
+
   public async stopAnalysis(): Promise<void> {
     await this.ensureReady()
     this.infiniteAnalysisCallback = null

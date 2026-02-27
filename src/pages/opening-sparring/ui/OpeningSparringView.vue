@@ -14,6 +14,7 @@ import {
   useOpeningSparringStore,
   useSparringLoop,
 } from '@/features/opening-sparring'
+import { useSmartHintStore } from '@/features/smart-hint'
 import i18n from '@/shared/config/i18n'
 import { useUiStore } from '@/shared/ui/model/ui.store'
 import { ControlPanel, GameLayout, useControlsStore } from '@/widgets/game-layout'
@@ -27,6 +28,7 @@ const openingStore = useOpeningSparringStore()
 const gameStore = useGameStore()
 const uiStore = useUiStore()
 const analysisStore = useAnalysisStore()
+const smartHintStore = useSmartHintStore()
 const router = useRouter()
 const route = useRoute()
 const loop = useSparringLoop()
@@ -140,6 +142,7 @@ async function startSession(color: 'white' | 'black', moves: string[] = [], slug
   showReviewModal.value = false
   analysisStore.setPlayerColor(color)
   analysisStore.hidePanel()
+  smartHintStore.resetHints(3)
 
   if (slug) {
     router.replace({
@@ -205,15 +208,6 @@ async function handleReviewAnalyze() {
   await analysisStore.showPanel(true)
 }
 
-async function handlePlayout() {
-  const confirmed = await uiStore.showConfirmation(
-    'Start Playout?',
-    'Continue this position against the selected engine right here?',
-  )
-  if (confirmed) {
-    loop.startPlayout()
-  }
-}
 function handleSummaryPlayout() {
   showSummaryModal.value = false
   loop.startPlayout()
@@ -261,6 +255,7 @@ watch(
       canRestart: true,
       canResign: isPlaying && isSparringActive && !openingStore.isReviewMode,
       canShare: false,
+      canRequestHint: isPlaying && isSparringActive && !openingStore.isReviewMode,
       onRequestNew: handleNewGame,
       onRestart: handleRestart,
       onResign: handleResign,
@@ -285,10 +280,7 @@ function goBack() {
           :is-theory-over="openingStore.isTheoryOver"
           :is-deviation="openingStore.isDeviation"
           :is-playout-mode="openingStore.isPlayoutMode"
-          :lives="openingStore.lives"
           @restart="handleRestart"
-          @hint="openingStore.hint"
-          @playout="handlePlayout"
         />
 
         <AnalysisPanel v-if="showAnalysisPanel" style="margin-bottom: 12px; flex-shrink: 0" />

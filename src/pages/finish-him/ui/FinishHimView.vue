@@ -4,6 +4,7 @@ import { useGameStore } from '@/entities/game'
 import { useAnalysisStore } from '@/features/analysis'
 import { useFinishHimStore } from '@/features/finish-him'
 import { shareService } from '@/shared/lib/share.service'
+import { useSmartHintStore } from '@/features/smart-hint'
 import { onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -15,6 +16,7 @@ const finishHimStore = useFinishHimStore()
 const gameStore = useGameStore()
 const controlsStore = useControlsStore()
 const analysisStore = useAnalysisStore()
+const smartHintStore = useSmartHintStore()
 const route = useRoute()
 const router = useRouter()
 
@@ -44,7 +46,18 @@ watch(
         router.replace({ name: 'finish-him-puzzle', params: { puzzleId: newPuzzle.puzzle_id } })
       }
     }
+    // Every time a new puzzle is loaded or restarted (if we handle restart carefully) we reset hints
+    // Wait, activePuzzle might not change on restart. Let's just watch puzzle_id or gamePhase
   },
+)
+
+watch(
+  () => gameStore.gamePhase,
+  (phase) => {
+    if (phase === 'LOADING') {
+      smartHintStore.resetHints(3)
+    }
+  }
 )
 
 watch(
@@ -69,6 +82,7 @@ watch(
         (isGameOver || isIdle || !gameStore.isGameActive) && !!finishHimStore.activePuzzle,
       canResign: isPlaying,
       canShare: !!finishHimStore.activePuzzle,
+      canRequestHint: isPlaying,
       onRequestNew: () => finishHimStore.loadNewPuzzle(),
       onRestart: finishHimStore.handleRestart,
       onResign: finishHimStore.handleResign,

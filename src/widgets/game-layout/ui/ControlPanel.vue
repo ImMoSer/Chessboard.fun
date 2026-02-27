@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import {
   AnalyticsOutline as AnalysisIcon,
-  InformationCircleOutline as InfoIcon,
   PlayCircleOutline as NewIcon,
   FlagOutline as ResignIcon,
   RefreshOutline as RestartIcon,
   LinkOutline as ShareIcon,
 } from '@vicons/ionicons5'
-import { NButton, NIcon, NSpace, NTooltip } from 'naive-ui'
+import { NButton, NIcon, NSpace, NTooltip, NSwitch } from 'naive-ui'
 import { useAnalysisStore } from '@/features/analysis'
+import { SmartHintButton } from '@/features/smart-hint'
 import { useControlsStore } from '../model/controls.store'
 
 const controlsStore = useControlsStore()
@@ -114,23 +114,8 @@ const toggleAnalysis = () => {
         {{ $t('controls.share') }}
       </n-tooltip>
 
-      <!-- Info -->
-      <n-tooltip trigger="hover">
-        <template #trigger>
-          <n-button
-            circle
-            quaternary
-            size="large"
-            :disabled="!controlsStore.canShowInfo"
-            @click="controlsStore.onShowInfo"
-          >
-            <template #icon>
-              <n-icon class="icon-info"><InfoIcon /></n-icon>
-            </template>
-          </n-button>
-        </template>
-        {{ $t('controls.info') }}
-      </n-tooltip>
+      <!-- Hint -->
+      <SmartHintButton v-if="controlsStore.canRequestHint" />
     </n-space>
   </div>
 </template>
@@ -148,10 +133,6 @@ const toggleAnalysis = () => {
   display: flex;
   align-items: center;
   min-height: 40px;
-}
-
-.icon-info {
-  color: var(--color-neon-cyan);
 }
 
 .icon-restart {

@@ -4,7 +4,6 @@ import { mozerBookService, theoryGraphService, type MozerBookResponse } from '@/
 import logger from '@/shared/lib/logger'
 import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
 import { type SessionMove } from '@/shared/types/openingSparring.types'
-import { type Key } from '@lichess-org/chessground/types'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { gameReviewService } from '../api/GameReviewService'
@@ -117,9 +116,6 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     },
     { deep: true },
   )
-
-  // Lives for Exam mode
-  const lives = ref(3)
 
   // Final Evaluation state
   const finalEval = ref<{ type: 'cp' | 'mate'; value: number } | null>(null)
@@ -235,7 +231,6 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     isReviewMode.value = false
     reviewMoveIndex.value = -1
     moveQueue.value = []
-    lives.value = 3
     finalEval.value = null
     isFinalEvaluating.value = false
     finalEvalDepth.value = 0
@@ -336,24 +331,6 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   // Removed: handlePlayerMove, processMoveQueue, triggerBotMove, startPlayout
   // The Game Loop is now in useSparringLoop composable
 
-  function hint() {
-    if (lives.value <= 0) return
-    const bestMove = currentStats.value?.moves?.[0]
-    if (!bestMove) return
-
-    lives.value -= 1
-    boardStore.setDrawableShapes([
-      {
-        orig: bestMove.uci.substring(0, 2) as Key,
-        dest: bestMove.uci.substring(2, 4) as Key,
-        brush: 'green',
-      },
-    ])
-    setTimeout(() => {
-      boardStore.setDrawableShapes([])
-    }, 2000)
-  }
-
   async function generateGameReport() {
     return gameReviewService.generateReport(sessionHistory.value, playerColor.value)
   }
@@ -378,7 +355,6 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     activeTheoryStats,
     error,
     moveQueue,
-    lives,
     finalEval,
     isFinalEvaluating,
     finalEvalDepth,
@@ -396,7 +372,6 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     generateGameReport,
     runFinalEvaluation,
     reset,
-    hint,
     isReviewMode,
     reviewMoveIndex,
     enterReviewMode,

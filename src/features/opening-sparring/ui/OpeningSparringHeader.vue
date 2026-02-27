@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { BulbOutline, Heart, HeartOutline, RefreshOutline, TrophyOutline } from '@vicons/ionicons5'
+import { RefreshOutline, TrophyOutline } from '@vicons/ionicons5'
 import {
   NButton,
   NCard,
@@ -20,12 +20,10 @@ defineProps<{
   isTheoryOver: boolean
   isDeviation: boolean
   isPlayoutMode?: boolean
-  lives?: number
 }>()
 
 const emit = defineEmits<{
   (e: 'restart'): void
-  (e: 'hint'): void
   (e: 'playout'): void
 }>()
 
@@ -41,23 +39,6 @@ const { t } = useI18n()
 
       <template #extra>
         <n-space align="center">
-          <!-- Lives Display (Hearts) -->
-          <div v-if="lives !== undefined" class="lives-container">
-            <n-space :size="4">
-              <n-icon
-                v-for="i in 3"
-                :key="i"
-                size="20"
-                :color="i <= lives ? '#f44336' : 'rgba(244, 67, 54, 0.2)'"
-                class="heart-icon"
-                :class="{ lost: i > lives }"
-              >
-                <Heart v-if="i <= lives" />
-                <HeartOutline v-else />
-              </n-icon>
-            </n-space>
-          </div>
-
           <n-tag type="warning" size="small" round uppercase>
             <template #icon>
               <n-icon>
@@ -97,29 +78,12 @@ const { t } = useI18n()
       <template #footer>
         <div class="controls-section">
           <n-space vertical :size="12">
-            <n-grid :cols="2" :x-gap="8" :y-gap="8">
-              <n-grid-item>
-                <n-button block secondary @click="emit('restart')">
-                  <template #icon
-                    ><n-icon> <RefreshOutline /> </n-icon
-                  ></template>
-                  {{ t('openingTrainer.header.newSession') }}
-                </n-button>
-              </n-grid-item>
-              <n-grid-item>
-                <n-button
-                  block
-                  secondary
-                  @click="emit('hint')"
-                  :disabled="isPlayoutMode || (lives !== undefined && lives <= 0)"
-                >
-                  <template #icon
-                    ><n-icon> <BulbOutline /> </n-icon
-                  ></template>
-                  {{ t('openingTrainer.header.hint') }}
-                </n-button>
-              </n-grid-item>
-            </n-grid>
+            <n-button block secondary @click="emit('restart')">
+              <template #icon
+                ><n-icon> <RefreshOutline /> </n-icon
+              ></template>
+              {{ t('openingTrainer.header.newSession') }}
+            </n-button>
           </n-space>
         </div>
       </template>
@@ -146,22 +110,6 @@ const { t } = useI18n()
 
 .controls-section {
   margin-top: 16px;
-}
-
-.lives-container {
-  padding: 4px 8px;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 20px;
-}
-
-.heart-icon {
-  transition: all 0.3s ease;
-  filter: drop-shadow(0 0 5px rgba(244, 67, 54, 0.2));
-
-  &.lost {
-    filter: none;
-    opacity: 0.3;
-  }
 }
 
 .playout-btn {

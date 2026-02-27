@@ -260,6 +260,37 @@ class MultiThreadEngineManagerController {
     await this.waitReady()
   }
 
+  public async calculateFixedDepth(fen: string, depth: number, multiPv: number = 3): Promise<EvaluatedLine[]> {
+    await this.ensureReady()
+    if (!this.engine) return []
+
+    if (this.isSearching) {
+      await this.stopAnalysis()
+    }
+
+    return new Promise((resolve) => {
+      const results = new Map<number, EvaluatedLine>()
+
+      const fixedDepthCallback = (lines: EvaluatedLine[], bestMoveUci?: string | null) => {
+        lines.forEach((line) => {
+          results.set(line.id, line)
+        })
+        if (bestMoveUci !== undefined && bestMoveUci !== null) {
+          this.infiniteAnalysisCallback = null
+          this.isSearching = false
+          resolve(Array.from(results.values()).sort((a, b) => a.id - b.id))
+        }
+      }
+
+      this.infiniteAnalysisCallback = fixedDepthCallback
+      this.isSearching = true
+
+      this.sendCommand(`setoption name MultiPV value ${multiPv}`)
+      this.sendCommand(`position fen ${fen}`)
+      this.sendCommand(`go depth ${depth}`)
+    })
+  }
+
   public async stopAnalysis(): Promise<void> {
     await this.ensureReady()
     if (!this.engine || !this.isSearching) {

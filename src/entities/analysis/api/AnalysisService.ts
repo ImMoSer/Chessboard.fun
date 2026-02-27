@@ -80,6 +80,36 @@ class AnalysisServiceController {
     await this.activeEngineManager.startAnalysis(fen, analysisUpdateCallback)
   }
 
+  public async calculateFixedDepth(
+    fen: string,
+    depth: number,
+    multiPV = 3,
+  ): Promise<EvaluatedLineWithSan[]> {
+    if (!this.activeEngineManager) {
+      logger.info('[AnalysisService] Engine manager not active. Initializing...')
+      await this.initialize()
+    }
+
+    if (!this.activeEngineManager) {
+      logger.error('[AnalysisService] Cannot start fixed depth calculation, no engine manager is active.')
+      return []
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const manager = this.activeEngineManager as any
+    if (typeof manager.calculateFixedDepth !== 'function') {
+      logger.error('[AnalysisService] Manager does not support calculateFixedDepth')
+      return []
+    }
+
+    const lines = await manager.calculateFixedDepth(fen, depth, multiPV)
+    
+    // Restore default MultiPV just in case (optional, but good practice)
+    await this.activeEngineManager.setOption('MultiPV', 1)
+
+    return this.prepareLinesForDisplay(lines, fen)
+  }
+
   public async startNewGame() {
     if (this.activeEngineManager === multiThreadEngineManager) {
       await multiThreadEngineManager.startNewGame()

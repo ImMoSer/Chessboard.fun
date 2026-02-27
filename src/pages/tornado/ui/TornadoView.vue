@@ -4,12 +4,14 @@ import { useGameStore } from '@/entities/game'
 import { AnalysisPanel } from '@/features/analysis'
 import { UserProfileWidget } from '@/features/profile'
 import { useTornadoStore, type TornadoMode } from '@/features/tornado'
+import { useSmartHintStore } from '@/features/smart-hint'
 import { onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { ControlPanel, GameLayout, TopInfoPanel, useControlsStore } from '@/widgets/game-layout'
 
 const tornadoStore = useTornadoStore()
 const controlsStore = useControlsStore()
+const smartHintStore = useSmartHintStore()
 const route = useRoute()
 
 onMounted(() => {
@@ -20,6 +22,15 @@ onMounted(() => {
     tornadoStore.startSession(mode, theme)
   }
 })
+
+watch(
+  () => tornadoStore.isSessionActive,
+  (isActive, wasActive) => {
+    if (isActive && !wasActive) {
+      smartHintStore.resetHints(3)
+    }
+  }
+)
 
 const gameStore = useGameStore()
 
@@ -33,6 +44,7 @@ watch(
       canRestart: true,
       canResign: tornadoStore.isSessionActive && isPlaying,
       canShare: !!tornadoStore.activePuzzle,
+      canRequestHint: tornadoStore.isSessionActive && isPlaying,
       onRequestNew: tornadoStore.handleNew,
       onRestart: tornadoStore.handleRestart,
       onResign: tornadoStore.handleResign,

@@ -3,6 +3,7 @@
 import { useGameStore } from '@/entities/game'
 import { useAnalysisStore } from '@/features/analysis'
 import { usePracticalChessStore } from '@/features/practical-chess'
+import { useSmartHintStore } from '@/features/smart-hint'
 import { shareService } from '@/shared/lib/share.service'
 import { onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -16,6 +17,7 @@ const practicalStore = usePracticalChessStore()
 const gameStore = useGameStore()
 const controlsStore = useControlsStore()
 const analysisStore = useAnalysisStore()
+const smartHintStore = useSmartHintStore()
 const router = useRouter()
 const route = useRoute()
 
@@ -23,6 +25,15 @@ onMounted(() => {
   const id = route.params.id as string
   practicalStore.loadNewPuzzle(id)
 })
+
+watch(
+  () => gameStore.gamePhase,
+  (phase) => {
+    if (phase === 'LOADING') {
+      smartHintStore.resetHints(3)
+    }
+  }
+)
 
 watch(
   () => practicalStore.activePuzzle,
@@ -57,6 +68,7 @@ watch(
         (isGameOver || isIdle || !gameStore.isGameActive) && !!practicalStore.activePuzzle,
       canResign: isPlaying,
       canShare: !!practicalStore.activePuzzle,
+      canRequestHint: isPlaying,
       onRequestNew: () => {
         if (route.params.id) {
           router.push({ name: 'practical-chess' })

@@ -3,6 +3,7 @@
 import { useGameStore } from '@/entities/game'
 import { useAnalysisStore } from '@/features/analysis'
 import { useTheoryEndingsStore } from '@/features/theory-endings'
+import { useSmartHintStore } from '@/features/smart-hint'
 import { shareService } from '@/shared/lib/share.service'
 import { onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
@@ -17,6 +18,7 @@ const theoryStore = useTheoryEndingsStore()
 const gameStore = useGameStore()
 const controlsStore = useControlsStore()
 const analysisStore = useAnalysisStore()
+const smartHintStore = useSmartHintStore()
 const router = useRouter()
 const route = useRoute()
 
@@ -30,6 +32,15 @@ onMounted(() => {
   }
   theoryStore.loadNewPuzzle(type, puzzleId)
 })
+
+watch(
+  () => gameStore.gamePhase,
+  (phase) => {
+    if (phase === 'LOADING') {
+      smartHintStore.resetHints(3)
+    }
+  }
+)
 
 watch(
   () => theoryStore.activePuzzle,
@@ -67,6 +78,7 @@ watch(
       canRestart: (isGameOver || isIdle || !gameStore.isGameActive) && !!theoryStore.activePuzzle,
       canResign: isPlaying,
       canShare: !!theoryStore.activePuzzle,
+      canRequestHint: isPlaying,
       onRequestNew: () => {
         if (route.params.puzzleId) {
           router.push({ name: 'theory-endings-play' })
