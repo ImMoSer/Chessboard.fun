@@ -1,12 +1,12 @@
 import { gameplayService, useBoardStore, useGameStore, type GameStatusInfo, type IGameplayStrategy } from '@/entities/game'
 import { mozerBookService, type MozerBookMove } from '@/entities/opening'
-import { useOpeningSparringStore } from '../index'
-import { useOpeningSparringQueries } from '../api/openingSparring.queries'
 import { areMovesEqual } from '@/shared/lib/chess-utils'
 import { serverEngineService, type AnalysisResponse } from '@/shared/lib/engine'
 import { pgnService } from '@/shared/lib/pgn/PgnService'
 import { soundService } from '@/shared/lib/sound.service'
 import { computed } from 'vue'
+import { useOpeningSparringQueries } from '../api/openingSparring.queries'
+import { useOpeningSparringStore } from '../index'
 
 /**
  * Encapsulates the core game loop for Opening Sparring.
@@ -21,6 +21,7 @@ export function useSparringLoop() {
     source: computed(() => store.opponentSource),
     shouldFetchLichess: computed(() => boardStore.turn !== store.playerColor),
     lichessRatings: computed(() => store.opponentRatings),
+    isTheoryPhase: computed(() => !store.isPlayoutMode && !store.isReviewMode),
   })
 
   async function fetchStats() {

@@ -1,14 +1,13 @@
 import { analysisService } from '@/entities/analysis'
 import { useBoardStore, useGameStore, type IGameplayStrategy } from '@/entities/game'
-import { theoryGraphService } from '@/entities/opening'
-import { gameReviewService } from '../api/GameReviewService'
-import { mozerBookService, type MozerBookResponse } from '@/entities/opening'
+import { mozerBookService, theoryGraphService, type MozerBookResponse } from '@/entities/opening'
 import logger from '@/shared/lib/logger'
 import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
 import { type SessionMove } from '@/shared/types/openingSparring.types'
 import { type Key } from '@lichess-org/chessground/types'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
+import { gameReviewService } from '../api/GameReviewService'
 
 import { useOpeningSparringQueries } from '../api/openingSparring.queries'
 
@@ -93,12 +92,14 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   // --- Vue Query Integration (Reactive for UI) ---
   const fen = computed(() => boardStore.fen)
   const shouldFetchLichess = computed(() => boardStore.turn !== playerColor.value)
+  const isTheoryPhase = computed(() => !isPlayoutMode.value && !isReviewMode.value)
 
   const { mozerQuery, lichessQuery, startSparringMutation } = useOpeningSparringQueries({
     fen,
     source: opponentSource,
     shouldFetchLichess,
     lichessRatings: opponentRatings,
+    isTheoryPhase,
   })
 
   const currentStats = computed(() => mozerQuery.data.value ?? null)

@@ -16,13 +16,14 @@ export function useOpeningSparringQueries(options?: {
   source: Ref<'master' | 'lichess'>
   shouldFetchLichess: Ref<boolean>
   lichessRatings: Ref<number[]>
+  isTheoryPhase: Ref<boolean>
 }) {
   const mozerQuery = useQuery({
     queryKey: computed(() => OPENING_SPARRING_KEYS.mozerStats(options?.fen.value ?? '')),
     queryFn: async () => {
       return await mozerBookService.getStats(options?.fen.value ?? '')
     },
-    enabled: !!options,
+    enabled: () => !!options && options.isTheoryPhase.value,
     staleTime: 1000 * 60 * 5, // 5 minutes
   })
 
@@ -40,7 +41,7 @@ export function useOpeningSparringQueries(options?: {
       })
     },
     enabled: () =>
-      !!options && options.source.value === 'lichess' && options.shouldFetchLichess.value,
+      !!options && options.source.value === 'lichess' && options.shouldFetchLichess.value && options.isTheoryPhase.value,
     staleTime: 1000 * 60 * 5, // 5 minutes
   })
 

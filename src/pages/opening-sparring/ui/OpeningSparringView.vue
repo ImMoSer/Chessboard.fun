@@ -4,6 +4,7 @@ import { useGameStore } from '@/entities/game'
 import { theoryGraphService } from '@/entities/opening'
 import { AnalysisPanel, EngineLines, useAnalysisStore } from '@/features/analysis'
 import { EngineSelector } from '@/features/engine'
+import { MozerBook } from '@/features/mozer-book'
 import {
   GameReviewModal,
   OpeningSparringHeader,
@@ -15,13 +16,13 @@ import {
 } from '@/features/opening-sparring'
 import i18n from '@/shared/config/i18n'
 import { useUiStore } from '@/shared/ui/model/ui.store'
+import { ControlPanel, GameLayout, useControlsStore } from '@/widgets/game-layout'
 import { NTag } from 'naive-ui'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { MozerBook } from '@/features/mozer-book'
-import { GameLayout } from '@/widgets/game-layout'
 
 const t = i18n.global.t
+const controlsStore = useControlsStore()
 const openingStore = useOpeningSparringStore()
 const gameStore = useGameStore()
 const uiStore = useUiStore()
@@ -34,6 +35,7 @@ const isSettingsModalOpen = ref(true)
 const showSummaryModal = ref(false)
 const showReviewModal = ref(false)
 const isNavigatingToPlayout = ref(false)
+const lastSessionParams = ref<{ color: 'white' | 'black'; moves: string[]; slug?: string } | null>(null)
 
 const isExamEnding = computed(() => openingStore.isTheoryOver || openingStore.isDeviation)
 
@@ -132,6 +134,7 @@ onUnmounted(() => {
 })
 
 async function startSession(color: 'white' | 'black', moves: string[] = [], slug?: string) {
+  lastSessionParams.value = { color, moves, slug }
   isSettingsModalOpen.value = false
   showSummaryModal.value = false
   showReviewModal.value = false
@@ -151,16 +154,35 @@ async function startSession(color: 'white' | 'black', moves: string[] = [], slug
   await openingStore.initializeSession(color, moves, loop.createStrategy())
 }
 
-async function handleRestart() {
+async function handleNewGame() {
   const confirmed = await uiStore.showConfirmation(
     t('gameplay.confirmExit.title'),
-    'Restart the exam?',
+    'Start a new exam?',
   )
   if (confirmed) {
     openingStore.reset()
     await gameStore.resetGame()
     isSettingsModalOpen.value = true
     showReviewModal.value = false
+    showSummaryModal.value = false
+  }
+}
+
+async function handleRestart() {
+  const confirmed = await uiStore.showConfirmation(
+    t('gameplay.confirmExit.title'),
+    'Restart the current exam?',
+  )
+  if (confirmed) {
+    openingStore.reset()
+    await gameStore.resetGame()
+    showReviewModal.value = false
+    showSummaryModal.value = false
+    if (lastSessionParams.value) {
+      await startSession(lastSessionParams.value.color, lastSessionParams.value.moves, lastSessionParams.value.slug)
+    } else {
+      isSettingsModalOpen.value = true
+    }
   }
 }
 
@@ -168,7 +190,11 @@ function handleReviewRestart() {
   showReviewModal.value = false
   openingStore.reset()
   gameStore.resetGame().then(() => {
-    isSettingsModalOpen.value = true
+    if (lastSessionParams.value) {
+      startSession(lastSessionParams.value.color, lastSessionParams.value.moves, lastSessionParams.value.slug)
+    } else {
+      isSettingsModalOpen.value = true
+    }
   })
 }
 
@@ -201,8 +227,45 @@ async function handleSummaryRestart() {
   showSummaryModal.value = false
   openingStore.reset()
   await gameStore.resetGame()
-  isSettingsModalOpen.value = true
+  if (lastSessionParams.value) {
+    await startSession(lastSessionParams.value.color, lastSessionParams.value.moves, lastSessionParams.value.slug)
+  } else {
+    isSettingsModalOpen.value = true
+  }
 }
+
+async function handleResign() {
+  const confirmed = await uiStore.showConfirmation(
+    t('gameplay.confirmExit.title'),
+    t('gameplay.confirmExit.message'),
+  )
+  if (confirmed) {
+    if (openingStore.isPlayoutMode) {
+      gameStore.handleGameResignation()
+    } else {
+      showSummaryModal.value = true
+      await openingStore.runFinalEvaluation()
+    }
+  }
+}
+
+watch(
+  () => [gameStore.gamePhase, openingStore.isPlayoutMode, isExamEnding.value],
+  () => {
+    const isPlaying = gameStore.gamePhase === 'PLAYING'
+
+    controlsStore.setControls({
+      canRequestNew: true,
+      canRestart: true,
+      canResign: isPlaying && !isExamEnding.value && !openingStore.isReviewMode,
+      canShare: false,
+      onRequestNew: handleNewGame,
+      onRestart: handleRestart,
+      onResign: handleResign,
+    })
+  },
+  { immediate: true },
+)
 
 function goBack() {
   router.push({ name: 'welcome' })
@@ -283,6 +346,10 @@ function goBack() {
 
     <template #center-column>
       <!-- Loader removed to prevent blinking -->
+    </template>
+
+    <template #controls>
+      <ControlPanel />
     </template>
 
     <template #right-panel>
