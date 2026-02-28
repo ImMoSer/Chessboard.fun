@@ -48,17 +48,24 @@ const isValueHidden = computed(() => {
     <div class="generic-info-layout">
       <!-- Left: Badges & Secondary Info -->
       <div class="info-left">
-        <n-tag
+        <div
           v-for="(badge, index) in displayInfo.badges"
           :key="index"
-          :type="badge.type"
-          size="small"
-          round
-          :bordered="false"
-          class="difficulty-tag"
+          class="badge-wrapper"
         >
-          {{ badge.text }}
-        </n-tag>
+          <n-tag
+            :type="badge.type"
+            size="small"
+            round
+            :bordered="false"
+            class="difficulty-tag"
+            :class="{ 'nag-tag': badge.count !== undefined }"
+            :style="badge.color ? { backgroundColor: badge.color, color: '#000' } : {}"
+          >
+            {{ badge.text }}
+          </n-tag>
+          <span v-if="badge.count !== undefined" class="badge-count">x{{ badge.count }}</span>
+        </div>
         <span v-if="displayInfo.secondaryText" class="secondary-text">
           {{ displayInfo.secondaryText }}
         </span>
@@ -137,10 +144,31 @@ const isValueHidden = computed(() => {
   min-width: 120px;
 }
 
+.badge-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .difficulty-tag {
   font-weight: 600;
   text-transform: uppercase;
   font-size: 10px;
+}
+
+.nag-tag {
+  font-size: 14px;
+  font-weight: 900;
+  height: 22px;
+  min-width: 24px;
+  justify-content: center;
+}
+
+.badge-count {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  font-family: monospace;
 }
 
 .secondary-text {

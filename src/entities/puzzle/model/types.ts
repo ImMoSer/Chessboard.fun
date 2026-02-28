@@ -10,6 +10,8 @@ export interface TopInfoStat {
 export interface TopInfoBadge {
     text: string
     type: 'default' | 'primary' | 'info' | 'success' | 'warning' | 'error'
+    color?: string
+    count?: number
 }
 
 export interface TopInfoDisplay {

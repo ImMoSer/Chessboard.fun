@@ -13,7 +13,16 @@
   --color-neon-lime: #00ff55;
   --color-neon-yellow: #ffe600;
   --color-neon-orange: #ffb800;
+  --color-neon-red: #ff073a;
   --color-neon-white: rgba(255, 255, 255, 0.9);
+
+  /* --- NAGs Cyber Neon Mapping --- */
+  --color-nag-brilliant: var(--color-neon-purple);
+  --color-nag-best: var(--color-neon-lime);
+  --color-nag-interesting: var(--color-neon-cyan);
+  --color-nag-inaccuracy: var(--color-neon-orange);
+  --color-nag-mistake: var(--color-neon-pink);
+  --color-nag-blunder: var(--color-neon-red);
 
   /* --- Deep Space Surfaces --- */
   --color-bg-deep: #050508;

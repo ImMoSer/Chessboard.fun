@@ -8,11 +8,11 @@ import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { gameReviewService } from '../api/GameReviewService'
 
-import { type TopInfoBadge, type TopInfoDisplay } from '@/entities/puzzle'
+import { type TopInfoBadge, type TopInfoDisplay, type TopInfoStat } from '@/entities/puzzle'
 import i18n from '@/shared/config/i18n'
 import { useOpeningSparringQueries } from '../api/openingSparring.queries'
 
-const t = i18n.global.t
+const t = (key: string) => i18n.global.t(key)
 
 export const useOpeningSparringStore = defineStore('openingSparring', () => {
   const boardStore = useBoardStore()
@@ -339,10 +339,35 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     return gameReviewService.generateReport(sessionHistory.value, playerColor.value)
   }
 
+  const playoutStats = computed(() => {
+    const stats = {
+      brilliant: 0,
+      best: 0,
+      interesting: 0,
+      inaccuracy: 0,
+      mistake: 0,
+      blunder: 0,
+    }
+
+    sessionHistory.value.forEach((m) => {
+      if (m.phase === 'playout' && m.turn === (playerColor.value === 'white' ? 'w' : 'b')) {
+        if (m.quality) {
+          if (m.quality === 'brilliant') stats.brilliant++
+          else if (['best', 'great', 'good'].includes(m.quality)) stats.best++
+          else if (m.quality === 'interesting') stats.interesting++
+          else if (m.quality === 'inaccuracy') stats.inaccuracy++
+          else if (m.quality === 'mistake') stats.mistake++
+          else if (m.quality === 'blunder') stats.blunder++
+        }
+      }
+    })
+    return stats
+  })
+
   const topInfoDisplay = computed<TopInfoDisplay>(() => {
     const badges: TopInfoBadge[] = []
 
-    if (isTheoryOver.value) {
+    if (isTheoryOver.value && !isPlayoutMode.value) {
       badges.push({
         text: t('openingTrainer.header.bookEnded'),
         type: 'warning',
@@ -357,16 +382,21 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     }
 
     if (isPlayoutMode.value) {
-      badges.push({
-        text: 'PLAYOUT',
-        type: 'success',
-      })
+      // Add NAG badges
+      const pStats = playoutStats.value
+      if (pStats.brilliant > 0) badges.push({ text: `!!`, type: 'default', color: 'var(--color-nag-brilliant)', count: pStats.brilliant })
+      if (pStats.best > 0) badges.push({ text: `!`, type: 'default', color: 'var(--color-nag-best)', count: pStats.best })
+      if (pStats.interesting > 0) badges.push({ text: `!?`, type: 'default', color: 'var(--color-nag-interesting)', count: pStats.interesting })
+      if (pStats.inaccuracy > 0) badges.push({ text: `?!`, type: 'default', color: 'var(--color-nag-inaccuracy)', count: pStats.inaccuracy })
+      if (pStats.mistake > 0) badges.push({ text: `?`, type: 'default', color: 'var(--color-nag-mistake)', count: pStats.mistake })
+      if (pStats.blunder > 0) badges.push({ text: `??`, type: 'default', color: 'var(--color-nag-blunder)', count: pStats.blunder })
     }
 
-    return {
-      title: '',
-      badges,
-      stats: [
+    // Determine stats based on mode
+    const stats: TopInfoStat[] = []
+
+    if (!isPlayoutMode.value) {
+      stats.push(
         {
           icon: 'flash',
           value: averageAccuracy.value,
@@ -384,8 +414,35 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
           value: averageRating.value,
           label: t('openingTrainer.header.avgRating'),
           color: '#2080f0',
+        }
+      )
+    } else {
+      // Playout Mode: Show evaluation and accuracy
+      const lastMove = sessionHistory.value[sessionHistory.value.length - 1]
+      const evaluation = lastMove?.evaluation
+        ? (lastMove.evaluation.score_cp / 100).toFixed(1)
+        : '0.0'
+
+      stats.push(
+        {
+          icon: 'advantage',
+          value: evaluation,
+          label: t('puzzleInfo.evaluation'),
+          color: parseFloat(evaluation) >= 0 ? '#4caf50' : '#f44336',
         },
-      ],
+        {
+          icon: 'flash',
+          value: averageAccuracy.value,
+          label: t('openingTrainer.header.accuracy'),
+          color: '#f0a020',
+        }
+      )
+    }
+
+    return {
+      title: '',
+      badges,
+      stats,
     }
   })
 

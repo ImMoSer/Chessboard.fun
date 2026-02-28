@@ -63,21 +63,21 @@ const playoutPairs = computed(() => {
 const getQualityColor = (quality?: string) => {
   switch (quality) {
     case 'blunder':
-      return '#f44336'
+      return 'var(--color-nag-blunder)'
     case 'mistake':
-      return '#ff9800'
+      return 'var(--color-nag-mistake)'
     case 'inaccuracy':
-      return '#ffeb3b'
+      return 'var(--color-nag-inaccuracy)'
     case 'good':
-      return '#4caf50'
+      return 'var(--color-nag-best)'
     case 'great':
-      return '#2196f3'
+      return 'var(--color-nag-best)'
     case 'best':
-      return '#2196f3'
+      return 'var(--color-nag-best)'
     case 'brilliant':
-      return '#9c27b0'
+      return 'var(--color-nag-brilliant)'
     case 'interesting':
-      return '#00bcd4'
+      return 'var(--color-nag-interesting)'
     default:
       return 'transparent'
   }
