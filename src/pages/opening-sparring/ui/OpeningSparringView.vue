@@ -162,7 +162,7 @@ async function handleNewGame() {
     t('gameplay.confirmExit.title'),
     'Start a new exam?',
   )
-  if (confirmed) {
+  if (confirmed === 'confirm') {
     openingStore.reset()
     await gameStore.resetGame()
     isSettingsModalOpen.value = true
@@ -176,7 +176,7 @@ async function handleRestart() {
     t('gameplay.confirmExit.title'),
     'Restart the current exam?',
   )
-  if (confirmed) {
+  if (confirmed === 'confirm') {
     openingStore.reset()
     await gameStore.resetGame()
     showReviewModal.value = false
@@ -215,6 +215,7 @@ function handleSummaryPlayout() {
 
 function handleSummaryAnalyze() {
   showSummaryModal.value = false
+  gameStore.setGamePhase('GAMEOVER')
 }
 
 async function handleSummaryRestart() {
@@ -233,12 +234,12 @@ async function handleResign() {
     t('gameplay.confirmExit.title'),
     t('gameplay.confirmExit.message'),
   )
-  if (confirmed) {
+  if (confirmed === 'confirm') {
     if (openingStore.isPlayoutMode) {
       gameStore.handleGameResignation()
     } else {
-      showSummaryModal.value = true
-      await openingStore.runFinalEvaluation()
+      openingStore.isTheoryOver = true
+      gameStore.setGamePhase('GAMEOVER')
     }
   }
 }
