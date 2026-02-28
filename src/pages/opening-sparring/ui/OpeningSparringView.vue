@@ -7,18 +7,16 @@ import { EngineSelector } from '@/features/engine'
 import { MozerBook } from '@/features/mozer-book'
 import {
   GameReviewModal,
-  OpeningSparringHeader,
   OpeningSparringSettingsModal,
   OpeningSparringSummaryModal,
   SessionHistoryList,
   useOpeningSparringStore,
-  useSparringLoop,
+  useSparringLoop
 } from '@/features/opening-sparring'
 import { useSmartHintStore } from '@/features/smart-hint'
 import i18n from '@/shared/config/i18n'
 import { useUiStore } from '@/shared/ui/model/ui.store'
-import { ControlPanel, GameLayout, useControlsStore } from '@/widgets/game-layout'
-import { NTag } from 'naive-ui'
+import { ControlPanel, GameLayout, TopInfoPanel, useControlsStore } from '@/widgets/game-layout'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -40,6 +38,7 @@ const isNavigatingToPlayout = ref(false)
 const lastSessionParams = ref<{ color: 'white' | 'black'; moves: string[]; slug?: string } | null>(null)
 
 const isExamEnding = computed(() => openingStore.isTheoryOver || openingStore.isDeviation)
+const hasPlayout = computed(() => openingStore.sessionHistory.length > 0)
 
 // Watch for game over in playout mode
 watch(
@@ -274,16 +273,6 @@ function goBack() {
   <GameLayout>
     <template #left-panel>
       <div class="left-panel-content">
-        <OpeningSparringHeader
-          :average-accuracy="openingStore.averageAccuracy"
-          :average-win-rate="openingStore.averageWinRate"
-          :average-rating="openingStore.averageRating"
-          :is-theory-over="openingStore.isTheoryOver"
-          :is-deviation="openingStore.isDeviation"
-          :is-playout-mode="openingStore.isPlayoutMode"
-          @restart="handleRestart"
-        />
-
         <AnalysisPanel v-if="showAnalysisPanel" style="margin-bottom: 12px; flex-shrink: 0" />
 
         <div class="mozer-book-wrapper">
@@ -319,24 +308,7 @@ function goBack() {
     </template>
 
     <template #top-info>
-      <div class="opening-top-info">
-        <n-tag
-          v-if="openingStore.currentEco && openingStore.movesCount > 0"
-          type="info"
-          size="small"
-          round
-          :bordered="false"
-          class="eco-tag"
-        >
-          {{ openingStore.currentEco }}
-        </n-tag>
-        <div class="opening-name-text">
-          <template v-if="openingStore.movesCount === 0"> START POSITION </template>
-          <template v-else>
-            {{ openingStore.openingName || t('openingTrainer.header.searching') }}
-          </template>
-        </div>
-      </div>
+      <TopInfoPanel />
     </template>
 
     <template #center-column>
@@ -352,9 +324,10 @@ function goBack() {
         <EngineLines />
       </div>
 
-      <div class="history-list-wrapper">
-        <SessionHistoryList />
-      </div>
+      <div class="history-header">
+      <h3>{{ !hasPlayout ? (openingStore.openingName || t('openingTrainer.header.searching')) : 'Session History' }}</h3>
+    </div>
+      <SessionHistoryList />
 
       <div v-if="openingStore.error" class="error-msg">
         {{ openingStore.error }}

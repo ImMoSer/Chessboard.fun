@@ -1,26 +1,23 @@
 <script setup lang="ts">
 import { useBoardStore } from '@/entities/game'
-import { useOpeningSparringStore } from '../index'
 import { type SessionMove } from '@/shared/types/openingSparring.types'
 import { type Key } from '@lichess-org/chessground/types'
 import {
-  ExtensionPuzzleOutline,
-  EyeOutline,
-  FlameOutline,
-  FlashOutline,
-  ShieldCheckmarkOutline,
+    EyeOutline,
+    ShieldCheckmarkOutline,
 } from '@vicons/ionicons5'
 import {
-  NDataTable,
-  NIcon,
-  NPopover,
-  NTag,
-  NText,
-  NTooltip,
-  type DataTableBaseColumn,
-  type DataTableColumns,
+    NDataTable,
+    NIcon,
+    NPopover,
+    NTag,
+    NText,
+    NTooltip,
+    type DataTableBaseColumn,
+    type DataTableColumns,
 } from 'naive-ui'
 import { computed, h } from 'vue'
+import { useOpeningSparringStore } from '../index'
 
 const openingStore = useOpeningSparringStore()
 const boardStore = useBoardStore()
@@ -272,53 +269,7 @@ const renderAnalysisIcons = (move: SessionMove | null) => {
   )
 }
 
-const renderFeatures = (move: SessionMove | null) => {
-  if (!move?.tags || move.tags.length === 0) return null
-  const icons = []
 
-  for (const tag of move.tags) {
-    let icon: typeof FlameOutline | null = null
-    let color = '#888'
-
-    switch (tag) {
-      case 'Capture':
-        icon = FlameOutline
-        color = '#ff9800'
-        break
-      case 'Check':
-        icon = FlashOutline
-        color = '#ffeb3b'
-        break
-      case 'Mate':
-        icon = FlashOutline
-        color = '#f44336'
-        break
-      case 'Sacrifice':
-        icon = ExtensionPuzzleOutline
-        color = '#9c27b0'
-        break
-      case 'Promotion':
-        icon = FlashOutline
-        color = '#4caf50'
-        break
-    }
-
-    if (icon) {
-      icons.push(
-        h(
-          NTooltip,
-          {},
-          {
-            trigger: () => h(NIcon, { color, size: 12 }, { default: () => h(icon) }),
-            default: () => tag,
-          },
-        ),
-      )
-    }
-  }
-
-  return h('div', { style: { display: 'flex', gap: '2px', justifyContent: 'center' } }, icons)
-}
 
 const createColorColumns = (side: 'white' | 'black'): DataTableBaseColumn<PlayoutPair>[] => [
   {
@@ -341,13 +292,6 @@ const createColorColumns = (side: 'white' | 'black'): DataTableBaseColumn<Playou
     width: 60,
     align: 'center',
     render: (row: PlayoutPair) => renderAnalysisIcons(row[side]),
-  },
-  {
-    title: 'Feat',
-    key: `${side}_feat`,
-    width: 45,
-    align: 'center',
-    render: (row: PlayoutPair) => renderFeatures(row[side]),
   },
 ]
 

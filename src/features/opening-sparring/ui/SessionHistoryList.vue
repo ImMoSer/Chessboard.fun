@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { useOpeningSparringStore } from '../index'
 import { type SessionMove } from '@/shared/types/openingSparring.types'
 import { NDataTable, NDivider, NText, type DataTableColumns } from 'naive-ui'
 import { computed, h, type CSSProperties } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { useOpeningSparringStore } from '../index'
 import PlayoutAnalysisTable from './PlayoutAnalysisTable.vue'
+
+const { t } = useI18n()
 
 const openingStore = useOpeningSparringStore()
 
@@ -183,7 +186,7 @@ const columns = computed<DataTableColumns<MovePair>>(() => [
 <template>
   <div class="session-history-container">
     <div class="history-header">
-      <h3>Session History</h3>
+      <h3>{{ openingStore.openingName || t('openingTrainer.header.searching') }}</h3>
     </div>
 
     <div class="table-scroll-area">

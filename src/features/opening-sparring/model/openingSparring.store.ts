@@ -8,7 +8,11 @@ import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { gameReviewService } from '../api/GameReviewService'
 
+import { type TopInfoBadge, type TopInfoDisplay } from '@/entities/puzzle'
+import i18n from '@/shared/config/i18n'
 import { useOpeningSparringQueries } from '../api/openingSparring.queries'
+
+const t = i18n.global.t
 
 export const useOpeningSparringStore = defineStore('openingSparring', () => {
   const boardStore = useBoardStore()
@@ -335,6 +339,56 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     return gameReviewService.generateReport(sessionHistory.value, playerColor.value)
   }
 
+  const topInfoDisplay = computed<TopInfoDisplay>(() => {
+    const badges: TopInfoBadge[] = []
+
+    if (isTheoryOver.value) {
+      badges.push({
+        text: t('openingTrainer.header.bookEnded'),
+        type: 'warning',
+      })
+    }
+
+    if (isDeviation.value) {
+      badges.push({
+        text: t('openingTrainer.header.deviation'),
+        type: 'error',
+      })
+    }
+
+    if (isPlayoutMode.value) {
+      badges.push({
+        text: 'PLAYOUT',
+        type: 'success',
+      })
+    }
+
+    return {
+      title: '',
+      badges,
+      stats: [
+        {
+          icon: 'flash',
+          value: averageAccuracy.value,
+          label: t('openingTrainer.header.accuracy'),
+          color: '#f0a020',
+        },
+        {
+          icon: 'trending-up',
+          value: averageWinRate.value,
+          label: t('openingTrainer.header.winRate'),
+          color: '#4caf50',
+        },
+        {
+          icon: 'bar-chart',
+          value: averageRating.value,
+          label: t('openingTrainer.header.avgRating'),
+          color: '#2080f0',
+        },
+      ],
+    }
+  })
+
   return {
     currentStats,
     sessionHistory, // Now computed!
@@ -371,6 +425,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     },
     generateGameReport,
     runFinalEvaluation,
+    topInfoDisplay,
     reset,
     isReviewMode,
     reviewMoveIndex,
