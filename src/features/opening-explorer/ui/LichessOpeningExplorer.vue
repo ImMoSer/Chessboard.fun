@@ -2,29 +2,20 @@
 import { useBoardStore } from '@/entities/game'
 import {
   lichessApiService,
-  type LichessMastersParams,
   type LichessOpeningResponse,
   type LichessParams,
 } from '@/entities/opening'
 import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
 import {
-  CalendarOutline,
-  HourglassOutline,
-  ListOutline,
   SettingsOutline,
   TrophyOutline,
 } from '@vicons/ionicons5'
 import {
   NButton,
-  NButtonGroup,
-  NCheckbox,
-  NCheckboxGroup,
   NCollapseTransition,
-  NGrid,
-  NGridItem,
   NIcon,
-  NSlider,
-  NSpace,
+  NRadioButton,
+  NRadioGroup,
   NText,
 } from 'naive-ui'
 import { computed, onMounted, ref, watch } from 'vue'
@@ -43,71 +34,34 @@ const showSettings = ref(false)
 // Local state for all modes when using this component
 const localStats = ref<LichessOpeningResponse | null>(null)
 const localLoading = ref(false)
-const localSource = ref<'lichess' | 'masters'>('lichess')
 const localLichessParams = ref({
-  ratings: [1800, 2000, 2200, 2500],
-  speeds: ['blitz', 'rapid', 'classical'],
-})
-const localMastersParams = ref({
-  since: 1952,
-  until: new Date().getFullYear(),
-  moves: 12,
-  topGames: 10,
+  ratingRange: '0-1500' as '0-1500' | '1500-2000' | '2000+',
 })
 
 // Computed values that bridge Store vs Local (kept for compatibility, though activeStore is null)
 const stats = computed(() => localStats.value)
 const loading = computed(() => localLoading.value)
-const source = computed({
-  get: () => localSource.value,
-  set: (val) => {
-    localSource.value = val
-    fetchLocalStats()
-  },
-})
 
 const lichessParams = computed(() => localLichessParams.value)
-const mastersParams = computed(() => localMastersParams.value)
-
-const sortedTopGames = computed(() => {
-  if (!stats.value?.topGames) return []
-  return [...stats.value.topGames].sort((a, b) => {
-    // Sort by year descending
-    if (b.year !== a.year) return b.year - a.year
-    // If year is same, try month sorting (ISO format "YYYY-MM")
-    return b.month.localeCompare(a.month)
-  })
-})
 
 // Pending settings to avoid rate limits
 const pendingLichessParams = ref({ ...lichessParams.value })
-const pendingMastersParams = ref({ ...mastersParams.value })
 
 const isDirty = computed(() => {
-  if (source.value === 'lichess') {
-    return JSON.stringify(pendingLichessParams.value) !== JSON.stringify(lichessParams.value)
-  } else {
-    return JSON.stringify(pendingMastersParams.value) !== JSON.stringify(mastersParams.value)
-  }
+  return JSON.stringify(pendingLichessParams.value) !== JSON.stringify(lichessParams.value)
 })
 
 watch(showSettings, (val) => {
   if (val) {
     pendingLichessParams.value = JSON.parse(JSON.stringify(lichessParams.value))
-    pendingMastersParams.value = JSON.parse(JSON.stringify(mastersParams.value))
   }
 })
 
 function applySettings() {
-  if (source.value === 'lichess') {
-    updateParams('lichess', pendingLichessParams.value)
-  } else {
-    updateParams('masters', pendingMastersParams.value)
-  }
+  updateParams(pendingLichessParams.value)
 }
 
-const AVAILABLE_RATINGS = [1800, 2000, 2200, 2500]
-const AVAILABLE_SPEEDS = ['bullet', 'blitz', 'rapid', 'classical']
+
 
 function handleSelectMove(uci: string) {
   boardStore.applyUciMove(uci)
@@ -117,9 +71,7 @@ async function fetchLocalStats() {
   localLoading.value = true
   try {
     const fen = pgnService.getCurrentNavigatedFen()
-    const params =
-      localSource.value === 'masters' ? localMastersParams.value : localLichessParams.value
-    const data = await lichessApiService.getStats(fen, localSource.value, params)
+    const data = await lichessApiService.getStats(fen, localLichessParams.value)
     localStats.value = data
   } catch (e) {
     console.error('[LichessOpeningExplorer] Failed to fetch stats:', e)
@@ -128,23 +80,13 @@ async function fetchLocalStats() {
   }
 }
 
-function updateParams(
-  type: 'lichess' | 'masters',
-  newParams: LichessParams | LichessMastersParams,
-) {
-  if (type === 'lichess') {
-    localLichessParams.value = { ...localLichessParams.value, ...(newParams as LichessParams) }
-  } else {
-    localMastersParams.value = {
-      ...localMastersParams.value,
-      ...(newParams as LichessMastersParams),
-    }
-  }
+function updateParams(newParams: LichessParams) {
+  localLichessParams.value = { ...localLichessParams.value, ...newParams }
   fetchLocalStats()
 }
 
 watch(
-  [pgnTreeVersion, localSource, localLichessParams, localMastersParams],
+  [pgnTreeVersion, localLichessParams],
   () => {
     fetchLocalStats()
   },
@@ -163,14 +105,7 @@ onMounted(() => {
     </div>
     <div class="explorer-header">
       <div class="header-left">
-        <n-button-group size="tiny">
-          <n-button :secondary="source !== 'lichess'" @click="source = 'lichess'">
-            Lichess
-          </n-button>
-          <n-button :secondary="source !== 'masters'" @click="source = 'masters'">
-            Masters
-          </n-button>
-        </n-button-group>
+        <n-text strong>Lichess Players</n-text>
       </div>
       <div class="header-right">
         <n-button
@@ -191,89 +126,25 @@ onMounted(() => {
 
     <n-collapse-transition :show="showSettings">
       <div class="settings-panel">
-        <div v-if="source === 'lichess'" class="settings-group">
-          <n-grid :cols="2" :x-gap="12">
-            <n-grid-item>
-              <div class="compact-section">
-                <n-text depth="3" strong class="section-label">
-                  <n-icon>
-                    <TrophyOutline />
-                  </n-icon>
-                  Ratings
-                </n-text>
-                <n-checkbox-group
-                  :value="pendingLichessParams.ratings"
-                  @update:value="(v: any) => (pendingLichessParams.ratings = v)"
-                >
-                  <n-space vertical :size="4">
-                    <n-checkbox v-for="r in AVAILABLE_RATINGS" :key="r" :value="r">{{
-                      r
-                    }}</n-checkbox>
-                  </n-space>
-                </n-checkbox-group>
-              </div>
-            </n-grid-item>
-            <n-grid-item>
-              <div class="compact-section">
-                <n-text depth="3" strong class="section-label">
-                  <n-icon>
-                    <HourglassOutline />
-                  </n-icon>
-                  Speeds
-                </n-text>
-                <n-checkbox-group
-                  :value="pendingLichessParams.speeds"
-                  @update:value="(v: any) => (pendingLichessParams.speeds = v)"
-                >
-                  <n-space vertical :size="4">
-                    <n-checkbox v-for="s in AVAILABLE_SPEEDS" :key="s" :value="s">
-                      <span style="text-transform: capitalize">{{ s }}</span>
-                    </n-checkbox>
-                  </n-space>
-                </n-checkbox-group>
-              </div>
-            </n-grid-item>
-          </n-grid>
-        </div>
-        <div v-if="source === 'masters'" class="settings-group">
-          <n-space vertical :size="20">
-            <div class="compact-section">
-              <n-text depth="3" strong class="section-label">
-                <n-icon>
-                  <CalendarOutline />
-                </n-icon>
-                Years: {{ pendingMastersParams.since }} — {{ pendingMastersParams.until }}
-              </n-text>
-              <n-slider
-                range
-                :min="1952"
-                :max="new Date().getFullYear()"
-                :step="1"
-                :value="[pendingMastersParams.since, pendingMastersParams.until]"
-                @update:value="
-                  (v: any) => {
-                    pendingMastersParams.since = v[0]
-                    pendingMastersParams.until = v[1]
-                  }
-                "
-              />
-            </div>
-            <div class="compact-section">
-              <n-text depth="3" strong class="section-label">
-                <n-icon>
-                  <ListOutline />
-                </n-icon>
-                Top Games: {{ pendingMastersParams.topGames }}
-              </n-text>
-              <n-slider
-                :min="0"
-                :max="10"
-                :step="1"
-                :value="pendingMastersParams.topGames"
-                @update:value="(v: any) => (pendingMastersParams.topGames = v)"
-              />
-            </div>
-          </n-space>
+        <div class="settings-group">
+          <div class="compact-section" style="padding: 0 12px">
+            <n-text depth="3" strong class="section-label">
+              <n-icon>
+                <TrophyOutline />
+              </n-icon>
+              Rating Range
+            </n-text>
+            <n-radio-group
+              :value="pendingLichessParams.ratingRange"
+              @update:value="(v: any) => (pendingLichessParams.ratingRange = v)"
+              size="small"
+              expand
+            >
+              <n-radio-button value="0-1500">0 - 1500</n-radio-button>
+              <n-radio-button value="1500-2000">1500 - 2000</n-radio-button>
+              <n-radio-button value="2000+">2000+</n-radio-button>
+            </n-radio-group>
+          </div>
         </div>
 
         <div class="settings-actions">
@@ -303,36 +174,7 @@ onMounted(() => {
         @select-move="handleSelectMove"
       />
 
-      <!-- Top Games Section -->
-      <div v-if="stats && sortedTopGames.length > 0" class="top-games-section">
-        <div class="section-divider">
-          <span class="divider-text">Top Master Games</span>
-        </div>
-        <div class="games-list">
-          <a
-            v-for="game in sortedTopGames"
-            :key="game.id"
-            :href="'https://lichess.org/' + game.id"
-            target="_blank"
-            class="game-row"
-          >
-            <div class="game-info">
-              <span class="game-uci">{{ game.uci }}</span>
-              <span class="game-players">
-                <span class="player white">{{ game.white.name }}</span>
-                <span class="vs">vs</span>
-                <span class="player black">{{ game.black.name }}</span>
-              </span>
-            </div>
-            <div class="game-meta">
-              <span class="game-result" :class="game.winner">
-                {{ game.winner === 'white' ? '1-0' : game.winner === 'black' ? '0-1' : '½-½' }}
-              </span>
-              <span class="game-year">{{ game.year }}</span>
-            </div>
-          </a>
-        </div>
-      </div>
+
 
       <div v-if="!loading && !stats" class="empty-state">
         <n-text depth="3">No statistics available for this position.</n-text>

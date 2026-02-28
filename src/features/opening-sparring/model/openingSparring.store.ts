@@ -85,9 +85,8 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     | null
   const opponentSource = ref<'master' | 'lichess'>(savedSource || 'master')
 
-  const savedRatings = localStorage.getItem('openingSparring.opponentRatings')
-  const defaultRatings = [1200, 1400, 1600, 1800, 2000, 2200]
-  const opponentRatings = ref<number[]>(savedRatings ? JSON.parse(savedRatings) : defaultRatings)
+  const savedRatingRange = localStorage.getItem('openingSparring.opponentRatingRange') as '0-1500' | '1500-2000' | '2000+' | null
+  const opponentRatingRange = ref<'0-1500' | '1500-2000' | '2000+'>(savedRatingRange || '0-1500')
 
   // --- stable theory state for game loop ---
   const activeTheoryStats = ref<MozerBookResponse | null>(null)
@@ -101,7 +100,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     fen,
     source: opponentSource,
     shouldFetchLichess,
-    lichessRatings: opponentRatings,
+    lichessRatingRange: opponentRatingRange,
     isTheoryPhase,
   })
 
@@ -113,10 +112,10 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
 
   // Persist settings
   watch(
-    [opponentSource, opponentRatings],
+    [opponentSource, opponentRatingRange],
     () => {
       localStorage.setItem('openingSparring.opponentSource', opponentSource.value)
-      localStorage.setItem('openingSparring.opponentRatings', JSON.stringify(opponentRatings.value))
+      localStorage.setItem('openingSparring.opponentRatingRange', opponentRatingRange.value)
     },
     { deep: true },
   )
@@ -470,7 +469,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     isFinalEvaluating,
     finalEvalDepth,
     opponentSource,
-    opponentRatings,
+    opponentRatingRange,
     currentLichessStats,
     isStatsLoading,
     initializeSession,

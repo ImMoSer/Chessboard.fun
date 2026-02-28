@@ -20,7 +20,7 @@ export function useSparringLoop() {
     fen: computed(() => boardStore.fen),
     source: computed(() => store.opponentSource),
     shouldFetchLichess: computed(() => boardStore.turn !== store.playerColor),
-    lichessRatings: computed(() => store.opponentRatings),
+    lichessRatingRange: computed(() => store.opponentRatingRange),
     isTheoryPhase: computed(() => !store.isPlayoutMode && !store.isReviewMode),
   })
 

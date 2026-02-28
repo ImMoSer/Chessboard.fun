@@ -13,9 +13,6 @@ import {
 import type { SelectOption } from 'naive-ui'
 import {
   NButton,
-  NCheckbox,
-  NGi,
-  NGrid,
   NIcon,
   NModal,
   NRadioButton,
@@ -50,18 +47,7 @@ const openingOptions = computed<SelectOption[]>(() => {
   return options
 })
 
-const allRatings = [1200, 1400, 1600, 1800, 2000, 2200]
-
-function toggleRating(rating: number, checked: boolean) {
-  const current = new Set(openingStore.opponentRatings)
-  if (checked) {
-    current.add(rating)
-  } else {
-    current.delete(rating)
-  }
-  // Sort to keep consistent order, though not strictly required by API
-  openingStore.opponentRatings = Array.from(current).sort((a: number, b: number) => a - b)
-}
+// Removed multi-rating toggle functionality
 
 onMounted(async () => {
   await theoryGraphService.loadBook()
@@ -166,21 +152,15 @@ function startSession() {
             </n-radio-button>
           </n-radio-group>
 
-          <div v-if="openingStore.opponentSource === 'lichess'" class="rating-selector">
+          <div v-if="openingStore.opponentSource === 'lichess'" class="rating-selector" style="margin-top: 12px;">
             <n-text depth="3" class="hint-text" style="margin-bottom: 8px; display: block">
               {{ t('openingTrainer.settings.selectRatings', 'Select Opponent Ratings') }}
             </n-text>
-            <n-grid :x-gap="12" :y-gap="8" :cols="2">
-              <n-gi v-for="rating in allRatings" :key="rating">
-                <n-checkbox
-                  :checked="openingStore.opponentRatings.includes(rating)"
-                  @update:checked="(val) => toggleRating(rating, val)"
-                  size="large"
-                >
-                  {{ rating }}
-                </n-checkbox>
-              </n-gi>
-            </n-grid>
+            <n-radio-group v-model:value="openingStore.opponentRatingRange" size="large" expand>
+              <n-radio-button value="0-1500">0 - 1500</n-radio-button>
+              <n-radio-button value="1500-2000">1500 - 2000</n-radio-button>
+              <n-radio-button value="2000+">2000+</n-radio-button>
+            </n-radio-group>
           </div>
           <n-text depth="3" class="hint-text">
             {{

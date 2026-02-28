@@ -7,15 +7,15 @@ import { apiClient } from '@/shared/api/client'
 const OPENING_SPARRING_KEYS = {
   all: ['opening-sparring'] as const,
   mozerStats: (fen: string) => [...OPENING_SPARRING_KEYS.all, 'mozer', fen] as const,
-  lichessStats: (fen: string, ratings: number[]) =>
-    [...OPENING_SPARRING_KEYS.all, 'lichess', fen, ratings.join(',')] as const,
+  lichessStats: (fen: string, ratingRange: string) =>
+    [...OPENING_SPARRING_KEYS.all, 'lichess', fen, ratingRange] as const,
 }
 
 export function useOpeningSparringQueries(options?: {
   fen: Ref<string>
   source: Ref<'master' | 'lichess'>
   shouldFetchLichess: Ref<boolean>
-  lichessRatings: Ref<number[]>
+  lichessRatingRange: Ref<'0-1500' | '1500-2000' | '2000+'>
   isTheoryPhase: Ref<boolean>
 }) {
   const mozerQuery = useQuery({
@@ -31,13 +31,12 @@ export function useOpeningSparringQueries(options?: {
     queryKey: computed(() =>
       OPENING_SPARRING_KEYS.lichessStats(
         options?.fen.value ?? '',
-        options?.lichessRatings.value ?? [],
+        options?.lichessRatingRange.value ?? '0-1500',
       ),
     ),
     queryFn: async () => {
-      return await lichessApiService.getStats(options?.fen.value ?? '', 'lichess', {
-        ratings: options?.lichessRatings.value ?? [],
-        speeds: ['blitz', 'rapid', 'classical'],
+      return await lichessApiService.getStats(options?.fen.value ?? '', {
+        ratingRange: options?.lichessRatingRange.value ?? '0-1500',
       })
     },
     enabled: () =>
