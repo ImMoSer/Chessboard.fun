@@ -5,9 +5,8 @@ import { soundService } from '@/shared/lib/sound.service'
 import type { DrawShape } from '@lichess-org/chessground/draw'
 import type {
   Color as ChessgroundColor,
-  Piece as ChessopsPiece,
   Dests,
-  Key,
+  Key
 } from '@lichess-org/chessground/types'
 import { Chess } from 'chessops/chess'
 import { chessgroundDests } from 'chessops/compat'
@@ -90,7 +89,7 @@ export const useBoardStore = defineStore('board', () => {
 
   function _playSoundsForMove(
     move: ChessopsMove,
-    pieceOnDestBefore: ChessopsPiece | undefined,
+    san: string,
   ): void {
     // Enable sounds for Study Mode (Analysis Mode)
     // if (isAnalysisModeActive.value) return
@@ -101,7 +100,9 @@ export const useBoardStore = defineStore('board', () => {
       soundService.playSound('board_promote')
     }
 
-    if (pieceOnDestBefore) {
+    if (san.includes('O-O')) {
+      soundService.playSound('board_castle')
+    } else if (san.includes('x')) {
       soundService.playSound('board_capture')
     } else {
       soundService.playSound('board_move')
@@ -151,7 +152,6 @@ export const useBoardStore = defineStore('board', () => {
     const fenBefore = makeFen(chessPosition.value.toSetup())
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const san = makeSan(chessPosition.value as any, move)
-    const pieceOnDestBefore = isNormal(move) ? chessPosition.value.board.get(move.to) : undefined
 
     chessPosition.value.play(move)
     const fenAfter = makeFen(chessPosition.value.toSetup())
@@ -171,7 +171,7 @@ export const useBoardStore = defineStore('board', () => {
       logger.info(`[_applyUciMove] Node added successfully. ID: ${node.id}`)
     }
 
-    _playSoundsForMove(move, pieceOnDestBefore)
+    _playSoundsForMove(move, san)
     // Verify sync
     _updateBoardStateFromPgn()
 

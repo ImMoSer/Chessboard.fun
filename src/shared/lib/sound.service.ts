@@ -16,6 +16,7 @@ export type SoundEvent =
   // --- BoardStore ---
   | 'board_move'
   | 'board_capture'
+  | 'board_castle'
   | 'board_promote'
   | 'board_load_position'
   | 'board_timer_10s'
@@ -56,6 +57,7 @@ const soundDefinitions: Record<SoundEvent, { track: SoundTrack; path: string | s
   // --- BoardStore ---
   board_move: { track: 'background', path: '/sounds/boarStore/board_move.mp3' },
   board_capture: { track: 'background', path: '/sounds/boarStore/board_capture.mp3' },
+  board_castle: { track: 'background', path: '/sounds/boarStore/board_castle.mp3' },
   board_promote: { track: 'background', path: '/sounds/boarStore/board_promote.mp3' },
   board_load_position: { track: 'background', path: '/sounds/boarStore/board_load_position.mp3' },
   board_timer_10s: { track: 'background', path: '/sounds/boarStore/timer_10_seconds_left.mp3' },
