@@ -74,9 +74,6 @@ export function useSparringLoop() {
       perf: moveData.perf,
     }
 
-    if (moveData.name) store.openingName = moveData.name
-    if (moveData.eco) store.currentEco = moveData.eco
-
     // Enrich PGN
     const node = pgnService.getLastMove()
     if (node) {

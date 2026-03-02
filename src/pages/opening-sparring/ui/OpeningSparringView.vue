@@ -38,7 +38,6 @@ const isNavigatingToPlayout = ref(false)
 const lastSessionParams = ref<{ color: 'white' | 'black'; moves: string[]; slug?: string } | null>(null)
 
 const isExamEnding = computed(() => openingStore.isTheoryOver || openingStore.isDeviation)
-const hasPlayout = computed(() => openingStore.sessionHistory.length > 0)
 
 // Watch for game over in playout mode
 watch(
@@ -324,9 +323,6 @@ function goBack() {
         <EngineLines />
       </div>
 
-      <div class="history-header">
-      <h3>{{ !hasPlayout ? (openingStore.openingName || t('openingTrainer.header.searching')) : 'Session History' }}</h3>
-    </div>
       <SessionHistoryList />
 
       <div v-if="openingStore.error" class="error-msg">

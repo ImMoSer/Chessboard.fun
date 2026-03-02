@@ -737,7 +737,7 @@
       "ratings": "Ratings",
       "timeControls": "Time Controls",
       "selectOpening": "Select Opening (Optional)",
-      "startPosition": "Start Position (Standard)",
+      "startPosition": "Start Position",
       "variability": "Variability: {value}",
       "variabilityHint": "Higher variability means the bot plays less popular moves more often.",
       "opponentSource": "Opponent Base",

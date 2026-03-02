@@ -263,16 +263,23 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     }
   }
 
+  // Reactive Name & ECO from Local Graph
   watch(
-    () => currentStats.value,
-    (stats) => {
-      // Sync names on successful load automatically
-      if (stats && stats.summary && !openingName.value) {
-        const theoryItem = stats.theory?.[0]
-        if (theoryItem) {
-          openingName.value = theoryItem.name
-          if (theoryItem.eco) currentEco.value = theoryItem.eco
-        }
+    () => theoryStore.currentFen,
+    (fen) => {
+      if (fen === 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1') {
+        openingName.value = t('openingTrainer.settings.startPosition')
+        currentEco.value = ''
+        return
+      }
+
+      const node = pgnService.getCurrentNode()
+      if (!node || node.ply === 0) return
+
+      const result = theoryGraphService.getOpeningByMove(node.fenBefore, node.uci)
+      if (result) {
+        if (result.name) openingName.value = result.name
+        if (result.eco) currentEco.value = result.eco
       }
     },
     { immediate: true },

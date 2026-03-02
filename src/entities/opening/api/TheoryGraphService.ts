@@ -84,6 +84,26 @@ class TheoryGraphService {
     }))
   }
 
+  /**
+   * Looks up opening name and ECO for a specific move in a position.
+   */
+  getOpeningByMove(parentFen: string, uci: string): { name: string | null; eco: string | null } | null {
+    if (!this.data || !this.data.graph) return null
+
+    const cleanFen = this.toCleanFen(parentFen)
+    const node = this.data.graph[cleanFen]
+    if (!node) return null
+
+    const moveData = node[uci]
+    if (!moveData) return null
+
+    const [nameIdx, ecoIdx] = moveData
+    return {
+      name: nameIdx !== -1 ? this.data.names[nameIdx] || null : null,
+      eco: ecoIdx !== -1 ? this.data.ecos[ecoIdx] || null : null,
+    }
+  }
+
   private simplifyName(name: string): string {
     return name.split(':')[0]!.trim()
   }
