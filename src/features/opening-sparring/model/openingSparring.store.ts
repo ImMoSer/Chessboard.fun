@@ -1,6 +1,6 @@
 import { analysisService } from '@/entities/analysis'
 import { useBoardStore, useGameStore, type IGameplayStrategy } from '@/entities/game'
-import { theoryRepository, theoryGraphService, useTheoryStore, type MozerBookResponse } from '@/entities/opening'
+import { theoryGraphService, useTheoryStore } from '@/entities/opening'
 import logger from '@/shared/lib/logger'
 import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
 import { type SessionMove } from '@/shared/types/openingSparring.types'
@@ -49,9 +49,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
         nag: meta.nag,
         evaluation: meta.evaluation,
         popularity: meta.popularity,
-        accuracy: meta.accuracy,
         winRate: meta.winRate,
-        rating: meta.rating,
       })
 
       node = node.children[0]
@@ -82,9 +80,6 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   const savedRatingRange = localStorage.getItem('openingSparring.opponentRatingRange') as '0-1500' | '1500-2000' | '2000+' | null
   const opponentRatingRange = ref<'0-1500' | '1500-2000' | '2000+'>(savedRatingRange || '0-1500')
 
-  // --- stable theory state for game loop ---
-  const activeTheoryStats = ref<MozerBookResponse | null>(null)
-
   // Persist settings
   watch(
     [opponentSource, opponentRatingRange],
@@ -108,14 +103,14 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
 
   const movesCount = computed(() => sessionHistory.value.length)
 
-  const averageAccuracy = computed(() => {
+  const averagePopularity = computed(() => {
     const playerMoves = sessionHistory.value.filter(
       (m) =>
         (m.turn === 'w' && playerColor.value === 'white') ||
         (m.turn === 'b' && playerColor.value === 'black'),
     )
     if (playerMoves.length === 0) return 0
-    const sum = playerMoves.reduce((acc, m) => acc + (m.accuracy ?? m.popularity ?? 0), 0)
+    const sum = playerMoves.reduce((acc, m) => acc + (m.popularity ?? 0), 0)
     return Math.round(sum / playerMoves.length)
   })
 
@@ -127,17 +122,6 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     )
     if (playerMoves.length === 0) return 0
     const sum = playerMoves.reduce((acc, m) => acc + (m.winRate ?? 0), 0)
-    return Math.round(sum / playerMoves.length)
-  })
-
-  const averageRating = computed(() => {
-    const playerMoves = sessionHistory.value.filter(
-      (m) =>
-        (m.turn === 'w' && playerColor.value === 'white') ||
-        (m.turn === 'b' && playerColor.value === 'black'),
-    )
-    if (playerMoves.length === 0) return 0
-    const sum = playerMoves.reduce((acc, m) => acc + (m.rating ?? 0), 0)
     return Math.round(sum / playerMoves.length)
   })
 
@@ -178,7 +162,6 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
       const sessionStartFen = boardStore.fen
 
       // Load initial theory stats for the starting position via stable repository call
-      activeTheoryStats.value = await theoryRepository.getMozerBookStats(sessionStartFen)
       await theoryStore.fetchMozerStats(sessionStartFen)
 
       // 2. Pass control to GameStore Dual-Boot logic
@@ -384,8 +367,8 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
       stats.push(
         {
           icon: 'flash',
-          value: averageAccuracy.value,
-          label: t('openingTrainer.header.accuracy'),
+          value: averagePopularity.value,
+          label: t('openingTrainer.header.popularity') || 'Popularity',
           color: '#f0a020',
         },
         {
@@ -393,16 +376,10 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
           value: averageWinRate.value,
           label: t('openingTrainer.header.winRate'),
           color: '#4caf50',
-        },
-        {
-          icon: 'bar-chart',
-          value: averageRating.value,
-          label: t('openingTrainer.header.avgRating'),
-          color: '#2080f0',
         }
       )
     } else {
-      // Playout Mode: Show evaluation and accuracy
+      // Playout Mode: Show evaluation and popularity
       const lastMove = sessionHistory.value[sessionHistory.value.length - 1]
       const evaluation = lastMove?.evaluation
         ? (lastMove.evaluation.score_cp / 100).toFixed(1)
@@ -417,8 +394,8 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
         },
         {
           icon: 'flash',
-          value: averageAccuracy.value,
-          label: t('openingTrainer.header.accuracy'),
+          value: averagePopularity.value,
+          label: t('openingTrainer.header.popularity') || 'Popularity',
           color: '#f0a020',
         }
       )
@@ -434,9 +411,8 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   return {
     currentStats,
     sessionHistory,
-    averageAccuracy,
+    averagePopularity,
     averageWinRate,
-    averageRating,
     movesCount,
     isTheoryOver,
     isDeviation,
@@ -448,7 +424,6 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     isInitializing,
     isProcessingMove,
     isPlayoutMode,
-    activeTheoryStats,
     error,
     moveQueue,
     finalEval,

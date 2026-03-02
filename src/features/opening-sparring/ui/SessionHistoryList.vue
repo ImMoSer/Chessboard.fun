@@ -87,25 +87,21 @@ const renderMove = (row: MovePair, color: 'white' | 'black') => {
   )
 }
 
-const renderStat = (row: MovePair, color: 'white' | 'black', stat: 'acc' | 'win' | 'rat') => {
+const renderStat = (row: MovePair, color: 'white' | 'black', stat: 'pop' | 'win') => {
   const move = row[color]
   if (!move) return h(NText, { depth: 3 }, { default: () => '-' })
 
   let val: string | number = '-'
   let style = {}
 
-  if (stat === 'acc') {
-    const acc = Math.round(move.accuracy || move.popularity || 0)
-    val = `${acc}%`
-    if (acc >= 80) style = { color: '#4caf50', fontWeight: 'bold' }
-    else if (acc >= 50) style = { color: '#ff9800', fontWeight: 'bold' }
+  if (stat === 'pop') {
+    const pop = Math.round(move.popularity || 0)
+    val = `${pop}%`
+    if (pop >= 80) style = { color: '#4caf50', fontWeight: 'bold' }
+    else if (pop >= 50) style = { color: '#ff9800', fontWeight: 'bold' }
     else style = { color: '#f44336', fontWeight: 'bold' }
   } else if (stat === 'win') {
     val = `${Math.round(move.winRate || 0)}%`
-    style = { color: '#aaa' }
-  } else if (stat === 'rat') {
-    val = Math.round(move.rating || 0)
-    if (val === 0) val = '-'
     style = { color: '#aaa' }
   }
 
@@ -127,27 +123,20 @@ const columns = computed<DataTableColumns<MovePair>>(() => [
     key: 'whiteGroup',
     align: 'center',
     children: [
-      { title: 'Move', key: 'w_move', width: 50, render: (row) => renderMove(row, 'white') },
+      { title: 'Move', key: 'w_move', width: 60, render: (row) => renderMove(row, 'white') },
       {
-        title: 'Acc',
-        key: 'w_acc',
-        width: 40,
+        title: 'Pop',
+        key: 'w_pop',
+        width: 45,
         align: 'center',
-        render: (row) => renderStat(row, 'white', 'acc'),
+        render: (row) => renderStat(row, 'white', 'pop'),
       },
       {
         title: 'Win',
         key: 'w_win',
-        width: 40,
-        align: 'center',
-        render: (row) => renderStat(row, 'white', 'win'),
-      },
-      {
-        title: 'Rat',
-        key: 'w_rat',
         width: 45,
         align: 'center',
-        render: (row) => renderStat(row, 'white', 'rat'),
+        render: (row) => renderStat(row, 'white', 'win'),
       },
     ],
   },
@@ -156,27 +145,20 @@ const columns = computed<DataTableColumns<MovePair>>(() => [
     key: 'blackGroup',
     align: 'center',
     children: [
-      { title: 'Move', key: 'b_move', width: 50, render: (row) => renderMove(row, 'black') },
+      { title: 'Move', key: 'b_move', width: 60, render: (row) => renderMove(row, 'black') },
       {
-        title: 'Acc',
-        key: 'b_acc',
-        width: 40,
+        title: 'Pop',
+        key: 'b_pop',
+        width: 45,
         align: 'center',
-        render: (row) => renderStat(row, 'black', 'acc'),
+        render: (row) => renderStat(row, 'black', 'pop'),
       },
       {
         title: 'Win',
         key: 'b_win',
-        width: 40,
-        align: 'center',
-        render: (row) => renderStat(row, 'black', 'win'),
-      },
-      {
-        title: 'Rat',
-        key: 'b_rat',
         width: 45,
         align: 'center',
-        render: (row) => renderStat(row, 'black', 'rat'),
+        render: (row) => renderStat(row, 'black', 'win'),
       },
     ],
   },

@@ -30,11 +30,11 @@ class GameReviewService {
   public generateReport(history: SessionMove[], playerColor: 'white' | 'black'): GameReport {
     const playerTurnCode = playerColor === 'white' ? 'w' : 'b'
 
-    // 1. Theory Accuracy (Only player moves)
+    // 1. Theory Accuracy (Only player moves) -> Now based on popularity
     const theoryMoves = history.filter((m) => m.phase === 'theory' && m.turn === playerTurnCode)
     let theoryAccuracy = 0
     if (theoryMoves.length > 0) {
-      const sumAcc = theoryMoves.reduce((acc, m) => acc + (m.accuracy || m.popularity || 0), 0)
+      const sumAcc = theoryMoves.reduce((acc, m) => acc + (m.popularity || 0), 0)
       theoryAccuracy = Math.round(sumAcc / theoryMoves.length)
     }
 

@@ -76,7 +76,6 @@ function handleClick() {
     </div>
 
     <div class="col-draw">{{ drawPct }}</div>
-    <div class="col-perf">{{ Math.round(move.perf) }}</div>
   </div>
 </template>
 

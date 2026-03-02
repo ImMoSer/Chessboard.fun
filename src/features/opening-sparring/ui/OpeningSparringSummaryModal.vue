@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {
-  BarChartOutline,
   CheckmarkDoneOutline,
   CloseOutline,
   PlayOutline,
@@ -81,12 +80,12 @@ const progressPercent = computed(() => {
     <div class="summary-content">
       <n-space vertical :size="24">
         <!-- Stats Grid -->
-        <n-grid :cols="3" :x-gap="12">
+        <n-grid :cols="2" :x-gap="12">
           <n-grid-item>
             <div class="stat-box">
               <n-statistic
-                :label="t('openingTrainer.header.accuracy')"
-                :value="openingStore.averageAccuracy"
+                :label="t('openingTrainer.header.popularity') || 'Popularity'"
+                :value="openingStore.averagePopularity"
               >
                 <template #prefix>
                   <n-icon class="stat-icon acc"><PulseOutline /></n-icon>
@@ -105,18 +104,6 @@ const progressPercent = computed(() => {
                   <n-icon class="stat-icon win"><TrendingUpOutline /></n-icon>
                 </template>
                 <template #suffix>%</template>
-              </n-statistic>
-            </div>
-          </n-grid-item>
-          <n-grid-item>
-            <div class="stat-box">
-              <n-statistic
-                :label="t('openingTrainer.header.avgRating')"
-                :value="openingStore.averageRating"
-              >
-                <template #prefix>
-                  <n-icon class="stat-icon rat"><BarChartOutline /></n-icon>
-                </template>
               </n-statistic>
             </div>
           </n-grid-item>

@@ -5,7 +5,6 @@ export interface TheoryMove {
   w_pct: number // Win percentage (0-100)
   d_pct: number // Draw percentage (0-100)
   l_pct: number // Loss percentage (0-100)
-  perf: number // Performance rating
 }
 
 export interface SessionMove {
@@ -22,10 +21,9 @@ export interface SessionMove {
   stats?: TheoryMove
 
   // Session metrics
-  accuracy?: number
   winRate?: number
   popularity?: number
-  rating?: number
+  accuracy?: number // Used by playout engine analysis
 
   // Client-side move assessment
   quality?:
@@ -59,3 +57,4 @@ export interface SessionMove {
     }>
   }
 }
+

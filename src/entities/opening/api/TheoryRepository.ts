@@ -119,12 +119,14 @@ class TheoryRepository {
       try {
         const cached = await this.getCachedStats<MozerBookResponse>(cleanFen, cacheSource)
         if (cached) {
+          this.activeMozerRequests.delete(cleanFen)
           return cached
         }
 
         const data = await mozerBookService.fetchStats(cleanFen)
         if (data) {
           await this.cacheStats(cleanFen, [], data, cacheSource)
+          this.activeMozerRequests.delete(cleanFen)
           return data
         }
         
@@ -164,6 +166,7 @@ class TheoryRepository {
       try {
         const cached = await this.getCachedStats<LichessOpeningResponse>(cacheKey, cacheSource)
         if (cached) {
+          this.activeLichessRequests.delete(cacheKey)
           return cached
         }
 
@@ -175,6 +178,7 @@ class TheoryRepository {
         const data = await lichessApiService.fetchStats(cleanFen, params)
         if (data) {
           await this.cacheStats(cacheKey, [], data, cacheSource)
+          this.activeLichessRequests.delete(cacheKey)
           return data
         }
         

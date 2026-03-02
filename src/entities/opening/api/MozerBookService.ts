@@ -13,7 +13,6 @@ export interface MozerBookMove extends MozerBookTheoryItem {
   win_p: number
   draw_p: number
   loss_p: number
-  perf: number
   nag: number
   wt?: number
   bt?: number
@@ -26,7 +25,6 @@ export interface MozerBookResponse {
     win_p: number
     draw_p: number
     loss_p: number
-    perf: number
   } | null
   moves: MozerBookMove[]
   theory?: MozerBookTheoryItem[]

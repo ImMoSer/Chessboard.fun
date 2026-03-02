@@ -35,7 +35,17 @@ export function useSparringLoop() {
 
   async function enrichUserMove(moveUci: string) {
     store.isProcessingMove = true
-    const stats = store.activeTheoryStats
+
+    const node = pgnService.getLastMove()
+    if (!node) {
+      console.log('[OpeningSparring] Theory over: No stats available for enrichment.')
+      store.isTheoryOver = true
+      store.isProcessingMove = false
+      return
+    }
+
+    const fenBefore = node.fenBefore
+    const stats = await theoryStore.awaitMozerStatsForFen(fenBefore)
 
     if (!stats || !stats.moves || stats.moves.length === 0) {
       console.log('[OpeningSparring] Theory over: No stats available for enrichment.')
@@ -54,16 +64,13 @@ export function useSparringLoop() {
       return
     }
 
-    const totalGamesInPos = stats.summary
-      ? stats.summary.total
-      : stats.moves.reduce((acc: number, m: MozerBookMove) => acc + m.total, 0) || 1
+    const maxGamesForAnyMove = stats.moves.length > 0 
+      ? Math.max(...stats.moves.map((m: MozerBookMove) => m.total))
+      : 1
 
-    const popularity = (moveData.total / totalGamesInPos) * 100
-    const maxTotal = Math.max(...stats.moves.map((m: MozerBookMove) => m.total))
-    const accuracy = maxTotal > 0 ? (moveData.total / maxTotal) * 100 : 0
+    const popularity = (moveData.total / maxGamesForAnyMove) * 100
     const wins = store.playerColor === 'white' ? moveData.win_p : moveData.loss_p
     const winRateRaw = wins + 0.5 * moveData.draw_p
-    const rating = moveData.perf || 0
     const moveStats = {
       uci: moveData.uci,
       san: moveData.san,
@@ -71,35 +78,32 @@ export function useSparringLoop() {
       win_p: moveData.win_p,
       draw_p: moveData.draw_p,
       loss_p: moveData.loss_p,
-      perf: moveData.perf,
     }
 
     // Enrich PGN
-    const node = pgnService.getLastMove()
-    if (node) {
-      pgnService.updateNode(node, {
-        metadata: {
-          phase: 'theory',
-          stats: moveStats,
-          popularity,
-          accuracy,
-          winRate: winRateRaw,
-          rating,
-        },
-      })
-    }
+    pgnService.updateNode(node, {
+      metadata: {
+        phase: 'theory',
+        stats: moveStats,
+        popularity,
+        winRate: winRateRaw,
+      },
+    })
 
-    // Refresh reactive stats for UI
+    // Refresh reactive stats for UI (for the new FEN)
     await fetchStats()
-
-    // Advance stable theory stats for next move
-    store.activeTheoryStats = await theoryStore.awaitMozerStatsForFen(boardStore.fen)
 
     store.isProcessingMove = false
   }
 
   async function getTheoryBotMoveUci(): Promise<string | null> {
-    const stats = store.activeTheoryStats
+    const isLichess = store.opponentSource === 'lichess'
+    const fen = boardStore.fen
+    
+    const stats = isLichess 
+      ? await theoryStore.awaitLichessStatsForFen(fen) 
+      : await theoryStore.awaitMozerStatsForFen(fen)
+    
     if (!stats || !stats.moves || stats.moves.length === 0) {
       store.isTheoryOver = true
       return null
@@ -110,7 +114,7 @@ export function useSparringLoop() {
 
     const candidates = movesPool
       .slice(0, store.variability)
-      .map((m: MozerBookMove) => {
+      .map((m: { uci: string; total: number }) => {
         return { uci: m.uci, total: m.total }
       })
 
@@ -135,29 +139,36 @@ export function useSparringLoop() {
   }
 
   async function enrichBotMove(selectedUci: string) {
-    const stats = store.activeTheoryStats
-    const moveData = stats?.moves.find((m: MozerBookMove) =>
+    const isLichess = store.opponentSource === 'lichess'
+    const node = pgnService.getLastMove()
+    const fenBefore = node?.fenBefore || boardStore.fen
+
+    const stats = isLichess 
+      ? await theoryStore.awaitLichessStatsForFen(fenBefore) 
+      : await theoryStore.awaitMozerStatsForFen(fenBefore)
+    
+    type UnifiedMove = { uci: string; san: string; total: number; win_p: number; draw_p: number; loss_p: number }
+    type UnifiedStats = { summary?: { total: number }; total?: number; moves: UnifiedMove[] }
+
+    const moveData = (stats as UnifiedStats | null)?.moves.find((m) =>
       areMovesEqual(m.uci, selectedUci),
     )
 
     let moveStats = undefined
     let popularity = 0
-    let accuracy = 0
     let winRateRaw = 0
-    let rating = 0
 
     if (moveData) {
-      const totalGamesInPos = stats!.summary
-        ? stats!.summary!.total
-        : stats!.moves.reduce((acc: number, m: MozerBookMove) => acc + m.total, 0) || 1
+      const castedStats = stats as UnifiedStats
+      
+      const maxGamesForAnyMove = castedStats.moves.length > 0
+        ? Math.max(...castedStats.moves.map((m: UnifiedMove) => m.total))
+        : 1
 
-      popularity = (moveData.total / totalGamesInPos) * 100
-      const maxTotal = Math.max(...stats!.moves.map((m: MozerBookMove) => m.total))
-      accuracy = maxTotal > 0 ? (moveData.total / maxTotal) * 100 : 0
+      popularity = (moveData.total / maxGamesForAnyMove) * 100
 
       const wins = store.playerColor === 'white' ? moveData.win_p : moveData.loss_p
       winRateRaw = wins + 0.5 * moveData.draw_p
-      rating = moveData.perf || 0
 
       moveStats = {
         uci: moveData.uci,
@@ -166,29 +177,22 @@ export function useSparringLoop() {
         win_p: moveData.win_p,
         draw_p: moveData.draw_p,
         loss_p: moveData.loss_p,
-        perf: moveData.perf,
       }
     }
 
-    const node = pgnService.getLastMove()
     if (node && node.uci === selectedUci) {
       pgnService.updateNode(node, {
         metadata: {
           phase: 'theory',
           stats: moveStats,
           popularity,
-          accuracy,
           winRate: winRateRaw,
-          rating,
         },
       })
     }
 
-    // Refresh reactive stats for UI
+    // Refresh reactive stats for UI for the NEW position
     await fetchStats()
-
-    // Advance stable theory stats for next move
-    store.activeTheoryStats = await theoryStore.awaitMozerStatsForFen(boardStore.fen)
 
     if (!moveData) {
       store.isTheoryOver = true

@@ -102,8 +102,6 @@ const calculateScore = (item: TheoryItemWithChildren) => {
                           <span class="stat-score">{{ calculateScore(item).toFixed(1) }}%</span>
                           <span class="stat-sep">|</span>
                           <span class="stat-draw">{{ item.draw_p.toFixed(1) }}% draw</span>
-                          <span class="stat-sep">|</span>
-                          <span class="stat-perf">Perf: {{ Math.round(item.perf) }}</span>
                           <span v-if="(item.wt ?? 0) > 0" class="stat-sep">|</span>
                           <span v-if="(item.wt ?? 0) > 0" class="stat-trap white"
                             >WTrp: {{ Math.round(((item.wt ?? 0) / 255) * 100) }}%</span

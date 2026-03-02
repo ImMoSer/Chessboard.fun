@@ -75,7 +75,6 @@ const theoryWithChildren = computed<TheoryItemWithChildren[]>(() => {
         win_p: matchingMove?.win_p || 0,
         draw_p: matchingMove?.draw_p || 0,
         loss_p: matchingMove?.loss_p || 0,
-        perf: matchingMove?.perf || 0,
         children: matchingMove?.children || [],
       } as TheoryItemWithChildren
     })
@@ -118,12 +117,11 @@ const theoryWithChildren = computed<TheoryItemWithChildren[]>(() => {
       @select="handleSelectMove"
     />
 
-    <div class="table-labels">
-      <div class="col-move"></div>
+    <div class="book-header">
+      <div class="col-move">Move</div>
       <div class="col-n">N</div>
       <div class="col-pct">%</div>
       <div class="col-draw">=%</div>
-      <div class="col-perf">Perf</div>
     </div>
 
     <div class="book-body">

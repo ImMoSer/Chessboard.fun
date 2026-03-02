@@ -14,9 +14,8 @@ import {
 import { useI18n } from 'vue-i18n'
 
 defineProps<{
-  averageAccuracy: number
+  averagePopularity: number
   averageWinRate: number
-  averageRating: number
   isTheoryOver: boolean
   isDeviation: boolean
   isPlayoutMode?: boolean
@@ -58,9 +57,9 @@ const { t } = useI18n()
       </template>
 
       <div class="stats-section">
-        <n-grid :cols="3" :x-gap="12">
+        <n-grid :cols="2" :x-gap="12">
           <n-grid-item>
-            <n-statistic :label="t('openingTrainer.header.accuracy')" :value="averageAccuracy">
+            <n-statistic :label="t('openingTrainer.header.popularity') || 'Popularity'" :value="averagePopularity">
               <template #suffix>%</template>
             </n-statistic>
           </n-grid-item>
@@ -68,9 +67,6 @@ const { t } = useI18n()
             <n-statistic :label="t('openingTrainer.header.winRate')" :value="averageWinRate">
               <template #suffix>%</template>
             </n-statistic>
-          </n-grid-item>
-          <n-grid-item>
-            <n-statistic :label="t('openingTrainer.header.avgRating')" :value="averageRating" />
           </n-grid-item>
         </n-grid>
       </div>
