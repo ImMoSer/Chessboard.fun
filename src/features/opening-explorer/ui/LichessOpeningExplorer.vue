@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useBoardStore } from '@/entities/game'
 import {
-  lichessApiService,
+  theoryRepository,
   type LichessOpeningResponse,
   type LichessParams,
 } from '@/entities/opening'
@@ -71,7 +71,7 @@ async function fetchLocalStats() {
   localLoading.value = true
   try {
     const fen = pgnService.getCurrentNavigatedFen()
-    const data = await lichessApiService.getStats(fen, localLichessParams.value)
+    const data = await theoryRepository.getLichessStats(fen, localLichessParams.value)
     localStats.value = data
   } catch (e) {
     console.error('[LichessOpeningExplorer] Failed to fetch stats:', e)

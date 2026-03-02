@@ -1,4 +1,4 @@
-import { theoryCacheService } from '@/entities/opening'
+import { theoryRepository } from '@/entities/opening'
 import logger from '@/shared/lib/logger'
 
 export interface GravityMove {
@@ -49,7 +49,7 @@ class DiamondApiService {
     // So we MUST prefix the key.
     const cacheKey = `gravity:${color}:${cleanFen}`
 
-    const cached = await theoryCacheService.getCachedStats<GravityResponse>(
+    const cached = await theoryRepository.getCachedStats<GravityResponse>(
       cacheKey,
       'diamondGravity',
     )
@@ -72,7 +72,7 @@ class DiamondApiService {
       const data = await response.json()
 
       // 2. Save to Cache
-      await theoryCacheService.cacheStats(cacheKey, [], data, 'diamondGravity')
+      await theoryRepository.cacheStats(cacheKey, [], data, 'diamondGravity')
 
       return data
     } catch (error) {

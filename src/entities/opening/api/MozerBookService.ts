@@ -1,6 +1,5 @@
 // src/services/MozerBookService.ts
 import logger from '@/shared/lib/logger'
-import { theoryCacheService } from './TheoryCacheService'
 
 export interface MozerBookTheoryItem {
   san: string
@@ -36,19 +35,7 @@ export interface MozerBookResponse {
 class MozerBookService {
   private readonly BACKEND_URL = import.meta.env.VITE_BACKEND_API_URL || 'http://localhost:3000/api'
 
-  private toCleanFen(fen: string): string {
-    return fen.split(' ').slice(0, 4).join(' ')
-  }
-
-  async getStats(fen: string): Promise<MozerBookResponse | null> {
-    const cleanFen = this.toCleanFen(fen)
-
-    // 1. Check persistent cache
-    const cached = await theoryCacheService.getCachedStats<MozerBookResponse>(cleanFen, 'mozerBook')
-    if (cached) {
-      return cached
-    }
-
+  async fetchStats(cleanFen: string): Promise<MozerBookResponse | null> {
     try {
       const response = await fetch(`${this.BACKEND_URL}/opening/masters`, {
         method: 'POST',
@@ -61,12 +48,7 @@ class MozerBookService {
       })
 
       if (!response.ok) throw new Error(`MozerBook API Error: ${response.statusText}`)
-      const data = await response.json()
-
-      // 2. Save to cache
-      await theoryCacheService.cacheStats(cleanFen, [], data, 'mozerBook')
-
-      return data
+      return await response.json()
     } catch (error) {
       logger.error(`[MozerBookService] Error:`, error)
       return null

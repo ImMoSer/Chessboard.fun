@@ -1,23 +1,24 @@
 import { analysisService } from '@/entities/analysis'
 import { useBoardStore, useGameStore, type IGameplayStrategy } from '@/entities/game'
-import { mozerBookService, theoryGraphService, type MozerBookResponse } from '@/entities/opening'
+import { theoryRepository, theoryGraphService, useTheoryStore, type MozerBookResponse } from '@/entities/opening'
 import logger from '@/shared/lib/logger'
 import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
 import { type SessionMove } from '@/shared/types/openingSparring.types'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { gameReviewService } from '../api/GameReviewService'
+import { apiClient } from '@/shared/api/client'
 
 import { type TopInfoBadge, type TopInfoDisplay, type TopInfoStat } from '@/entities/puzzle'
 import i18n from '@/shared/config/i18n'
-import { useOpeningSparringQueries } from '../api/openingSparring.queries'
 
 const t = (key: string) => i18n.global.t(key)
 
 export const useOpeningSparringStore = defineStore('openingSparring', () => {
   const boardStore = useBoardStore()
+  const theoryStore = useTheoryStore()
 
-  // -- REPLACED sessionHistory ref with computed from PGN --
+  // -- sessionHistory ref with computed from PGN --
   const sessionHistory = computed<SessionMove[]>(() => {
     // Reactivity dependency
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -36,24 +37,17 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
       const moveNumber = parseInt(fenParts[5] || '1', 10)
 
       moves.push({
-        // Standard SessionMove fields
         fen: node.fenAfter,
         moveUci: node.uci,
         san: node.san,
         phase: meta.phase || 'theory',
         stats: meta.stats,
-
-        // PGN Context
         ply: node.ply,
         turn,
         moveNumber,
-
-        // Analysis Data
         quality: meta.quality,
         nag: meta.nag,
         evaluation: meta.evaluation,
-
-        // Metrics
         popularity: meta.popularity,
         accuracy: meta.accuracy,
         winRate: meta.winRate,
@@ -91,34 +85,21 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
   // --- stable theory state for game loop ---
   const activeTheoryStats = ref<MozerBookResponse | null>(null)
 
-  // --- Vue Query Integration (Reactive for UI) ---
-  const fen = computed(() => boardStore.fen)
-  const shouldFetchLichess = computed(() => boardStore.turn !== playerColor.value)
-  const isTheoryPhase = computed(() => !isPlayoutMode.value && !isReviewMode.value)
-
-  const { mozerQuery, lichessQuery, startSparringMutation } = useOpeningSparringQueries({
-    fen,
-    source: opponentSource,
-    shouldFetchLichess,
-    lichessRatingRange: opponentRatingRange,
-    isTheoryPhase,
-  })
-
-  const currentStats = computed(() => mozerQuery.data.value ?? null)
-  const currentLichessStats = computed(() => lichessQuery.data.value ?? null)
-  const isStatsLoading = computed(
-    () => mozerQuery.isFetching.value || lichessQuery.isFetching.value,
-  )
-
   // Persist settings
   watch(
     [opponentSource, opponentRatingRange],
     () => {
       localStorage.setItem('openingSparring.opponentSource', opponentSource.value)
       localStorage.setItem('openingSparring.opponentRatingRange', opponentRatingRange.value)
+      theoryStore.setLichessParams({ ratingRange: opponentRatingRange.value })
     },
-    { deep: true },
+    { deep: true, immediate: true },
   )
+
+  // Link UI state to the unified Theory Store
+  const currentStats = computed(() => theoryStore.currentMozerStats)
+  const currentLichessStats = computed(() => theoryStore.currentLichessStats)
+  const isStatsLoading = computed(() => theoryStore.isMozerLoading || theoryStore.isLichessLoading)
 
   // Final Evaluation state
   const finalEval = ref<{ type: 'cp' | 'mate'; value: number } | null>(null)
@@ -162,6 +143,12 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
 
   const isInitializing = ref(false)
 
+  async function startSparringMutation() {
+    return apiClient<{ status: string }>('/opening/sparring/start', {
+      method: 'POST'
+    })
+  }
+
   async function initializeSession(
     color: 'white' | 'black',
     startMoves: string[] = [],
@@ -190,8 +177,9 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
 
       const sessionStartFen = boardStore.fen
 
-      // Load initial theory stats for the starting position
-      activeTheoryStats.value = await mozerBookService.getStats(sessionStartFen)
+      // Load initial theory stats for the starting position via stable repository call
+      activeTheoryStats.value = await theoryRepository.getMozerBookStats(sessionStartFen)
+      await theoryStore.fetchMozerStats(sessionStartFen)
 
       // 2. Pass control to GameStore Dual-Boot logic
       const gameStore = useGameStore()
@@ -205,12 +193,10 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
       await theoryGraphService.loadBook()
 
       try {
-        await startSparringMutation.mutateAsync()
+        await startSparringMutation()
       } catch (err) {
         logger.error('[OpeningSparring] Failed to start session on backend', err)
       }
-
-      // The bot move will be triggered automatically by GameStore if `boardStore.turn !== color`
 
     } finally {
       isProcessingMove.value = false
@@ -220,11 +206,6 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
 
   function reset() {
     console.log('[OpeningSparring] Resetting session')
-    // sessionHistory is computed, no need to reset
-    // But we must reset PGN!
-    // boardStore.resetBoardState() covers pgnService.reset() usually?
-    // initializeSession calls boardStore.setupPosition which resets PGN.
-
     isTheoryOver.value = false
     isDeviation.value = false
     openingName.value = ''
@@ -237,6 +218,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     finalEval.value = null
     isFinalEvaluating.value = false
     finalEvalDepth.value = 0
+    theoryStore.reset()
   }
 
   function enterReviewMode() {
@@ -330,9 +312,6 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
       )
     })
   }
-
-  // Removed: handlePlayerMove, processMoveQueue, triggerBotMove, startPlayout
-  // The Game Loop is now in useSparringLoop composable
 
   async function generateGameReport() {
     return gameReviewService.generateReport(sessionHistory.value, playerColor.value)
@@ -447,7 +426,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
 
   return {
     currentStats,
-    sessionHistory, // Now computed!
+    sessionHistory,
     averageAccuracy,
     averageWinRate,
     averageRating,

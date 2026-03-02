@@ -1,11 +1,9 @@
 import { gameplayService, useBoardStore, useGameStore, type GameStatusInfo, type IGameplayStrategy } from '@/entities/game'
-import { mozerBookService, type MozerBookMove } from '@/entities/opening'
+import { useTheoryStore, type MozerBookMove } from '@/entities/opening'
 import { areMovesEqual } from '@/shared/lib/chess-utils'
 import { serverEngineService, type AnalysisResponse } from '@/shared/lib/engine'
 import { pgnService } from '@/shared/lib/pgn/PgnService'
 import { soundService } from '@/shared/lib/sound.service'
-import { computed } from 'vue'
-import { useOpeningSparringQueries } from '../api/openingSparring.queries'
 import { useOpeningSparringStore } from '../index'
 
 /**
@@ -16,21 +14,15 @@ import { useOpeningSparringStore } from '../index'
 export function useSparringLoop() {
   const store = useOpeningSparringStore()
   const boardStore = useBoardStore()
-  const queries = useOpeningSparringQueries({
-    fen: computed(() => boardStore.fen),
-    source: computed(() => store.opponentSource),
-    shouldFetchLichess: computed(() => boardStore.turn !== store.playerColor),
-    lichessRatingRange: computed(() => store.opponentRatingRange),
-    isTheoryPhase: computed(() => !store.isPlayoutMode && !store.isReviewMode),
-  })
+  const theoryStore = useTheoryStore()
 
   async function fetchStats() {
     store.isLoading = true
     store.error = null
     try {
-      await queries.mozerQuery.refetch()
+      await theoryStore.fetchMozerStats(boardStore.fen)
       if (store.opponentSource === 'lichess' && boardStore.turn !== store.playerColor) {
-        await queries.lichessQuery.refetch()
+        await theoryStore.fetchLichessStats(boardStore.fen)
       }
     } catch (e: unknown) {
       store.error = e instanceof Error ? e.message : String(e)
@@ -104,7 +96,7 @@ export function useSparringLoop() {
     await fetchStats()
 
     // Advance stable theory stats for next move
-    store.activeTheoryStats = await mozerBookService.getStats(boardStore.fen)
+    store.activeTheoryStats = await theoryStore.awaitMozerStatsForFen(boardStore.fen)
 
     store.isProcessingMove = false
   }
@@ -117,9 +109,6 @@ export function useSparringLoop() {
     }
 
     // Determine candidate moves
-    // Note: If opponentSource is Lichess, we might want to prioritize Lichess stats here,
-    // but the stable 'activeTheoryStats' follows Mozer for baseline theory consistency.
-    // Future improvement: Support stable Lichess stats too.
     const movesPool = stats.moves
 
     const candidates = movesPool
@@ -202,7 +191,7 @@ export function useSparringLoop() {
     await fetchStats()
 
     // Advance stable theory stats for next move
-    store.activeTheoryStats = await mozerBookService.getStats(boardStore.fen)
+    store.activeTheoryStats = await theoryStore.awaitMozerStatsForFen(boardStore.fen)
 
     if (!moveData) {
       store.isTheoryOver = true
