@@ -21,7 +21,7 @@ const formatMove = computed(() => {
 })
 
 const totalN = computed(() => props.move.total)
-const drawPct = computed(() => props.move.d_pct.toFixed(1))
+const drawPct = computed(() => props.move.draw_p.toFixed(1))
 
 function handleClick() {
   emit('select', props.move.uci)
@@ -72,7 +72,7 @@ function handleClick() {
     <div class="col-n">{{ totalN }}</div>
 
     <div class="col-pct cell-pct">
-      <WinrateBar :w="move.w_pct" :d="move.d_pct" :l="move.l_pct" :turn="turn" />
+      <WinrateBar :win_p="move.win_p" :draw_p="move.draw_p" :loss_p="move.loss_p" :turn="turn" />
     </div>
 
     <div class="col-draw">{{ drawPct }}</div>

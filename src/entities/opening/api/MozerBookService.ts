@@ -10,9 +10,9 @@ export interface MozerBookTheoryItem {
 
 export interface MozerBookMove extends MozerBookTheoryItem {
   total: number
-  w_pct: number
-  d_pct: number
-  l_pct: number
+  win_p: number
+  draw_p: number
+  loss_p: number
   perf: number
   nag: number
   wt?: number
@@ -22,10 +22,10 @@ export interface MozerBookMove extends MozerBookTheoryItem {
 
 export interface MozerBookResponse {
   summary: {
-    w: number
-    d: number
-    l: number
-    av: number
+    total: number
+    win_p: number
+    draw_p: number
+    loss_p: number
     perf: number
   } | null
   moves: MozerBookMove[]
@@ -37,7 +37,7 @@ class MozerBookService {
 
   async fetchStats(cleanFen: string): Promise<MozerBookResponse | null> {
     try {
-      const response = await fetch(`${this.BACKEND_URL}/opening/masters`, {
+      const response = await fetch(`${this.BACKEND_URL}/opening/mozer_book`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

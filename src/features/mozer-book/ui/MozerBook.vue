@@ -72,9 +72,9 @@ const theoryWithChildren = computed<TheoryItemWithChildren[]>(() => {
         ...tItem,
         nag: matchingMove?.nag || 0,
         total: count,
-        w_pct: matchingMove?.w_pct || 0,
-        d_pct: matchingMove?.d_pct || 0,
-        l_pct: matchingMove?.l_pct || 0,
+        win_p: matchingMove?.win_p || 0,
+        draw_p: matchingMove?.draw_p || 0,
+        loss_p: matchingMove?.loss_p || 0,
         perf: matchingMove?.perf || 0,
         children: matchingMove?.children || [],
       } as TheoryItemWithChildren
@@ -96,8 +96,7 @@ const theoryWithChildren = computed<TheoryItemWithChildren[]>(() => {
         </n-icon>
         <span class="book-title">MozerBook</span>
         <span class="header-n" v-if="stats?.summary">
-          (N={{ (stats.summary.w + stats.summary.d + stats.summary.l).toLocaleString() }})</span
-        >
+          (N={{ stats.summary.total.toLocaleString() }})</span>
       </div>
       <div class="header-actions">
         <n-icon

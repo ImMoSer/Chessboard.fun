@@ -10,12 +10,11 @@ const props = defineProps<{
   moves: LichessMove[]
   isReviewMode: boolean
   // Current position stats
-  white?: number
-  draws?: number
-  black?: number
+  total?: number
+  win_p?: number
+  draw_p?: number
+  loss_p?: number
   avgElo?: number
-  avgDraw?: number
-  avgScore?: number
 }>()
 
 const emit = defineEmits<{
@@ -42,38 +41,15 @@ const formatMove = (san: string) => {
   }
 }
 
-const summaryAvgScore = computed(() => {
-  if (props.avgScore !== undefined) return props.avgScore
-  const total = (props.white || 0) + (props.draws || 0) + (props.black || 0)
-  if (total === 0) return 0
-  return (((props.white || 0) + 0.5 * (props.draws || 0)) / total) * 100
+const summaryScore = computed(() => {
+  if (props.win_p === undefined || props.draw_p === undefined) return 0
+  return props.win_p + 0.5 * props.draw_p
 })
 
-const summaryAvgDraw = computed(() => {
-  if (props.avgDraw !== undefined) return props.avgDraw
-  const total = (props.white || 0) + (props.draws || 0) + (props.black || 0)
-  if (total === 0) return 0
-  return ((props.draws || 0) / total) * 100
-})
+const summaryDrawPct = computed(() => props.draw_p || 0)
+const summaryAvgElo = computed(() => props.avgElo || 0)
 
-const summaryAvgElo = computed(() => {
-  if (props.avgElo !== undefined) return props.avgElo
-  if (props.moves.length === 0) return 0
-  const totalGames = props.moves.reduce((sum, m) => sum + m.white + m.draws + m.black, 0)
-  if (totalGames === 0) return 0
-  const weightedRating = props.moves.reduce(
-    (sum, m) => sum + m.averageRating * (m.white + m.draws + m.black),
-    0,
-  )
-  return Math.round(weightedRating / totalGames)
-})
-
-const totalGamesCount = computed(
-  () => (props.white || 0) + (props.draws || 0) + (props.black || 0) || 1,
-)
-const whitePct = computed(() => ((props.white || 0) / totalGamesCount.value) * 100)
-const drawsPct = computed(() => ((props.draws || 0) / totalGamesCount.value) * 100)
-const blackPct = computed(() => ((props.black || 0) / totalGamesCount.value) * 100)
+const totalGamesCount = computed(() => props.total || 0)
 
 interface StatsTableRow {
   key: string
@@ -84,53 +60,49 @@ interface StatsTableRow {
   drawPct: number
   avgElo: number
   isSummary: boolean
-  white: number
-  draws: number
-  black: number
+  win_p: number
+  draw_p: number
+  loss_p: number
 }
 
 const tableData = computed<StatsTableRow[]>(() => {
-  const totalPosGames = (props.white || 0) + (props.draws || 0) + (props.black || 0) || 1
-
   const summaryRow: StatsTableRow = {
     key: 'summary',
     uci: '',
     san: '',
-    n: totalPosGames,
-    score: summaryAvgScore.value,
-    drawPct: summaryAvgDraw.value,
+    n: totalGamesCount.value,
+    score: summaryScore.value,
+    drawPct: summaryDrawPct.value,
     avgElo: summaryAvgElo.value,
     isSummary: true,
-    white: props.white || 0,
-    draws: props.draws || 0,
-    black: props.black || 0,
+    win_p: props.win_p || 0,
+    draw_p: props.draw_p || 0,
+    loss_p: props.loss_p || 0,
   }
 
   const moveRows: StatsTableRow[] = props.moves.map((m) => {
-    const total = m.white + m.draws + m.black || 1
     const score =
       boardStore.turn === 'white'
-        ? ((m.white + m.draws * 0.5) / total) * 100
-        : ((m.black + m.draws * 0.5) / total) * 100
-    const drawPct = (m.draws / total) * 100
+        ? m.win_p + m.draw_p * 0.5
+        : m.loss_p + m.draw_p * 0.5
 
     return {
       key: m.uci,
       uci: m.uci,
       san: formatMove(m.san),
-      n: total,
+      n: m.total,
       score,
-      drawPct,
+      drawPct: m.draw_p,
       avgElo: m.averageRating,
       isSummary: false,
-      white: m.white,
-      draws: m.draws,
-      black: m.black,
+      win_p: m.win_p,
+      draw_p: m.draw_p,
+      loss_p: m.loss_p,
     }
   })
 
   return [summaryRow, ...moveRows]
-})
+} )
 
 const rowProps = (row: StatsTableRow) => {
   if (row.isSummary) {
@@ -146,16 +118,11 @@ const rowProps = (row: StatsTableRow) => {
   }
 }
 
-const renderWinrateBar = (white: number, draws: number, black: number) => {
-  const total = white + draws + black || 1
-  const w = (white / total) * 100
-  const d = (draws / total) * 100
-  const b = (black / total) * 100
-
+const renderWinrateBar = (win_p: number, draw_p: number, loss_p: number) => {
   return h('div', { class: 'mini-winrate-bar' }, [
-    h('div', { class: 'segment white', style: { width: `${w}%` } }),
-    h('div', { class: 'segment draw', style: { width: `${d}%` } }),
-    h('div', { class: 'segment black', style: { width: `${b}%` } }),
+    h('div', { class: 'segment white', style: { width: `${win_p}%` } }),
+    h('div', { class: 'segment draw', style: { width: `${draw_p}%` } }),
+    h('div', { class: 'segment black', style: { width: `${loss_p}%` } }),
   ])
 }
 
@@ -186,7 +153,7 @@ const columns = computed<DataTableColumns<StatsTableRow>>(() => [
     render(row) {
       return h('div', { class: 'score-cell' }, [
         h('span', { style: { fontSize: '0.8rem', fontWeight: 'bold' } }, row.score.toFixed(1)),
-        renderWinrateBar(row.white, row.draws, row.black),
+        renderWinrateBar(row.win_p, row.draw_p, row.loss_p),
       ])
     },
   },
@@ -222,16 +189,16 @@ const columns = computed<DataTableColumns<StatsTableRow>>(() => [
     </div>
 
     <!-- Global Winrate Bar -->
-    <div v-if="white !== undefined" class="global-winrate">
+    <div v-if="total !== undefined" class="global-winrate">
       <div class="winrate-labels">
-        <span class="label-white">{{ Math.round(whitePct) }}%</span>
-        <span class="label-draw">{{ Math.round(drawsPct) }}%</span>
-        <span class="label-black">{{ Math.round(blackPct) }}%</span>
+        <span class="label-white">{{ Math.round(win_p || 0) }}%</span>
+        <span class="label-draw">{{ Math.round(draw_p || 0) }}%</span>
+        <span class="label-black">{{ Math.round(loss_p || 0) }}%</span>
       </div>
       <div class="winrate-bar-wrapper">
-        <div class="segment white" :style="{ width: whitePct + '%' }"></div>
-        <div class="segment draw" :style="{ width: drawsPct + '%' }"></div>
-        <div class="segment black" :style="{ width: blackPct + '%' }"></div>
+        <div class="segment white" :style="{ width: (win_p || 0) + '%' }"></div>
+        <div class="segment draw" :style="{ width: (draw_p || 0) + '%' }"></div>
+        <div class="segment black" :style="{ width: (loss_p || 0) + '%' }"></div>
       </div>
     </div>
 

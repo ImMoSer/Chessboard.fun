@@ -2,9 +2,9 @@
 import { computed } from 'vue'
 
 interface Props {
-  w: number
-  d: number
-  l: number
+  win_p: number
+  draw_p: number
+  loss_p: number
   turn: 'white' | 'black'
   showScore?: boolean
   mini?: boolean
@@ -15,24 +15,20 @@ const props = withDefaults(defineProps<Props>(), {
   mini: false,
 })
 
-const total = computed(() => props.w + props.d + props.l)
-
 const calculateScore = computed(() => {
-  if (total.value === 0) return 0
   // Green bar and percentage represent White points (1-0)
-  const whiteWins = props.turn === 'white' ? props.w : props.l
-  return ((whiteWins + props.d * 0.5) / total.value) * 100
+  const whiteWins = props.turn === 'white' ? props.win_p : props.loss_p
+  return whiteWins + props.draw_p * 0.5
 })
 
 const barWidths = computed(() => {
-  if (total.value === 0) return { w: 0, d: 0, l: 0 }
-  const whiteWins = props.turn === 'white' ? props.w : props.l
-  const blackWins = props.turn === 'black' ? props.w : props.l
+  const whiteWins = props.turn === 'white' ? props.win_p : props.loss_p
+  const blackWins = props.turn === 'black' ? props.win_p : props.loss_p
 
   return {
-    w: (whiteWins / total.value) * 100,
-    d: (props.d / total.value) * 100,
-    l: (blackWins / total.value) * 100,
+    w: whiteWins,
+    d: props.draw_p,
+    l: blackWins,
   }
 })
 </script>

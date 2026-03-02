@@ -3,45 +3,27 @@ import { computed } from 'vue'
 
 interface Props {
   summary: {
-    w: number
-    d: number
-    l: number
+    total: number
+    win_p: number
+    draw_p: number
+    loss_p: number
   }
   turn: 'white' | 'black'
 }
 
 const props = defineProps<Props>()
 
-const total = computed(() => props.summary.w + props.summary.d + props.summary.l)
-
 const whiteWinsPct = computed(() => {
-  if (total.value === 0) return 0
-  // White wins (1-0) is stats.w if it's White's turn, else stats.l if it's Black's turn?
-  // Actually, MozerBook API seems to return w/d/l from the perspective of the side to move.
-  // Wait, let's re-verify the logic in MozerBook.vue:
-  // "To match your request: Green bar and percentage should always represent White points (1-0)"
-  // const whiteWins = turn.value === 'white' ? move.w : move.l;
-  const whiteWins = props.turn === 'white' ? props.summary.w : props.summary.l
-  return (whiteWins / total.value) * 100
+  return props.turn === 'white' ? props.summary.win_p : props.summary.loss_p
 })
 
 const drawsPct = computed(() => {
-  if (total.value === 0) return 0
-  return (props.summary.d / total.value) * 100
+  return props.summary.draw_p
 })
 
 const blackWinsPct = computed(() => {
-  if (total.value === 0) return 0
-  const blackWins = props.turn === 'black' ? props.summary.w : props.summary.l
-  return (blackWins / total.value) * 100
+  return props.turn === 'black' ? props.summary.win_p : props.summary.loss_p
 })
-
-const whiteWinsDisplay = computed(() =>
-  props.turn === 'white' ? props.summary.w : props.summary.l,
-)
-const blackWinsDisplay = computed(() =>
-  props.turn === 'black' ? props.summary.w : props.summary.l,
-)
 </script>
 
 <template>
@@ -58,9 +40,10 @@ const blackWinsDisplay = computed(() =>
       </div>
     </div>
     <div class="footer-legend">
-      <div class="legend-item">1-0: {{ whiteWinsDisplay }} = {{ whiteWinsPct.toFixed(0) }}%</div>
-      <div class="legend-item">1/2: {{ summary.d }} = {{ drawsPct.toFixed(0) }}%</div>
-      <div class="legend-item">0-1: {{ blackWinsDisplay }} = {{ blackWinsPct.toFixed(0) }}%</div>
+      <div class="legend-item">1-0: {{ whiteWinsPct.toFixed(0) }}%</div>
+      <div class="legend-item">1/2: {{ drawsPct.toFixed(0) }}%</div>
+      <div class="legend-item">0-1: {{ blackWinsPct.toFixed(0) }}%</div>
+      <div class="legend-item" style="margin-left: 10px; opacity: 0.5;">(N={{ summary.total }})</div>
     </div>
   </div>
 </template>

@@ -55,22 +55,22 @@ export function useSparringLoop() {
     }
 
     const totalGamesInPos = stats.summary
-      ? stats.summary.w + stats.summary.d + stats.summary.l
+      ? stats.summary.total
       : stats.moves.reduce((acc: number, m: MozerBookMove) => acc + m.total, 0) || 1
 
     const popularity = (moveData.total / totalGamesInPos) * 100
     const maxTotal = Math.max(...stats.moves.map((m: MozerBookMove) => m.total))
     const accuracy = maxTotal > 0 ? (moveData.total / maxTotal) * 100 : 0
-    const wins = store.playerColor === 'white' ? moveData.w_pct : moveData.l_pct
-    const winRateRaw = wins + 0.5 * moveData.d_pct
+    const wins = store.playerColor === 'white' ? moveData.win_p : moveData.loss_p
+    const winRateRaw = wins + 0.5 * moveData.draw_p
     const rating = moveData.perf || 0
     const moveStats = {
       uci: moveData.uci,
       san: moveData.san,
       total: moveData.total,
-      w_pct: moveData.w_pct,
-      d_pct: moveData.d_pct,
-      l_pct: moveData.l_pct,
+      win_p: moveData.win_p,
+      draw_p: moveData.draw_p,
+      loss_p: moveData.loss_p,
       perf: moveData.perf,
     }
 
@@ -151,24 +151,24 @@ export function useSparringLoop() {
 
     if (moveData) {
       const totalGamesInPos = stats!.summary
-        ? stats!.summary!.w + stats!.summary!.d + stats!.summary!.l
+        ? stats!.summary!.total
         : stats!.moves.reduce((acc: number, m: MozerBookMove) => acc + m.total, 0) || 1
 
       popularity = (moveData.total / totalGamesInPos) * 100
       const maxTotal = Math.max(...stats!.moves.map((m: MozerBookMove) => m.total))
       accuracy = maxTotal > 0 ? (moveData.total / maxTotal) * 100 : 0
 
-      const wins = store.playerColor === 'white' ? moveData.w_pct : moveData.l_pct
-      winRateRaw = wins + 0.5 * moveData.d_pct
+      const wins = store.playerColor === 'white' ? moveData.win_p : moveData.loss_p
+      winRateRaw = wins + 0.5 * moveData.draw_p
       rating = moveData.perf || 0
 
       moveStats = {
         uci: moveData.uci,
         san: moveData.san,
         total: moveData.total,
-        w_pct: moveData.w_pct,
-        d_pct: moveData.d_pct,
-        l_pct: moveData.l_pct,
+        win_p: moveData.win_p,
+        draw_p: moveData.draw_p,
+        loss_p: moveData.loss_p,
         perf: moveData.perf,
       }
     }

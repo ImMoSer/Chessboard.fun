@@ -4,9 +4,10 @@ import logger from '@/shared/lib/logger'
 export interface LichessMove {
   uci: string
   san: string
-  white: number
-  draws: number
-  black: number
+  total: number
+  win_p: number
+  draw_p: number
+  loss_p: number
   averageRating: number
   w_trap?: number
   b_trap?: number
@@ -14,13 +15,12 @@ export interface LichessMove {
 }
 
 export interface LichessOpeningResponse {
-  white: number
-  draws: number
-  black: number
+  total: number
+  win_p: number
+  draw_p: number
+  loss_p: number
   moves: LichessMove[]
   avgElo?: number
-  avgDraw?: number
-  avgScore?: number
   opening?: {
     eco: string
     name: string

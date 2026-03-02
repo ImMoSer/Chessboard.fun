@@ -165,12 +165,11 @@ onMounted(() => {
         v-if="stats"
         :moves="stats.moves"
         :isReviewMode="true"
-        :white="stats.white"
-        :draws="stats.draws"
-        :black="stats.black"
+        :total="stats.total"
+        :win_p="stats.win_p"
+        :draw_p="stats.draw_p"
+        :loss_p="stats.loss_p"
         :avg-elo="stats.avgElo"
-        :avg-draw="stats.avgDraw"
-        :avg-score="stats.avgScore"
         @select-move="handleSelectMove"
       />
 
