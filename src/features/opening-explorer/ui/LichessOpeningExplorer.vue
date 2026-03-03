@@ -35,7 +35,7 @@ const showSettings = ref(false)
 const localStats = ref<LichessOpeningResponse | null>(null)
 const localLoading = ref(false)
 const localLichessParams = ref({
-  ratingRange: '0-1500' as '0-1500' | '1500-2000' | '2000+',
+  ratingRange: '1000-1499' as '1000-1499' | '1500-1799' | '1800-2200',
 })
 
 // Computed values that bridge Store vs Local (kept for compatibility, though activeStore is null)
@@ -140,9 +140,9 @@ onMounted(() => {
               size="small"
               expand
             >
-              <n-radio-button value="0-1500">0 - 1500</n-radio-button>
-              <n-radio-button value="1500-2000">1500 - 2000</n-radio-button>
-              <n-radio-button value="2000+">2000+</n-radio-button>
+              <n-radio-button value="1000-1499">1000 - 1499</n-radio-button>
+              <n-radio-button value="1500-1799">1500 - 1799</n-radio-button>
+              <n-radio-button value="1800-2200">1800 - 2200</n-radio-button>
             </n-radio-group>
           </div>
         </div>

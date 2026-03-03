@@ -77,8 +77,13 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     | null
   const opponentSource = ref<'master' | 'lichess'>(savedSource || 'master')
 
-  const savedRatingRange = localStorage.getItem('openingSparring.opponentRatingRange') as '0-1500' | '1500-2000' | '2000+' | null
-  const opponentRatingRange = ref<'0-1500' | '1500-2000' | '2000+'>(savedRatingRange || '0-1500')
+  const savedRatingRange = localStorage.getItem('openingSparring.opponentRatingRange')
+  const validRanges = ['1000-1499', '1500-1799', '1800-2200']
+  const opponentRatingRange = ref<'1000-1499' | '1500-1799' | '1800-2200'>(
+    savedRatingRange && validRanges.includes(savedRatingRange)
+      ? (savedRatingRange as '1000-1499' | '1500-1799' | '1800-2200')
+      : '1000-1499'
+  )
 
   // Persist settings
   watch(

@@ -157,9 +157,9 @@ function startSession() {
               {{ t('openingTrainer.settings.selectRatings', 'Select Opponent Ratings') }}
             </n-text>
             <n-radio-group v-model:value="openingStore.opponentRatingRange" size="large" expand>
-              <n-radio-button value="0-1500">0 - 1500</n-radio-button>
-              <n-radio-button value="1500-2000">1500 - 2000</n-radio-button>
-              <n-radio-button value="2000+">2000+</n-radio-button>
+              <n-radio-button value="1000-1499">1000 - 1499</n-radio-button>
+              <n-radio-button value="1500-1799">1500 - 1799</n-radio-button>
+              <n-radio-button value="1800-2200">1800 - 2200</n-radio-button>
             </n-radio-group>
           </div>
           <n-text depth="3" class="hint-text">

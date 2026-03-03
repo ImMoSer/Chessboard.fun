@@ -28,7 +28,7 @@ export interface LichessOpeningResponse {
 }
 
 export interface LichessParams {
-  ratingRange: '0-1500' | '1500-2000' | '2000+'
+  ratingRange: '1000-1499' | '1500-1799' | '1800-2200'
 }
 
 class LichessApiService {
@@ -39,7 +39,7 @@ class LichessApiService {
     params?: LichessParams,
   ): Promise<LichessOpeningResponse | null> {
     try {
-      const ratingRange = params?.ratingRange || '0-1500'
+      const ratingRange = params?.ratingRange || '1000-1499'
 
       const response = await fetch(`${this.BACKEND_URL}/opening/player`, {
         method: 'POST',

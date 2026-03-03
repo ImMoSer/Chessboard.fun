@@ -15,7 +15,7 @@ export const useTheoryStore = defineStore('openingTheory', () => {
   const isLichessLoading = ref(false)
 
   // Current Lichess settings (these can be driven by the feature that needs them)
-  const activeLichessParams = ref<LichessParams>({ ratingRange: '0-1500' })
+  const activeLichessParams = ref<LichessParams>({ ratingRange: '1000-1499' })
 
   // Ensure computed tracking picks up changes from PGN navigation
   const currentFen = computed(() => {
