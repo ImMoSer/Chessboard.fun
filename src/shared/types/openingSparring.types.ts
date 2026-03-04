@@ -27,34 +27,25 @@ export interface SessionMove {
 
   // Client-side move assessment
   quality?:
-    | 'blunder'
-    | 'mistake'
-    | 'inaccuracy'
-    | 'good'
-    | 'great'
-    | 'best'
-    | 'brilliant'
-    | 'interesting'
+  | 'blunder'
+  | 'mistake'
+  | 'inaccuracy'
+  | 'good'
+  | 'great'
+  | 'best'
+  | 'brilliant'
+  | 'interesting'
   nag?: string
   tags?: string[]
 
-  // Playout evaluation (New Mozer API)
+  // Playout evaluation (Simplified for new nags_eval_service)
   evaluation?: {
     score_cp: number
     win_prob: number
-    wdl?: number[] // [win, draw, loss]
-    best_move?: string
-    best_move_san?: string
-    pv_uci?: string[]
-    pv_san?: string
+    best_move: string
     depth: number
-    lines?: Array<{
-      pv: string
-      pv_san: string
-      cp: number
-      win_prob: number
-      wdl?: number[]
-    }>
   }
+  chaos_index?: number
+  is_sacrifice?: boolean
 }
 

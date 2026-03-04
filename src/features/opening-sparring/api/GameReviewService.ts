@@ -45,41 +45,21 @@ class GameReviewService {
     const criticalMoves: MoveQuality[] = []
 
     for (const move of history) {
-      // Analyze ONLY player moves in playout phase
       if (move.phase !== 'playout' || move.turn !== playerTurnCode) continue
-
-      // Evaluation data is stored in the MOVE itself (recorded after bestmove/analyze call)
       if (!move.evaluation) continue
 
-      const bestSfMove = move.evaluation.best_move
-      const playedUci = move.moveUci
+      // New: rely entirely on the provided NAG
+      const nag = move.nag || 'OK'
+      const quality = this.classifyMoveFromNag(nag)
 
-      // If player played the best move, loss is 0
-      let cpLoss = 0
-      if (bestSfMove && playedUci !== bestSfMove) {
-        // CP loss is the difference between best move EV and played move EV
-        // Note: score_cp from analyzeMove is already from the perspective of the side whose turn it was?
-        // Actually, our API returns CP from White's perspective usually, but let's check.
-        // The _recordPlayoutMove in store uses response.evaluation.cp.
-        // In playout mode, we calculate loss relative to the BEST option.
+      // We can still use CP Loss roughly for sorting/display, but it's optional. Let's just use a fake or 0 loss if not available, since UI might need scoreDiff.
+      let effectiveLoss = 0
+      if (quality === 'blunder') effectiveLoss = 300
+      else if (quality === 'mistake') effectiveLoss = 150
+      else if (quality === 'inaccuracy') effectiveLoss = 50
 
-        // Find best move CP in lines
-        const bestLine =
-          move.evaluation.lines?.find((l) => l.pv.startsWith(bestSfMove)) ||
-          move.evaluation.lines?.[0]
-        if (bestLine) {
-          const multiplier = playerColor === 'white' ? 1 : -1
-          // Loss = (Best EV - Played EV) for white, (Played EV - Best EV) for black
-          cpLoss = (bestLine.cp - move.evaluation.score_cp) * multiplier
-          if (cpLoss < 0) cpLoss = 0
-        }
-      }
-
-      const effectiveLoss = Math.min(cpLoss, 500)
       totalCPLoss += effectiveLoss
       evaluatedMovesCount++
-
-      const quality = this.classifyMove(effectiveLoss)
 
       if (quality === 'blunder') classifications.blunders++
       else if (quality === 'mistake') classifications.mistakes++
@@ -94,7 +74,7 @@ class GameReviewService {
           moveSan: move.san,
           quality,
           scoreDiff: effectiveLoss,
-          explanation: this.generateExplanation(move, effectiveLoss),
+          explanation: this.generateExplanation(move, quality),
         })
       }
     }
@@ -112,30 +92,27 @@ class GameReviewService {
     }
   }
 
-  private classifyMove(loss: number): QualityType {
-    if (loss <= 25) return 'good'
-    if (loss <= 60) return 'inaccuracy'
-    if (loss <= 150) return 'mistake'
-    return 'blunder'
+  private classifyMoveFromNag(nag: string): QualityType {
+    if (nag === '??') return 'blunder'
+    if (nag === '?') return 'mistake'
+    if (nag === '?!') return 'inaccuracy'
+    if (nag === '!!') return 'best'
+    return 'good'
   }
 
-  private generateExplanation(move: SessionMove, loss: number): string {
+  private generateExplanation(move: SessionMove, quality: QualityType): string {
     const evalData = move.evaluation
     const explanations: string[] = []
 
-    if (evalData?.best_move_san && evalData.best_move !== move.moveUci) {
-      explanations.push(`Best was ${evalData.best_move_san}.`)
+    if (evalData?.best_move && evalData.best_move !== move.moveUci) {
+      explanations.push(`The engine preferred: ${evalData.best_move}.`)
     }
 
-    if (move.tags && move.tags.length > 0) {
-      const relevantTags = move.tags.filter((t) => ['Mate', 'Hanging', 'Fork', 'Pin'].includes(t))
-      if (relevantTags.length > 0) {
-        explanations.push(`Tactical error: ${relevantTags.join(', ')}.`)
-      }
-    }
-
-    if (explanations.length === 0) {
-      return loss > 300 ? 'A serious tactical oversight.' : 'A positional error.'
+    // Since we don't have tags anymore, we can just say:
+    if (quality === 'blunder') {
+      explanations.push('A serious oversight.')
+    } else if (quality === 'mistake') {
+      explanations.push('A positional or tactical error.')
     }
 
     return explanations.join(' ')

@@ -1,7 +1,7 @@
 import { gameplayService, useBoardStore, useGameStore, type GameStatusInfo, type IGameplayStrategy } from '@/entities/game'
 import { useTheoryStore, type MozerBookMove } from '@/entities/opening'
 import { areMovesEqual } from '@/shared/lib/chess-utils'
-import { serverEngineService, type AnalysisResponse } from '@/shared/lib/engine'
+import { serverEngineService, type AnalysisResponse, type EvalLine } from '@/shared/lib/engine'
 import { pgnService } from '@/shared/lib/pgn/PgnService'
 import { soundService } from '@/shared/lib/sound.service'
 import { useOpeningSparringStore } from '../index'
@@ -64,7 +64,7 @@ export function useSparringLoop() {
       return
     }
 
-    const maxGamesForAnyMove = stats.moves.length > 0 
+    const maxGamesForAnyMove = stats.moves.length > 0
       ? Math.max(...stats.moves.map((m: MozerBookMove) => m.total))
       : 1
 
@@ -99,11 +99,11 @@ export function useSparringLoop() {
   async function getTheoryBotMoveUci(): Promise<string | null> {
     const isLichess = store.opponentSource === 'lichess'
     const fen = boardStore.fen
-    
-    const stats = isLichess 
-      ? await theoryStore.awaitLichessStatsForFen(fen) 
+
+    const stats = isLichess
+      ? await theoryStore.awaitLichessStatsForFen(fen)
       : await theoryStore.awaitMozerStatsForFen(fen)
-    
+
     if (!stats || !stats.moves || stats.moves.length === 0) {
       store.isTheoryOver = true
       return null
@@ -143,10 +143,10 @@ export function useSparringLoop() {
     const node = pgnService.getLastMove()
     const fenBefore = node?.fenBefore || boardStore.fen
 
-    const stats = isLichess 
-      ? await theoryStore.awaitLichessStatsForFen(fenBefore) 
+    const stats = isLichess
+      ? await theoryStore.awaitLichessStatsForFen(fenBefore)
       : await theoryStore.awaitMozerStatsForFen(fenBefore)
-    
+
     type UnifiedMove = { uci: string; san: string; total: number; win_p: number; draw_p: number; loss_p: number }
     type UnifiedStats = { summary?: { total: number }; total?: number; moves: UnifiedMove[] }
 
@@ -160,7 +160,7 @@ export function useSparringLoop() {
 
     if (moveData) {
       const castedStats = stats as UnifiedStats
-      
+
       const maxGamesForAnyMove = castedStats.moves.length > 0
         ? Math.max(...castedStats.moves.map((m: UnifiedMove) => m.total))
         : 1
@@ -201,6 +201,7 @@ export function useSparringLoop() {
 
   // Promise chain for playout move processing
   let recordQueue = Promise.resolve()
+  let lastEvalAfter: EvalLine[] | undefined = undefined
 
   async function _recordPlayoutMove(uci: string) {
     const currentNode = pgnService.getLastMove()
@@ -224,36 +225,32 @@ export function useSparringLoop() {
 
     recordQueue = recordQueue.then(async () => {
       try {
-        const response = (await serverEngineService.analyzeMove(fenBefore, uci)) as AnalysisResponse
+        const evalBeforeParam = lastEvalAfter
+        const response = (await serverEngineService.analyzeMove(
+          fenBefore,
+          uci,
+          evalBeforeParam,
+        )) as AnalysisResponse
 
-        if (response && response.quality && response.evaluation) {
-          const firstLine = response.evaluation.lines?.[0]
-          const pvSan = firstLine?.pv_san || ''
+        if (response && response.quality && response.eval_after) {
+          // Update the cache for the next turn
+          lastEvalAfter = response.eval_after
 
-          let bestMoveSan = ''
-          if (pvSan) {
-            const parts = pvSan.split(' ')
-            const movePart = parts.find((p) => !p.includes('.'))
-            bestMoveSan = movePart || ''
-          }
+          const bestLineBefore = response.eval_before?.[0]
+          const bestLineAfter = response.eval_after?.[0]
 
           pgnService.updateNode(currentNode, {
             metadata: {
               phase: 'playout',
               loading: false,
-              quality: response.quality.verbal_score.toLowerCase(),
               nag: response.quality.nag,
-              accuracy: response.quality.accuracy,
-              tags: response.quality.tags,
+              chaos_index: response.quality.chaos_index,
+              is_sacrifice: response.quality.is_sacrifice,
               evaluation: {
-                score_cp: response.evaluation.cp,
-                win_prob: response.evaluation.win_prob,
-                wdl: response.evaluation.wdl,
-                depth: response.evaluation.depth,
-                best_move: response.quality.best_sf_move,
-                best_move_san: bestMoveSan,
-                pv_san: pvSan,
-                lines: response.evaluation.lines,
+                score_cp: bestLineAfter?.cp || 0,
+                win_prob: bestLineAfter?.win_prob || 0,
+                depth: bestLineAfter?.depth || 0,
+                best_move: bestLineBefore?.move_uci || '',
               },
             },
           })

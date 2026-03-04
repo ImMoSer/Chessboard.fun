@@ -3,13 +3,11 @@ import { useBoardStore } from '@/entities/game'
 import { type SessionMove } from '@/shared/types/openingSparring.types'
 import { type Key } from '@lichess-org/chessground/types'
 import {
-    EyeOutline,
     ShieldCheckmarkOutline,
 } from '@vicons/ionicons5'
 import {
     NDataTable,
     NIcon,
-    NPopover,
     NTag,
     NText,
     NTooltip,
@@ -60,25 +58,20 @@ const playoutPairs = computed(() => {
     }))
 })
 
-const getQualityColor = (quality?: string) => {
-  switch (quality) {
-    case 'blunder':
+const getQualityColor = (nag?: string) => {
+  switch (nag) {
+    case '??':
       return 'var(--color-nag-blunder)'
-    case 'mistake':
+    case '?':
       return 'var(--color-nag-mistake)'
-    case 'inaccuracy':
+    case '?!':
       return 'var(--color-nag-inaccuracy)'
-    case 'good':
+    case '!':
       return 'var(--color-nag-best)'
-    case 'great':
-      return 'var(--color-nag-best)'
-    case 'best':
-      return 'var(--color-nag-best)'
-    case 'brilliant':
+    case '!!':
       return 'var(--color-nag-brilliant)'
-    case 'interesting':
-      return 'var(--color-nag-interesting)'
     default:
+      // Includes 'OK' or any other
       return 'transparent'
   }
 }
@@ -87,6 +80,9 @@ const renderMoveCell = (move: SessionMove | null) => {
   if (!move) return null
   const globalIndex = openingStore.sessionHistory.indexOf(move)
   const isActive = openingStore.isReviewMode && openingStore.reviewMoveIndex === globalIndex
+
+  // Render Checkmark for OK
+  const isOk = move.nag === 'OK'
 
   return h(
     'div',
@@ -110,28 +106,30 @@ const renderMoveCell = (move: SessionMove | null) => {
       h(
         NText,
         { strong: true, style: { color: isActive ? '#fff' : 'inherit', fontSize: '13px' } },
-        { default: () => move.san },
+        { default: () => move.san || move.moveUci },
       ),
-      move.quality
-        ? h(
-            NTag,
-            {
-              size: 'small',
-              round: true,
-              bordered: false,
-              style: {
-                backgroundColor: getQualityColor(move.quality),
-                color: '#000',
-                fontWeight: '800',
-                fontSize: '9px',
-                height: '14px',
-                padding: '0 3px',
-                lineHeight: '14px',
+      isOk
+        ? h(NText, { style: { color: 'green', fontSize: '12px' } }, { default: () => '✅' })
+        : move.nag && move.nag !== 'OK'
+          ? h(
+              NTag,
+              {
+                size: 'small',
+                round: true,
+                bordered: false,
+                style: {
+                  backgroundColor: getQualityColor(move.nag),
+                  color: '#000',
+                  fontWeight: '800',
+                  fontSize: '9px',
+                  height: '14px',
+                  padding: '0 3px',
+                  lineHeight: '14px',
+                },
               },
-            },
-            { default: () => move.nag || '' },
-          )
-        : null,
+              { default: () => move.nag },
+            )
+          : null,
     ],
   )
 }
@@ -160,16 +158,8 @@ const renderEval = (move: SessionMove | null) => {
     displayVal,
   )
 
-  // Tooltip for Win Prob / WDL
   if (move.evaluation.win_prob !== undefined) {
-    let label = `Win Prob: ${move.evaluation.win_prob}%`
-    const wdl = move.evaluation.wdl
-    if (wdl && wdl.length >= 3) {
-      const w = wdl[0] as number
-      const d = wdl[1] as number
-      const l = wdl[2] as number
-      label += ` | WDL: ${(w / 10).toFixed(1)}% ${(d / 10).toFixed(1)}% ${(l / 10).toFixed(1)}%`
-    }
+    const label = `Win Prob: ${move.evaluation.win_prob}%`
     return h(
       NTooltip,
       { trigger: 'hover' },
@@ -207,7 +197,7 @@ const renderAnalysisIcons = (move: SessionMove | null) => {
   }
 
   // Best Move Suggestion (if user missed it)
-  if (move.evaluation && move.san !== move.evaluation.best_move_san) {
+  if (move.evaluation?.best_move && move.moveUci !== move.evaluation.best_move) {
     icons.push(
       h(
         NTooltip,
@@ -236,27 +226,7 @@ const renderAnalysisIcons = (move: SessionMove | null) => {
               },
               { default: () => h(ShieldCheckmarkOutline) },
             ),
-          default: () => `Best: ${move.evaluation?.best_move_san}`,
-        },
-      ),
-    )
-  }
-
-  // PV Eye
-  if (move.evaluation?.pv_san) {
-    icons.push(
-      h(
-        NPopover,
-        { trigger: 'hover', placement: 'top', style: { maxWidth: '300px' } },
-        {
-          trigger: () =>
-            h(
-              NIcon,
-              { size: 14, style: { cursor: 'help', color: '#888' } },
-              { default: () => h(EyeOutline) },
-            ),
-          default: () =>
-            h('div', { style: { fontSize: '11px', lineHeight: '1.4' } }, move.evaluation?.pv_san),
+          default: () => `Best: ${move.evaluation?.best_move}`,
         },
       ),
     )
