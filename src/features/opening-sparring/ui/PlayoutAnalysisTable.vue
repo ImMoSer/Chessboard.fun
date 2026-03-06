@@ -1,13 +1,7 @@
 <script setup lang="ts">
-import { useBoardStore } from '@/entities/game'
 import { type SessionMove } from '@/shared/types/openingSparring.types'
-import { type Key } from '@lichess-org/chessground/types'
-import {
-    ShieldCheckmarkOutline,
-} from '@vicons/ionicons5'
 import {
     NDataTable,
-    NIcon,
     NTag,
     NText,
     NTooltip,
@@ -18,7 +12,6 @@ import { computed, h } from 'vue'
 import { useOpeningSparringStore } from '../index'
 
 const openingStore = useOpeningSparringStore()
-const boardStore = useBoardStore()
 
 interface PlayoutPair {
   number: number
@@ -173,71 +166,7 @@ const renderEval = (move: SessionMove | null) => {
   return cellContent
 }
 
-const renderAnalysisIcons = (move: SessionMove | null) => {
-  if (!move) return null
-  const icons = []
 
-  // Accuracy Tooltip
-  if (move.accuracy !== undefined) {
-    icons.push(
-      h(
-        NTooltip,
-        {},
-        {
-          trigger: () =>
-            h(
-              NText,
-              { style: { fontSize: '10px', color: '#888' } },
-              { default: () => `${Math.round(move.accuracy!)}%` },
-            ),
-          default: () => `Accuracy: ${move.accuracy}%`,
-        },
-      ),
-    )
-  }
-
-  // Best Move Suggestion (if user missed it)
-  if (move.evaluation?.best_move && move.moveUci !== move.evaluation.best_move) {
-    icons.push(
-      h(
-        NTooltip,
-        {},
-        {
-          trigger: () =>
-            h(
-              NIcon,
-              {
-                color: '#2196f3',
-                size: 14,
-                style: { cursor: 'pointer' },
-                onClick: (e: MouseEvent) => {
-                  e.stopPropagation()
-                  const best = move.evaluation?.best_move
-                  if (best) {
-                    boardStore.setDrawableShapes([
-                      {
-                        orig: best.slice(0, 2) as Key,
-                        dest: best.slice(2, 4) as Key,
-                        brush: 'green',
-                      },
-                    ])
-                  }
-                },
-              },
-              { default: () => h(ShieldCheckmarkOutline) },
-            ),
-          default: () => `Best: ${move.evaluation?.best_move}`,
-        },
-      ),
-    )
-  }
-
-  return h(
-    'div',
-    { style: { display: 'flex', gap: '3px', justifyContent: 'center', alignItems: 'center' } },
-    icons,
-  )
-}
 
 
 
@@ -255,13 +184,6 @@ const createColorColumns = (side: 'white' | 'black'): DataTableBaseColumn<Playou
     width: 45,
     align: 'center',
     render: (row: PlayoutPair) => renderEval(row[side]),
-  },
-  {
-    title: 'Anlys',
-    key: `${side}_anlys`,
-    width: 60,
-    align: 'center',
-    render: (row: PlayoutPair) => renderAnalysisIcons(row[side]),
   },
 ]
 

@@ -9,8 +9,9 @@ const MOVE_TIMEOUT_MS = 15000
 
 export interface EvalLine {
   move_uci: string
-  cp: number
-  win_prob: number
+  move_san?: string
+  cp?: number
+  win_prob?: number
   depth: number
 }
 
@@ -18,12 +19,23 @@ export interface AnalysisResponse {
   quality: {
     nag: string
     chaos_index: number
+    is_bestmove: boolean
+    was_forced: boolean
+    only_move: boolean
+    is_trivial: boolean
+    trivial_move_uci?: string
+    trivial_move_san?: string
     is_sacrifice: boolean
+    delta_wp: number
+    delta_cp: number
   }
   eval_before: EvalLine[]
   eval_after: EvalLine[]
   fen_before: string
   move_uci: string
+  move_san?: string
+  next_move_could_be_brilliant: boolean
+  next_move_is_only: boolean
 }
 
 export class ServerEngineServiceController {
@@ -91,6 +103,7 @@ export class ServerEngineServiceController {
   public async analyzeMove(
     fen_before: string,
     move_uci: string,
+    pgn: string,
     eval_before?: EvalLine[],
   ): Promise<AnalysisResponse> {
     const url = `${BACKEND_API_URL}/engine-eval/analyze`
@@ -105,6 +118,7 @@ export class ServerEngineServiceController {
         body: JSON.stringify({
           fen_before,
           move_uci,
+          pgn,
           eval_before,
         }),
         credentials: 'include',

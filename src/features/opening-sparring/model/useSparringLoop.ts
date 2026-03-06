@@ -226,9 +226,11 @@ export function useSparringLoop() {
     recordQueue = recordQueue.then(async () => {
       try {
         const evalBeforeParam = lastEvalAfter
+        const currentPgn = pgnService.getCurrentPgnString()
         const response = (await serverEngineService.analyzeMove(
           fenBefore,
           uci,
+          currentPgn,
           evalBeforeParam,
         )) as AnalysisResponse
 
@@ -244,6 +246,7 @@ export function useSparringLoop() {
               phase: 'playout',
               loading: false,
               nag: response.quality.nag,
+              quality: classifyMoveFromNag(response.quality.nag),
               chaos_index: response.quality.chaos_index,
               is_sacrifice: response.quality.is_sacrifice,
               evaluation: {
@@ -264,6 +267,16 @@ export function useSparringLoop() {
     })
 
     await recordQueue
+  }
+
+  function classifyMoveFromNag(nag: string): string {
+    if (nag === '??') return 'blunder'
+    if (nag === '?') return 'mistake'
+    if (nag === '?!') return 'inaccuracy'
+    if (nag === '!!') return 'brilliant'
+    if (nag === '!') return 'best'
+    if (nag === '!?') return 'interesting'
+    return 'good'
   }
 
   function handlePlayoutGameOver(

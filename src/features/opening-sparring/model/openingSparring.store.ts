@@ -347,7 +347,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
       })
     }
 
-    if (isDeviation.value) {
+    if (isDeviation.value && !isPlayoutMode.value) {
       badges.push({
         text: t('openingTrainer.header.deviation'),
         type: 'error',
@@ -355,7 +355,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     }
 
     if (isPlayoutMode.value) {
-      // Add NAG badges
+      // Add NAG badges (Show only if count > 0)
       const pStats = playoutStats.value
       if (pStats.brilliant > 0) badges.push({ text: `!!`, type: 'default', color: 'var(--color-nag-brilliant)', count: pStats.brilliant })
       if (pStats.best > 0) badges.push({ text: `!`, type: 'default', color: 'var(--color-nag-best)', count: pStats.best })
@@ -384,24 +384,30 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
         }
       )
     } else {
-      // Playout Mode: Show evaluation and popularity
-      const lastMove = sessionHistory.value[sessionHistory.value.length - 1]
-      const evaluation = lastMove?.evaluation
-        ? (lastMove.evaluation.score_cp / 100).toFixed(1)
+      // Playout Mode: Show evaluation only (Sticky update: show last known eval while calculating)
+      let evalMove = sessionHistory.value[sessionHistory.value.length - 1]
+
+      // If latest move is still loading its evaluation, look back for the previous one
+      if (!evalMove || !evalMove.evaluation) {
+        for (let i = sessionHistory.value.length - 2; i >= 0; i--) {
+          const m = sessionHistory.value[i]
+          if (m && m.evaluation) {
+            evalMove = m
+            break
+          }
+        }
+      }
+
+      const evaluationValue = (evalMove && evalMove.evaluation)
+        ? (evalMove.evaluation.score_cp / 100).toFixed(1)
         : '0.0'
 
       stats.push(
         {
           icon: 'advantage',
-          value: evaluation,
+          value: evaluationValue,
           label: t('puzzleInfo.evaluation'),
-          color: parseFloat(evaluation) >= 0 ? '#4caf50' : '#f44336',
-        },
-        {
-          icon: 'flash',
-          value: averagePopularity.value,
-          label: t('openingTrainer.header.popularity') || 'Popularity',
-          color: '#f0a020',
+          color: parseFloat(evaluationValue) >= 0 ? '#4caf50' : '#f44336',
         }
       )
     }

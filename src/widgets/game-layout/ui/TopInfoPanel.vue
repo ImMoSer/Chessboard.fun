@@ -250,20 +250,51 @@ const isValueHidden = computed(() => {
 
 /* --- Mobile Adaptation --- */
 @media (max-width: 768px) {
-  .info-left, .info-right {
-    min-width: auto;
+  .top-info-panel-container {
+    padding: 0 8px;
   }
 
-  .secondary-text, .info-title {
+  .info-left,
+  .info-right {
+    min-width: auto;
+    gap: 4px;
+  }
+
+  .secondary-text,
+  .info-title {
     display: none;
   }
 
   .info-right {
-    gap: 10px;
+    gap: 6px;
   }
 
   .main-value {
-    font-size: var(--font-size-large);
+    font-size: 1.1rem;
+  }
+
+  .badge-wrapper {
+    gap: 2px;
+  }
+
+  .nag-tag {
+    font-size: 11px;
+    height: 18px;
+    min-width: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .badge-count {
+    font-size: 10px;
+  }
+
+  .difficulty-tag:not(.nag-tag) {
+    font-size: 0;
+    min-width: 8px;
+    height: 8px;
+    padding: 0;
   }
 }
 </style>
