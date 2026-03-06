@@ -1,13 +1,12 @@
 import { analysisService } from '@/entities/analysis'
 import { useBoardStore, useGameStore, type IGameplayStrategy } from '@/entities/game'
 import { theoryGraphService, useTheoryStore } from '@/entities/opening'
+import { apiClient } from '@/shared/api/client'
 import logger from '@/shared/lib/logger'
 import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
 import { type SessionMove } from '@/shared/types/openingSparring.types'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
-import { gameReviewService } from '../api/GameReviewService'
-import { apiClient } from '@/shared/api/client'
 
 import { type TopInfoBadge, type TopInfoDisplay, type TopInfoStat } from '@/entities/puzzle'
 import i18n from '@/shared/config/i18n'
@@ -308,10 +307,6 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     })
   }
 
-  async function generateGameReport() {
-    return gameReviewService.generateReport(sessionHistory.value, playerColor.value)
-  }
-
   const playoutStats = computed(() => {
     const stats = {
       brilliant: 0,
@@ -451,7 +446,6 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     triggerBotMove: () => {
       console.warn('Called removed triggerBotMove from store. Use useSparringLoop instead.')
     },
-    generateGameReport,
     runFinalEvaluation,
     topInfoDisplay,
     reset,

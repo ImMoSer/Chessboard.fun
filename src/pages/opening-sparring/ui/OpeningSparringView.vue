@@ -6,12 +6,11 @@ import { AnalysisPanel, EngineLines, useAnalysisStore } from '@/features/analysi
 import { EngineSelector } from '@/features/engine'
 import { MozerBook } from '@/features/mozer-book'
 import {
-  GameReviewModal,
-  OpeningSparringSettingsModal,
-  OpeningSparringSummaryModal,
-  SessionHistoryList,
-  useOpeningSparringStore,
-  useSparringLoop
+    OpeningSparringSettingsModal,
+    OpeningSparringSummaryModal,
+    SessionHistoryList,
+    useOpeningSparringStore,
+    useSparringLoop
 } from '@/features/opening-sparring'
 import { useSmartHintStore } from '@/features/smart-hint'
 import i18n from '@/shared/config/i18n'
@@ -33,20 +32,20 @@ const loop = useSparringLoop()
 
 const isSettingsModalOpen = ref(true)
 const showSummaryModal = ref(false)
-const showReviewModal = ref(false)
 const isNavigatingToPlayout = ref(false)
 const lastSessionParams = ref<{ color: 'white' | 'black'; moves: string[]; slug?: string } | null>(null)
 
 const isExamEnding = computed(() => openingStore.isTheoryOver || openingStore.isDeviation)
 
-// Watch for game over in playout mode
+// Watch for game over in playout mode - transition to analysis/review directly
 watch(
   () => gameStore.gamePhase,
   (phase) => {
     if (phase === 'GAMEOVER' && openingStore.isPlayoutMode) {
       // Delay slightly to let board update final state/sound
-      setTimeout(() => {
-        showReviewModal.value = true
+      setTimeout(async () => {
+        openingStore.enterReviewMode()
+        await analysisStore.showPanel(true)
       }, 1000)
     }
   },
@@ -68,12 +67,11 @@ watch(
 )
 
 const showAnalysisPanel = computed(() => {
-  // Show analysis only during theory summary, NOT during playout review or Review Mode
+  // Show analysis only during theory summary, NOT during playout session
   return (
     isExamEnding.value &&
     !showSummaryModal.value &&
     !openingStore.isPlayoutMode &&
-    !showReviewModal.value &&
     !openingStore.isReviewMode
   )
 })
@@ -137,7 +135,6 @@ async function startSession(color: 'white' | 'black', moves: string[] = [], slug
   lastSessionParams.value = { color, moves, slug }
   isSettingsModalOpen.value = false
   showSummaryModal.value = false
-  showReviewModal.value = false
   analysisStore.setPlayerColor(color)
   analysisStore.hidePanel()
   smartHintStore.resetHints(3)
@@ -164,7 +161,6 @@ async function handleNewGame() {
     openingStore.reset()
     await gameStore.resetGame()
     isSettingsModalOpen.value = true
-    showReviewModal.value = false
     showSummaryModal.value = false
   }
 }
@@ -177,7 +173,6 @@ async function handleRestart() {
   if (confirmed === 'confirm') {
     openingStore.reset()
     await gameStore.resetGame()
-    showReviewModal.value = false
     showSummaryModal.value = false
     if (lastSessionParams.value) {
       await startSession(lastSessionParams.value.color, lastSessionParams.value.moves, lastSessionParams.value.slug)
@@ -185,25 +180,6 @@ async function handleRestart() {
       isSettingsModalOpen.value = true
     }
   }
-}
-
-function handleReviewRestart() {
-  showReviewModal.value = false
-  openingStore.reset()
-  gameStore.resetGame().then(() => {
-    if (lastSessionParams.value) {
-      startSession(lastSessionParams.value.color, lastSessionParams.value.moves, lastSessionParams.value.slug)
-    } else {
-      isSettingsModalOpen.value = true
-    }
-  })
-}
-
-async function handleReviewAnalyze() {
-  showReviewModal.value = false
-  openingStore.enterReviewMode()
-  // Start engine
-  await analysisStore.showPanel(true)
 }
 
 function handleSummaryPlayout() {
@@ -298,12 +274,6 @@ function goBack() {
           <EngineSelector />
         </template>
       </OpeningSparringSummaryModal>
-      <GameReviewModal
-        :show="showReviewModal"
-        @close="showReviewModal = false"
-        @restart="handleReviewRestart"
-        @analyze="handleReviewAnalyze"
-      />
     </template>
 
     <template #top-info>
