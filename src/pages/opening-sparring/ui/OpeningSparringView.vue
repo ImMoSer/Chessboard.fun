@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import { useGameStore } from '@/entities/game'
 import { theoryGraphService } from '@/entities/opening'
-import { AnalysisPanel, EngineLines, useAnalysisStore } from '@/features/analysis'
+import { AnalysisPanel, useAnalysisStore } from '@/features/analysis'
 import { EngineSelector } from '@/features/engine'
 import { MozerBook } from '@/features/mozer-book'
 import {
@@ -67,23 +67,14 @@ watch(
 )
 
 const showAnalysisPanel = computed(() => {
-  // Show analysis only during theory summary, NOT during playout session
-  return (
-    isExamEnding.value &&
-    !showSummaryModal.value &&
-    !openingStore.isPlayoutMode &&
-    !openingStore.isReviewMode
-  )
+  return openingStore.isReviewMode
 })
 
 watch(showAnalysisPanel, (val) => {
   if (val) {
     analysisStore.showPanel(true)
   } else {
-    // Only hide if we are NOT in review mode (review mode handles analysis manually)
-    if (!openingStore.isReviewMode) {
-      analysisStore.hidePanel()
-    }
+    analysisStore.hidePanel()
   }
 })
 
@@ -189,6 +180,7 @@ function handleSummaryPlayout() {
 
 function handleSummaryAnalyze() {
   showSummaryModal.value = false
+  openingStore.enterReviewMode()
   gameStore.setGamePhase('GAMEOVER')
 }
 
@@ -248,7 +240,7 @@ function goBack() {
   <GameLayout>
     <template #left-panel>
       <div class="left-panel-content">
-        <AnalysisPanel v-if="showAnalysisPanel" style="margin-bottom: 12px; flex-shrink: 0" />
+        <AnalysisPanel v-if="showAnalysisPanel" :show-pgn="false" style="margin-bottom: 12px; flex-shrink: 0" />
 
         <div class="mozer-book-wrapper">
           <MozerBook
@@ -289,10 +281,6 @@ function goBack() {
     </template>
 
     <template #right-panel>
-      <div v-if="openingStore.isReviewMode" class="review-engine-container">
-        <EngineLines />
-      </div>
-
       <SessionHistoryList />
 
       <div v-if="openingStore.error" class="error-msg">

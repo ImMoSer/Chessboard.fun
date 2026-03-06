@@ -8,6 +8,12 @@ import { NButton, NButtonGroup, NIcon, NScrollbar, NSelect, NText, NTooltip } fr
 import { storeToRefs } from 'pinia'
 import { computed, h, onUnmounted, type FunctionalComponent } from 'vue'
 
+const props = withDefaults(defineProps<{
+  showPgn?: boolean
+}>(), {
+  showPgn: true
+})
+
 const analysisStore = useAnalysisStore()
 const boardStore = useBoardStore()
 
@@ -165,7 +171,7 @@ const PgnRenderer: FunctionalComponent<{ nodes: PgnNode[]; pathPrefix?: string }
     <EngineLines />
 
     <transition name="fade-slide">
-      <div v-if="isAnalysisActive" class="analysis-body">
+      <div v-if="isAnalysisActive && props.showPgn" class="analysis-body">
         <!-- PGN Display -->
         <div class="pgn-wrapper" @wheel="handlePgnWheelNavigation">
           <n-scrollbar class="pgn-scroll">
