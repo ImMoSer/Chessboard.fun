@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { type SessionMove } from '@/shared/types/openingSparring.types'
+import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
 import {
     NDataTable,
     NTag,
@@ -71,11 +72,24 @@ const getQualityColor = (nag?: string) => {
 
 const renderMoveCell = (move: SessionMove | null) => {
   if (!move) return null
+
+  // Ensure reactivity on pgn changes
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _v = pgnTreeVersion.value
+
   const globalIndex = openingStore.sessionHistory.indexOf(move)
-  const isActive = openingStore.isReviewMode && openingStore.reviewMoveIndex === globalIndex
+  const currentNode = pgnService.getCurrentNode()
+  const isCurrentNode = currentNode && currentNode.ply === move.ply
+
+  const isReviewActive = openingStore.isReviewMode && openingStore.reviewMoveIndex === globalIndex
+  const isActive = isReviewActive || isCurrentNode
 
   // Render Checkmark for OK
   const isOk = move.nag === 'OK'
+
+  const background = isActive ? (isCurrentNode ? 'rgba(0, 163, 255, 0.3)' : 'var(--color-accent)') : 'transparent'
+  const border = isCurrentNode ? '1px solid rgba(0, 163, 255, 0.3)' : '1px solid transparent'
+  const boxShadow = isCurrentNode ? '0 0 10px rgba(0, 163, 255, 0.4)' : 'none'
 
   return h(
     'div',
@@ -85,11 +99,15 @@ const renderMoveCell = (move: SessionMove | null) => {
         alignItems: 'center',
         gap: '4px',
         cursor: openingStore.isReviewMode ? 'pointer' : 'default',
-        background: isActive ? 'var(--color-accent)' : 'transparent',
+        background,
+        border,
+        boxShadow,
         padding: '2px 4px',
         borderRadius: '4px',
-        color: isActive ? '#fff' : 'inherit',
+        color: isActive ? (isCurrentNode ? 'var(--color-neon-cyan)' : '#fff') : 'inherit',
         justifyContent: 'center',
+        margin: '0 2px',
+        transition: 'all 0.2s ease',
       },
       onClick: openingStore.isReviewMode
         ? () => openingStore.setReviewMove(globalIndex)
@@ -98,7 +116,7 @@ const renderMoveCell = (move: SessionMove | null) => {
     [
       h(
         NText,
-        { strong: true, style: { color: isActive ? '#fff' : 'inherit', fontSize: '13px' } },
+        { strong: true, style: { color: isActive ? (isCurrentNode ? 'var(--color-neon-cyan)' : '#fff') : 'inherit', fontSize: '13px' } },
         { default: () => move.san || move.moveUci },
       ),
       isOk
