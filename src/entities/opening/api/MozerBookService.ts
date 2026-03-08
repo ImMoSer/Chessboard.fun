@@ -35,14 +35,13 @@ class MozerBookService {
 
   async fetchStats(cleanFen: string): Promise<MozerBookResponse | null> {
     try {
-      const response = await fetch(`${this.BACKEND_URL}/opening/mozer_book`, {
-        method: 'POST',
+      const params = new URLSearchParams({ fen: cleanFen })
+      const response = await fetch(`${this.BACKEND_URL}/opening/mozer_book?${params.toString()}`, {
+        method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
           Accept: 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({ fen: cleanFen }),
       })
 
       if (!response.ok) throw new Error(`MozerBook API Error: ${response.statusText}`)

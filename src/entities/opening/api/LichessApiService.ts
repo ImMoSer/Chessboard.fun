@@ -41,14 +41,16 @@ class LichessApiService {
     try {
       const ratingRange = params?.ratingRange || '1000-1499'
 
-      const response = await fetch(`${this.BACKEND_URL}/opening/player`, {
-        method: 'POST',
+      const queryParams = new URLSearchParams({
+        fen: cleanFen,
+        rating_range: ratingRange,
+      })
+      const response = await fetch(`${this.BACKEND_URL}/opening/player?${queryParams.toString()}`, {
+        method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
           Accept: 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({ fen: cleanFen, rating_range: ratingRange }),
       })
 
       if (!response.ok) throw new Error(`Player API Error: ${response.statusText}`)

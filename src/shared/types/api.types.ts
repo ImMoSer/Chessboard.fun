@@ -1,7 +1,7 @@
 // src/types/api.types.ts
 
 // --- Engine and Gameplay Types ---
-export type EngineId = 'SF_2200' | 'MOZER_1900' | 'MOZER_2000' | 'maia_2200'
+export type EngineId = 'SF_2200' | 'maia-1900' | 'badgyal-8' | 'maia-2200'
 
 export type Color = 'white' | 'black'
 

@@ -58,14 +58,13 @@ class DiamondApiService {
     }
 
     try {
-      const response = await fetch(`${this.BACKEND_URL}/diamond/${color}`, {
-        method: 'POST',
+      const params = new URLSearchParams({ fen: cleanFen })
+      const response = await fetch(`${this.BACKEND_URL}/diamond/${color}?${params.toString()}`, {
+        method: 'GET',
         headers: {
-          'Content-Type': 'application/json',
           Accept: 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({ fen: cleanFen }),
       })
 
       if (!response.ok) throw new Error(`Diamond Gravity API Error: ${response.statusText}`)

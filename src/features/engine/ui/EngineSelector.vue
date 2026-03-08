@@ -18,9 +18,9 @@ const availableEngines = computed(() => engineStore.availableEngines)
 const selectedEngine = computed(() => engineStore.selectedEngine)
 
 const engineNames: Record<EngineId, string> = {
-  MOZER_2000: 'BadGyal-8',
-  MOZER_1900: 'Maia-1900',
-  maia_2200: 'Maia-2200',
+  'badgyal-8': 'BadGyal-8',
+  'maia-1900': 'Maia-1900',
+  'maia-2200': 'Maia-2200',
   SF_2200: 'Stockfish (depth:10)',
 }
 
