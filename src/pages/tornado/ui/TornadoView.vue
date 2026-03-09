@@ -2,17 +2,67 @@
 <script setup lang="ts">
 import { useGameStore } from '@/entities/game'
 import { AnalysisPanel } from '@/features/analysis'
-import { UserProfileWidget } from '@/features/profile'
+import { UserProfileWidget, ThemeRoseChart } from '@/features/profile'
 import { useTornadoStore, type TornadoMode } from '@/features/tornado'
 import { useSmartHintStore } from '@/features/smart-hint'
-import { onMounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed, onMounted, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { ControlPanel, GameLayout, TopInfoPanel, useControlsStore } from '@/widgets/game-layout'
+import { useDetailedStatsQuery } from '@/shared/api/queries/userCabinet.queries'
+import { normalizeProfileStats } from '@/shared/lib/statsNormalizer'
+import { useAuthStore } from '@/entities/user'
+import type { GameLaunchOptions } from '@/shared/types/api.types'
 
 const tornadoStore = useTornadoStore()
 const controlsStore = useControlsStore()
 const smartHintStore = useSmartHintStore()
+const gameStore = useGameStore()
+const authStore = useAuthStore()
 const route = useRoute()
+const router = useRouter()
+const { t } = useI18n()
+
+const { data: detailedStatsData } = useDetailedStatsQuery()
+
+const normalizedStats = computed(() => {
+  const baseRating = authStore.userProfile?.base_puzzle_rating || 1000
+  return normalizeProfileStats(detailedStatsData.value || null, baseRating)
+})
+
+const activeModeStr = computed({
+  get: () => route.params.mode as string,
+  set: (val: string) => {
+    // Wenn der User über die Radio-Buttons im Chart den Modus wechselt,
+    // navigieren wir einfach dorthin.
+    router.push({ name: 'tornado', params: { mode: val } })
+  }
+})
+
+const currentTornadoThemes = computed(() => {
+  const mode = route.params.mode as TornadoMode
+  if (!normalizedStats.value?.tornado?.modes) return []
+  return normalizedStats.value.tornado.modes[mode] || []
+})
+
+const handleImprove = (options: GameLaunchOptions) => {
+  if (options.mode === 'tornado') {
+    if (!options.subMode) {
+      throw new Error('[TornadoView] handleImprove was called without a subMode!')
+    }
+    
+    // Tornado restart logic uses router or store
+    router.push({
+      name: 'tornado',
+      params: { mode: options.subMode },
+      query: options.theme ? { theme: options.theme } : {},
+    }).then(() => {
+      // Wichtig: Da wir auf der gleichen Route bleiben (nur params/query ändern sich),
+      // müssen wir den Store manuell neustarten, da onMounted nicht feuert.
+      tornadoStore.startSession(options.subMode as TornadoMode, options.theme)
+    })
+  }
+}
 
 onMounted(() => {
   const mode = route.params.mode as TornadoMode
@@ -31,8 +81,6 @@ watch(
     }
   }
 )
-
-const gameStore = useGameStore()
 
 watch(
   () => [tornadoStore.isSessionActive, gameStore.gamePhase],
@@ -72,7 +120,16 @@ watch(
 
     <template #right-panel>
       <div class="panel-content-wrapper">
-        <AnalysisPanel />
+        <AnalysisPanel v-if="gameStore.gamePhase === 'GAMEOVER' || gameStore.gamePhase === 'IDLE'" />
+        <ThemeRoseChart
+          v-if="normalizedStats && normalizedStats.tornado"
+          v-model:activeMode="activeModeStr"
+          mode="tornado"
+          :modes="['bullet', 'blitz', 'rapid', 'classic']"
+          :themes="currentTornadoThemes"
+          :title="t('userCabinet.stats.modes.tornado')"
+          @improve="handleImprove"
+        />
       </div>
     </template>
   </GameLayout>
@@ -84,5 +141,6 @@ watch(
   flex-direction: column;
   gap: 10px;
   height: 100%;
+  overflow-y: auto;
 }
 </style>

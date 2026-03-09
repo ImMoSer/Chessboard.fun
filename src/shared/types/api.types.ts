@@ -379,6 +379,7 @@ export interface UserStatsUpdate {
   spentToday?: number
   today_activity?: TodayActivity
   finish_him?: FinishHimProfileDto
+  tornado?: TornadoProfileDto
   tornadoHighScores?: {
     blitz?: number
     rapid?: number

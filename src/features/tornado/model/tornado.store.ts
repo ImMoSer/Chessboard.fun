@@ -15,6 +15,8 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTornadoQueries } from '../api/tornado.queries'
+import { useQueryClient } from '@tanstack/vue-query'
+import type { UserProfileStatsDto } from '@/shared/types/api.types'
 
 export type { TornadoMode } from '@/shared/types/api.types'
 
@@ -36,6 +38,7 @@ export const useTornadoStore = defineStore('tornado', () => {
   const router = useRouter()
   const uiStore = useUiStore()
   const authStore = useAuthStore()
+  const queryClient = useQueryClient()
 
   const { startSessionMutation, endSessionMutation } = useTornadoQueries()
 
@@ -178,7 +181,7 @@ export const useTornadoStore = defineStore('tornado', () => {
     feedbackMessage.value = message
 
     try {
-      await endSessionMutation.mutateAsync({
+      const response = await endSessionMutation.mutateAsync({
         mode: mode.value,
         dto: {
           sessionId: sessionId.value,
@@ -186,6 +189,20 @@ export const useTornadoStore = defineStore('tornado', () => {
           results: pendingResults.value,
         },
       })
+      
+      if (response && response.userStatsUpdate) {
+        authStore.updateUserStats(response.userStatsUpdate)
+        
+        if (response.userStatsUpdate.tornado) {
+          queryClient.setQueryData(['user-cabinet', 'detailed-stats'], (oldData: UserProfileStatsDto | undefined) => {
+            if (!oldData) return oldData;
+            return {
+              ...oldData,
+              tornado: response.userStatsUpdate!.tornado
+            }
+          })
+        }
+      }
     } catch (error) {
       logger.error('[TornadoStore] Error ending session:', error)
     }
