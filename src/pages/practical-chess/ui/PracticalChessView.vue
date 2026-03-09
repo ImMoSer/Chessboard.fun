@@ -5,21 +5,44 @@ import { useAnalysisStore } from '@/features/analysis'
 import { usePracticalChessStore } from '@/features/practical-chess'
 import { useSmartHintStore } from '@/features/smart-hint'
 import { shareService } from '@/shared/lib/share.service'
-import { onMounted, watch } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import { AnalysisPanel } from '@/features/analysis'
-import { UserProfileWidget } from '@/features/profile'
+import { UserProfileWidget, TheoryStackbarChart } from '@/features/profile'
 import { YouMoveSelection } from '@/features/practical-chess'
 import { ControlPanel, GameLayout, TopInfoPanel, useControlsStore } from '@/widgets/game-layout'
+import { useDetailedStatsQuery } from '@/shared/api/queries/userCabinet.queries'
+import { normalizeProfileStats } from '@/shared/lib/statsNormalizer'
+import { useAuthStore } from '@/entities/user'
+import type { GameLaunchOptions, PracticalChessDifficulty, PracticalChessCategory } from '@/shared/types/api.types'
 
 const practicalStore = usePracticalChessStore()
 const gameStore = useGameStore()
 const controlsStore = useControlsStore()
 const analysisStore = useAnalysisStore()
 const smartHintStore = useSmartHintStore()
+const authStore = useAuthStore()
 const router = useRouter()
 const route = useRoute()
+
+const { data: detailedStatsData } = useDetailedStatsQuery()
+
+const normalizedStats = computed(() => {
+  const baseRating = authStore.userProfile?.base_puzzle_rating || 1000
+  return normalizeProfileStats(detailedStatsData.value || null, baseRating)
+})
+
+const handleImprove = (options: GameLaunchOptions) => {
+  if (options.mode === 'practical') {
+    if (!options.theme || !options.difficulty) {
+      throw new Error('[PracticalChessView] handleImprove was called with missing options!')
+    }
+    practicalStore.selectDifficulty(options.difficulty as PracticalChessDifficulty)
+    practicalStore.selectCategory(options.theme as PracticalChessCategory)
+    practicalStore.loadNewPuzzle()
+  }
+}
 
 onMounted(() => {
   const id = route.params.id as string
@@ -120,6 +143,12 @@ watch(
     <template #right-panel>
       <div class="right-panel-content-wrapper">
         <AnalysisPanel v-if="analysisStore.isPanelVisible" />
+        <TheoryStackbarChart
+          v-if="normalizedStats && normalizedStats.practical"
+          :stats="normalizedStats.practical.stats"
+          mode="practical"
+          @improve="handleImprove"
+        />
       </div>
     </template>
   </GameLayout>
@@ -131,5 +160,6 @@ watch(
   flex-direction: column;
   gap: 10px;
   height: 100%;
+  overflow-y: auto;
 }
 </style>

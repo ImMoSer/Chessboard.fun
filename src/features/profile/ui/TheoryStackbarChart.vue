@@ -10,7 +10,7 @@ import {
 } from 'echarts/components'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
-import { computed, onMounted, onUnmounted, ref, type PropType } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, type PropType } from 'vue'
 import VChart from 'vue-echarts'
 import { useI18n } from 'vue-i18n'
 import type { GameLaunchOptions } from '@/shared/types/api.types'
@@ -257,8 +257,8 @@ const onChartClick = (params: unknown) => {
 
   activePopup.value = {
     visible: true,
-    x,
-    y,
+    x: x + 10,
+    y: y + 10,
     data: {
       title: themeName,
       items,
@@ -266,6 +266,33 @@ const onChartClick = (params: unknown) => {
       clickedDifficulty: difficulty,
     },
   }
+
+  nextTick(() => {
+    if (popupRef.value) {
+      const rect = popupRef.value.getBoundingClientRect()
+      let safeX = activePopup.value.x
+      let safeY = activePopup.value.y
+
+      const padding = 10
+
+      // Check right boundary
+      if (safeX + rect.width + padding > window.innerWidth) {
+        safeX = window.innerWidth - rect.width - padding
+      }
+
+      // Check bottom boundary
+      if (safeY + rect.height + padding > window.innerHeight) {
+        safeY = window.innerHeight - rect.height - padding
+      }
+
+      // Prevent going off-screen to the left or top
+      if (safeX < padding) safeX = padding
+      if (safeY < padding) safeY = padding
+
+      activePopup.value.x = safeX
+      activePopup.value.y = safeY
+    }
+  })
 }
 
 const onImproveClick = () => {
@@ -360,8 +387,8 @@ const onImproveClick = () => {
         ref="popupRef"
         class="chart-popup"
         :style="{
-          top: `${activePopup.y + 10}px`,
-          left: `${activePopup.x + 10}px`,
+          top: `${activePopup.y}px`,
+          left: `${activePopup.x}px`,
         }"
       >
         <div class="popup-header">

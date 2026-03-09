@@ -24,6 +24,8 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTheoryEndingsQueries } from '../api/theoryEndings.queries'
+import { useQueryClient } from '@tanstack/vue-query'
+import type { UserProfileStatsDto } from '@/shared/types/api.types'
 const t = i18n.global.t
 
 export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
@@ -31,6 +33,7 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
   const authStore = useAuthStore()
   const router = useRouter()
   const uiStore = useUiStore()
+  const queryClient = useQueryClient()
   const activePuzzle = ref<TheoryPuzzle | null>(null)
   const activeType = ref<TheoryEndingType | null>(null)
   const activeDifficulty = ref<TheoryEndingDifficulty | null>(null)
@@ -113,6 +116,16 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
       const response = await resultMutation.mutateAsync(dto)
       if (response && response.userStatsUpdate) {
         authStore.updateUserStats(response.userStatsUpdate)
+        
+        if (response.userStatsUpdate.theory) {
+          queryClient.setQueryData(['user-cabinet', 'detailed-stats'], (oldData: UserProfileStatsDto | undefined) => {
+            if (!oldData) return oldData;
+            return {
+              ...oldData,
+              theory: response.userStatsUpdate!.theory
+            }
+          })
+        }
       } else {
         await authStore.checkSession()
       }

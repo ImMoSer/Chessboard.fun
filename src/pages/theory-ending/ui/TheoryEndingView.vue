@@ -5,22 +5,47 @@ import { useAnalysisStore } from '@/features/analysis'
 import { useTheoryEndingsStore } from '@/features/theory-endings'
 import { useSmartHintStore } from '@/features/smart-hint'
 import { shareService } from '@/shared/lib/share.service'
-import { onMounted, watch } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import type { TheoryEndingType } from '@/shared/types/api.types'
+import type { TheoryEndingType, GameLaunchOptions, TheoryEndingDifficulty, TheoryEndingCategory } from '@/shared/types/api.types'
 
 import { AnalysisPanel } from '@/features/analysis'
-import { UserProfileWidget } from '@/features/profile'
+import { UserProfileWidget, TheoryStackbarChart } from '@/features/profile'
 import { ControlPanel, GameLayout, TopInfoPanel, useControlsStore } from '@/widgets/game-layout'
+import { useDetailedStatsQuery } from '@/shared/api/queries/userCabinet.queries'
+import { normalizeProfileStats } from '@/shared/lib/statsNormalizer'
+import { useAuthStore } from '@/entities/user'
 
 const theoryStore = useTheoryEndingsStore()
 const gameStore = useGameStore()
 const controlsStore = useControlsStore()
 const analysisStore = useAnalysisStore()
 const smartHintStore = useSmartHintStore()
+const authStore = useAuthStore()
 const router = useRouter()
 const route = useRoute()
+
+const { data: detailedStatsData } = useDetailedStatsQuery()
+
+const normalizedStats = computed(() => {
+  const baseRating = authStore.userProfile?.base_puzzle_rating || 1000
+  return normalizeProfileStats(detailedStatsData.value || null, baseRating)
+})
+
+const handleImprove = (options: GameLaunchOptions) => {
+  if (options.mode === 'theory') {
+    if (!options.theme || !options.difficulty || !options.type) {
+      throw new Error('[TheoryEndingView] handleImprove was called with missing options!')
+    }
+    theoryStore.setParams(
+      options.type as TheoryEndingType,
+      options.difficulty as TheoryEndingDifficulty,
+      options.theme as TheoryEndingCategory,
+    )
+    theoryStore.loadNewPuzzle(options.type as TheoryEndingType)
+  }
+}
 
 onMounted(() => {
   const type = route.params.type as TheoryEndingType
@@ -135,6 +160,12 @@ watch(
     <template #right-panel>
       <div class="right-panel-content-wrapper">
         <AnalysisPanel v-if="analysisStore.isPanelVisible" />
+        <TheoryStackbarChart
+          v-if="normalizedStats && normalizedStats.theory"
+          :stats="normalizedStats.theory.stats"
+          mode="theory"
+          @improve="handleImprove"
+        />
       </div>
     </template>
   </GameLayout>
@@ -146,5 +177,6 @@ watch(
   flex-direction: column;
   gap: 10px;
   height: 100%;
+  overflow-y: auto;
 }
 </style>

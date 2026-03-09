@@ -380,6 +380,8 @@ export interface UserStatsUpdate {
   today_activity?: TodayActivity
   finish_him?: FinishHimProfileDto
   tornado?: TornadoProfileDto
+  theory?: TheoryEndingProfileDto
+  practical?: PracticalChessProfileDto
   tornadoHighScores?: {
     blitz?: number
     rapid?: number
