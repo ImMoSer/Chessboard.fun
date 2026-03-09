@@ -47,7 +47,7 @@ export class ServerEngineServiceController {
     )
   }
 
-  public async getMoveFromServer(fen: string, engine_name: string): Promise<string | null> {
+  public async getMoveFromServer(fen: string, engine: string): Promise<string | null> {
     if (this.isThinking) {
       logger.warn(
         '[ServerEngineService] getMoveFromServer called while already thinking. Request rejected.',
@@ -57,7 +57,7 @@ export class ServerEngineServiceController {
 
     this.isThinking = true
     logger.info(
-      `[ServerEngineService] Requesting move for FEN: ${fen} using engine: ${engine_name}`,
+      `[ServerEngineService] Requesting move for FEN: ${fen} using engine: ${engine}`,
     )
 
     try {
@@ -66,7 +66,7 @@ export class ServerEngineServiceController {
 
       const params = new URLSearchParams({
         fen: fen,
-        engine_name: engine_name,
+        engine: engine,
       })
       const url = `${SERVER_ENGINE_ENDPOINT}?${params.toString()}`
 
