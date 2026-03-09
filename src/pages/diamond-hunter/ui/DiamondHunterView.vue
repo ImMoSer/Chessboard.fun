@@ -65,32 +65,35 @@ onUnmounted(() => {
 async function startSession(color: 'white' | 'black') {
   isSettingsModalOpen.value = false
   isAnalysisView.value = false
+
+  // 1. Setup Analysis and Strategy EARLY to avoid race conditions
+  // Setting player color must happen BEFORE starting the hunt because
+  // startHunt() triggers updateArrows() which requires playerColor.
   analysisStore.setPlayerColor(color)
-  // analysisStore.showPanel() // Maybe hide analysis panel initiates to keep it clean?
-  // User said "other functions not needed". Analysis might give away answers.
-  // Although "Solving" phase assumes user finds move. Analysis engine would cheat.
-  // So likely hide analysis.
   analysisStore.hidePanel()
 
+  // 2. Start the hunt (Authorization & State Setup)
+  const success = await diamondHunterStore.startHunt()
+  if (!success) return
 
   router.replace({
     name: 'diamond-hunter',
     params: { color: `for_${color}` },
   })
 
+  // 3. Create strategy and start the game engine
   const strategy = diamondHunterStore.createStrategy()
+  const STARTING_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 
   gameStore.startWithStrategy(
-    'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+    STARTING_FEN,
     strategy,
     color,
     true, // keepPgn: true
   )
 
-  // Initialize board only
-  boardStore.setupPosition('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', color)
-
-  diamondHunterStore.startHunt()
+  // 4. Initialize board visual state
+  boardStore.setupPosition(STARTING_FEN, color)
 }
 
 async function handleRestart() {
@@ -118,24 +121,8 @@ function goBack() {
     </template>
 
     <template #left-panel>
-      <!-- Analysis Mode -->
-      <div v-if="isAnalysisView" class="analysis-container">
-        <n-button
-          secondary
-          type="primary"
-          @click="handleRestart"
-          style="margin-bottom: 10px; width: 100%"
-        >
-          <template #icon
-            ><n-icon><ArrowBack /></n-icon
-          ></template>
-          Back to Hunt
-        </n-button>
-        <AnalysisPanel />
-      </div>
-
       <!-- Minimal Header (Hunt Mode) -->
-      <div v-else class="diamond-header">
+      <div v-if="!isAnalysisView" class="diamond-header">
         <div class="header-top">
           <n-button circle secondary @click="goBack">
             <template #icon
@@ -309,6 +296,22 @@ function goBack() {
     </template>
 
     <template #right-panel>
+      <!-- Analysis Mode in Right Panel for better portrait layout -->
+      <div v-if="isAnalysisView" class="analysis-container">
+        <n-button
+          secondary
+          type="primary"
+          @click="handleRestart"
+          style="margin-bottom: 10px; width: 100%"
+        >
+          <template #icon
+            ><n-icon><ArrowBack /></n-icon
+          ></template>
+          Back to Hunt
+        </n-button>
+        <AnalysisPanel style="margin-bottom: 20px;" />
+      </div>
+
       <GravityBook />
     </template>
   </GameLayout>

@@ -76,7 +76,7 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
     return response
   }
 
-  async function startHunt() {
+  async function startHunt(): Promise<boolean> {
     logger.info('DiamondHunter: Starting hunt')
     reset()
 
@@ -86,14 +86,15 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
       const err = e as Error
       if (err.message === 'Insufficient PawnCoins') {
         message.value = 'Insufficient PawnCoins to start Diamond Hunter!'
-        return
+        return false
       }
       message.value = 'Failed to start Diamond Hunter session.'
-      return
+      return false
     }
 
     state.value = 'HUNTING'
     message.value = 'Hunt started! Follow the arrows...'
+    return true
   }
 
   // --- Reactive UI Sync ---
