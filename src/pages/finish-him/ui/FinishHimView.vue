@@ -147,7 +147,7 @@ watch(
       <div class="right-panel-content-wrapper">
         <AnalysisPanel v-if="analysisStore.isPanelVisible" />
         <ThemeRoseChart
-          v-else-if="normalizedStats && normalizedStats.finish_him"
+          v-if="normalizedStats && normalizedStats.finish_him"
           v-model:activeMode="finishHimStore.selectedDifficulty"
           mode="finish_him"
           :modes="['Novice', 'Pro', 'Master']"
@@ -166,5 +166,6 @@ watch(
   flex-direction: column;
   gap: 10px;
   height: 100%;
+  overflow-y: auto;
 }
 </style>
