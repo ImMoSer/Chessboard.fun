@@ -5,20 +5,50 @@ import { useAnalysisStore } from '@/features/analysis'
 import { useFinishHimStore } from '@/features/finish-him'
 import { shareService } from '@/shared/lib/share.service'
 import { useSmartHintStore } from '@/features/smart-hint'
-import { onMounted, watch } from 'vue'
+import { onMounted, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
 import { AnalysisPanel } from '@/features/analysis'
-import { UserProfileWidget } from '@/features/profile'
+import { UserProfileWidget, ThemeRoseChart } from '@/features/profile'
 import { ControlPanel, GameLayout, TopInfoPanel, useControlsStore } from '@/widgets/game-layout'
+import { useDetailedStatsQuery } from '@/shared/api/queries/userCabinet.queries'
+import { normalizeProfileStats } from '@/shared/lib/statsNormalizer'
+import { useAuthStore } from '@/entities/user'
+import type { GameLaunchOptions, FinishHimDifficulty } from '@/shared/types/api.types'
 
 const finishHimStore = useFinishHimStore()
 const gameStore = useGameStore()
 const controlsStore = useControlsStore()
 const analysisStore = useAnalysisStore()
 const smartHintStore = useSmartHintStore()
+const authStore = useAuthStore()
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
+
+const { data: detailedStatsData } = useDetailedStatsQuery()
+
+const normalizedStats = computed(() => {
+  const baseRating = authStore.userProfile?.base_puzzle_rating || 1000
+  return normalizeProfileStats(detailedStatsData.value || null, baseRating)
+})
+
+const currentFinishHimThemes = computed(() => {
+  if (!normalizedStats.value?.finish_him?.modes) return []
+  return normalizedStats.value.finish_him.modes[finishHimStore.selectedDifficulty] || []
+})
+
+const handleImprove = (options: GameLaunchOptions) => {
+  if (options.mode === 'finish_him') {
+    if (!options.subMode) {
+      throw new Error('[FinishHimView] handleImprove was called without a subMode (difficulty)!')
+    }
+    
+    finishHimStore.setParams(options.theme, options.subMode as FinishHimDifficulty)
+    finishHimStore.loadNewPuzzle()
+  }
+}
 
 onMounted(() => {
   finishHimStore.initialize()
@@ -116,6 +146,15 @@ watch(
     <template #right-panel>
       <div class="right-panel-content-wrapper">
         <AnalysisPanel v-if="analysisStore.isPanelVisible" />
+        <ThemeRoseChart
+          v-else-if="normalizedStats && normalizedStats.finish_him"
+          v-model:activeMode="finishHimStore.selectedDifficulty"
+          mode="finish_him"
+          :modes="['Novice', 'Pro', 'Master']"
+          :themes="currentFinishHimThemes"
+          :title="t('userCabinet.stats.modes.finishHim')"
+          @improve="handleImprove"
+        />
       </div>
     </template>
   </GameLayout>

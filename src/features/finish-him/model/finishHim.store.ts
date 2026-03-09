@@ -15,6 +15,7 @@ import type {
     FinishHimDifficulty,
     FinishHimPuzzle,
     FinishHimResultDto,
+    UserProfileStatsDto,
 } from '@/shared/types/api.types'
 import { useUiStore } from '@/shared/ui/model/ui.store'
 import { parseFen } from 'chessops/fen'
@@ -22,6 +23,8 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useFinishHimQueries } from '../api/finishHim.queries'
+import { useQueryClient } from '@tanstack/vue-query'
+
 const t = i18n.global.t
 
 export const useFinishHimStore = defineStore('finishHim', () => {
@@ -29,6 +32,7 @@ export const useFinishHimStore = defineStore('finishHim', () => {
   const router = useRouter()
   const gameStore = useGameStore()
   const authStore = useAuthStore()
+  const queryClient = useQueryClient()
   const activePuzzle = ref<FinishHimPuzzle | null>(null)
   const feedbackMessage = ref(t('finishHim.feedback.pressNext'))
 
@@ -150,6 +154,16 @@ export const useFinishHimStore = defineStore('finishHim', () => {
       if (response && response.userStatsUpdate) {
         logger.info('[FinishHimStore] Stats sent and userStatsUpdate received.')
         authStore.updateUserStats(response.userStatsUpdate)
+        
+        if (response.userStatsUpdate?.finish_him) {
+           queryClient.setQueryData(['user-cabinet', 'detailed-stats'], (oldData: UserProfileStatsDto | undefined) => {
+              if (!oldData) return oldData;
+              return {
+                 ...oldData,
+                 finish_him: response.userStatsUpdate!.finish_him
+              }
+           })
+        }
       } else {
         logger.warn(
           '[FinishHimStore] Did not receive userStatsUpdate, falling back to full profile refresh.',
