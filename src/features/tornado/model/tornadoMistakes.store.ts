@@ -3,6 +3,7 @@ import { useGameStore, type IGameplayStrategy } from '@/entities/game'
 import i18n from '@/shared/config/i18n'
 import { soundService } from '@/shared/lib/sound.service'
 import type { GamePuzzle } from '@/shared/types/api.types'
+import { parseFen } from 'chessops/fen'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
@@ -12,16 +13,21 @@ export const useTornadoMistakesStore = defineStore('tornado-mistakes', () => {
 
   const gameStore = useGameStore()
 
-
   const mistakes = ref<GamePuzzle[]>([])
   const solvedStatus = ref<Record<string, boolean>>({})
   const selectedPuzzleId = ref<string | null>(null)
   const feedbackMessage = ref(t('tornado.mistakes.feedback.selectPuzzle'))
   const isAttemptMade = ref(false)
 
-  const selectedPuzzle = computed(() => mistakes.value.find((p) => p.PuzzleId === selectedPuzzleId.value) || null)
-  const unsolvedMistakes = computed(() => mistakes.value.filter((p) => !solvedStatus.value[p.PuzzleId]))
-  const allMistakesSolved = computed(() => mistakes.value.length > 0 && mistakes.value.every((p) => solvedStatus.value[p.PuzzleId]))
+  const selectedPuzzle = computed(() => 
+    mistakes.value.find((p) => (p.PuzzleId || p.puzzle_id) === selectedPuzzleId.value) || null
+  )
+  const unsolvedMistakes = computed(() => 
+    mistakes.value.filter((p) => !solvedStatus.value[p.PuzzleId || p.puzzle_id || ''])
+  )
+  const allMistakesSolved = computed(() => 
+    mistakes.value.length > 0 && mistakes.value.every((p) => solvedStatus.value[p.PuzzleId || p.puzzle_id || ''])
+  )
 
   function loadMistakes() {
     const stored = localStorage.getItem(MISTAKES_STORAGE_KEY)
@@ -30,7 +36,8 @@ export const useTornadoMistakesStore = defineStore('tornado-mistakes', () => {
         const parsed = JSON.parse(stored) as GamePuzzle[]
         mistakes.value = parsed
         parsed.forEach(p => {
-          solvedStatus.value[p.PuzzleId] = false
+          const id = p.PuzzleId || p.puzzle_id
+          if (id) solvedStatus.value[id] = false
         })
         return true
       } catch (e) {
@@ -49,11 +56,16 @@ export const useTornadoMistakesStore = defineStore('tornado-mistakes', () => {
 
   function selectPuzzle(puzzle: GamePuzzle) {
     isAttemptMade.value = false
-    selectedPuzzleId.value = puzzle.PuzzleId
+    selectedPuzzleId.value = puzzle.PuzzleId || puzzle.puzzle_id || null
     feedbackMessage.value = t('tornado.mistakes.feedback.yourTurn')
 
     const fen = puzzle.FEN_0 || puzzle.initial_fen || ''
-    gameStore.startWithStrategy(fen, createStrategy(puzzle), 'white')
+    
+    // Determine human color as opposite of FEN turn (consistent with Tornado/FinishHim)
+    const setup = parseFen(fen).unwrap()
+    const humanColor = setup.turn === 'white' ? 'black' : 'white'
+    
+    gameStore.startWithStrategy(fen, createStrategy(puzzle), humanColor)
   }
 
   function createStrategy(puzzle: GamePuzzle): IGameplayStrategy {
@@ -77,7 +89,8 @@ export const useTornadoMistakesStore = defineStore('tornado-mistakes', () => {
       },
       async onUserMoveExecuted() {
         if (moveIndex >= moves.length) {
-          solvedStatus.value[puzzle.PuzzleId] = true
+          const id = puzzle.PuzzleId || puzzle.puzzle_id
+          if (id) solvedStatus.value[id] = true
           soundService.playSound('game_tacktics_success')
           feedbackMessage.value = t('tornado.mistakes.feedback.solved')
         }

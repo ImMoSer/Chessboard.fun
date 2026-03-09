@@ -234,6 +234,7 @@ export interface GamePuzzle {
   puzzle_id?: string
   initial_fen?: string
   tactical_solution?: string
+  tactical_rating?: number
   winner?: string // for Practical
   weak_side?: string // for Theory
   result?: string // for Theory

@@ -11,6 +11,29 @@ import { onBeforeRouteLeave, useRouter } from 'vue-router'
 
 import { useTornadoMistakesStore } from '@/features/tornado'
 import type { GamePuzzle } from '@/shared/types/api.types'
+
+import {
+  NCard,
+  NButton,
+  NStatistic,
+  NScrollbar,
+  NEmpty,
+  NIcon,
+  NTag,
+  NGrid,
+  NGridItem,
+  NText,
+  NSpace,
+  } from 'naive-ui'
+import {
+  AnalyticsOutline,
+  PlayForwardOutline,
+  ExitOutline,
+  RibbonOutline,
+  InformationCircleOutline,
+  FileTrayOutline,
+} from '@vicons/ionicons5'
+
 // --- STORES ---
 const gameStore = useGameStore()
 const analysisStore = useAnalysisStore()
@@ -21,7 +44,7 @@ const { t } = useI18n()
 
 // --- COMPUTED ---
 const formattedThemes = computed(() => {
-  if (!mistakesStore.selectedPuzzle) return ''
+  if (!mistakesStore.selectedPuzzle) return []
 
   let themesList: string[] = []
   const selectedPuzzle = mistakesStore.selectedPuzzle
@@ -29,29 +52,25 @@ const formattedThemes = computed(() => {
   if (selectedPuzzle.Themes_PG && Array.isArray(selectedPuzzle.Themes_PG)) {
     themesList = selectedPuzzle.Themes_PG
   } else if (selectedPuzzle.Themes) {
-    // Handle both space and comma separated strings
     themesList = selectedPuzzle.Themes.split(/[ ,]+/).filter(Boolean)
   } else if (selectedPuzzle.themes && Array.isArray(selectedPuzzle.themes)) {
-    // Support for TornadoBox format (lowercase 'themes' array)
     themesList = selectedPuzzle.themes
   }
 
   return themesList
-    .map((theme) => {
-      return t(`chess.tornado.${theme}`)
-    })
-    .join(', ')
 })
 
 // --- METHODS ---
 function selectNextUnsolvedPuzzle() {
-  const currentIndex = mistakesStore.mistakes.findIndex((p) => p.PuzzleId === mistakesStore.selectedPuzzleId)
+  const currentIndex = mistakesStore.mistakes.findIndex(
+    (p) => (p.PuzzleId || p.puzzle_id) === mistakesStore.selectedPuzzleId,
+  )
   const nextPuzzles = [
     ...mistakesStore.mistakes.slice(currentIndex + 1),
     ...mistakesStore.mistakes.slice(0, currentIndex + 1),
   ]
 
-  const nextUnsolved = nextPuzzles.find((p) => !mistakesStore.solvedStatus[p.PuzzleId])
+  const nextUnsolved = nextPuzzles.find((p) => !mistakesStore.solvedStatus[p.PuzzleId || p.puzzle_id || ''])
 
   if (nextUnsolved) {
     handleSelectPuzzle(nextUnsolved)
@@ -108,223 +127,366 @@ async function handleExit() {
 <template>
   <GameLayout>
     <template #left-panel>
-      <div class="mistakes-list-container">
-        <h4>{{ t('tornado.mistakes.title') }}</h4>
-        <div class="mistakes-list-scrollable">
-          <div
-            v-for="puzzle in mistakesStore.unsolvedMistakes"
-            :key="puzzle.PuzzleId"
-            class="mistake-item"
-            :class="{
-              active: puzzle.PuzzleId === mistakesStore.selectedPuzzleId,
-              solved: mistakesStore.solvedStatus[puzzle.PuzzleId],
-              unsolved: !mistakesStore.solvedStatus[puzzle.PuzzleId],
-            }"
-            @click="handleSelectPuzzle(puzzle)"
+      <n-card class="mistakes-glass-panel" :bordered="false" size="small">
+        <template #header>
+          <n-space align="center" justify="center" :size="8">
+            <n-icon color="var(--color-neon-pink)">
+              <FileTrayOutline />
+            </n-icon>
+            <n-text strong class="panel-title">{{ t('tornado.mistakes.title') }}</n-text>
+          </n-space>
+        </template>
+
+        <n-scrollbar style="max-height: calc(100vh - 200px)">
+          <div v-if="mistakesStore.unsolvedMistakes.length > 0" class="mistakes-grid">
+            <div
+              v-for="puzzle in mistakesStore.unsolvedMistakes"
+              :key="puzzle.PuzzleId || puzzle.puzzle_id"
+              class="mistake-item-wrapper"
+              :class="{
+                active: (puzzle.PuzzleId || puzzle.puzzle_id) === mistakesStore.selectedPuzzleId,
+                solved: mistakesStore.solvedStatus[puzzle.PuzzleId || puzzle.puzzle_id || ''],
+              }"
+              @click="handleSelectPuzzle(puzzle)"
+            >
+              <ChessboardPreview
+                :fen="puzzle.FEN_0 || puzzle.initial_fen || ''"
+                orientation="white"
+                class="mini-board"
+              />
+              <div v-if="mistakesStore.solvedStatus[puzzle.PuzzleId || puzzle.puzzle_id || '']" class="solved-overlay">
+                <n-icon size="24" color="var(--color-neon-lime)">
+                  <RibbonOutline />
+                </n-icon>
+              </div>
+            </div>
+          </div>
+          <n-empty
+            v-else
+            :description="t('tornado.mistakes.feedback.noMistakes')"
+            class="empty-mistakes"
           >
-            <ChessboardPreview
-              :fen="puzzle.FEN_0 || puzzle.initial_fen || ''"
-              orientation="white"
-            />
-          </div>
-          <div v-if="mistakesStore.mistakes.length === 0" class="no-mistakes">
-            {{ t('tornado.mistakes.feedback.noMistakes') }}
-          </div>
-        </div>
-      </div>
+            <template #icon>
+              <n-icon>
+                <RibbonOutline />
+              </n-icon>
+            </template>
+          </n-empty>
+        </n-scrollbar>
+      </n-card>
     </template>
 
     <template #top-info>
-      <div class="top-feedback-panel">
-        {{ mistakesStore.feedbackMessage }}
+      <div class="top-feedback-panel glass-header">
+        <n-text strong class="feedback-text neon-pulse">
+          {{ mistakesStore.feedbackMessage }}
+        </n-text>
+      </div>
+    </template>
+
+    <template #controls>
+      <div class="controls-glass-panel">
+        <n-grid :cols="3" :x-gap="12">
+          <n-grid-item>
+            <n-button
+              type="success"
+              block
+              secondary
+              strong
+              size="large"
+              :disabled="mistakesStore.unsolvedMistakes.length <= 1 || mistakesStore.allMistakesSolved"
+              @click="selectNextUnsolvedPuzzle"
+              class="action-button glass-btn lime"
+            >
+              <template #icon>
+                <n-icon><PlayForwardOutline /></n-icon>
+              </template>
+              {{ t('tornado.mistakes.ui.nextButton') }}
+            </n-button>
+          </n-grid-item>
+
+          <n-grid-item>
+            <n-button
+              type="primary"
+              block
+              secondary
+              strong
+              size="large"
+              :disabled="!mistakesStore.isAttemptMade"
+              @click="showAnalysis"
+              class="action-button glass-btn cyan"
+            >
+              <template #icon>
+                <n-icon><AnalyticsOutline /></n-icon>
+              </template>
+              {{ t('tornado.mistakes.ui.analysisButton') }}
+            </n-button>
+          </n-grid-item>
+
+          <n-grid-item>
+            <n-button
+              type="error"
+              block
+              secondary
+              strong
+              size="large"
+              @click="handleExit"
+              class="action-button glass-btn pink"
+            >
+              <template #icon>
+                <n-icon><ExitOutline /></n-icon>
+              </template>
+              {{ t('tornado.mistakes.ui.restartButton') }}
+            </n-button>
+          </n-grid-item>
+        </n-grid>
       </div>
     </template>
 
     <template #right-panel>
       <div class="controls-container">
-        <div v-if="mistakesStore.selectedPuzzle" class="puzzle-info-box">
-          <div class="info-row">
-            <span class="label">{{ t('tornado.mistakes.info.id') }}:</span>
-            <span class="value">#{{ mistakesStore.selectedPuzzle.PuzzleId }}</span>
-          </div>
-          <div class="info-row">
-            <span class="label">{{ t('tornado.mistakes.info.rating') }}:</span>
-            <span class="value">{{ mistakesStore.selectedPuzzle.Rating }}</span>
-          </div>
-          <div class="info-row">
-            <span class="label">{{ t('tornado.mistakes.info.theme') }}:</span>
-            <span class="value">{{ formattedThemes }}</span>
-          </div>
-        </div>
+        <n-card v-if="mistakesStore.selectedPuzzle" class="info-glass-card" :bordered="false">
+          <n-space vertical :size="20">
+            <!-- ID & Rating -->
+            <n-grid :cols="2" x-gap="12">
+              <n-grid-item>
+                <n-statistic :label="t('tornado.mistakes.info.id')">
+                  <template #prefix>
+                    <n-icon color="var(--color-neon-cyan)">
+                      <InformationCircleOutline />
+                    </n-icon>
+                  </template>
+                  <span class="stat-value">#{{ mistakesStore.selectedPuzzle.PuzzleId || mistakesStore.selectedPuzzle.puzzle_id }}</span>
+                </n-statistic>
+              </n-grid-item>
+              <n-grid-item>
+                <n-statistic :label="t('tornado.mistakes.info.rating')">
+                  <template #prefix>
+                    <n-icon color="var(--color-neon-orange)">
+                      <RibbonOutline />
+                    </n-icon>
+                  </template>
+                  <span class="stat-value">{{ mistakesStore.selectedPuzzle.Rating || mistakesStore.selectedPuzzle.tactical_rating || mistakesStore.selectedPuzzle.rating }}</span>
+                </n-statistic>
+              </n-grid-item>
+            </n-grid>
 
-        <div class="action-buttons">
-          <button @click="showAnalysis" :disabled="!mistakesStore.isAttemptMade" class="action-btn analysis-btn">
-            {{ t('tornado.mistakes.ui.analysisButton') }}
-          </button>
-          <button
-            @click="selectNextUnsolvedPuzzle"
-            :disabled="mistakesStore.unsolvedMistakes.length <= 1 || mistakesStore.allMistakesSolved"
-            class="action-btn next-btn"
-          >
-            {{ t('tornado.mistakes.ui.nextButton') }}
-          </button>
-          <button @click="handleExit" class="action-btn restart-btn">
-            {{ t('tornado.mistakes.ui.restartButton') }}
-          </button>
-        </div>
+            <!-- Themes -->
+            <div class="themes-section">
+              <n-text depth="3" strong class="section-label">
+                {{ t('tornado.mistakes.info.theme') }}
+              </n-text>
+              <n-space :size="[8, 8]" class="themes-container">
+                <n-tag
+                  v-for="theme in formattedThemes"
+                  :key="theme"
+                  :bordered="false"
+                  type="primary"
+                  size="small"
+                  round
+                  class="theme-tag"
+                >
+                  {{ t(`chess.tornado.${theme}`) }}
+                </n-tag>
+                <n-text v-if="formattedThemes.length === 0" depth="3" italic>
+                  {{ t('common.none') }}
+                </n-text>
+              </n-space>
+            </div>
+          </n-space>
+        </n-card>
 
-        <AnalysisPanel v-if="analysisStore.isPanelVisible" />
+        <AnalysisPanel v-if="analysisStore.isPanelVisible" class="analysis-panel-overlay" />
       </div>
     </template>
   </GameLayout>
 </template>
 
-<style scoped>
-.mistakes-list-container {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  padding: 10px;
-}
-
-h4 {
-  text-align: center;
-  margin-top: 0;
-  margin-bottom: 15px;
-  color: var(--color-accent-warning);
-  flex-shrink: 0;
-}
-
-.mistakes-list-scrollable {
-  flex-grow: 1;
-  overflow-y: auto;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  padding-right: 5px;
-  align-content: flex-start;
-}
-
-.mistake-item {
-  width: calc((100% - 30px) / 2);
-  aspect-ratio: 1 / 1;
-  flex-shrink: 0;
-  cursor: pointer;
+<style scoped lang="scss">
+.mistakes-glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border) !important;
   border-radius: var(--panel-border-radius);
-  transition: all 0.2s ease-in-out;
-  border: 2px solid var(--color-border);
+  height: 100%;
 }
 
-.mistake-item:hover {
-  transform: scale(1.01);
-  border-color: var(--color-accent-primary);
+.panel-title {
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 0.9rem;
+  color: var(--color-text-default);
 }
 
-.mistake-item.unsolved {
-  border-color: var(--color-accent-error);
+.mistakes-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 4px;
 }
 
-.mistake-item.solved {
-  border-color: var(--color-accent-success);
+.mistake-item-wrapper {
+  position: relative;
+  cursor: pointer;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid transparent;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgba(0, 0, 0, 0.2);
+  width: 100%;
+
+  &:hover {
+    transform: translateY(-2px);
+    border-color: rgba(0, 229, 255, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 229, 255, 0.1);
+  }
+
+  &.active {
+    border-color: var(--color-neon-cyan);
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
+    transform: scale(1.02);
+    z-index: 1;
+  }
+
+  &.solved {
+    border-color: var(--color-neon-lime);
+    opacity: 0.8;
+  }
 }
 
-.mistake-item.active {
-  box-shadow: 0 0 15px var(--color-accent-primary);
-  border-color: var(--color-accent-primary);
+.mini-board {
+  display: block;
+  width: 100%;
 }
 
-.no-mistakes {
-  text-align: center;
-  color: var(--color-text-muted);
-  padding: 20px;
+.solved-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 255, 85, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.glass-header, .controls-glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--panel-border-radius);
+  padding: 12px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.controls-glass-panel {
+  height: 100%;
+  padding: 0 20px;
+}
+
+.feedback-text {
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.neon-pulse {
+  color: var(--color-neon-yellow);
+  text-shadow: 0 0 8px rgba(255, 230, 0, 0.4);
 }
 
 .controls-container {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 20px;
   height: 100%;
 }
 
-.top-feedback-panel {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: var(--font-size-large);
-  font-weight: bold;
-  color: var(--color-accent-warning);
-  text-align: center;
-}
-
-.puzzle-info-box {
-  background-color: var(--color-bg-tertiary);
-  padding: 15px;
+.info-glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border) !important;
   border-radius: var(--panel-border-radius);
-  border: 1px solid var(--color-border);
-  margin-bottom: 10px;
 }
 
-.info-row {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 5px;
-  font-size: var(--font-size-small);
+.stat-value {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 1.2rem;
 }
 
-.info-row:last-child {
-  margin-bottom: 0;
+.section-label {
+  display: block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 12px;
 }
 
-.info-row .label {
-  color: var(--color-text-muted);
+.themes-container {
+  max-height: 120px;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
-.info-row .value {
-  font-weight: bold;
-  text-align: right;
-  max-width: 70%;
+.theme-tag {
+  background: rgba(0, 229, 255, 0.1) !important;
+  color: var(--color-neon-cyan) !important;
+  border: 1px solid rgba(0, 229, 255, 0.2) !important;
+  font-weight: 600;
 }
 
-.action-buttons {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 10px;
+.glass-btn {
+  border: 1px solid transparent !important;
+  transition: all 0.3s ease;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+  }
+
+  &.cyan {
+    background: rgba(0, 229, 255, 0.1) !important;
+    border-color: rgba(0, 229, 255, 0.2) !important;
+    &:hover:not(:disabled) {
+      background: rgba(0, 229, 255, 0.15) !important;
+      box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);
+    }
+  }
+
+  &.lime {
+    background: rgba(0, 255, 85, 0.1) !important;
+    border-color: rgba(0, 255, 85, 0.2) !important;
+    &:hover:not(:disabled) {
+      background: rgba(0, 255, 85, 0.15) !important;
+      box-shadow: 0 0 15px rgba(0, 255, 85, 0.2);
+    }
+  }
+
+  &.pink {
+    background: rgba(255, 0, 122, 0.1) !important;
+    border-color: rgba(255, 0, 122, 0.2) !important;
+    &:hover:not(:disabled) {
+      background: rgba(255, 0, 122, 0.15) !important;
+      box-shadow: 0 0 15px rgba(255, 0, 122, 0.2);
+    }
+  }
 }
 
-.action-btn {
-  padding: 12px;
-  font-size: var(--font-size-base);
-  font-weight: bold;
-  border: none;
-  border-radius: var(--panel-border-radius);
-  cursor: pointer;
-  transition: all 0.2s ease;
+.empty-mistakes {
+  padding: 40px 0;
 }
 
-.action-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.analysis-btn {
-  background-color: var(--color-accent-primary);
-  color: var(--color-text-dark);
-}
-
-.next-btn {
-  background-color: var(--color-accent-success);
-  color: var(--color-text-dark);
-}
-
-.restart-btn {
-  background-color: var(--color-accent-warning);
-  color: var(--color-text-dark);
-}
-
-.exit-btn {
-  background-color: var(--color-accent-error);
-  color: var(--color-text-on-accent);
+:deep(.n-statistic) {
+  .n-statistic-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+  }
 }
 </style>
