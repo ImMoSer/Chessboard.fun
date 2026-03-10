@@ -463,8 +463,7 @@
   "pricing": {
     "title": "Subscriptions and Prices",
     "intro": {
-      "p1": "Welcome to the information page about our future subscription system. The application is currently in open testing mode.",
-      "p2": "During testing, your account is replenished every hour so you can explore all features for free. After this phase, a daily account replenishment system will be introduced based on your subscription."
+      "p1": "Welcome to the information page about our future subscription system. Open testing phase is active."
     },
     "tiers": {
       "title": "Subscription Tiers",
@@ -483,11 +482,21 @@
       },
       "rook": {
         "name": "Rook",
-        "description": "Daily replenishment up to {pawncoins} PawnCoins"
+        "role": "The \"No-Brainer\" entry for amateurs.",
+        "description": "Daily replenishment up to {pawncoins} PawnCoins",
+        "price": "2.99 € / Month"
       },
       "queen": {
         "name": "Queen",
-        "description": "Daily replenishment up to {pawncoins} PawnCoins"
+        "role": "The \"Standard\" for ambitious club players.",
+        "description": "Daily replenishment up to {pawncoins} PawnCoins",
+        "price": "4.99 € / Month"
+      },
+      "king": {
+        "name": "King",
+        "role": "The \"Full-Power\" package for pros & analysts.",
+        "description": "Daily replenishment up to {pawncoins} PawnCoins",
+        "price": "9.99 € / Month"
       },
       "price": {
         "soon": "Price will be announced",
@@ -499,12 +508,12 @@
       "p1": "Hello, friends 👋",
       "p2": "We have updated the terms for automatic bonuses for the most active club players.",
       "p3": "Now you can get a premium tier for free — just by playing in team tournaments 🏆",
+      "teamLink": "Join our Lichess Club here!",
       "howItWorks": "📅 How it works:",
       "p4": "Every day, the system analyzes your activity over the last 30 days (tournaments, points, and games) and awards activity points.",
       "p5": "Depending on the amount, one of the tiers is assigned:",
       "knight": "♘ Knight — from 300 points",
       "bishop": "♗ Bishop — from 500 points",
-      "rook": "♖ Rook — from 1000 points",
       "p6": "✨ The tier is recalculated automatically and may change depending on your activity.",
       "p7": "No applications needed — just play, and the system will do everything itself ✅",
       "p8": "Thank you for supporting the club ❤️♟"
