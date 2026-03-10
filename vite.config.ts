@@ -7,6 +7,7 @@ import Components from 'unplugin-vue-components/vite'
 import { defineConfig } from 'vite'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 import VueDevTools from 'vite-plugin-vue-devtools'
+import { visualizer } from 'rollup-plugin-visualizer'
 import pkg from './package.json'
 
 export default defineConfig(({ mode }) => {
@@ -59,6 +60,7 @@ export default defineConfig(({ mode }) => {
       }),
 
       ...(mode === 'development' ? [VueDevTools()] : []),
+      visualizer({ open: false, filename: 'stats.html' }),
     ],
 
     resolve: {

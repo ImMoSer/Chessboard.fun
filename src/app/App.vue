@@ -6,6 +6,7 @@ import ConfirmationModal from '@/shared/ui/ConfirmationModal.vue'
 import InfoModal from '@/shared/ui/InfoModal.vue'
 import { useUiStore } from '@/shared/ui/model/ui.store'
 import GalaxyBackground from '@/shared/ui/visuals/GalaxyBackground.vue'
+import GlobalAssetLoader from './GlobalAssetLoader.vue'
 import { NavMenu } from '@/widgets/nav-menu'
 import { MenuOutline } from '@vicons/ionicons5'
 import { darkTheme, type GlobalThemeOverrides } from 'naive-ui'
@@ -75,8 +76,9 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <n-config-provider :theme="darkTheme" :theme-overrides="themeOverrides">
-    <n-message-provider>
+  <GlobalAssetLoader>
+    <n-config-provider :theme="darkTheme" :theme-overrides="themeOverrides">
+      <n-message-provider>
       <n-dialog-provider>
         <n-layout has-sider position="absolute" class="root-layout">
           <!-- Desktop Sidebar (Landscape) -->
@@ -159,6 +161,7 @@ onUnmounted(() => {
       </n-dialog-provider>
     </n-message-provider>
   </n-config-provider>
+  </GlobalAssetLoader>
 </template>
 
 <style>
