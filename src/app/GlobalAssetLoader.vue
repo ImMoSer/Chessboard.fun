@@ -13,6 +13,8 @@ const totalBytes = ref(0) // Will be updated during fetch
 
 const { t } = useI18n({ useScope: 'global' })
 
+const isWebview = ref(false)
+
 const loadedMb = computed(() => (loadedBytes.value / 1024 / 1024).toFixed(1))
 const totalMb = computed(() => (totalBytes.value / 1024 / 1024).toFixed(1))
 
@@ -25,6 +27,20 @@ const assetsToLoad = [
 
 async function preloadAssets() {
   try {
+    // 0. Check for webview first
+    const userAgent = navigator.userAgent || navigator.vendor || (window as unknown as { opera?: string }).opera || '';
+    const isTelegram = userAgent.includes('Telegram');
+    const isInstagram = userAgent.includes('Instagram');
+    const isFB = userAgent.includes('FBAN') || userAgent.includes('FBAV');
+    const isLine = userAgent.includes('Line');
+    // Generic webview matchers:
+    const isGenericWebview = (userAgent.includes('wv') && userAgent.includes('Android')) || /(iPhone|iPod|iPad).*AppleWebKit(?!.*Safari)/i.test(userAgent)
+
+    if (isTelegram || isInstagram || isFB || isLine || isGenericWebview) {
+      isWebview.value = true;
+      return; // Stop loading, show webview block screen
+    }
+
     // 1. Fetch headers to get total size
     let totalSize = 0
     const assetSizes = []
@@ -95,7 +111,23 @@ onMounted(() => {
 </script>
 
 <template>
-  <div v-if="!isReady" class="global-loader-wrapper">
+  <!-- WebView Blocker Screen -->
+  <div v-if="isWebview" class="global-loader-wrapper">
+    <div class="loader-content webview-blocker">
+      <img src="/png/extra_pawn_black.png" alt="Logo" class="loader-logo static" />
+      <h2 class="loader-title error-text">OOPS!</h2>
+      <p class="loader-text">
+        {{ t('app.globalLoader.webviewWarning', 'Es scheint, dass Sie die App in einem integrierten Browser (z.B. Telegram, Instagram) geöffnet haben. Für die volle Funktionalität benötigen wir einen echten Browser wie Google Chrome oder Safari.') }}
+      </p>
+      
+      <p class="loader-hint" style="margin-top: 20px;">
+        {{ t('app.globalLoader.webviewAction', 'Bitte öffnen Sie den Link extern im Standard-Browser Ihres Geräts.') }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Normal Asset Loader Screen -->
+  <div v-else-if="!isReady" class="global-loader-wrapper">
     <div class="loader-content">
       <img src="/png/extra_pawn_black.png" alt="Logo" class="loader-logo" />
       <h2 class="loader-title">EXTRAPAWN</h2>
@@ -202,5 +234,20 @@ onMounted(() => {
   0% { transform: scale(1); opacity: 1; }
   50% { transform: scale(1.05); opacity: 0.8; }
   100% { transform: scale(1); opacity: 1; }
+}
+
+.loader-logo.static {
+  animation: none;
+  opacity: 1;
+}
+
+.webview-blocker {
+  border-color: rgba(255, 60, 60, 0.4);
+  box-shadow: 0 8px 32px rgba(255, 60, 60, 0.2);
+}
+
+.error-text {
+  color: #ff4d4f;
+  text-shadow: 0 0 10px rgba(255, 77, 79, 0.4);
 }
 </style>
