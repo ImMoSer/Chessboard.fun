@@ -10,12 +10,17 @@ import { computed, ref, watch } from 'vue'
 
 import { type TopInfoBadge, type TopInfoDisplay, type TopInfoStat } from '@/entities/puzzle'
 import i18n from '@/shared/config/i18n'
+import { useRouter } from 'vue-router'
+import { useUiStore } from '@/shared/ui/model/ui.store'
+import { InsufficientPawnCoinsError } from '@/shared/api/client'
 
-const t = (key: string) => i18n.global.t(key)
+const t = i18n.global.t
 
 export const useOpeningSparringStore = defineStore('openingSparring', () => {
   const boardStore = useBoardStore()
   const theoryStore = useTheoryStore()
+  const uiStore = useUiStore()
+  const router = useRouter()
 
   // -- sessionHistory ref with computed from PGN --
   const sessionHistory = computed<SessionMove[]>(() => {
@@ -151,6 +156,35 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     try {
       console.log('[OpeningSparring] Initializing session', { color, startMoves })
 
+      try {
+        await startSparringMutation()
+      } catch (err) {
+        if (err instanceof InsufficientPawnCoinsError) {
+          const e = err as InsufficientPawnCoinsError
+          const confirmed = await uiStore.showConfirmation(
+            t('pricing.insufficientCoins.title'),
+            t('pricing.insufficientCoins.message', {
+              required: e.required,
+              available: e.available,
+            }) +
+            '\n\n' +
+            t('pricing.insufficientCoins.subMessage'),
+            {
+              confirmText: t('pricing.insufficientCoins.goToPricing'),
+              cancelText: t('common.close'),
+            },
+          )
+          if (confirmed === 'confirm') {
+            router.push('/pricing')
+          } else {
+            router.push('/')
+          }
+          return
+        }
+        logger.error('[OpeningSparring] Failed to start session on backend', err)
+        throw err;
+      }
+
       reset()
       playerColor.value = color
       isProcessingMove.value = true
@@ -179,12 +213,8 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
 
       await theoryGraphService.loadBook()
 
-      try {
-        await startSparringMutation()
-      } catch (err) {
-        logger.error('[OpeningSparring] Failed to start session on backend', err)
-      }
-
+    } catch (error) {
+       logger.error('[OpeningSparring] Initializing session failed', error)
     } finally {
       isProcessingMove.value = false
       isInitializing.value = false

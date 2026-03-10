@@ -305,6 +305,8 @@ export const useTornadoStore = defineStore('tornado', () => {
         )
         if (confirmed === 'confirm') {
           router.push('/pricing')
+        } else {
+          router.push('/')
         }
       } else {
         logger.error('[TornadoStore] Failed to start session:', error)

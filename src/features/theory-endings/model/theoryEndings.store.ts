@@ -144,8 +144,9 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
       requestedPuzzleId.value = puzzleId
       if (type) activeType.value = type
 
-      const { data: puzzle } = await puzzleQuery.refetch()
+      const { data: puzzle, error: fetchError } = await puzzleQuery.refetch()
 
+      if (fetchError) throw fetchError
       if (!puzzle) throw new Error('Puzzle data is null')
 
       activePuzzle.value = puzzle
@@ -222,6 +223,8 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
         )
         if (confirmed === 'confirm') {
           router.push('/pricing')
+        } else {
+          router.push('/')
         }
       } else {
         logger.error('[TheoryEndingsStore] Failed to load puzzle:', error)

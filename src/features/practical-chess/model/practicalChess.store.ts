@@ -8,6 +8,7 @@ import {
 } from '@/entities/game'
 import { type TopInfoDisplay } from '@/entities/puzzle'
 import { useAuthStore } from '@/entities/user'
+import { InsufficientPawnCoinsError } from '@/shared/api/client'
 import i18n from '@/shared/config/i18n'
 import logger from '@/shared/lib/logger'
 import { soundService } from '@/shared/lib/sound.service'
@@ -89,8 +90,9 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
 
     try {
       requestedPuzzleId.value = id
-      const { data: puzzle } = await puzzleQuery.refetch()
+      const { data: puzzle, error: fetchError } = await puzzleQuery.refetch()
 
+      if (fetchError) throw fetchError
       if (!puzzle) throw new Error('Puzzle data is null')
 
       activePuzzle.value = puzzle
@@ -110,18 +112,40 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
 
       gameStore.startWithStrategy(puzzle.initial_fen, _createStrategy(), humanColor)
     } catch (error) {
-      logger.error('[PracticalChessStore] Failed to load puzzle:', error)
-      gameStore.setGamePhase('IDLE')
+      if (error instanceof InsufficientPawnCoinsError) {
+        const e = error as InsufficientPawnCoinsError
+        const confirmed = await uiStore.showConfirmation(
+          t('pricing.insufficientCoins.title'),
+          t('pricing.insufficientCoins.message', {
+            required: e.required,
+            available: e.available,
+          }) +
+          '\n\n' +
+          t('pricing.insufficientCoins.subMessage'),
+          {
+            confirmText: t('pricing.insufficientCoins.goToPricing'),
+            cancelText: t('common.close'),
+          },
+        )
+        if (confirmed === 'confirm') {
+          router.push('/pricing')
+        } else {
+          router.push('/')
+        }
+      } else {
+        logger.error('[PracticalChessStore] Failed to load puzzle:', error)
+        gameStore.setGamePhase('IDLE')
 
-      await uiStore.showConfirmation(
-        t('common.error'),
-        t('gameplay.feedback.loadFailed') || 'Failed to load puzzle. It might not exist.',
-        {
-          showCancel: false,
-          confirmText: t('common.ok'),
-        },
-      )
-      router.push('/practical-chess')
+        await uiStore.showConfirmation(
+          t('common.error'),
+          t('gameplay.feedback.loadFailed') || 'Failed to load puzzle. It might not exist.',
+          {
+            showCancel: false,
+            confirmText: t('common.ok'),
+          },
+        )
+        router.push('/practical-chess')
+      }
     }
   }
 

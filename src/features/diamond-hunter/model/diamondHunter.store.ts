@@ -7,6 +7,8 @@ import { pgnService } from '@/shared/lib/pgn/PgnService'
 import type { SoundEvent } from '@/shared/lib/sound.service'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import { useUiStore } from '@/shared/ui/model/ui.store'
 import {
     diamondApiService,
     type GravityMove,
@@ -25,6 +27,8 @@ export interface HunterHint {
 export const useDiamondHunterStore = defineStore('diamondHunter', () => {
   const boardStore = useBoardStore()
   const analysisStore = useAnalysisEngineStore()
+  const uiStore = useUiStore()
+  const router = useRouter()
 
   const state = ref<HunterState>('IDLE')
   const isActive = computed(() => state.value !== 'IDLE')
@@ -86,6 +90,24 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
       const err = e as Error
       if (err.message === 'Insufficient PawnCoins') {
         message.value = 'Insufficient PawnCoins to start Diamond Hunter!'
+        const confirmed = await uiStore.showConfirmation(
+          t('pricing.insufficientCoins.title'),
+          t('pricing.insufficientCoins.message', {
+            required: 15,
+            available: 0,
+          }) +
+          '\n\n' +
+          t('pricing.insufficientCoins.subMessage'),
+          {
+            confirmText: t('pricing.insufficientCoins.goToPricing'),
+            cancelText: t('common.close'),
+          },
+        )
+        if (confirmed === 'confirm') {
+          router.push('/pricing')
+        } else {
+          router.push('/')
+        }
         return false
       }
       message.value = 'Failed to start Diamond Hunter session.'
