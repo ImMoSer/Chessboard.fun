@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ExpandOutline } from '@vicons/ionicons5'
+import { ExpandOutline, CloseOutline } from '@vicons/ionicons5'
 import { PieChart } from 'echarts/charts'
 import { LegendComponent, TitleComponent, TooltipComponent } from 'echarts/components'
 import { use } from 'echarts/core'
@@ -75,9 +75,12 @@ const activePopup = ref<{ visible: boolean; x: number; y: number; data: PopupDat
   data: null,
 })
 const popupRef = ref<HTMLElement | null>(null)
+const lastOpenTime = ref(0)
 
 // Close popup when clicking outside
-const handleClickOutside = (event: MouseEvent) => {
+const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+  if (Date.now() - lastOpenTime.value < 100) return
+
   if (
     activePopup.value.visible &&
     popupRef.value &&
@@ -89,10 +92,12 @@ const handleClickOutside = (event: MouseEvent) => {
 
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
+  document.addEventListener('touchstart', handleClickOutside, { passive: true })
 })
 
 onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
+  document.removeEventListener('touchstart', handleClickOutside)
 })
 
 const viewMode = ref<'rating' | 'accuracy'>('rating')
@@ -170,13 +175,28 @@ const onChartClick = (params: unknown) => {
     themeName = t(`chess.finishHim.category.${theme}`)
   else if (te(`chess.endings.${theme}`)) themeName = t(`chess.endings.${theme}`)
 
-  const x = p.event.event.clientX
-  const y = p.event.event.clientY
+  const ev = p.event.event as Event
+  let x = window.innerWidth / 2
+  let y = window.innerHeight / 2
+
+  if ('clientX' in ev) {
+    x = (ev as MouseEvent).clientX
+    y = (ev as MouseEvent).clientY
+  } else if ('changedTouches' in ev) {
+    const touches = (ev as TouchEvent).changedTouches
+    const firstTouch = touches?.[0]
+    if (firstTouch) {
+      x = firstTouch.clientX
+      y = firstTouch.clientY
+    }
+  }
 
   // Stop propagation so the document click listener doesn't immediately close it
   if (p.event.event.stopImmediatePropagation) {
     p.event.event.stopImmediatePropagation()
   }
+
+  lastOpenTime.value = Date.now()
 
   activePopup.value = {
     visible: true,
@@ -318,8 +338,10 @@ const onImproveClick = () => {
       >
         <div class="popup-header">
           <span class="popup-title">{{ activePopup.data.title }}</span>
-          <n-button type="primary" size="tiny" @click="onImproveClick" class="improve-btn">
-            {{ t('userCabinet.stats.improve') }}
+          <n-button circle size="tiny" type="error" ghost @click="activePopup.visible = false" class="close-btn">
+            <template #icon>
+              <n-icon :component="CloseOutline" />
+            </template>
           </n-button>
         </div>
 
@@ -345,6 +367,12 @@ const onImproveClick = () => {
             <span>{{ activePopup.data.success }} / {{ activePopup.data.requested }}</span>
           </div>
         </div>
+
+        <div class="popup-footer">
+          <n-button type="primary" block @click="onImproveClick" class="improve-btn">
+            {{ t('userCabinet.stats.improve') }}
+          </n-button>
+        </div>
       </div>
     </Teleport>
   </div>
@@ -354,11 +382,15 @@ const onImproveClick = () => {
 .chart-popup {
   position: fixed;
   z-index: 9999;
-  background-color: var(--color-bg-tertiary);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  padding: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  background-color: var(--glass-bg, var(--color-bg-tertiary));
+  backdrop-filter: var(--glass-blur, blur(12px));
+  -webkit-backdrop-filter: var(--glass-blur, blur(12px));
+  border: 1px solid color-mix(in srgb, var(--color-neon-cyan) 50%, transparent);
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: 0 8px 32px color-mix(in srgb, var(--color-neon-cyan) 25%, transparent), 
+              0 0 16px color-mix(in srgb, var(--color-neon-cyan) 15%, transparent),
+              inset 0 0 16px color-mix(in srgb, var(--color-neon-cyan) 5%, transparent);
   min-width: 180px;
   pointer-events: auto;
   transform: translate(0, 0);
@@ -368,21 +400,30 @@ const onImproveClick = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
   padding-bottom: 8px;
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-neon-cyan) 25%, transparent);
+  gap: 16px;
 }
 
 .popup-title {
   font-weight: bold;
   color: var(--color-text-primary);
-  font-size: 0.9rem;
+  font-size: 1rem;
+}
+
+.close-btn {
+  flex-shrink: 0;
+}
+
+.popup-footer {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid color-mix(in srgb, var(--color-neon-cyan) 25%, transparent);
 }
 
 .improve-btn {
-  font-size: 0.7rem;
-  padding: 0 8px;
-  height: 22px;
+  font-weight: bold;
 }
 
 .popup-content {
@@ -515,7 +556,12 @@ const onImproveClick = () => {
 
 @media (max-width: 600px) {
   .chart-popup {
-    max-width: 90vw;
+    max-width: none;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 85vw;
+    max-width: 320px;
   }
 }
 
