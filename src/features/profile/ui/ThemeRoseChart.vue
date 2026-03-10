@@ -31,7 +31,9 @@ interface RoseParam {
 }
 
 interface PopupData {
-  title: string
+  modeName: string
+  subModeName: string
+  themeName: string
   rating: number
   accuracy: number
   success: number
@@ -198,18 +200,25 @@ const onChartClick = (params: unknown) => {
 
   lastOpenTime.value = Date.now()
 
+  const modeName = props.title
+  const screenModeRaw = props.activeMode || props.mode
+  const subModeName =
+    screenModeRaw.charAt(0).toUpperCase() + screenModeRaw.slice(1)
+
   activePopup.value = {
     visible: true,
     x: x + 10,
     y: y + 10,
     data: {
-      title: themeName,
+      modeName,
+      subModeName,
+      themeName,
       rating: Math.round(data.rating),
       accuracy,
       success: data.success,
       requested: data.requested,
       themeId: theme,
-      screenMode: props.activeMode || props.mode, // Use specific activeMode (e.g. 'blitz') if available, else generic props.mode
+      screenMode: screenModeRaw,
     },
   }
 
@@ -337,7 +346,9 @@ const onImproveClick = () => {
         }"
       >
         <div class="popup-header">
-          <span class="popup-title">{{ activePopup.data.title }}</span>
+          <span class="popup-title">
+            {{ activePopup.data.modeName }} {{ activePopup.data.subModeName }}
+          </span>
           <n-button circle size="tiny" type="error" ghost @click="activePopup.visible = false" class="close-btn">
             <template #icon>
               <n-icon :component="CloseOutline" />
@@ -346,6 +357,9 @@ const onImproveClick = () => {
         </div>
 
         <div class="popup-content">
+          <div class="popup-theme-name">
+            {{ activePopup.data.themeName }}
+          </div>
           <div class="popup-row">
             <span>{{ t('userCabinet.analyticsTable.rating') }}:</span>
             <span class="rating-val">{{ activePopup.data.rating }}</span>
@@ -370,7 +384,7 @@ const onImproveClick = () => {
 
         <div class="popup-footer">
           <n-button type="primary" block @click="onImproveClick" class="improve-btn">
-            {{ t('userCabinet.stats.improve') }}
+            {{ t('userCabinet.stats.improve') }} {{ activePopup.data.subModeName }}
           </n-button>
         </div>
       </div>
@@ -410,6 +424,15 @@ const onImproveClick = () => {
   font-weight: bold;
   color: var(--color-text-primary);
   font-size: 1rem;
+}
+
+.popup-theme-name {
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+  font-weight: bold;
+  color: var(--color-text-primary);
+  border-bottom: 1px dashed color-mix(in srgb, var(--color-text-secondary) 30%, transparent);
+  padding-bottom: 4px;
 }
 
 .close-btn {

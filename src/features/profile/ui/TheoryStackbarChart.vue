@@ -37,7 +37,10 @@ interface ClickParam {
 }
 
 interface PopupData {
-  title: string
+  modeName: string
+  typeName: string
+  themeName: string
+  difficultyColor: string
   items: {
     difficulty: string
     success: number
@@ -275,12 +278,31 @@ const onChartClick = (params: unknown) => {
 
   lastOpenTime.value = Date.now()
 
+  const modeName =
+    props.mode === 'theory'
+      ? t('userCabinet.stats.modes.theory')
+      : props.mode === 'finish_him'
+        ? t('userCabinet.stats.modes.finishHim')
+        : t('userCabinet.stats.modes.practical')
+
+  const typeName =
+    props.mode === 'theory'
+      ? activeType.value === 'win'
+        ? t('theoryEndings.types.win')
+        : t('theoryEndings.types.draw')
+      : ''
+
+  const diffColor = seriesColors[difficulty as keyof typeof seriesColors] || 'var(--color-primary)'
+
   activePopup.value = {
     visible: true,
     x: x + 10,
     y: y + 10,
     data: {
-      title: themeName,
+      modeName,
+      typeName,
+      themeName,
+      difficultyColor: diffColor,
       items,
       themeId: theme,
       clickedDifficulty: difficulty,
@@ -412,7 +434,10 @@ const onImproveClick = () => {
         }"
       >
         <div class="popup-header">
-          <span class="popup-title">{{ activePopup.data.title }}</span>
+          <span class="popup-title">
+            {{ activePopup.data.modeName }}
+            <template v-if="activePopup.data.typeName"> {{ activePopup.data.typeName }}</template>
+          </span>
           <n-button circle size="tiny" type="error" ghost @click="activePopup.visible = false" class="close-btn">
             <template #icon>
               <n-icon :component="CloseOutline" />
@@ -421,6 +446,9 @@ const onImproveClick = () => {
         </div>
 
         <div class="popup-content">
+          <div class="popup-theme-name">
+            {{ activePopup.data.themeName }}
+          </div>
           <div v-for="(item, index) in activePopup.data.items" :key="index" class="popup-item">
             <div class="popup-label">
               <span class="diff-indicator" :style="{ backgroundColor: item.color }"></span>
@@ -441,8 +469,14 @@ const onImproveClick = () => {
         </div>
 
         <div class="popup-footer">
-          <n-button type="primary" block @click="onImproveClick" class="improve-btn">
-            {{ t('userCabinet.stats.improve') }}
+          <n-button
+            type="primary"
+            block
+            @click="onImproveClick"
+            class="improve-btn"
+            :style="{ backgroundColor: activePopup.data.difficultyColor, borderColor: activePopup.data.difficultyColor, color: '#fff' }"
+          >
+            {{ t('userCabinet.stats.improve') }} {{ t(`theoryEndings.difficulties.${activePopup.data.clickedDifficulty.toLowerCase()}`) }}
           </n-button>
         </div>
       </div>
@@ -487,6 +521,15 @@ const onImproveClick = () => {
   font-weight: bold;
   color: var(--color-text-primary);
   font-size: 1rem;
+}
+
+.popup-theme-name {
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+  font-weight: bold;
+  color: var(--color-text-primary);
+  border-bottom: 1px dashed color-mix(in srgb, var(--color-text-secondary) 30%, transparent);
+  padding-bottom: 4px;
 }
 
 .close-btn {
