@@ -27,18 +27,15 @@ const assetsToLoad = [
 
 async function preloadAssets() {
   try {
-    // 0. Check for webview first
-    const userAgent = navigator.userAgent || navigator.vendor || (window as unknown as { opera?: string }).opera || '';
-    const isTelegram = userAgent.includes('Telegram');
-    const isInstagram = userAgent.includes('Instagram');
-    const isFB = userAgent.includes('FBAN') || userAgent.includes('FBAV');
-    const isLine = userAgent.includes('Line');
-    // Generic webview matchers:
-    const isGenericWebview = (userAgent.includes('wv') && userAgent.includes('Android')) || /(iPhone|iPod|iPad).*AppleWebKit(?!.*Safari)/i.test(userAgent)
+    // 0. Feature Support Check (Replaces UserAgent WebView Check)
+    // Many embedded webviews disable ServiceWorkers or Caches. We require them.
+    const hasCacheApi = 'caches' in window
+    const hasServiceWorker = 'serviceWorker' in navigator
 
-    if (isTelegram || isInstagram || isFB || isLine || isGenericWebview) {
-      isWebview.value = true;
-      return; // Stop loading, show webview block screen
+    // If these critical features are missing, block execution.
+    if (!hasCacheApi || !hasServiceWorker) {
+      isWebview.value = true
+      return // Stop loading, show feature/webview block screen
     }
 
     // 1. Fetch headers to get total size
