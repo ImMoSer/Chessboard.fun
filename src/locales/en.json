@@ -458,6 +458,17 @@
       "themeDistribution": "Theme Distribution",
       "byAttempts": "by attempts",
       "byRating": "by rating"
+    },
+    "gift": {
+      "title": "Redeem Gift Code",
+      "description": "Enter your 8-digit code to activate your club subscription.",
+      "placeholder": "Code",
+      "activate": "Activate",
+      "successTitle": "Congratulations! 🎉",
+      "successMessage": "You have successfully activated the {tier} club tier. It will remain active until {date}. We wish you great success in your training!",
+      "ok": "OK",
+      "invalid": "Invalid or already used code.",
+      "error": "Error during redemption."
     }
   },
   "pricing": {

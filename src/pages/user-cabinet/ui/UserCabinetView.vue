@@ -10,7 +10,21 @@ import {
   EXAMPLE_DETAILED_STATS,
   EXAMPLE_USER_PROFILE,
 } from '@/shared/config/constants/exampleCabinetData'
+import { apiClient } from '@/shared/api/client'
 import type { FinishHimDifficulty, TornadoMode } from '@/shared/types/api.types'
+import {
+  NAlert,
+  NButton,
+  NCard,
+  NInput,
+  NInputGroup,
+  NModal,
+  NResult,
+  NSpace,
+  NText,
+  NH3,
+  useMessage,
+} from 'naive-ui'
 import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -25,6 +39,17 @@ import { normalizeProfileStats } from '@/shared/lib/statsNormalizer'
 
 const { t } = useI18n()
 const { launchGame } = useGameLauncher()
+const message = useMessage()
+
+const giftCode = ref('')
+const isRedeeming = ref(false)
+const showSuccessModal = ref(false)
+const successTier = ref('')
+const successDate = ref('')
+
+const handleSuccessOk = () => {
+  window.location.reload()
+}
 
 const authStore = useAuthStore()
 const { userProfile, isAuthenticated } = storeToRefs(authStore)
@@ -100,6 +125,35 @@ const currentFinishHimThemes = computed(() => {
           />
 */
 
+const handleRedeem = async () => {
+  if (!giftCode.value || giftCode.value.length !== 8) return;
+  
+  isRedeeming.value = true
+  try {
+    const res = await apiClient<{ success: boolean; tier: string; expiresAt: string }>(
+      '/billing/redeem',
+      {
+        method: 'POST',
+        body: JSON.stringify({ code: giftCode.value }),
+      }
+    )
+    if (res.success) {
+      successTier.value = res.tier
+      successDate.value = new Date(res.expiresAt).toLocaleDateString()
+      showSuccessModal.value = true
+      giftCode.value = ''
+    }
+  } catch (err) {
+    const error = err as { status?: number }
+    if (error.status === 404 || error.status === 409) {
+      message.error(t('userCabinet.gift.invalid'))
+    } else {
+      message.error(t('userCabinet.gift.error'))
+    }
+  } finally {
+    isRedeeming.value = false
+  }
+}
 </script>
 
 <template>
@@ -171,8 +225,54 @@ const currentFinishHimThemes = computed(() => {
             @improve="launchGame"
           />
         </div>
+
+        <!-- Gift Code Redeem Area -->
+        <n-card :bordered="false" class="gift-redeem-card" embedded>
+          <n-space vertical>
+            <n-h3 style="margin-bottom: 0;">🎁 {{ t('userCabinet.gift.title') }}</n-h3>
+            <n-text depth="3">{{ t('userCabinet.gift.description') }}</n-text>
+            <n-input-group style="margin-top: 8px;">
+              <n-input
+                v-model:value="giftCode"
+                :placeholder="t('userCabinet.gift.placeholder')"
+                :maxlength="8"
+                size="large"
+                style="max-width: 250px;"
+                @keyup.enter="handleRedeem"
+              />
+              <n-button 
+                type="primary" 
+                size="large" 
+                :loading="isRedeeming" 
+                :disabled="giftCode.length !== 8" 
+                @click="handleRedeem"
+              >
+                {{ t('userCabinet.gift.activate') }}
+              </n-button>
+            </n-input-group>
+          </n-space>
+        </n-card>
       </n-space>
     </div>
+
+    <!-- Success Modal -->
+    <n-modal
+      v-model:show="showSuccessModal"
+      preset="card"
+      style="max-width: 400px; background-color: var(--color-bg-panel)"
+      :title="t('userCabinet.gift.successTitle')"
+      :mask-closable="false"
+      @close="handleSuccessOk"
+    >
+      <n-space vertical :size="24">
+        <n-text style="font-size: 1.1em; line-height: 1.5;">
+          {{ t('userCabinet.gift.successMessage', { tier: successTier, date: successDate }) }}
+        </n-text>
+        <n-button type="primary" size="large" block @click="handleSuccessOk">
+          {{ t('userCabinet.gift.ok') }}
+        </n-button>
+      </n-space>
+    </n-modal>
   </div>
 </template>
 
@@ -220,5 +320,11 @@ const currentFinishHimThemes = computed(() => {
   .charts-grid {
     gap: 17px;
   }
+}
+
+.gift-redeem-card {
+  margin-top: 24px;
+  border-radius: var(--panel-border-radius);
+  background-color: var(--color-bg-panel);
 }
 </style>
