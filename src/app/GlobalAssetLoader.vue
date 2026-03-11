@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { changeLang } from '@/shared/config/i18n'
 
 const emit = defineEmits<{
   (e: 'ready'): void
@@ -11,7 +12,7 @@ const progress = ref(0)
 const loadedBytes = ref(0)
 const totalBytes = ref(0) // Will be updated during fetch
 
-const { t } = useI18n({ useScope: 'global' })
+const { t, locale } = useI18n({ useScope: 'global' })
 
 const isWebview = ref(false)
 const appUrl = window.location.origin
@@ -25,6 +26,10 @@ async function copyLink() {
   } catch (err) {
     console.error('Failed to copy:', err)
   }
+}
+
+const handleChangeLang = (lang: 'en' | 'ru' | 'de') => {
+  changeLang(lang)
 }
 
 const loadedMb = computed(() => (loadedBytes.value / 1024 / 1024).toFixed(1))
@@ -142,6 +147,14 @@ onMounted(() => {
       <p class="loader-hint" style="margin-top: 20px;">
         {{ t('app.globalLoader.webviewAction') }}
       </p>
+
+      <div class="loader-lang-switcher">
+        <button class="lang-btn" :class="{ active: locale === 'en' }" @click="handleChangeLang('en')">EN</button>
+        <span class="lang-divider">|</span>
+        <button class="lang-btn" :class="{ active: locale === 'ru' }" @click="handleChangeLang('ru')">RU</button>
+        <span class="lang-divider">|</span>
+        <button class="lang-btn" :class="{ active: locale === 'de' }" @click="handleChangeLang('de')">DE</button>
+      </div>
     </div>
   </div>
 
@@ -163,6 +176,14 @@ onMounted(() => {
         <span v-else>{{ progress }}%</span>
       </div>
       <p class="loader-hint">{{ t('app.globalLoader.hint') }}</p>
+
+      <div class="loader-lang-switcher">
+        <button class="lang-btn" :class="{ active: locale === 'en' }" @click="handleChangeLang('en')">EN</button>
+        <span class="lang-divider">|</span>
+        <button class="lang-btn" :class="{ active: locale === 'ru' }" @click="handleChangeLang('ru')">RU</button>
+        <span class="lang-divider">|</span>
+        <button class="lang-btn" :class="{ active: locale === 'de' }" @click="handleChangeLang('de')">DE</button>
+      </div>
     </div>
   </div>
   <slot v-else></slot>
@@ -311,5 +332,41 @@ onMounted(() => {
 .error-text {
   color: #ff4d4f;
   text-shadow: 0 0 10px rgba(255, 77, 79, 0.4);
+}
+
+.loader-lang-switcher {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  width: 100%;
+}
+
+.lang-btn {
+  background: none;
+  border: none;
+  color: #718096;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  transition: all 0.2s ease;
+  font-family: 'Outfit', sans-serif;
+}
+
+.lang-btn:hover {
+  color: #fff;
+}
+
+.lang-btn.active {
+  color: #00f2ff;
+}
+
+.lang-divider {
+  color: rgba(255, 255, 255, 0.1);
+  font-size: 0.8rem;
 }
 </style>
