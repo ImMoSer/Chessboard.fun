@@ -40,11 +40,15 @@ const assetsToLoad = [
 async function preloadAssets() {
   try {
     // 0. Environment Compatibility Check (Kill-Switch)
-    // We require SharedArrayBuffer for our Stockfish Engine (WASM Multi-threading).
-    // Most In-App WebViews (Telegram, Instagram, etc.) disable this or fail COOP/COEP headers.
+    // We require:
+    // - SharedArrayBuffer for Stockfish (WASM Multi-threading)
+    // - IndexedDB for local storage & state persistence
+    // - Cache API for ServiceWorker/Offline functionality
     const hasSharedArrayBuffer = typeof SharedArrayBuffer !== 'undefined'
+    const hasIndexedDB = !!window.indexedDB
+    const hasCacheApi = 'caches' in window
 
-    if (!hasSharedArrayBuffer) {
+    if (!hasSharedArrayBuffer || !hasIndexedDB || !hasCacheApi) {
       isWebview.value = true
       return // Stop loading, show incompatibility/webview block screen
     }
@@ -125,18 +129,18 @@ onMounted(() => {
       <img src="/png/extra_pawn_black.png" alt="Logo" class="loader-logo static" />
       <h2 class="loader-title error-text">OOPS!</h2>
       <p class="loader-text">
-        {{ t('app.globalLoader.webviewWarning', 'Es scheint, dass Sie die App in einem integrierten Browser (z.B. Telegram, Instagram) geöffnet haben. Für die volle Funktionalität benötigen wir einen echten Browser wie Google Chrome oder Safari.') }}
+        {{ t('app.globalLoader.webviewWarning') }}
       </p>
       
       <div class="copy-section">
         <input type="text" readonly :value="appUrl" class="copy-input" />
         <button @click="copyLink" class="copy-button" :class="{ 'is-copied': copied }">
-          {{ copied ? t('common.copied', 'Kopiert!') : t('common.copyLink', 'Link kopieren') }}
+          {{ copied ? t('common.copied') : t('common.copyLink') }}
         </button>
       </div>
       
       <p class="loader-hint" style="margin-top: 20px;">
-        {{ t('app.globalLoader.webviewAction', 'Bitte kopieren Sie den Link und öffnen Sie ihn in Ihrem Standard-Browser (Chrome oder Safari).') }}
+        {{ t('app.globalLoader.webviewAction') }}
       </p>
     </div>
   </div>
@@ -147,7 +151,7 @@ onMounted(() => {
       <img src="/png/extra_pawn_black.png" alt="Logo" class="loader-logo" />
       <h2 class="loader-title">EXTRAPAWN</h2>
       <p class="loader-text">
-        {{ t('app.globalLoader.message', 'Willkommen! Die App ist das erste Mal auf Ihrem Gerät und muss vollständig heruntergeladen werden. Das passiert nur einmal.') }}
+        {{ t('app.globalLoader.message') }}
       </p>
       
       <div class="progress-container">
@@ -158,7 +162,7 @@ onMounted(() => {
         <span v-if="totalBytes > 0">{{ loadedMb }} MB / {{ totalMb }} MB</span>
         <span v-else>{{ progress }}%</span>
       </div>
-      <p class="loader-hint">{{ t('app.globalLoader.hint', 'Sobald der Download fertig ist, kann die App komplett offline genutzt werden.') }}</p>
+      <p class="loader-hint">{{ t('app.globalLoader.hint') }}</p>
     </div>
   </div>
   <slot v-else></slot>
