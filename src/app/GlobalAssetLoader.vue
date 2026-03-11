@@ -27,15 +27,14 @@ const assetsToLoad = [
 
 async function preloadAssets() {
   try {
-    // 0. Feature Support Check (Replaces UserAgent WebView Check)
-    // Many embedded webviews disable ServiceWorkers or Caches. We require them.
-    const hasCacheApi = 'caches' in window
-    const hasServiceWorker = 'serviceWorker' in navigator
+    // 0. Environment Compatibility Check (Kill-Switch)
+    // We require SharedArrayBuffer for our Stockfish Engine (WASM Multi-threading).
+    // Most In-App WebViews (Telegram, Instagram, etc.) disable this or fail COOP/COEP headers.
+    const hasSharedArrayBuffer = typeof SharedArrayBuffer !== 'undefined'
 
-    // If these critical features are missing, block execution.
-    if (!hasCacheApi || !hasServiceWorker) {
+    if (!hasSharedArrayBuffer) {
       isWebview.value = true
-      return // Stop loading, show feature/webview block screen
+      return // Stop loading, show incompatibility/webview block screen
     }
 
     // 1. Fetch headers to get total size
