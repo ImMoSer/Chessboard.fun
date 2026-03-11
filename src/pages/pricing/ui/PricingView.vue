@@ -14,9 +14,12 @@ import {
     NTag,
     NText,
     NThing,
+    NButton,
+    useMessage,
 } from 'naive-ui'
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { apiClient } from '@/shared/api/client'
 
 const { t } = useI18n()
 
@@ -37,8 +40,11 @@ const KING_COLOR = 'var(--color-neon-gold)' // Gold for King
 
 const showBonusModal = ref(false)
 
+const loadingTier = ref<string | null>(null)
+
 const subscriptionTiers = [
   {
+    id: 'pawn',
     name: t('pricing.tiers.pawn.name'),
     icon: '/piece/alpha/wP.svg',
     pawncoins: PAWN_COINS,
@@ -47,6 +53,7 @@ const subscriptionTiers = [
     highlight: true,
   },
   {
+    id: 'knight',
     name: t('pricing.tiers.knight.name'),
     icon: '/piece/alpha/wN.svg',
     pawncoins: KNIGHT_COINS,
@@ -55,6 +62,7 @@ const subscriptionTiers = [
     isBonus: true,
   },
   {
+    id: 'bishop',
     name: t('pricing.tiers.bishop.name'),
     icon: '/piece/alpha/wB.svg',
     pawncoins: BISHOP_COINS,
@@ -63,28 +71,37 @@ const subscriptionTiers = [
     isBonus: true,
   },
   {
+    id: 'rook',
     name: t('pricing.tiers.rook.name'),
     role: t('pricing.tiers.rook.role'),
     icon: '/piece/alpha/wR.svg',
     pawncoins: ROOK_COINS,
     color: ROOK_COLOR,
-    price: t('pricing.tiers.rook.price'),
+    priceMonthly: t('pricing.tiers.rook.priceMonthly'),
+    priceYearly: t('pricing.tiers.rook.priceYearly'),
+    isPurchasable: true,
   },
   {
+    id: 'queen',
     name: t('pricing.tiers.queen.name'),
     role: t('pricing.tiers.queen.role'),
     icon: '/piece/alpha/wQ.svg',
     pawncoins: QUEEN_COINS,
     color: QUEEN_COLOR,
-    price: t('pricing.tiers.queen.price'),
+    priceMonthly: t('pricing.tiers.queen.priceMonthly'),
+    priceYearly: t('pricing.tiers.queen.priceYearly'),
+    isPurchasable: true,
   },
   {
+    id: 'king',
     name: t('pricing.tiers.king.name'),
     role: t('pricing.tiers.king.role'),
     icon: '/piece/alpha/wK.svg',
     pawncoins: KING_COINS,
     color: KING_COLOR,
-    price: t('pricing.tiers.king.price'),
+    priceMonthly: t('pricing.tiers.king.priceMonthly'),
+    priceYearly: t('pricing.tiers.king.priceYearly'),
+    isPurchasable: true,
   },
 ]
 
@@ -99,19 +116,44 @@ const gameCosts = [
 ]
 
 interface SubscriptionTier {
+  id: string
   name: string
   icon: string
   pawncoins: number
   color: string
-  price: string
+  price?: string
+  priceMonthly?: string
+  priceYearly?: string
   highlight?: boolean
   isBonus?: boolean
+  isPurchasable?: boolean
   role?: string
 }
+
+const message = useMessage()
 
 const handleTierClick = (tier: SubscriptionTier) => {
   if (tier.isBonus) {
     showBonusModal.value = true
+  }
+}
+
+const handleCheckout = async (tierId: string, interval: 'monthly' | 'yearly') => {
+  try {
+    loadingTier.value = tierId + '-' + interval
+    const response = await apiClient<{ success: boolean; url: string }>('/billing/checkout', {
+      method: 'POST',
+      body: JSON.stringify({ tier: tierId, interval })
+    })
+
+    if (response.success && response.url) {
+      window.location.href = response.url // Redirect to Polar
+    }
+  } catch (error: unknown) {
+    console.error('Checkout error:', error)
+    message.error(t('pricing.checkoutError', 'Error initiating checkout. Please try again.'))
+  } finally {
+    loadingTier.value = null
   }
 }
 </script>
@@ -170,9 +212,34 @@ const handleTierClick = (tier: SubscriptionTier) => {
                   </n-text>
                 </template>
                 <n-divider dashed style="margin: 12px 0" />
-                <n-text strong type="success" style="font-size: 1.1em">
+                
+                <template v-if="tier.isPurchasable">
+                  <n-space vertical size="small">
+                    <n-button 
+                      block 
+                      type="primary" 
+                      ghost 
+                      @click.stop="handleCheckout(tier.id, 'monthly')"
+                      :loading="loadingTier === tier.id + '-monthly'"
+                      :disabled="loadingTier !== null"
+                    >
+                      {{ tier.priceMonthly }}
+                    </n-button>
+                    <n-button 
+                      block 
+                      type="success" 
+                      @click.stop="handleCheckout(tier.id, 'yearly')"
+                      :loading="loadingTier === tier.id + '-yearly'"
+                      :disabled="loadingTier !== null"
+                    >
+                      {{ tier.priceYearly }}
+                    </n-button>
+                  </n-space>
+                </template>
+                <n-text v-else strong type="success" style="font-size: 1.1em; display: block; text-align: center;">
                   {{ tier.price }}
                 </n-text>
+
               </n-thing>
             </n-card>
           </n-gi>

@@ -503,19 +503,22 @@
         "name": "Rook",
         "role": "The \"No-Brainer\" entry for amateurs.",
         "description": "Daily replenishment up to {pawncoins} PawnCoins",
-        "price": "2.99 € / Month"
+        "priceMonthly": "2.99 € / Month",
+        "priceYearly": "29.99 € / Year"
       },
       "queen": {
         "name": "Queen",
         "role": "The \"Standard\" for ambitious club players.",
         "description": "Daily replenishment up to {pawncoins} PawnCoins",
-        "price": "4.99 € / Month"
+        "priceMonthly": "4.99 € / Month",
+        "priceYearly": "49.99 € / Year"
       },
       "king": {
         "name": "King",
         "role": "The \"Full-Power\" package for pros & analysts.",
         "description": "Daily replenishment up to {pawncoins} PawnCoins",
-        "price": "9.99 € / Month"
+        "priceMonthly": "9.99 € / Month",
+        "priceYearly": "99.99 € / Year"
       },
       "price": {
         "soon": "Price will be announced",
