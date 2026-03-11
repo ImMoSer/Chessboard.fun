@@ -477,6 +477,11 @@
       "ok": "OK",
       "invalid": "Invalid or already used code.",
       "error": "Error during redemption."
+    },
+    "polar": {
+      "successTitle": "Payment Successful! 🎉",
+      "successMessage": "Thank you for subscribing. Your account has been upgraded and your PawnCoins balance corresponds to your new tier.",
+      "ok": "Start Training"
     }
   },
   "pricing": {

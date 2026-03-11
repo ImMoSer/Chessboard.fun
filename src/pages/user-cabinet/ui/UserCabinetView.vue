@@ -26,9 +26,9 @@ import {
   useMessage,
 } from 'naive-ui'
 import { storeToRefs } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 import { ActivityChart } from '@/features/profile'
 import { ThemeRoseChart } from '@/features/profile'
@@ -55,7 +55,21 @@ const authStore = useAuthStore()
 const { userProfile, isAuthenticated } = storeToRefs(authStore)
 
 const route = useRoute()
+const router = useRouter()
 const isExample = computed(() => route.params.id === 'example')
+
+const showPolarSuccessModal = ref(false)
+
+onMounted(() => {
+  if (route.query.status === 'success') {
+    showPolarSuccessModal.value = true
+    
+    // Remove query param from URL without reloading
+    const query = { ...route.query }
+    delete query.status
+    router.replace({ query })
+  }
+})
 
 // Vue Query fetching
 const {
@@ -270,6 +284,24 @@ const handleRedeem = async () => {
         </n-text>
         <n-button type="primary" size="large" block @click="handleSuccessOk">
           {{ t('userCabinet.gift.ok') }}
+        </n-button>
+      </n-space>
+    </n-modal>
+
+    <!-- Polar Success Modal -->
+    <n-modal
+      v-model:show="showPolarSuccessModal"
+      preset="card"
+      style="max-width: 400px; background-color: var(--color-bg-panel)"
+      :title="t('userCabinet.polar.successTitle')"
+      :mask-closable="false"
+    >
+      <n-space vertical :size="24">
+        <n-text style="font-size: 1.1em; line-height: 1.5;">
+          {{ t('userCabinet.polar.successMessage') }}
+        </n-text>
+        <n-button type="primary" size="large" block @click="showPolarSuccessModal = false">
+          {{ t('userCabinet.polar.ok') }}
         </n-button>
       </n-space>
     </n-modal>
