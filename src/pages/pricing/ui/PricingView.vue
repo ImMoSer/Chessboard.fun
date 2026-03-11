@@ -213,7 +213,7 @@ const handleCheckout = async (tierId: string, interval: 'monthly' | 'yearly') =>
                 </template>
                 <n-divider dashed style="margin: 12px 0" />
                 
-                <template v-if="tier.isPurchasable">
+                <div v-if="tier.isPurchasable" style="min-height: 72px;">
                   <n-space vertical size="small">
                     <n-button 
                       block 
@@ -235,10 +235,12 @@ const handleCheckout = async (tierId: string, interval: 'monthly' | 'yearly') =>
                       {{ tier.priceYearly }}
                     </n-button>
                   </n-space>
-                </template>
-                <n-text v-else strong type="success" style="font-size: 1.1em; display: block; text-align: center;">
-                  {{ tier.price }}
-                </n-text>
+                </div>
+                <div v-else style="min-height: 72px; display: flex; align-items: center; justify-content: center;">
+                  <n-text strong type="success" style="font-size: 1.1em; text-align: center;">
+                    {{ tier.price }}
+                  </n-text>
+                </div>
 
               </n-thing>
             </n-card>
