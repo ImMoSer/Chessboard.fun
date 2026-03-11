@@ -296,6 +296,7 @@ onMounted(() => {
 
 .copy-input {
   width: 100%;
+  box-sizing: border-box;
   padding: 12px 16px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -308,6 +309,8 @@ onMounted(() => {
 }
 
 .copy-button {
+  width: 100%;
+  box-sizing: border-box;
   padding: 12px 24px;
   background: #00f2ff;
   border: none;
