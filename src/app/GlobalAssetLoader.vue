@@ -14,6 +14,18 @@ const totalBytes = ref(0) // Will be updated during fetch
 const { t } = useI18n({ useScope: 'global' })
 
 const isWebview = ref(false)
+const appUrl = window.location.origin
+const copied = ref(false)
+
+async function copyLink() {
+  try {
+    await navigator.clipboard.writeText(appUrl)
+    copied.value = true
+    setTimeout(() => (copied.value = false), 2000)
+  } catch (err) {
+    console.error('Failed to copy:', err)
+  }
+}
 
 const loadedMb = computed(() => (loadedBytes.value / 1024 / 1024).toFixed(1))
 const totalMb = computed(() => (totalBytes.value / 1024 / 1024).toFixed(1))
@@ -116,8 +128,15 @@ onMounted(() => {
         {{ t('app.globalLoader.webviewWarning', 'Es scheint, dass Sie die App in einem integrierten Browser (z.B. Telegram, Instagram) geöffnet haben. Für die volle Funktionalität benötigen wir einen echten Browser wie Google Chrome oder Safari.') }}
       </p>
       
+      <div class="copy-section">
+        <input type="text" readonly :value="appUrl" class="copy-input" />
+        <button @click="copyLink" class="copy-button" :class="{ 'is-copied': copied }">
+          {{ copied ? t('common.copied', 'Kopiert!') : t('common.copyLink', 'Link kopieren') }}
+        </button>
+      </div>
+      
       <p class="loader-hint" style="margin-top: 20px;">
-        {{ t('app.globalLoader.webviewAction', 'Bitte öffnen Sie den Link extern im Standard-Browser Ihres Geräts.') }}
+        {{ t('app.globalLoader.webviewAction', 'Bitte kopieren Sie den Link und öffnen Sie ihn in Ihrem Standard-Browser (Chrome oder Safari).') }}
       </p>
     </div>
   </div>
@@ -240,6 +259,49 @@ onMounted(() => {
 .webview-blocker {
   border-color: rgba(255, 60, 60, 0.4);
   box-shadow: 0 8px 32px rgba(255, 60, 60, 0.2);
+}
+
+.copy-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.copy-input {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: #fff;
+  font-size: 0.9rem;
+  text-align: center;
+  outline: none;
+  cursor: default;
+}
+
+.copy-button {
+  padding: 12px 24px;
+  background: #00f2ff;
+  border: none;
+  border-radius: 12px;
+  color: #0b0d17;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Outfit', sans-serif;
+}
+
+.copy-button:hover {
+  background: #0088ff;
+  box-shadow: 0 0 15px rgba(0, 242, 255, 0.4);
+}
+
+.copy-button.is-copied {
+  background: #27ae60;
+  color: #fff;
 }
 
 .error-text {
