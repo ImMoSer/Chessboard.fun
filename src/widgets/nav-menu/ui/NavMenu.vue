@@ -38,6 +38,9 @@ function renderIcon(icon: Component) {
   return () => h(NIcon, null, { default: () => h(icon) })
 }
 
+// Custom Icon for Legal (§)
+const ParagraphIcon = () => h('span', { style: 'font-weight: bold; font-size: 1.2rem; font-family: serif;' }, '§')
+
 const menuOptions: MenuOption[] = [
   {
     label: () => t('nav.home'),
@@ -102,7 +105,7 @@ const menuOptions: MenuOption[] = [
   {
     label: () => t('nav.legal'),
     key: '/legal',
-    icon: renderIcon(InformationCircleOutline),
+    icon: renderIcon(ParagraphIcon),
   },
 ]
 
