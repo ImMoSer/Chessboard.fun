@@ -403,6 +403,7 @@ export interface UserSessionProfile extends LichessUserProfile {
   spentToday: number
   base_puzzle_rating: number
   subscriptionTier: SubscriptionTier
+  isPaidSubscriber?: boolean
   validatedAt?: number
   TierExpire?: string | null
   endgame_skill: number

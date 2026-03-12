@@ -168,6 +168,23 @@ const handleRedeem = async () => {
     isRedeeming.value = false
   }
 }
+
+const isManagingSubscription = ref(false)
+const handleManageSubscription = async () => {
+  isManagingSubscription.value = true
+  try {
+    const res = await apiClient<{ success: boolean; url: string }>('/billing/portal', {
+      method: 'POST',
+    })
+    if (res.success && res.url) {
+      window.location.href = res.url
+    }
+  } catch {
+    message.error(t('userCabinet.subscription.error', 'Failed to open customer portal.'))
+  } finally {
+    isManagingSubscription.value = false
+  }
+}
 </script>
 
 <template>
@@ -264,6 +281,23 @@ const handleRedeem = async () => {
                 {{ t('userCabinet.gift.activate') }}
               </n-button>
             </n-input-group>
+          </n-space>
+        </n-card>
+
+        <!-- Manage Subscription Area -->
+        <n-card v-if="userProfile?.isPaidSubscriber" :bordered="false" class="gift-redeem-card" embedded>
+          <n-space vertical>
+            <n-h3 style="margin-bottom: 0;">⚙️ Manage Subscription</n-h3>
+            <n-text depth="3">Manage your billing details, download invoices, or cancel your subscription.</n-text>
+            <n-button
+              type="primary"
+              size="large"
+              :loading="isManagingSubscription"
+              @click="handleManageSubscription"
+              style="margin-top: 8px; width: fit-content;"
+            >
+              Open Customer Portal
+            </n-button>
           </n-space>
         </n-card>
       </n-space>
