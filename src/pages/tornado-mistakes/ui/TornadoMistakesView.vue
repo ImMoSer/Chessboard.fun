@@ -415,7 +415,7 @@ async function handleExit() {
 }
 
 .stat-value {
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Ubuntu', sans-serif;
   font-weight: 800;
   font-size: 1.2rem;
 }

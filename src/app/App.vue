@@ -27,7 +27,7 @@ const isDrawerOpen = ref(false)
  */
 const themeOverrides: GlobalThemeOverrides = {
   common: {
-    fontFamily: 'Outfit, sans-serif',
+    fontFamily: 'Ubuntu, sans-serif',
     primaryColor: '#00f2ff',
     primaryColorHover: '#00d7e6',
     primaryColorPressed: '#00d7e6',

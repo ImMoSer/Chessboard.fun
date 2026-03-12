@@ -1,5 +1,6 @@
 @import '@lichess-org/chessground/assets/chessground.base.css';
 @import '@lichess-org/chessground/assets/chessground.brown.css';
+@import './fonts.css';
 
 :root {
   /* --- Layout --- */
@@ -54,8 +55,8 @@
   --color-text-link: var(--color-neon-cyan);
 
   /* --- Typography --- */
-  --font-family-primary: 'Outfit', sans-serif;
-  --font-family-brand: 'Outfit', sans-serif;
+  --font-family-primary: 'Ubuntu', sans-serif;
+  --font-family-brand: 'Ubuntu', sans-serif;
   --font-size-base: 1rem;
   --font-size-large: 1.5rem;
   --font-size-xlarge: 2rem;

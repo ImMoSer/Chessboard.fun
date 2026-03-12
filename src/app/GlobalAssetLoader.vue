@@ -199,7 +199,7 @@ onMounted(() => {
   background-color: #0b0d17; /* Dark space background */
   z-index: 99999;
   color: #fff;
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Ubuntu', sans-serif;
 }
 
 .loader-content {
@@ -319,7 +319,7 @@ onMounted(() => {
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Ubuntu', sans-serif;
 }
 
 .copy-button:hover {
@@ -357,7 +357,7 @@ onMounted(() => {
   cursor: pointer;
   padding: 4px 8px;
   transition: all 0.2s ease;
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Ubuntu', sans-serif;
 }
 
 .lang-btn:hover {
