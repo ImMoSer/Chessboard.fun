@@ -1,4 +1,73 @@
 {
+  "legal": {
+    "title": "Legal Information",
+    "precedence": "This translation is provided for information purposes only. In the event of any discrepancies or conflicts between this English version and the German original, the German version shall prevail and be legally binding.",
+    "tabs": {
+      "imprint": "Imprint",
+      "privacy": "Privacy",
+      "terms": "Terms"
+    },
+    "imprint": {
+      "title": "Imprint",
+      "subtitle": "Information according to § 5 DDG",
+      "name": "Sergej Siemens, M.Eng.",
+      "address": "Schuhbauerstraße 19\n84166 Adlkofen",
+      "contact": "Contact",
+      "email": "E-Mail: immozerai{'@'}gmail.com",
+      "phone": "Phone: +4917681068118",
+      "vatId": "Value Added Tax Identification Number according to § 27 a of the Value Added Tax Act: DE366185109",
+      "dispute": "Dispute Resolution",
+      "disputeText": "EU Online Dispute Resolution platform:",
+      "disputeLink": "https://ec.europa.eu/consumers/odr/",
+      "disputeRefusal": "Consumer dispute resolution: We are not willing or obliged to participate in dispute resolution proceedings before a consumer arbitration board.",
+      "legalNotice": "Legal Notice",
+      "liabilityTitle": "Liability for Contents & Links",
+      "liabilityContent": "As a service provider, we are responsible for our own content according to general laws (§ 7 Para. 1 DDG). There is no obligation to monitor transmitted or stored third-party information (§§ 8-10 DDG). Upon becoming aware of legal violations, we will immediately remove corresponding content or links to external third-party websites. No liability is assumed for external content.",
+      "copyrightTitle": "Copyright",
+      "copyrightContent": "The content created by us on these pages is subject to German copyright law. Duplication, processing, and any kind of exploitation outside the limits of copyright law require written consent. Downloads and copies are only permitted for private use."
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "sections": {
+        "introTitle": "1. Introduction and Data Controller",
+        "introContent": "The protection of your personal data is an important concern for us. We follow the 'Privacy by Design' approach: We only process data that is technically absolutely necessary for the operation of the app.\n\nController within the meaning of the GDPR:\nSergej Siemens, M.Eng.\nSchuhbauerstraße 19\n84166 Adlkofen\nE-Mail: immozerai{'@'}gmail.com",
+        "logfilesTitle": "2. Data Collection upon Access (Server Logfiles)",
+        "logfilesContent": "Each time the website is accessed, our system automatically collects data and information from the computer system of the accessing computer. The following data is collected:\n\nUser's IP address\nDate and time of access\nBrowser type and version used\nUser's operating system\n\nLegal basis: Art. 6 Para. 1 lit. f GDPR (Legitimate Interest). Storage serves IT security and the defense against attack attempts. Logfiles are automatically deleted after a maximum of 14 days.",
+        "hostingTitle": "3. Hosting (Order Processing)",
+        "hostingContent": "Our app is hosted on servers of netcup GmbH (Karlsruhe, Germany). We have concluded an order processing agreement (AVV) with the provider in accordance with Art. 28 GDPR to ensure that your data is processed strictly according to our instructions and in compliance with the GDPR.",
+        "lichessTitle": "4. Authentication via Lichess (OAuth 2.0)",
+        "lichessContent": "You can log in to EXTRAPAWN via your Lichess account using the OAuth 2.0 procedure.\n\nProcess: You will be redirected to Lichess and authorize access there.\nData: We receive your username from Lichess and link it to your EXTRAPAWN profile.\nPurpose: Provision of core functions (analysis of your games).\nLegal basis: Art. 6 Para. 1 lit. b GDPR (Contract Fulfillment).",
+        "paymentTitle": "5. Payment Processing (Polar.sh / Stripe)",
+        "paymentContent": "For the conclusion of subscriptions, we use the services of Polar.sh and Stripe.\n\nProcessing: When you upgrade, your payment data is collected and processed directly by Polar/Stripe. We do not store credit card data on our own servers at any time. For more information on data processing, please refer to the Polar.sh privacy policy:",
+        "paymentLink": "https://polar.sh/legal/privacy",
+        "storageTitle": "6. Local Storage (Local Storage / Session)",
+        "storageContent": "EXTRAPAWN does not use marketing cookies. We only use the 'Local Storage' of your browser to store technically necessary settings:\n\nLogin status (Auth-Token): To keep you logged in.\nLanguage settings (i18n): So the app appears in your preferred language.\nUI settings: e.g., your chosen board design.\n\nLegal basis: Art. 6 Para. 1 lit. f GDPR. This data is strictly necessary for the operation of the app; consent (cookie banner) is therefore not required.",
+        "fontsTitle": "7. No Third-Party Content (Fonts & Tracking)",
+        "fontsContent": "Fonts: We do not use external services like Google Fonts. All fonts (e.g., Ubuntu) are served locally from our own servers.\nTracking: We do not use analysis tools (like Google Analytics) or marketing pixels.",
+        "rightsTitle": "8. Your Rights",
+        "rightsContent": "You have the following rights regarding your personal data:\n\nRight to information (Art. 15 GDPR)\nRight to rectification or erasure (Art. 16/17 GDPR)\nRight to restriction of processing (Art. 18 GDPR)\nRight to data portability (Art. 20 GDPR)\n\nYou also have the right to complain to a data protection supervisory authority about the processing of your personal data by us."
+      }
+    },
+    "terms": {
+      "title": "Terms and Conditions (AGB)",
+      "sections": {
+        "introTitle": "1. Scope and Provider",
+        "introContent": "These Terms and Conditions apply to the use of the EXTRAPAWN platform, operated by Sergej Siemens, M.Eng., Schuhbauerstraße 19, 84166 Adlkofen (hereinafter referred to as 'Provider').",
+        "subjectTitle": "2. Subject of Contract and Performance Description",
+        "subjectContent": "(1) EXTRAPAWN is an analysis and training platform for chess players. The platform is operated on a freemium model.\n(2) Free Basic Version: Users can use basic functions without charge. There is no claim to the permanent availability of these functions.\n(3) Paid Subscription (Pro): The paid main service includes access to advanced training modules, in particular an extensive database for tactical puzzles and endgame training (theoretical and practical nature).\n(4) Additional Functions (Statistics/AI): The provider may provide graphical analyses, statistics, and AI-supported evaluations as part of the subscription. These functions are expressly voluntary additional services. They are not part of the guaranteed quality of the Pro version. The provider reserves the right to change, expand, or remove these functions at any time as part of technical further development.",
+        "contractTitle": "3. Conclusion of Contract and Payment Processing",
+        "contractContent": "(1) The acquisition of subscriptions takes place via the service provider Polar.sh (Merchant of Record). The terms and conditions of Polar.sh apply additionally.\n(2) The contract for the subscription is concluded as soon as the user has successfully completed the payment process at Polar.sh.",
+        "withdrawalTitle": "4. Right of Withdrawal for Digital Content",
+        "withdrawalContent": "By purchasing a subscription and immediately providing the digital content, the user expressly agrees that the provider begins with the execution of the contract before the expiry of the withdrawal period. The user confirms his knowledge that he loses his right of withdrawal through this consent. A corresponding checkbox is provided in the checkout process.",
+        "terminationTitle": "5. Termination and Duration",
+        "terminationContent": "(1) Subscriptions have the chosen duration (e.g., monthly or yearly).\n(2) Termination is possible at any time without notice to the end of the paid period.\n(3) After termination, the Pro functions remain fully available until the end of the already paid period. A refund of already paid amounts will not be made.",
+        "liabilityTitle": "6. Limitation of Liability",
+        "liabilityContent": "(1) The provider is liable without limitation in cases of intent or gross negligence and in the event of injury to life, body, or health.\n(2) In cases of slight negligence, the provider is only liable for the breach of an essential contractual obligation (cardinal obligation). In this case, liability is limited to the typical damage foreseeable at the time the contract was concluded.\n(3) Liability for the loss of game data, statistics, or progress values as part of the voluntary additional services (see § 2 Para. 4) is excluded, unless intentional action is involved. The user is responsible for securing his data generated at Lichess.",
+        "changesTitle": "7. Changes to the App and the Terms",
+        "changesContent": "The provider is entitled to adapt the app within the scope of technical improvement and further development (update right). Significant changes to the terms will be communicated to the user in a timely manner."
+      }
+    }
+  },
   "app": {
     "title": "EXTRAPAWN",
     "globalLoader": {
@@ -189,6 +258,7 @@
     "userCabinet": "Cabinet",
     "pricing": "Pricing",
     "about": "About",
+    "legal": "Legal",
     "study": "Repertoire",
     "login": "Login",
     "logout": "Logout",

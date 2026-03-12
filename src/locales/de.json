@@ -1,1 +1,89 @@
-{ "будет сделанно позже": "будет сделанно позже, сейчас работаем только с английскими ключами" }
+{
+  "legal": {
+    "title": "Rechtliche Informationen",
+    "tabs": {
+      "imprint": "Impressum",
+      "privacy": "Datenschutz",
+      "terms": "AGB"
+    },
+    "imprint": {
+      "title": "Impressum",
+      "subtitle": "Angaben gemäß § 5 DDG",
+      "name": "Sergej Siemens, M.Eng.",
+      "address": "Schuhbauerstraße 19\n84166 Adlkofen",
+      "contact": "Kontakt",
+      "email": "E-Mail: immozerai{'@'}gmail.com",
+      "phone": "Telefon: +4917681068118",
+      "vatId": "Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz: DE366185109",
+      "dispute": "Streitbeilegung",
+      "disputeText": "EU-Plattform zur Online-Streitbeilegung:",
+      "disputeLink": "https://ec.europa.eu/consumers/odr/",
+      "disputeRefusal": "Verbraucherstreitbeilegung: Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.",
+      "legalNotice": "Rechtliche Hinweise",
+      "liabilityTitle": "Haftung für Inhalte & Links",
+      "liabilityContent": "Als Diensteanbieter sind wir für eigene Inhalte nach den allgemeinen Gesetzen verantwortlich (§ 7 Abs.1 DDG). Für übermittelte oder gespeicherte fremde Informationen besteht keine Überwachungspflicht (§§ 8-10 DDG). Bei Bekanntwerden von Rechtsverletzungen werden wir entsprechende Inhalte oder Links zu externen Webseiten Dritter umgehend entfernen. Eine Gewähr für externe Inhalte wird nicht übernommen.",
+      "copyrightTitle": "Urheberrecht",
+      "copyrightContent": "Die durch uns erstellten Inhalte auf diesen Seiten unterliegen dem deutschen Urheberrecht. Die Vervielfältigung, Bearbeitung und jede Art der Verwertung außerhalb der Grenzen des Urheberrechtes bedürfen der schriftlichen Zustimmung. Downloads und Kopien sind nur für den privaten Gebrauch gestattet."
+    },
+    "privacy": {
+      "title": "Datenschutzerklärung",
+      "sections": {
+        "introTitle": "1. Einleitung und Verantwortlicher",
+        "introContent": "Der Schutz deiner persönlichen Daten ist uns ein wichtiges Anliegen. Wir verfolgen den Ansatz „Privacy by Design“: Wir verarbeiten nur Daten, die technisch für den Betrieb der App absolut notwendig sind.\n\nVerantwortlicher im Sinne der DSGVO:\nSergej Siemens, M.Eng.\nSchuhbauerstraße 19\n84166 Adlkofen\nE-Mail: immozerai{'@'}gmail.com",
+        "logfilesTitle": "2. Datenerfassung beim Zugriff (Server-Logfiles)",
+        "logfilesContent": "Bei jedem Aufruf der Webseite erfasst unser System automatisiert Daten und Informationen vom Computersystem des aufrufenden Rechners. Folgende Daten werden dabei erhoben:\n\nIP-Adresse des Nutzers\nDatum und Uhrzeit des Zugriffs\nBrowsertyp und verwendete Version\nBetriebssystem des Nutzers\n\nRechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (Berechtigtes Interesse). Die Speicherung dient der IT-Sicherheit und der Abwehr von Angriffsversuchen. Logfiles werden nach spätestens 14 Tagen automatisiert gelöscht.",
+        "hostingTitle": "3. Hosting (Auftragsverarbeitung)",
+        "hostingContent": "Unsere App wird auf Servern der netcup GmbH (Karlsruhe, Deutschland) gehostet. Wir haben mit dem Anbieter einen Vertrag zur Auftragsverarbeitung (AVV) gemäß Art. 28 DSGVO abgeschlossen, um sicherzustellen, dass deine Daten streng nach unseren Weisungen und DSGVO-konform verarbeitet werden.",
+        "lichessTitle": "4. Authentifizierung via Lichess (OAuth 2.0)",
+        "lichessContent": "Du kannst dich bei EXTRAPAWN über deinen Lichess-Account anmelden. Hierbei nutzen wir das OAuth 2.0 Verfahren.\n\nAblauf: Du wirst zu Lichess weitergeleitet und autorisierst dort den Zugriff.\nDaten: Wir erhalten von Lichess deinen Benutzernamen (Username) und verknüpfen diesen mit deinem EXTRAPAWN-Profil.\nZweck: Bereitstellung der Kernfunktionen (Analyse deiner Partien).\nRechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung).",
+        "paymentTitle": "5. Zahlungsabwicklung (Polar.sh / Stripe)",
+        "paymentContent": "Für den Abschluss von Abonnements nutzen wir die Dienste von Polar.sh und Stripe.\n\nAbwicklung: Wenn du ein Upgrade durchführst, werden deine Zahlungsdaten direkt von Polar/Stripe erhoben und verarbeitet. Wir speichern zu keinem Zeitpunkt Kreditkartendaten auf unseren eigenen Servern. Weitere Informationen zur Datenverarbeitung findest du in der Datenschutzerklärung von Polar.sh:",
+        "paymentLink": "https://polar.sh/legal/privacy",
+        "storageTitle": "6. Lokale Speicherung (Local Storage / Session)",
+        "storageContent": "EXTRAPAWN nutzt keine Marketing-Cookies. Wir verwenden lediglich den „Local Storage“ deines Browsers, um technisch notwendige Einstellungen zu speichern:\n\nLogin-Status (Auth-Token): Damit du eingeloggt bleibst.\nSpracheinstellungen (i18n): Damit die App in deiner bevorzugten Sprache erscheint.\nUI-Einstellungen: Z.B. dein gewähltes Board-Design.\n\nRechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO. Diese Daten sind für den Betrieb der App zwingend erforderlich; eine Einwilligung (Cookie-Banner) ist daher nicht notwendig.",
+        "fontsTitle": "7. Keine Drittanbieter-Inhalte (Fonts & Tracking)",
+        "fontsContent": "Schriftarten: Wir nutzen keine externen Dienste wie Google Fonts. Alle Schriftarten (z.B. Ubuntu) werden lokal von unseren eigenen Servern ausgeliefert.\nTracking: Wir setzen keine Analyse-Tools (wie Google Analytics) oder Marketing-Pixel ein.",
+        "rightsTitle": "8. Deine Rechte",
+        "rightsContent": "Du hast gegenüber uns folgende Rechte hinsichtlich deiner personenbezogenen Daten:\n\nRecht auf Auskunft (Art. 15 DSGVO)\nRecht auf Berichtigung oder Löschung (Art. 16/17 DSGVO)\nRecht auf Einschränkung der Verarbeitung (Art. 18 DSGVO)\nRecht auf Datenübertragbarkeit (Art. 20 DSGVO)\n\nZudem hast du das Recht, dich bei einer Datenschutz-Aufsichtsbehörde über die Verarbeitung deiner personenbezogenen Daten durch uns zu beschweren."
+      }
+    },
+    "terms": {
+      "title": "Allgemeine Geschäftsbedingungen",
+      "sections": {
+        "introTitle": "1. Geltungsbereich und Anbieter",
+        "introContent": "Diese AGB gelten für die Nutzung der Plattform EXTRAPAWN, betrieben durch Sergej Siemens, M.Eng., Schuhbauerstraße 19, 84166 Adlkofen (nachfolgend „Anbieter“).",
+        "subjectTitle": "2. Vertragsgegenstand und Leistungsbeschreibung",
+        "subjectContent": "(1) EXTRAPAWN ist eine Analyse- and Trainingsplattform für Schachspieler. Die Plattform wird im Freemium-Modell betrieben.\n(2) Kostenlose Grundversion: Nutzer können Basisfunktionen ohne Entgelt nutzen. Es besteht kein Anspruch auf dauerhafte Verfügbarkeit dieser Funktionen.\n(3) Kostenpflichtiges Abonnement (Pro): Die kostenpflichtige Hauptleistung umfasst den Zugang zu erweiterten Trainingsmodulen, insbesondere einer umfangreichen Datenbank für Taktikaufgaben und Endspiel-Training (theoretischer und praktischer Natur).\n(4) Zusatzfunktionen (Statistiken/KI): Der Anbieter stellt im Rahmen des Abonnements ggf. grafische Analysen, Statistiken und KI-gestützte Auswertungen bereit. Diese Funktionen sind ausdrücklich freiwillige Zusatzleistungen. Sie sind nicht Bestandteil der garantierten Beschaffenheit der Pro-Version. Der Anbieter behält sich vor, diese Funktionen im Rahmen der technischen Weiterentwicklung jederzeit zu ändern, zu erweitern oder zu entfernen.",
+        "contractTitle": "3. Vertragsschluss und Zahlungsabwicklung",
+        "contractContent": "(1) Der Erwerb von Abonnements erfolgt über den Dienstleister Polar.sh (Merchant of Record). Es gelten hierfür ergänzend die Geschäftsbedingungen von Polar.sh.\n(2) Der Vertrag über das Abonnement kommt zustande, sobald der Nutzer den Zahlungsprozess bei Polar.sh erfolgreich abgeschlossen hat.",
+        "withdrawalTitle": "4. Widerrufsrecht bei digitalen Inhalten",
+        "withdrawalContent": "Mit dem Kauf eines Abonnements und der sofortigen Bereitstellung der digitalen Inhalte erklärt sich der Nutzer ausdrücklich damit einverstanden, dass der Anbieter vor Ablauf der Widerrufsfrist mit der Ausführung des Vertrags beginnt. Der Nutzer bestätigt seine Kenntnis davon, dass er durch diese Zustimmung sein Widerrufsrecht verliert. Ein entsprechendes Kontrollkästchen wird im Checkout-Prozess bereitgestellt.",
+        "terminationTitle": "5. Kündigung und Laufzeit",
+        "terminationContent": "(1) Abonnements haben die jeweils gewählte Laufzeit (z.B. monatlich oder jährlich).\n(2) Eine Kündigung ist jederzeit ohne Einhaltung einer Frist zum Ende des bezahlten Zeitraums möglich.\n(3) Nach der Kündigung bleiben die Pro-Funktionen bis zum Ablauf des bereits bezahlten Zeitraums vollumfänglich erhalten. Eine Rückerstattung bereits gezahlter Beträge erfolgt nicht.",
+        "liabilityTitle": "6. Haftungsbeschränkung",
+        "liabilityContent": "(1) Der Anbieter haftet unbeschränkt bei Vorsatz oder grober Fahrlässigkeit sowie bei Verletzung von Leben, Körper oder Gesundheit.\n(2) Bei leichter Fahrlässigkeit haftet der Anbieter nur bei Verletzung einer wesentlichen Vertragspflicht (Kardinalpflicht). In diesem Fall ist die Haftung auf den bei Vertragsschluss vorhersehbaren, typischen Schaden begrenzt.\n(3) Die Haftung für den Verlust von Spieldaten, Statistiken oder Fortschrittswerten im Rahmen der freiwilligen Zusatzleistungen (siehe § 2 Abs. 4) ist ausgeschlossen, sofern kein vorsätzliches Handeln vorliegt. Der Nutzer ist für die Sicherung seiner bei Lichess generierten Daten selbst verantwortlich.",
+        "changesTitle": "7. Änderungen der App und der AGB",
+        "changesContent": "Der Anbieter ist berechtigt, die App im Rahmen der technischen Verbesserung und Weiterentwicklung anzupassen (Update-Recht). Wesentliche Änderungen der AGB werden dem Nutzer rechtzeitig mitgeteilt."
+      }
+    }
+  },
+  "nav": {
+    "legal": "Rechtliches"
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "selectBoard": "Schachbrett",
+    "selectPieces": "Figuren",
+    "selectLanguage": "Sprache",
+    "back": "Zurück",
+    "sounds": {
+      "title": "Töne",
+      "voice": "Stimme",
+      "board": "Brett"
+    },
+    "animation": {
+      "title": "Animation",
+      "duration": "Dauer"
+    }
+  }
+}

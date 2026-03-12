@@ -13,6 +13,7 @@ import { useTheoryEndingsStore } from '@/features/theory-endings'
 import { useTornadoStore } from '@/features/tornado'
 
 import { AboutPage } from '@/pages/about'
+import { LegalPage } from '@/pages/legal'
 import { FinishHimPage } from '@/pages/finish-him'
 import { PricingPage } from '@/pages/pricing'
 import { RecordsPagePage as RecordsPage } from '@/pages/records-page'
@@ -85,6 +86,11 @@ const router = createRouter({
       path: '/about',
       name: 'about',
       component: AboutPage,
+    },
+    {
+      path: '/legal',
+      name: 'legal',
+      component: LegalPage,
     },
     {
       path: '/records/:id?',

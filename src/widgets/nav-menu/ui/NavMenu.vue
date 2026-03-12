@@ -99,6 +99,11 @@ const menuOptions: MenuOption[] = [
     key: '/about',
     icon: renderIcon(InformationCircleOutline),
   },
+  {
+    label: () => t('nav.legal'),
+    key: '/legal',
+    icon: renderIcon(InformationCircleOutline),
+  },
 ]
 
 // Determine current active key based on route path
