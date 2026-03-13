@@ -109,9 +109,12 @@ const filteredMenuItems = computed(() => {
     <div class="content-wrapper">
       <!-- Hero Section -->
       <div class="hero-section">
-        <div class="brand-wrapper">
+        <div class="brand-group">
           <img src="/png/extra_pawn_black.png" alt="EXTRAPAWN" class="hero-logo" />
-          <h1 class="brand-name brand-text">EXTRAPAWN</h1>
+          <div class="brand-text-content">
+            <h1 class="brand-name brand-text">EXTRAPAWN</h1>
+            <p class="brand-slogan">{{ t('welcome.slogan') }}</p>
+          </div>
         </div>
 
         <!-- Login Button (Visible only if not authenticated) -->
@@ -225,17 +228,36 @@ const filteredMenuItems = computed(() => {
   filter: drop-shadow(0 0 15px rgba(0, 242, 255, 0.2));
 }
 
-.brand-wrapper {
+.brand-group {
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 20px;
   animation: float 6s ease-in-out infinite;
+}
+
+.brand-text-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
 }
 
 .brand-name {
   margin: 0;
   font-size: clamp(2rem, 6vw, 4.5rem);
   line-height: 1;
+}
+
+.brand-slogan {
+  margin: 0;
+  font-size: clamp(0.7rem, 1.5vw, 1.2rem);
+  font-weight: 400;
+  color: var(--color-text-muted);
+  letter-spacing: 0.25rem;
+  text-transform: uppercase;
+  opacity: 0.7;
+  text-align: center;
 }
 
 @keyframes float {
@@ -341,9 +363,12 @@ const filteredMenuItems = computed(() => {
     gap: 10px;
   }
 
-  .brand-wrapper {
-    flex-direction: column;
-    gap: 8px;
+  .brand-group {
+    gap: 10px;
+  }
+
+  .brand-text-content {
+    gap: 5px;
   }
 
   .hero-logo {
