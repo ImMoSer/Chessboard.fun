@@ -7,9 +7,10 @@ import { useSmartHintStore } from '@/features/smart-hint'
 import { shareService } from '@/shared/lib/share.service'
 import { computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
 import { AnalysisPanel } from '@/features/analysis'
-import { UserProfileWidget, TheoryStackbarChart } from '@/features/profile'
+import { UserProfileWidget, ThemeRoseChart } from '@/features/profile'
 import { YouMoveSelection } from '@/features/practical-chess'
 import { ControlPanel, GameLayout, TopInfoPanel, useControlsStore } from '@/widgets/game-layout'
 import { useDetailedStatsQuery } from '@/shared/api/queries/userCabinet.queries'
@@ -17,6 +18,7 @@ import { normalizeProfileStats } from '@/shared/lib/statsNormalizer'
 import { useAuthStore } from '@/entities/user'
 import type { GameLaunchOptions, PracticalChessDifficulty, PracticalChessCategory } from '@/shared/types/api.types'
 
+const { t } = useI18n()
 const practicalStore = usePracticalChessStore()
 const gameStore = useGameStore()
 const controlsStore = useControlsStore()
@@ -33,12 +35,17 @@ const normalizedStats = computed(() => {
   return normalizeProfileStats(detailedStatsData.value || null, baseRating)
 })
 
+const currentPracticalThemes = computed(() => {
+  if (!normalizedStats.value?.practical?.modes) return []
+  return normalizedStats.value.practical.modes[practicalStore.activeDifficulty || 'Novice'] || []
+})
+
 const handleImprove = (options: GameLaunchOptions) => {
   if (options.mode === 'practical') {
-    if (!options.theme || !options.difficulty) {
+    if (!options.theme || !options.subMode) {
       throw new Error('[PracticalChessView] handleImprove was called with missing options!')
     }
-    practicalStore.selectDifficulty(options.difficulty as PracticalChessDifficulty)
+    practicalStore.selectDifficulty(options.subMode as PracticalChessDifficulty)
     practicalStore.selectCategory(options.theme as PracticalChessCategory)
     practicalStore.loadNewPuzzle()
   }
@@ -143,10 +150,12 @@ watch(
     <template #right-panel>
       <div class="right-panel-content-wrapper">
         <AnalysisPanel v-if="analysisStore.isPanelVisible" />
-        <TheoryStackbarChart
+        <ThemeRoseChart
           v-if="normalizedStats && normalizedStats.practical"
-          :stats="normalizedStats.practical.stats"
+          :activeMode="practicalStore.activeDifficulty || 'Novice'"
           mode="practical"
+          :themes="currentPracticalThemes"
+          :title="t('userCabinet.stats.modes.practical')"
           @improve="handleImprove"
         />
       </div>

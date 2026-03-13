@@ -469,23 +469,23 @@ export interface FinishHimProfileDto {
 // export interface AdvantageProfileDto { ... }
 
 export interface TheoryEndingProfileDto {
-  stats: Record<string, { requested: number; success: number }>
+  modes: Record<string, FinishHimThemeStatDto[]>
 }
 
 export interface PracticalChessProfileDto {
-  stats: Record<string, { requested: number; success: number }>
+  modes: Record<string, FinishHimThemeStatDto[]>
 }
 
 export interface UserProfileStatsDto {
   tornado: TornadoProfileDto
   finish_him: FinishHimProfileDto
-  // advantage: AdvantageProfileDto // Removed in favor of finish_him
-  theory: TheoryEndingProfileDto
+  theory_win: TheoryEndingProfileDto
+  theory_draw: TheoryEndingProfileDto
   practical: PracticalChessProfileDto
 }
 
 export interface GameLaunchOptions {
-  mode: 'theory' | 'finish_him' | 'practical' | 'tornado'
+  mode: 'theory' | 'theory_win' | 'theory_draw' | 'finish_him' | 'practical' | 'tornado'
   theme: string
   difficulty?: string
   type?: 'win' | 'draw'

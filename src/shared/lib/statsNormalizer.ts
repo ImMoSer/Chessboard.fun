@@ -31,7 +31,6 @@ export function normalizeProfileStats(
         for (const mode of ['bullet', 'blitz', 'rapid', 'classic'] as const) {
             if (!result.tornado.modes[mode]) result.tornado.modes[mode] = []
 
-            // Merge existing with constants
             for (const theme of TORNADO_THEMES) {
                 const existing = result.tornado.modes[mode].find((t) => t.theme === theme)
                 if (!existing) {
@@ -46,8 +45,6 @@ export function normalizeProfileStats(
                     existing.requested += BASE_REQUESTED
                 }
             }
-
-            // Sort by rating desc
             result.tornado.modes[mode].sort((a, b) => b.rating - a.rating)
         }
     }
@@ -73,47 +70,82 @@ export function normalizeProfileStats(
                     existing.requested += BASE_REQUESTED
                 }
             }
-
-            // Sort by rating desc
             result.finish_him.modes[difficulty].sort((a, b) => b.rating - a.rating)
         }
     }
 
-    // 3. Normalize Theory
-    if (!result.theory) {
-        result.theory = createEmptyNormalizedTheory()
+    // 3. Normalize Theory Win
+    if (!result.theory_win) {
+        result.theory_win = createEmptyNormalizedTheory(baseRating)
     } else {
-        if (!result.theory.stats) result.theory.stats = {}
-        const emptyTheory = createEmptyNormalizedTheory().stats
-        for (const key in emptyTheory) {
-            if (!result.theory.stats[key]) {
-                const val = emptyTheory[key]
-                if (val) {
-                    result.theory.stats[key] = { success: val.success, requested: val.requested }
+        for (const difficulty of ['Novice', 'Pro', 'Master'] as const) {
+            if (!result.theory_win.modes[difficulty]) result.theory_win.modes[difficulty] = []
+
+            for (const theme of THEORY_ENDING_CATEGORIES) {
+                const existing = result.theory_win.modes[difficulty].find((t) => t.theme === theme)
+                if (!existing) {
+                    result.theory_win.modes[difficulty].push({
+                        theme,
+                        rating: baseRating,
+                        success: BASE_SUCCESS,
+                        requested: BASE_REQUESTED,
+                    })
+                } else {
+                    existing.success += BASE_SUCCESS
+                    existing.requested += BASE_REQUESTED
                 }
-            } else {
-                result.theory.stats[key].success += BASE_SUCCESS
-                result.theory.stats[key].requested += BASE_REQUESTED
             }
+            result.theory_win.modes[difficulty].sort((a, b) => b.rating - a.rating)
         }
     }
 
-    // 4. Normalize Practical
-    if (!result.practical) {
-        result.practical = createEmptyNormalizedPractical()
+    // 4. Normalize Theory Draw
+    if (!result.theory_draw) {
+        result.theory_draw = createEmptyNormalizedTheory(baseRating)
     } else {
-        if (!result.practical.stats) result.practical.stats = {}
-        const emptyPractical = createEmptyNormalizedPractical().stats
-        for (const key in emptyPractical) {
-            if (!result.practical.stats[key]) {
-                const val = emptyPractical[key]
-                if (val) {
-                    result.practical.stats[key] = { success: val.success, requested: val.requested }
+        for (const difficulty of ['Novice', 'Pro', 'Master'] as const) {
+            if (!result.theory_draw.modes[difficulty]) result.theory_draw.modes[difficulty] = []
+
+            for (const theme of THEORY_ENDING_CATEGORIES) {
+                const existing = result.theory_draw.modes[difficulty].find((t) => t.theme === theme)
+                if (!existing) {
+                    result.theory_draw.modes[difficulty].push({
+                        theme,
+                        rating: baseRating,
+                        success: BASE_SUCCESS,
+                        requested: BASE_REQUESTED,
+                    })
+                } else {
+                    existing.success += BASE_SUCCESS
+                    existing.requested += BASE_REQUESTED
                 }
-            } else {
-                result.practical.stats[key].success += BASE_SUCCESS
-                result.practical.stats[key].requested += BASE_REQUESTED
             }
+            result.theory_draw.modes[difficulty].sort((a, b) => b.rating - a.rating)
+        }
+    }
+
+    // 5. Normalize Practical
+    if (!result.practical) {
+        result.practical = createEmptyNormalizedPractical(baseRating)
+    } else {
+        for (const difficulty of ['Novice', 'Pro', 'Master'] as const) {
+            if (!result.practical.modes[difficulty]) result.practical.modes[difficulty] = []
+
+            for (const theme of PRACTICAL_CHESS_CATEGORIES) {
+                const existing = result.practical.modes[difficulty].find((t) => t.theme === theme)
+                if (!existing) {
+                    result.practical.modes[difficulty].push({
+                        theme,
+                        rating: baseRating,
+                        success: BASE_SUCCESS,
+                        requested: BASE_REQUESTED,
+                    })
+                } else {
+                    existing.success += BASE_SUCCESS
+                    existing.requested += BASE_REQUESTED
+                }
+            }
+            result.practical.modes[difficulty].sort((a, b) => b.rating - a.rating)
         }
     }
 
@@ -151,37 +183,38 @@ function createEmptyNormalizedFinishHim(baseRating: number): FinishHimProfileDto
     return { modes }
 }
 
-function createEmptyNormalizedTheory(): TheoryEndingProfileDto {
-    const stats: Record<string, { requested: number; success: number }> = {}
-
-        ;['win', 'draw'].forEach((tType) => {
-            ;['Novice', 'Pro', 'Master'].forEach((diffLvl) => {
-                THEORY_ENDING_CATEGORIES.forEach((tTheme) => {
-                    stats[`${tType}/${diffLvl}/${tTheme}`] = { success: BASE_SUCCESS, requested: BASE_REQUESTED }
-                })
-            })
-        })
-
-    return { stats }
+function createEmptyNormalizedTheory(baseRating: number): TheoryEndingProfileDto {
+    const modes: TheoryEndingProfileDto['modes'] = { Novice: [], Pro: [], Master: [] }
+    for (const diff of ['Novice', 'Pro', 'Master'] as const) {
+        modes[diff] = THEORY_ENDING_CATEGORIES.map((theme) => ({
+            theme,
+            rating: baseRating,
+            success: BASE_SUCCESS,
+            requested: BASE_REQUESTED,
+        }))
+    }
+    return { modes }
 }
 
-function createEmptyNormalizedPractical(): PracticalChessProfileDto {
-    const stats: Record<string, { requested: number; success: number }> = {}
-
-        ;['Novice', 'Pro', 'Master'].forEach((diffLvl) => {
-            PRACTICAL_CHESS_CATEGORIES.forEach((tTheme) => {
-                stats[`win/${diffLvl}/${tTheme}`] = { success: BASE_SUCCESS, requested: BASE_REQUESTED }
-            })
-        })
-
-    return { stats }
+function createEmptyNormalizedPractical(baseRating: number): PracticalChessProfileDto {
+    const modes: PracticalChessProfileDto['modes'] = { Novice: [], Pro: [], Master: [] }
+    for (const diff of ['Novice', 'Pro', 'Master'] as const) {
+        modes[diff] = PRACTICAL_CHESS_CATEGORIES.map((theme) => ({
+            theme,
+            rating: baseRating,
+            success: BASE_SUCCESS,
+            requested: BASE_REQUESTED,
+        }))
+    }
+    return { modes }
 }
 
 function createEmptyNormalizedStats(baseRating: number): UserProfileStatsDto {
     return {
         tornado: createEmptyNormalizedTornado(baseRating),
         finish_him: createEmptyNormalizedFinishHim(baseRating),
-        theory: createEmptyNormalizedTheory(),
-        practical: createEmptyNormalizedPractical(),
+        theory_win: createEmptyNormalizedTheory(baseRating),
+        theory_draw: createEmptyNormalizedTheory(baseRating),
+        practical: createEmptyNormalizedPractical(baseRating),
     }
 }

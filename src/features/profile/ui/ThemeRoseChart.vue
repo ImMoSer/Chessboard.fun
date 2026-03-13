@@ -60,7 +60,7 @@ const props = defineProps({
     default: '',
   },
   mode: {
-    type: String as PropType<'tornado' | 'finish_him' | 'theory' | 'practical'>,
+    type: String as PropType<'tornado' | 'finish_him' | 'theory_win' | 'theory_draw' | 'practical'>,
     default: 'tornado',
   },
 })
@@ -149,6 +149,7 @@ const option = computed(() => {
             else if (te(`chess.finishHim.category.${theme}`))
               themeName = t(`chess.finishHim.category.${theme}`)
             else if (te(`chess.endings.${theme}`)) themeName = t(`chess.endings.${theme}`)
+            else if (te(`chess.practicalChess.category.${theme}`)) themeName = t(`chess.practicalChess.category.${theme}`)
 
             return themeName.length > 10 ? themeName.slice(0, 8) + '..' : themeName
           },
@@ -176,6 +177,7 @@ const onChartClick = (params: unknown) => {
   else if (te(`chess.finishHim.category.${theme}`))
     themeName = t(`chess.finishHim.category.${theme}`)
   else if (te(`chess.endings.${theme}`)) themeName = t(`chess.endings.${theme}`)
+  else if (te(`chess.practicalChess.category.${theme}`)) themeName = t(`chess.practicalChess.category.${theme}`)
 
   const ev = p.event.event as Event
   let x = window.innerWidth / 2

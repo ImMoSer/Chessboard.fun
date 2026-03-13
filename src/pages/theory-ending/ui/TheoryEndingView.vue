@@ -7,16 +7,18 @@ import { useSmartHintStore } from '@/features/smart-hint'
 import { shareService } from '@/shared/lib/share.service'
 import { computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
 import type { TheoryEndingType, GameLaunchOptions, TheoryEndingDifficulty, TheoryEndingCategory } from '@/shared/types/api.types'
 
 import { AnalysisPanel } from '@/features/analysis'
-import { UserProfileWidget, TheoryStackbarChart } from '@/features/profile'
+import { UserProfileWidget, ThemeRoseChart } from '@/features/profile'
 import { ControlPanel, GameLayout, TopInfoPanel, useControlsStore } from '@/widgets/game-layout'
 import { useDetailedStatsQuery } from '@/shared/api/queries/userCabinet.queries'
 import { normalizeProfileStats } from '@/shared/lib/statsNormalizer'
 import { useAuthStore } from '@/entities/user'
 
+const { t } = useI18n()
 const theoryStore = useTheoryEndingsStore()
 const gameStore = useGameStore()
 const controlsStore = useControlsStore()
@@ -33,17 +35,37 @@ const normalizedStats = computed(() => {
   return normalizeProfileStats(detailedStatsData.value || null, baseRating)
 })
 
+const currentTheoryThemes = computed(() => {
+  const diff = theoryStore.activeDifficulty || 'Novice'
+  if (theoryStore.activeType === 'win') {
+    if (!normalizedStats.value?.theory_win?.modes) return []
+    return normalizedStats.value.theory_win.modes[diff] || []
+  } else {
+    if (!normalizedStats.value?.theory_draw?.modes) return []
+    return normalizedStats.value.theory_draw.modes[diff] || []
+  }
+})
+
+const currentTheoryMode = computed(() => {
+  return theoryStore.activeType === 'win' ? 'theory_win' : 'theory_draw'
+})
+
+const currentTheoryTitle = computed(() => {
+  return t('userCabinet.stats.modes.theory') + (theoryStore.activeType === 'win' ? ' (Win)' : ' (Draw)')
+})
+
 const handleImprove = (options: GameLaunchOptions) => {
-  if (options.mode === 'theory') {
-    if (!options.theme || !options.difficulty || !options.type) {
+  if (options.mode === 'theory_win' || options.mode === 'theory_draw') {
+    if (!options.theme || !options.subMode) {
       throw new Error('[TheoryEndingView] handleImprove was called with missing options!')
     }
+    const targetType = options.mode === 'theory_win' ? 'win' : 'draw'
     theoryStore.setParams(
-      options.type as TheoryEndingType,
-      options.difficulty as TheoryEndingDifficulty,
+      targetType as TheoryEndingType,
+      options.subMode as TheoryEndingDifficulty,
       options.theme as TheoryEndingCategory,
     )
-    theoryStore.loadNewPuzzle(options.type as TheoryEndingType)
+    theoryStore.loadNewPuzzle(targetType as TheoryEndingType)
   }
 }
 
@@ -160,10 +182,12 @@ watch(
     <template #right-panel>
       <div class="right-panel-content-wrapper">
         <AnalysisPanel v-if="analysisStore.isPanelVisible" />
-        <TheoryStackbarChart
-          v-if="normalizedStats && normalizedStats.theory"
-          :stats="normalizedStats.theory.stats"
-          mode="theory"
+        <ThemeRoseChart
+          v-if="normalizedStats && (normalizedStats.theory_win || normalizedStats.theory_draw)"
+          :activeMode="theoryStore.activeDifficulty || 'Novice'"
+          :mode="currentTheoryMode"
+          :themes="currentTheoryThemes"
+          :title="currentTheoryTitle"
           @improve="handleImprove"
         />
       </div>

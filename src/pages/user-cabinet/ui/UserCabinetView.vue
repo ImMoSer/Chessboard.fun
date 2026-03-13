@@ -32,7 +32,6 @@ import { useRoute, useRouter } from 'vue-router'
 
 import { ActivityChart } from '@/features/profile'
 import { ThemeRoseChart } from '@/features/profile'
-import { TheoryStackbarChart } from '@/features/profile'
 import { UserProfileHeader } from '@/features/profile'
 import { useGameLauncher } from '../lib/composables/useGameLauncher'
 import { normalizeProfileStats } from '@/shared/lib/statsNormalizer'
@@ -109,11 +108,11 @@ const error = computed(() => {
   return null
 })
 
-// ... imports
-// ...
-
 const selectedTornadoMode = ref<TornadoMode>('blitz')
-const selectedFinishHimMode = ref<FinishHimDifficulty>('Novice') // Default mode
+const selectedFinishHimMode = ref<FinishHimDifficulty>('Novice')
+const selectedTheoryWinMode = ref<FinishHimDifficulty>('Novice')
+const selectedTheoryDrawMode = ref<FinishHimDifficulty>('Novice')
+const selectedPracticalMode = ref<FinishHimDifficulty>('Novice')
 
 const currentTornadoThemes = computed(() => {
   if (!detailedStats.value?.tornado?.modes) return []
@@ -125,19 +124,20 @@ const currentFinishHimThemes = computed(() => {
   return detailedStats.value.finish_him.modes[selectedFinishHimMode.value] || []
 })
 
-// ...
+const currentTheoryWinThemes = computed(() => {
+  if (!detailedStats.value?.theory_win?.modes) return []
+  return detailedStats.value.theory_win.modes[selectedTheoryWinMode.value] || []
+})
 
-// In Template:
-/*
-          <ThemeRoseChart
-            v-if="detailedStats && detailedStats.finish_him"
-            v-model:activeMode="selectedFinishHimMode"
-            mode="finish_him"
-            :modes="['novice', 'pro', 'master']"
-            :themes="currentFinishHimThemes"
-            :title="t('userCabinet.stats.modes.finishHim')"
-          />
-*/
+const currentTheoryDrawThemes = computed(() => {
+  if (!detailedStats.value?.theory_draw?.modes) return []
+  return detailedStats.value.theory_draw.modes[selectedTheoryDrawMode.value] || []
+})
+
+const currentPracticalThemes = computed(() => {
+  if (!detailedStats.value?.practical?.modes) return []
+  return detailedStats.value.practical.modes[selectedPracticalMode.value] || []
+})
 
 const handleRedeem = async () => {
   if (!giftCode.value || giftCode.value.length !== 8) return;
@@ -217,7 +217,6 @@ const handleManageSubscription = async () => {
         />
 
         <div class="charts-grid">
-          <!-- Tornado Stats Section -->
           <ThemeRoseChart
             v-if="detailedStats && detailedStats.tornado"
             v-model:activeMode="selectedTornadoMode"
@@ -240,19 +239,35 @@ const handleManageSubscription = async () => {
         </div>
 
         <div class="charts-grid">
-          <!-- Removed TheoryStackbarChart for finish_him as requested -->
-
-          <TheoryStackbarChart
-            v-if="detailedStats && detailedStats.theory"
-            :stats="detailedStats.theory.stats"
-            mode="theory"
+          <ThemeRoseChart
+            v-if="detailedStats && detailedStats.theory_win"
+            v-model:activeMode="selectedTheoryWinMode"
+            mode="theory_win"
+            :modes="['Novice', 'Pro', 'Master']"
+            :themes="currentTheoryWinThemes"
+            :title="t('userCabinet.stats.modes.theory') + ' (Win)'"
             @improve="launchGame"
           />
 
-          <TheoryStackbarChart
+          <ThemeRoseChart
+            v-if="detailedStats && detailedStats.theory_draw"
+            v-model:activeMode="selectedTheoryDrawMode"
+            mode="theory_draw"
+            :modes="['Novice', 'Pro', 'Master']"
+            :themes="currentTheoryDrawThemes"
+            :title="t('userCabinet.stats.modes.theory') + ' (Draw)'"
+            @improve="launchGame"
+          />
+        </div>
+
+        <div class="charts-grid">
+          <ThemeRoseChart
             v-if="detailedStats && detailedStats.practical"
-            :stats="detailedStats.practical.stats"
+            v-model:activeMode="selectedPracticalMode"
             mode="practical"
+            :modes="['Novice', 'Pro', 'Master']"
+            :themes="currentPracticalThemes"
+            :title="t('userCabinet.stats.modes.practical')"
             @improve="launchGame"
           />
         </div>

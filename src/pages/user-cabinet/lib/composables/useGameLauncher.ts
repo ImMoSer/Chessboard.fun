@@ -39,9 +39,9 @@ export function useGameLauncher() {
     }
 
     // 2. THEORY ENDINGS
-    if (mode === 'theory') {
-      const targetType = (type || 'win') as TheoryEndingType
-      const targetDiff = capitalizeDiff(difficulty)
+    if (mode === 'theory' || mode === 'theory_win' || mode === 'theory_draw') {
+      const targetType = (type || (mode === 'theory_draw' ? 'draw' : 'win')) as TheoryEndingType
+      const targetDiff = capitalizeDiff(subMode || difficulty)
 
       theoryStore.setParams(targetType, targetDiff, theme as TheoryEndingCategory)
 
@@ -54,7 +54,7 @@ export function useGameLauncher() {
 
     // 3. PRACTICAL CHESS
     if (mode === 'practical') {
-      const targetDiff = capitalizeDiff(difficulty)
+      const targetDiff = capitalizeDiff(subMode || difficulty)
 
       practicalStore.selectDifficulty(targetDiff)
       practicalStore.selectCategory(theme as PracticalChessCategory)
