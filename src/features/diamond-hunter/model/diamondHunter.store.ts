@@ -1,5 +1,5 @@
 import { useAnalysisEngineStore } from '@/entities/analysis'
-import { useBoardStore, type IGameplayStrategy } from '@/entities/game'
+import { useBoardStore, useGameStore, type IGameplayStrategy } from '@/entities/game'
 import { type TopInfoDisplay, type TopInfoStat } from '@/entities/puzzle'
 import i18n from '@/shared/config/i18n'
 import logger from '@/shared/lib/logger'
@@ -26,6 +26,7 @@ export interface HunterHint {
 
 export const useDiamondHunterStore = defineStore('diamondHunter', () => {
   const boardStore = useBoardStore()
+  const gameStore = useGameStore()
   const analysisStore = useAnalysisEngineStore()
   const uiStore = useUiStore()
   const router = useRouter()
@@ -458,7 +459,11 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
     isReplayActive.value = true
     savingMoveIndex.value = 0
     const color = analysisStore.playerColor || 'white'
-    boardStore.setupPosition('start', color)
+
+    const strategy = createStrategy()
+    const STARTING_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+
+    gameStore.startWithStrategy(STARTING_FEN, strategy, color, false)
     hints.value = []
   }
 

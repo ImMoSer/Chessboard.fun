@@ -230,20 +230,21 @@ function goBack() {
         <div style="font-size: 3rem; margin: 20px 0">💎</div>
         <div style="font-size: 1.1rem; margin-bottom: 20px">{{ diamondHunterStore.message }}</div>
 
-        <n-space justify="center" :size="20">
+        <n-space justify="center" :size="12" vertical style="width: 100%">
           <!-- If we have moves to replay (meaning we just found it initially), offer Secure option -->
           <n-button
             v-if="diamondHunterStore.savingMoves.length > 0"
             type="primary"
+            block
             @click="diamondHunterStore.startSaveRun()"
           >
             Secure Diamond (Replay)
           </n-button>
 
-          <!-- Fallback or if already secured (moves cleared) -->
           <n-button
-            v-else
-            type="primary"
+            :type="diamondHunterStore.savingMoves.length > 0 ? 'default' : 'primary'"
+            secondary
+            block
             @click="
               diamondHunterStore.stopHunt();
               handleRestart();
@@ -252,7 +253,7 @@ function goBack() {
             Next Hunt
           </n-button>
 
-          <n-button secondary @click="startAnalysis">
+          <n-button secondary block @click="startAnalysis">
             <template #icon
               ><n-icon><TelescopeOutline /></n-icon
             ></template>
