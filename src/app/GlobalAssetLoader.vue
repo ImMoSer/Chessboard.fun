@@ -8,6 +8,8 @@ const emit = defineEmits<{
 }>()
 
 const isReady = ref(false)
+const hasError = ref(false)
+const errorMessage = ref('')
 const progress = ref(0)
 const loadedBytes = ref(0)
 const totalBytes = ref(0) // Will be updated during fetch
@@ -36,6 +38,7 @@ const loadedMb = computed(() => (loadedBytes.value / 1024 / 1024).toFixed(1))
 const totalMb = computed(() => (totalBytes.value / 1024 / 1024).toFixed(1))
 
 // The assets we want to explicitly preload and cache
+const CACHE_NAME = 'stockfish-assets'
 const assetsToLoad = [
   '/stockfish/nnue/nn-4ca89e4b3abf.nnue',
   '/stockfish/nnue/sf_18_smallnet.wasm',
@@ -43,6 +46,9 @@ const assetsToLoad = [
 ]
 
 async function preloadAssets() {
+  hasError.value = false
+  errorMessage.value = ''
+  
   try {
     // 0. Environment Compatibility Check (Kill-Switch)
     // We require:
@@ -58,24 +64,30 @@ async function preloadAssets() {
       return // Stop loading, show incompatibility/webview block screen
     }
 
-    // 1. Fetch headers to get total size
-    let totalSize = 0
-    const assetSizes = []
+    const cache = await caches.open(CACHE_NAME)
 
-    for (const url of assetsToLoad) {
+    // 1. Parallelize size checks (Check Cache API first, then HEAD)
+    const sizePromises = assetsToLoad.map(async (url) => {
       try {
+        const cachedResponse = await cache.match(url)
+        if (cachedResponse) {
+          const size = parseInt(cachedResponse.headers.get('content-length') || '0', 10)
+          return { url, size, cached: true }
+        }
+        
         const res = await fetch(url, { method: 'HEAD' })
         const size = parseInt(res.headers.get('content-length') || '0', 10)
-        totalSize += size
-        assetSizes.push({ url, size })
+        return { url, size, cached: false }
       } catch (e) {
-        console.warn('Failed to fetch head for', url, e)
-        assetSizes.push({ url, size: 0 })
+        console.warn('Failed to get size for', url, e)
+        return { url, size: 0, cached: false }
       }
-    }
+    })
+
+    const assetInfos = await Promise.all(sizePromises)
+    let totalSize = assetInfos.reduce((acc, info) => acc + info.size, 0)
 
     // Add some arbitrarily chosen size for sounds assuming they load in background
-    // Sound loading is tracked just as a general progress if we want, but letting fetch track the heavy WASM/NNUE is more accurate.
     const EXPECTED_SOUNDS_SIZE = 3 * 1024 * 1024 // ~3MB
     totalSize += EXPECTED_SOUNDS_SIZE
     totalBytes.value = totalSize
@@ -83,19 +95,28 @@ async function preloadAssets() {
     let currentLoaded = 0
 
     // 2. Fetch files with progress
-    for (const asset of assetSizes) {
-      if (asset.size === 0) continue
+    for (const info of assetInfos) {
+      if (info.size === 0 && !info.cached) continue
 
-      const response = await fetch(asset.url)
+      let response: Response
+      
+      if (info.cached) {
+        response = (await cache.match(info.url))!
+      } else {
+        const fetchResponse = await fetch(info.url)
+        if (!fetchResponse.ok) throw new Error(`Failed to fetch ${info.url}: ${fetchResponse.statusText}`)
+        
+        // Explicitly put in Cache API
+        await cache.put(info.url, fetchResponse.clone())
+        response = fetchResponse
+      }
+
       if (!response.body) continue
-
       const reader = response.body.getReader()
       
       while (true) {
         const { done, value } = await reader.read()
-        if (done) {
-          break
-        }
+        if (done) break
         if (value) {
           currentLoaded += value.length
           loadedBytes.value = currentLoaded
@@ -104,7 +125,7 @@ async function preloadAssets() {
       }
     }
 
-    // Wait a brief moment for sound service initialization to catch up if needed
+    // Finalize progress
     currentLoaded += EXPECTED_SOUNDS_SIZE
     loadedBytes.value = currentLoaded
     progress.value = 100
@@ -116,10 +137,13 @@ async function preloadAssets() {
 
   } catch (error) {
     console.error('Error preloading assets:', error)
-    // Fallback if fetch fails (e.g. adblocker, cache issues), just start the app
-    isReady.value = true
-    emit('ready')
+    hasError.value = true
+    errorMessage.value = error instanceof Error ? error.message : String(error)
   }
+}
+
+const handleRetry = () => {
+  preloadAssets()
 }
 
 onMounted(() => {
@@ -147,6 +171,32 @@ onMounted(() => {
       <p class="loader-hint" style="margin-top: 20px;">
         {{ t('app.globalLoader.webviewAction') }}
       </p>
+
+      <div class="loader-lang-switcher">
+        <button class="lang-btn" :class="{ active: locale === 'en' }" @click="handleChangeLang('en')">EN</button>
+        <span class="lang-divider">|</span>
+        <button class="lang-btn" :class="{ active: locale === 'ru' }" @click="handleChangeLang('ru')">RU</button>
+        <span class="lang-divider">|</span>
+        <button class="lang-btn" :class="{ active: locale === 'de' }" @click="handleChangeLang('de')">DE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Error Screen -->
+  <div v-else-if="hasError" class="global-loader-wrapper">
+    <div class="loader-content webview-blocker">
+      <img src="/png/extra_pawn_black.png" alt="Logo" class="loader-logo static" />
+      <h2 class="loader-title error-text">{{ t('common.error') }}</h2>
+      <p class="loader-text">
+        {{ t('app.globalLoader.error') }}
+      </p>
+      <p v-if="errorMessage" class="loader-hint" style="margin-bottom: 20px; color: #ff4d4f;">
+        {{ errorMessage }}
+      </p>
+      
+      <button @click="handleRetry" class="copy-button">
+        {{ t('common.retry') }}
+      </button>
 
       <div class="loader-lang-switcher">
         <button class="lang-btn" :class="{ active: locale === 'en' }" @click="handleChangeLang('en')">EN</button>

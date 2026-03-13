@@ -71,6 +71,7 @@
   "app": {
     "title": "EXTRAPAWN",
     "globalLoader": {
+      "error": "Failed to load essential assets. Please check your internet connection and try again.",
       "message": "Welcome! The app is on your device for the first time or it need to be updated and needs to be fully downloaded. This only happens once.",
       "hint": "Once the download is finished, the app can be used completely offline.",
       "webviewWarning": "It seems you have opened the app in an integrated browser (e.g., Telegram, Instagram). For full functionality, we require a real browser like Google Chrome or Safari.",
@@ -188,7 +189,8 @@
     "copyFailed": "Could not copy link.",
     "copyLink": "Copy link",
     "copied": "Copied!",
-    "close": "Close"
+    "close": "Close",
+    "retry": "Retry"
   },
   "controls": {
     "new": "New",
