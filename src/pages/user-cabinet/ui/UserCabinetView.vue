@@ -7,7 +7,6 @@ import {
 } from '@/shared/api/queries/userCabinet.queries'
 import {
   EXAMPLE_ACTIVITY_STATS,
-  EXAMPLE_DETAILED_STATS,
   EXAMPLE_USER_PROFILE,
 } from '@/shared/config/constants/exampleCabinetData'
 import { apiClient } from '@/shared/api/client'
@@ -34,7 +33,7 @@ import { ActivityChart } from '@/features/profile'
 import { ThemeRoseChart } from '@/features/profile'
 import { UserProfileHeader } from '@/features/profile'
 import { useGameLauncher } from '../lib/composables/useGameLauncher'
-import { normalizeProfileStats } from '@/shared/lib/statsNormalizer'
+import { normalizeProfileStats, generateExampleStats } from '@/shared/lib/statsNormalizer'
 
 const { t } = useI18n()
 const { launchGame } = useGameLauncher()
@@ -95,7 +94,10 @@ const displayProfile = computed(() => {
 })
 
 const detailedStats = computed(() => {
-  const stats = isExample.value ? EXAMPLE_DETAILED_STATS : detailedStatsData.value
+  if (isExample.value) {
+    return generateExampleStats(displayProfile.value?.base_puzzle_rating || 1500)
+  }
+  const stats = detailedStatsData.value
   const baseRating = displayProfile.value?.base_puzzle_rating || 1000
   return normalizeProfileStats(stats || null, baseRating)
 })

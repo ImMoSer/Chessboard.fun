@@ -218,3 +218,41 @@ function createEmptyNormalizedStats(baseRating: number): UserProfileStatsDto {
         practical: createEmptyNormalizedPractical(baseRating),
     }
 }
+
+export function generateExampleStats(baseRating: number = 1500): UserProfileStatsDto {
+    const stats = createEmptyNormalizedStats(baseRating)
+
+    const applyVariety = (
+        items: { theme: string; rating: number; success: number; requested: number }[] | undefined,
+        seed: number,
+    ) => {
+        if (!items) return
+        items.forEach((item, index) => {
+            // Generate variation from ~ -300 to +500 from base rating
+            const variance = ((index * seed) % 800) - 300
+            item.rating = baseRating + variance
+            item.requested = 20 + ((index * 7) % 100)
+            // Success rate between 60% and 95%
+            const rate = 0.6 + ((index * 3) % 35) / 100
+            item.success = Math.floor(item.requested * rate)
+        })
+        items.sort((a, b) => b.rating - a.rating)
+    }
+
+    // Tornado
+    let s = 13
+    for (const mode of ['bullet', 'blitz', 'rapid', 'classic'] as const) {
+        applyVariety(stats.tornado.modes[mode], s++)
+        stats.tornado.highScores[mode] = Math.floor(baseRating / 30) + (s % 15)
+    }
+
+    // Other modes
+    for (const diff of ['Novice', 'Pro', 'Master'] as const) {
+        applyVariety(stats.finish_him.modes[diff], s++)
+        applyVariety(stats.theory_win.modes[diff], s++)
+        applyVariety(stats.theory_draw.modes[diff], s++)
+        applyVariety(stats.practical.modes[diff], s++)
+    }
+
+    return stats
+}
