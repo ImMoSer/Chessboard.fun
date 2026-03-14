@@ -66,21 +66,21 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
     <img
       class="records-page__banner"
       src="/svg/ChessBoardLeader_ob.svg"
-      :alt="t('records.bannerAlt')"
+      :alt="t('features.leaderboards.bannerAlt')"
     />
 
     <div v-if="isLoading" class="loading-message">
-      <n-spin size="small" /> {{ t('common.loading') }}
+      <n-spin size="small" /> {{ t('common.actions.loading') }}
     </div>
 
     <div v-else-if="error" class="records-page__error-message">
-      {{ t('common.error') }}: {{ error }}
+      {{ t('common.actions.error') }}: {{ error }}
     </div>
 
     <div v-else-if="leaderboards" class="records-page__grid">
       <!-- СЕКЦИЯ: HOT (Activity & Streaks) -->
       <section class="records-section">
-        <h2 class="section-divider">{{ t('records.sections.hot') }}</h2>
+        <h2 class="section-divider">{{ t('features.leaderboards.sections.hot') }}</h2>
         <div class="section-grid">
           <!-- Skill Streak Mega Leaderboard -->
           <SkillLeaderboardTable
@@ -88,7 +88,7 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
               leaderboards.skillStreakMegaLeaderboard &&
               leaderboards.skillStreakMegaLeaderboard.length > 0
             "
-            :title="t('records.titles.skillStreakMega')"
+            :title="t('features.leaderboards.titles.skillStreakMega')"
             :entries="leaderboards.skillStreakMegaLeaderboard"
             color-class="skillStreakMega"
             :show-streak="true"
@@ -98,7 +98,7 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
           <!-- Top Today Leaderboard -->
           <SkillLeaderboardTable
             v-if="leaderboards.topTodayLeaderboard && leaderboards.topTodayLeaderboard.length > 0"
-            :title="t('records.titles.topToday')"
+            :title="t('features.leaderboards.titles.topToday')"
             :entries="leaderboards.topTodayLeaderboard"
             color-class="topToday"
             :show-timer="true"
@@ -110,7 +110,7 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
             v-if="
               leaderboards.skillStreakLeaderboard && leaderboards.skillStreakLeaderboard.length > 0
             "
-            :title="t('records.titles.skillStreak')"
+            :title="t('features.leaderboards.titles.skillStreak')"
             :entries="leaderboards.skillStreakLeaderboard"
             color-class="skillStreak"
             :show-streak="true"
@@ -121,7 +121,7 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
 
       <!-- СЕКЦИЯ: COMPETITIVE (Modes) -->
       <section class="records-section">
-        <h2 class="section-divider">{{ t('records.sections.competitive') }}</h2>
+        <h2 class="section-divider">{{ t('features.leaderboards.sections.competitive') }}</h2>
         <div class="section-grid">
           <!-- Tornado Leaderboard -->
           <TimedModeLeaderboardTable
@@ -136,7 +136,7 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
           <!-- Finish Him Leaderboard -->
           <ThematicLeaderboardTable
             v-if="leaderboards.finishHimLeaderboard"
-            :title="t('records.titles.topFinishHim')"
+            :title="t('features.leaderboards.titles.topFinishHim')"
             :data="leaderboards.finishHimLeaderboard"
             color-class="finishHimLeaderboard"
             info-topic="topFinishHim"
@@ -145,7 +145,7 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
           <!-- Theory Leaderboard -->
           <ThematicLeaderboardTable
             v-if="leaderboards.theoryLeaderboard"
-            :title="t('records.titles.theoryLeaderboard')"
+            :title="t('features.leaderboards.titles.theoryLeaderboard')"
             :data="leaderboards.theoryLeaderboard"
             color-class="theoryLeaderboard"
             info-topic="theoryLeaderboard"
@@ -154,7 +154,7 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
           <!-- Practical Leaderboard -->
           <ThematicLeaderboardTable
             v-if="leaderboards.practicalLeaderboard"
-            :title="t('records.titles.practicalLeaderboard')"
+            :title="t('features.leaderboards.titles.practicalLeaderboard')"
             :data="leaderboards.practicalLeaderboard"
             color-class="practicalLeaderboard"
             info-topic="practicalLeaderboard"
@@ -164,11 +164,11 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
 
       <!-- СЕКЦИЯ: HALL OF FAME (Overall) -->
       <section class="records-section">
-        <h2 class="section-divider">{{ t('records.sections.hallOfFame') }}</h2>
+        <h2 class="section-divider">{{ t('features.leaderboards.sections.hallOfFame') }}</h2>
         <!-- Overall Skill Leaderboard -->
         <SkillLeaderboardTable
           v-if="leaderboards.overallSkillLeaderboard"
-          :title="t('records.titles.overallSkill')"
+          :title="t('features.leaderboards.titles.overallSkill')"
           :entries="leaderboards.overallSkillLeaderboard"
           color-class="overallSkill"
           :show-filter="true"

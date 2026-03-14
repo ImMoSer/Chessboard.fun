@@ -115,16 +115,16 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
       if (error instanceof InsufficientPawnCoinsError) {
         const e = error as InsufficientPawnCoinsError
         const confirmed = await uiStore.showConfirmation(
-          t('pricing.insufficientCoins.title'),
-          t('pricing.insufficientCoins.message', {
+          t('features.pricing.insufficientCoins.title'),
+          t('features.pricing.insufficientCoins.message', {
             required: e.required,
             available: e.available,
           }) +
           '\n\n' +
-          t('pricing.insufficientCoins.subMessage'),
+          t('features.pricing.insufficientCoins.subMessage'),
           {
-            confirmText: t('pricing.insufficientCoins.goToPricing'),
-            cancelText: t('common.close'),
+            confirmText: t('features.pricing.insufficientCoins.goToPricing'),
+            cancelText: t('common.actions.close'),
           },
         )
         if (confirmed === 'confirm') {
@@ -137,11 +137,11 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
         gameStore.setGamePhase('IDLE')
 
         await uiStore.showConfirmation(
-          t('common.error'),
-          t('gameplay.feedback.loadFailed') || 'Failed to load puzzle. It might not exist.',
+          t('common.actions.error'),
+          t('features.gameplay.feedback.loadFailed') || 'Failed to load puzzle. It might not exist.',
           {
             showCancel: false,
-            confirmText: t('common.ok'),
+            confirmText: t('common.actions.ok'),
           },
         )
         router.push('/practical-chess')
@@ -229,8 +229,8 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
 
   async function handleResign() {
     const confirmed = await uiStore.showConfirmation(
-      t('gameplay.confirmExit.title'),
-      t('gameplay.confirmExit.message'),
+      t('features.gameplay.confirmExit.title'),
+      t('features.gameplay.confirmExit.message'),
     )
     if (confirmed === 'confirm') {
       _handleGameOver(false)
@@ -251,7 +251,7 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
       const evalValue = puzzle.eval ? (puzzle.eval / 100).toFixed(1) : '?'
 
       return {
-        title: t(`chess.endings.${activeCategory.value}`),
+        title: t(`chess.themes.${activeCategory.value}`),
         mainValue: evalValue,
         mainIcon: 'bar-chart',
         mainColor: '#2080f0',
@@ -262,7 +262,7 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
           },
         ],
         stats: [
-          { icon: 'pieces', value: puzzle.pieces_count, label: t('puzzleInfo.pieces') },
+          { icon: 'pieces', value: puzzle.pieces_count, label: t('features.puzzleInfo.pieces') },
           { icon: 'material', value: puzzle.material_count, label: 'Mat.' },
         ],
       }

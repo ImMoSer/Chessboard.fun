@@ -58,7 +58,7 @@ const menuOptions: MenuOption[] = [
     icon: renderIcon(ThunderstormOutline),
   },
   {
-    label: () => t('nav.theoryEndings'),
+    label: () => t('nav.theoryEndgames'),
     key: '/theory-endings',
     icon: renderIcon(BookOutline),
   },
@@ -68,7 +68,7 @@ const menuOptions: MenuOption[] = [
     icon: renderIcon(BuildOutline),
   },
   {
-    label: () => t('nav.openingTrainer'),
+    label: () => t('nav.diamondHunter'),
     key: '/diamond-hunter',
     icon: renderIcon(DiamondOutline),
   },
@@ -78,7 +78,7 @@ const menuOptions: MenuOption[] = [
     icon: renderIcon(FlashOutline),
   },
   {
-    label: () => t('nav.study'),
+    label: () => t('nav.repertoire'),
     key: '/study',
     icon: renderIcon(SchoolOutline),
   },

@@ -112,7 +112,7 @@ onUnmounted(() => {
       ref="toggleButton"
       class="settings-toggle-button"
       @click="toggleMenu"
-      :title="t('settings.title')"
+      :title="t('features.settings.title')"
     >
       ⚙️
     </button>
@@ -147,16 +147,16 @@ onUnmounted(() => {
             </div>
           </div>
           <button class="panel-button" @click="activePanel = 'board'">
-            {{ t('settings.selectBoard') }}
+            {{ t('features.settings.selectBoard') }}
           </button>
           <button class="panel-button" @click="activePanel = 'pieces'">
-            {{ t('settings.selectPieces') }}
+            {{ t('features.settings.selectPieces') }}
           </button>
           <button class="panel-button" @click="activePanel = 'animation'">
-            {{ t('settings.animation.title') }}
+            {{ t('features.settings.animation.title') }}
           </button>
           <button class="panel-button" @click="activePanel = 'sounds'">
-            {{ t('settings.sounds.title') }}
+            {{ t('features.settings.sounds.title') }}
           </button>
           <button class="panel-button auth-button" @click="handleAuthAction">
             {{ isAuthenticated ? t('nav.logout') : t('nav.login') }}
@@ -167,9 +167,9 @@ onUnmounted(() => {
         <div v-if="activePanel === 'board'" class="panel">
           <div class="panel-header">
             <button class="back-button" @click="activePanel = 'main'">
-              &lt; {{ t('settings.back') }}
+              &lt; {{ t('features.settings.back') }}
             </button>
-            <h4>{{ t('settings.selectBoard') }}</h4>
+            <h4>{{ t('features.settings.selectBoard') }}</h4>
           </div>
           <div class="board-selector-grid">
             <div
@@ -188,9 +188,9 @@ onUnmounted(() => {
         <div v-if="activePanel === 'pieces'" class="panel">
           <div class="panel-header">
             <button class="back-button" @click="activePanel = 'main'">
-              &lt; {{ t('settings.back') }}
+              &lt; {{ t('features.settings.back') }}
             </button>
-            <h4>{{ t('settings.selectPieces') }}</h4>
+            <h4>{{ t('features.settings.selectPieces') }}</h4>
           </div>
           <div class="piece-selector-list">
             <div
@@ -209,13 +209,13 @@ onUnmounted(() => {
         <div v-if="activePanel === 'animation'" class="panel">
           <div class="panel-header">
             <button class="back-button" @click="activePanel = 'main'">
-              &lt; {{ t('settings.back') }}
+              &lt; {{ t('features.settings.back') }}
             </button>
-            <h4>{{ t('settings.animation.title') }}</h4>
+            <h4>{{ t('features.settings.animation.title') }}</h4>
           </div>
           <div class="animation-settings">
             <div class="setting-item">
-              <label for="animation-duration">{{ t('settings.animation.duration') }}</label>
+              <label for="animation-duration">{{ t('features.settings.animation.duration') }}</label>
               <input
                 id="animation-duration"
                 type="range"
@@ -235,13 +235,13 @@ onUnmounted(() => {
         <div v-if="activePanel === 'sounds'" class="panel">
           <div class="panel-header">
             <button class="back-button" @click="activePanel = 'main'">
-              &lt; {{ t('settings.back') }}
+              &lt; {{ t('features.settings.back') }}
             </button>
-            <h4>{{ t('settings.sounds.title') }}</h4>
+            <h4>{{ t('features.settings.sounds.title') }}</h4>
           </div>
           <div class="sound-settings">
             <div class="volume-slider-container">
-              <label for="voice-volume">{{ t('settings.sounds.voice') }}</label>
+              <label for="voice-volume">{{ t('features.settings.sounds.voice') }}</label>
               <input
                 id="voice-volume"
                 type="range"
@@ -254,7 +254,7 @@ onUnmounted(() => {
               />
             </div>
             <div class="volume-slider-container">
-              <label for="board-volume">{{ t('settings.sounds.board') }}</label>
+              <label for="board-volume">{{ t('features.settings.sounds.board') }}</label>
               <input
                 id="board-volume"
                 type="range"

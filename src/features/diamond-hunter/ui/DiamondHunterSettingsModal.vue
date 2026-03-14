@@ -47,19 +47,19 @@ function startSession() {
             <n-icon>
               <ColorPaletteOutline />
             </n-icon>
-            <n-text strong>{{ t('openingTrainer.settings.color') }}</n-text>
+            <n-text strong>{{ t('features.diamondHunter.settings.color') }}</n-text>
           </n-space>
           <n-radio-group v-model:value="selectedColor" name="color" size="large" expand>
             <n-radio-button value="white" class="color-btn-white">
               <n-space align="center" justify="center" :wrap="false">
                 <div class="swatch white" />
-                {{ t('openingTrainer.settings.white') }}
+                {{ t('features.diamondHunter.settings.white') }}
               </n-space>
             </n-radio-button>
             <n-radio-button value="black" class="color-btn-black">
               <n-space align="center" justify="center" :wrap="false">
                 <div class="swatch black" />
-                {{ t('openingTrainer.settings.black') }}
+                {{ t('features.diamondHunter.settings.black') }}
               </n-space>
             </n-radio-button>
           </n-radio-group>

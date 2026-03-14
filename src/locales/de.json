@@ -1,6 +1,701 @@
 {
+  "common": {
+    "actions": {
+      "loading": "Laden...",
+      "error": "Fehler",
+      "processing": "Verarbeitung...",
+      "ok": "OK",
+      "cancel": "Abbrechen",
+      "confirm": "Bestätigen",
+      "delete": "Löschen",
+      "play": "Spielen",
+      "notAvailable": "N/A",
+      "linkCopied": "Link in die Zwischenablage kopiert!",
+      "copyFailed": "Konnte Link nicht kopieren.",
+      "copyLink": "Link kopieren",
+      "copied": "Kopiert!",
+      "close": "Schließen",
+      "retry": "Wiederholen",
+      "limitless": "unbegrenzt"
+    },
+    "difficulties": {
+      "level_novice": "Anfänger",
+      "level_pro": "Profi",
+      "level_master": "Meister"
+    },
+    "periods": {
+      "day": "Tag",
+      "week": "Woche",
+      "month": "Monat",
+      "days14": "Letzte 14 Tage",
+      "days21": "Letzte 21 Tage"
+    },
+    "stats": {
+      "success": "Erfolg",
+      "accuracy": "Genauigkeit",
+      "improve": "Verbessern",
+      "points": {
+        "one": "Punkt",
+        "other": "{count} Punkte"
+      },
+      "seconds": {
+        "one": "Sekunde",
+        "other": "{count} Sekunden"
+      },
+      "attempts": {
+        "one": "Versuch",
+        "other": "{count} Versuche"
+      }
+    }
+  },
+  "gameModes": {
+    "tornado": "Tornado",
+    "finishHim": "Finish Him",
+    "theoryEndgames": "Endspiele",
+    "practicalChess": "Praxis",
+    "diamondHunter": "Diamond Hunter",
+    "repertoire": "Repertoire",
+    "openingSparring": "Sparring"
+  },
+  "chess": {
+    "subThemes": {
+      "complexEndgame": "Komplexes Endspiel",
+      "pawnEndgame": "Bauernendspiel",
+      "queenVsRook": "Dame gegen Turm",
+      "rookVsRook": "Turm gegen Turm",
+      "rookVsPawns": "Turm gegen Bauern",
+      "knightVsPawns": "Springer gegen Bauern",
+      "rookVsBishop": "Turm gegen Läufer",
+      "bishopVsPawns": "Läufer gegen Bauern",
+      "rookVsKnight": "Turm gegen Springer",
+      "queenVsQueen": "Dame gegen Dame",
+      "queenVsBishop": "Dame gegen Läufer",
+      "queenVsPawns": "Dame gegen Bauern",
+      "queenVsKnight": "Dame gegen Springer",
+      "knightVsBishop": "Springer gegen Läufer",
+      "bishopVsBishop": "Läufer gegen Läufer",
+      "bishopVsKnight": "Läufer gegen Springer",
+      "knightVsKnight": "Springer gegen Springer",
+      "opColBishop": "Ungleichfarbige Läufer",
+      "twoMinorsVsRook": "Zwei Leichtfiguren gegen Turm",
+      "opColBishopPlus": "Ungleichfarbige Läufer +"
+    },
+    "themes": {
+      "queenPieces": "Dame & Figuren",
+      "rookPieces": "Turm & Figuren",
+      "bishop": "Läuferendspiel",
+      "rookPawn": "Turm & Bauer",
+      "queen": "Damenendspiel",
+      "knight": "Springerendspiel",
+      "expert": "Experte",
+      "knightBishop": "Springer gegen Läufer",
+      "pawn": "Bauernendspiel",
+      "extraPawn": "Mehrbauer",
+      "materialEquality": "Materialgleichheit",
+      "exchange": "Abtausch",
+      "rook": "Turmendspiel"
+    },
+    "tactics": {
+      "fork": "Gabel",
+      "promotion": "Umwandlung",
+      "pin": "Fesselung",
+      "deflection": "Ablenkung",
+      "attraction": "Anlockung",
+      "discoveredAttack": "Abzugsangriff",
+      "quietMove": "Stiller Zug",
+      "clearance": "Räumung",
+      "skewer": "Spieß",
+      "trappedPiece": "Gefangene Figur",
+      "doubleCheck": "Doppelschach",
+      "capturingDefender": "Verteidiger schlagen",
+      "backRankMate": "Grundreihenmatt",
+      "interference": "Unterbrechung",
+      "xRayAttack": "Röntgenangriff",
+      "auto": "Automatisch"
+    },
+    "types": {
+      "win": "Sieg",
+      "draw": "Remis",
+      "advantage": "Vorteil",
+      "whiteEndgame": "Gegen Weiß",
+      "blackEndgame": "Gegen Schwarz"
+    }
+  },
+  "features": {
+    "finishHim": {
+      "feedback": {
+        "getReady": "Mach dich bereit für die nächste Herausforderung!",
+        "pressNext": "Drücke 'Spielen' zum Starten.",
+        "yourTurn": "Du bist dran! Finde die richtige Fortsetzung.",
+        "yourTurnPlayout": "Du bist dran! Finde die besten Züge zum Sieg.",
+        "timeUp": "Zeit abgelaufen! Die Playout-Phase ist verloren.",
+        "resigned": "Du hast die Partie aufgegeben.",
+        "win": "Gewonnen!",
+        "loss": "Verloren!",
+        "loadFailed": "Laden der Aufgabe fehlgeschlagen."
+      },
+      "selection": {
+        "title": "Finish Him",
+        "subtitle": "Realisiere deinen Vorteil gegen die Engine",
+        "themeLabel": "Endspiel-Thema"
+      },
+      "error": {
+        "puzzleNotFound": "Aufgabe mit ID {puzzleId} wurde nicht gefunden oder ist nicht verfügbar."
+      },
+      "stats": {
+        "mode": "Modus",
+        "theme": "Thema",
+        "rating": "Unser Rating",
+        "evaluation": "Unsere Bewertung"
+      }
+    },
+    "userCabinet": {
+      "title": "Benutzer-Kabinett",
+      "loginPrompt": "Melde dich an, um Statistiken und Aktivitäten zu sehen.",
+      "info": {
+        "lichessId": "Lichess ID",
+        "subscriptionTier": "Abonnement",
+        "tierExpires": " (bis {date})",
+        "tierPermanent": " (dauerhaft)"
+      },
+      "stats": {
+        "pawncoinsLabel": "PawnCoins",
+        "endgameSkillLabel": "Endspiel-Skill",
+        "puzzlesSolved": {
+          "one": "1 Aufgabe gelöst",
+          "other": "{count} Aufgaben gelöst"
+        },
+        "skillEarned": "Skill heute",
+        "finishHimRatingLabel": "FinishHim Rating",
+        "tornadoTitle": "Tornado Ratings",
+        "global": {
+          "title": "Aktivitäts-Statistik"
+        },
+        "activity": {
+          "titleWithTime": "Heutige Aktivität (Reset um {time})"
+        },
+        "periods": {
+          "day": "Tag",
+          "week": "Woche",
+          "month": "Monat"
+        },
+        "modes": {
+          "all": "Modus",
+          "tornado": "Tornado",
+          "finishHim": "Finish Him",
+          "theory": "Theorie",
+          "practical": "Praxis",
+          "tacticalTrainer": "Taktik"
+        },
+        "today": "Heute",
+        "noData": "Keine Daten für den Zeitraum.",
+        "success": "Erfolg",
+        "accuracy": "Genauigkeit",
+        "attempts": "Versuche",
+        "puzzle": "Aufgabe",
+        "theoryThemes": "Endspiel-Themen",
+        "improve": "Verbessern"
+      },
+      "telegram": {
+        "title": "Telegram Integration",
+        "boundStatusSimple": "Konto mit Telegram verknüpft",
+        "bindButton": "Telegram-Konto verknüpfen"
+      },
+      "activity": {
+        "title": "Lichess Aktivität",
+        "noActivity": "Keine aktuellen Lichess-Aktivitäten gefunden.",
+        "dateHeader": "Datum",
+        "summaryHeader": "Aktivitäts-Zusammenfassung"
+      },
+      "detailedAnalytics": {
+        "title": "Detaillierte Analyse",
+        "tornadoStats": "Tornado Themen Analyse",
+        "bestScore": "Bestwert"
+      },
+      "analyticsTable": {
+        "theme": "Thema",
+        "rating": "Rating",
+        "accuracy": "Genauigkeit",
+        "solved_attempted": "Gelöst/Versucht",
+        "accuracy_percent": "Genauigkeit %",
+        "themeDistribution": "Themen-Verteilung",
+        "byAttempts": "nach Versuchen",
+        "byRating": "nach Rating"
+      },
+      "gift": {
+        "title": "Gutscheincode einlösen",
+        "description": "Gib deinen 8-stelligen Code ein, um dein Club-Abo zu aktivieren.",
+        "placeholder": "Code",
+        "activate": "Aktivieren",
+        "successTitle": "Herzlichen Glückwunsch! 🎉",
+        "successMessage": "Du hast die {tier} Club-Stufe erfolgreich aktiviert. Sie bleibt bis zum {date} aktiv. Wir wünschen dir viel Erfolg beim Training!",
+        "ok": "OK",
+        "invalid": "Ungültiger oder bereits benutzter Code.",
+        "error": "Fehler beim Einlösen."
+      },
+      "polar": {
+        "successTitle": "Zahlung erfolgreich! 🎉",
+        "successMessage": "Vielen Dank für dein Abonnement. Dein Konto wurde hochgestuft und dein PawnCoins-Guthaben entspricht deiner neuen Stufe.",
+        "ok": "Training starten"
+      }
+    },
+    "pricing": {
+      "title": "Abos & Preise",
+      "intro": {
+        "p1": "Willkommen auf der Infoseite zu unserem zukünftigen Abosystem. Die offene Testphase ist aktiv."
+      },
+      "repertoireGenerator": "Repertoire Generator",
+      "tiers": {
+        "title": "Abonnement-Stufen",
+        "pawn": {
+          "name": "Bauer",
+          "description": "Tägliche Auffüllung auf bis zu {pawncoins} PawnCoins",
+          "price": "Dauerhaft kostenlos"
+        },
+        "knight": {
+          "name": "Springer",
+          "description": "Tägliche Auffüllung auf bis zu {pawncoins} PawnCoins"
+        },
+        "bishop": {
+          "name": "Läufer",
+          "description": "Tägliche Auffüllung auf bis zu {pawncoins} PawnCoins"
+        },
+        "rook": {
+          "name": "Turm",
+          "role": "Der ideale Einstieg für Amateure.",
+          "description": "Tägliche Auffüllung auf bis zu {pawncoins} PawnCoins",
+          "priceMonthly": "3,99 € / Monat",
+          "priceYearly": "39,99 € / Jahr"
+        },
+        "queen": {
+          "name": "Dame",
+          "role": "Der Standard für ambitionierte Vereinsspieler.",
+          "description": "Tägliche Auffüllung auf bis zu {pawncoins} PawnCoins",
+          "priceMonthly": "5,99 € / Monat",
+          "priceYearly": "59,99 € / Jahr"
+        },
+        "king": {
+          "name": "König",
+          "role": "Das Kraftpaket für Profis & Analysten.",
+          "description": "Tägliche Auffüllung auf bis zu {pawncoins} PawnCoins",
+          "priceMonthly": "9,99 € / Monat",
+          "priceYearly": "99,99 € / Jahr"
+        },
+        "price": {
+          "soon": "Preis wird angekündigt",
+          "bonus": "Club-Bonus"
+        }
+      },
+      "bonusInfo": {
+        "title": "🎉 Club-Bonus Stufen!",
+        "p1": "Hallo Freunde 👋",
+        "p2": "Wir haben die Bedingungen für automatische Boni für die aktivsten Vereinsmitglieder aktualisiert.",
+        "p3": "Du kannst eine Premium-Stufe kostenlos erhalten — einfach indem du in Team-Turnieren spielst 🏆",
+        "teamLink": "Hier unserem Lichess-Team beitreten!",
+        "howItWorks": "📅 So funktioniert es:",
+        "p4": "Jeden Tag analysiert das System deine Aktivität der letzten 30 Tage (Turniere, Punkte und Partien) und vergibt Aktivitätspunkte.",
+        "p5": "Basierend auf der Punktzahl wird eine der Stufen zugewiesen:",
+        "knight": "♘ Springer — ab 250 Punkten",
+        "bishop": "♗ Läufer — ab 500 Punkten",
+        "p6": "✨ Die Stufe wird automatisch neu berechnet und kann sich je nach Aktivität ändern.",
+        "p7": "Keine Anmeldung nötig — spiele einfach, das System erledigt den Rest ✅",
+        "p8": "Vielen Dank für die Unterstützung des Clubs ❤️♟"
+      },
+      "costs": {
+        "title": "Modul-Kosten",
+        "pawncoinLabel": "PawnCoins"
+      },
+      "insufficientCoins": {
+        "title": "Unzureichende PawnCoins",
+        "message": "Das Starten dieses Spiels erfordert {required} PawnCoins. Du hast aktuell: {available}.",
+        "subMessage": "Auf der Preisseite erfährst du mehr darüber, wie du dein Guthaben aufladen kannst.",
+        "goToPricing": "Zu den Preisen"
+      }
+    },
+    "repertoire": {
+      "limitModal": {
+        "title": "Abo-Limit erreicht",
+        "message": "Deine aktuelle Stufe \"{tier}\" erlaubt das Speichern von bis zu {limit} Kapiteln in der Cloud. Alle weiteren Kapitel werden lokal auf deinem Gerät gespeichert und können verloren gehen, wenn der Browser-Cache geleert wird.",
+        "confirm": "Preise & Stufen",
+        "cancel": "Verstanden"
+      },
+      "sizeModal": {
+        "title": "Kapitel zu groß",
+        "message": "Dieses Kapitel ist zu groß für die Cloud (Limit sind 15.000 Zeichen). Bitte teile dein Repertoire in mehrere Kapitel auf.",
+        "confirm": "Verstanden"
+      },
+      "notifications": {
+        "updated": "Kapitel in Cloud aktualisiert!",
+        "savedAsCopy": "Kapitel als eigene Kopie gespeichert!",
+        "saved": "Kapitel in Cloud gespeichert!",
+        "shareLinkCopied": "Share-Link in Zwischenablage kopiert!",
+        "saveError": "Fehler beim Speichern in der Cloud",
+        "colorRequired": "Bitte wähle zuerst eine Farbe für dieses Kapitel."
+      },
+      "repertoire": "Repertoire",
+      "repertoireGenerator": "Repertoire Generator"
+    },
+    "analysis": {
+      "engine": "Analyse",
+      "threads": "Threads",
+      "loading": "Analyse wird geladen...",
+      "mateInShort": "M{value}",
+      "makeMove": "Mache einen Zug für die Analyse.",
+      "profile": "Engine",
+      "profiles": {
+        "lite": "Lite (12MB)",
+        "pro": "Pro (48MB)"
+      },
+      "openingTheory": "Eröffnungstheorie",
+      "viewOnWikibooks": "Auf Wikibooks ansehen",
+      "loadingTheory": "Theorie wird geladen...",
+      "noTheoryFound": "Keine spezielle Theorie für diese Stellung gefunden.",
+      "noTheorySubtext": "Versuche eine andere Zugfolge."
+    },
+    "theoryEndgames": {
+      "selection": {
+        "title": "Theoretische Endspiele",
+        "subtitle": "Trainiere klassische Stellungen bis zur Perfektion",
+        "typeLabel": "Aufgabentyp",
+        "difficultyLabel": "Schwierigkeit",
+        "categoryLabel": "Kategorie",
+        "start": "Training starten"
+      },
+      "feedback": {
+        "pressNext": "Drücke 'Spielen' zum Starten.",
+        "win": "Gewonnen! Stellung verwertet.",
+        "drawSuccess": "Remis gehalten! Gute Verteidigung.",
+        "loss": "Niederlage. Versuche es erneut."
+      }
+    },
+    "practicalChess": {
+      "youMove": {
+        "title": "DU BIST AM ZUG!",
+        "subtitle": "Analysiere die Stellung und wähle die Seite, die du spielen möchtest. Eine Seite gewinnt - aber welche?",
+        "playWhite": "Ich spiele Weiß",
+        "playBlack": "Ich spiele Schwarz"
+      },
+      "selection": {
+        "title": "Praktisches Schach",
+        "subtitle": "Meistere realitätsnahe Szenarien und Endspiele",
+        "difficultyLabel": "Schwierigkeit",
+        "categoryLabel": "Material-Setups",
+        "start": "Jetzt üben"
+      }
+    },
+    "auth": {
+      "requiredForAction": "Du musst angemeldet sein, um dies zu tun.",
+      "serverEngineAuth": "Authentifizierung für diese Engine erforderlich."
+    },
+    "errors": {
+      "backendConnectionFailed": "Verbindung zum Server fehlgeschlagen.",
+      "telegramAuthFailed": "Telegram-Authentifizierung fehlgeschlagen.",
+      "rateLimit": {
+        "title": "Zu viele Anfragen",
+        "message": "Zu viele Anfragen. Bitte warte {seconds} Sekunden."
+      },
+      "unknown": "Ein unbekannter Fehler ist aufgetreten."
+    },
+    "settings": {
+      "title": "Einstellungen",
+      "selectBoard": "Schachbrett",
+      "selectPieces": "Figuren",
+      "selectLanguage": "Sprache",
+      "back": "Zurück",
+      "sounds": {
+        "title": "Töne",
+        "voice": "Stimme",
+        "board": "Brett"
+      },
+      "animation": {
+        "title": "Animation",
+        "duration": "Dauer"
+      }
+    },
+    "gameplay": {
+      "confirmExit": {
+        "title": "Willst du aufgeben?",
+        "message": "Bist du sicher, dass du die aktuelle Partie aufgeben willst?",
+        "browserMessage": "Willst du die Seite wirklich verlassen? Die Partie wird als Verlust gewertet."
+      },
+      "gameOver": {
+        "stalemate": "Patt."
+      },
+      "feedback": {
+        "loadFailed": "Aufgabe konnte nicht geladen werden."
+      },
+      "playWithDefaultEngine": "Mit Standard-Engine spielen"
+    },
+    "puzzleInfo": {
+      "title": "Infos zur Aufgabe",
+      "tacticalRating": "Taktik-Rating",
+      "solveTime": "Lösungszeit",
+      "funValue": "Skill-Wert",
+      "evaluation": "Bewertung",
+      "pieces": "Figuren",
+      "finalPositionTitle": "Material in der Endstellung",
+      "leaderboardTitle": "Bestzeiten",
+      "tableRank": "#",
+      "tablePlayer": "Spieler",
+      "tableTime": "Zeit",
+      "endgameThemeLabel": "Endspiel-Thema"
+    },
+    "engine": {
+      "title": "Sparringspartner",
+      "select": "Sparringspartner wählen"
+    },
+    "leaderboards": {
+      "bannerAlt": "Bestenlisten Banner",
+      "sections": {
+        "hot": "HEISS 🔥",
+        "competitive": "KOMPETITIV 🏆",
+        "hallOfFame": "HALL OF FAME 🏛️"
+      },
+      "titles": {
+        "topFinishHim": "Finish Him Meister",
+        "overallSkill": "Gesamt-Skill",
+        "skillStreak": "+100 jeden Tag",
+        "skillStreakMega": "Tornado +300 täglich",
+        "topToday": "Top heute",
+        "finishHimLeaderboard": "Finish Him Rekorde",
+        "theoryLeaderboard": "Theoretische Endspiele",
+        "practicalLeaderboard": "Praktisches Schach"
+      },
+      "table": {
+        "rank": "#",
+        "player": "Spieler",
+        "time": "Zeit",
+        "challenge": "Herausforderung",
+        "daysOld": {
+          "one": "1 Tag",
+          "other": "{count} Tage"
+        },
+        "totalSkill": "Skill",
+        "score": "Score",
+        "streakDays": {
+          "one": "1 Tag",
+          "other": "{count} Tage"
+        },
+        "action": "Aktion",
+        "requested": "Angefragt",
+        "solved": "Gelöst"
+      },
+      "errors": {
+        "dataLoadFailed": "Laden der Bestenliste fehlgeschlagen.",
+        "unknown": "Unbekannter Fehler."
+      },
+      "periods": {
+        "days14": "Letzte 14 Tage",
+        "days21": "Letzte 21 Tage"
+      }
+    },
+    "info": {
+      "modes": {
+        "finish-him": {
+          "title": "Finish Him",
+          "content": "Löse zuerst eine Taktikaufgabe und beweise dann deinen Vorteil im Endspiel gegen die gewählte Engine. Skill-Punkte gibt es für Siege (Summe des Materials: ♟=1, ♞♗=3, ♜=5, ♛=9). Remis und Niederlagen geben keine Punkte."
+        },
+        "tornado": {
+          "title": "Tornado",
+          "content": "Vier Zeitkontrollen: 1+1, 3+2, 5+3 und 10+5. Löse so viele Aufgaben wie möglich im Zeitlimit. Das Rating basiert auf dem Glicko2-System. Jede gelöste Aufgabe gibt 1 Skill-Punkt."
+        }
+      },
+      "leaderboards": {
+        "topFinishHim": {
+          "title": "Finish Him Rekorde",
+          "content": "Spieler-Ranking nach Punkten im 'Finish Him' Modus. Punkte gibt es für jede erfolgreich abgeschlossene Aufgabe."
+        },
+        "theoryLeaderboard": {
+          "title": "Theorie Rekorde",
+          "content": "Ranking nach Punkten in theoretischen Endspielen."
+        },
+        "overallSkill": {
+          "title": "Gesamt Skill-Rating",
+          "content": "Summe aller Skill-Punkte über alle Modi im gewählten Zeitraum."
+        },
+        "skillStreak": {
+          "title": "Täglicher Streak",
+          "content": "Spieler, die an aufeinanderfolgenden Tagen mindestens 100 Skill-Punkte sammeln."
+        },
+        "skillStreakMega": {
+          "title": "Tornado +300 Streak",
+          "content": "Für die Elite: Täglich mindestens 300 Skill-Punkte im Tornado-Modus."
+        },
+        "topToday": {
+          "title": "Top Heute",
+          "content": "Die erfolgreichsten Spieler des heutigen Tages."
+        },
+        "tornadoLeaderboard": {
+          "title": "Tornado Rating",
+          "content": "Ranking nach dem höchsten erreichten Glicko2-Rating im Tornado-Modus."
+        }
+      }
+    },
+    "controls": {
+      "new": "Neu",
+      "restart": "Neustart",
+      "resign": "Aufgeben",
+      "share": "Teilen",
+      "info": "Info"
+    },
+    "tornado": {
+      "modes": {
+        "bullet": "Bullet (1+1)",
+        "blitz": "Blitz (3+2)",
+        "rapid": "Rapid (5+3)",
+        "classic": "Classic (10+5)"
+      },
+      "selection": {
+        "title": "Wähle einen Modus"
+      },
+      "feedback": {
+        "selectMode": "Wähle einen Modus zum Starten.",
+        "loadingFirstPuzzle": "Erste Aufgabe wird geladen...",
+        "yourTurn": "Du bist am Zug.",
+        "loadingFailed": "Nächste Aufgabe konnte nicht geladen werden.",
+        "startFailed": "Session konnte nicht gestartet werden.",
+        "sessionEnded": "Session beendet. Dein Rating: {rating}",
+        "getReady": "Drücke 'Spielen' zum Starten.",
+        "loadFailed": "Laden fehlgeschlagen.",
+        "wrongMove": "Falscher Zug!",
+        "success": "Aufgabe gelöst!",
+        "wrongMoveAnalysis": "Falscher Zug! Analyse ist jetzt aktiv."
+      },
+      "sessionEnd": {
+        "title": "Session beendet",
+        "message": "Dein finales Rating: {rating}",
+        "stats": "Rating: {rating} | Gelöst: {solved}/{total} | Thema: {theme}",
+        "newSession": "Neue Session",
+        "exit": "Beenden",
+        "mistakes": "Fehler"
+      },
+      "mistakes": {
+        "title": "Fehleranalyse",
+        "info": {
+          "rating": "Rating",
+          "theme": "Thema",
+          "id": "ID"
+        },
+        "feedback": {
+          "selectPuzzle": "Wähle eine Aufgabe zum Starten.",
+          "yourTurn": "Du bist dran. Versuche es erneut!",
+          "solved": "Super! Richtig gelöst.",
+          "wrongMove": "Falsch. Versuche die Stellung zu analysieren.",
+          "allSolved": "Glückwunsch! Alle Fehler korrigiert.",
+          "noMistakes": "Keine Fehler in der letzten Session!",
+          "loadFailed": "Fehler konnten nicht geladen werden."
+        },
+        "ui": {
+          "analysisButton": "Analyse",
+          "nextButton": "Weiter",
+          "exitButton": "Beenden",
+          "restartButton": "Neustart"
+        },
+        "exit": {
+          "title": "Modus verlassen",
+          "message": "Bist du sicher? Die Liste der Fehler wird gelöscht."
+        }
+      },
+      "leaderboard": {
+        "highScore": "Rekorde"
+      },
+      "ui": {
+        "ratingLabel": "Rating",
+        "themeLabel": "Thema"
+      },
+      "stats": {
+        "title": "Deine Ratings",
+        "globalRating": "Gesamt-Rating",
+        "theme": "Thema",
+        "rating": "Rating",
+        "progress": "Fortschritt",
+        "rate": "Erfolg"
+      },
+      "controls": {
+        "levelTitle": "Schwierigkeit",
+        "levels": {
+          "easy": "Leicht",
+          "normal": "Normal",
+          "hard": "Schwer"
+        },
+        "autoLoad": "AutoNext"
+      }
+    },
+    "diamondHunter": {
+      "status": {
+        "idle": "BEREIT",
+        "hunting": "SUCHE...",
+        "punish": "FEHLER BESTRAFEN!",
+        "secure": "DIAMANT SICHERN!",
+        "found": "DIAMANT GEFUNDEN!"
+      },
+      "header": {
+        "searching": "Theorie wird gesucht...",
+        "bookEnded": "Buch-Ende",
+        "deviation": "Abweichung",
+        "accuracy": "Genauigkeit",
+        "winRate": "WinRate",
+        "avgRating": "Ø Rating",
+        "newSession": "Neue Session",
+        "hint": "Hinweis",
+        "hideTheory": "Theorie ausblenden",
+        "showTheory": "Theorie anzeigen",
+        "analysis": "Analyse",
+        "playout": "Playout",
+        "mode": {
+          "label": "Modus",
+          "game": "Partie",
+          "training": "Training"
+        }
+      },
+      "stats": {
+        "reviewModeOverlay": "Review-Modus für Theorie",
+        "move": "Zug",
+        "games": "Partien (%)",
+        "winRate": "WinRate",
+        "avgRating": "Rating"
+      },
+      "settings": {
+        "title": "Opening Trainer Einstellungen",
+        "color": "Farbe wählen",
+        "white": "Weiß",
+        "black": "Schwarz",
+        "opponentDb": "Gegner DB",
+        "masters": "Meister DB",
+        "lichessPlayers": "Lichess DB",
+        "ratings": "Ratings",
+        "timeControls": "Zeitkontrollen",
+        "selectOpening": "Eröffnung wählen (Optional)",
+        "startPosition": "Startposition",
+        "variability": "Variabilität: {value}",
+        "variabilityHint": "Höhere Variabilität bedeutet, dass der Bot seltener gespielte Züge öfter wählt.",
+        "engineHint": "Engine für Playout-Modus wählen.",
+        "startSession": "Session starten"
+      }
+    }
+  },
+  "nav": {
+    "home": "Startseite",
+    "diamondHunter": "Diamond Hunter",
+    "openingExam": "Sparring",
+    "openingSparring": "Sparring",
+    "finishHim": "Finish Him",
+    "theoryEndgames": "Endspiele",
+    "practicalChess": "Praxis",
+    "tornado": "Tornado",
+    "leaderboards": "Bestenliste",
+    "userCabinet": "Profil",
+    "pricing": "Preise",
+    "about": "Über uns",
+    "legal": "Rechtliches",
+    "repertoire": "Repertoire",
+    "login": "Anmelden",
+    "logout": "Abmelden",
+    "loginWithLichess": "Mit Lichess anmelden"
+  },
   "legal": {
     "title": "Rechtliche Informationen",
+    "precedence": "Diese Übersetzung dient nur zur Information. Bei Abweichungen zwischen dieser Version und dem deutschen Original ist die deutsche Fassung maßgebend und rechtlich bindend.",
     "tabs": {
       "imprint": "Impressum",
       "privacy": "Datenschutz",
@@ -29,41 +724,104 @@
       "title": "Datenschutzerklärung",
       "sections": {
         "introTitle": "1. Einleitung und Verantwortlicher",
-        "introContent": "Der Schutz deiner persönlichen Daten ist uns ein wichtiges Anliegen. Wir verfolgen den Ansatz „Privacy by Design“: Wir verarbeiten nur Daten, die technisch für den Betrieb der App absolut notwendig sind.\n\nVerantwortlicher im Sinne der DSGVO:\nSergej Siemens, M.Eng.\nSchuhbauerstraße 19\n84166 Adlkofen\nE-Mail: immozerai{'@'}gmail.com",
+        "introParagraphs": [
+          "Der Schutz deiner persönlichen Daten ist uns ein wichtiges Anliegen. Wir verfolgen den Ansatz „Privacy by Design“: Wir verarbeiten nur Daten, die technisch für den Betrieb der App absolut notwendig sind.",
+          "Verantwortlicher im Sinne der DSGVO:",
+          "Sergej Siemens, M.Eng.",
+          "Schuhbauerstraße 19",
+          "84166 Adlkofen",
+          "E-Mail: immozerai{'@'}gmail.com"
+        ],
         "logfilesTitle": "2. Datenerfassung beim Zugriff (Server-Logfiles)",
-        "logfilesContent": "Bei jedem Aufruf der Webseite erfasst unser System automatisiert Daten und Informationen vom Computersystem des aufrufenden Rechners. Folgende Daten werden dabei erhoben:\n\nIP-Adresse des Nutzers\nDatum und Uhrzeit des Zugriffs\nBrowsertyp und verwendete Version\nBetriebssystem des Nutzers\n\nRechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (Berechtigtes Interesse). Die Speicherung dient der IT-Sicherheit und der Abwehr von Angriffsversuchen. Logfiles werden nach spätestens 14 Tagen automatisiert gelöscht.",
+        "logfilesParagraphs": [
+          "Bei jedem Aufruf der Webseite erfasst unser System automatisiert Daten und Informationen vom Computersystem des aufrufenden Rechners. Folgende Daten werden dabei erhoben:",
+          "IP-Adresse des Nutzers",
+          "Datum und Uhrzeit des Zugriffs",
+          "Browsertyp und verwendete Version",
+          "Betriebssystem des Nutzers",
+          "Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (Berechtigtes Interesse). Die Speicherung dient der IT-Sicherheit und der Abwehr von Angriffsversuchen. Logfiles werden nach spätestens 14 Tagen automatisiert gelöscht."
+        ],
         "hostingTitle": "3. Hosting (Auftragsverarbeitung)",
-        "hostingContent": "Unsere App wird auf Servern der netcup GmbH (Karlsruhe, Deutschland) gehostet. Wir haben mit dem Anbieter einen Vertrag zur Auftragsverarbeitung (AVV) gemäß Art. 28 DSGVO abgeschlossen, um sicherzustellen, dass deine Daten streng nach unseren Weisungen und DSGVO-konform verarbeitet werden.",
+        "hostingParagraphs": [
+          "Unsere App wird auf Servern der netcup GmbH (Karlsruhe, Deutschland) gehostet. Wir haben mit dem Anbieter einen Vertrag zur Auftragsverarbeitung (AVV) gemäß Art. 28 DSGVO abgeschlossen, um sicherzustellen, dass deine Daten streng nach unseren Weisungen und DSGVO-konform verarbeitet werden."
+        ],
         "lichessTitle": "4. Authentifizierung via Lichess (OAuth 2.0)",
-        "lichessContent": "Du kannst dich bei EXTRAPAWN über deinen Lichess-Account anmelden. Hierbei nutzen wir das OAuth 2.0 Verfahren.\n\nAblauf: Du wirst zu Lichess weitergeleitet und autorisierst dort den Zugriff.\nDaten: Wir erhalten von Lichess deinen Benutzernamen (Username) und verknüpfen diesen mit deinem EXTRAPAWN-Profil.\nZweck: Bereitstellung der Kernfunktionen (Analyse deiner Partien).\nRechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung).",
+        "lichessParagraphs": [
+          "Du kannst dich bei EXTRAPAWN über deinen Lichess-Account anmelden. Hierbei nutzen wir das OAuth 2.0 Verfahren.",
+          "Ablauf: Du wirst zu Lichess weitergeleitet und autorisierst dort den Zugriff.",
+          "Daten: Wir erhalten von Lichess deinen Benutzernamen (Username) und verknüpfen diesen mit deinem EXTRAPAWN-Profil.",
+          "Zweck: Bereitstellung der Kernfunktionen (Analyse deiner Partien).",
+          "Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung)."
+        ],
         "paymentTitle": "5. Zahlungsabwicklung (Polar.sh / Stripe)",
-        "paymentContent": "Für den Abschluss von Abonnements nutzen wir die Dienste von Polar.sh und Stripe.\n\nAbwicklung: Wenn du ein Upgrade durchführst, werden deine Zahlungsdaten direkt von Polar/Stripe erhoben und verarbeitet. Wir speichern zu keinem Zeitpunkt Kreditkartendaten auf unseren eigenen Servern. Weitere Informationen zur Datenverarbeitung findest du in der Datenschutzerklärung von Polar.sh:",
+        "paymentParagraphs": [
+          "Für den Abschluss von Abonnements nutzen wir die Dienste von Polar.sh und Stripe.",
+          "Abwicklung: Wenn du ein Upgrade durchführst, werden deine Zahlungsdaten direkt von Polar/Stripe erhoben und verarbeitet. Wir speichern zu keinem Zeitpunkt Kreditkartendaten auf unseren eigenen Servern. Weitere Informationen zur Datenverarbeitung findest du in der Datenschutzerklärung von Polar.sh:"
+        ],
         "paymentLink": "https://polar.sh/legal/privacy",
         "storageTitle": "6. Lokale Speicherung (Local Storage / Session)",
-        "storageContent": "EXTRAPAWN nutzt keine Marketing-Cookies. Wir verwenden lediglich den „Local Storage“ deines Browsers, um technisch notwendige Einstellungen zu speichern:\n\nLogin-Status (Auth-Token): Damit du eingeloggt bleibst.\nSpracheinstellungen (i18n): Damit die App in deiner bevorzugten Sprache erscheint.\nUI-Einstellungen: Z.B. dein gewähltes Board-Design.\n\nRechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO. Diese Daten sind für den Betrieb der App zwingend erforderlich; eine Einwilligung (Cookie-Banner) ist daher nicht notwendig.",
+        "storageParagraphs": [
+          "EXTRAPAWN nutzt keine Marketing-Cookies. Wir verwenden lediglich den „Local Storage“ deines Browsers, um technisch notwendige Einstellungen zu speichern:",
+          "Login-Status (Auth-Token): Damit du eingeloggt bleibst.",
+          "Spracheinstellungen (i18n): Damit die App in deiner bevorzugten Sprache erscheint.",
+          "UI-Einstellungen: Z.B. dein gewähltes Board-Design.",
+          "Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO. Diese Daten sind für den Betrieb der App zwingend erforderlich; eine Einwilligung (Cookie-Banner) ist daher nicht notwendig."
+        ],
         "fontsTitle": "7. Keine Drittanbieter-Inhalte (Fonts & Tracking)",
-        "fontsContent": "Schriftarten: Wir nutzen keine externen Dienste wie Google Fonts. Alle Schriftarten (z.B. Ubuntu) werden lokal von unseren eigenen Servern ausgeliefert.\nTracking: Wir setzen keine Analyse-Tools (wie Google Analytics) oder Marketing-Pixel ein.",
+        "fontsParagraphs": [
+          "Schriftarten: Wir nutzen keine externen Dienste wie Google Fonts. Alle Schriftarten (z.B. Ubuntu) werden lokal von unseren eigenen Servern ausgeliefert.",
+          "Tracking: Wir setzen keine Analyse-Tools (wie Google Analytics) oder Marketing-Pixel ein."
+        ],
         "rightsTitle": "8. Deine Rechte",
-        "rightsContent": "Du hast gegenüber uns folgende Rechte hinsichtlich deiner personenbezogenen Daten:\n\nRecht auf Auskunft (Art. 15 DSGVO)\nRecht auf Berichtigung oder Löschung (Art. 16/17 DSGVO)\nRecht auf Einschränkung der Verarbeitung (Art. 18 DSGVO)\nRecht auf Datenübertragbarkeit (Art. 20 DSGVO)\n\nZudem hast du das Recht, dich bei einer Datenschutz-Aufsichtsbehörde über die Verarbeitung deiner personenbezogenen Daten durch uns zu beschweren."
+        "rightsParagraphs": [
+          "Du hast gegenüber uns folgende Rechte hinsichtlich deiner personenbezogenen Daten:",
+          "Recht auf Auskunft (Art. 15 DSGVO)",
+          "Recht auf Berichtigung oder Löschung (Art. 16/17 DSGVO)",
+          "Recht auf Einschränkung der Verarbeitung (Art. 18 DSGVO)",
+          "Recht auf Datenübertragbarkeit (Art. 20 DSGVO)",
+          "Zudem hast du das Recht, dich bei einer Datenschutz-Aufsichtsbehörde über die Verarbeitung deiner personenbezogenen Daten durch uns zu beschweren."
+        ]
       }
     },
     "terms": {
-      "title": "Allgemeine Geschäftsbedingungen",
+      "title": "Allgemeine Geschäftsbedingungen (AGB)",
       "sections": {
         "introTitle": "1. Geltungsbereich und Anbieter",
-        "introContent": "Diese AGB gelten für die Nutzung der Plattform EXTRAPAWN, betrieben durch Sergej Siemens, M.Eng., Schuhbauerstraße 19, 84166 Adlkofen (nachfolgend „Anbieter“).",
+        "introParagraphs": [
+          "Diese AGB gelten für die Nutzung der Plattform EXTRAPAWN, betrieben durch Sergej Siemens, M.Eng., Schuhbauerstraße 19, 84166 Adlkofen (nachfolgend „Anbieter“)."
+        ],
         "subjectTitle": "2. Vertragsgegenstand und Leistungsbeschreibung",
-        "subjectContent": "(1) EXTRAPAWN ist eine Analyse- and Trainingsplattform für Schachspieler. Die Plattform wird im Freemium-Modell betrieben.\n(2) Kostenlose Grundversion: Nutzer können Basisfunktionen ohne Entgelt nutzen. Es besteht kein Anspruch auf dauerhafte Verfügbarkeit dieser Funktionen.\n(3) Kostenpflichtiges Abonnement (Pro): Die kostenpflichtige Hauptleistung umfasst den Zugang zu erweiterten Trainingsmodulen, insbesondere einer umfangreichen Datenbank für Taktikaufgaben und Endspiel-Training (theoretischer und praktischer Natur).\n(4) Zusatzfunktionen (Statistiken/KI): Der Anbieter stellt im Rahmen des Abonnements ggf. grafische Analysen, Statistiken und KI-gestützte Auswertungen bereit. Diese Funktionen sind ausdrücklich freiwillige Zusatzleistungen. Sie sind nicht Bestandteil der garantierten Beschaffenheit der Pro-Version. Der Anbieter behält sich vor, diese Funktionen im Rahmen der technischen Weiterentwicklung jederzeit zu ändern, zu erweitern oder zu entfernen.",
+        "subjectParagraphs": [
+          "(1) EXTRAPAWN ist eine Analyse- and Trainingsplattform für Schachspieler. Die Plattform wird im Freemium-Modell betrieben.",
+          "(2) Kostenlose Grundversion: Nutzer können Basisfunktionen ohne Entgelt nutzen. Es besteht kein Anspruch auf dauerhafte Verfügbarkeit dieser Funktionen.",
+          "(3) Kostenpflichtiges Abonnement (Pro): Die kostenpflichtige Hauptleistung umfasst den Zugang zu erweiterten Trainingsmodulen, insbesondere einer umfangreichen Datenbank für Taktikaufgaben und Endspiel-Training (theoretischer und praktischer Natur).",
+          "(4) Zusatzfunktionen (Statistiken/KI): Der Anbieter stellt im Rahmen des Abonnements ggf. grafische Analysen, Statistiken und KI-gestützte Auswertungen bereit. Diese Funktionen sind ausdrücklich freiwillige Zusatzleistungen. Sie sind nicht Bestandteil der garantierten Beschaffenheit der Pro-Version. Der Anbieter behält sich vor, diese Funktionen im Rahmen der technischen Weiterentwicklung jederzeit zu ändern, zu erweitern oder zu entfernen."
+        ],
         "contractTitle": "3. Vertragsschluss und Zahlungsabwicklung",
-        "contractContent": "(1) Der Erwerb von Abonnements erfolgt über den Dienstleister Polar.sh (Merchant of Record). Es gelten hierfür ergänzend die Geschäftsbedingungen von Polar.sh.\n(2) Der Vertrag über das Abonnement kommt zustande, sobald der Nutzer den Zahlungsprozess bei Polar.sh erfolgreich abgeschlossen hat.",
+        "contractParagraphs": [
+          "(1) Der Erwerb von Abonnements erfolgt über den Dienstleister Polar.sh (Merchant of Record). Es gelten hierfür ergänzend die Geschäftsbedingungen von Polar.sh.",
+          "(2) Der Vertrag über das Abonnement kommt zustande, sobald der Nutzer den Zahlungsprozess bei Polar.sh erfolgreich abgeschlossen hat."
+        ],
         "withdrawalTitle": "4. Widerrufsrecht bei digitalen Inhalten",
-        "withdrawalContent": "Mit dem Kauf eines Abonnements und der sofortigen Bereitstellung der digitalen Inhalte erklärt sich der Nutzer ausdrücklich damit einverstanden, dass der Anbieter vor Ablauf der Widerrufsfrist mit der Ausführung des Vertrags beginnt. Der Nutzer bestätigt seine Kenntnis davon, dass er durch diese Zustimmung sein Widerrufsrecht verliert. Ein entsprechendes Kontrollkästchen wird im Checkout-Prozess bereitgestellt.",
+        "withdrawalParagraphs": [
+          "Mit dem Kauf eines Abonnements und der sofortigen Bereitstellung der digitalen Inhalte erklärt sich der Nutzer ausdrücklich damit einverstanden, dass der Anbieter vor Ablauf der Widerrufsfrist mit der Ausführung des Vertrags beginnt. Der Nutzer bestätigt seine Kenntnis davon, dass er durch diese Zustimmung sein Widerrufsrecht verliert. Ein entsprechendes Kontrollkästchen wird im Checkout-Prozess bereitgestellt."
+        ],
         "terminationTitle": "5. Kündigung und Laufzeit",
-        "terminationContent": "(1) Abonnements haben die jeweils gewählte Laufzeit (z.B. monatlich oder jährlich).\n(2) Eine Kündigung ist jederzeit ohne Einhaltung einer Frist zum Ende des bezahlten Zeitraums möglich.\n(3) Nach der Kündigung bleiben die Pro-Funktionen bis zum Ablauf des bereits bezahlten Zeitraums vollumfänglich erhalten. Eine Rückerstattung bereits gezahlter Beträge erfolgt nicht.",
+        "terminationParagraphs": [
+          "(1) Abonnements haben die jeweils gewählte Laufzeit (z.B. monatlich oder jährlich).",
+          "(2) Eine Kündigung ist jederzeit ohne Einhaltung einer Frist zum Ende des bezahlten Zeitraums möglich.",
+          "(3) Nach der Kündigung bleiben die Pro-Funktionen bis zum Ablauf des bereits bezahlten Zeitraums vollumfänglich erhalten. Eine Rückerstattung bereits gezahlter Beträge erfolgt nicht."
+        ],
         "liabilityTitle": "6. Haftungsbeschränkung",
-        "liabilityContent": "(1) Der Anbieter haftet unbeschränkt bei Vorsatz oder grober Fahrlässigkeit sowie bei Verletzung von Leben, Körper oder Gesundheit.\n(2) Bei leichter Fahrlässigkeit haftet der Anbieter nur bei Verletzung einer wesentlichen Vertragspflicht (Kardinalpflicht). In diesem Fall ist die Haftung auf den bei Vertragsschluss vorhersehbaren, typischen Schaden begrenzt.\n(3) Die Haftung für den Verlust von Spieldaten, Statistiken oder Fortschrittswerten im Rahmen der freiwilligen Zusatzleistungen (siehe § 2 Abs. 4) ist ausgeschlossen, sofern kein vorsätzliches Handeln vorliegt. Der Nutzer ist für die Sicherung seiner bei Lichess generierten Daten selbst verantwortlich.",
+        "liabilityParagraphs": [
+          "(1) Der Anbieter haftet unbeschränkt bei Vorsatz oder grober Fahrlässigkeit sowie bei Verletzung von Leben, Körper oder Gesundheit.",
+          "(2) Bei leichter Fahrlässigkeit haftet der Anbieter nur bei Verletzung einer wesentlichen Vertragspflicht (Kardinalpflicht). In diesem Fall ist die Haftung auf den bei Vertragsschluss vorhersehbaren, typischen Schaden begrenzt.",
+          "(3) Die Haftung für den Verlust von Spieldaten, Statistiken oder Fortschrittswerten im Rahmen der freiwilligen Zusatzleistungen (siehe § 2 Abs. 4) ist ausgeschlossen, sofern kein vorsätzliches Handeln vorliegt. Der Nutzer ist für die Sicherung seiner bei Lichess generierten Daten selbst verantwortlich."
+        ],
         "changesTitle": "7. Änderungen der App und der AGB",
-        "changesContent": "Der Anbieter ist berechtigt, die App im Rahmen der technischen Verbesserung und Weiterentwicklung anzupassen (Update-Recht). Wesentliche Änderungen der AGB werden dem Nutzer rechtzeitig mitgeteilt."
+        "changesParagraphs": [
+          "Der Anbieter ist berechtigt, die App im Rahmen der technischen Verbesserung und Weiterentwicklung anzupassen (Update-Recht). Wesentliche Änderungen der AGB werden dem Nutzer rechtzeitig mitgeteilt."
+        ]
       }
     }
   },
@@ -77,129 +835,137 @@
       "webviewAction": "Bitte kopiere den Link und öffne ihn in deinem Standard-Browser (Chrome oder Safari)."
     }
   },
-  "common": {
-    "retry": "Wiederholen",
-    "limitless": "unbegrenzt"
-  },
-  "settings": {
-    "title": "Einstellungen",
-    "selectBoard": "Schachbrett",
-    "selectPieces": "Figuren",
-    "selectLanguage": "Sprache",
-    "back": "Zurück",
-    "sounds": {
-      "title": "Töne",
-      "voice": "Stimme",
-      "board": "Brett"
+  "about": {
+    "title": "EXTRAPAWN",
+    "intro": " ist ein professionelles Schach-Trainings-Ökosystem, das die Lücke zwischen Amateurspiel und Vorbereitung auf Großmeister-Niveau durch tiefe Analysen und realistisches KI-Sparring schließt.",
+    "sections": {
+      "mainModesTitle": "Trainings-Ökosystem",
+      "keyFeaturesTitle": "Hauptmerkmale & Innovationen",
+      "techStackTitle": "Technologie-Stack",
+      "contributingTitle": "Beitragen & Community",
+      "licenseAndAcknowledgementsTitle": "Lizenzen & Danksagungen"
     },
-    "animation": {
-      "title": "Animation",
-      "duration": "Dauer"
-    }
-  },
-  "nav": {
-    "home": "Startseite",
-    "openingTrainer": "Diamond Hunter",
-    "openingTraining": "Diamond Hunter",
-    "openingExam": "Sparring",
-    "openingSparring": "Sparring",
-    "finishHim": "Finish Him",
-    "theoryEndings": "Endspiele",
-    "practicalChess": "Praxis",
-    "tornado": "Tornado",
-    "leaderboards": "Bestenliste",
-    "userCabinet": "Profil",
-    "pricing": "Preise",
-    "about": "Über uns",
-    "legal": "Rechtliches",
-    "study": "Repertoire",
-    "login": "Anmelden",
-    "logout": "Abmelden",
-    "loginWithLichess": "Mit Lichess anmelden"
+    "modes": {
+      "conversionTitle": "Gewinnführung (Finish Him): ",
+      "conversion": "Meistere die Kunst, gewonnene Stellungen zu gewinnen. Beweise deinen Vorteil gegen Elite-Engines bis zum Matt oder zur klaren Aufgabe.",
+      "automaticTacticalTrainerTitle": "Diamond Hunter (Suche nach !!): ",
+      "automaticTacticalTrainer": "Unser Flaggschiff-Modus. Verwandle das Entdecken brillanter Züge in eine wiederholbare Fähigkeit. Nutze Gravity Maps, um 'Diamanten' zu finden, Fehler zu widerlegen und Erfolge zu sichern.",
+      "botSelectionTitle": "Engine & KI Intelligenz: ",
+      "botSelectionIntro": "Wähle deinen Sparringspartner basierend auf deinen Trainingszielen:",
+      "bots": {
+        "stockfish_2500": " (Stockfish 18 - Absolute Wahrheit, mathematisch perfekte Verteidigung)",
+        "badgyal-8": " (BadGyal-8 - Aggressiver taktischer Gegner, optimiert für Klassifizierung)",
+        "maia-2200": " (Maia-2200 - Menschliches Spiel auf Meisterniveau und realistische Fehlermuster)",
+        "maia-1900": " (Maia-1900 - Menschliches Spiel auf Vereinsniveau mit typischen Amateur-Fallen)"
+      },
+      "userCabinetTitle": "Taktischer Fingerabdruck: ",
+      "userCabinet": "Dein persönliches Kommandozentrum. Visualisiere deine technische DNA mit Nightingale-Rose-Diagrammen über 25+ taktische Themen.",
+      "analysisPanelTitle": "Strategie-Studio: ",
+      "analysisPanel": "Professionelles Variantenmanagement, Baum-Navigation mit unendlicher Tiefe und Echtzeit-Validierung durch MozerBook."
+    },
+    "features": {
+      "lichessIntegrationTitle": "Lichess-Verifizierung: ",
+      "lichessIntegration": "Sicherer OAuth-Login und direkte Verknüpfung von Erfolgen mit deinem Lichess-Profil.",
+      "advancedStatsTitle": "Meisterschafts-Leiter: ",
+      "advancedStats": "Verfolge deinen Fortschritt durch die Stufen Anfänger, Profi und Meister in jedem Endspiel und Eröffnungskapitel.",
+      "puzzleDatabaseTitle": "Elite-Fundament: ",
+      "puzzleDatabase": "Nutzung der hochwertigen Lichess-Aufgaben- und Bewertungsdatenbanken: ",
+      "modernUITitle": "Reaktives Design: ",
+      "modernUI": "Ein hochwertiges, performantes Interface, entwickelt mit Vue.js 3.5 und strengem TypeScript.",
+      "localizationTitle": "Globale Reichweite: ",
+      "localization": "Volle Unterstützung für Deutsch, Englisch und Russisch."
+    },
+    "techStack": {
+      "frontend": "Frontend: ",
+      "frontendStack": "Vue 3.5 (Composition API), Vite, Pinia, Naive UI",
+      "backend": "Orchestrierung: ",
+      "backendStack": "NestJS (Node.js) & FastAPI (Python) verteilte Architektur",
+      "chessLogic": "Kern-Logik: ",
+      "chessLogicStack": "Chessops & Chessground Hochleistungs-Engines",
+      "boardRendering": "Datenvisualisierung: ",
+      "boardRenderingStack": "Apache ECharts für komplexe Analysen",
+      "chessEngine": "Analyse-Cluster: ",
+      "chessEngineStack": "Stockfish 18, LCZero (Maia/BadGyal), n8n Workflow-Kern",
+      "api": "Protokolle: ",
+      "apiStack": "Lichess REST API & OAuth2 ("
+    },
+    "contributing": "Wir freuen uns über alle Beiträge, um EXTRAPAWN zum ultimativen Trainingstool zu machen! Wenn du Ideen hast oder einen Fehler gefunden hast, erstelle bitte ein Issue oder einen PR auf GitHub.",
+    "licenseAndAcknowledgements": {
+      "gplIntro": "Dieses Projekt steht unter der GNU General Public License v3.0, was Transparenz und Gemeinschaftswachstum fördert.",
+      "stockfish": {
+        "title": "Stockfish 18",
+        "text1": "Analyse und Wahrheitssuche werden ermöglicht durch ",
+        "text2": ", die weltweit stärkste Open-Source-Schach-Engine.",
+        "gplNoteTitle": "GPLv3 Verpflichtung: ",
+        "gplNote": "Gemäß der GPLv3 ist unser Quellcode offen und für die globale Schachgemeinschaft verfügbar.",
+        "projectSourceCode": "Quellcode: Repository öffentlich auf GitHub",
+        "licenseText": "Vollständiger GPLv3-Text: ",
+        "gratitude": "Tiefste Dankbarkeit an das Stockfish-Team für das Definieren des Standards der Schachbewertung."
+      },
+      "maia": {
+        "title": "Maia & BadGyal-8",
+        "text": "Realistisches Sparring wird durch **Maia Chess** und spezialisierte **BadGyal-8** Gewichte ermöglicht. Diese neuronalen Netze sind auf Millionen von Partien trainiert, um Züge vorherzusagen, die sich menschlich anfühlen. Besonderen Dank an das CSSLab und dkappe.",
+        "links": {
+          "website": "Maia Webseite",
+          "github": "Maia GitHub",
+          "lichessBot": "Gegen Maia spielen"
+        }
+      },
+      "lcZero": {
+        "title": "Leela Chess Zero (LCZero)",
+        "text": "Unsere neuronale Engine-Schicht läuft auf **LCZero**, der wegweisenden Open-Source-Engine, die KI-gestütztes Schach für alle zugänglich gemacht hat.",
+        "links": {
+          "website": "LCZero Hub",
+          "github": "LCZero Repo"
+        }
+      },
+      "chessground": {
+        "title": "Chessground",
+        "text1": "Die Board-Darstellung nutzt die ultraschnelle ",
+        "text2": " Engine des Lichess-Teams.",
+        "gratitude": "Danke, Lichess, für den besten Board-Renderer der Welt."
+      },
+      "chessops": {
+        "title": "Chessops",
+        "text": "Zug-Generierung, Legalitätsprüfungen und PGN/FEN-Parsing werden durch die modulare **Chessops**-Bibliothek erledigt.",
+        "gratitude": "Ein unverzichtbares Werkzeug für jede moderne Schachanwendung."
+      },
+      "otherCreditsTitle": "Technische Grundlagen",
+      "credits": {
+        "lichess": "Lichess.org - Für die API, Aufgaben-DB und Bewertungssets.",
+        "n8n": "n8n.io - Das flexible Nervensystem unserer Backend-Orchestrierung.",
+        "community": "Alle Mitwirkenden und Tester, die helfen, den Traum vom perfekten Training zu verfeinern."
+      }
+    },
+    "author": {
+      "photoAlt": "Projekt-Architekt",
+      "title": "Die Mission & der Macher",
+      "bioPart1": "Ich bin Moser, Maschinenbauingenieur und lebenslanger Schachschüler. Geboren in Kasachstan (1985), wohnhaft in Deutschland (2003).",
+      "bioPart2": "EXTRAPAWN ist mein Traum von einem professionellen Werkzeug, das es Spielern ermöglicht, effektiv zu lernen.",
+      "bioPart3": "Fließend in Russisch und Deutsch, ständig an meinem Englisch feilend. Danke, dass du dabei bist!",
+      "supportButtonText": "Gib mir einen Kaffee aus"
+    },
+    "contact": {
+      "telegram": "Telegram",
+      "email": "E-Mail",
+      "github": "GitHub",
+      "separator": ": "
+    },
+    "footerNote": "Gebaut mit ❤️ für alle, die nach schachlicher Meisterschaft streben."
   },
   "welcome": {
-    "title": "Wähle einen Modus",
+    "titleV2": "Wähle einen Modus",
     "slogan": "Konstanz ist der Schlüssel zum Erfolg.",
     "buttons": {
       "finishHim": "Finish Him",
-      "theoryEndings": "Endspiele",
+      "theoryEndgames": "Endspiele",
       "practicalChess": "Praxis",
-      "tacktics": "Tornado",
+      "tornado": "Tornado",
       "leaderboards": "Bestenliste",
-      "openingTraining": "Diamond Hunter",
+      "diamondHunter": "Diamond Hunter",
       "openingSparring": "Sparring",
-      "study": "Repertoire"
-    }
-  },
-  "study": {
-    "repertoire": "Repertoire",
-    "repertoireGenerator": "Repertoire Generator"
-  },
-  "pricing": {
-    "title": "Abos & Preise",
-    "repertoireGenerator": "Repertoire Generator",
-    "intro": {
-      "p1": "Willkommen auf der Infoseite zu unserem zukünftigen Abosystem. Die offene Testphase ist aktiv."
+      "repertoire": "Repertoire"
     },
-    "tiers": {
-      "title": "Abonnement-Stufen",
-      "pawn": {
-        "name": "Bauer",
-        "description": "Tägliche Auffüllung auf bis zu {pawncoins} PawnCoins",
-        "price": "Dauerhaft kostenlos"
-      },
-      "knight": {
-        "name": "Springer",
-        "description": "Tägliche Auffüllung auf bis zu {pawncoins} PawnCoins"
-      },
-      "bishop": {
-        "name": "Läufer",
-        "description": "Tägliche Auffüllung auf bis zu {pawncoins} PawnCoins"
-      },
-      "rook": {
-        "name": "Turm",
-        "role": "Der ideale Einstieg für Amateure.",
-        "description": "Tägliche Auffüllung auf bis zu {pawncoins} PawnCoins",
-        "priceMonthly": "3,99 € / Monat",
-        "priceYearly": "39,99 € / Jahr"
-      },
-      "queen": {
-        "name": "Dame",
-        "role": "Der Standard für ambitionierte Vereinsspieler.",
-        "description": "Tägliche Auffüllung auf bis zu {pawncoins} PawnCoins",
-        "priceMonthly": "5,99 € / Monat",
-        "priceYearly": "59,99 € / Jahr"
-      },
-      "king": {
-        "name": "König",
-        "role": "Das Kraftpaket für Profis & Analysten.",
-        "description": "Tägliche Auffüllung auf bis zu {pawncoins} PawnCoins",
-        "priceMonthly": "9,99 € / Monat",
-        "priceYearly": "99,99 € / Jahr"
-      },
-      "price": {
-        "soon": "Preis wird angekündigt",
-        "bonus": "Club-Bonus"
-      }
-    },
-    "bonusInfo": {
-      "title": "🎉 Club-Bonus Stufen!",
-      "p1": "Hallo Freunde 👋",
-      "p2": "Wir haben die Bedingungen für automatische Boni für die aktivsten Vereinsmitglieder aktualisiert.",
-      "p3": "Du kannst eine Premium-Stufe kostenlos erhalten — einfach indem du in Team-Turnieren spielst 🏆",
-      "teamLink": "Hier unserem Lichess-Team beitreten!",
-      "howItWorks": "📅 So funktioniert es:",
-      "p4": "Jeden Tag analysiert das System deine Aktivität der letzten 30 Tage (Turniere, Punkte und Partien) und vergibt Aktivitätspunkte.",
-      "p5": "Basierend auf der Punktzahl wird eine der Stufen zugewiesen:",
-      "knight": "♘ Springer — ab 250 Punkten",
-      "bishop": "♗ Läufer — ab 500 Punkten",
-      "p6": "✨ Die Stufe wird automatisch neu berechnet und kann sich je nach Aktivität ändern.",
-      "p7": "Keine Anmeldung nötig — spiele einfach, das System erledigt den Rest ✅",
-      "p8": "Vielen Dank für die Unterstützung des Clubs ❤️♟"
-    },
-    "costs": {
-      "title": "Modul-Kosten",
-      "pawncoinLabel": "PawnCoins"
-    }
+    "loginPrompt": "Oder melde dich an, um alle Funktionen zu nutzen:"
   }
 }

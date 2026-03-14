@@ -41,14 +41,14 @@ const localResetTimeMessage = computed(() => {
     hour: '2-digit',
     minute: '2-digit',
   })
-  return t('userCabinet.stats.activity.titleWithTime', { time: localTime })
+  return t('features.userCabinet.stats.activity.titleWithTime', { time: localTime })
 })
 
 const activityModes = [
   { key: 'finish_him' as const, label: t('nav.finishHim'), icon: '🎯' },
   { key: 'tornado' as const, label: t('nav.tornado'), icon: '🌪️' },
-  { key: 'practical-chess' as const, label: t('practicalChess.selection.title'), icon: '♙♖' },
-  { key: 'theory' as const, label: t('nav.theoryEndings'), icon: '♔♙' },
+  { key: 'practical-chess' as const, label: t('features.practicalChess.selection.title'), icon: '♙♖' },
+  { key: 'theory' as const, label: t('nav.theoryEndgames'), icon: '♔♙' },
 ]
 
 const tornadoMode = computed(() => {
@@ -113,7 +113,7 @@ const avatarUrl = computed(() => {
               </n-space>
             </n-space>
 
-            <n-statistic :label="t('userCabinet.stats.pawncoinsLabel')" class="header-funcoins">
+            <n-statistic :label="t('features.userCabinet.stats.pawncoinsLabel')" class="header-funcoins">
               <template #prefix>
                 <n-icon color="#f0a020">
                   <WalletOutline />
@@ -128,7 +128,7 @@ const avatarUrl = computed(() => {
 
           <!-- Dynamic Rating (if applicable) -->
           <div v-if="tornadoMode && tornadoHighScore !== null" class="dynamic-rating-row">
-            <n-statistic :label="`${t('tornado.leaderboard.highScore')} (${tornadoMode})`">
+            <n-statistic :label="`${t('features.tornado.leaderboard.highScore')} (${tornadoMode})`">
               <template #prefix>
                 <n-icon color="#f0a020">
                   <RibbonOutline />
@@ -152,7 +152,7 @@ const avatarUrl = computed(() => {
                     <n-icon size="18" depth="2" color="var(--color-accent)">
                       <GolfOutline />
                     </n-icon>
-                    <n-text strong>{{ t('userCabinet.stats.puzzlesSolved') }}</n-text>
+                    <n-text strong>{{ t('features.userCabinet.stats.puzzlesSolved') }}</n-text>
                   </n-space>
                   <n-text type="primary" strong class="total-value">
                     {{ userProfile.today_activity.puzzles_solved_today.total }}
@@ -188,9 +188,9 @@ const avatarUrl = computed(() => {
           </n-icon>
           <div style="text-align: center">
             <n-text strong size="large" block class="login-title">{{
-              t('userCabinet.title')
+              t('features.userCabinet.title')
             }}</n-text>
-            <n-text depth="3">{{ t('userCabinet.loginPrompt') }}</n-text>
+            <n-text depth="3">{{ t('features.userCabinet.loginPrompt') }}</n-text>
           </div>
           <n-button type="primary" size="large" block secondary strong @click="handleLogin">
             {{ t('nav.loginWithLichess') }}

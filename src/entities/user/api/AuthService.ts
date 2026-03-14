@@ -129,7 +129,7 @@ class AuthServiceController {
     } catch (error) {
       logger.error('[AuthService] Error checking web session:', error)
       this._setState({
-        error: t('errors.backendConnectionFailed'),
+        error: t('features.errors.backendConnectionFailed'),
         isProcessing: false,
         isAuthenticated: false,
         userProfile: null,

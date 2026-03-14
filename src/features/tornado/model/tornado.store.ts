@@ -58,7 +58,7 @@ export const useTornadoStore = defineStore('tornado', () => {
   const timeIncrementMs = ref(0)
   const timerId = ref<number | null>(null)
   const isSessionActive = ref(false)
-  const feedbackMessage = ref(t('tornado.feedback.selectMode'))
+  const feedbackMessage = ref(t('features.tornado.feedback.selectMode'))
   const isProcessingMove = ref(false)
   const puzzlesSolved = ref(0)
   const puzzlesAttempted = ref(0)
@@ -89,7 +89,7 @@ export const useTornadoStore = defineStore('tornado', () => {
     isSessionActive.value = false
     puzzlesSolved.value = 0
     puzzlesAttempted.value = 0
-    feedbackMessage.value = t('tornado.feedback.selectMode')
+    feedbackMessage.value = t('features.tornado.feedback.selectMode')
     isProcessingMove.value = false
     tenSecondsWarningPlayed.value = false
     eightSecondsWarningPlayed.value = false
@@ -170,8 +170,8 @@ export const useTornadoStore = defineStore('tornado', () => {
     // Format stats message
     const themeLabel = sessionTheme.value
       ? t(`chess.tornado.${sessionTheme.value}`)
-      : t('chess.tornado.auto')
-    const message = t('tornado.sessionEnd.stats', {
+      : t('chess.tactics.auto')
+    const message = t('features.tornado.sessionEnd.stats', {
       rating: sessionRating.value,
       solved: puzzlesSolved.value,
       total: puzzlesAttempted.value,
@@ -209,10 +209,10 @@ export const useTornadoStore = defineStore('tornado', () => {
 
     const hasMistakes = mistakenPuzzles.value.length > 0
 
-    const userResponse = await uiStore.showConfirmation(t('tornado.sessionEnd.title'), message, {
-      confirmText: t('tornado.sessionEnd.newSession'),
-      cancelText: t('tornado.sessionEnd.exit'),
-      extraText: t('tornado.sessionEnd.mistakes'),
+    const userResponse = await uiStore.showConfirmation(t('features.tornado.sessionEnd.title'), message, {
+      confirmText: t('features.tornado.sessionEnd.newSession'),
+      cancelText: t('features.tornado.sessionEnd.exit'),
+      extraText: t('features.tornado.sessionEnd.mistakes'),
       showExtra: hasMistakes,
       persistent: true,
     })
@@ -238,11 +238,11 @@ export const useTornadoStore = defineStore('tornado', () => {
     if (!timeControls[selectedMode]) {
       logger.error(`[TornadoStore] Invalid mode attempt: ${selectedMode}`)
       await uiStore.showConfirmation(
-        t('common.error'),
-        t('gameplay.feedback.loadFailed') || 'Invalid game mode.',
+        t('common.actions.error'),
+        t('features.gameplay.feedback.loadFailed') || 'Invalid game mode.',
         {
           showCancel: false,
-          confirmText: t('common.ok'),
+          confirmText: t('common.actions.ok'),
         },
       )
       router.push('/tornado')
@@ -258,7 +258,7 @@ export const useTornadoStore = defineStore('tornado', () => {
     const controls = timeControls[selectedMode]
     timerValueMs.value = controls.initial
     timeIncrementMs.value = controls.increment
-    feedbackMessage.value = t('tornado.feedback.loadingFirstPuzzle')
+    feedbackMessage.value = t('features.tornado.feedback.loadingFirstPuzzle')
 
     try {
       const response = await startSessionMutation.mutateAsync({ mode: selectedMode, theme })
@@ -278,29 +278,29 @@ export const useTornadoStore = defineStore('tornado', () => {
         if (firstPuzzle) {
           activePuzzle.value = firstPuzzle
           setupPuzzle(firstPuzzle)
-          feedbackMessage.value = t('tornado.feedback.yourTurn')
+          feedbackMessage.value = t('features.tornado.feedback.yourTurn')
 
           if (response.userStatsUpdate) {
             authStore.updateUserStats(response.userStatsUpdate)
           }
         }
       } else {
-        throw new Error(t('tornado.feedback.loadingFailed'))
+        throw new Error(t('features.tornado.feedback.loadingFailed'))
       }
     } catch (error) {
       if (error instanceof InsufficientPawnCoinsError) {
         const e = error as InsufficientPawnCoinsError
         const confirmed = await uiStore.showConfirmation(
-          t('pricing.insufficientCoins.title'),
-          t('pricing.insufficientCoins.message', {
+          t('features.pricing.insufficientCoins.title'),
+          t('features.pricing.insufficientCoins.message', {
             required: e.required,
             available: e.available,
           }) +
           '\n\n' +
-          t('pricing.insufficientCoins.subMessage'),
+          t('features.pricing.insufficientCoins.subMessage'),
           {
-            confirmText: t('pricing.insufficientCoins.goToPricing'),
-            cancelText: t('common.close'),
+            confirmText: t('features.pricing.insufficientCoins.goToPricing'),
+            cancelText: t('common.actions.close'),
           },
         )
         if (confirmed === 'confirm') {
@@ -310,7 +310,7 @@ export const useTornadoStore = defineStore('tornado', () => {
         }
       } else {
         logger.error('[TornadoStore] Failed to start session:', error)
-        feedbackMessage.value = t('tornado.feedback.startFailed')
+        feedbackMessage.value = t('features.tornado.feedback.startFailed')
       }
       isSessionActive.value = false
     }
@@ -421,8 +421,8 @@ export const useTornadoStore = defineStore('tornado', () => {
   async function handleResign() {
     if (isSessionActive.value) {
       const confirmed = await uiStore.showConfirmation(
-        t('gameplay.confirmExit.title'),
-        t('gameplay.confirmExit.message'),
+        t('features.gameplay.confirmExit.title'),
+        t('features.gameplay.confirmExit.message'),
       )
       if (confirmed === 'confirm') {
         await _handleSessionEnd()
@@ -451,16 +451,16 @@ export const useTornadoStore = defineStore('tornado', () => {
     isSessionActive,
     feedbackMessage,
     topInfoDisplay: computed<TopInfoDisplay>(() => ({
-      title: sessionTheme.value ? t(`chess.tornado.${sessionTheme.value}`) : t('chess.tornado.auto'),
+      title: sessionTheme.value ? t(`chess.tornado.${sessionTheme.value}`) : t('chess.tactics.auto'),
       mainValue: formattedTimer.value,
       mainColor: 'var(--color-accent-warning)',
-      badges: [{ text: t('chess.tornado.auto'), type: 'primary' }],
+      badges: [{ text: t('chess.tactics.auto'), type: 'primary' }],
       stats: [
         {
           icon: 'trending-up',
           value: sessionRating.value,
           color: 'var(--color-neon-orange)',
-          label: t('puzzleInfo.tacticalRating'),
+          label: t('features.puzzleInfo.tacticalRating'),
         },
       ],
       customType: 'tornado',

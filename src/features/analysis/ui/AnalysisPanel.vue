@@ -136,7 +136,7 @@ const PgnRenderer: FunctionalComponent<{ nodes: PgnNode[]; pathPrefix?: string }
                   <TerminalOutline />
                 </n-icon>
               </template>
-              {{ $t('analysis.threads') }}
+              {{ $t('features.analysis.threads') }}
             </n-tooltip>
             <n-select
               class="threads-select-nav"

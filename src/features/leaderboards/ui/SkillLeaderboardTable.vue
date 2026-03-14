@@ -59,17 +59,17 @@ const emit = defineEmits<{
 const { t } = useI18n()
 
 const skillModes = [
-  { key: 'finish_him', nameKey: 'nav.finishHim', color: '#42b883' }, // Green
-  { key: 'tornado', nameKey: 'userCabinet.stats.modes.tornado', color: '#f39c12' }, // Orange
-  { key: 'theory', nameKey: 'userCabinet.stats.modes.theory', color: '#9b59b6' }, // Purple
-  { key: 'practical-chess', nameKey: 'userCabinet.stats.modes.practical', color: '#3498db' }, // Blue
+  { key: 'finish_him', nameKey: 'gameModes.finishHim', color: '#42b883' }, // Green
+  { key: 'tornado', nameKey: 'features.userCabinet.stats.modes.tornado', color: '#f39c12' }, // Orange
+  { key: 'theory', nameKey: 'features.userCabinet.stats.modes.theory', color: '#9b59b6' }, // Purple
+  { key: 'practical-chess', nameKey: 'features.userCabinet.stats.modes.practical', color: '#3498db' }, // Blue
 ] as const
 
 const periodOptions = [
-  { label: t('userCabinet.stats.periods.week'), value: '7' },
-  { label: t('records.periods.days14'), value: '14' },
-  { label: t('records.periods.days21'), value: '21' },
-  { label: t('userCabinet.stats.periods.month'), value: '30' },
+  { label: t('features.userCabinet.stats.periods.week'), value: '7' },
+  { label: t('features.leaderboards.periods.days14'), value: '14' },
+  { label: t('features.leaderboards.periods.days21'), value: '21' },
+  { label: t('features.userCabinet.stats.periods.month'), value: '30' },
 ]
 
 // Responsive logic
@@ -243,7 +243,7 @@ const onChartClick = (params: unknown) => {
         @click="onChartClick"
         autoresize
       />
-      <n-empty v-else :description="t('userCabinet.stats.noData')" />
+      <n-empty v-else :description="t('features.userCabinet.stats.noData')" />
     </div>
   </div>
 </template>

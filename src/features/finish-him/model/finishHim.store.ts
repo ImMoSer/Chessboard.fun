@@ -34,7 +34,7 @@ export const useFinishHimStore = defineStore('finishHim', () => {
   const authStore = useAuthStore()
   const queryClient = useQueryClient()
   const activePuzzle = ref<FinishHimPuzzle | null>(null)
-  const feedbackMessage = ref(t('finishHim.feedback.pressNext'))
+  const feedbackMessage = ref(t('features.finishHim.feedback.pressNext'))
 
   const selectedTheme = ref<string>('auto')
   const selectedDifficulty = ref<FinishHimDifficulty>('Novice')
@@ -50,7 +50,7 @@ export const useFinishHimStore = defineStore('finishHim', () => {
 
   function reset() {
     activePuzzle.value = null
-    feedbackMessage.value = t('finishHim.feedback.pressNext')
+    feedbackMessage.value = t('features.finishHim.feedback.pressNext')
     isProcessingGameOver.value = false
     logger.info('[FinishHimStore] Local state has been reset.')
   }
@@ -118,16 +118,16 @@ export const useFinishHimStore = defineStore('finishHim', () => {
 
     if (isWin) {
       soundService.playSound('game_user_won')
-      feedbackMessage.value = t('finishHim.feedback.win')
+      feedbackMessage.value = t('features.finishHim.feedback.win')
     } else {
       soundService.playSound('game_user_lost')
       const reason = outcome?.reason
       if (reason === 'stalemate') {
-        feedbackMessage.value = t('gameplay.gameOver.stalemate')
+        feedbackMessage.value = t('features.gameplay.gameOver.stalemate')
       } else if (reason === 'resign') {
-        feedbackMessage.value = t('finishHim.feedback.resigned')
+        feedbackMessage.value = t('features.finishHim.feedback.resigned')
       } else {
-        feedbackMessage.value = t('finishHim.feedback.loss')
+        feedbackMessage.value = t('features.finishHim.feedback.loss')
       }
     }
 
@@ -184,7 +184,7 @@ export const useFinishHimStore = defineStore('finishHim', () => {
     isProcessingGameOver.value = false
 
     gameStore.setGamePhase('LOADING')
-    feedbackMessage.value = t('common.loading')
+    feedbackMessage.value = t('common.actions.loading')
 
     try {
       requestedPuzzleId.value = puzzleId
@@ -201,21 +201,21 @@ export const useFinishHimStore = defineStore('finishHim', () => {
 
       gameStore.startWithStrategy(puzzle.initial_fen, _createStrategy(puzzle, humanColor), humanColor, false)
 
-      feedbackMessage.value = t('finishHim.feedback.yourTurn')
+      feedbackMessage.value = t('features.finishHim.feedback.yourTurn')
     } catch (error) {
       if (error instanceof InsufficientPawnCoinsError) {
         const e = error as InsufficientPawnCoinsError
         const confirmed = await uiStore.showConfirmation(
-          t('pricing.insufficientCoins.title'),
-          t('pricing.insufficientCoins.message', {
+          t('features.pricing.insufficientCoins.title'),
+          t('features.pricing.insufficientCoins.message', {
             required: e.required,
             available: e.available,
           }) +
           '\n\n' +
-          t('pricing.insufficientCoins.subMessage'),
+          t('features.pricing.insufficientCoins.subMessage'),
           {
-            confirmText: t('pricing.insufficientCoins.goToPricing'),
-            cancelText: t('common.close'),
+            confirmText: t('features.pricing.insufficientCoins.goToPricing'),
+            cancelText: t('common.actions.close'),
           },
         )
         if (confirmed === 'confirm') {
@@ -225,15 +225,15 @@ export const useFinishHimStore = defineStore('finishHim', () => {
         }
       } else {
         logger.error('[FinishHimStore] Failed to load puzzle:', error)
-        feedbackMessage.value = t('finishHim.feedback.loadFailed')
+        feedbackMessage.value = t('features.finishHim.feedback.loadFailed')
         gameStore.setGamePhase('IDLE')
 
         await uiStore.showConfirmation(
-          t('common.error'),
-          t('gameplay.feedback.loadFailed') || 'Failed to load puzzle. It might not exist.',
+          t('common.actions.error'),
+          t('features.gameplay.feedback.loadFailed') || 'Failed to load puzzle. It might not exist.',
           {
             showCancel: false,
-            confirmText: t('common.ok'),
+            confirmText: t('common.actions.ok'),
           },
         )
         router.push('/finish-him')
@@ -244,7 +244,7 @@ export const useFinishHimStore = defineStore('finishHim', () => {
   async function startPlayoutFromFen(fen: string, color: 'white' | 'black') {
     isProcessingGameOver.value = false
     gameStore.setGamePhase('LOADING')
-    feedbackMessage.value = t('finishHim.feedback.yourTurnPlayout')
+    feedbackMessage.value = t('features.finishHim.feedback.yourTurnPlayout')
 
     gameStore.startWithStrategy(fen, _createStrategy(null, color), color, false)
   }
@@ -263,8 +263,8 @@ export const useFinishHimStore = defineStore('finishHim', () => {
   async function handleResign() {
     if (gameStore.gamePhase === 'PLAYING') {
       const confirmed = await uiStore.showConfirmation(
-        t('gameplay.confirmExit.title'),
-        t('gameplay.confirmExit.message'),
+        t('features.gameplay.confirmExit.title'),
+        t('features.gameplay.confirmExit.message'),
       )
       if (confirmed === 'confirm') {
         gameStore.handleGameResignation()
@@ -275,8 +275,8 @@ export const useFinishHimStore = defineStore('finishHim', () => {
   async function handleRestart() {
     if (gameStore.isGameActive) {
       const confirmed = await uiStore.showConfirmation(
-        t('gameplay.confirmExit.title'),
-        t('gameplay.confirmExit.message'),
+        t('features.gameplay.confirmExit.title'),
+        t('features.gameplay.confirmExit.message'),
       )
       if (confirmed) {
         gameStore.handleGameResignation()
@@ -292,8 +292,8 @@ export const useFinishHimStore = defineStore('finishHim', () => {
   async function handleExit() {
     if (gameStore.isGameActive) {
       const confirmed = await uiStore.showConfirmation(
-        t('gameplay.confirmExit.title'),
-        t('gameplay.confirmExit.message'),
+        t('features.gameplay.confirmExit.title'),
+        t('features.gameplay.confirmExit.message'),
       )
       if (!confirmed) {
         return
@@ -313,7 +313,7 @@ export const useFinishHimStore = defineStore('finishHim', () => {
       if (!puzzle) return { title: '', badges: [], stats: [] }
 
       return {
-        title: t(`chess.finishHim.category.${puzzle.category}`),
+        title: t(`chess.themes.${puzzle.category}`),
         mainValue: puzzle.engm_rating || puzzle.tactical_rating || '?',
         mainIcon: 'trending-up',
         mainColor: '#18a058',
@@ -324,7 +324,7 @@ export const useFinishHimStore = defineStore('finishHim', () => {
           },
         ],
         stats: [
-          { icon: 'pieces', value: puzzle.pieces_count, label: t('puzzleInfo.pieces') },
+          { icon: 'pieces', value: puzzle.pieces_count, label: t('features.puzzleInfo.pieces') },
           { icon: 'advantage', value: `+${puzzle.material_advantage}`, label: t('chess.types.advantage') },
         ],
         secondaryText: puzzle.sub_category ? t(`chess.finishHim.subCategory.${puzzle.sub_category}`) : undefined,

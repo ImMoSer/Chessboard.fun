@@ -92,16 +92,16 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
       if (err.message === 'Insufficient PawnCoins') {
         message.value = 'Insufficient PawnCoins to start Diamond Hunter!'
         const confirmed = await uiStore.showConfirmation(
-          t('pricing.insufficientCoins.title'),
-          t('pricing.insufficientCoins.message', {
+          t('features.pricing.insufficientCoins.title'),
+          t('features.pricing.insufficientCoins.message', {
             required: 15,
             available: 0,
           }) +
           '\n\n' +
-          t('pricing.insufficientCoins.subMessage'),
+          t('features.pricing.insufficientCoins.subMessage'),
           {
-            confirmText: t('pricing.insufficientCoins.goToPricing'),
-            cancelText: t('common.close'),
+            confirmText: t('features.pricing.insufficientCoins.goToPricing'),
+            cancelText: t('common.actions.close'),
           },
         )
         if (confirmed === 'confirm') {
@@ -509,11 +509,11 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
         { icon: 'flash', value: totalBrilliants.value, color: '#00C853' },
       ]
 
-      let title = t('diamondHunter.status.idle')
-      if (state.value === 'HUNTING') title = t('diamondHunter.status.hunting')
-      else if (state.value === 'SOLVING') title = t('diamondHunter.status.punish')
-      else if (state.value === 'SAVING') title = t('diamondHunter.status.secure')
-      else if (state.value === 'REWARD') title = t('diamondHunter.status.found')
+      let title = t('features.diamondHunter.status.idle')
+      if (state.value === 'HUNTING') title = t('features.diamondHunter.status.hunting')
+      else if (state.value === 'SOLVING') title = t('features.diamondHunter.status.punish')
+      else if (state.value === 'SAVING') title = t('features.diamondHunter.status.secure')
+      else if (state.value === 'REWARD') title = t('features.diamondHunter.status.found')
 
       return {
         title,

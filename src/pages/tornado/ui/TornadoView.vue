@@ -127,7 +127,7 @@ watch(
           mode="tornado"
           :modes="['bullet', 'blitz', 'rapid', 'classic']"
           :themes="currentTornadoThemes"
-          :title="t('userCabinet.stats.modes.tornado')"
+          :title="t('features.userCabinet.stats.modes.tornado')"
           @improve="handleImprove"
         />
       </div>

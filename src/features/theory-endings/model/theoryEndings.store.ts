@@ -40,7 +40,7 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
   const activeCategory = ref<TheoryEndingCategory | null>(null)
   const requestedPuzzleId = ref<string | undefined>(undefined)
 
-  const feedbackMessage = ref(t('theoryEndings.feedback.pressNext'))
+  const feedbackMessage = ref(t('features.theoryEndgames.feedback.pressNext'))
   const isProcessingGameOver = ref(false)
 
   const { puzzleQuery, resultMutation } = useTheoryEndingsQueries({
@@ -52,7 +52,7 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
 
   function reset() {
     activePuzzle.value = null
-    feedbackMessage.value = t('theoryEndings.feedback.pressNext')
+    feedbackMessage.value = t('features.theoryEndgames.feedback.pressNext')
     isProcessingGameOver.value = false
     logger.info('[TheoryEndingsStore] Local state has been reset.')
   }
@@ -82,15 +82,15 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
       soundService.playSound('game_user_won')
       feedbackMessage.value =
         activeType.value === 'win'
-          ? t('theoryEndings.feedback.win')
-          : t('theoryEndings.feedback.drawSuccess')
+          ? t('features.theoryEndgames.feedback.win')
+          : t('features.theoryEndgames.feedback.drawSuccess')
     } else {
       soundService.playSound('game_user_lost')
       const reason = outcome?.reason
       if (reason === 'resign') {
-        feedbackMessage.value = t('finishHim.feedback.resigned')
+        feedbackMessage.value = t('features.finishHim.feedback.resigned')
       } else {
-        feedbackMessage.value = t('finishHim.feedback.loss')
+        feedbackMessage.value = t('features.finishHim.feedback.loss')
       }
     }
 
@@ -204,21 +204,21 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
 
       gameStore.startWithStrategy(puzzle.initial_fen, strategy, humanColor, false)
 
-      feedbackMessage.value = t('finishHim.feedback.yourTurn')
+      feedbackMessage.value = t('features.finishHim.feedback.yourTurn')
     } catch (error) {
       if (error instanceof InsufficientPawnCoinsError) {
         const e = error as InsufficientPawnCoinsError
         const confirmed = await uiStore.showConfirmation(
-          t('pricing.insufficientCoins.title'),
-          t('pricing.insufficientCoins.message', {
+          t('features.pricing.insufficientCoins.title'),
+          t('features.pricing.insufficientCoins.message', {
             required: e.required,
             available: e.available,
           }) +
           '\n\n' +
-          t('pricing.insufficientCoins.subMessage'),
+          t('features.pricing.insufficientCoins.subMessage'),
           {
-            confirmText: t('pricing.insufficientCoins.goToPricing'),
-            cancelText: t('common.close'),
+            confirmText: t('features.pricing.insufficientCoins.goToPricing'),
+            cancelText: t('common.actions.close'),
           },
         )
         if (confirmed === 'confirm') {
@@ -228,15 +228,15 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
         }
       } else {
         logger.error('[TheoryEndingsStore] Failed to load puzzle:', error)
-        feedbackMessage.value = t('finishHim.feedback.loadFailed')
+        feedbackMessage.value = t('features.finishHim.feedback.loadFailed')
         gameStore.setGamePhase('IDLE')
 
         await uiStore.showConfirmation(
-          t('common.error'),
-          t('gameplay.feedback.loadFailed') || 'Failed to load puzzle. It might not exist.',
+          t('common.actions.error'),
+          t('features.gameplay.feedback.loadFailed') || 'Failed to load puzzle. It might not exist.',
           {
             showCancel: false,
-            confirmText: t('common.ok'),
+            confirmText: t('common.actions.ok'),
           },
         )
         router.push('/theory-endings')
@@ -251,8 +251,8 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
   async function handleResign() {
     if (gameStore.gamePhase === 'PLAYING') {
       const confirmed = await uiStore.showConfirmation(
-        t('gameplay.confirmExit.title'),
-        t('gameplay.confirmExit.message'),
+        t('features.gameplay.confirmExit.title'),
+        t('features.gameplay.confirmExit.message'),
       )
       if (confirmed === 'confirm') {
         gameStore.handleGameResignation()
@@ -264,8 +264,8 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
     if (activePuzzle.value) {
       if (gameStore.isGameActive) {
         const confirmed = await uiStore.showConfirmation(
-          t('gameplay.confirmExit.title'),
-          t('gameplay.confirmExit.message'),
+          t('features.gameplay.confirmExit.title'),
+          t('features.gameplay.confirmExit.message'),
         )
         if (confirmed) {
           gameStore.handleGameResignation()
@@ -280,8 +280,8 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
   async function handleExit() {
     if (gameStore.isGameActive) {
       const confirmed = await uiStore.showConfirmation(
-        t('gameplay.confirmExit.title'),
-        t('gameplay.confirmExit.message'),
+        t('features.gameplay.confirmExit.title'),
+        t('features.gameplay.confirmExit.message'),
       )
       if (!confirmed) {
         return
@@ -302,7 +302,7 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
       const resultKey = puzzle.result === 'win' ? 'win' : 'draw'
 
       return {
-        title: t(`chess.endings.${activeCategory.value}`),
+        title: t(`chess.themes.${activeCategory.value}`),
         mainValue: t(`chess.types.${resultKey}`),
         mainIcon: 'flash',
         mainColor: puzzle.result === 'win' ? '#f0a020' : '#2080f0',
@@ -312,7 +312,7 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
             type: puzzle.difficulty === 'Novice' ? 'success' : puzzle.difficulty === 'Pro' ? 'warning' : 'error',
           },
         ],
-        stats: [{ icon: 'pieces', value: puzzle.pieces_count, label: t('puzzleInfo.pieces') }],
+        stats: [{ icon: 'pieces', value: puzzle.pieces_count, label: t('features.puzzleInfo.pieces') }],
         secondaryText: t(`chess.types.${puzzle.weak_side}Endgame`),
       }
     }),

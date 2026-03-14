@@ -43,9 +43,9 @@ const handleChallengeClick = (puzzleId?: string) => {
 }
 
 const columns: DataTableColumns<FinishHimLeaderboardEntry> = [
-  { title: t('records.table.rank'), key: 'rank', align: 'center', width: 60 },
+  { title: t('features.leaderboards.table.rank'), key: 'rank', align: 'center', width: 60 },
   {
-    title: t('records.table.player'),
+    title: t('features.leaderboards.table.player'),
     key: 'username',
     render(row) {
       const icon = getSubscriptionIcon(row.subscriptionTier)
@@ -64,19 +64,19 @@ const columns: DataTableColumns<FinishHimLeaderboardEntry> = [
     },
   },
   {
-    title: t('records.table.time'),
+    title: t('features.leaderboards.table.time'),
     key: 'best_time',
     align: 'right',
     render: (row) => formatTime(row.best_time),
   },
   {
-    title: t('records.table.daysOld'),
+    title: t('features.leaderboards.table.daysOld'),
     key: 'days_old',
     align: 'right',
     render: (row) => `${row.days_old}d`,
   },
   {
-    title: t('records.table.action'),
+    title: t('features.leaderboards.table.action'),
     key: 'action',
     align: 'center',
     render(row) {
@@ -87,7 +87,7 @@ const columns: DataTableColumns<FinishHimLeaderboardEntry> = [
           type: 'success',
           onClick: () => handleChallengeClick(row.puzzle_id),
         },
-        { default: () => t('records.table.challenge') },
+        { default: () => t('features.leaderboards.table.challenge') },
       )
     },
   },

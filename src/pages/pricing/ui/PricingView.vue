@@ -17,7 +17,7 @@ import {
     NButton,
     useMessage,
 } from 'naive-ui'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { apiClient } from '@/shared/api/client'
 
@@ -42,79 +42,83 @@ const showBonusModal = ref(false)
 
 const loadingTier = ref<string | null>(null)
 
-const subscriptionTiers = [
-  {
-    id: 'pawn',
-    name: t('pricing.tiers.pawn.name'),
-    icon: '/piece/alpha/wP.svg',
-    pawncoins: PAWN_COINS,
-    color: PAWN_COLOR,
-    price: t('pricing.tiers.pawn.price'),
-    highlight: true,
-  },
-  {
-    id: 'knight',
-    name: t('pricing.tiers.knight.name'),
-    icon: '/piece/alpha/wN.svg',
-    pawncoins: KNIGHT_COINS,
-    color: KNIGHT_COLOR,
-    price: t('pricing.tiers.price.bonus'),
-    isBonus: true,
-  },
-  {
-    id: 'bishop',
-    name: t('pricing.tiers.bishop.name'),
-    icon: '/piece/alpha/wB.svg',
-    pawncoins: BISHOP_COINS,
-    color: BISHOP_COLOR,
-    price: t('pricing.tiers.price.bonus'),
-    isBonus: true,
-  },
-  {
-    id: 'rook',
-    name: t('pricing.tiers.rook.name'),
-    role: t('pricing.tiers.rook.role'),
-    icon: '/piece/alpha/wR.svg',
-    pawncoins: ROOK_COINS,
-    color: ROOK_COLOR,
-    priceMonthly: t('pricing.tiers.rook.priceMonthly'),
-    priceYearly: t('pricing.tiers.rook.priceYearly'),
-    isPurchasable: true,
-  },
-  {
-    id: 'queen',
-    name: t('pricing.tiers.queen.name'),
-    role: t('pricing.tiers.queen.role'),
-    icon: '/piece/alpha/wQ.svg',
-    pawncoins: QUEEN_COINS,
-    color: QUEEN_COLOR,
-    priceMonthly: t('pricing.tiers.queen.priceMonthly'),
-    priceYearly: t('pricing.tiers.queen.priceYearly'),
-    isPurchasable: true,
-  },
-  {
-    id: 'king',
-    name: t('pricing.tiers.king.name'),
-    role: t('pricing.tiers.king.role'),
-    icon: '/piece/alpha/wK.svg',
-    pawncoins: KING_COINS,
-    color: KING_COLOR,
-    priceMonthly: t('pricing.tiers.king.priceMonthly'),
-    priceYearly: t('pricing.tiers.king.priceYearly'),
-    isPurchasable: true,
-    isLimitless: true,
-  },
-]
+const subscriptionTiers = computed(() => {
+  return [
+    {
+      id: 'pawn',
+      name: t('features.pricing.tiers.pawn.name'),
+      icon: '/piece/alpha/wP.svg',
+      pawncoins: PAWN_COINS,
+      color: PAWN_COLOR,
+      price: t('features.pricing.tiers.pawn.price'),
+      highlight: true,
+    },
+    {
+      id: 'knight',
+      name: t('features.pricing.tiers.knight.name'),
+      icon: '/piece/alpha/wN.svg',
+      pawncoins: KNIGHT_COINS,
+      color: KNIGHT_COLOR,
+      price: t('features.pricing.tiers.price.bonus'),
+      isBonus: true,
+    },
+    {
+      id: 'bishop',
+      name: t('features.pricing.tiers.bishop.name'),
+      icon: '/piece/alpha/wB.svg',
+      pawncoins: BISHOP_COINS,
+      color: BISHOP_COLOR,
+      price: t('features.pricing.tiers.price.bonus'),
+      isBonus: true,
+    },
+    {
+      id: 'rook',
+      name: t('features.pricing.tiers.rook.name'),
+      role: t('features.pricing.tiers.rook.role'),
+      icon: '/piece/alpha/wR.svg',
+      pawncoins: ROOK_COINS,
+      color: ROOK_COLOR,
+      priceMonthly: t('features.pricing.tiers.rook.priceMonthly'),
+      priceYearly: t('features.pricing.tiers.rook.priceYearly'),
+      isPurchasable: true,
+    },
+    {
+      id: 'queen',
+      name: t('features.pricing.tiers.queen.name'),
+      role: t('features.pricing.tiers.queen.role'),
+      icon: '/piece/alpha/wQ.svg',
+      pawncoins: QUEEN_COINS,
+      color: QUEEN_COLOR,
+      priceMonthly: t('features.pricing.tiers.queen.priceMonthly'),
+      priceYearly: t('features.pricing.tiers.queen.priceYearly'),
+      isPurchasable: true,
+    },
+    {
+      id: 'king',
+      name: t('features.pricing.tiers.king.name'),
+      role: t('features.pricing.tiers.king.role'),
+      icon: '/piece/alpha/wK.svg',
+      pawncoins: KING_COINS,
+      color: KING_COLOR,
+      priceMonthly: t('features.pricing.tiers.king.priceMonthly'),
+      priceYearly: t('features.pricing.tiers.king.priceYearly'),
+      isPurchasable: true,
+      isLimitless: true,
+    },
+  ]
+})
 
-const gameCosts = [
-  { name: t('nav.tornado'), icon: '🌪️', cost: 10 },
-  { name: t('nav.theoryEndings'), icon: '📚', cost: 5 },
-  { name: t('nav.practicalChess'), icon: '♟️', cost: 5 },
-  { name: t('nav.finishHim'), icon: '🎯', cost: 10 },
-  { name: t('nav.openingTrainer'), icon: '💎', cost: 25 },
-  { name: t('nav.openingExam'), icon: '🤺', cost: 25 },
-  { name: t('pricing.repertoireGenerator'), icon: '📖', cost: 50 },
-]
+const gameCosts = computed(() => {
+  return [
+    { name: t('nav.tornado'), icon: '🌪️', cost: 10 },
+    { name: t('nav.theoryEndgames'), icon: '📚', cost: 5 },
+    { name: t('nav.practicalChess'), icon: '♟️', cost: 5 },
+    { name: t('nav.finishHim'), icon: '🎯', cost: 10 },
+    { name: t('nav.diamondHunter'), icon: '💎', cost: 25 },
+    { name: t('nav.openingExam'), icon: '🤺', cost: 25 },
+    { name: t('features.pricing.repertoireGenerator'), icon: '📖', cost: 50 },
+  ]
+})
 
 interface SubscriptionTier {
   id: string
@@ -167,18 +171,18 @@ const handleCheckout = async (tierId: string, interval: 'monthly' | 'yearly') =>
     >
       <n-space vertical size="large">
         <n-h1 align-text class="page-title">
-          <n-text style="color: var(--color-neon-cyan)">{{ t('pricing.title') }}</n-text>
+          <n-text style="color: var(--color-neon-cyan)">{{ t('features.pricing.title') }}</n-text>
         </n-h1>
 
         <n-alert type="info" :bordered="false" class="intro-alert">
           <n-text depth="2">
-            {{ t('pricing.intro.p1') }}
+            {{ t('features.pricing.intro.p1') }}
           </n-text>
         </n-alert>
 
         <n-divider title-placement="left">
           <n-h2 prefix="bar" align-text type="success">
-            {{ t('pricing.tiers.title') }}
+            {{ t('features.pricing.tiers.title') }}
           </n-h2>
         </n-divider>
 
@@ -208,11 +212,11 @@ const handleCheckout = async (tierId: string, interval: 'monthly' | 'yearly') =>
                     LIMITLESS
                   </n-text>
                   <n-text v-else depth="3" style="font-size: 0.9em">
-                    {{ t('pricing.tiers.pawn.description').split('{pawncoins}')[0] }}
+                    {{ t('features.pricing.tiers.pawn.description').split('{pawncoins}')[0] }}
                     <n-text :style="{ color: tier.color, fontWeight: 'bold', fontSize: '1.2em' }">
                       {{ tier.pawncoins }}
                     </n-text>
-                    {{ t('pricing.tiers.pawn.description').split('{pawncoins}')[1] }}
+                    {{ t('features.pricing.tiers.pawn.description').split('{pawncoins}')[1] }}
                   </n-text>
                 </template>
                 <n-divider dashed style="margin: 12px 0" />
@@ -253,7 +257,7 @@ const handleCheckout = async (tierId: string, interval: 'monthly' | 'yearly') =>
 
         <n-divider title-placement="left">
           <n-h2 prefix="bar" align-text type="warning">
-            {{ t('pricing.costs.title') }}
+            {{ t('features.pricing.costs.title') }}
           </n-h2>
         </n-divider>
 
@@ -269,7 +273,7 @@ const handleCheckout = async (tierId: string, interval: 'monthly' | 'yearly') =>
               <n-thing>
                 <template #description>
                   <n-space justify="space-between" align="center">
-                    <n-text depth="3">{{ t('pricing.costs.pawncoinLabel') }}</n-text>
+                    <n-text depth="3">{{ t('features.pricing.costs.pawncoinLabel') }}</n-text>
                     <n-text strong type="warning" style="font-size: 1.4em">
                       {{ game.cost }}
                     </n-text>
@@ -286,37 +290,37 @@ const handleCheckout = async (tierId: string, interval: 'monthly' | 'yearly') =>
       v-model:show="showBonusModal"
       preset="card"
       style="max-width: 600px; background-color: var(--color-bg-panel)"
-      :title="t('pricing.bonusInfo.title')"
+      :title="t('features.pricing.bonusInfo.title')"
     >
       <n-space vertical>
         <n-text depth="2">
-          <p>{{ t('pricing.bonusInfo.p1') }}</p>
-          <p>{{ t('pricing.bonusInfo.p2') }}</p>
-          <p>{{ t('pricing.bonusInfo.p3') }}</p>
+          <p>{{ t('features.pricing.bonusInfo.p1') }}</p>
+          <p>{{ t('features.pricing.bonusInfo.p2') }}</p>
+          <p>{{ t('features.pricing.bonusInfo.p3') }}</p>
           <div style="margin-top: 12px">
             <a
               href="https://lichess.org/team/xtrapawn"
               target="_blank"
               style="color: var(--color-neon-cyan); text-decoration: none; font-weight: bold"
             >
-              🔗 {{ t('pricing.bonusInfo.teamLink') }}
+              🔗 {{ t('features.pricing.bonusInfo.teamLink') }}
             </a>
           </div>
         </n-text>
         <n-divider />
-        <n-text strong>{{ t('pricing.bonusInfo.howItWorks') }}</n-text>
+        <n-text strong>{{ t('features.pricing.bonusInfo.howItWorks') }}</n-text>
         <n-space vertical :size="8">
-          <n-tag type="info">{{ t('pricing.bonusInfo.knight') }}</n-tag>
-          <n-tag type="warning">{{ t('pricing.bonusInfo.bishop') }}</n-tag>
+          <n-tag type="info">{{ t('features.pricing.bonusInfo.knight') }}</n-tag>
+          <n-tag type="warning">{{ t('features.pricing.bonusInfo.bishop') }}</n-tag>
         </n-space>
         <n-divider dashed />
         <n-text depth="3" italic style="font-size: 0.9em">
-          <p>{{ t('pricing.bonusInfo.p6') }}</p>
-          <p>{{ t('pricing.bonusInfo.p7') }}</p>
+          <p>{{ t('features.pricing.bonusInfo.p6') }}</p>
+          <p>{{ t('features.pricing.bonusInfo.p7') }}</p>
         </n-text>
         <template #footer>
           <n-text strong style="color: var(--color-accent-primary)">
-            {{ t('pricing.bonusInfo.p8') }}
+            {{ t('features.pricing.bonusInfo.p8') }}
           </n-text>
         </template>
       </n-space>

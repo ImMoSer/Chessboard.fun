@@ -1,120 +1,101 @@
 {
-  "legal": {
-    "title": "Legal Information",
-    "precedence": "This translation is provided for information purposes only. In the event of any discrepancies or conflicts between this English version and the German original, the German version shall prevail and be legally binding.",
-    "tabs": {
-      "imprint": "Imprint",
-      "privacy": "Privacy",
-      "terms": "Terms"
+  "common": {
+    "actions": {
+      "loading": "Loading...",
+      "error": "Error",
+      "processing": "Processing...",
+      "ok": "OK",
+      "cancel": "Cancel",
+      "confirm": "Confirm",
+      "delete": "Delete",
+      "play": "Play",
+      "notAvailable": "N/A",
+      "linkCopied": "Link copied to clipboard!",
+      "copyFailed": "Could not copy link.",
+      "copyLink": "Copy link",
+      "copied": "Copied!",
+      "close": "Close",
+      "retry": "Retry",
+      "limitless": "limitless"
     },
-    "imprint": {
-      "title": "Imprint",
-      "subtitle": "Information according to § 5 DDG",
-      "name": "Sergej Siemens, M.Eng.",
-      "address": "Schuhbauerstraße 19\n84166 Adlkofen",
-      "contact": "Contact",
-      "email": "E-Mail: immozerai{'@'}gmail.com",
-      "phone": "Phone: +4917681068118",
-      "vatId": "Value Added Tax Identification Number according to § 27 a of the Value Added Tax Act: DE366185109",
-      "dispute": "Dispute Resolution",
-      "disputeText": "EU Online Dispute Resolution platform:",
-      "disputeLink": "https://ec.europa.eu/consumers/odr/",
-      "disputeRefusal": "Consumer dispute resolution: We are not willing or obliged to participate in dispute resolution proceedings before a consumer arbitration board.",
-      "legalNotice": "Legal Notice",
-      "liabilityTitle": "Liability for Contents & Links",
-      "liabilityContent": "As a service provider, we are responsible for our own content according to general laws (§ 7 Para. 1 DDG). There is no obligation to monitor transmitted or stored third-party information (§§ 8-10 DDG). Upon becoming aware of legal violations, we will immediately remove corresponding content or links to external third-party websites. No liability is assumed for external content.",
-      "copyrightTitle": "Copyright",
-      "copyrightContent": "The content created by us on these pages is subject to German copyright law. Duplication, processing, and any kind of exploitation outside the limits of copyright law require written consent. Downloads and copies are only permitted for private use."
+    "difficulties": {
+      "level_novice": "Novice",
+      "level_pro": "Pro",
+      "level_master": "Master"
     },
-    "privacy": {
-      "title": "Privacy Policy",
-      "sections": {
-        "introTitle": "1. Introduction and Data Controller",
-        "introContent": "The protection of your personal data is an important concern for us. We follow the 'Privacy by Design' approach: We only process data that is technically absolutely necessary for the operation of the app.\n\nController within the meaning of the GDPR:\nSergej Siemens, M.Eng.\nSchuhbauerstraße 19\n84166 Adlkofen\nE-Mail: immozerai{'@'}gmail.com",
-        "logfilesTitle": "2. Data Collection upon Access (Server Logfiles)",
-        "logfilesContent": "Each time the website is accessed, our system automatically collects data and information from the computer system of the accessing computer. The following data is collected:\n\nUser's IP address\nDate and time of access\nBrowser type and version used\nUser's operating system\n\nLegal basis: Art. 6 Para. 1 lit. f GDPR (Legitimate Interest). Storage serves IT security and the defense against attack attempts. Logfiles are automatically deleted after a maximum of 14 days.",
-        "hostingTitle": "3. Hosting (Order Processing)",
-        "hostingContent": "Our app is hosted on servers of netcup GmbH (Karlsruhe, Germany). We have concluded an order processing agreement (AVV) with the provider in accordance with Art. 28 GDPR to ensure that your data is processed strictly according to our instructions and in compliance with the GDPR.",
-        "lichessTitle": "4. Authentication via Lichess (OAuth 2.0)",
-        "lichessContent": "You can log in to EXTRAPAWN via your Lichess account using the OAuth 2.0 procedure.\n\nProcess: You will be redirected to Lichess and authorize access there.\nData: We receive your username from Lichess and link it to your EXTRAPAWN profile.\nPurpose: Provision of core functions (analysis of your games).\nLegal basis: Art. 6 Para. 1 lit. b GDPR (Contract Fulfillment).",
-        "paymentTitle": "5. Payment Processing (Polar.sh / Stripe)",
-        "paymentContent": "For the conclusion of subscriptions, we use the services of Polar.sh and Stripe.\n\nProcessing: When you upgrade, your payment data is collected and processed directly by Polar/Stripe. We do not store credit card data on our own servers at any time. For more information on data processing, please refer to the Polar.sh privacy policy:",
-        "paymentLink": "https://polar.sh/legal/privacy",
-        "storageTitle": "6. Local Storage (Local Storage / Session)",
-        "storageContent": "EXTRAPAWN does not use marketing cookies. We only use the 'Local Storage' of your browser to store technically necessary settings:\n\nLogin status (Auth-Token): To keep you logged in.\nLanguage settings (i18n): So the app appears in your preferred language.\nUI settings: e.g., your chosen board design.\n\nLegal basis: Art. 6 Para. 1 lit. f GDPR. This data is strictly necessary for the operation of the app; consent (cookie banner) is therefore not required.",
-        "fontsTitle": "7. No Third-Party Content (Fonts & Tracking)",
-        "fontsContent": "Fonts: We do not use external services like Google Fonts. All fonts (e.g., Ubuntu) are served locally from our own servers.\nTracking: We do not use analysis tools (like Google Analytics) or marketing pixels.",
-        "rightsTitle": "8. Your Rights",
-        "rightsContent": "You have the following rights regarding your personal data:\n\nRight to information (Art. 15 GDPR)\nRight to rectification or erasure (Art. 16/17 GDPR)\nRight to restriction of processing (Art. 18 GDPR)\nRight to data portability (Art. 20 GDPR)\n\nYou also have the right to complain to a data protection supervisory authority about the processing of your personal data by us."
-      }
+    "periods": {
+      "day": "Day",
+      "week": "Week",
+      "month": "Month",
+      "days14": "Last 14 days",
+      "days21": "Last 21 days"
     },
-    "terms": {
-      "title": "Terms and Conditions (AGB)",
-      "sections": {
-        "introTitle": "1. Scope and Provider",
-        "introContent": "These Terms and Conditions apply to the use of the EXTRAPAWN platform, operated by Sergej Siemens, M.Eng., Schuhbauerstraße 19, 84166 Adlkofen (hereinafter referred to as 'Provider').",
-        "subjectTitle": "2. Subject of Contract and Performance Description",
-        "subjectContent": "(1) EXTRAPAWN is an analysis and training platform for chess players. The platform is operated on a freemium model.\n(2) Free Basic Version: Users can use basic functions without charge. There is no claim to the permanent availability of these functions.\n(3) Paid Subscription (Pro): The paid main service includes access to advanced training modules, in particular an extensive database for tactical puzzles and endgame training (theoretical and practical nature).\n(4) Additional Functions (Statistics/AI): The provider may provide graphical analyses, statistics, and AI-supported evaluations as part of the subscription. These functions are expressly voluntary additional services. They are not part of the guaranteed quality of the Pro version. The provider reserves the right to change, expand, or remove these functions at any time as part of technical further development.",
-        "contractTitle": "3. Conclusion of Contract and Payment Processing",
-        "contractContent": "(1) The acquisition of subscriptions takes place via the service provider Polar.sh (Merchant of Record). The terms and conditions of Polar.sh apply additionally.\n(2) The contract for the subscription is concluded as soon as the user has successfully completed the payment process at Polar.sh.",
-        "withdrawalTitle": "4. Right of Withdrawal for Digital Content",
-        "withdrawalContent": "By purchasing a subscription and immediately providing the digital content, the user expressly agrees that the provider begins with the execution of the contract before the expiry of the withdrawal period. The user confirms his knowledge that he loses his right of withdrawal through this consent. A corresponding checkbox is provided in the checkout process.",
-        "terminationTitle": "5. Termination and Duration",
-        "terminationContent": "(1) Subscriptions have the chosen duration (e.g., monthly or yearly).\n(2) Termination is possible at any time without notice to the end of the paid period.\n(3) After termination, the Pro functions remain fully available until the end of the already paid period. A refund of already paid amounts will not be made.",
-        "liabilityTitle": "6. Limitation of Liability",
-        "liabilityContent": "(1) The provider is liable without limitation in cases of intent or gross negligence and in the event of injury to life, body, or health.\n(2) In cases of slight negligence, the provider is only liable for the breach of an essential contractual obligation (cardinal obligation). In this case, liability is limited to the typical damage foreseeable at the time the contract was concluded.\n(3) Liability for the loss of game data, statistics, or progress values as part of the voluntary additional services (see § 2 Para. 4) is excluded, unless intentional action is involved. The user is responsible for securing his data generated at Lichess.",
-        "changesTitle": "7. Changes to the App and the Terms",
-        "changesContent": "The provider is entitled to adapt the app within the scope of technical improvement and further development (update right). Significant changes to the terms will be communicated to the user in a timely manner."
+    "stats": {
+      "success": "Success",
+      "accuracy": "Accuracy",
+      "improve": "Improve",
+      "points": {
+        "one": "Point",
+        "other": "{count} Points"
+      },
+      "seconds": {
+        "one": "Second",
+        "other": "{count} Seconds"
+      },
+      "attempts": {
+        "one": "Attempt",
+        "other": "{count} Attempts"
       }
     }
   },
-  "app": {
-    "title": "EXTRAPAWN",
-    "globalLoader": {
-      "error": "Failed to load essential assets. Please check your internet connection and try again.",
-      "message": "Welcome! The app is on your device for the first time or it need to be updated and needs to be fully downloaded. This only happens once.",
-      "hint": "Once the download is finished, the app can be used completely offline.",
-      "webviewWarning": "It seems you have opened the app in an integrated browser (e.g., Telegram, Instagram). For full functionality, we require a real browser like Google Chrome or Safari.",
-      "webviewAction": "Please copy the link and open it in your default browser (Chrome or Safari)."
-    }
+  "gameModes": {
+    "tornado": "Tornado",
+    "finishHim": "Finish Him",
+    "theoryEndgames": "Endgames",
+    "practicalChess": "Practical",
+    "diamondHunter": "Diamond Hunter",
+    "repertoire": "Repertoire",
+    "openingSparring": "Sparring"
   },
   "chess": {
-    "finishHim": {
-      "category": {
-        "queenPieces": "Queen & Pieces",
-        "rookPieces": "Rook & Pieces",
-        "bishop": "Bishop Endgame",
-        "rookPawn": "Rook & Pawn",
-        "queen": "Queen Endgame",
-        "knight": "Knight Endgame",
-        "expert": "Expert",
-        "knightBishop": "Knight vs Bishop",
-        "pawn": "Pawn Endgame"
-      },
-      "subCategory": {
-        "complexEndgame": "Complex Endgame",
-        "pawnEndgame": "Pawn Endgame",
-        "queenVsRook": "Queen vs Rook",
-        "rookVsRook": "Rook vs Rook",
-        "rookVsPawns": "Rook vs Pawns",
-        "knightVsPawns": "Knight vs Pawns",
-        "rookVsBishop": "Rook vs Bishop",
-        "bishopVsPawns": "Bishop vs Pawns",
-        "rookVsKnight": "Rook vs Knight",
-        "queenVsQueen": "Queen vs Queen",
-        "queenVsBishop": "Queen vs Bishop",
-        "queenVsPawns": "Queen vs Pawns",
-        "queenVsKnight": "Queen vs Knight",
-        "knightVsBishop": "Knight vs Bishop",
-        "bishopVsBishop": "Bishop vs Bishop",
-        "bishopVsKnight": "Bishop vs Knight",
-        "knightVsKnight": "Knight vs Knight",
-        "opColBishop": "Opposite Colored Bishops",
-        "twoMinorsVsRook": "Two Minor Pieces vs Rook",
-        "opColBishopPlus": "Opposite Colored Bishops +"
-      }
+    "subThemes": {
+      "complexEndgame": "Complex Endgame",
+      "pawnEndgame": "Pawn Endgame",
+      "queenVsRook": "Queen vs Rook",
+      "rookVsRook": "Rook vs Rook",
+      "rookVsPawns": "Rook vs Pawns",
+      "knightVsPawns": "Knight vs Pawns",
+      "rookVsBishop": "Rook vs Bishop",
+      "bishopVsPawns": "Bishop vs Pawns",
+      "rookVsKnight": "Rook vs Knight",
+      "queenVsQueen": "Queen vs Queen",
+      "queenVsBishop": "Queen vs Bishop",
+      "queenVsPawns": "Queen vs Pawns",
+      "queenVsKnight": "Queen vs Knight",
+      "knightVsBishop": "Knight vs Bishop",
+      "bishopVsBishop": "Bishop vs Bishop",
+      "bishopVsKnight": "Bishop vs Knight",
+      "knightVsKnight": "Knight vs Knight",
+      "opColBishop": "Opposite Colored Bishops",
+      "twoMinorsVsRook": "Two Minor Pieces vs Rook",
+      "opColBishopPlus": "Opposite Colored Bishops +"
     },
-    "tornado": {
+    "themes": {
+      "queenPieces": "Queen & Pieces",
+      "rookPieces": "Rook & Pieces",
+      "bishop": "Bishop Endgame",
+      "rookPawn": "Rook & Pawn",
+      "queen": "Queen Endgame",
+      "knight": "Knight Endgame",
+      "expert": "Expert",
+      "knightBishop": "Knight vs Bishop",
+      "pawn": "Pawn Endgame",
+      "extraPawn": "Extra Pawn",
+      "materialEquality": "Material Equality",
+      "exchange": "Exchange",
+      "rook": "Rook Endgame"
+    },
+    "tactics": {
       "fork": "Fork",
       "promotion": "Promotion",
       "pin": "Pin",
@@ -132,504 +113,723 @@
       "xRayAttack": "X-Ray Attack",
       "auto": "Automatic"
     },
-    "endings": {
-      "extraPawn": "Extra Pawn",
-      "materialEquality": "Material Equality",
-      "exchange": "Exchange",
-      "pawn": "Pawn Endgame",
-      "rook": "Rook Endgame",
-      "knight": "Knight Endgame",
-      "bishop": "Bishop Endgame",
-      "queen": "Queen Endgame",
-      "knightBishop": "Knight vs Bishop",
-      "rookPawn": "Rook & Pawn",
-      "rookPieces": "Rook & Pieces",
-      "queenPieces": "Queen & Pieces",
-      "expert": "Expert"
-    },
     "types": {
       "win": "Win",
       "draw": "Draw",
       "advantage": "Advantage",
       "whiteEndgame": "Vs White",
       "blackEndgame": "Vs Black"
-    },
-    "difficulties": {
-      "Novice": "Novice",
-      "Pro": "Pro",
-      "Master": "Master"
     }
   },
-  "practicalChess": {
-    "youMove": {
-      "title": "YOU MOVE!",
-      "subtitle": "Analyze the position and pick the side you want to play. One side is winning - but which one?",
-      "playWhite": "I play White",
-      "playBlack": "I play Black"
-    },
-    "selection": {
-      "title": "Practical Chess",
-      "subtitle": "Master real-game scenarios and endgames",
-      "difficultyLabel": "Difficulty",
-      "categoryLabel": "Material setups",
-      "start": "Practice now"
-    }
-  },
-  "common": {
-    "loading": "Loading...",
-    "error": "Error",
-    "processing": "Processing...",
-    "ok": "OK",
-    "cancel": "Cancel",
-    "confirm": "Confirm",
-    "delete": "Delete",
-    "play": "Play",
-    "notAvailable": "N/A",
-    "linkCopied": "Link copied to clipboard!",
-    "copyFailed": "Could not copy link.",
-    "copyLink": "Copy link",
-    "copied": "Copied!",
-    "close": "Close",
-    "retry": "Retry",
-    "limitless": "limitless"
-  },
-  "controls": {
-    "new": "New",
-    "restart": "Restart",
-    "resign": "Resign",
-    "share": "Share",
-    "info": "Info"
-  },
-  "engine": {
-    "title": "Sparring Partner",
-    "select": "Sparring partner"
-  },
-  "info": {
-    "modes": {
-      "finish-him": {
-        "title": "Finish Him",
-        "content": "First solve a tactical puzzle, then prove your advantage in the endgame against your chosen engine. Skill Points are awarded for wins and equal the sum of material on the board (♟=1, ♞♝=3, ♜=5, ♛=9). Draws and losses give no points. Completion time is also recorded for leaderboards."
+  "features": {
+    "finishHim": {
+      "feedback": {
+        "getReady": "Get ready for the next challenge!",
+        "pressNext": "Press 'Play Button' to begin.",
+        "yourTurn": "Your turn! Find the correct continuation.",
+        "yourTurnPlayout": "Your turn! Find the best moves to win.",
+        "timeUp": "Time's up! The playout phase is lost.",
+        "resigned": "You have resigned the game.",
+        "win": "You won!",
+        "loss": "You lost!",
+        "loadFailed": "Failed to load puzzle."
       },
-      "tornado": {
-        "title": "Tornado",
-        "content": "Four time controls available: 1+1, 3+2, 5+3, and 10+5 (separate rating in each). Solve as many puzzles as possible within the time limit. Rating calculated using the Glicko2 system based on puzzle difficulty and time spent. Each solved puzzle awards 1 Skill Point."
+      "selection": {
+        "title": "Finish Him",
+        "subtitle": "Realize your advantage against the engine",
+        "themeLabel": "Endgame Theme"
+      },
+      "error": {
+        "puzzleNotFound": "Puzzle with ID {puzzleId} was not found or is unavailable."
+      },
+      "stats": {
+        "mode": "Mode",
+        "theme": "Theme",
+        "rating": "Our Rating",
+        "evaluation": "Our Evaluation"
       }
     },
+    "userCabinet": {
+      "title": "User Cabinet",
+      "loginPrompt": "Log in to view your statistics and activity.",
+      "info": {
+        "lichessId": "Lichess ID",
+        "subscriptionTier": "Subscription",
+        "tierExpires": " (until {date})",
+        "tierPermanent": " (permanent)"
+      },
+      "stats": {
+        "pawncoinsLabel": "PawnCoins",
+        "endgameSkillLabel": "Endgame Skill",
+        "puzzlesSolved": "1 Puzzle Solved | {count} Puzzles Solved",
+        "skillEarned": "Skill Today",
+        "finishHimRatingLabel": "FinishHim Rating",
+        "tornadoTitle": "Tornado Ratings",
+        "global": {
+          "title": "Activity Statistics"
+        },
+        "activity": {
+          "titleWithTime": "Today's activity (resets at {time})"
+        },
+        "periods": {
+          "day": "Day",
+          "week": "Week",
+          "month": "Month"
+        },
+        "modes": {
+          "all": "Mode",
+          "tornado": "Tornado",
+          "finishHim": "Finish Him",
+          "theory": "Theory",
+          "practical": "Practical",
+          "tacticalTrainer": "Tactics"
+        },
+        "today": "Today",
+        "noData": "No data for the selected period.",
+        "success": "Success",
+        "accuracy": "Accuracy",
+        "attempts": "attempts",
+        "puzzle": "Puzzle",
+        "theoryThemes": "Endgame Themes",
+        "improve": "Improve"
+      },
+      "telegram": {
+        "title": "Telegram Integration",
+        "boundStatusSimple": "Account bound to Telegram",
+        "bindButton": "Bind Telegram Account"
+      },
+      "activity": {
+        "title": "Lichess Activity",
+        "noActivity": "No recent Lichess activity found.",
+        "dateHeader": "Date",
+        "summaryHeader": "Activity Summary"
+      },
+      "detailedAnalytics": {
+        "title": "Detailed Analytics",
+        "tornadoStats": "Tornado Themes Analysis",
+        "bestScore": "Best Score"
+      },
+      "analyticsTable": {
+        "theme": "Theme",
+        "rating": "Rating",
+        "accuracy": "Accuracy",
+        "solved_attempted": "Solved/Attempted",
+        "accuracy_percent": "Accuracy %",
+        "themeDistribution": "Theme Distribution",
+        "byAttempts": "by attempts",
+        "byRating": "by rating"
+      },
+      "gift": {
+        "title": "Redeem Gift Code",
+        "description": "Enter your 8-digit code to activate your club subscription.",
+        "placeholder": "Code",
+        "activate": "Activate",
+        "successTitle": "Congratulations! \ud83c\udf89",
+        "successMessage": "You have successfully activated the {tier} club tier. It will remain active until {date}. We wish you great success in your training!",
+        "ok": "OK",
+        "invalid": "Invalid or already used code.",
+        "error": "Error during redemption."
+      },
+      "polar": {
+        "successTitle": "Payment Successful! \ud83c\udf89",
+        "successMessage": "Thank you for subscribing. Your account has been upgraded and your PawnCoins balance corresponds to your new tier.",
+        "ok": "Start Training"
+      }
+    },
+    "pricing": {
+      "title": "Subscriptions and Prices",
+      "intro": {
+        "p1": "Welcome to the information page about our future subscription system. Open testing phase is active."
+      },
+      "repertoireGenerator": "Repertoire Generator",
+      "tiers": {
+        "title": "Subscription Tiers",
+        "pawn": {
+          "name": "Pawn",
+          "description": "Daily replenishment up to {pawncoins} PawnCoins",
+          "price": "Free forever"
+        },
+        "knight": {
+          "name": "Knight",
+          "description": "Daily replenishment up to {pawncoins} PawnCoins"
+        },
+        "bishop": {
+          "name": "Bishop",
+          "description": "Daily replenishment up to {pawncoins} PawnCoins"
+        },
+        "rook": {
+          "name": "Rook",
+          "role": "The \"No-Brainer\" entry for amateurs.",
+          "description": "Daily replenishment up to {pawncoins} PawnCoins",
+          "priceMonthly": "3.99 \u20ac / Month",
+          "priceYearly": "39.99 \u20ac / Year"
+        },
+        "queen": {
+          "name": "Queen",
+          "role": "The \"Standard\" for ambitious club players.",
+          "description": "Daily replenishment up to {pawncoins} PawnCoins",
+          "priceMonthly": "5.99 \u20ac / Month",
+          "priceYearly": "59.99 \u20ac / Year"
+        },
+        "king": {
+          "name": "King",
+          "role": "The \"Full-Power\" package for pros & analysts.",
+          "description": "Daily replenishment up to {pawncoins} PawnCoins",
+          "priceMonthly": "9.99 \u20ac / Month",
+          "priceYearly": "99.99 \u20ac / Year"
+        },
+        "price": {
+          "soon": "Price will be announced",
+          "bonus": "Club Bonus"
+        }
+      },
+      "bonusInfo": {
+        "title": "\ud83c\udf89 Updated Subscription Bonus Tiers!",
+        "p1": "Hello, friends \ud83d\udc4b",
+        "p2": "We have updated the terms for automatic bonuses for the most active club players.",
+        "p3": "Now you can get a premium tier for free \u2014 just by playing in team tournaments \ud83c\udfc6",
+        "teamLink": "Join our Lichess Club here!",
+        "howItWorks": "\ud83d\udcc5 How it works:",
+        "p4": "Every day, the system analyzes your activity over the last 30 days (tournaments, points, and games) and awards activity points.",
+        "p5": "Depending on the amount, one of the tiers is assigned:",
+        "knight": "\u2658 Knight \u2014 from 250 points",
+        "bishop": "\u2657 Bishop \u2014 from 500 points",
+        "p6": "\u2728 The tier is recalculated automatically and may change depending on your activity.",
+        "p7": "No applications needed \u2014 just play, and the system will do everything itself \u2705",
+        "p8": "Thank you for supporting the club \u2764\ufe0f\u265f"
+      },
+      "costs": {
+        "title": "Game Mode Costs",
+        "pawncoinLabel": "PawnCoins"
+      },
+      "insufficientCoins": {
+        "title": "Insufficient PawnCoins",
+        "message": "Starting this game requires {required} PawnCoins. You currently have: {available}.",
+        "subMessage": "You can learn more about how to top up your balance on the pricing page.",
+        "goToPricing": "Go to Pricing"
+      }
+    },
+    "repertoire": {
+      "limitModal": {
+        "title": "Subscription Limit Reached",
+        "message": "Your current subscription tier \"{tier}\" allows saving up to {limit} chapters on the server. All other chapters are stored locally on your device and may be lost if browser cache is cleared.",
+        "confirm": "Pricing & Tiers",
+        "cancel": "Got it"
+      },
+      "sizeModal": {
+        "title": "Chapter Too Large",
+        "message": "This chapter is too large to be saved in the cloud (limit is 15,000 characters). Please split your repertoire into multiple chapters to save it to the server.",
+        "confirm": "Got it"
+      },
+      "notifications": {
+        "updated": "Chapter updated in cloud!",
+        "savedAsCopy": "Chapter saved as your own copy!",
+        "saved": "Chapter saved to cloud!",
+        "shareLinkCopied": "Share link copied to clipboard!",
+        "saveError": "Failed to save to cloud",
+        "colorRequired": "Please select a color for this chapter first."
+      },
+      "repertoire": "Repertoire",
+      "repertoireGenerator": "Repertoire Generator"
+    },
+    "analysis": {
+      "engine": "Analysis",
+      "threads": "Threads",
+      "loading": "Loading analysis...",
+      "mateInShort": "M{value}",
+      "makeMove": "Make a move to see analysis.",
+      "profile": "Engine",
+      "profiles": {
+        "lite": "Lite (12MB)",
+        "pro": "Pro (48MB)"
+      },
+      "openingTheory": "Opening Theory",
+      "viewOnWikibooks": "View on Wikibooks",
+      "loadingTheory": "Loading theory...",
+      "noTheoryFound": "No dedicated theory found for this position.",
+      "noTheorySubtext": "Try a more common move order."
+    },
+    "theoryEndgames": {
+      "selection": {
+        "title": "Theoretical Endgames",
+        "subtitle": "Practice classic positions to perfection",
+        "typeLabel": "Task Type",
+        "difficultyLabel": "Difficulty",
+        "categoryLabel": "Category",
+        "start": "Start Training"
+      },
+      "feedback": {
+        "pressNext": "Press 'Play' to start.",
+        "win": "You won! Position converted.",
+        "drawSuccess": "Draw achieved! Great defense.",
+        "loss": "Defeat. Try again."
+      }
+    },
+    "practicalChess": {
+      "youMove": {
+        "title": "YOU MOVE!",
+        "subtitle": "Analyze the position and pick the side you want to play. One side is winning - but which one?",
+        "playWhite": "I play White",
+        "playBlack": "I play Black"
+      },
+      "selection": {
+        "title": "Practical Chess",
+        "subtitle": "Master real-game scenarios and endgames",
+        "difficultyLabel": "Difficulty",
+        "categoryLabel": "Material setups",
+        "start": "Practice now"
+      }
+    },
+    "auth": {
+      "requiredForAction": "You must be logged in to perform this action.",
+      "serverEngineAuth": "Authentication required to use selected engine."
+    },
+    "errors": {
+      "backendConnectionFailed": "Could not connect to the server.",
+      "telegramAuthFailed": "Telegram authentication failed.",
+      "rateLimit": {
+        "title": "Too Many Requests",
+        "message": "Too many requests. Please wait {seconds} seconds."
+      },
+      "unknown": "An unknown error occurred."
+    },
+    "settings": {
+      "title": "Settings",
+      "selectBoard": "Board",
+      "selectPieces": "Pieces",
+      "selectLanguage": "Language",
+      "back": "Back",
+      "sounds": {
+        "title": "Sounds",
+        "voice": "Voice",
+        "board": "Board"
+      },
+      "animation": {
+        "title": "Animation",
+        "duration": "Duration"
+      }
+    },
+    "gameplay": {
+      "confirmExit": {
+        "title": "Do you want to resign?",
+        "message": "Are you sure you want to resign the current game?",
+        "browserMessage": "Are you sure you want to leave? Your current game will be counted as a loss."
+      },
+      "gameOver": {
+        "stalemate": "Game over: Stalemate."
+      },
+      "feedback": {
+        "loadFailed": "Failed to load puzzle. It might not exist."
+      },
+      "playWithDefaultEngine": "Play with default engine"
+    },
+    "puzzleInfo": {
+      "title": "Puzzle Info",
+      "tacticalRating": "Tactical Rating",
+      "solveTime": "Solve Time",
+      "funValue": "Skill Value",
+      "evaluation": "Evaluation",
+      "pieces": "Pieces",
+      "finalPositionTitle": "Material in final position",
+      "leaderboardTitle": "Best Times",
+      "tableRank": "#",
+      "tablePlayer": "Player",
+      "tableTime": "Time",
+      "endgameThemeLabel": "Endgame Theme"
+    },
+    "engine": {
+      "title": "Sparring Partner",
+      "select": "Sparring partner"
+    },
     "leaderboards": {
-      "topFinishHim": {
-        "title": "Finish Him Records",
-        "content": "Player rankings by points earned in the 'Finish Him' mode. Points are awarded for each successfully completed task. You can switch between themes to see the leaders in each category."
+      "bannerAlt": "Leaderboards Banner",
+      "sections": {
+        "hot": "HOT \ud83d\udd25",
+        "competitive": "COMPETITIVE MODES \ud83c\udfc6",
+        "hallOfFame": "HALL OF FAME \ud83c\udfdb\ufe0f"
       },
-      "theoryLeaderboard": {
-        "title": "Theory Records",
-        "content": "Player rankings by points earned in theoretical endgames. You can switch between themes to see the leaders in each category."
+      "titles": {
+        "topFinishHim": "Finish Him Masters",
+        "overallSkill": "Overall Skill",
+        "skillStreak": "+100 everyday",
+        "skillStreakMega": "Tornado +300 Every Day",
+        "topToday": "Top Today",
+        "finishHimLeaderboard": "Finish Him Records",
+        "theoryLeaderboard": "Theoretical Endgames",
+        "practicalLeaderboard": "Practical Chess"
       },
-      "overallSkill": {
-        "title": "Overall Skill Rating",
-        "content": "Total Skill Points earned across all game modes for the selected period: week, 14 days, 21 days, or month. Skill Points equal the material sum (♟=1, ♞♝=3, ♜=5, ♛=9) in Finish Him mode. In Tornado mode, each puzzle awards 1 point. Only wins count."
+      "table": {
+        "rank": "#",
+        "player": "Player",
+        "time": "Time",
+        "challenge": "Challenge",
+        "daysOld": {
+          "one": "1 Day",
+          "other": "{count} Days"
+        },
+        "totalSkill": "Skill",
+        "score": "Score",
+        "streakDays": {
+          "one": "1 Day",
+          "other": "{count} Days"
+        },
+        "action": "Action",
+        "requested": "Requested",
+        "solved": "Solved"
       },
-      "skillStreak": {
-        "title": "Daily Streak Rating",
-        "content": "Tracks players who earn at least 100 Skill Points every consecutive day in any mode. Rating based on the number of consecutive days. Missing a day resets the streak. This encourages regular activity and consistent improvement."
+      "errors": {
+        "dataLoadFailed": "Failed to load leaderboard data.",
+        "unknown": "An unknown error occurred."
       },
-      "skillStreakMega": {
-        "title": "Tornado +300 Every Day",
-        "content": "For the absolute elite: a streak of earning at least 300 Skill Points in Tornado mode daily. Shows the most dedicated and disciplined players. Missing a day in the mode resets the streak."
+      "periods": {
+        "days14": "Last 14 days",
+        "days21": "Last 21 days"
+      }
+    },
+    "info": {
+      "modes": {
+        "finish-him": {
+          "title": "Finish Him",
+          "content": "First solve a tactical puzzle, then prove your advantage in the endgame against your chosen engine. Skill Points are awarded for wins and equal the sum of material on the board (\u265f=1, \u265e\u265d=3, \u265c=5, \u265b=9). Draws and losses give no points. Completion time is also recorded for leaderboards."
+        },
+        "tornado": {
+          "title": "Tornado",
+          "content": "Four time controls available: 1+1, 3+2, 5+3, and 10+5 (separate rating in each). Solve as many puzzles as possible within the time limit. Rating calculated using the Glicko2 system based on puzzle difficulty and time spent. Each solved puzzle awards 1 Skill Point."
+        }
       },
-      "topToday": {
-        "title": "Top Today",
-        "content": "Shows players who earned the most Skill Points during today. The rating resets daily at midnight."
+      "leaderboards": {
+        "topFinishHim": {
+          "title": "Finish Him Records",
+          "content": "Player rankings by points earned in the 'Finish Him' mode. Points are awarded for each successfully completed task. You can switch between themes to see the leaders in each category."
+        },
+        "theoryLeaderboard": {
+          "title": "Theory Records",
+          "content": "Player rankings by points earned in theoretical endgames. You can switch between themes to see the leaders in each category."
+        },
+        "overallSkill": {
+          "title": "Overall Skill Rating",
+          "content": "Total Skill Points earned across all game modes for the selected period: week, 14 days, 21 days, or month. Skill Points equal the material sum (\u265f=1, \u265e\u265d=3, \u265c=5, \u265b=9) in Finish Him mode. In Tornado mode, each puzzle awards 1 point. Only wins count."
+        },
+        "skillStreak": {
+          "title": "Daily Streak Rating",
+          "content": "Tracks players who earn at least 100 Skill Points every consecutive day in any mode. Rating based on the number of consecutive days. Missing a day resets the streak. This encourages regular activity and consistent improvement."
+        },
+        "skillStreakMega": {
+          "title": "Tornado +300 Every Day",
+          "content": "For the absolute elite: a streak of earning at least 300 Skill Points in Tornado mode daily. Shows the most dedicated and disciplined players. Missing a day in the mode resets the streak."
+        },
+        "topToday": {
+          "title": "Top Today",
+          "content": "Shows players who earned the most Skill Points during today. The rating resets daily at midnight."
+        },
+        "tornadoLeaderboard": {
+          "title": "Tornado Rating",
+          "content": "Ranks players by their highest rating achieved in Tornado mode. Rating calculated using the Glicko2 system based on solved puzzle difficulty and time spent."
+        }
+      }
+    },
+    "controls": {
+      "new": "New",
+      "restart": "Restart",
+      "resign": "Resign",
+      "share": "Share",
+      "info": "Info"
+    },
+    "tornado": {
+      "modes": {
+        "bullet": "Bullet (1+1)",
+        "blitz": "Blitz (3+2)",
+        "rapid": "Rapid (5+3)",
+        "classic": "Classic (10+5)"
       },
-      "tornadoLeaderboard": {
-        "title": "Tornado Rating",
-        "content": "Ranks players by their highest rating achieved in Tornado mode. Rating calculated using the Glicko2 system based on solved puzzle difficulty and time spent."
+      "selection": {
+        "title": "Select a game mode"
+      },
+      "feedback": {
+        "selectMode": "Select a mode to begin.",
+        "loadingFirstPuzzle": "Loading the first puzzle...",
+        "yourTurn": "Your turn.",
+        "loadingFailed": "Failed to get the next puzzle.",
+        "startFailed": "Failed to start the session.",
+        "sessionEnded": "Session ended. Your final rating: {rating}",
+        "getReady": "Press 'Play Button' to start.",
+        "loadFailed": "Failed to load puzzle.",
+        "wrongMove": "Wrong move!",
+        "success": "Puzzle solved!",
+        "wrongMoveAnalysis": "Wrong move! Analysis is now active."
+      },
+      "sessionEnd": {
+        "title": "Session ended",
+        "message": "Your final rating: {rating}",
+        "stats": "Rating: {rating} | Solved: {solved}/{total} | Theme: {theme}",
+        "newSession": "New session",
+        "exit": "Exit",
+        "mistakes": "Mistakes"
+      },
+      "mistakes": {
+        "title": "Work on mistakes",
+        "info": {
+          "rating": "Rating",
+          "theme": "Theme",
+          "id": "ID"
+        },
+        "feedback": {
+          "selectPuzzle": "Select a puzzle to start.",
+          "yourTurn": "Your turn. Try again!",
+          "solved": "Great! The puzzle is solved correctly.",
+          "wrongMove": "Incorrect. Try to analyze the position.",
+          "allSolved": "Congratulations! All mistakes are corrected.",
+          "noMistakes": "No mistakes in the last session!",
+          "loadFailed": "Failed to load mistakes from local storage."
+        },
+        "ui": {
+          "analysisButton": "Analysis",
+          "nextButton": "Next",
+          "exitButton": "Exit",
+          "restartButton": "Restart"
+        },
+        "exit": {
+          "title": "Exit mode",
+          "message": "Are you sure you want to exit? The list of unsolved puzzles will be cleared."
+        }
+      },
+      "leaderboard": {
+        "highScore": "Records"
+      },
+      "ui": {
+        "ratingLabel": "Rating",
+        "themeLabel": "Theme"
+      },
+      "stats": {
+        "title": "Your Ratings",
+        "globalRating": "Global Rating",
+        "theme": "Theme",
+        "rating": "Rating",
+        "progress": "Progress",
+        "rate": "Success"
+      },
+      "controls": {
+        "levelTitle": "Difficulty",
+        "levels": {
+          "easy": "Easy",
+          "normal": "Normal",
+          "hard": "Hard"
+        },
+        "autoLoad": "AutoNext"
+      }
+    },
+    "diamondHunter": {
+      "status": {
+        "idle": "IDLE",
+        "hunting": "HUNTING...",
+        "punish": "PUNISH BLUNDER!",
+        "secure": "SECURE DIAMOND!",
+        "found": "DIAMOND FOUND!"
+      },
+      "header": {
+        "searching": "Searching theory...",
+        "bookEnded": "Book Ended",
+        "deviation": "Deviation",
+        "accuracy": "Accuracy",
+        "winRate": "Win Rate",
+        "avgRating": "Avg Rating",
+        "newSession": "New Session",
+        "hint": "Hint",
+        "hideTheory": "Hide Theory",
+        "showTheory": "Show Theory",
+        "analysis": "Analysis",
+        "playout": "Playout",
+        "mode": {
+          "label": "Mode",
+          "game": "Game",
+          "training": "Training"
+        }
+      },
+      "stats": {
+        "reviewModeOverlay": "Review mode to see theory",
+        "move": "Move",
+        "games": "Games (%)",
+        "winRate": "WinRate",
+        "avgRating": "Rating"
+      },
+      "settings": {
+        "title": "Opening Trainer Settings",
+        "color": "Choose Color",
+        "white": "White",
+        "black": "Black",
+        "opponentDb": "Opponent DB",
+        "masters": "Masters DB",
+        "lichessPlayers": "Lichess DB",
+        "ratings": "Ratings",
+        "timeControls": "Time Controls",
+        "selectOpening": "Select Opening (Optional)",
+        "startPosition": "Start Position",
+        "variability": "Variability: {value}",
+        "variabilityHint": "Higher variability means the bot plays less popular moves more often.",
+        "engineHint": "Choose the engine for playout mode.",
+        "startSession": "Start Session"
       }
     }
   },
   "nav": {
     "home": "Home",
-    "openingTrainer": "Diamond Hunter",
-    "openingTraining": "Diamond Hunter",
+    "diamondHunter": "Diamond Hunter",
     "openingExam": "Sparring",
     "openingSparring": "Sparring",
     "finishHim": "Finish Him",
-    "theoryEndings": "Endgames",
+    "theoryEndgames": "Endgames",
     "practicalChess": "Practical",
-    "tacktics": "Tornado",
     "tornado": "Tornado",
     "leaderboards": "LeaderBoards",
     "userCabinet": "Cabinet",
     "pricing": "Pricing",
     "about": "About",
     "legal": "Legal",
-    "study": "Repertoire",
+    "repertoire": "Repertoire",
     "login": "Login",
     "logout": "Logout",
     "loginWithLichess": "Login with Lichess"
   },
-  "study": {
-    "limitModal": {
-      "title": "Subscription Limit Reached",
-      "message": "Your current subscription tier \"{tier}\" allows saving up to {limit} chapters on the server. All other chapters are stored locally on your device and may be lost if browser cache is cleared.",
-      "confirm": "Pricing & Tiers",
-      "cancel": "Got it"
+  "legal": {
+    "title": "Legal Information",
+    "precedence": "This translation is provided for information purposes only. In the event of any discrepancies or conflicts between this English version and the German original, the German version shall prevail and be legally binding.",
+    "tabs": {
+      "imprint": "Imprint",
+      "privacy": "Privacy",
+      "terms": "Terms"
     },
-    "sizeModal": {
-      "title": "Chapter Too Large",
-      "message": "This chapter is too large to be saved in the cloud (limit is 15,000 characters). Please split your repertoire into multiple chapters to save it to the server.",
-      "confirm": "Got it"
+    "imprint": {
+      "title": "Imprint",
+      "subtitle": "Information according to \u00a7 5 DDG",
+      "name": "Sergej Siemens, M.Eng.",
+      "address": "Schuhbauerstra\u00dfe 19\n84166 Adlkofen",
+      "contact": "Contact",
+      "email": "E-Mail: immozerai{'@'}gmail.com",
+      "phone": "Phone: +4917681068118",
+      "vatId": "Value Added Tax Identification Number according to \u00a7 27 a of the Value Added Tax Act: DE366185109",
+      "dispute": "Dispute Resolution",
+      "disputeText": "EU Online Dispute Resolution platform:",
+      "disputeLink": "https://ec.europa.eu/consumers/odr/",
+      "disputeRefusal": "Consumer dispute resolution: We are not willing or obliged to participate in dispute resolution proceedings before a consumer arbitration board.",
+      "legalNotice": "Legal Notice",
+      "liabilityTitle": "Liability for Contents & Links",
+      "liabilityContent": "As a service provider, we are responsible for our own content according to general laws (\u00a7 7 Para. 1 DDG). There is no obligation to monitor transmitted or stored third-party information (\u00a7\u00a7 8-10 DDG). Upon becoming aware of legal violations, we will immediately remove corresponding content or links to external third-party websites. No liability is assumed for external content.",
+      "copyrightTitle": "Copyright",
+      "copyrightContent": "The content created by us on these pages is subject to German copyright law. Duplication, processing, and any kind of exploitation outside the limits of copyright law require written consent. Downloads and copies are only permitted for private use."
     },
-    "notifications": {
-      "updated": "Chapter updated in cloud!",
-      "savedAsCopy": "Chapter saved as your own copy!",
-      "saved": "Chapter saved to cloud!",
-      "shareLinkCopied": "Share link copied to clipboard!",
-      "saveError": "Failed to save to cloud",
-      "colorRequired": "Please select a color for this chapter first."
-    },
-    "repertoire": "Repertoire",
-    "repertoireGenerator": "Repertoire Generator"
-  },
-  "auth": {
-    "requiredForAction": "You must be logged in to perform this action.",
-    "serverEngineAuth": "Authentication required to use selected engine."
-  },
-  "errors": {
-    "backendConnectionFailed": "Could not connect to the server.",
-    "telegramAuthFailed": "Telegram authentication failed.",
-    "rateLimit": {
-      "title": "Too Many Requests",
-      "message": "Too many requests. Please wait {seconds} seconds."
-    },
-    "unknown": "An unknown error occurred."
-  },
-  "settings": {
-    "title": "Settings",
-    "selectBoard": "Board",
-    "selectPieces": "Pieces",
-    "selectLanguage": "Language",
-    "back": "Back",
-    "sounds": {
-      "title": "Sounds",
-      "voice": "Voice",
-      "board": "Board"
-    },
-    "animation": {
-      "title": "Animation",
-      "duration": "Duration"
-    }
-  },
-  "gameplay": {
-    "confirmExit": {
-      "title": "Do you want to resign?",
-      "message": "Are you sure you want to resign the current game?",
-      "browserMessage": "Are you sure you want to leave? Your current game will be counted as a loss."
-    },
-    "gameOver": {
-      "stalemate": "Game over: Stalemate."
-    },
-    "feedback": {
-      "loadFailed": "Failed to load puzzle. It might not exist."
-    },
-    "playWithDefaultEngine": "Play with default engine"
-  },
-  "analysis": {
-    "engine": "Analysis",
-    "threads": "Threads",
-    "loading": "Loading analysis...",
-    "mateInShort": "M{value}",
-    "makeMove": "Make a move to see analysis.",
-    "profile": "Engine",
-    "profiles": {
-      "lite": "Lite (12MB)",
-      "pro": "Pro (48MB)"
-    },
-    "openingTheory": "Opening Theory",
-    "viewOnWikibooks": "View on Wikibooks",
-    "loadingTheory": "Loading theory...",
-    "noTheoryFound": "No dedicated theory found for this position.",
-    "noTheorySubtext": "Try a more common move order."
-  },
-  "puzzleInfo": {
-    "title": "Puzzle Info",
-    "tacticalRating": "Tactical Rating",
-    "solveTime": "Solve Time",
-    "funValue": "Skill Value",
-    "evaluation": "Evaluation",
-    "pieces": "Pieces",
-    "finalPositionTitle": "Material in final position",
-    "leaderboardTitle": "Best Times",
-    "tableRank": "#",
-    "tablePlayer": "Player",
-    "tableTime": "Time",
-    "endgameThemeLabel": "Endgame Theme"
-  },
-  "welcome": {
-    "titleV2": "Select a Game Mode",
-    "slogan": "Consistency is the key to mastery.",
-    "buttons": {
-      "finishHim": "Finish Him",
-      "theoryEndings": "Endgames",
-      "practicalChess": "Practical",
-      "tacktics": "Tacktics",
-      "leaderboards": "Leaderboards",
-      "openingTraining": "Diamond Hunter",
-      "openingSparring": "Sparring",
-      "study": "Repertoire"
-    },
-    "loginPrompt": "Or log in to access all features:"
-  },
-  "finishHim": {
-    "feedback": {
-      "getReady": "Get ready for the next challenge!",
-      "pressNext": "Press 'Play Button' to begin.",
-      "yourTurn": "Your turn! Find the correct continuation.",
-      "yourTurnPlayout": "Your turn! Find the best moves to win.",
-      "timeUp": "Time's up! The playout phase is lost.",
-      "resigned": "You have resigned the game.",
-      "win": "You won!",
-      "loss": "You lost!",
-      "loadFailed": "Failed to load puzzle."
-    },
-    "selection": {
-      "title": "Finish Him",
-      "subtitle": "Realize your advantage against the engine",
-      "themeLabel": "Endgame Theme"
-    },
-    "error": {
-      "puzzleNotFound": "Puzzle with ID {puzzleId} was not found or is unavailable."
-    },
-    "stats": {
-      "mode": "Mode",
-      "theme": "Theme",
-      "rating": "Our Rating",
-      "evaluation": "Our Evaluation"
-    }
-  },
-  "tacktics": {
-    "feedback": {
-      "getReady": "Press 'Play Button' to start.",
-      "loadFailed": "Failed to load puzzle.",
-      "yourTurn": "Your turn.",
-      "wrongMove": "Wrong move!",
-      "success": "Puzzle solved!",
-      "wrongMoveAnalysis": "Wrong move! Analysis is now active."
-    },
-    "stats": {
-      "title": "Your Ratings",
-      "globalRating": "Global Rating",
-      "theme": "Theme",
-      "rating": "Rating",
-      "progress": "Progress",
-      "rate": "Success"
-    },
-    "controls": {
-      "levelTitle": "Difficulty",
-      "levels": {
-        "easy": "Easy",
-        "normal": "Normal",
-        "hard": "Hard"
-      },
-      "autoLoad": "AutoNext"
-    }
-  },
-  "records": {
-    "bannerAlt": "Leaderboards Banner",
-    "sections": {
-      "hot": "HOT 🔥",
-      "competitive": "COMPETITIVE MODES 🏆",
-      "hallOfFame": "HALL OF FAME 🏛️"
-    },
-    "titles": {
-      "topFinishHim": "Finish Him Masters",
-      "overallSkill": "Overall Skill",
-      "skillStreak": "+100 everyday",
-      "skillStreakMega": "Tornado +300 Every Day",
-      "topToday": "Top Today",
-      "finishHimLeaderboard": "Finish Him Records",
-      "theoryLeaderboard": "Theoretical Endgames",
-      "practicalLeaderboard": "Practical Chess"
-    },
-    "table": {
-      "rank": "#",
-      "player": "Player",
-      "time": "Time",
-      "challenge": "Challenge",
-      "daysOld": "Days",
-      "totalSkill": "Skill",
-      "score": "Score",
-      "streakDays": "Days",
-      "action": "Action",
-      "requested": "Requested",
-      "solved": "Solved"
-    },
-    "errors": {
-      "dataLoadFailed": "Failed to load leaderboard data.",
-      "unknown": "An unknown error occurred."
-    },
-    "periods": {
-      "days14": "Last 14 days",
-      "days21": "Last 21 days"
-    }
-  },
-  "userCabinet": {
-    "title": "User Cabinet",
-    "loginPrompt": "Log in to view your statistics and activity.",
-    "info": {
-      "lichessId": "Lichess ID",
-      "subscriptionTier": "Subscription",
-      "tierExpires": " (until {date})",
-      "tierPermanent": " (permanent)"
-    },
-    "stats": {
-      "pawncoinsLabel": "PawnCoins",
-      "endgameSkillLabel": "Endgame Skill",
-      "puzzlesSolved": "Puzzles Solved",
-      "skillEarned": "Skill Today",
-      "finishHimRatingLabel": "FinishHim Rating",
-      "tornadoTitle": "Tornado Ratings",
-      "global": {
-        "title": "Activity Statistics"
-      },
-      "activity": {
-        "titleWithTime": "Today's activity (resets at {time})"
-      },
-      "periods": {
-        "day": "Day",
-        "week": "Week",
-        "month": "Month"
-      },
-      "modes": {
-        "all": "Mode",
-        "tornado": "Tornado",
-        "finishHim": "Finish Him",
-        "theory": "Theory",
-        "practical": "Practical",
-        "tacticalTrainer": "Tactics"
-      },
-      "today": "Today",
-      "noData": "No data for the selected period.",
-      "success": "Success",
-      "accuracy": "Accuracy",
-      "attempts": "attempts",
-      "puzzle": "Puzzle",
-      "theoryThemes": "Endgame Themes",
-      "improve": "Improve"
-    },
-    "telegram": {
-      "title": "Telegram Integration",
-      "boundStatusSimple": "Account bound to Telegram",
-      "bindButton": "Bind Telegram Account"
-    },
-    "activity": {
-      "title": "Lichess Activity",
-      "noActivity": "No recent Lichess activity found.",
-      "dateHeader": "Date",
-      "summaryHeader": "Activity Summary"
-    },
-    "detailedAnalytics": {
-      "title": "Detailed Analytics",
-      "tornadoStats": "Tornado Themes Analysis",
-      "bestScore": "Best Score"
-    },
-    "analyticsTable": {
-      "theme": "Theme",
-      "rating": "Rating",
-      "accuracy": "Accuracy",
-      "solved_attempted": "Solved/Attempted",
-      "accuracy_percent": "Accuracy %",
-      "themeDistribution": "Theme Distribution",
-      "byAttempts": "by attempts",
-      "byRating": "by rating"
-    },
-    "gift": {
-      "title": "Redeem Gift Code",
-      "description": "Enter your 8-digit code to activate your club subscription.",
-      "placeholder": "Code",
-      "activate": "Activate",
-      "successTitle": "Congratulations! 🎉",
-      "successMessage": "You have successfully activated the {tier} club tier. It will remain active until {date}. We wish you great success in your training!",
-      "ok": "OK",
-      "invalid": "Invalid or already used code.",
-      "error": "Error during redemption."
-    },
-    "polar": {
-      "successTitle": "Payment Successful! 🎉",
-      "successMessage": "Thank you for subscribing. Your account has been upgraded and your PawnCoins balance corresponds to your new tier.",
-      "ok": "Start Training"
-    }
-  },
-  "pricing": {
-    "title": "Subscriptions and Prices",
-    "intro": {
-      "p1": "Welcome to the information page about our future subscription system. Open testing phase is active."
-    },
-    "repertoireGenerator": "Repertoire Generator",
-    "tiers": {
-      "title": "Subscription Tiers",
-      "pawn": {
-        "name": "Pawn",
-        "description": "Daily replenishment up to {pawncoins} PawnCoins",
-        "price": "Free forever"
-      },
-      "knight": {
-        "name": "Knight",
-        "description": "Daily replenishment up to {pawncoins} PawnCoins"
-      },
-      "bishop": {
-        "name": "Bishop",
-        "description": "Daily replenishment up to {pawncoins} PawnCoins"
-      },
-      "rook": {
-        "name": "Rook",
-        "role": "The \"No-Brainer\" entry for amateurs.",
-        "description": "Daily replenishment up to {pawncoins} PawnCoins",
-        "priceMonthly": "3.99 € / Month",
-        "priceYearly": "39.99 € / Year"
-      },
-      "queen": {
-        "name": "Queen",
-        "role": "The \"Standard\" for ambitious club players.",
-        "description": "Daily replenishment up to {pawncoins} PawnCoins",
-        "priceMonthly": "5.99 € / Month",
-        "priceYearly": "59.99 € / Year"
-      },
-      "king": {
-        "name": "King",
-        "role": "The \"Full-Power\" package for pros & analysts.",
-        "description": "Daily replenishment up to {pawncoins} PawnCoins",
-        "priceMonthly": "9.99 € / Month",
-        "priceYearly": "99.99 € / Year"
-      },
-      "price": {
-        "soon": "Price will be announced",
-        "bonus": "Club Bonus"
+    "privacy": {
+      "title": "Privacy Policy",
+      "sections": {
+        "introTitle": "1. Introduction and Data Controller",
+        "introParagraphs": [
+          "The protection of your personal data is an important concern for us. We follow the 'Privacy by Design' approach: We only process data that is technically absolutely necessary for the operation of the app.",
+          "Controller within the meaning of the GDPR:",
+          "Sergej Siemens, M.Eng.",
+          "Schuhbauerstra\u00dfe 19",
+          "84166 Adlkofen",
+          "E-Mail: immozerai{'@'}gmail.com"
+        ],
+        "logfilesTitle": "2. Data Collection upon Access (Server Logfiles)",
+        "logfilesParagraphs": [
+          "Each time the website is accessed, our system automatically collects data and information from the computer system of the accessing computer. The following data is collected:",
+          "User's IP address",
+          "Date and time of access",
+          "Browser type and version used",
+          "User's operating system",
+          "Legal basis: Art. 6 Para. 1 lit. f GDPR (Legitimate Interest). Storage serves IT security and the defense against attack attempts. Logfiles are automatically deleted after a maximum of 14 days."
+        ],
+        "hostingTitle": "3. Hosting (Order Processing)",
+        "hostingParagraphs": [
+          "Our app is hosted on servers of netcup GmbH (Karlsruhe, Germany). We have concluded an order processing agreement (AVV) with the provider in accordance with Art. 28 GDPR to ensure that your data is processed strictly according to our instructions and in compliance with the GDPR."
+        ],
+        "lichessTitle": "4. Authentication via Lichess (OAuth 2.0)",
+        "lichessParagraphs": [
+          "You can log in to EXTRAPAWN via your Lichess account using the OAuth 2.0 procedure.",
+          "Process: You will be redirected to Lichess and authorize access there.",
+          "Data: We receive your username from Lichess and link it to your EXTRAPAWN profile.",
+          "Purpose: Provision of core functions (analysis of your games).",
+          "Legal basis: Art. 6 Para. 1 lit. b GDPR (Contract Fulfillment)."
+        ],
+        "paymentTitle": "5. Payment Processing (Polar.sh / Stripe)",
+        "paymentParagraphs": [
+          "For the conclusion of subscriptions, we use the services of Polar.sh and Stripe.",
+          "Processing: When you upgrade, your payment data is collected and processed directly by Polar/Stripe. We do not store credit card data on our own servers at any time. For more information on data processing, please refer to the Polar.sh privacy policy:"
+        ],
+        "paymentLink": "https://polar.sh/legal/privacy",
+        "storageTitle": "6. Local Storage (Local Storage / Session)",
+        "storageParagraphs": [
+          "EXTRAPAWN does not use marketing cookies. We only use the 'Local Storage' of your browser to store technically necessary settings:",
+          "Login status (Auth-Token): To keep you logged in.",
+          "Language settings (i18n): So the app appears in your preferred language.",
+          "UI settings: e.g., your chosen board design.",
+          "Legal basis: Art. 6 Para. 1 lit. f GDPR. This data is strictly necessary for the operation of the app; consent (cookie banner) is therefore not required."
+        ],
+        "fontsTitle": "7. No Third-Party Content (Fonts & Tracking)",
+        "fontsParagraphs": [
+          "Fonts: We do not use external services like Google Fonts. All fonts (e.g., Ubuntu) are served locally from our own servers.",
+          "Tracking: We do not use analysis tools (like Google Analytics) or marketing pixels."
+        ],
+        "rightsTitle": "8. Your Rights",
+        "rightsParagraphs": [
+          "You have the following rights regarding your personal data:",
+          "Right to information (Art. 15 GDPR)",
+          "Right to rectification or erasure (Art. 16/17 GDPR)",
+          "Right to restriction of processing (Art. 18 GDPR)",
+          "Right to data portability (Art. 20 GDPR)",
+          "You also have the right to complain to a data protection supervisory authority about the processing of your personal data by us."
+        ]
       }
     },
-    "bonusInfo": {
-      "title": "🎉 Updated Subscription Bonus Tiers!",
-      "p1": "Hello, friends 👋",
-      "p2": "We have updated the terms for automatic bonuses for the most active club players.",
-      "p3": "Now you can get a premium tier for free — just by playing in team tournaments 🏆",
-      "teamLink": "Join our Lichess Club here!",
-      "howItWorks": "📅 How it works:",
-      "p4": "Every day, the system analyzes your activity over the last 30 days (tournaments, points, and games) and awards activity points.",
-      "p5": "Depending on the amount, one of the tiers is assigned:",
-      "knight": "♘ Knight — from 250 points",
-      "bishop": "♗ Bishop — from 500 points",
-      "p6": "✨ The tier is recalculated automatically and may change depending on your activity.",
-      "p7": "No applications needed — just play, and the system will do everything itself ✅",
-      "p8": "Thank you for supporting the club ❤️♟"
-    },
-    "costs": {
-      "title": "Game Mode Costs",
-      "pawncoinLabel": "PawnCoins"
-    },
-    "insufficientCoins": {
-      "title": "Insufficient PawnCoins",
-      "message": "Starting this game requires {required} PawnCoins. You currently have: {available}.",
-      "subMessage": "You can learn more about how to top up your balance on the pricing page.",
-      "goToPricing": "Go to Pricing"
+    "terms": {
+      "title": "Terms and Conditions (AGB)",
+      "sections": {
+        "introTitle": "1. Scope and Provider",
+        "introParagraphs": [
+          "These Terms and Conditions apply to the use of the EXTRAPAWN platform, operated by Sergej Siemens, M.Eng., Schuhbauerstra\u00dfe 19, 84166 Adlkofen (hereinafter referred to as 'Provider')."
+        ],
+        "subjectTitle": "2. Subject of Contract and Performance Description",
+        "subjectParagraphs": [
+          "(1) EXTRAPAWN is an analysis and training platform for chess players. The platform is operated on a freemium model.",
+          "(2) Free Basic Version: Users can use basic functions without charge. There is no claim to the permanent availability of these functions.",
+          "(3) Paid Subscription (Pro): The paid main service includes access to advanced training modules, in particular an extensive database for tactical puzzles and endgame training (theoretical and practical nature).",
+          "(4) Additional Functions (Statistics/AI): The provider may provide graphical analyses, statistics, and AI-supported evaluations as part of the subscription. These functions are expressly voluntary additional services. They are not part of the guaranteed quality of the Pro version. The provider reserves the right to change, expand, or remove these functions at any time as part of technical further development."
+        ],
+        "contractTitle": "3. Conclusion of Contract and Payment Processing",
+        "contractParagraphs": [
+          "(1) The acquisition of subscriptions takes place via the service provider Polar.sh (Merchant of Record). The terms and conditions of Polar.sh apply additionally.",
+          "(2) The contract for the subscription is concluded as soon as the user has successfully completed the payment process at Polar.sh."
+        ],
+        "withdrawalTitle": "4. Right of Withdrawal for Digital Content",
+        "withdrawalParagraphs": [
+          "By purchasing a subscription and immediately providing the digital content, the user expressly agrees that the provider begins with the execution of the contract before the expiry of the withdrawal period. The user confirms his knowledge that he loses his right of withdrawal through this consent. A corresponding checkbox is provided in the checkout process."
+        ],
+        "terminationTitle": "5. Termination and Duration",
+        "terminationParagraphs": [
+          "(1) Subscriptions have the chosen duration (e.g., monthly or yearly).",
+          "(2) Termination is possible at any time without notice to the end of the paid period.",
+          "(3) After termination, the Pro functions remain fully available until the end of the already paid period. A refund of already paid amounts will not be made."
+        ],
+        "liabilityTitle": "6. Limitation of Liability",
+        "liabilityParagraphs": [
+          "(1) The provider is liable without limitation in cases of intent or gross negligence and in the event of injury to life, body, or health.",
+          "(2) In cases of slight negligence, the provider is only liable for the breach of an essential contractual obligation (cardinal obligation). In this case, liability is limited to the typical damage foreseeable at the time the contract was concluded.",
+          "(3) Liability for the loss of game data, statistics, or progress values as part of the voluntary additional services (see \u00a7 2 Para. 4) is excluded, unless intentional action is involved. The user is responsible for securing his data generated at Lichess."
+        ],
+        "changesTitle": "7. Changes to the App and the Terms",
+        "changesParagraphs": [
+          "The provider is entitled to adapt the app within the scope of technical improvement and further development (update right). Significant changes to the terms will be communicated to the user in a timely manner."
+        ]
+      }
+    }
+  },
+  "app": {
+    "title": "EXTRAPAWN",
+    "globalLoader": {
+      "error": "Failed to load essential assets. Please check your internet connection and try again.",
+      "message": "Welcome! The app is on your device for the first time or it need to be updated and needs to be fully downloaded. This only happens once.",
+      "hint": "Once the download is finished, the app can be used completely offline.",
+      "webviewWarning": "It seems you have opened the app in an integrated browser (e.g., Telegram, Instagram). For full functionality, we require a real browser like Google Chrome or Safari.",
+      "webviewAction": "Please copy the link and open it in your default browser (Chrome or Safari)."
     }
   },
   "about": {
@@ -748,146 +948,21 @@
       "github": "GitHub",
       "separator": ": "
     },
-    "footerNote": "Built with ❤️ for those who seek chess mastery."
+    "footerNote": "Built with \u2764\ufe0f for those who seek chess mastery."
   },
-  "tornado": {
-    "modes": {
-      "bullet": "Bullet (1+1)",
-      "blitz": "Blitz (3+2)",
-      "rapid": "Rapid (5+3)",
-      "classic": "Classic (10+5)"
+  "welcome": {
+    "titleV2": "Select a Game Mode",
+    "slogan": "Consistency is the key to mastery.",
+    "buttons": {
+      "finishHim": "Finish Him",
+      "theoryEndgames": "Endgames",
+      "practicalChess": "Practical",
+      "tornado": "Tornado",
+      "leaderboards": "Leaderboards",
+      "diamondHunter": "Diamond Hunter",
+      "openingSparring": "Sparring",
+      "repertoire": "Repertoire"
     },
-    "selection": {
-      "title": "Select a game mode"
-    },
-    "feedback": {
-      "selectMode": "Select a mode to begin.",
-      "loadingFirstPuzzle": "Loading the first puzzle...",
-      "yourTurn": "Your turn! Find the best move.",
-      "loadingFailed": "Failed to get the next puzzle.",
-      "startFailed": "Failed to start the session.",
-      "sessionEnded": "Session ended. Your final rating: {rating}"
-    },
-    "sessionEnd": {
-      "title": "Session ended",
-      "message": "Your final rating: {rating}",
-      "stats": "Rating: {rating} | Solved: {solved}/{total} | Theme: {theme}",
-      "newSession": "New session",
-      "exit": "Exit",
-      "mistakes": "Mistakes"
-    },
-    "mistakes": {
-      "title": "Work on mistakes",
-      "info": {
-        "rating": "Rating",
-        "theme": "Theme",
-        "id": "ID"
-      },
-      "feedback": {
-        "selectPuzzle": "Select a puzzle to start.",
-        "yourTurn": "Your turn. Try again!",
-        "solved": "Great! The puzzle is solved correctly.",
-        "wrongMove": "Incorrect. Try to analyze the position.",
-        "allSolved": "Congratulations! All mistakes are corrected.",
-        "noMistakes": "No mistakes in the last session!",
-        "loadFailed": "Failed to load mistakes from local storage."
-      },
-      "ui": {
-        "analysisButton": "Analysis",
-        "nextButton": "Next",
-        "exitButton": "Exit",
-        "restartButton": "Restart"
-      },
-      "exit": {
-        "title": "Exit mode",
-        "message": "Are you sure you want to exit? The list of unsolved puzzles will be cleared."
-      }
-    },
-    "leaderboard": {
-      "highScore": "Records"
-    },
-    "ui": {
-      "ratingLabel": "Rating",
-      "themeLabel": "Theme"
-    }
-  },
-  "openingTrainer": {
-    "header": {
-      "searching": "Searching theory...",
-      "bookEnded": "Book Ended",
-      "deviation": "Deviation",
-      "accuracy": "Accuracy",
-      "winRate": "Win Rate",
-      "avgRating": "Avg Rating",
-      "newSession": "New Session",
-      "hint": "Hint",
-      "hideTheory": "Hide Theory",
-      "showTheory": "Show Theory",
-      "analysis": "Analysis",
-      "playout": "Playout",
-      "mode": {
-        "label": "Mode",
-        "game": "Game",
-        "training": "Training"
-      }
-    },
-    "stats": {
-      "reviewModeOverlay": "Review mode to see theory",
-      "move": "Move",
-      "games": "Games (%)",
-      "winRate": "WinRate",
-      "avgRating": "Rating"
-    },
-    "settings": {
-      "title": "Opening Trainer Settings",
-      "color": "Choose Color",
-      "white": "White",
-      "black": "Black",
-      "opponentDb": "Opponent DB",
-      "masters": "Masters DB",
-      "lichessPlayers": "Lichess DB",
-      "ratings": "Ratings",
-      "timeControls": "Time Controls",
-      "selectOpening": "Select Opening (Optional)",
-      "startPosition": "Start Position",
-      "variability": "Variability: {value}",
-      "variabilityHint": "Higher variability means the bot plays less popular moves more often.",
-      "engineHint": "Choose the engine for playout mode.",
-      "startSession": "Start Session"
-    }
-  },
-  "diamondHunter": {
-    "status": {
-      "idle": "IDLE",
-      "hunting": "HUNTING...",
-      "punish": "PUNISH BLUNDER!",
-      "secure": "SECURE DIAMOND!",
-      "found": "DIAMOND FOUND!"
-    }
-  },
-  "theoryEndings": {
-    "difficulties": {
-      "novice": "Novice",
-      "pro": "Pro",
-      "master": "Master"
-    },
-    "types": {
-      "win": "Win",
-      "draw": "Draw"
-    },
-    "selection": {
-      "title": "Theoretical Endgames",
-      "subtitle": "Practice classic positions to perfection",
-      "typeLabel": "Task Type",
-      "difficultyLabel": "Difficulty",
-      "categoryLabel": "Category",
-      "start": "Start Training"
-    },
-    "feedback": {
-      "pressNext": "Press 'Play' to start.",
-      "win": "You won! Position converted.",
-      "drawSuccess": "Draw achieved! Great defense.",
-      "loss": "Defeat. Try again."
-    }
+    "loginPrompt": "Or log in to access all features:"
   }
 }

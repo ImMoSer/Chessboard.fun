@@ -32,7 +32,7 @@ const content = computed(() => {
     </div>
     <template #footer>
       <div class="modal-footer">
-        <n-button type="primary" @click="show = false">{{ t('common.close') }}</n-button>
+        <n-button type="primary" @click="show = false">{{ t('common.actions.close') }}</n-button>
       </div>
     </template>
   </n-modal>

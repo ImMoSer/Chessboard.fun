@@ -83,9 +83,9 @@ const getSubscriptionIcon = (tier?: string) => {
 
 const getThemeLabel = (theme: string) => {
   if ((FINISH_HIM_THEMES as readonly string[]).includes(theme)) {
-    return t(`chess.finishHim.category.${theme}`, { defaultValue: theme })
+    return t(`chess.themes.${theme}`, { defaultValue: theme })
   }
-  return t(`chess.endings.${theme}`, { defaultValue: theme })
+  return t(`chess.themes.${theme}`, { defaultValue: theme })
 }
 
 const getThemeIcon = (theme: string) => {
@@ -110,9 +110,9 @@ const getThemeIcon = (theme: string) => {
 
 const columns = computed<DataTableColumns<FinishHimLeaderboardEntry | ThematicLeaderboardEntry>>(
   () => [
-    { title: t('records.table.rank'), key: 'rank', align: 'center', width: 45 },
+    { title: t('features.leaderboards.table.rank'), key: 'rank', align: 'center', width: 45 },
     {
-      title: t('records.table.player'),
+      title: t('features.leaderboards.table.player'),
       key: 'username',
       minWidth: 160,
       ellipsis: { tooltip: true },
@@ -133,7 +133,7 @@ const columns = computed<DataTableColumns<FinishHimLeaderboardEntry | ThematicLe
       },
     },
     {
-      title: t('records.table.score'),
+      title: t('features.leaderboards.table.score'),
       key: 'score',
       align: 'right',
       render(row) {
@@ -210,7 +210,7 @@ const swiperModules = [Navigation, Mousewheel, FreeMode]
       </div>
 
       <div v-if="availableThemes.length === 0" class="no-data">
-        {{ t('userCabinet.stats.noData') }}
+        {{ t('features.userCabinet.stats.noData') }}
       </div>
     </div>
   </div>

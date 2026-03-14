@@ -164,7 +164,7 @@ onMounted(() => {
       <div class="copy-section">
         <input type="text" readonly :value="appUrl" class="copy-input" />
         <button @click="copyLink" class="copy-button" :class="{ 'is-copied': copied }">
-          {{ copied ? t('common.copied') : t('common.copyLink') }}
+          {{ copied ? t('common.actions.copied') : t('common.actions.copyLink') }}
         </button>
       </div>
       
@@ -186,7 +186,7 @@ onMounted(() => {
   <div v-else-if="hasError" class="global-loader-wrapper">
     <div class="loader-content webview-blocker">
       <img src="/png/extra_pawn_black.png" alt="Logo" class="loader-logo static" />
-      <h2 class="loader-title error-text">{{ t('common.error') }}</h2>
+      <h2 class="loader-title error-text">{{ t('common.actions.error') }}</h2>
       <p class="loader-text">
         {{ t('app.globalLoader.error') }}
       </p>
@@ -195,7 +195,7 @@ onMounted(() => {
       </p>
       
       <button @click="handleRetry" class="copy-button">
-        {{ t('common.retry') }}
+        {{ t('common.actions.retry') }}
       </button>
 
       <div class="loader-lang-switcher">

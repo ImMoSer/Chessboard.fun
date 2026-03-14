@@ -55,7 +55,7 @@ const openDrawer = () => {
 const beforeUnloadHandler = (event: BeforeUnloadEvent) => {
   if (gameStore.isGameActive) {
     event.preventDefault()
-    event.returnValue = t('gameplay.confirmExit.browserMessage')
+    event.returnValue = t('features.gameplay.confirmExit.browserMessage')
     gameStore.handleGameResignation()
   }
 }

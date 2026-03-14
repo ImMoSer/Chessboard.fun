@@ -45,11 +45,11 @@ const menuItems = [
     labelKey: 'welcome.buttons.finishHim',
     color: 'var(--color-neon-pink)',
   },
-  { path: '/tornado', icon: ThunderstormOutline, labelKey: 'nav.tornado', color: 'var(--color-neon-cyan)' },
+  { path: '/tornado', icon: ThunderstormOutline, labelKey: 'welcome.buttons.tornado', color: 'var(--color-neon-cyan)' },
   {
     path: '/theory-endings',
     icon: BookOutline,
-    labelKey: 'welcome.buttons.theoryEndings',
+    labelKey: 'welcome.buttons.theoryEndgames',
     color: 'var(--color-neon-purple)',
   },
   {
@@ -61,7 +61,7 @@ const menuItems = [
   {
     path: '/diamond-hunter',
     icon: DiamondOutline,
-    labelKey: 'welcome.buttons.openingTraining',
+    labelKey: 'welcome.buttons.diamondHunter',
     color: 'var(--color-neon-lime)',
   },
   {
@@ -70,7 +70,7 @@ const menuItems = [
     labelKey: 'welcome.buttons.openingSparring',
     color: 'var(--color-neon-pink)',
   },
-  { path: '/study', icon: SchoolOutline, labelKey: 'welcome.buttons.study', color: 'var(--color-neon-lime)' },
+  { path: '/study', icon: SchoolOutline, labelKey: 'welcome.buttons.repertoire', color: 'var(--color-neon-lime)' },
   { path: '/user-cabinet', icon: PersonOutline, labelKey: 'nav.userCabinet', color: 'var(--color-neon-orange)' },
   {
     path: '/records',

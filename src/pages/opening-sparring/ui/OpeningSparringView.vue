@@ -145,7 +145,7 @@ async function startSession(color: 'white' | 'black', moves: string[] = [], slug
 
 async function handleNewGame() {
   const confirmed = await uiStore.showConfirmation(
-    t('gameplay.confirmExit.title'),
+    t('features.gameplay.confirmExit.title'),
     'Start a new exam?',
   )
   if (confirmed === 'confirm') {
@@ -158,7 +158,7 @@ async function handleNewGame() {
 
 async function handleRestart() {
   const confirmed = await uiStore.showConfirmation(
-    t('gameplay.confirmExit.title'),
+    t('features.gameplay.confirmExit.title'),
     'Restart the current exam?',
   )
   if (confirmed === 'confirm') {
@@ -197,8 +197,8 @@ async function handleSummaryRestart() {
 
 async function handleResign() {
   const confirmed = await uiStore.showConfirmation(
-    t('gameplay.confirmExit.title'),
-    t('gameplay.confirmExit.message'),
+    t('features.gameplay.confirmExit.title'),
+    t('features.gameplay.confirmExit.message'),
   )
   if (confirmed === 'confirm') {
     if (openingStore.isPlayoutMode) {

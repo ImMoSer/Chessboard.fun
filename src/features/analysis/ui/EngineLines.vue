@@ -17,7 +17,7 @@ const formatScore = (line: EvaluatedLineWithSan) => {
     const val = line.score.value / 100
     return (val > 0 ? '+' : '') + val.toFixed(2)
   }
-  return t('analysis.mateInShort', { value: Math.abs(line.score.value) })
+  return t('features.analysis.mateInShort', { value: Math.abs(line.score.value) })
 }
 
 const getScoreType = (index: number) => {
@@ -80,7 +80,7 @@ const handleLineClick = (line: EvaluatedLineWithSan) => {
         </div>
 
         <div v-else class="empty-state">
-          <n-text depth="3" italic>{{ t('analysis.makeMove') }}</n-text>
+          <n-text depth="3" italic>{{ t('features.analysis.makeMove') }}</n-text>
         </div>
       </div>
     </transition>

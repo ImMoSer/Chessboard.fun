@@ -16,7 +16,7 @@ export const useTornadoMistakesStore = defineStore('tornado-mistakes', () => {
   const mistakes = ref<GamePuzzle[]>([])
   const solvedStatus = ref<Record<string, boolean>>({})
   const selectedPuzzleId = ref<string | null>(null)
-  const feedbackMessage = ref(t('tornado.mistakes.feedback.selectPuzzle'))
+  const feedbackMessage = ref(t('features.tornado.mistakes.feedback.selectPuzzle'))
   const isAttemptMade = ref(false)
 
   const selectedPuzzle = computed(() => 
@@ -57,7 +57,7 @@ export const useTornadoMistakesStore = defineStore('tornado-mistakes', () => {
   function selectPuzzle(puzzle: GamePuzzle) {
     isAttemptMade.value = false
     selectedPuzzleId.value = puzzle.PuzzleId || puzzle.puzzle_id || null
-    feedbackMessage.value = t('tornado.mistakes.feedback.yourTurn')
+    feedbackMessage.value = t('features.tornado.mistakes.feedback.yourTurn')
 
     const fen = puzzle.FEN_0 || puzzle.initial_fen || ''
     
@@ -83,7 +83,7 @@ export const useTornadoMistakesStore = defineStore('tornado-mistakes', () => {
           return true
         } else {
           soundService.playSound('game_tacktics_error')
-          feedbackMessage.value = t('tornado.mistakes.feedback.wrongMove')
+          feedbackMessage.value = t('features.tornado.mistakes.feedback.wrongMove')
           return false
         }
       },
@@ -92,7 +92,7 @@ export const useTornadoMistakesStore = defineStore('tornado-mistakes', () => {
           const id = puzzle.PuzzleId || puzzle.puzzle_id
           if (id) solvedStatus.value[id] = true
           soundService.playSound('game_tacktics_success')
-          feedbackMessage.value = t('tornado.mistakes.feedback.solved')
+          feedbackMessage.value = t('features.tornado.mistakes.feedback.solved')
         }
       },
       async requestBotMove(): Promise<string | null> {

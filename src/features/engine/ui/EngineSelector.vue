@@ -36,8 +36,8 @@ const handleEngineSelectorClick = async () => {
     toggleDropdown()
   } else {
     const userConfirmedLogin = await uiStore.showConfirmation(
-      t('auth.requiredForAction'),
-      t('userCabinet.loginPrompt'),
+      t('features.auth.requiredForAction'),
+      t('features.userCabinet.loginPrompt'),
       {
         confirmText: t('nav.loginWithLichess'),
         showCancel: true,
@@ -74,7 +74,7 @@ onUnmounted(() => {
     <button
       class="selector-toggle"
       :disabled="!isAuthenticated"
-      :title="!isAuthenticated ? t('auth.requiredForAction') : t('engine.select')"
+      :title="!isAuthenticated ? t('features.auth.requiredForAction') : t('features.engine.select')"
     >
       {{ engineNames[selectedEngine] }}
       <span class="selector-arrow" :class="{ 'is-open': isOpen }">▼</span>

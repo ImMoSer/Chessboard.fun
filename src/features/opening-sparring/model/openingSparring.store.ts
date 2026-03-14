@@ -162,16 +162,16 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
         if (err instanceof InsufficientPawnCoinsError) {
           const e = err as InsufficientPawnCoinsError
           const confirmed = await uiStore.showConfirmation(
-            t('pricing.insufficientCoins.title'),
-            t('pricing.insufficientCoins.message', {
+            t('features.pricing.insufficientCoins.title'),
+            t('features.pricing.insufficientCoins.message', {
               required: e.required,
               available: e.available,
             }) +
             '\n\n' +
-            t('pricing.insufficientCoins.subMessage'),
+            t('features.pricing.insufficientCoins.subMessage'),
             {
-              confirmText: t('pricing.insufficientCoins.goToPricing'),
-              cancelText: t('common.close'),
+              confirmText: t('features.pricing.insufficientCoins.goToPricing'),
+              cancelText: t('common.actions.close'),
             },
           )
           if (confirmed === 'confirm') {
@@ -285,7 +285,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     () => theoryStore.currentFen,
     (fen) => {
       if (fen === 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1') {
-        openingName.value = t('openingTrainer.settings.startPosition')
+        openingName.value = t('features.diamondHunter.settings.startPosition')
         currentEco.value = ''
         return
       }
@@ -367,14 +367,14 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
 
     if (isTheoryOver.value && !isPlayoutMode.value) {
       badges.push({
-        text: t('openingTrainer.header.bookEnded'),
+        text: t('features.diamondHunter.header.bookEnded'),
         type: 'warning',
       })
     }
 
     if (isDeviation.value && !isPlayoutMode.value) {
       badges.push({
-        text: t('openingTrainer.header.deviation'),
+        text: t('features.diamondHunter.header.deviation'),
         type: 'error',
       })
     }
@@ -404,7 +404,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
         {
           icon: 'trending-up',
           value: averageWinRate.value,
-          label: t('openingTrainer.header.winRate'),
+          label: t('features.diamondHunter.header.winRate'),
           color: '#4caf50',
         }
       )
@@ -431,7 +431,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
         {
           icon: 'advantage',
           value: evaluationValue,
-          label: t('puzzleInfo.evaluation'),
+          label: t('features.puzzleInfo.evaluation'),
           color: parseFloat(evaluationValue) >= 0 ? '#4caf50' : '#f44336',
         }
       )

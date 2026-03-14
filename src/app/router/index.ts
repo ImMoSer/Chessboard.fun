@@ -216,8 +216,8 @@ router.beforeEach(async (to, from, next) => {
     localStorage.setItem('redirect_after_login', to.fullPath)
 
     const userConfirmedLogin = await uiStore.showConfirmation(
-      t('auth.requiredForAction'),
-      t('userCabinet.loginPrompt'),
+      t('features.auth.requiredForAction'),
+      t('features.userCabinet.loginPrompt'),
       {
         confirmText: t('nav.loginWithLichess'),
         showCancel: true,
@@ -235,8 +235,8 @@ router.beforeEach(async (to, from, next) => {
 
     if (gameStore.isGameActive && !isTornadoToMistakes) {
       const userConfirmed = await uiStore.showConfirmation(
-        t('gameplay.confirmExit.title'),
-        t('gameplay.confirmExit.message'),
+        t('features.gameplay.confirmExit.title'),
+        t('features.gameplay.confirmExit.message'),
       )
 
       if (userConfirmed === 'confirm') {

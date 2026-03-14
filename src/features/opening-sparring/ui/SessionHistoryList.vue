@@ -181,7 +181,7 @@ const columns = computed<DataTableColumns<MovePair>>(() => [
 <template>
   <div class="session-history-container">
     <div class="history-header">
-      <h3>{{ openingStore.openingName || t('openingTrainer.header.searching') }}</h3>
+      <h3>{{ openingStore.openingName || t('features.diamondHunter.header.searching') }}</h3>
     </div>
 
     <div class="table-scroll-area">

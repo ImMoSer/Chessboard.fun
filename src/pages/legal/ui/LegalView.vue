@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 import { NCard, NTabs, NTabPane, NH1, NH2, NP, NText, NDivider, NAlert } from 'naive-ui'
 
-const { t, te, locale } = useI18n()
+const { t, te, tm, locale } = useI18n()
 const route = useRoute()
 const router = useRouter()
 
@@ -43,11 +43,6 @@ watch(
     syncTabWithHash()
   },
 )
-
-const getParagraphs = (text: string) => {
-  if (!text) return []
-  return text.split('\n\n').filter((p) => p.trim() !== '')
-}
 
 const formatAddress = (text: string) => {
   return text.split('\n')
@@ -152,7 +147,7 @@ const showPrecedenceNotice = computed(() => {
 
             <div v-for="key in orderedPrivacyKeys" :key="key" class="legal-section">
               <n-h2>{{ t(`legal.privacy.sections.${key}Title`) }}</n-h2>
-              <n-p v-for="(para, index) in getParagraphs(t(`legal.privacy.sections.${key}Content`))" :key="index">
+              <n-p v-for="(para, index) in tm(`legal.privacy.sections.${key}Paragraphs`)" :key="index">
                 <span style="white-space: pre-wrap">{{ para }}</span>
               </n-p>
               <!-- Dynamic link for payment section -->
@@ -172,7 +167,7 @@ const showPrecedenceNotice = computed(() => {
 
             <div v-for="key in orderedTermsKeys" :key="key" class="legal-section">
               <n-h2>{{ t(`legal.terms.sections.${key}Title`) }}</n-h2>
-              <n-p v-for="(para, index) in getParagraphs(t(`legal.terms.sections.${key}Content`))" :key="index">
+              <n-p v-for="(para, index) in tm(`legal.terms.sections.${key}Paragraphs`)" :key="index">
                  <span style="white-space: pre-wrap">{{ para }}</span>
               </n-p>
             </div>

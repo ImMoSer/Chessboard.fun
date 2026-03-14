@@ -22,8 +22,8 @@ export const useUiStore = defineStore('ui', () => {
   const isModalPersistent = ref(false)
   const modalTitle = ref('')
   const modalMessage = ref('')
-  const modalConfirmText = ref(t('common.confirm'))
-  const modalCancelText = ref(t('common.cancel'))
+  const modalConfirmText = ref(t('common.actions.confirm'))
+  const modalCancelText = ref(t('common.actions.cancel'))
   const modalExtraText = ref('')
   const isCancelButtonVisible = ref(true)
   const isExtraButtonVisible = ref(false)
@@ -40,8 +40,8 @@ export const useUiStore = defineStore('ui', () => {
   ): Promise<'confirm' | 'cancel' | 'extra' | null> {
     modalTitle.value = title
     modalMessage.value = message
-    modalConfirmText.value = options.confirmText || t('common.confirm')
-    modalCancelText.value = options.cancelText || t('common.cancel')
+    modalConfirmText.value = options.confirmText || t('common.actions.confirm')
+    modalCancelText.value = options.cancelText || t('common.actions.cancel')
     modalExtraText.value = options.extraText || ''
     isCancelButtonVisible.value = options.showCancel ?? true
     isExtraButtonVisible.value = options.showExtra ?? false
@@ -87,8 +87,8 @@ export const useUiStore = defineStore('ui', () => {
     modalTitle.value = ''
     modalMessage.value = ''
     resolvePromise = null
-    modalConfirmText.value = t('common.confirm')
-    modalCancelText.value = t('common.cancel')
+    modalConfirmText.value = t('common.actions.confirm')
+    modalCancelText.value = t('common.actions.cancel')
     modalExtraText.value = ''
     isCancelButtonVisible.value = true
     isExtraButtonVisible.value = false

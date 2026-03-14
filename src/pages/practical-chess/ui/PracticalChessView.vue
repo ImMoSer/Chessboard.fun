@@ -155,7 +155,7 @@ watch(
           :activeMode="practicalStore.activeDifficulty || 'Novice'"
           mode="practical"
           :themes="currentPracticalThemes"
-          :title="t('userCabinet.stats.modes.practical')"
+          :title="t('features.userCabinet.stats.modes.practical')"
           @improve="handleImprove"
         />
       </div>

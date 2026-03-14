@@ -30,7 +30,7 @@ const displayTitle = computed(() => {
     // Strip "Chess Opening Theory/" prefix
     return wikiData.value.title.replace('Chess Opening Theory/', '')
   }
-  return t('analysis.openingTheory') || 'Opening Theory'
+  return t('features.analysis.openingTheory') || 'Opening Theory'
 })
 
 const externalLink = computed(() => {
@@ -62,7 +62,7 @@ const sanitizedContent = computed(() => {
         target="_blank"
         rel="noopener noreferrer"
         class="external-link"
-        :title="t('analysis.viewOnWikibooks') || 'View on Wikibooks'"
+        :title="t('features.analysis.viewOnWikibooks') || 'View on Wikibooks'"
       >
         <n-icon size="18">
           <OpenOutline />
@@ -83,12 +83,12 @@ const sanitizedContent = computed(() => {
           <div v-else class="state-container empty">
             <n-empty
               :description="
-                t('analysis.noTheoryFound') || 'No dedicated theory found for this position.'
+                t('features.analysis.noTheoryFound') || 'No dedicated theory found for this position.'
               "
             >
               <template #extra>
                 <n-text depth="3">{{
-                  t('analysis.noTheorySubtext') || 'Try a more common move order.'
+                  t('features.analysis.noTheorySubtext') || 'Try a more common move order.'
                 }}</n-text>
               </template>
             </n-empty>

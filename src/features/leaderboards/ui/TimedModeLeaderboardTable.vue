@@ -47,9 +47,9 @@ const getSubscriptionIcon = (tier?: string) => {
 
 const columns = computed<DataTableColumns<TornadoLeaderboardEntry | FinishHimLeaderboardEntry>>(
   () => [
-    { title: t('records.table.rank'), key: 'rank', align: 'center', width: 45 },
+    { title: t('features.leaderboards.table.rank'), key: 'rank', align: 'center', width: 45 },
     {
-      title: t('records.table.player'),
+      title: t('features.leaderboards.table.player'),
       key: 'username',
       minWidth: 160,
       ellipsis: { tooltip: true },
@@ -71,7 +71,7 @@ const columns = computed<DataTableColumns<TornadoLeaderboardEntry | FinishHimLea
     },
     {
       title:
-        props.mode === 'tornado' ? t('tornado.leaderboard.highScore') : t('records.table.score'),
+        props.mode === 'tornado' ? t('features.tornado.leaderboard.highScore') : t('features.leaderboards.table.score'),
       key: props.mode === 'tornado' ? 'highScore' : 'score',
       align: 'right',
       render(row) {
@@ -83,10 +83,10 @@ const columns = computed<DataTableColumns<TornadoLeaderboardEntry | FinishHimLea
       },
     },
     {
-      title: t('records.table.daysOld'),
+      title: t('features.leaderboards.table.daysOld', { count: 1 }),
       key: 'days_old',
       align: 'right',
-      render: (row) => `${row.days_old}d`,
+      render: (row) => t('features.leaderboards.table.daysOld', { count: row.days_old }),
     },
   ],
 )

@@ -51,7 +51,7 @@ const currentTheoryMode = computed(() => {
 })
 
 const currentTheoryTitle = computed(() => {
-  return t('userCabinet.stats.modes.theory') + (theoryStore.activeType === 'win' ? ' (Win)' : ' (Draw)')
+  return t('features.userCabinet.stats.modes.theory') + (theoryStore.activeType === 'win' ? ' (Win)' : ' (Draw)')
 })
 
 const handleImprove = (options: GameLaunchOptions) => {

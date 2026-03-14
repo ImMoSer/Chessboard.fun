@@ -152,7 +152,7 @@ watch(
           mode="finish_him"
           :modes="['Novice', 'Pro', 'Master']"
           :themes="currentFinishHimThemes"
-          :title="t('userCabinet.stats.modes.finishHim')"
+          :title="t('features.userCabinet.stats.modes.finishHim')"
           @improve="handleImprove"
         />
       </div>

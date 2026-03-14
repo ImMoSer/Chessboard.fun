@@ -75,7 +75,7 @@ function selectNextUnsolvedPuzzle() {
   if (nextUnsolved) {
     handleSelectPuzzle(nextUnsolved)
   } else if (mistakesStore.allMistakesSolved) {
-    mistakesStore.feedbackMessage = t('tornado.mistakes.feedback.allSolved')
+    mistakesStore.feedbackMessage = t('features.tornado.mistakes.feedback.allSolved')
   }
 }
 
@@ -101,14 +101,14 @@ onMounted(() => {
       handleSelectPuzzle(firstMistake)
     }
   } else if (!loaded) {
-    mistakesStore.feedbackMessage = t('tornado.mistakes.feedback.noMistakes')
+    mistakesStore.feedbackMessage = t('features.tornado.mistakes.feedback.noMistakes')
   }
 })
 
 onBeforeRouteLeave(async (to, from, next) => {
   const userResponse = await uiStore.showConfirmation(
-    t('tornado.mistakes.exit.title'),
-    t('tornado.mistakes.exit.message'),
+    t('features.tornado.mistakes.exit.title'),
+    t('features.tornado.mistakes.exit.message'),
   )
   if (userResponse === 'confirm') {
     mistakesStore.clearMistakes()
@@ -133,7 +133,7 @@ async function handleExit() {
             <n-icon color="var(--color-neon-pink)">
               <FileTrayOutline />
             </n-icon>
-            <n-text strong class="panel-title">{{ t('tornado.mistakes.title') }}</n-text>
+            <n-text strong class="panel-title">{{ t('features.tornado.mistakes.title') }}</n-text>
           </n-space>
         </template>
 
@@ -163,7 +163,7 @@ async function handleExit() {
           </div>
           <n-empty
             v-else
-            :description="t('tornado.mistakes.feedback.noMistakes')"
+            :description="t('features.tornado.mistakes.feedback.noMistakes')"
             class="empty-mistakes"
           >
             <template #icon>
@@ -201,7 +201,7 @@ async function handleExit() {
               <template #icon>
                 <n-icon><PlayForwardOutline /></n-icon>
               </template>
-              {{ t('tornado.mistakes.ui.nextButton') }}
+              {{ t('features.tornado.mistakes.ui.nextButton') }}
             </n-button>
           </n-grid-item>
 
@@ -219,7 +219,7 @@ async function handleExit() {
               <template #icon>
                 <n-icon><AnalyticsOutline /></n-icon>
               </template>
-              {{ t('tornado.mistakes.ui.analysisButton') }}
+              {{ t('features.tornado.mistakes.ui.analysisButton') }}
             </n-button>
           </n-grid-item>
 
@@ -236,7 +236,7 @@ async function handleExit() {
               <template #icon>
                 <n-icon><ExitOutline /></n-icon>
               </template>
-              {{ t('tornado.mistakes.ui.restartButton') }}
+              {{ t('features.tornado.mistakes.ui.restartButton') }}
             </n-button>
           </n-grid-item>
         </n-grid>
@@ -250,7 +250,7 @@ async function handleExit() {
             <!-- ID & Rating -->
             <n-grid :cols="2" x-gap="12">
               <n-grid-item>
-                <n-statistic :label="t('tornado.mistakes.info.id')">
+                <n-statistic :label="t('features.tornado.mistakes.info.id')">
                   <template #prefix>
                     <n-icon color="var(--color-neon-cyan)">
                       <InformationCircleOutline />
@@ -260,7 +260,7 @@ async function handleExit() {
                 </n-statistic>
               </n-grid-item>
               <n-grid-item>
-                <n-statistic :label="t('tornado.mistakes.info.rating')">
+                <n-statistic :label="t('features.tornado.mistakes.info.rating')">
                   <template #prefix>
                     <n-icon color="var(--color-neon-orange)">
                       <RibbonOutline />
@@ -274,7 +274,7 @@ async function handleExit() {
             <!-- Themes -->
             <div class="themes-section">
               <n-text depth="3" strong class="section-label">
-                {{ t('tornado.mistakes.info.theme') }}
+                {{ t('features.tornado.mistakes.info.theme') }}
               </n-text>
               <n-space :size="[8, 8]" class="themes-container">
                 <n-tag

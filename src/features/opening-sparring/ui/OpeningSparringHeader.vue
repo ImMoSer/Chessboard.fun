@@ -47,10 +47,10 @@ const { t } = useI18n()
             {{ t('nav.openingSparring') }}
           </n-tag>
           <n-tag v-if="isTheoryOver" type="warning" size="small" round uppercase>
-            {{ t('openingTrainer.header.bookEnded') }}
+            {{ t('features.diamondHunter.header.bookEnded') }}
           </n-tag>
           <n-tag v-if="isDeviation" type="error" size="small" round uppercase>
-            {{ t('openingTrainer.header.deviation') }}
+            {{ t('features.diamondHunter.header.deviation') }}
           </n-tag>
           <n-tag v-if="isPlayoutMode" type="success" size="small" round uppercase> PLAYOUT </n-tag>
         </n-space>
@@ -64,7 +64,7 @@ const { t } = useI18n()
             </n-statistic>
           </n-grid-item>
           <n-grid-item>
-            <n-statistic :label="t('openingTrainer.header.winRate')" :value="averageWinRate">
+            <n-statistic :label="t('features.diamondHunter.header.winRate')" :value="averageWinRate">
               <template #suffix>%</template>
             </n-statistic>
           </n-grid-item>
@@ -78,7 +78,7 @@ const { t } = useI18n()
               <template #icon
                 ><n-icon> <RefreshOutline /> </n-icon
               ></template>
-              {{ t('openingTrainer.header.newSession') }}
+              {{ t('features.diamondHunter.header.newSession') }}
             </n-button>
           </n-space>
         </div>

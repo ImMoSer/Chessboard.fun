@@ -43,7 +43,7 @@ const toggleAnalysis = () => {
             </template>
           </n-button>
         </template>
-        {{ $t('controls.new') }}
+        {{ $t('features.controls.new') }}
       </n-tooltip>
 
       <!-- Restart -->
@@ -61,7 +61,7 @@ const toggleAnalysis = () => {
             </template>
           </n-button>
         </template>
-        {{ $t('controls.restart') }}
+        {{ $t('features.controls.restart') }}
       </n-tooltip>
 
       <!-- Resign OR Analysis Toggle -->
@@ -93,7 +93,7 @@ const toggleAnalysis = () => {
             </template>
           </n-switch>
         </template>
-        {{ controlsStore.canResign ? $t('controls.resign') : $t('analysis.engine') }}
+        {{ controlsStore.canResign ? $t('features.controls.resign') : $t('features.analysis.engine') }}
       </n-tooltip>
 
       <!-- Share -->
@@ -111,7 +111,7 @@ const toggleAnalysis = () => {
             </template>
           </n-button>
         </template>
-        {{ $t('controls.share') }}
+        {{ $t('features.controls.share') }}
       </n-tooltip>
 
       <!-- Hint -->

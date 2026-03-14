@@ -19,8 +19,8 @@ const dropdownRef = ref<HTMLElement | null>(null)
 const availableThemes: string[] = ['auto', ...FINISH_HIM_THEMES]
 
 const selectedThemeName = computed(() => {
-  if (selectedTheme.value === 'auto') return t('chess.tornado.auto')
-  return t(`chess.finishHim.category.${selectedTheme.value}`)
+  if (selectedTheme.value === 'auto') return t('chess.tactics.auto')
+  return t(`chess.themes.${selectedTheme.value}`)
 })
 
 const toggleDropdown = () => {
@@ -41,8 +41,8 @@ const handleClickOutside = (event: MouseEvent) => {
 }
 
 const getThemeName = (theme: string) => {
-  if (theme === 'auto') return t('chess.tornado.auto')
-  return t(`chess.finishHim.category.${theme}`)
+  if (theme === 'auto') return t('chess.tactics.auto')
+  return t(`chess.themes.${theme}`)
 }
 
 onMounted(() => {
@@ -58,7 +58,7 @@ onUnmounted(() => {
   <div class="finish-him-selection" ref="dropdownRef">
     <button class="selector-toggle" @click="toggleDropdown" :disabled="isGameActive">
       <span class="selector-text-desktop">{{ selectedThemeName }}</span>
-      <span class="selector-text-mobile">{{ t('welcome.buttons.tacktics') }}</span>
+      <span class="selector-text-mobile">{{ t('welcome.buttons.tornado') }}</span>
       <span class="selector-arrow" :class="{ 'is-open': isOpen }">▼</span>
     </button>
     <div v-if="isOpen" class="theme-dropdown">

@@ -72,7 +72,7 @@ const progressPercent = computed(() => {
     preset="card"
     :style="{ width: '500px', borderRadius: '20px' }"
     class="summary-modal"
-    :title="t('openingTrainer.header.bookEnded')"
+    :title="t('features.diamondHunter.header.bookEnded')"
     :bordered="false"
     :closable="false"
     :mask-closable="false"
@@ -97,7 +97,7 @@ const progressPercent = computed(() => {
           <n-grid-item>
             <div class="stat-box">
               <n-statistic
-                :label="t('openingTrainer.header.winRate')"
+                :label="t('features.diamondHunter.header.winRate')"
                 :value="openingStore.averageWinRate"
               >
                 <template #prefix>
@@ -112,7 +112,7 @@ const progressPercent = computed(() => {
         <!-- Engine Evaluation Section -->
         <div class="engine-eval-section" :class="{ loading: openingStore.isFinalEvaluating }">
           <div class="section-header">
-            <n-text strong depth="2">{{ t('analysis.engine') }} Assessment</n-text>
+            <n-text strong depth="2">{{ t('features.analysis.engine') }} Assessment</n-text>
             <n-tag
               v-if="!openingStore.isFinalEvaluating"
               :type="evalStatus"
@@ -162,7 +162,7 @@ const progressPercent = computed(() => {
         <!-- Engine Selection for Playout -->
         <div class="engine-selection-block">
           <n-text depth="3" class="selection-hint">
-            {{ t('openingTrainer.settings.engineHint', 'Choose the engine for playout mode.') }}
+            {{ t('features.diamondHunter.settings.engineHint', 'Choose the engine for playout mode.') }}
           </n-text>
           <div class="engine-selector-wrapper">
             <slot name="engine-selector" />
@@ -209,7 +209,7 @@ const progressPercent = computed(() => {
               <template #icon
                 ><n-icon><RefreshOutline /></n-icon
               ></template>
-              {{ t('openingTrainer.header.newSession') }}
+              {{ t('features.diamondHunter.header.newSession') }}
             </n-button>
           </n-space>
         </div>

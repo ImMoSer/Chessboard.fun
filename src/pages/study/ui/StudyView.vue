@@ -44,14 +44,14 @@ const handleCloudSave = async () => {
     if (studyStore.activeChapter?.slug) {
       if (studyStore.isOwner) {
         await studyStore.updateInCloud()
-        message.success(t('study.notifications.updated'))
+        message.success(t('features.repertoire.notifications.updated'))
       } else {
         await studyStore.forkToCloud()
-        message.success(t('study.notifications.savedAsCopy'))
+        message.success(t('features.repertoire.notifications.savedAsCopy'))
       }
     } else {
       await studyStore.saveToCloud()
-      message.success(t('study.notifications.saved'))
+      message.success(t('features.repertoire.notifications.saved'))
     }
   } catch (e: unknown) {
     const err = e instanceof Error ? e : { message: String(e) }
@@ -60,11 +60,11 @@ const handleCloudSave = async () => {
       const limit = tier === 'King' ? Infinity : (tier === 'Queen' ? 10 : 1)
 
       const result = await uiStore.showConfirmation(
-        t('study.limitModal.title'),
-        t('study.limitModal.message', { tier, limit }),
+        t('features.repertoire.limitModal.title'),
+        t('features.repertoire.limitModal.message', { tier, limit }),
         {
-          confirmText: t('study.limitModal.confirm'),
-          cancelText: t('study.limitModal.cancel'),
+          confirmText: t('features.repertoire.limitModal.confirm'),
+          cancelText: t('features.repertoire.limitModal.cancel'),
           showCancel: true,
         },
       )
@@ -73,12 +73,12 @@ const handleCloudSave = async () => {
         router.push('/pricing')
       }
     } else if (err.message?.includes('shorter than or equal to')) {
-      await uiStore.showConfirmation(t('study.sizeModal.title'), t('study.sizeModal.message'), {
-        confirmText: t('study.sizeModal.confirm'),
+      await uiStore.showConfirmation(t('features.repertoire.sizeModal.title'), t('features.repertoire.sizeModal.message'), {
+        confirmText: t('features.repertoire.sizeModal.confirm'),
         showCancel: false,
       })
     } else {
-      message.error(err.message || t('study.notifications.saveError'))
+      message.error(err.message || t('features.repertoire.notifications.saveError'))
     }
   }
 }
@@ -87,7 +87,7 @@ const handleShare = () => {
   if (!studyStore.activeChapter?.slug) return
   const url = `${window.location.origin}/study/chapter/${studyStore.activeChapter.slug}`
   navigator.clipboard.writeText(url)
-  message.success(t('study.notifications.shareLinkCopied'))
+  message.success(t('features.repertoire.notifications.shareLinkCopied'))
 }
 
 onMounted(async () => {
@@ -175,7 +175,7 @@ watch(
                 <NIcon><FlashOutline /></NIcon>
               </button>
             </template>
-            {{ t('study.repertoireGenerator') }}
+            {{ t('features.repertoire.repertoireGenerator') }}
           </NTooltip>
 
           <NTooltip trigger="hover">

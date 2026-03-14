@@ -128,7 +128,7 @@ const renderWinrateBar = (win_p: number, draw_p: number, loss_p: number) => {
 
 const columns = computed<DataTableColumns<StatsTableRow>>(() => [
   {
-    title: t('openingTrainer.stats.move'),
+    title: t('features.diamondHunter.stats.move'),
     key: 'san',
     width: 90,
     render(row) {
@@ -185,7 +185,7 @@ const columns = computed<DataTableColumns<StatsTableRow>>(() => [
 <template>
   <div class="stats-container" :class="{ blurred: !isReviewMode }">
     <div v-if="!isReviewMode" class="overlay">
-      <n-text strong depth="1">{{ t('openingTrainer.stats.reviewModeOverlay') }}</n-text>
+      <n-text strong depth="1">{{ t('features.diamondHunter.stats.reviewModeOverlay') }}</n-text>
     </div>
 
     <!-- Global Winrate Bar -->

@@ -162,9 +162,9 @@ const handleRedeem = async () => {
   } catch (err) {
     const error = err as { status?: number }
     if (error.status === 404 || error.status === 409) {
-      message.error(t('userCabinet.gift.invalid'))
+      message.error(t('features.userCabinet.gift.invalid'))
     } else {
-      message.error(t('userCabinet.gift.error'))
+      message.error(t('features.userCabinet.gift.error'))
     }
   } finally {
     isRedeeming.value = false
@@ -198,8 +198,8 @@ const handleManageSubscription = async () => {
     <div v-else-if="!isExample && (!isAuthenticated || !userProfile)" class="login-prompt">
       <n-result
         status="403"
-        :title="t('userCabinet.title')"
-        :description="t('userCabinet.loginPrompt')"
+        :title="t('features.userCabinet.title')"
+        :description="t('features.userCabinet.loginPrompt')"
       >
         <template #footer>
           <n-button type="primary" size="large" @click="authStore.login()">
@@ -225,7 +225,7 @@ const handleManageSubscription = async () => {
             mode="tornado"
             :modes="['bullet', 'blitz', 'rapid', 'classic']"
             :themes="currentTornadoThemes"
-            :title="t('userCabinet.stats.modes.tornado')"
+            :title="t('features.userCabinet.stats.modes.tornado')"
             @improve="launchGame"
           />
 
@@ -235,7 +235,7 @@ const handleManageSubscription = async () => {
             mode="finish_him"
             :modes="['Novice', 'Pro', 'Master']"
             :themes="currentFinishHimThemes"
-            :title="t('userCabinet.stats.modes.finishHim')"
+            :title="t('features.userCabinet.stats.modes.finishHim')"
             @improve="launchGame"
           />
         </div>
@@ -247,7 +247,7 @@ const handleManageSubscription = async () => {
             mode="theory_win"
             :modes="['Novice', 'Pro', 'Master']"
             :themes="currentTheoryWinThemes"
-            :title="t('userCabinet.stats.modes.theory') + ' (Win)'"
+            :title="t('features.userCabinet.stats.modes.theory') + ' (Win)'"
             @improve="launchGame"
           />
 
@@ -257,7 +257,7 @@ const handleManageSubscription = async () => {
             mode="theory_draw"
             :modes="['Novice', 'Pro', 'Master']"
             :themes="currentTheoryDrawThemes"
-            :title="t('userCabinet.stats.modes.theory') + ' (Draw)'"
+            :title="t('features.userCabinet.stats.modes.theory') + ' (Draw)'"
             @improve="launchGame"
           />
         </div>
@@ -269,7 +269,7 @@ const handleManageSubscription = async () => {
             mode="practical"
             :modes="['Novice', 'Pro', 'Master']"
             :themes="currentPracticalThemes"
-            :title="t('userCabinet.stats.modes.practical')"
+            :title="t('features.userCabinet.stats.modes.practical')"
             @improve="launchGame"
           />
         </div>
@@ -277,12 +277,12 @@ const handleManageSubscription = async () => {
         <!-- Gift Code Redeem Area -->
         <n-card :bordered="false" class="gift-redeem-card" embedded>
           <n-space vertical>
-            <n-h3 style="margin-bottom: 0;">🎁 {{ t('userCabinet.gift.title') }}</n-h3>
-            <n-text depth="3">{{ t('userCabinet.gift.description') }}</n-text>
+            <n-h3 style="margin-bottom: 0;">🎁 {{ t('features.userCabinet.gift.title') }}</n-h3>
+            <n-text depth="3">{{ t('features.userCabinet.gift.description') }}</n-text>
             <n-input-group style="margin-top: 8px;">
               <n-input
                 v-model:value="giftCode"
-                :placeholder="t('userCabinet.gift.placeholder')"
+                :placeholder="t('features.userCabinet.gift.placeholder')"
                 :maxlength="8"
                 size="large"
                 style="max-width: 250px;"
@@ -295,7 +295,7 @@ const handleManageSubscription = async () => {
                 :disabled="giftCode.length !== 8" 
                 @click="handleRedeem"
               >
-                {{ t('userCabinet.gift.activate') }}
+                {{ t('features.userCabinet.gift.activate') }}
               </n-button>
             </n-input-group>
           </n-space>
@@ -325,16 +325,16 @@ const handleManageSubscription = async () => {
       v-model:show="showSuccessModal"
       preset="card"
       style="max-width: 400px; background-color: var(--color-bg-panel)"
-      :title="t('userCabinet.gift.successTitle')"
+      :title="t('features.userCabinet.gift.successTitle')"
       :mask-closable="false"
       @close="handleSuccessOk"
     >
       <n-space vertical :size="24">
         <n-text style="font-size: 1.1em; line-height: 1.5;">
-          {{ t('userCabinet.gift.successMessage', { tier: successTier, date: successDate }) }}
+          {{ t('features.userCabinet.gift.successMessage', { tier: successTier, date: successDate }) }}
         </n-text>
         <n-button type="primary" size="large" block @click="handleSuccessOk">
-          {{ t('userCabinet.gift.ok') }}
+          {{ t('features.userCabinet.gift.ok') }}
         </n-button>
       </n-space>
     </n-modal>
@@ -344,15 +344,15 @@ const handleManageSubscription = async () => {
       v-model:show="showPolarSuccessModal"
       preset="card"
       style="max-width: 400px; background-color: var(--color-bg-panel)"
-      :title="t('userCabinet.polar.successTitle')"
+      :title="t('features.userCabinet.polar.successTitle')"
       :mask-closable="false"
     >
       <n-space vertical :size="24">
         <n-text style="font-size: 1.1em; line-height: 1.5;">
-          {{ t('userCabinet.polar.successMessage') }}
+          {{ t('features.userCabinet.polar.successMessage') }}
         </n-text>
         <n-button type="primary" size="large" block @click="showPolarSuccessModal = false">
-          {{ t('userCabinet.polar.ok') }}
+          {{ t('features.userCabinet.polar.ok') }}
         </n-button>
       </n-space>
     </n-modal>

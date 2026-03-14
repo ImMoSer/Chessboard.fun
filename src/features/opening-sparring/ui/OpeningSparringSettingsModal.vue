@@ -36,7 +36,7 @@ const majorOpenings = ref<{ name: string; eco?: string; moves: string[]; slug: s
 
 const openingOptions = computed<SelectOption[]>(() => {
   const options: SelectOption[] = [
-    { label: t('openingTrainer.settings.startPosition'), value: 'start' },
+    { label: t('features.diamondHunter.settings.startPosition'), value: 'start' },
   ]
   majorOpenings.value.forEach((op) => {
     options.push({
@@ -89,24 +89,24 @@ function startSession() {
             <n-icon>
               <ColorPaletteOutline />
             </n-icon>
-            <n-text strong>{{ t('openingTrainer.settings.color') }}</n-text>
+            <n-text strong>{{ t('features.diamondHunter.settings.color') }}</n-text>
           </n-space>
           <n-radio-group v-model:value="selectedColor" name="color" size="large" expand>
             <n-radio-button value="white" class="color-btn-white">
               <n-space align="center" justify="center" :wrap="false">
                 <div class="swatch white" />
-                {{ t('openingTrainer.settings.white') }}
+                {{ t('features.diamondHunter.settings.white') }}
               </n-space>
             </n-radio-button>
             <n-radio-button value="black" class="color-btn-black">
               <n-space align="center" justify="center" :wrap="false">
                 <div class="swatch black" />
-                {{ t('openingTrainer.settings.black') }}
+                {{ t('features.diamondHunter.settings.black') }}
               </n-space>
             </n-radio-button>
           </n-radio-group>
           <n-text depth="3" class="hint-text">
-            {{ t('openingTrainer.settings.masters') }} (Master DB)
+            {{ t('features.diamondHunter.settings.masters') }} (Master DB)
           </n-text>
         </div>
 
@@ -116,7 +116,7 @@ function startSession() {
             <n-icon>
               <FilterOutline />
             </n-icon>
-            <n-text strong>{{ t('openingTrainer.settings.selectOpening') }}</n-text>
+            <n-text strong>{{ t('features.diamondHunter.settings.selectOpening') }}</n-text>
           </n-space>
           <n-select
             v-model:value="selectedOpening"
@@ -185,7 +185,7 @@ function startSession() {
                 <ShuffleOutline />
               </n-icon>
               <n-text strong>{{
-                t('openingTrainer.settings.variability', {
+                t('features.diamondHunter.settings.variability', {
                   value: openingStore.variability,
                 })
               }}</n-text>
@@ -196,7 +196,7 @@ function startSession() {
           </n-space>
           <n-slider v-model:value="openingStore.variability" :min="3" :max="7" :step="1" />
           <n-text depth="3" class="hint-text">
-            {{ t('openingTrainer.settings.variabilityHint') }}
+            {{ t('features.diamondHunter.settings.variabilityHint') }}
           </n-text>
         </div>
       </n-space>
@@ -217,7 +217,7 @@ function startSession() {
             <PlayOutline />
           </n-icon>
         </template>
-        {{ t('openingTrainer.settings.startSession') }}
+        {{ t('features.diamondHunter.settings.startSession') }}
       </n-button>
     </template>
   </n-modal>

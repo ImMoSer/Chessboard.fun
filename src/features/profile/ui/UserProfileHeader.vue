@@ -36,9 +36,9 @@ const avatarUrl = computed(() => {
 })
 
 const formatTierExpireDate = (isoDate: string | null | undefined) => {
-  if (!isoDate) return t('userCabinet.info.tierPermanent')
+  if (!isoDate) return t('features.userCabinet.info.tierPermanent')
   const date = new Date(isoDate)
-  return t('userCabinet.info.tierExpires', { date: date.toLocaleDateString() })
+  return t('features.userCabinet.info.tierExpires', { date: date.toLocaleDateString() })
 }
 
 const getTierType = (tier: string = '') => {
@@ -113,7 +113,7 @@ const avatarSize = computed(() => (isMobile.value ? 75 : 150))
 
           <div class="funcoins-stat">
             <n-statistic
-              :label="t('userCabinet.stats.pawncoinsLabel')"
+              :label="t('features.userCabinet.stats.pawncoinsLabel')"
               :value="(userProfile.dailyLimit || 0) - (userProfile.spentToday || 0)"
             >
               <template #prefix>🪙</template>
@@ -125,7 +125,7 @@ const avatarSize = computed(() => (isMobile.value ? 75 : 150))
 
       <!-- Right: Tornado Ratings (taking remaining space) -->
       <div class="tornado-ratings-section">
-        <div class="section-title">{{ t('userCabinet.stats.tornadoTitle') }}</div>
+        <div class="section-title">{{ t('features.userCabinet.stats.tornadoTitle') }}</div>
         <n-grid :cols="2" :x-gap="12" :y-gap="12">
           <n-grid-item v-for="stat in tornadoScores" :key="stat.mode">
             <div class="score-item" :style="{ borderColor: modeMeta[stat.mode].color }">

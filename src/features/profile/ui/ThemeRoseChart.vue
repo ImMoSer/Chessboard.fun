@@ -11,7 +11,7 @@ import type { GameLaunchOptions } from '@/shared/types/api.types'
 
 use([CanvasRenderer, PieChart, TooltipComponent, LegendComponent, TitleComponent])
 
-const { t, te } = useI18n()
+const { t, te, locale } = useI18n()
 
 interface ThemeStat {
   theme: string
@@ -123,6 +123,11 @@ const chartData = computed(() => {
 })
 
 const option = computed(() => {
+  // Access locale.value to force reactivity when language changes
+  // This ensures the formatter function is re-evaluated by ECharts
+  const _currentLocale = locale.value
+  console.log('Updating Chart Options for locale:', _currentLocale)
+
   return {
     backgroundColor: 'transparent',
     tooltip: {
@@ -145,11 +150,11 @@ const option = computed(() => {
             const p = params as RoseParam
             const theme = p.name
             let themeName = theme
-            if (te(`chess.tornado.${theme}`)) themeName = t(`chess.tornado.${theme}`)
-            else if (te(`chess.finishHim.category.${theme}`))
-              themeName = t(`chess.finishHim.category.${theme}`)
-            else if (te(`chess.endings.${theme}`)) themeName = t(`chess.endings.${theme}`)
-            else if (te(`chess.practicalChess.category.${theme}`)) themeName = t(`chess.practicalChess.category.${theme}`)
+            if (te(`chess.tactics.${theme}`)) themeName = t(`chess.tactics.${theme}`)
+            else if (te(`chess.themes.${theme}`))
+              themeName = t(`chess.themes.${theme}`)
+            else if (te(`chess.subThemes.${theme}`))
+              themeName = t(`chess.subThemes.${theme}`)
 
             return themeName.length > 10 ? themeName.slice(0, 8) + '..' : themeName
           },
@@ -173,11 +178,11 @@ const onChartClick = (params: unknown) => {
   const theme = data.theme
 
   let themeName = theme
-  if (te(`chess.tornado.${theme}`)) themeName = t(`chess.tornado.${theme}`)
-  else if (te(`chess.finishHim.category.${theme}`))
-    themeName = t(`chess.finishHim.category.${theme}`)
-  else if (te(`chess.endings.${theme}`)) themeName = t(`chess.endings.${theme}`)
-  else if (te(`chess.practicalChess.category.${theme}`)) themeName = t(`chess.practicalChess.category.${theme}`)
+  if (te(`chess.tactics.${theme}`)) themeName = t(`chess.tactics.${theme}`)
+  else if (te(`chess.themes.${theme}`))
+    themeName = t(`chess.themes.${theme}`)
+  else if (te(`chess.subThemes.${theme}`))
+    themeName = t(`chess.subThemes.${theme}`)
 
   const ev = p.event.event as Event
   let x = window.innerWidth / 2
@@ -277,9 +282,9 @@ const onImproveClick = () => {
         </n-button>
       </div>
       <n-radio-group v-model:value="viewMode" size="small">
-        <n-radio-button value="rating">{{ t('userCabinet.analyticsTable.rating') }}</n-radio-button>
+        <n-radio-button value="rating">{{ t('features.userCabinet.analyticsTable.rating') }}</n-radio-button>
         <n-radio-button value="accuracy">{{
-          t('userCabinet.analyticsTable.accuracy')
+          t('features.userCabinet.analyticsTable.accuracy')
         }}</n-radio-button>
       </n-radio-group>
     </div>
@@ -312,10 +317,10 @@ const onImproveClick = () => {
         <div class="modal-controls">
           <n-radio-group v-model:value="viewMode" size="medium">
             <n-radio-button value="rating">{{
-              t('userCabinet.analyticsTable.rating')
+              t('features.userCabinet.analyticsTable.rating')
             }}</n-radio-button>
             <n-radio-button value="accuracy">{{
-              t('userCabinet.analyticsTable.accuracy')
+              t('features.userCabinet.analyticsTable.accuracy')
             }}</n-radio-button>
           </n-radio-group>
 
@@ -363,11 +368,11 @@ const onImproveClick = () => {
             {{ activePopup.data.themeName }}
           </div>
           <div class="popup-row">
-            <span>{{ t('userCabinet.analyticsTable.rating') }}:</span>
+            <span>{{ t('features.userCabinet.analyticsTable.rating') }}:</span>
             <span class="rating-val">{{ activePopup.data.rating }}</span>
           </div>
           <div class="popup-row">
-            <span>{{ t('userCabinet.analyticsTable.accuracy') }}:</span>
+            <span>{{ t('features.userCabinet.analyticsTable.accuracy') }}:</span>
             <span
               class="accuracy-val"
               :class="{
@@ -379,14 +384,14 @@ const onImproveClick = () => {
             </span>
           </div>
           <div class="popup-row">
-            <span>{{ t('userCabinet.stats.success') }}:</span>
+            <span>{{ t('features.userCabinet.stats.success') }}:</span>
             <span>{{ activePopup.data.success }} / {{ activePopup.data.requested }}</span>
           </div>
         </div>
 
         <div class="popup-footer">
           <n-button type="primary" block @click="onImproveClick" class="improve-btn">
-            {{ t('userCabinet.stats.improve') }} {{ activePopup.data.subModeName }}
+            {{ t('features.userCabinet.stats.improve') }} {{ activePopup.data.subModeName }}
           </n-button>
         </div>
       </div>

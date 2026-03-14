@@ -67,8 +67,8 @@ const config = computed(() => {
   switch (mode.value) {
     case 'finish-him':
       return {
-        title: t('finishHim.selection.title'),
-        subtitle: t('finishHim.selection.subtitle'),
+        title: t('features.finishHim.selection.title'),
+        subtitle: t('features.finishHim.selection.subtitle'),
         accentColor: 'var(--color-accent-warning)',
         categories: [
           'auto',
@@ -82,20 +82,20 @@ const config = computed(() => {
           'queenPieces',
           'expert',
         ],
-        categoryLabel: t('finishHim.selection.themeLabel'),
+        categoryLabel: t('features.finishHim.selection.themeLabel'),
       }
     case 'practical':
       return {
-        title: t('practicalChess.selection.title'),
-        subtitle: t('practicalChess.selection.subtitle'),
+        title: t('features.practicalChess.selection.title'),
+        subtitle: t('features.practicalChess.selection.subtitle'),
         accentColor: 'var(--color-accent-primary)',
         categories: PRACTICAL_CHESS_CATEGORIES,
-        categoryLabel: t('practicalChess.selection.categoryLabel'),
+        categoryLabel: t('features.practicalChess.selection.categoryLabel'),
       }
     case 'tornado':
       return {
         title: 'TORNADO',
-        subtitle: t('tornado.feedback.selectMode'),
+        subtitle: t('features.tornado.feedback.selectMode'),
         accentColor: 'var(--color-neon-orange)',
         categories: ['bullet', 'blitz', 'rapid', 'classic'],
         categoryLabel: '',
@@ -103,11 +103,11 @@ const config = computed(() => {
     case 'theory':
     default:
       return {
-        title: t('theoryEndings.selection.title'),
-        subtitle: t('theoryEndings.selection.subtitle'),
+        title: t('features.theoryEndgames.selection.title'),
+        subtitle: t('features.theoryEndgames.selection.subtitle'),
         accentColor: 'var(--color-accent-primary)',
         categories: THEORY_ENDING_CATEGORIES,
-        categoryLabel: t('theoryEndings.selection.categoryLabel'),
+        categoryLabel: t('features.theoryEndgames.selection.categoryLabel'),
       }
   }
 })
@@ -185,7 +185,7 @@ function handleStart() {
       <div class="selection-sections">
         <!-- Type Selection (Only for Theory) -->
         <div v-if="mode === 'theory'" class="section">
-          <label class="section-label">{{ t('theoryEndings.selection.typeLabel') }}</label>
+          <label class="section-label">{{ t('features.theoryEndgames.selection.typeLabel') }}</label>
           <div class="toggle-group">
             <button
               v-for="type in ['win', 'draw'] as const"
@@ -201,7 +201,7 @@ function handleStart() {
 
         <!-- Difficulty Selection -->
         <div v-if="mode !== 'tornado'" class="section">
-          <label class="section-label">{{ t('theoryEndings.selection.difficultyLabel') }}</label>
+          <label class="section-label">{{ t('features.theoryEndgames.selection.difficultyLabel') }}</label>
           <div class="toggle-group">
             <button
               v-for="diff in difficultyLevels"
@@ -216,7 +216,7 @@ function handleStart() {
         </div>
         <!-- Engine Selection -->
         <div v-if="mode !== 'tornado'" class="section">
-          <label class="section-label">{{ t('engine.select') }}</label>
+          <label class="section-label">{{ t('features.engine.select') }}</label>
           <div class="engine-selector-wrapper">
             <EngineSelector />
           </div>
@@ -253,7 +253,7 @@ function handleStart() {
           }"
           @click="handleStart"
         >
-          {{ t('theoryEndings.selection.start') }}
+          {{ t('features.theoryEndgames.selection.start') }}
         </button>
       </div>
     </div>

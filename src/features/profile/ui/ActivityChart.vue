@@ -47,10 +47,10 @@ const chartOption = computed(() => {
   const periodData = props.stats[selectedActivityPeriod.value]
 
   const modes = [
-    { key: 'theory', name: t('userCabinet.stats.modes.theory') },
+    { key: 'theory', name: t('features.userCabinet.stats.modes.theory') },
     { key: 'tornado', name: t('nav.tornado') },
     { key: 'finish_him', name: t('nav.finishHim') },
-    { key: 'practical-chess', name: t('records.titles.practicalLeaderboard') },
+    { key: 'practical-chess', name: t('features.leaderboards.titles.practicalLeaderboard') },
   ] as const
 
   return {
@@ -72,11 +72,11 @@ const chartOption = computed(() => {
         return `<div style="padding: 4px; min-width: 140px;">
                   <b style="color: #FFFFFF; display: block; margin-bottom: 8px; border-bottom: 1px solid #5A5A5A; padding-bottom: 4px;">${modeName}</b>
                   <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                    <span style="color: ${p[0].color}; font-weight: bold;">${t('records.table.solved')}:</span>
+                    <span style="color: ${p[0].color}; font-weight: bold;">${t('features.leaderboards.table.solved')}:</span>
                     <span style="color: #FFF; margin-left: 12px;">${solved}</span>
                   </div>
                   <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                    <span style="color: #888; font-weight: bold;">${t('records.table.requested')}:</span>
+                    <span style="color: #888; font-weight: bold;">${t('features.leaderboards.table.requested')}:</span>
                     <span style="color: #FFF; margin-left: 12px;">${total}</span>
                   </div>
                   <div style="margin-top: 8px; border-top: 1px solid #5A5A5A; padding-top: 4px; text-align: right;">
@@ -112,7 +112,7 @@ const chartOption = computed(() => {
     },
     series: [
       {
-        name: t('records.table.solved'),
+        name: t('features.leaderboards.table.solved'),
         type: 'bar',
         stack: 'total',
         barWidth: 35,
@@ -122,7 +122,7 @@ const chartOption = computed(() => {
         })),
       },
       {
-        name: t('records.table.requested'),
+        name: t('features.leaderboards.table.requested'),
         type: 'bar',
         stack: 'total',
         data: modes.map((m) => ({
@@ -143,7 +143,7 @@ const chartOption = computed(() => {
   <n-card class="activity-chart-card" :loading="isLoading">
     <template #header>
       <div class="card-header-flex">
-        <span class="card-title">{{ t('userCabinet.stats.global.title') }}</span>
+        <span class="card-title">{{ t('features.userCabinet.stats.global.title') }}</span>
         <n-tabs
           type="segment"
           :value="selectedActivityPeriod"
@@ -151,16 +151,16 @@ const chartOption = computed(() => {
           class="period-tabs"
           size="small"
         >
-          <n-tab-pane name="daily" :tab="t('userCabinet.stats.periods.day')" />
-          <n-tab-pane name="weekly" :tab="t('userCabinet.stats.periods.week')" />
-          <n-tab-pane name="monthly" :tab="t('userCabinet.stats.periods.month')" />
+          <n-tab-pane name="daily" :tab="t('features.userCabinet.stats.periods.day')" />
+          <n-tab-pane name="weekly" :tab="t('features.userCabinet.stats.periods.week')" />
+          <n-tab-pane name="monthly" :tab="t('features.userCabinet.stats.periods.month')" />
         </n-tabs>
       </div>
     </template>
 
     <div class="chart-container">
       <v-chart v-if="stats" class="chart" :option="chartOption" autoresize />
-      <n-empty v-else :description="t('userCabinet.stats.noData')" />
+      <n-empty v-else :description="t('features.userCabinet.stats.noData')" />
     </div>
   </n-card>
 </template>
