@@ -57,7 +57,7 @@ const handleCloudSave = async () => {
     const err = e instanceof Error ? e : { message: String(e) }
     if (err.message?.includes('limit reached')) {
       const tier = authStore.userProfile?.subscriptionTier || 'Pawn'
-      const limit = tier === 'Queen' || tier === 'King' ? 10 : 1
+      const limit = tier === 'King' ? Infinity : (tier === 'Queen' ? 10 : 1)
 
       const result = await uiStore.showConfirmation(
         t('study.limitModal.title'),
@@ -175,7 +175,7 @@ watch(
                 <NIcon><FlashOutline /></NIcon>
               </button>
             </template>
-            Generate Repertoire
+            {{ t('study.repertoireGenerator') }}
           </NTooltip>
 
           <NTooltip trigger="hover">

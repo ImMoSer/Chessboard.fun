@@ -25,11 +25,11 @@ const { t } = useI18n()
 
 // Subscription values and colors
 const PAWN_COINS = 150
-const KNIGHT_COINS = 300
-const BISHOP_COINS = 500
-const ROOK_COINS = 1000
+const KNIGHT_COINS = 500
+const BISHOP_COINS = 1000
+const ROOK_COINS = 2500
 const QUEEN_COINS = 5000
-const KING_COINS = 10000
+const KING_COINS = 0 // Displayed as LIMITLESS
 
 const PAWN_COLOR = 'var(--color-neon-cyan)'
 const KNIGHT_COLOR = 'var(--color-neon-cyan)'
@@ -102,17 +102,18 @@ const subscriptionTiers = [
     priceMonthly: t('pricing.tiers.king.priceMonthly'),
     priceYearly: t('pricing.tiers.king.priceYearly'),
     isPurchasable: true,
+    isLimitless: true,
   },
 ]
 
 const gameCosts = [
-  { name: t('nav.tacktics'), icon: '🧩', cost: 15 },
+  { name: t('nav.tornado'), icon: '🌪️', cost: 10 },
   { name: t('nav.theoryEndings'), icon: '📚', cost: 5 },
   { name: t('nav.practicalChess'), icon: '♟️', cost: 5 },
   { name: t('nav.finishHim'), icon: '🎯', cost: 10 },
-  { name: t('nav.openingTrainer'), icon: '💎', cost: 15 },
-  { name: t('nav.openingSparring'), icon: '🤺', cost: 20 },
-  { name: t('nav.study'), icon: '📖', cost: 25 },
+  { name: t('nav.openingTrainer'), icon: '💎', cost: 25 },
+  { name: t('nav.openingExam'), icon: '🤺', cost: 25 },
+  { name: t('pricing.repertoireGenerator'), icon: '📖', cost: 50 },
 ]
 
 interface SubscriptionTier {
@@ -203,7 +204,10 @@ const handleCheckout = async (tierId: string, interval: 'monthly' | 'yearly') =>
 
               <n-thing>
                 <template #description>
-                  <n-text depth="3" style="font-size: 0.9em">
+                  <n-text v-if="tier.isLimitless" :style="{ color: tier.color, fontWeight: 'bold', fontSize: '1.4em' }">
+                    LIMITLESS
+                  </n-text>
+                  <n-text v-else depth="3" style="font-size: 0.9em">
                     {{ t('pricing.tiers.pawn.description').split('{pawncoins}')[0] }}
                     <n-text :style="{ color: tier.color, fontWeight: 'bold', fontSize: '1.2em' }">
                       {{ tier.pawncoins }}

@@ -78,10 +78,8 @@
     }
   },
   "common": {
-    "retry": "Wiederholen"
-  },
-  "nav": {
-    "legal": "Rechtliches"
+    "retry": "Wiederholen",
+    "limitless": "unbegrenzt"
   },
   "settings": {
     "title": "Einstellungen",
@@ -97,6 +95,111 @@
     "animation": {
       "title": "Animation",
       "duration": "Dauer"
+    }
+  },
+  "nav": {
+    "home": "Startseite",
+    "openingTrainer": "Diamond Hunter",
+    "openingTraining": "Diamond Hunter",
+    "openingExam": "Sparring",
+    "openingSparring": "Sparring",
+    "finishHim": "Finish Him",
+    "theoryEndings": "Endspiele",
+    "practicalChess": "Praxis",
+    "tornado": "Tornado",
+    "leaderboards": "Bestenliste",
+    "userCabinet": "Profil",
+    "pricing": "Preise",
+    "about": "Über uns",
+    "legal": "Rechtliches",
+    "study": "Repertoire",
+    "login": "Anmelden",
+    "logout": "Abmelden",
+    "loginWithLichess": "Mit Lichess anmelden"
+  },
+  "welcome": {
+    "title": "Wähle einen Modus",
+    "slogan": "Konstanz ist der Schlüssel zum Erfolg.",
+    "buttons": {
+      "finishHim": "Finish Him",
+      "theoryEndings": "Endspiele",
+      "practicalChess": "Praxis",
+      "tacktics": "Tornado",
+      "leaderboards": "Bestenliste",
+      "openingTraining": "Diamond Hunter",
+      "openingSparring": "Sparring",
+      "study": "Repertoire"
+    }
+  },
+  "study": {
+    "repertoire": "Repertoire",
+    "repertoireGenerator": "Repertoire Generator"
+  },
+  "pricing": {
+    "title": "Abos & Preise",
+    "repertoireGenerator": "Repertoire Generator",
+    "intro": {
+      "p1": "Willkommen auf der Infoseite zu unserem zukünftigen Abosystem. Die offene Testphase ist aktiv."
+    },
+    "tiers": {
+      "title": "Abonnement-Stufen",
+      "pawn": {
+        "name": "Bauer",
+        "description": "Tägliche Auffüllung auf bis zu {pawncoins} PawnCoins",
+        "price": "Dauerhaft kostenlos"
+      },
+      "knight": {
+        "name": "Springer",
+        "description": "Tägliche Auffüllung auf bis zu {pawncoins} PawnCoins"
+      },
+      "bishop": {
+        "name": "Läufer",
+        "description": "Tägliche Auffüllung auf bis zu {pawncoins} PawnCoins"
+      },
+      "rook": {
+        "name": "Turm",
+        "role": "Der ideale Einstieg für Amateure.",
+        "description": "Tägliche Auffüllung auf bis zu {pawncoins} PawnCoins",
+        "priceMonthly": "3,99 € / Monat",
+        "priceYearly": "39,99 € / Jahr"
+      },
+      "queen": {
+        "name": "Dame",
+        "role": "Der Standard für ambitionierte Vereinsspieler.",
+        "description": "Tägliche Auffüllung auf bis zu {pawncoins} PawnCoins",
+        "priceMonthly": "5,99 € / Monat",
+        "priceYearly": "59,99 € / Jahr"
+      },
+      "king": {
+        "name": "König",
+        "role": "Das Kraftpaket für Profis & Analysten.",
+        "description": "Tägliche Auffüllung auf bis zu {pawncoins} PawnCoins",
+        "priceMonthly": "9,99 € / Monat",
+        "priceYearly": "99,99 € / Jahr"
+      },
+      "price": {
+        "soon": "Preis wird angekündigt",
+        "bonus": "Club-Bonus"
+      }
+    },
+    "bonusInfo": {
+      "title": "🎉 Club-Bonus Stufen!",
+      "p1": "Hallo Freunde 👋",
+      "p2": "Wir haben die Bedingungen für automatische Boni für die aktivsten Vereinsmitglieder aktualisiert.",
+      "p3": "Du kannst eine Premium-Stufe kostenlos erhalten — einfach indem du in Team-Turnieren spielst 🏆",
+      "teamLink": "Hier unserem Lichess-Team beitreten!",
+      "howItWorks": "📅 So funktioniert es:",
+      "p4": "Jeden Tag analysiert das System deine Aktivität der letzten 30 Tage (Turniere, Punkte und Partien) und vergibt Aktivitätspunkte.",
+      "p5": "Basierend auf der Punktzahl wird eine der Stufen zugewiesen:",
+      "knight": "♘ Springer — ab 250 Punkten",
+      "bishop": "♗ Läufer — ab 500 Punkten",
+      "p6": "✨ Die Stufe wird automatisch neu berechnet und kann sich je nach Aktivität ändern.",
+      "p7": "Keine Anmeldung nötig — spiele einfach, das System erledigt den Rest ✅",
+      "p8": "Vielen Dank für die Unterstützung des Clubs ❤️♟"
+    },
+    "costs": {
+      "title": "Modul-Kosten",
+      "pawncoinLabel": "PawnCoins"
     }
   }
 }

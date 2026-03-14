@@ -190,7 +190,8 @@
     "copyLink": "Copy link",
     "copied": "Copied!",
     "close": "Close",
-    "retry": "Retry"
+    "retry": "Retry",
+    "limitless": "limitless"
   },
   "controls": {
     "new": "New",
@@ -250,11 +251,11 @@
     "openingTrainer": "Diamond Hunter",
     "openingTraining": "Diamond Hunter",
     "openingExam": "Sparring",
-    "openingSparring": "Opening Sparring",
+    "openingSparring": "Sparring",
     "finishHim": "Finish Him",
     "theoryEndings": "Endgames",
     "practicalChess": "Practical",
-    "tacktics": "Tacktics",
+    "tacktics": "Tornado",
     "tornado": "Tornado",
     "leaderboards": "LeaderBoards",
     "userCabinet": "Cabinet",
@@ -286,7 +287,8 @@
       "saveError": "Failed to save to cloud",
       "colorRequired": "Please select a color for this chapter first."
     },
-    "repertoire": "Repertoire"
+    "repertoire": "Repertoire",
+    "repertoireGenerator": "Repertoire Generator"
   },
   "auth": {
     "requiredForAction": "You must be logged in to perform this action.",
@@ -372,7 +374,7 @@
       "tacktics": "Tacktics",
       "leaderboards": "Leaderboards",
       "openingTraining": "Diamond Hunter",
-      "openingSparring": "Open Sparring",
+      "openingSparring": "Sparring",
       "study": "Repertoire"
     },
     "loginPrompt": "Or log in to access all features:"
@@ -562,6 +564,7 @@
     "intro": {
       "p1": "Welcome to the information page about our future subscription system. Open testing phase is active."
     },
+    "repertoireGenerator": "Repertoire Generator",
     "tiers": {
       "title": "Subscription Tiers",
       "pawn": {
@@ -612,7 +615,7 @@
       "howItWorks": "📅 How it works:",
       "p4": "Every day, the system analyzes your activity over the last 30 days (tournaments, points, and games) and awards activity points.",
       "p5": "Depending on the amount, one of the tiers is assigned:",
-      "knight": "♘ Knight — from 300 points",
+      "knight": "♘ Knight — from 250 points",
       "bishop": "♗ Bishop — from 500 points",
       "p6": "✨ The tier is recalculated automatically and may change depending on your activity.",
       "p7": "No applications needed — just play, and the system will do everything itself ✅",
