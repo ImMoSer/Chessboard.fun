@@ -158,6 +158,12 @@
         "tierExpires": " (until {date})",
         "tierPermanent": " (permanent)"
       },
+      "subscription": {
+        "title": "Manage Subscription",
+        "description": "Manage your billing details, download invoices, or cancel your subscription.",
+        "openPortal": "Open Customer Portal",
+        "error": "Failed to open customer portal."
+      },
       "stats": {
         "pawncoinsLabel": "PawnCoins",
         "endgameSkillLabel": "Endgame Skill",
@@ -181,6 +187,8 @@
           "tornado": "Tornado",
           "finishHim": "Finish Him",
           "theory": "Theory",
+          "theoryWin": "Theory (Win)",
+          "theoryDraw": "Theory (Draw)",
           "practical": "Practical",
           "tacticalTrainer": "Tactics"
         },
@@ -463,16 +471,10 @@
         "player": "Player",
         "time": "Time",
         "challenge": "Challenge",
-        "daysOld": {
-          "one": "1 Day",
-          "other": "{count} Days"
-        },
+        "daysOld": "1 Day | {count} Days",
         "totalSkill": "Skill",
         "score": "Score",
-        "streakDays": {
-          "one": "1 Day",
-          "other": "{count} Days"
-        },
+        "streakDays": "1 Day | {count} Days",
         "action": "Action",
         "requested": "Requested",
         "solved": "Solved"
@@ -505,6 +507,10 @@
         "theoryLeaderboard": {
           "title": "Theory Records",
           "content": "Player rankings by points earned in theoretical endgames. You can switch between themes to see the leaders in each category."
+        },
+        "practicalLeaderboard": {
+          "title": "Practical Chess Records",
+          "content": "Player rankings based on results in practical endgames. Points are awarded for each correctly solved task."
         },
         "overallSkill": {
           "title": "Overall Skill Rating",
@@ -639,6 +645,7 @@
         "showTheory": "Show Theory",
         "analysis": "Analysis",
         "playout": "Playout",
+        "popularity": "Popularity",
         "mode": {
           "label": "Mode",
           "game": "Game",
@@ -657,10 +664,14 @@
         "color": "Choose Color",
         "white": "White",
         "black": "Black",
+        "opponentSource": "Opponent Base",
         "opponentDb": "Opponent DB",
         "masters": "Masters DB",
         "lichessPlayers": "Lichess DB",
         "ratings": "Ratings",
+        "selectRatings": "Select Opponent Ratings",
+        "masterHint": "Bot plays optimal moves from Master games.",
+        "lichessHint": "Bot simulates human play styles based on selected ratings.",
         "timeControls": "Time Controls",
         "selectOpening": "Select Opening (Optional)",
         "startPosition": "Start Position",

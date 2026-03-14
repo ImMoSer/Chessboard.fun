@@ -134,27 +134,27 @@ function startSession() {
               <PeopleOutline />
             </n-icon>
             <n-text strong>{{
-              t('openingTrainer.settings.opponentSource', 'Opponent Base')
+              t('features.diamondHunter.settings.opponentSource', 'Opponent Base')
             }}</n-text>
           </n-space>
           <n-radio-group v-model:value="openingStore.opponentSource" size="large" expand>
             <n-radio-button value="master">
               <n-space align="center" justify="center" :size="8">
                 <n-icon><ServerOutline /></n-icon>
-                <span>Master Base (2200+)</span>
+                <span>{{ t('features.diamondHunter.settings.masters') }} (2200+)</span>
               </n-space>
             </n-radio-button>
             <n-radio-button value="lichess">
               <n-space align="center" justify="center" :size="8">
                 <n-icon><PeopleOutline /></n-icon>
-                <span>Lichess Players</span>
+                <span>{{ t('features.diamondHunter.settings.lichessPlayers') }}</span>
               </n-space>
             </n-radio-button>
           </n-radio-group>
 
           <div v-if="openingStore.opponentSource === 'lichess'" class="rating-selector" style="margin-top: 12px;">
             <n-text depth="3" class="hint-text" style="margin-bottom: 8px; display: block">
-              {{ t('openingTrainer.settings.selectRatings', 'Select Opponent Ratings') }}
+              {{ t('features.diamondHunter.settings.selectRatings', 'Select Opponent Ratings') }}
             </n-text>
             <n-radio-group v-model:value="openingStore.opponentRatingRange" size="large" expand>
               <n-radio-button value="1000-1499">1000 - 1499</n-radio-button>
@@ -166,11 +166,11 @@ function startSession() {
             {{
               openingStore.opponentSource === 'master'
                 ? t(
-                    'openingTrainer.settings.masterHint',
+                    'features.diamondHunter.settings.masterHint',
                     'Bot plays optimal moves from Master games.',
                   )
                 : t(
-                    'openingTrainer.settings.lichessHint',
+                    'features.diamondHunter.settings.lichessHint',
                     'Bot simulates human play styles based on selected ratings.',
                   )
             }}

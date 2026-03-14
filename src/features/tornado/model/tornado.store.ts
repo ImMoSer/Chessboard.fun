@@ -451,7 +451,7 @@ export const useTornadoStore = defineStore('tornado', () => {
     isSessionActive,
     feedbackMessage,
     topInfoDisplay: computed<TopInfoDisplay>(() => ({
-      title: sessionTheme.value ? t(`chess.tornado.${sessionTheme.value}`) : t('chess.tactics.auto'),
+      title: sessionTheme.value ? t(`chess.tactics.${sessionTheme.value}`) : t('chess.tactics.auto'),
       mainValue: formattedTimer.value,
       mainColor: 'var(--color-accent-warning)',
       badges: [{ text: t('chess.tactics.auto'), type: 'primary' }],

@@ -398,7 +398,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
         {
           icon: 'flash',
           value: averagePopularity.value,
-          label: t('openingTrainer.header.popularity') || 'Popularity',
+          label: t('features.diamondHunter.header.popularity'),
           color: '#f0a020',
         },
         {

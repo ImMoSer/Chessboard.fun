@@ -9,7 +9,7 @@ const props = defineProps({
   },
   basePath: {
     type: String,
-    default: 'info.leaderboards.',
+    default: 'features.info.leaderboards.',
   },
 })
 

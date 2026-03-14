@@ -182,7 +182,7 @@ const handleManageSubscription = async () => {
       window.location.href = res.url
     }
   } catch {
-    message.error(t('userCabinet.subscription.error', 'Failed to open customer portal.'))
+    message.error(t('features.userCabinet.subscription.error'))
   } finally {
     isManagingSubscription.value = false
   }
@@ -247,7 +247,7 @@ const handleManageSubscription = async () => {
             mode="theory_win"
             :modes="['Novice', 'Pro', 'Master']"
             :themes="currentTheoryWinThemes"
-            :title="t('features.userCabinet.stats.modes.theory') + ' (Win)'"
+            :title="t('features.userCabinet.stats.modes.theoryWin')"
             @improve="launchGame"
           />
 
@@ -257,7 +257,7 @@ const handleManageSubscription = async () => {
             mode="theory_draw"
             :modes="['Novice', 'Pro', 'Master']"
             :themes="currentTheoryDrawThemes"
-            :title="t('features.userCabinet.stats.modes.theory') + ' (Draw)'"
+            :title="t('features.userCabinet.stats.modes.theoryDraw')"
             @improve="launchGame"
           />
         </div>
@@ -304,8 +304,8 @@ const handleManageSubscription = async () => {
         <!-- Manage Subscription Area -->
         <n-card v-if="userProfile?.isPaidSubscriber" :bordered="false" class="gift-redeem-card" embedded>
           <n-space vertical>
-            <n-h3 style="margin-bottom: 0;">⚙️ Manage Subscription</n-h3>
-            <n-text depth="3">Manage your billing details, download invoices, or cancel your subscription.</n-text>
+            <n-h3 style="margin-bottom: 0;">⚙️ {{ t('features.userCabinet.subscription.title') }}</n-h3>
+            <n-text depth="3">{{ t('features.userCabinet.subscription.description') }}</n-text>
             <n-button
               type="primary"
               size="large"
@@ -313,7 +313,7 @@ const handleManageSubscription = async () => {
               @click="handleManageSubscription"
               style="margin-top: 8px; width: fit-content;"
             >
-              Open Customer Portal
+              {{ t('features.userCabinet.subscription.openPortal') }}
             </n-button>
           </n-space>
         </n-card>

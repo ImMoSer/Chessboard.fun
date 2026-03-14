@@ -319,7 +319,7 @@ export const useFinishHimStore = defineStore('finishHim', () => {
         mainColor: '#18a058',
         badges: [
           {
-            text: t(`chess.difficulties.${puzzle.difficulty}`),
+            text: t(`common.difficulties.level_${puzzle.difficulty.toLowerCase()}`),
             type: puzzle.difficulty === 'Novice' ? 'success' : puzzle.difficulty === 'Pro' ? 'warning' : 'error',
           },
         ],
@@ -327,7 +327,7 @@ export const useFinishHimStore = defineStore('finishHim', () => {
           { icon: 'pieces', value: puzzle.pieces_count, label: t('features.puzzleInfo.pieces') },
           { icon: 'advantage', value: `+${puzzle.material_advantage}`, label: t('chess.types.advantage') },
         ],
-        secondaryText: puzzle.sub_category ? t(`chess.finishHim.subCategory.${puzzle.sub_category}`) : undefined,
+        secondaryText: puzzle.sub_category ? t(`chess.subThemes.${puzzle.sub_category}`) : undefined,
       }
     }),
     feedbackMessage,

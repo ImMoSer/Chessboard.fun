@@ -164,15 +164,16 @@
         "tierExpires": " (до {date})",
         "tierPermanent": " (постоянная)"
       },
+      "subscription": {
+        "title": "Управление подпиской",
+        "description": "Управляйте платежными данными, скачивайте счета или отмените подписку.",
+        "openPortal": "Открыть клиентский портал",
+        "error": "Не удалось открыть клиентский портал."
+      },
       "stats": {
         "pawncoinsLabel": "PawnCoins",
         "endgameSkillLabel": "Мастерство эндшпиля",
-        "puzzlesSolved": {
-          "one": "Решена {count} задача",
-          "few": "Решено {count} задачи",
-          "many": "Решено {count} задач",
-          "other": "Решено {count} задач"
-        },
+        "puzzlesSolved": "Решена {count} задача | Решено {count} задачи | Решено {count} задач",
         "skillEarned": "Skill за сегодня",
         "finishHimRatingLabel": "Рейтинг FinishHim",
         "tornadoTitle": "Рейтинги Торнадо",
@@ -192,6 +193,8 @@
           "tornado": "Торнадо",
           "finishHim": "Finish Him",
           "theory": "Теория",
+          "theoryWin": "Теория (Победа)",
+          "theoryDraw": "Теория (Ничья)",
           "practical": "Практика",
           "tacticalTrainer": "Тактика"
         },
@@ -474,20 +477,10 @@
         "player": "Игрок",
         "time": "Время",
         "challenge": "Испытание",
-        "daysOld": {
-          "one": "{count} день назад",
-          "few": "{count} дня назад",
-          "many": "{count} дней назад",
-          "other": "{count} дней назад"
-        },
+        "daysOld": "{count} день назад | {count} дня назад | {count} дней назад",
         "totalSkill": "Skill",
         "score": "Счет",
-        "streakDays": {
-          "one": "{count} день",
-          "few": "{count} дня",
-          "many": "{count} дней",
-          "other": "{count} дней"
-        },
+        "streakDays": "{count} день | {count} дня | {count} дней",
         "action": "Действие",
         "requested": "Запрошено",
         "solved": "Решено"
@@ -520,6 +513,10 @@
         "theoryLeaderboard": {
           "title": "Рекорды теории",
           "content": "Рейтинг игроков по очкам в теоретических эндшпилях."
+        },
+        "practicalLeaderboard": {
+          "title": "Рекорды практических шахмат",
+          "content": "Рейтинг игроков на основе результатов в практических эндшпилях. Очки начисляются за каждое правильно решенное задание."
         },
         "overallSkill": {
           "title": "Общий рейтинг навыков",
@@ -654,6 +651,7 @@
         "showTheory": "Показать теорию",
         "analysis": "Анализ",
         "playout": "Реализация",
+        "popularity": "Популярность",
         "mode": {
           "label": "Режим",
           "game": "Игра",
@@ -672,10 +670,14 @@
         "color": "Выберите цвет",
         "white": "Белые",
         "black": "Черные",
+        "opponentSource": "База соперника",
         "opponentDb": "База соперника",
         "masters": "База мастеров",
         "lichessPlayers": "База Lichess",
         "ratings": "Рейтинги",
+        "selectRatings": "Выбор рейтинга соперника",
+        "masterHint": "Бот делает оптимальные ходы из партий мастеров.",
+        "lichessHint": "Бот имитирует человеческий стиль игры на основе выбранных рейтингов.",
         "timeControls": "Контроли времени",
         "selectOpening": "Выберите дебют (опционально)",
         "startPosition": "Начальная позиция",

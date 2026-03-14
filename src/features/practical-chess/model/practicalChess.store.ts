@@ -257,7 +257,7 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
         mainColor: '#2080f0',
         badges: [
           {
-            text: t(`chess.difficulties.${puzzle.difficulty}`),
+            text: t(`common.difficulties.level_${puzzle.difficulty.toLowerCase()}`),
             type: puzzle.difficulty === 'Novice' ? 'success' : puzzle.difficulty === 'Pro' ? 'warning' : 'error',
           },
         ],

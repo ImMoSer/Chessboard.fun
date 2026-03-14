@@ -137,10 +137,10 @@ function getIcon(cat: string) {
 }
 
 function getThemeKey(cat: string) {
-  if (cat === 'auto') return 'chess.tornado.auto'
-  if (mode.value === 'finish-him') return `chess.finishHim.category.${cat}`
-  if (mode.value === 'tornado') return `tornado.modes.${cat}`
-  return `chess.endings.${cat}`
+  if (cat === 'auto') return 'chess.tactics.auto'
+  if (mode.value === 'finish-him') return `chess.themes.${cat}`
+  if (mode.value === 'tornado') return `features.tornado.modes.${cat}`
+  return `chess.themes.${cat}`
 }
 
 function handleStart() {
@@ -210,7 +210,7 @@ function handleStart() {
               :class="{ active: selectedDifficulty === diff }"
               @click="selectedDifficulty = diff"
             >
-              {{ t(`chess.difficulties.${diff}`) }}
+              {{ t(`common.difficulties.level_${diff.toLowerCase()}`) }}
             </button>
           </div>
         </div>

@@ -152,7 +152,7 @@ const avatarUrl = computed(() => {
                     <n-icon size="18" depth="2" color="var(--color-accent)">
                       <GolfOutline />
                     </n-icon>
-                    <n-text strong>{{ t('features.userCabinet.stats.puzzlesSolved') }}</n-text>
+                    <n-text strong>{{ t('features.userCabinet.stats.puzzlesSolved', { count: userProfile.today_activity.puzzles_solved_today.total }) }}</n-text>
                   </n-space>
                   <n-text type="primary" strong class="total-value">
                     {{ userProfile.today_activity.puzzles_solved_today.total }}

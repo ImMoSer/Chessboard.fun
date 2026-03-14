@@ -158,13 +158,16 @@
         "tierExpires": " (bis {date})",
         "tierPermanent": " (dauerhaft)"
       },
+      "subscription": {
+        "title": "Abonnement verwalten",
+        "description": "Verwalte deine Zahlungsinformationen, lade Rechnungen herunter oder kündige dein Abonnement.",
+        "openPortal": "Kundenportal öffnen",
+        "error": "Kundenportal konnte nicht geöffnet werden."
+      },
       "stats": {
         "pawncoinsLabel": "PawnCoins",
         "endgameSkillLabel": "Endspiel-Skill",
-        "puzzlesSolved": {
-          "one": "1 Aufgabe gelöst",
-          "other": "{count} Aufgaben gelöst"
-        },
+        "puzzlesSolved": "1 Aufgabe gelöst | {count} Aufgaben gelöst",
         "skillEarned": "Skill heute",
         "finishHimRatingLabel": "FinishHim Rating",
         "tornadoTitle": "Tornado Ratings",
@@ -184,6 +187,8 @@
           "tornado": "Tornado",
           "finishHim": "Finish Him",
           "theory": "Theorie",
+          "theoryWin": "Theorie (Sieg)",
+          "theoryDraw": "Theorie (Remis)",
           "practical": "Praxis",
           "tacticalTrainer": "Taktik"
         },
@@ -466,16 +471,10 @@
         "player": "Spieler",
         "time": "Zeit",
         "challenge": "Herausforderung",
-        "daysOld": {
-          "one": "1 Tag",
-          "other": "{count} Tage"
-        },
+        "daysOld": "1 Tag | {count} Tage",
         "totalSkill": "Skill",
         "score": "Score",
-        "streakDays": {
-          "one": "1 Tag",
-          "other": "{count} Tage"
-        },
+        "streakDays": "1 Tag | {count} Tage",
         "action": "Aktion",
         "requested": "Angefragt",
         "solved": "Gelöst"
@@ -508,6 +507,10 @@
         "theoryLeaderboard": {
           "title": "Theorie Rekorde",
           "content": "Ranking nach Punkten in theoretischen Endspielen."
+        },
+        "practicalLeaderboard": {
+          "title": "Praktische Schach Rekorde",
+          "content": "Spieler-Ranking basierend auf Ergebnissen in praktischen Endspielen. Punkte gibt es für jede korrekt gelöste Aufgabe."
         },
         "overallSkill": {
           "title": "Gesamt Skill-Rating",
@@ -642,6 +645,7 @@
         "showTheory": "Theorie anzeigen",
         "analysis": "Analyse",
         "playout": "Playout",
+        "popularity": "Popularität",
         "mode": {
           "label": "Modus",
           "game": "Partie",
@@ -660,10 +664,14 @@
         "color": "Farbe wählen",
         "white": "Weiß",
         "black": "Schwarz",
+        "opponentSource": "Gegner-Basis",
         "opponentDb": "Gegner DB",
         "masters": "Meister DB",
         "lichessPlayers": "Lichess DB",
         "ratings": "Ratings",
+        "selectRatings": "Gegner-Rating wählen",
+        "masterHint": "Der Bot spielt optimale Züge aus Meisterpartien.",
+        "lichessHint": "Der Bot simuliert menschliche Spielstile basierend auf den gewählten Ratings.",
         "timeControls": "Zeitkontrollen",
         "selectOpening": "Eröffnung wählen (Optional)",
         "startPosition": "Startposition",
