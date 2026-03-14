@@ -179,7 +179,9 @@ function goBack() {
     <template #center-column>
       <!-- Theory Ended Modal -->
       <n-modal
-        v-model:show="diamondHunterStore.showTheoryEndModal"
+        :show="diamondHunterStore.showTheoryEndModal"
+        @close="goBack"
+        :closable="true"
         :preset="'dialog'"
         style="width: 400px; text-align: center"
       >
@@ -217,7 +219,9 @@ function goBack() {
 
       <!-- Reward Modal -->
       <n-modal
-        v-model:show="diamondHunterStore.isActive"
+        :show="diamondHunterStore.isActive"
+        @close="goBack"
+        :closable="true"
         :preset="'dialog'"
         v-if="diamondHunterStore.message && diamondHunterStore.state === 'REWARD'"
         style="width: 400px; text-align: center"
@@ -264,7 +268,9 @@ function goBack() {
 
       <!-- Fail Modal -->
       <n-modal
-        v-model:show="diamondHunterStore.isActive"
+        :show="diamondHunterStore.isActive"
+        @close="goBack"
+        :closable="true"
         :preset="'dialog'"
         v-if="diamondHunterStore.message && diamondHunterStore.state === 'FAILED'"
         style="width: 400px; text-align: center"
