@@ -23,5 +23,10 @@ export interface TopInfoDisplay {
     stats: TopInfoStat[]
     secondaryText?: string
     // Специальные поля для кастомной верстки, если она неизбежна (например, таймер)
-    customType?: 'tornado' | 'diamond-hunter' | 'puzzle'
+    customType?: 'tornado' | 'diamond-hunter' | 'puzzle' | 'practical-chess'
+    extra?: {
+        category?: string
+        isWaiting?: boolean
+        [key: string]: unknown
+    }
 }

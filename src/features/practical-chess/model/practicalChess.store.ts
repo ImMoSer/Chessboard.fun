@@ -255,6 +255,11 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
         mainValue: evalValue,
         mainIcon: 'bar-chart',
         mainColor: '#2080f0',
+        customType: 'practical-chess',
+        extra: {
+          category: activeCategory.value,
+          isWaiting: isWaitingForColorSelection.value,
+        },
         badges: [
           {
             text: t(`common.difficulties.level_${puzzle.difficulty.toLowerCase()}`),

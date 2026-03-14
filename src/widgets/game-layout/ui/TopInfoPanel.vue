@@ -32,6 +32,13 @@ const iconMap: Record<string, Component> = {
 const getIcon = (name: string) => iconMap[name] || markRaw(FlashOutline)
 
 const isValueHidden = computed(() => {
+  // Hide eval in Practical Chess "materialEquality" during color selection
+  if (displayInfo.value.customType === 'practical-chess' && 
+      displayInfo.value.extra?.category === 'materialEquality' && 
+      displayInfo.value.extra?.isWaiting) {
+    return true
+  }
+
   // Logic for hiding eval in Practical Chess "You move" phase
   return displayInfo.value.customType === 'puzzle' &&
          gameStore.gamePhase !== 'GAMEOVER' &&
@@ -123,7 +130,7 @@ const isValueHidden = computed(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 15px;
+  padding: 0 10px;
   box-sizing: border-box;
 }
 
@@ -133,6 +140,7 @@ const isValueHidden = computed(() => {
   align-items: center;
   width: 100%;
   max-width: 1000px;
+  gap: 8px;
 }
 
 /* --- Left Section --- */
@@ -140,8 +148,8 @@ const isValueHidden = computed(() => {
   flex: 1;
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-width: 120px;
+  gap: 8px;
+  min-width: 100px;
 }
 
 .badge-wrapper {
@@ -172,7 +180,7 @@ const isValueHidden = computed(() => {
 }
 
 .secondary-text {
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-small);
   color: var(--color-text-secondary);
   font-weight: 500;
   white-space: nowrap;
@@ -182,25 +190,26 @@ const isValueHidden = computed(() => {
 .info-center {
   flex: 2;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
+  gap: 12px;
   text-align: center;
 }
 
 .info-title {
   font-size: var(--font-size-base);
   color: var(--color-text-link);
-  margin-bottom: 2px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   opacity: 0.8;
+  white-space: nowrap;
 }
 
 .main-display-group {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .main-value {
@@ -208,6 +217,7 @@ const isValueHidden = computed(() => {
   font-weight: bold;
   font-variant-numeric: tabular-nums;
   line-height: 1;
+  white-space: nowrap;
 }
 
 /* --- Right Section --- */
@@ -216,8 +226,8 @@ const isValueHidden = computed(() => {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 20px;
-  min-width: 120px;
+  gap: 12px;
+  min-width: 100px;
 }
 
 .stat-trigger {
