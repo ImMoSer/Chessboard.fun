@@ -165,11 +165,11 @@ onMounted(() => {
         v-if="stats"
         :moves="stats.moves"
         :isReviewMode="true"
-        :total="stats.total"
-        :win_p="stats.win_p"
-        :draw_p="stats.draw_p"
-        :loss_p="stats.loss_p"
-        :avg-elo="stats.avgElo"
+        :total="stats.summary?.total || 0"
+        :win_p="stats.summary?.win_p || 0"
+        :draw_p="stats.summary?.draw_p || 0"
+        :loss_p="stats.summary?.loss_p || 0"
+        :avg-elo="stats.summary?.avgElo || 0"
         @select-move="handleSelectMove"
       />
 

@@ -9,6 +9,7 @@ interface Props {
   move: MozerBookMove
   turn: 'white' | 'black'
   fullMoveNumber: number
+  summaryTotal: number
 }
 
 const props = defineProps<Props>()
@@ -20,8 +21,12 @@ const formatMove = computed(() => {
   return `${prefix}${props.move.san}${nag}`
 })
 
-const totalN = computed(() => props.move.total)
-const drawPct = computed(() => props.move.draw_p.toFixed(1))
+const totalN = computed(() => props.move.total.toLocaleString())
+const nPercentage = computed(() => {
+  if (props.summaryTotal <= 0) return '0%'
+  const pct = (props.move.total / props.summaryTotal) * 100
+  return pct < 0.1 ? '<0.1%' : `${pct.toFixed(1)}%`
+})
 
 function handleClick() {
   emit('select', props.move.uci)
@@ -75,7 +80,9 @@ function handleClick() {
       <WinrateBar :win_p="move.win_p" :draw_p="move.draw_p" :loss_p="move.loss_p" :turn="turn" />
     </div>
 
-    <div class="col-draw">{{ drawPct }}</div>
+    <div class="col-n-pct">{{ nPercentage }}</div>
+
+    <div class="col-perf">{{ move.perf }}</div>
   </div>
 </template>
 
@@ -116,19 +123,17 @@ function handleClick() {
   padding: 0 4px;
 }
 
-.col-draw {
-  width: 45px;
+.col-n-pct {
+  width: 50px;
   padding-right: 4px;
-}
-
-.col-av {
-  width: 40px;
-  padding-right: 4px;
+  font-size: 11px;
+  opacity: 0.8;
 }
 
 .col-perf {
-  width: 40px;
+  width: 50px;
   padding-right: 4px;
+  font-weight: bold;
 }
 
 .move-text {

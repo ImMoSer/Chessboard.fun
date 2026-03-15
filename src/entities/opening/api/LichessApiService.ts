@@ -15,12 +15,14 @@ export interface LichessMove {
 }
 
 export interface LichessOpeningResponse {
-  total: number
-  win_p: number
-  draw_p: number
-  loss_p: number
+  summary: {
+    total: number
+    win_p: number
+    draw_p: number
+    loss_p: number
+    avgElo?: number
+  } | null
   moves: LichessMove[]
-  avgElo?: number
   opening?: {
     eco: string
     name: string

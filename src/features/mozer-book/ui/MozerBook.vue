@@ -117,11 +117,12 @@ const theoryWithChildren = computed<TheoryItemWithChildren[]>(() => {
       @select="handleSelectMove"
     />
 
-    <div class="book-header">
+    <div class="book-header-labels">
       <div class="col-move">Move</div>
       <div class="col-n">N</div>
-      <div class="col-pct">%</div>
-      <div class="col-draw">=%</div>
+      <div class="col-pct">WDL</div>
+      <div class="col-n-pct">N%</div>
+      <div class="col-perf">Perf</div>
     </div>
 
     <div class="book-body">
@@ -131,6 +132,7 @@ const theoryWithChildren = computed<TheoryItemWithChildren[]>(() => {
         :move="move"
         :turn="turn"
         :full-move-number="fullMoveNumber"
+        :summary-total="stats?.summary?.total || 0"
         @select="handleSelectMove"
       />
 
@@ -217,9 +219,9 @@ const theoryWithChildren = computed<TheoryItemWithChildren[]>(() => {
   opacity: 1;
 }
 
-.table-labels {
+.book-header-labels {
   display: flex;
-  padding: 2px 8px;
+  padding: 4px 12px;
   background: rgba(255, 255, 255, 0.02);
   border-bottom: 1px solid var(--color-border);
   font-size: 11px;
@@ -228,7 +230,7 @@ const theoryWithChildren = computed<TheoryItemWithChildren[]>(() => {
   color: var(--color-text-secondary);
 }
 
-.table-labels > div {
+.book-header-labels > div {
   display: flex;
   justify-content: flex-end;
   align-items: center;
@@ -250,23 +252,13 @@ const theoryWithChildren = computed<TheoryItemWithChildren[]>(() => {
   padding: 0 4px;
 }
 
-.col-draw {
-  width: 45px;
-  padding-right: 4px;
-}
-
-.col-av {
-  width: 40px;
+.col-n-pct {
+  width: 50px;
   padding-right: 4px;
 }
 
 .col-perf {
-  width: 40px;
-  padding-right: 4px;
-}
-
-.col-trap {
-  width: 40px;
+  width: 50px;
   padding-right: 4px;
 }
 
