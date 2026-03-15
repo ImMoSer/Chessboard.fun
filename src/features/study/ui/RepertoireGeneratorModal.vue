@@ -2,7 +2,6 @@
 import { useBoardStore } from '@/entities/game'
 import {
   repertoireApiService,
-  type RepertoireProfile,
   type RepertoireRequest,
   type RepertoireStyle,
 } from '../api/RepertoireApiService'
@@ -10,7 +9,7 @@ import { useStudyStore } from '../index'
 import { pgnParserService } from '@/shared/lib/pgn/PgnParserService'
 import { pgnService, type PgnNode } from '@/shared/lib/pgn/PgnService'
 import { FlashOutline } from '@vicons/ionicons5'
-import { NButton, NIcon, NModal, NSelect, NSpace, useMessage } from 'naive-ui'
+import { NButton, NIcon, NModal, NSpace, NSlider, NInputNumber, useMessage } from 'naive-ui'
 import { computed, ref } from 'vue'
 
 defineProps<{
@@ -27,8 +26,8 @@ const message = useMessage()
 
 // State
 const isGenerating = ref(false)
-const selectedProfile = ref<RepertoireProfile>('amateur')
-const selectedStyle = ref<RepertoireStyle>('master')
+const selectedStyle = ref<RepertoireStyle>('grossmaster')
+const opponentCoverageDisplay = ref(50) // User sees 30-90
 
 const styleOptions = [
   {
@@ -37,21 +36,15 @@ const styleOptions = [
     description: 'Maximum reliability and theoretical soundness. The elite choice.',
   },
   {
-    label: '🏆 Master',
-    value: 'master',
-    description: 'Professional growth with a focus on winning chances. Balanced and strong.',
-  },
-  {
     label: '🃏 The Hustler',
     value: 'hustler',
-    description: 'Sharp traps, "poisonous" lines, and provocative play. Play to win at all costs.',
+    description: 'Professional Poker Player: Uses solid sidelines to achieve the best mathematical results over time.',
   },
-]
-
-const profileOptions = [
-  { label: 'Amateur (Standard)', value: 'amateur' },
-  { label: 'Club (Advanced)', value: 'club' },
-  { label: 'Tournament (Elite)', value: 'tournament' },
+  {
+    label: '🎭 The Swindler',
+    value: 'schuler',
+    description: 'Sharp traps and "poisonous" lines. Provocative play designed to deceive and lure opponents into fatal mistakes.',
+  },
 ]
 
 const selectedStyleCleanName = computed(() => {
@@ -74,25 +67,20 @@ const handleGenerateRepertoire = async () => {
     const request: RepertoireRequest = {
       start_pgn: currentPgn,
       color: studyStore.activeChapter.color as 'white' | 'black',
-      profile: selectedProfile.value,
       style: selectedStyle.value,
+      min_games: 5,
+      opponent_coverage: opponentCoverageDisplay.value / 100, // Convert 50 -> 0.5
+      max_depth: 20,
+      opponent_data: 'MASTERS'
     }
 
     const pgn = await repertoireApiService.generateRepertoire(request)
     if (pgn) {
       const { root: parsedRoot } = pgnParserService.parse(pgn)
 
-      // Find the node in parsedRoot that corresponds to our current position
-      // The generated PGN usually starts from the initial position or the start_pgn
-      // We need to carefully merge.
-      // Usually, the generator returns a line starting from the request position or root.
-      // Assuming it returns PGN from root:
-
       let sourceNode = parsedRoot
       const currentPly = pgnService.getCurrentPly()
 
-      // Traverse to current ply in the generated tree if possible
-      // (This assumes the generated PGN matches the current game history)
       for (let i = 0; i < currentPly; i++) {
         const firstChild: PgnNode | undefined = sourceNode.children[0]
         if (firstChild) {
@@ -126,36 +114,53 @@ const handleGenerateRepertoire = async () => {
     @update:show="(v) => emit('update:show', v)"
     preset="card"
     title="Generate Repertoire"
-    style="width: 500px; max-width: 95vw"
+    style="width: 550px; max-width: 95vw"
   >
     <NSpace vertical size="large">
       <div v-if="studyStore.activeChapter?.color">
-        Generating for <strong>{{ studyStore.activeChapter.color }}</strong> from current position.
+        Generating for <strong style="text-transform: capitalize;">{{ studyStore.activeChapter.color }}</strong> from current position.
       </div>
       <div v-else class="warning-text">
         Warning: Chapter color is not set. Please set it in Study Manager.
       </div>
 
-      <!-- Profile Selector -->
-      <label>Target Level:</label>
-      <NSelect v-model:value="selectedProfile" :options="profileOptions" />
-
       <!-- Style Selector -->
-      <label>Play Style:</label>
-      <div class="style-list">
-        <div
-          v-for="s in styleOptions"
-          :key="s.value"
-          class="style-card"
-          :class="{ active: selectedStyle === s.value }"
-          @click="selectedStyle = s.value as RepertoireStyle"
-        >
-          <div class="style-header">{{ s.label }}</div>
-          <div class="style-desc">{{ s.description }}</div>
+      <div>
+        <label class="section-label">Play Style</label>
+        <div class="style-list">
+          <div
+            v-for="s in styleOptions"
+            :key="s.value"
+            class="style-card"
+            :class="{ active: selectedStyle === s.value }"
+            @click="selectedStyle = s.value as RepertoireStyle"
+          >
+            <div class="style-header">{{ s.label }}</div>
+            <div class="style-desc">{{ s.description }}</div>
+          </div>
         </div>
       </div>
 
-      <NSpace justify="end">
+      <!-- Parameters -->
+      <div class="params-section">
+        <label class="section-label">Actuarial Parameters</label>
+        
+        <div class="param-row">
+          <div class="param-info">
+            <span class="param-name">Opponent Coverage (%)</span>
+            <span class="param-desc">
+              Trade-off: High coverage creates a wider repertoire but with less depth. 
+              Low coverage focuses on the most popular lines with more depth.
+            </span>
+          </div>
+          <div class="param-control">
+            <NSlider v-model:value="opponentCoverageDisplay" :min="30" :max="90" :step="1" />
+            <NInputNumber v-model:value="opponentCoverageDisplay" size="small" :min="30" :max="90" style="width: 80px" />
+          </div>
+        </div>
+      </div>
+
+      <NSpace justify="end" style="margin-top: 10px;">
         <NButton @click="emit('update:show', false)">Cancel</NButton>
         <NButton
           type="primary"
@@ -163,9 +168,9 @@ const handleGenerateRepertoire = async () => {
           :disabled="!studyStore.activeChapter?.color"
           @click="handleGenerateRepertoire"
         >
-          <template #icon
-            ><NIcon><FlashOutline /></NIcon
-          ></template>
+          <template #icon>
+            <NIcon><FlashOutline /></NIcon>
+          </template>
           Generate {{ selectedStyleCleanName }}
         </NButton>
       </NSpace>
@@ -178,6 +183,7 @@ const handleGenerateRepertoire = async () => {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  margin-top: 5px;
 }
 
 .style-card {
@@ -209,6 +215,55 @@ const handleGenerateRepertoire = async () => {
 .style-desc {
   font-size: 0.9em;
   color: var(--color-text-secondary);
+}
+
+.section-label {
+  font-weight: 600;
+  margin-bottom: 5px;
+  display: block;
+  color: var(--color-text-primary);
+}
+
+.params-section {
+  background: var(--color-bg-secondary);
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+}
+
+.param-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  margin-bottom: 15px;
+}
+
+.param-row:last-child {
+  margin-bottom: 0;
+}
+
+.param-info {
+  display: flex;
+  flex-direction: column;
+  width: 45%;
+}
+
+.param-name {
+  font-weight: 500;
+  font-size: 0.95em;
+}
+
+.param-desc {
+  font-size: 0.8em;
+  color: var(--color-text-secondary);
+}
+
+.param-control {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  width: 50%;
 }
 
 .warning-text {

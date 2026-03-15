@@ -1,14 +1,17 @@
 // src/services/RepertoireApiService.ts
 import logger from '@/shared/lib/logger'
 
-export type RepertoireStyle = 'grossmaster' | 'master' | 'hustler'
-export type RepertoireProfile = 'amateur' | 'club' | 'tournament'
+export type RepertoireStyle = 'grossmaster' | 'hustler' | 'schuler'
+export type OpponentData = 'MASTERS' | 'PL1000' | 'PL1500' | 'PL1800'
 
 export interface RepertoireRequest {
   start_pgn: string
   color: 'white' | 'black'
-  profile: RepertoireProfile
   style: RepertoireStyle
+  min_games: number
+  opponent_coverage: number
+  max_depth: number
+  opponent_data: OpponentData
 }
 
 class RepertoireApiService {
@@ -18,15 +21,14 @@ class RepertoireApiService {
     try {
       logger.info(`[RepertoireApiService] Ordering ${request.style} repertoire:`, request)
 
-      const { style, ...body } = request
-      const response = await fetch(`${this.BACKEND_URL}/opening/repertoire/${style}`, {
+      const response = await fetch(`${this.BACKEND_URL}/opening/repertoire`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify(body),
+        body: JSON.stringify(request),
       })
 
       if (!response.ok) {
