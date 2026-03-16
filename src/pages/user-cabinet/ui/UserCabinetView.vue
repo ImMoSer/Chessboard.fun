@@ -302,7 +302,7 @@ const handleManageSubscription = async () => {
         </n-card>
 
         <!-- Manage Subscription Area -->
-        <n-card v-if="userProfile?.isPaidSubscriber" :bordered="false" class="gift-redeem-card" embedded>
+        <n-card v-if="userProfile?.isPolarCustomer" :bordered="false" class="gift-redeem-card" embedded>
           <n-space vertical>
             <n-h3 style="margin-bottom: 0;">⚙️ {{ t('features.userCabinet.subscription.title') }}</n-h3>
             <n-text depth="3">{{ t('features.userCabinet.subscription.description') }}</n-text>
