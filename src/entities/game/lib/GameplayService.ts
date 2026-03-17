@@ -21,8 +21,9 @@ const FALLBACK_TIMEOUT_MS = 1500
 export const engineConfigs: Record<EngineId, EngineConfig> = {
   SF_2200: { type: 'local', depth: 10, contempt: 100 },
   'maia-1900': { type: 'server', model: 'maia-1900', fallback: true },
-  'badgyal-8': { type: 'server', model: 'badgyal-8', fallback: true },
+  'tinygyal-8': { type: 'server', model: 'tinygyal-8', fallback: true },
   'maia-2200': { type: 'server', model: 'maia-2200', fallback: true },
+  'evilgyal-6': { type: 'server', model: 'evilgyal-6', fallback: true },
 }
 
 

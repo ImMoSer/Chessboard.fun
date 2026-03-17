@@ -8,7 +8,7 @@ const ENGINE_STORAGE_KEY = 'user_selected_engine'
 
 export const useEngineSelectionStore = defineStore('engine-selection', () => {
 
-  const availableEngines = ref<EngineId[]>(['badgyal-8', 'maia-2200', 'maia-1900', 'SF_2200'])
+  const availableEngines = ref<EngineId[]>(['tinygyal-8', 'maia-2200', 'maia-1900', 'evilgyal-6', 'SF_2200'])
 
   const loadSavedEngine = (): EngineId => {
     try {
@@ -19,7 +19,7 @@ export const useEngineSelectionStore = defineStore('engine-selection', () => {
     } catch (error) {
       logger.error('[EngineSelectionStore] Failed to load engine from localStorage', error)
     }
-    return 'badgyal-8'
+    return 'tinygyal-8'
   }
 
   const selectedEngine = ref<EngineId>(loadSavedEngine())

@@ -18,9 +18,10 @@ const availableEngines = computed(() => engineStore.availableEngines)
 const selectedEngine = computed(() => engineStore.selectedEngine)
 
 const engineNames: Record<EngineId, string> = {
-  'badgyal-8': 'BadGyal-8',
+  'tinygyal-8': 'TinyGyal-8',
   'maia-1900': 'Maia-1900',
   'maia-2200': 'Maia-2200',
+  'evilgyal-6': 'EvilGyal-6',
   SF_2200: 'Stockfish (depth:10)',
 }
 
