@@ -21,7 +21,7 @@ const engineNames: Record<EngineId, string> = {
   'tinygyal-8': 'TinyGyal-8',
   'maia-1900': 'Maia-1900',
   'maia-2200': 'Maia-2200',
-  'evilgyal-6': 'EvilGyal-6',
+  'meangirl-8': 'Mean Girl-8',
   SF_2200: 'Stockfish (depth:10)',
 }
 

@@ -8,7 +8,7 @@ const ENGINE_STORAGE_KEY = 'user_selected_engine'
 
 export const useEngineSelectionStore = defineStore('engine-selection', () => {
 
-  const availableEngines = ref<EngineId[]>(['tinygyal-8', 'maia-2200', 'maia-1900', 'evilgyal-6', 'SF_2200'])
+  const availableEngines = ref<EngineId[]>(['tinygyal-8', 'maia-2200', 'maia-1900', 'meangirl-8', 'SF_2200'])
 
   const loadSavedEngine = (): EngineId => {
     try {

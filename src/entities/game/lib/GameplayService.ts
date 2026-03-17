@@ -23,7 +23,7 @@ export const engineConfigs: Record<EngineId, EngineConfig> = {
   'maia-1900': { type: 'server', model: 'maia-1900', fallback: true },
   'tinygyal-8': { type: 'server', model: 'tinygyal-8', fallback: true },
   'maia-2200': { type: 'server', model: 'maia-2200', fallback: true },
-  'evilgyal-6': { type: 'server', model: 'evilgyal-6', fallback: true },
+  'meangirl-8': { type: 'server', model: 'meangirl-8', fallback: true },
 }
 
 
