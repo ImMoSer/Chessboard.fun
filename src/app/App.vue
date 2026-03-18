@@ -64,6 +64,10 @@ const themeOverrides: GlobalThemeOverrides = {
     thColor: '#12141f',
     borderColor: 'rgba(255, 255, 255, 0.08)',
   },
+  Drawer: {
+    color: 'rgba(10, 11, 20, 0.45)', // very translucent since we will use backdrop-filter
+    textColor: '#ffffff',
+  },
 }
 
 const openDrawer = () => {
@@ -161,13 +165,21 @@ onUnmounted(() => {
           </n-layout>
 
           <!-- Mobile Menu Drawer (Swipe-out) -->
-          <n-drawer v-model:show="isDrawerOpen" placement="left" :width="280">
+          <n-drawer 
+            v-model:show="isDrawerOpen" 
+            placement="left" 
+            :width="280"
+            class="app-drawer"
+            style="backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-right: 1px solid var(--glass-border);"
+          >
             <n-drawer-content closable class="mobile-drawer-content">
               <template #header>
-                <n-space align="center">
-                  <img src="/png/extra_pawn_black.png" alt="Logo" height="30" />
-                  <n-text strong class="brand-text" style="font-size: 1.2rem; letter-spacing: 0.05em;">EXTRAPAWN</n-text>
-                </n-space>
+                <RouterLink to="/" class="logo-link" style="text-decoration: none;" @click="isDrawerOpen = false">
+                  <n-space align="center" :wrap="false">
+                    <img src="/png/extra_pawn_black.png" alt="Logo" class="sidebar-logo-icon" />
+                    <n-text strong class="brand-text sidebar-brand-name" style="font-size: 1.2rem !important;">EXTRAPAWN</n-text>
+                  </n-space>
+                </RouterLink>
               </template>
               <NavMenu @select="isDrawerOpen = false" />
             </n-drawer-content>
@@ -194,11 +206,19 @@ onUnmounted(() => {
   background-color: transparent !important;
 }
 
-.app-sider {
+.app-sider, .app-drawer {
   background-color: var(--glass-bg) !important;
   backdrop-filter: var(--glass-blur);
   z-index: 1000;
   border-right: 1px solid var(--glass-border) !important;
+}
+
+.mobile-drawer-content {
+  background-color: transparent !important;
+}
+
+.mobile-drawer-content :deep(.n-drawer-body-content-wrapper) {
+  padding: 0;
 }
 
 .sider-top-bar {

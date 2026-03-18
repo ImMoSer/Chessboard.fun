@@ -85,6 +85,8 @@
   /* --- Typography --- */
   --font-family-primary: 'Ubuntu', sans-serif;
   --font-family-brand: 'Ubuntu', sans-serif;
+
+  --panel-border-radius: 12px;
 }
 
 /* === BRAND TYPOGRAPHY === */

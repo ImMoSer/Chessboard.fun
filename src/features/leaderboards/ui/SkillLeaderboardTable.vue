@@ -269,10 +269,10 @@ const onChartClick = (params: unknown) => {
 }
 
 .skillStreak .card-title {
-  color: var(--color-neon-cyan);
+  color: var(--neon-cyan);
 }
 .skillStreakMega .card-title {
-  color: var(--color-neon-purple);
+  color: var(--neon-purple);
 }
 .topToday .card-title {
   color: var(--color-accent-warning);
