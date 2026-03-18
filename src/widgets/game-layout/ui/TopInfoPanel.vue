@@ -149,19 +149,27 @@ const { displayInfo } = useTopInfo()
 /* --- Mobile Adaptation --- */
 @media (max-width: 768px) {
   .generic-info-layout {
-    gap: 12px;
+    flex-direction: column;
+    gap: 4px;
+    justify-content: center;
   }
-  
-  .badge-text, .info-title, .secondary-text, .stat-value {
+
+  .info-left {
+    display: none;
+  }
+
+  .info-center, .info-right {
+    flex: none;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .glued-item, .glue {
     font-size: 0.9rem;
   }
 
-  .main-value {
-    font-size: 1rem;
-  }
-
   .glue {
-    margin: 0 2px;
+    margin: 0 4px;
   }
 }
 </style>
