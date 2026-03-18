@@ -1,4 +1,5 @@
 // src/services/MultiThreadEngineManager.ts
+import { DEFAULT_NNUE_FILE } from '@/shared/config/engine.constants'
 import { loadMultiThreadEngine, type EngineController } from '@/shared/lib/engine.loader'
 import logger from '@/shared/lib/logger'
 
@@ -129,7 +130,7 @@ class MultiThreadEngineManagerController {
 
     if (message === 'uciok') {
       this.sendCommand('setoption name Use NNUE value true')
-      this.sendCommand('setoption name EvalFile value nn-4ca89e4b3abf.nnue')
+      this.sendCommand(`setoption name EvalFile value ${DEFAULT_NNUE_FILE}`)
       this.sendCommand(`setoption name Hash value ${this.getOptimalHashSize()}`)
       this.sendCommand('setoption name UCI_ShowWDL value true')
       this.sendCommand('isready')

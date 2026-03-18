@@ -1,4 +1,4 @@
-// src/utils/engine.loader.ts
+import { DEFAULT_NNUE_FILE } from '@/shared/config/engine.constants'
 import logger from '@/shared/lib/logger'
 
 declare global {
@@ -115,7 +115,7 @@ export function loadMultiThreadEngine(): Promise<EngineController | null> {
           logger.info('[EngineLoader] Multi-threaded Stockfish instance created successfully.')
 
           // Получаем рекомендуемое имя файла от самого движка
-          let nnueFileName = 'nn-4ca89e4b3abf.nnue' // Fallback
+          let nnueFileName = DEFAULT_NNUE_FILE // Fallback
           if (typeof engineInstance.getRecommendedNnue === 'function') {
             try {
               nnueFileName = engineInstance.getRecommendedNnue()

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { DEFAULT_NNUE_FILE } from '@/shared/config/engine.constants'
 import { changeLang } from '@/shared/config/i18n'
 
 const emit = defineEmits<{
@@ -40,7 +41,7 @@ const totalMb = computed(() => (totalBytes.value / 1024 / 1024).toFixed(1))
 // The assets we want to explicitly preload and cache
 const CACHE_NAME = 'stockfish-assets'
 const assetsToLoad = [
-  '/stockfish/nnue/nn-4ca89e4b3abf.nnue',
+  `/stockfish/nnue/${DEFAULT_NNUE_FILE}`,
   '/stockfish/nnue/sf_18_smallnet.wasm',
   '/stockfish/single/stockfish-18-lite-single.wasm',
 ]
