@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import InfoIcon from '@/shared/ui/InfoIcon.vue'
 import type { FinishHimLeaderboardEntry, ThematicLeaderboardEntry } from '@/shared/types/api.types'
 import {
-  FINISH_HIM_THEMES,
-  PRACTICAL_CHESS_CATEGORIES,
-  THEORY_ENDING_CATEGORIES,
+    FINISH_HIM_THEMES,
+    PRACTICAL_CHESS_CATEGORIES,
+    THEORY_ENDING_CATEGORIES,
 } from '@/shared/types/api.types'
+import InfoIcon from '@/shared/ui/InfoIcon.vue'
 import type { DataTableColumns } from 'naive-ui'
 import { computed, h, ref, watch, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -235,13 +235,13 @@ const swiperModules = [Navigation, Mousewheel, FreeMode]
 }
 
 .finishHimLeaderboard .card-title {
-  color: var(--color-neon-purple);
+  color: var(--neon-purple);
 }
 .theoryLeaderboard .card-title {
   color: var(--color-accent-warning);
 }
 .practicalLeaderboard .card-title {
-  color: var(--color-neon-lime);
+  color: var(--neon-lime);
 }
 
 .card-title {
@@ -293,7 +293,7 @@ const swiperModules = [Navigation, Mousewheel, FreeMode]
 }
 
 .theme-button:hover {
-  border-color: var(--color-neon-cyan);
+  border-color: var(--neon-cyan);
   background-color: var(--glass-bg-hover);
   transform: translateY(-2px);
   color: var(--color-text-default);
@@ -301,8 +301,8 @@ const swiperModules = [Navigation, Mousewheel, FreeMode]
 
 .theme-button.active {
   background-color: rgba(0, 242, 255, 0.15);
-  border-color: var(--color-neon-cyan);
-  color: var(--color-neon-cyan);
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
   box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
 }
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { type SessionMove } from '@/shared/types/openingSparring.types'
 import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
+import { type SessionMove } from '@/shared/types/openingSparring.types'
 import {
     NDataTable,
     NTag,
@@ -104,7 +104,7 @@ const renderMoveCell = (move: SessionMove | null) => {
         boxShadow,
         padding: '2px 4px',
         borderRadius: '4px',
-        color: isActive ? (isCurrentNode ? 'var(--color-neon-cyan)' : '#fff') : 'inherit',
+        color: isActive ? (isCurrentNode ? 'var(--neon-cyan)' : '#fff') : 'inherit',
         justifyContent: 'center',
         margin: '0 2px',
         transition: 'all 0.2s ease',
@@ -116,7 +116,7 @@ const renderMoveCell = (move: SessionMove | null) => {
     [
       h(
         NText,
-        { strong: true, style: { color: isActive ? (isCurrentNode ? 'var(--color-neon-cyan)' : '#fff') : 'inherit', fontSize: '13px' } },
+        { strong: true, style: { color: isActive ? (isCurrentNode ? 'var(--neon-cyan)' : '#fff') : 'inherit', fontSize: '13px' } },
         { default: () => move.san || move.moveUci },
       ),
       isOk

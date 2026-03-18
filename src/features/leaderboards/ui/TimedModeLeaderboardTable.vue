@@ -1,11 +1,11 @@
 <!-- src/components/recordsPage/TimedModeLeaderboardTable.vue -->
 <script setup lang="ts">
-import InfoIcon from '@/shared/ui/InfoIcon.vue'
 import type {
-  FinishHimLeaderboardEntry,
-  TornadoLeaderboardEntry,
-  TornadoMode,
+    FinishHimLeaderboardEntry,
+    TornadoLeaderboardEntry,
+    TornadoMode,
 } from '@/shared/types/api.types'
+import InfoIcon from '@/shared/ui/InfoIcon.vue'
 import type { DataTableColumns } from 'naive-ui'
 import { computed, h, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -146,7 +146,7 @@ const columns = computed<DataTableColumns<TornadoLeaderboardEntry | FinishHimLea
 }
 
 .tornadoLeaderboard .card-title {
-  color: var(--color-neon-orange);
+  color: var(--neon-orange);
 }
 
 .card-title {

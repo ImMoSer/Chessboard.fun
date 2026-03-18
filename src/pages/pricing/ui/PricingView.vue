@@ -1,6 +1,8 @@
 <script setup lang="ts">
+import { apiClient } from '@/shared/api/client'
 import {
     NAlert,
+    NButton,
     NCard,
     NDivider,
     NGi,
@@ -14,12 +16,10 @@ import {
     NTag,
     NText,
     NThing,
-    NButton,
     useMessage,
 } from 'naive-ui'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { apiClient } from '@/shared/api/client'
 
 const { t } = useI18n()
 
@@ -31,12 +31,12 @@ const ROOK_COINS = 2500
 const QUEEN_COINS = 5000
 const KING_COINS = 0 // Displayed as LIMITLESS
 
-const PAWN_COLOR = 'var(--color-neon-cyan)'
-const KNIGHT_COLOR = 'var(--color-neon-cyan)'
+const PAWN_COLOR = 'var(--neon-cyan)'
+const KNIGHT_COLOR = 'var(--neon-cyan)'
 const BISHOP_COLOR = 'var(--color-accent-warning)'
-const ROOK_COLOR = 'var(--color-neon-purple)'
+const ROOK_COLOR = 'var(--neon-purple)'
 const QUEEN_COLOR = 'var(--color-accent-error)'
-const KING_COLOR = 'var(--color-neon-gold)' // Gold for King
+const KING_COLOR = 'var(--neon-gold)' // Gold for King
 
 const showBonusModal = ref(false)
 
@@ -171,7 +171,7 @@ const handleCheckout = async (tierId: string, interval: 'monthly' | 'yearly') =>
     >
       <n-space vertical size="large">
         <n-h1 align-text class="page-title">
-          <n-text style="color: var(--color-neon-cyan)">{{ t('features.pricing.title') }}</n-text>
+          <n-text style="color: var(--neon-cyan)">{{ t('features.pricing.title') }}</n-text>
         </n-h1>
 
         <n-alert type="info" :bordered="false" class="intro-alert">
@@ -220,22 +220,22 @@ const handleCheckout = async (tierId: string, interval: 'monthly' | 'yearly') =>
                   </n-text>
                 </template>
                 <n-divider dashed style="margin: 12px 0" />
-                
+
                 <div v-if="tier.isPurchasable" style="min-height: 72px;">
                   <n-space vertical size="small">
-                    <n-button 
-                      block 
-                      type="primary" 
-                      ghost 
+                    <n-button
+                      block
+                      type="primary"
+                      ghost
                       @click.stop="handleCheckout(tier.id, 'monthly')"
                       :loading="loadingTier === tier.id + '-monthly'"
                       :disabled="loadingTier !== null"
                     >
                       {{ tier.priceMonthly }}
                     </n-button>
-                    <n-button 
-                      block 
-                      type="success" 
+                    <n-button
+                      block
+                      type="success"
                       @click.stop="handleCheckout(tier.id, 'yearly')"
                       :loading="loadingTier === tier.id + '-yearly'"
                       :disabled="loadingTier !== null"
@@ -301,7 +301,7 @@ const handleCheckout = async (tierId: string, interval: 'monthly' | 'yearly') =>
             <a
               href="https://lichess.org/team/xtrapawn"
               target="_blank"
-              style="color: var(--color-neon-cyan); text-decoration: none; font-weight: bold"
+              style="color: var(--neon-cyan); text-decoration: none; font-weight: bold"
             >
               🔗 {{ t('features.pricing.bonusInfo.teamLink') }}
             </a>
@@ -358,7 +358,7 @@ const handleCheckout = async (tierId: string, interval: 'monthly' | 'yearly') =>
 }
 
 .tier-card:hover {
-  border-color: var(--color-neon-cyan);
+  border-color: var(--neon-cyan);
   background-color: var(--glass-bg-hover);
   transform: translateY(-4px);
 }
@@ -368,7 +368,7 @@ const handleCheckout = async (tierId: string, interval: 'monthly' | 'yearly') =>
 }
 
 .highlight-tier {
-  border: 1px solid var(--color-neon-cyan) !important;
+  border: 1px solid var(--neon-cyan) !important;
   box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
 }
 
@@ -382,7 +382,7 @@ const handleCheckout = async (tierId: string, interval: 'monthly' | 'yearly') =>
 }
 
 .game-cost-card:hover {
-  border-color: var(--color-neon-cyan);
+  border-color: var(--neon-cyan);
   background-color: var(--glass-bg-hover);
   transform: translateY(-4px);
 }

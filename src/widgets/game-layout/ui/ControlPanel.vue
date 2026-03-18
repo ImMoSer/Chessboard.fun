@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import {
-  AnalyticsOutline as AnalysisIcon,
-  PlayCircleOutline as NewIcon,
-  FlagOutline as ResignIcon,
-  RefreshOutline as RestartIcon,
-  LinkOutline as ShareIcon,
-} from '@vicons/ionicons5'
-import { NButton, NIcon, NSpace, NTooltip, NSwitch } from 'naive-ui'
 import { useAnalysisStore } from '@/features/analysis'
 import { SmartHintButton } from '@/features/smart-hint'
+import {
+    AnalyticsOutline as AnalysisIcon,
+    PlayCircleOutline as NewIcon,
+    FlagOutline as ResignIcon,
+    RefreshOutline as RestartIcon,
+    LinkOutline as ShareIcon,
+} from '@vicons/ionicons5'
+import { NButton, NIcon, NSpace, NSwitch, NTooltip } from 'naive-ui'
 import { useControlsStore } from '../model/controls.store'
 
 const controlsStore = useControlsStore()
@@ -136,20 +136,20 @@ const toggleAnalysis = () => {
 }
 
 .icon-restart {
-  color: var(--color-neon-orange);
+  color: var(--neon-orange);
 }
 
 .icon-share {
-  color: var(--color-neon-purple);
+  color: var(--neon-purple);
 }
 
 .icon-analysis-active {
-  color: var(--color-neon-cyan);
-  filter: drop-shadow(0 0 4px var(--color-neon-cyan));
+  color: var(--neon-cyan);
+  filter: drop-shadow(0 0 4px var(--neon-cyan));
 }
 
 :deep(.n-switch.n-switch--active) {
-  --n-button-box-shadow: 0 0 8px var(--color-neon-cyan);
+  --n-button-box-shadow: 0 0 8px var(--neon-cyan);
 }
 
 .pulse-active {
@@ -158,25 +158,25 @@ const toggleAnalysis = () => {
 
 @keyframes rainbow-pulse {
   0% {
-    color: var(--color-neon-pink);
+    color: var(--neon-pink);
     transform: scale(1);
-    filter: drop-shadow(0 0 2px var(--color-neon-pink));
+    filter: drop-shadow(0 0 2px var(--neon-pink));
   }
   33% {
-    color: var(--color-neon-purple);
-    filter: drop-shadow(0 0 4px var(--color-neon-purple));
+    color: var(--neon-purple);
+    filter: drop-shadow(0 0 4px var(--neon-purple));
   }
   50% {
     transform: scale(1.15);
   }
   66% {
-    color: var(--color-neon-orange);
-    filter: drop-shadow(0 0 4px var(--color-neon-orange));
+    color: var(--neon-orange);
+    filter: drop-shadow(0 0 4px var(--neon-orange));
   }
   100% {
-    color: var(--color-neon-pink);
+    color: var(--neon-pink);
     transform: scale(1);
-    filter: drop-shadow(0 0 2px var(--color-neon-pink));
+    filter: drop-shadow(0 0 2px var(--neon-pink));
   }
 }
 

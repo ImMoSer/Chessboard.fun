@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ExpandOutline, CloseOutline } from '@vicons/ionicons5'
+import type { GameLaunchOptions } from '@/shared/types/api.types'
+import { CloseOutline, ExpandOutline } from '@vicons/ionicons5'
 import { PieChart } from 'echarts/charts'
 import { LegendComponent, TitleComponent, TooltipComponent } from 'echarts/components'
 import { use } from 'echarts/core'
@@ -7,7 +8,6 @@ import { CanvasRenderer } from 'echarts/renderers'
 import { computed, nextTick, onMounted, onUnmounted, ref, type PropType } from 'vue'
 import VChart from 'vue-echarts'
 import { useI18n } from 'vue-i18n'
-import type { GameLaunchOptions } from '@/shared/types/api.types'
 
 use([CanvasRenderer, PieChart, TooltipComponent, LegendComponent, TitleComponent])
 
@@ -234,23 +234,23 @@ const onChartClick = (params: unknown) => {
       const rect = popupRef.value.getBoundingClientRect()
       let safeX = activePopup.value.x
       let safeY = activePopup.value.y
-      
+
       const padding = 10
-      
+
       // Check right boundary
       if (safeX + rect.width + padding > window.innerWidth) {
         safeX = window.innerWidth - rect.width - padding
       }
-      
+
       // Check bottom boundary
       if (safeY + rect.height + padding > window.innerHeight) {
         safeY = window.innerHeight - rect.height - padding
       }
-      
+
       // Prevent going off-screen to the left or top
       if (safeX < padding) safeX = padding
       if (safeY < padding) safeY = padding
-      
+
       activePopup.value.x = safeX
       activePopup.value.y = safeY
     }
@@ -406,12 +406,12 @@ const onImproveClick = () => {
   background-color: var(--glass-bg, var(--color-bg-tertiary));
   backdrop-filter: var(--glass-blur, blur(12px));
   -webkit-backdrop-filter: var(--glass-blur, blur(12px));
-  border: 1px solid color-mix(in srgb, var(--color-neon-cyan) 50%, transparent);
+  border: 1px solid color-mix(in srgb, var(--neon-cyan) 50%, transparent);
   border-radius: 12px;
   padding: 14px;
-  box-shadow: 0 8px 32px color-mix(in srgb, var(--color-neon-cyan) 25%, transparent), 
-              0 0 16px color-mix(in srgb, var(--color-neon-cyan) 15%, transparent),
-              inset 0 0 16px color-mix(in srgb, var(--color-neon-cyan) 5%, transparent);
+  box-shadow: 0 8px 32px color-mix(in srgb, var(--neon-cyan) 25%, transparent),
+              0 0 16px color-mix(in srgb, var(--neon-cyan) 15%, transparent),
+              inset 0 0 16px color-mix(in srgb, var(--neon-cyan) 5%, transparent);
   min-width: 180px;
   pointer-events: auto;
   transform: translate(0, 0);
@@ -423,7 +423,7 @@ const onImproveClick = () => {
   align-items: center;
   margin-bottom: 12px;
   padding-bottom: 8px;
-  border-bottom: 1px solid color-mix(in srgb, var(--color-neon-cyan) 25%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--neon-cyan) 25%, transparent);
   gap: 16px;
 }
 
@@ -449,7 +449,7 @@ const onImproveClick = () => {
 .popup-footer {
   margin-top: 16px;
   padding-top: 12px;
-  border-top: 1px solid color-mix(in srgb, var(--color-neon-cyan) 25%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--neon-cyan) 25%, transparent);
 }
 
 .improve-btn {

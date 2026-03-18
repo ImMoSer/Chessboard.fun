@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { useBoardStore } from '@/entities/game'
-import { EngineLines, useAnalysisStore } from '../index'
 import type { PgnNode } from '@/shared/lib/pgn/PgnService'
 import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
 import { ChevronBackOutline, ChevronForwardOutline, PlaySkipBackOutline, PlaySkipForwardOutline, TerminalOutline } from '@vicons/ionicons5'
 import { NButton, NButtonGroup, NIcon, NScrollbar, NSelect, NText, NTooltip } from 'naive-ui'
 import { storeToRefs } from 'pinia'
 import { computed, h, onUnmounted, type FunctionalComponent } from 'vue'
+import { EngineLines, useAnalysisStore } from '../index'
 
 const props = withDefaults(defineProps<{
   showPgn?: boolean
@@ -254,7 +254,7 @@ const PgnRenderer: FunctionalComponent<{ nodes: PgnNode[]; pathPrefix?: string }
       padding: 0 !important;
       font-family: monospace;
       font-weight: 700;
-      color: var(--color-neon-cyan);
+      color: var(--neon-cyan);
     }
   }
 }
@@ -372,7 +372,7 @@ const PgnRenderer: FunctionalComponent<{ nodes: PgnNode[]; pathPrefix?: string }
 
   &.current {
     background: rgba(0, 163, 255, 0.3);
-    color: var(--color-neon-cyan);
+    color: var(--neon-cyan);
     font-weight: 800;
     box-shadow: 0 0 10px rgba(0, 163, 255, 0.4);
     border: 1px solid rgba(0, 163, 255, 0.3);

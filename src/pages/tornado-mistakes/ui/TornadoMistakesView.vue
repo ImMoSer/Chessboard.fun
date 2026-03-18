@@ -13,26 +13,26 @@ import { useTornadoMistakesStore } from '@/features/tornado'
 import type { GamePuzzle } from '@/shared/types/api.types'
 
 import {
-  NCard,
-  NButton,
-  NStatistic,
-  NScrollbar,
-  NEmpty,
-  NIcon,
-  NTag,
-  NGrid,
-  NGridItem,
-  NText,
-  NSpace,
-  } from 'naive-ui'
-import {
-  AnalyticsOutline,
-  PlayForwardOutline,
-  ExitOutline,
-  RibbonOutline,
-  InformationCircleOutline,
-  FileTrayOutline,
+    AnalyticsOutline,
+    ExitOutline,
+    FileTrayOutline,
+    InformationCircleOutline,
+    PlayForwardOutline,
+    RibbonOutline,
 } from '@vicons/ionicons5'
+import {
+    NButton,
+    NCard,
+    NEmpty,
+    NGrid,
+    NGridItem,
+    NIcon,
+    NScrollbar,
+    NSpace,
+    NStatistic,
+    NTag,
+    NText,
+} from 'naive-ui'
 
 // --- STORES ---
 const gameStore = useGameStore()
@@ -130,7 +130,7 @@ async function handleExit() {
       <n-card class="mistakes-glass-panel" :bordered="false" size="small">
         <template #header>
           <n-space align="center" justify="center" :size="8">
-            <n-icon color="var(--color-neon-pink)">
+            <n-icon color="var(--neon-pink)">
               <FileTrayOutline />
             </n-icon>
             <n-text strong class="panel-title">{{ t('features.tornado.mistakes.title') }}</n-text>
@@ -155,7 +155,7 @@ async function handleExit() {
                 class="mini-board"
               />
               <div v-if="mistakesStore.solvedStatus[puzzle.PuzzleId || puzzle.puzzle_id || '']" class="solved-overlay">
-                <n-icon size="24" color="var(--color-neon-lime)">
+                <n-icon size="24" color="var(--neon-lime)">
                   <RibbonOutline />
                 </n-icon>
               </div>
@@ -252,7 +252,7 @@ async function handleExit() {
               <n-grid-item>
                 <n-statistic :label="t('features.tornado.mistakes.info.id')">
                   <template #prefix>
-                    <n-icon color="var(--color-neon-cyan)">
+                    <n-icon color="var(--neon-cyan)">
                       <InformationCircleOutline />
                     </n-icon>
                   </template>
@@ -262,7 +262,7 @@ async function handleExit() {
               <n-grid-item>
                 <n-statistic :label="t('features.tornado.mistakes.info.rating')">
                   <template #prefix>
-                    <n-icon color="var(--color-neon-orange)">
+                    <n-icon color="var(--neon-orange)">
                       <RibbonOutline />
                     </n-icon>
                   </template>
@@ -342,14 +342,14 @@ async function handleExit() {
   }
 
   &.active {
-    border-color: var(--color-neon-cyan);
+    border-color: var(--neon-cyan);
     box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
     transform: scale(1.02);
     z-index: 1;
   }
 
   &.solved {
-    border-color: var(--color-neon-lime);
+    border-color: var(--neon-lime);
     opacity: 0.8;
   }
 }
@@ -396,7 +396,7 @@ async function handleExit() {
 }
 
 .neon-pulse {
-  color: var(--color-neon-yellow);
+  color: var(--neon-yellow);
   text-shadow: 0 0 8px rgba(255, 230, 0, 0.4);
 }
 
@@ -436,7 +436,7 @@ async function handleExit() {
 
 .theme-tag {
   background: rgba(0, 229, 255, 0.1) !important;
-  color: var(--color-neon-cyan) !important;
+  color: var(--neon-cyan) !important;
   border: 1px solid rgba(0, 229, 255, 0.2) !important;
   font-weight: 600;
 }

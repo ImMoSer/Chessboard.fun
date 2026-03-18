@@ -1,17 +1,17 @@
 <!-- src/components/recordsPage/SkillLeaderboardTable.vue -->
 <script setup lang="ts">
-import InfoIcon from '@/shared/ui/InfoIcon.vue'
 import type {
-  OverallSolvedLeaderboardEntry,
-  SkillPeriod,
-  SolveStreakLeaderboardEntry,
+    OverallSolvedLeaderboardEntry,
+    SkillPeriod,
+    SolveStreakLeaderboardEntry,
 } from '@/shared/types/api.types'
+import InfoIcon from '@/shared/ui/InfoIcon.vue'
 import { BarChart } from 'echarts/charts'
 import {
-  GridComponent,
-  LegendComponent,
-  TitleComponent,
-  TooltipComponent,
+    GridComponent,
+    LegendComponent,
+    TitleComponent,
+    TooltipComponent,
 } from 'echarts/components'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
@@ -278,7 +278,7 @@ const onChartClick = (params: unknown) => {
   color: var(--color-accent-warning);
 }
 .overallSkill .card-title {
-  color: var(--color-neon-pink);
+  color: var(--neon-pink);
 }
 
 .card-title {
