@@ -9,7 +9,6 @@ interface EngineConfig {
   type: EngineType
   // Для локального движка
   depth?: number
-  contempt?: number
   // Для серверного движка
   model?: string
   fallback?: boolean // Используем ли локальный движок как фолбэк
@@ -19,7 +18,7 @@ const FALLBACK_TIMEOUT_MS = 1500
 
 // --- НОВАЯ КОНФИГУРАЦИЯ ДВИЖКОВ ---
 export const engineConfigs: Record<EngineId, EngineConfig> = {
-  SF_2200: { type: 'local', depth: 10, contempt: 100 },
+  'SF_2200': { type: 'local', depth: 10 },
   'maia-1900': { type: 'server', model: 'maia-1900', fallback: true },
   'maia-2200': { type: 'server', model: 'maia-2200', fallback: true },
   'badgyal-8': { type: 'server', model: 'badgyal-8', fallback: true },
@@ -41,13 +40,11 @@ class GameplayServiceController {
     }
 
     // --- ЛОГИКА ДЛЯ ЛОКАЛЬНЫХ ДВИЖКОВ ---
-    if (config.type === 'local' && config.depth !== undefined && config.contempt !== undefined) {
+    if (config.type === 'local' && config.depth !== undefined) {
       logger.info(
-        `[GameplayService] Using local engine for ${engineId} with depth ${config.depth} and contempt ${config.contempt}`,
+        `[GameplayService] Using local engine for ${engineId} with depth ${config.depth}`
       )
       try {
-        // Устанавливаем "агрессивность" перед каждым ходом
-        await singleThreadEngineManager.setOption('Contempt', config.contempt)
         return await singleThreadEngineManager.getBestMoveOnly(fen, { depth: config.depth })
       } catch (error) {
         logger.error(`[GameplayService] Local engine failed for ${engineId}:`, error)

@@ -1,22 +1,22 @@
 <script setup lang="ts">
-import { useAnalysisStore } from '@/features/analysis'
-import { SmartHintButton } from '@/features/smart-hint'
-import { useEngineSelectionStore } from '@/features/engine'
-import type { EngineId } from '@/shared/types/api.types'
 import { useAuthStore } from '@/entities/user'
+import { useAnalysisStore } from '@/features/analysis'
+import { ENGINE_NAMES, useEngineSelectionStore } from '@/features/engine'
+import { SmartHintButton } from '@/features/smart-hint'
+import type { EngineId } from '@/shared/types/api.types'
 import { useUiStore } from '@/shared/ui/model/ui.store'
 import {
-    AnalyticsOutline as AnalysisIcon,
-    PlayCircleOutline as NewIcon,
-    FlagOutline as ResignIcon,
-    RefreshOutline as RestartIcon,
-    LinkOutline as ShareIcon,
-    HardwareChipOutline as BotIcon,
+  AnalyticsOutline as AnalysisIcon,
+  HardwareChipOutline as BotIcon,
+  PlayCircleOutline as NewIcon,
+  FlagOutline as ResignIcon,
+  RefreshOutline as RestartIcon,
+  LinkOutline as ShareIcon,
 } from '@vicons/ionicons5'
-import { NButton, NIcon, NSpace, NSwitch, NTooltip, NDropdown } from 'naive-ui'
-import { useControlsStore } from '../model/controls.store'
+import { NButton, NDropdown, NIcon, NSpace, NSwitch, NTooltip } from 'naive-ui'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useControlsStore } from '../model/controls.store'
 
 const controlsStore = useControlsStore()
 const analysisStore = useAnalysisStore()
@@ -27,17 +27,11 @@ const { t } = useI18n()
 
 const showEngineDropdown = ref(false)
 
-const engineNames: Record<string, string> = {
-  'badgyal-8': 'BadGyal-8',
-  'elite_2400': 'Elite-2400',
-  'maia-1900': 'Maia-1900',
-  'maia-2200': 'Maia-2200',
-  SF_2200: 'Stockfish (depth:10)',
-}
+
 
 const engineOptions = computed(() => {
   return engineStore.availableEngines.map(e => ({
-    label: engineNames[e] || e,
+    label: ENGINE_NAMES[e as EngineId] || e,
     key: e,
   }))
 })
@@ -129,12 +123,12 @@ const toggleAnalysis = () => {
         <span style="display: inline-flex;">
           <n-tooltip trigger="hover" placement="bottom">
             <template #trigger>
-              <n-button 
-                circle 
-                size="large" 
-                :quaternary="!showEngineDropdown" 
-                :tertiary="showEngineDropdown" 
-                :type="showEngineDropdown ? 'primary' : 'default'" 
+              <n-button
+                circle
+                size="large"
+                :quaternary="!showEngineDropdown"
+                :tertiary="showEngineDropdown"
+                :type="showEngineDropdown ? 'primary' : 'default'"
                 @click="handleBotClick"
               >
                 <template #icon>

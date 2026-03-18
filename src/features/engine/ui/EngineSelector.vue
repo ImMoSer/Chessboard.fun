@@ -5,6 +5,7 @@ import i18n from '@/shared/config/i18n'
 import type { EngineId } from '@/shared/types/api.types'
 import { useUiStore } from '@/shared/ui/model/ui.store'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { ENGINE_NAMES } from '../config/constants'
 import { useEngineSelectionStore } from '../model/engine-selection.store'
 
 const engineStore = useEngineSelectionStore()
@@ -17,13 +18,7 @@ const isAuthenticated = computed(() => authStore.isAuthenticated)
 const availableEngines = computed(() => engineStore.availableEngines)
 const selectedEngine = computed(() => engineStore.selectedEngine)
 
-const engineNames: Record<EngineId, string> = {
-  'badgyal-8': 'BadGyal-8',
-  'elite_2400': 'Elite-2400',
-  'maia-1900': 'Maia-1900',
-  'maia-2200': 'Maia-2200',
-  SF_2200: 'Stockfish (depth:10)',
-}
+
 
 const isOpen = ref(false)
 const dropdownRef = ref<HTMLElement | null>(null)
@@ -77,7 +72,7 @@ onUnmounted(() => {
       :disabled="!isAuthenticated"
       :title="!isAuthenticated ? t('features.auth.requiredForAction') : t('features.engine.select')"
     >
-      {{ engineNames[selectedEngine] }}
+      {{ ENGINE_NAMES[selectedEngine] }}
       <span class="selector-arrow" :class="{ 'is-open': isOpen }">▼</span>
     </button>
     <div v-if="isOpen && isAuthenticated" class="engine-dropdown">
@@ -88,7 +83,7 @@ onUnmounted(() => {
         :class="{ active: engine === selectedEngine }"
         @click.stop="selectEngine(engine)"
       >
-        {{ engineNames[engine] }}
+        {{ ENGINE_NAMES[engine] }}
       </button>
     </div>
   </div>
