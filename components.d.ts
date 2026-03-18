@@ -49,5 +49,6 @@ declare module 'vue' {
     NTooltip: typeof import('naive-ui')['NTooltip']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    VisualRadioGroup: typeof import('./src/shared/ui/VisualRadioGroup.vue')['default']
   }
 }

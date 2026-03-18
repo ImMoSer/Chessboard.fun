@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import BaseSelectionLayout from '@/shared/ui/BaseSelectionLayout.vue'
+import VisualRadioGroup from '@/shared/ui/VisualRadioGroup.vue'
 import { EngineSelector } from '@/features/engine'
 import { useFinishHimStore } from '@/features/finish-him'
-import { NRadioGroup, NRadioButton } from 'naive-ui'
+import { NRadioGroup, NRadioButton, NText } from 'naive-ui'
 import { type FinishHimDifficulty, type FinishHimTheme } from '@/shared/types/api.types'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -33,27 +34,37 @@ onMounted(() => {
   finishHimStore.reset()
 })
 
-function getIcon(cat: string) {
-  if (cat === 'auto') return '✨'
-  const icons: Record<string, string> = {
-    pawn: '♔♟',
-    bishop: '♗♙',
-    knight: '♘♙',
-    queen: '♕♙',
-    rook: '♖',
-    rookPawn: '♖♙',
-    rookPieces: '♖♘♗',
-    knightBishop: '♘♗',
-    queenPieces: '♕♘♗',
-    extraPawn: '♟️',
-  }
-  return icons[cat] || ''
-}
+const themeOptions = computed(() => {
+  return categories.map((cat) => {
+    let icon = ''
+    let svg = ''
+    if (cat === 'auto') icon = '✨'
+    else if (cat === 'expert') svg = '/svg/crown-svgrepo-com.svg'
+    else {
+      switch (cat) {
+        case 'pawn': icon = '♔♟'; break;
+        case 'bishop': icon = '♗♙'; break;
+        case 'knight': icon = '♘♙'; break;
+        case 'queen': icon = '♕♙'; break;
+        case 'rook': icon = '♖'; break;
+        case 'rookPawn': icon = '♖♙'; break;
+        case 'rookPieces': icon = '♖♘♗'; break;
+        case 'knightBishop': icon = '♘♗'; break;
+        case 'queenPieces': icon = '♕♘♗'; break;
+        case 'extraPawn': icon = '♟️'; break;
+      }
+    }
+    
+    const labelKey = cat === 'auto' ? 'chess.tactics.auto' : `chess.themes.${cat}`
 
-function getThemeKey(cat: string) {
-  if (cat === 'auto') return 'chess.tactics.auto'
-  return `chess.themes.${cat}`
-}
+    return {
+      label: t(labelKey),
+      value: cat,
+      icon: icon || undefined,
+      svg: svg || undefined
+    }
+  })
+})
 
 function handleStart() {
   finishHimStore.setParams(
@@ -69,45 +80,40 @@ function handleStart() {
     :title="t('features.finishHim.selection.title')"
     :subtitle="t('features.finishHim.selection.subtitle')"
     accent-type="primary"
-    :category-label="t('features.finishHim.selection.themeLabel')"
     @start="handleStart"
   >
     <template #sections>
       <!-- Difficulty Selection -->
       <div class="section">
-        <label class="section-label">{{ t('features.theoryEndgames.selection.difficultyLabel') }}</label>
-        <n-radio-group v-model:value="selectedDifficulty" size="large" class="toggle-group-override" expand>
+        <n-text class="section-label">{{ t('features.theoryEndgames.selection.difficultyLabel') }}</n-text>
+        <n-radio-group v-model:value="selectedDifficulty" size="large" expand>
           <n-radio-button
             v-for="diff in difficultyLevels"
             :key="diff"
             :value="diff"
+            style="text-align: center;"
           >
             {{ t(`common.difficulties.level_${diff.toLowerCase()}`) }}
           </n-radio-button>
         </n-radio-group>
       </div>
+
       <!-- Engine Selection -->
       <div class="section">
-        <label class="section-label">{{ t('features.engine.select') }}</label>
+        <n-text class="section-label">{{ t('features.engine.select') }}</n-text>
         <div class="engine-selector-wrapper">
           <EngineSelector />
         </div>
       </div>
-    </template>
-
-    <template #categories>
-      <div
-        v-for="cat in categories"
-        :key="cat"
-        class="category-card"
-        :class="{ 'active': selectedCategory === cat }"
-        @click="selectedCategory = cat"
-      >
-        <template v-if="cat === 'expert'">
-          <img src="/svg/crown-svgrepo-com.svg" class="cat-icon-svg" alt="expert" />
-        </template>
-        <span v-else class="cat-icon">{{ getIcon(cat) }}</span>
-        <span class="cat-name">{{ t(getThemeKey(cat)) }}</span>
+      
+      <!-- Theme Selection -->
+      <div class="section">
+        <n-text class="section-label">{{ t('features.finishHim.selection.themeLabel') }}</n-text>
+        <VisualRadioGroup
+          v-model:value="selectedCategory"
+          :options="themeOptions"
+          :minWidth="100"
+        />
       </div>
     </template>
 
@@ -120,12 +126,5 @@ function handleStart() {
 <style scoped>
 .engine-selector-wrapper {
   width: 100%;
-}
-.toggle-group-override {
-  width: 100%;
-}
-:deep(.n-radio-button) {
-  flex: 1;
-  text-align: center;
 }
 </style>

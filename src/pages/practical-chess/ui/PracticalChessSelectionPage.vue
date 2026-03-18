@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import BaseSelectionLayout from '@/shared/ui/BaseSelectionLayout.vue'
+import VisualRadioGroup from '@/shared/ui/VisualRadioGroup.vue'
 import { EngineSelector } from '@/features/engine'
 import { usePracticalChessStore } from '@/features/practical-chess'
-import { NRadioGroup, NRadioButton } from 'naive-ui'
+import { NRadioGroup, NRadioButton, NText } from 'naive-ui'
 import {
   PRACTICAL_CHESS_CATEGORIES,
   type PracticalChessCategory,
@@ -10,7 +11,7 @@ import {
 } from '@/shared/types/api.types'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -20,14 +21,21 @@ const difficultyLevels = ['Novice', 'Pro', 'Master'] as const
 const selectedDifficulty = ref<string>(practicalStore.activeDifficulty)
 const selectedCategory = ref<string>(practicalStore.activeCategory)
 
-function getIcon(cat: string) {
-  const icons: Record<string, string> = {
-    extraPawn: '♟️',
-    materialEquality: '⚖️',
-    exchange: '🔄',
-  }
-  return icons[cat] || ''
-}
+const themeOptions = computed(() => {
+  return PRACTICAL_CHESS_CATEGORIES.map((cat) => {
+    let icon = ''
+    switch(cat) {
+      case 'extraPawn': icon = '♟️'; break;
+      case 'materialEquality': icon = '⚖️'; break;
+      case 'exchange': icon = '🔄'; break;
+    }
+    return {
+      label: t(`chess.themes.${cat}`),
+      value: cat,
+      icon,
+    }
+  })
+})
 
 function handleStart() {
   practicalStore.selectDifficulty(selectedDifficulty.value as PracticalChessDifficulty)
@@ -41,42 +49,39 @@ function handleStart() {
     :title="t('features.practicalChess.selection.title')"
     :subtitle="t('features.practicalChess.selection.subtitle')"
     accent-type="primary"
-    :category-label="t('features.practicalChess.selection.categoryLabel')"
     @start="handleStart"
   >
     <template #sections>
       <!-- Difficulty Selection -->
       <div class="section">
-        <label class="section-label">{{ t('features.theoryEndgames.selection.difficultyLabel') }}</label>
-        <n-radio-group v-model:value="selectedDifficulty" size="large" class="toggle-group-override" expand>
+        <n-text class="section-label">{{ t('features.theoryEndgames.selection.difficultyLabel') }}</n-text>
+        <n-radio-group v-model:value="selectedDifficulty" size="large" expand>
           <n-radio-button
             v-for="diff in difficultyLevels"
             :key="diff"
             :value="diff"
+            style="text-align: center;"
           >
             {{ t(`common.difficulties.level_${diff.toLowerCase()}`) }}
           </n-radio-button>
         </n-radio-group>
       </div>
+
       <!-- Engine Selection -->
       <div class="section">
-        <label class="section-label">{{ t('features.engine.select') }}</label>
+        <n-text class="section-label">{{ t('features.engine.select') }}</n-text>
         <div class="engine-selector-wrapper">
           <EngineSelector />
         </div>
       </div>
-    </template>
 
-    <template #categories>
-      <div
-        v-for="cat in PRACTICAL_CHESS_CATEGORIES"
-        :key="cat"
-        class="category-card"
-        :class="{ active: selectedCategory === cat }"
-        @click="selectedCategory = cat"
-      >
-        <span class="cat-icon">{{ getIcon(cat) }}</span>
-        <span class="cat-name">{{ t(`chess.themes.${cat}`) }}</span>
+      <!-- Categories / Themes Selection -->
+      <div class="section">
+        <n-text class="section-label">{{ t('features.practicalChess.selection.categoryLabel') }}</n-text>
+        <VisualRadioGroup
+          v-model:value="selectedCategory"
+          :options="themeOptions"
+        />
       </div>
     </template>
 
@@ -89,12 +94,5 @@ function handleStart() {
 <style scoped>
 .engine-selector-wrapper {
   width: 100%;
-}
-.toggle-group-override {
-  width: 100%;
-}
-:deep(.n-radio-button) {
-  flex: 1;
-  text-align: center;
 }
 </style>

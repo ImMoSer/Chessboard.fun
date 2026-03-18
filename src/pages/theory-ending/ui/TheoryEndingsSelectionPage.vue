@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import BaseSelectionLayout from '@/shared/ui/BaseSelectionLayout.vue'
+import VisualRadioGroup from '@/shared/ui/VisualRadioGroup.vue'
 import { EngineSelector } from '@/features/engine'
 import { useTheoryEndingsStore } from '@/features/theory-endings'
-import { NRadioGroup, NRadioButton } from 'naive-ui'
+import { NRadioGroup, NRadioButton, NText } from 'naive-ui'
 import {
   THEORY_ENDING_CATEGORIES,
   type TheoryEndingCategory,
@@ -11,7 +12,7 @@ import {
 } from '@/shared/types/api.types'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -26,16 +27,27 @@ onMounted(() => {
   theoryStore.reset()
 })
 
-function getIcon(cat: string) {
-  const icons: Record<string, string> = {
-    pawn: '♔♟',
-    bishop: '♗♙',
-    knight: '♘♙',
-    queen: '♕♙',
-    rook: '♖',
-  }
-  return icons[cat] || ''
-}
+const themeOptions = computed(() => {
+  return THEORY_ENDING_CATEGORIES.map((cat) => {
+    const icons: Record<string, string> = {
+      pawn: '♔♟',
+      bishop: '♗♙',
+      knight: '♘♙',
+      queen: '♕♙',
+      rook: '♖',
+      rookPawn: '♖♙',
+      rookPieces: '♖♘♗',
+      knightBishop: '♘♗',
+      extraPawn: '♟️',
+    }
+    
+    return {
+      label: t(`chess.themes.${cat}`),
+      value: cat,
+      icon: icons[cat] || '',
+    }
+  })
+})
 
 function handleStart() {
   theoryStore.setParams(
@@ -55,18 +67,18 @@ function handleStart() {
     :title="t('features.theoryEndgames.selection.title')"
     :subtitle="t('features.theoryEndgames.selection.subtitle')"
     accent-type="primary"
-    :category-label="t('features.theoryEndgames.selection.categoryLabel')"
     @start="handleStart"
   >
     <template #sections>
       <!-- Type Selection -->
       <div class="section">
-        <label class="section-label">{{ t('features.theoryEndgames.selection.typeLabel') }}</label>
-        <n-radio-group v-model:value="selectedType" size="large" class="toggle-group-override" expand>
+        <n-text class="section-label">{{ t('features.theoryEndgames.selection.typeLabel') }}</n-text>
+        <n-radio-group v-model:value="selectedType" size="large" expand>
           <n-radio-button
             v-for="type in (['win', 'draw'] as const)"
             :key="type"
             :value="type"
+            style="text-align: center;"
           >
             {{ t(`chess.types.${type}`) }}
           </n-radio-button>
@@ -75,39 +87,37 @@ function handleStart() {
 
       <!-- Difficulty Selection -->
       <div class="section">
-        <label class="section-label">{{ t('features.theoryEndgames.selection.difficultyLabel') }}</label>
-        <n-radio-group v-model:value="selectedDifficulty" size="large" class="toggle-group-override" expand>
+        <n-text class="section-label">{{ t('features.theoryEndgames.selection.difficultyLabel') }}</n-text>
+        <n-radio-group v-model:value="selectedDifficulty" size="large" expand>
           <n-radio-button
             v-for="diff in difficultyLevels"
             :key="diff"
             :value="diff"
+            style="text-align: center;"
           >
             {{ t(`common.difficulties.level_${diff.toLowerCase()}`) }}
           </n-radio-button>
         </n-radio-group>
       </div>
+
       <!-- Engine Selection -->
       <div class="section">
-        <label class="section-label">{{ t('features.engine.select') }}</label>
+        <n-text class="section-label">{{ t('features.engine.select') }}</n-text>
         <div class="engine-selector-wrapper">
           <EngineSelector />
         </div>
       </div>
-    </template>
 
-    <template #categories>
-      <div
-        v-for="cat in THEORY_ENDING_CATEGORIES"
-        :key="cat"
-        class="category-card"
-        :class="{ active: selectedCategory === cat }"
-        @click="selectedCategory = cat"
-      >
-        <span class="cat-icon">{{ getIcon(cat) }}</span>
-        <span class="cat-name">{{ t(`chess.themes.${cat}`) }}</span>
+      <!-- Categories / Themes Selection -->
+      <div class="section">
+        <n-text class="section-label">{{ t('features.theoryEndgames.selection.categoryLabel') }}</n-text>
+        <VisualRadioGroup
+          v-model:value="selectedCategory"
+          :options="themeOptions"
+        />
       </div>
     </template>
-
+    
     <template #start-button-label>
       {{ t('features.theoryEndgames.selection.start') }}
     </template>
@@ -117,12 +127,5 @@ function handleStart() {
 <style scoped>
 .engine-selector-wrapper {
   width: 100%;
-}
-.toggle-group-override {
-  width: 100%;
-}
-:deep(.n-radio-button) {
-  flex: 1;
-  text-align: center;
 }
 </style>

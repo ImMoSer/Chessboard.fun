@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import BaseSelectionLayout from '@/shared/ui/BaseSelectionLayout.vue'
+import VisualRadioGroup from '@/shared/ui/VisualRadioGroup.vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { ref } from 'vue'
@@ -8,17 +9,13 @@ const { t } = useI18n()
 const router = useRouter()
 
 const selectedCategory = ref('blitz')
-const categories = ['bullet', 'blitz', 'rapid', 'classic']
 
-function getIcon(cat: string) {
-  const icons: Record<string, string> = {
-    bullet: '⚡',
-    blitz: '🔥',
-    rapid: '🚶',
-    classic: '⏳',
-  }
-  return icons[cat] || ''
-}
+const modes = [
+  { label: t('features.tornado.modes.bullet'), value: 'bullet', icon: '⚡' },
+  { label: t('features.tornado.modes.blitz'), value: 'blitz', icon: '🔥' },
+  { label: t('features.tornado.modes.rapid'), value: 'rapid', icon: '🚶' },
+  { label: t('features.tornado.modes.classic'), value: 'classic', icon: '⏳' }
+]
 
 function handleStart() {
   router.push({ name: 'tornado', params: { mode: selectedCategory.value } })
@@ -33,16 +30,13 @@ function handleStart() {
     is-tornado
     @start="handleStart"
   >
-    <template #categories>
-      <div
-        v-for="cat in categories"
-        :key="cat"
-        class="category-card tornado-card"
-        :class="{ 'active': selectedCategory === cat }"
-        @click="selectedCategory = cat"
-      >
-        <span class="cat-icon">{{ getIcon(cat) }}</span>
-        <span class="cat-name">{{ t(`features.tornado.modes.${cat}`) }}</span>
+    <template #sections>
+      <div class="section">
+        <VisualRadioGroup
+          v-model:value="selectedCategory"
+          :options="modes"
+          :columns="2"
+        />
       </div>
     </template>
   </BaseSelectionLayout>
