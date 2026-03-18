@@ -313,21 +313,16 @@ export const useFinishHimStore = defineStore('finishHim', () => {
       if (!puzzle) return { title: '', badges: [], stats: [] }
 
       return {
-        title: t(`chess.themes.${puzzle.category}`),
-        mainValue: puzzle.engm_rating || puzzle.tactical_rating || '?',
-        mainIcon: 'trending-up',
-        mainColor: '#18a058',
+        title: t(`chess.themes.${puzzle.category}`).toUpperCase(),
+        secondaryText: puzzle.sub_category ? t(`chess.subThemes.${puzzle.sub_category}`) : undefined,
         badges: [
-          {
-            text: t(`common.difficulties.level_${puzzle.difficulty.toLowerCase()}`),
-            type: puzzle.difficulty === 'Novice' ? 'success' : puzzle.difficulty === 'Pro' ? 'warning' : 'error',
-          },
+          { text: 'FINISH-HIM' },
+          { text: t(`common.difficulties.level_${puzzle.difficulty.toLowerCase()}`) },
         ],
         stats: [
-          { icon: 'pieces', value: puzzle.pieces_count, label: t('features.puzzleInfo.pieces') },
-          { icon: 'advantage', value: `+${puzzle.material_advantage}`, label: t('chess.types.advantage') },
+          { value: puzzle.tactical_rating || '?', label: t('features.puzzleInfo.tacticalRating') },
+          { value: puzzle.engm_rating || '?', label: 'ENgm' },
         ],
-        secondaryText: puzzle.sub_category ? t(`chess.subThemes.${puzzle.sub_category}`) : undefined,
       }
     }),
     feedbackMessage,

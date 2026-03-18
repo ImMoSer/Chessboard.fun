@@ -302,18 +302,15 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
       const resultKey = puzzle.result === 'win' ? 'win' : 'draw'
 
       return {
-        title: t(`chess.themes.${activeCategory.value}`),
-        mainValue: t(`chess.types.${resultKey}`),
-        mainIcon: 'flash',
-        mainColor: puzzle.result === 'win' ? '#f0a020' : '#2080f0',
+        title: t(`chess.themes.${activeCategory.value}`).toUpperCase(),
+        mainValue: t(`chess.types.${resultKey}`).toUpperCase(),
         badges: [
-          {
-            text: t(`common.difficulties.level_${puzzle.difficulty.toLowerCase()}`),
-            type: puzzle.difficulty === 'Novice' ? 'success' : puzzle.difficulty === 'Pro' ? 'warning' : 'error',
-          },
+          { text: 'THEORY' },
+          { text: t(`common.difficulties.level_${puzzle.difficulty.toLowerCase()}`).toUpperCase() },
         ],
-        stats: [{ icon: 'pieces', value: puzzle.pieces_count, label: t('features.puzzleInfo.pieces') }],
-        secondaryText: t(`chess.types.${puzzle.weak_side}Endgame`),
+        stats: [
+          { value: puzzle.rating || '?', label: 'Rating' },
+        ],
       }
     }),
     activeType,

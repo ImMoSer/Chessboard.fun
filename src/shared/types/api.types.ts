@@ -186,6 +186,7 @@ export interface PracticalPuzzle {
   pieces_count: number
   eval: number
   category: string
+  rating?: number
 }
 
 export interface TheoryPuzzle {
@@ -198,6 +199,7 @@ export interface TheoryPuzzle {
   only_move: boolean
   difficulty: string
   result: string
+  rating?: number
 }
 
 export interface GamePuzzle {

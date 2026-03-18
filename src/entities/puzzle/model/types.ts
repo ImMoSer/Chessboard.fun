@@ -1,7 +1,7 @@
 // src/entities/puzzle/model/types.ts
 
 export interface TopInfoStat {
-    icon: string
+    icon?: string
     value: string | number
     label?: string
     color?: string
@@ -9,7 +9,7 @@ export interface TopInfoStat {
 
 export interface TopInfoBadge {
     text: string
-    type: 'default' | 'primary' | 'info' | 'success' | 'warning' | 'error'
+    type?: 'default' | 'primary' | 'info' | 'success' | 'warning' | 'error'
     color?: string
     count?: number
 }
@@ -22,8 +22,11 @@ export interface TopInfoDisplay {
     badges: TopInfoBadge[]
     stats: TopInfoStat[]
     secondaryText?: string
-    // Специальные поля для кастомной верстки, если она неизбежна (например, таймер)
-    customType?: 'tornado' | 'diamond-hunter' | 'puzzle' | 'practical-chess'
+    // FSD: Flags for purely visual effects driven by state
+    isValueHidden?: boolean
+    isPulsating?: boolean
+    // Optional legacy field for specific CSS hooks if absolutely necessary
+    customType?: string 
     extra?: {
         category?: string
         isWaiting?: boolean

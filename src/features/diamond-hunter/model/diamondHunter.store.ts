@@ -505,8 +505,8 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
     state,
     topInfoDisplay: computed<TopInfoDisplay>(() => {
       const stats: TopInfoStat[] = [
-        { icon: 'diamond', value: totalDiamonds.value, color: '#9C27B0' },
-        { icon: 'flash', value: totalBrilliants.value, color: '#00C853' },
+        { icon: 'diamond', value: totalDiamonds.value, color: '#9C27B0', label: 'Diamonds' },
+        { icon: 'flash', value: totalBrilliants.value, color: '#00C853', label: 'Brilliants' },
       ]
 
       let title = t('features.diamondHunter.status.idle')
@@ -519,6 +519,7 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
         title,
         badges: [],
         stats,
+        isPulsating: gameStore.gamePhase === 'PLAYING' || gameStore.gamePhase === 'LOADING',
         customType: 'diamond-hunter',
       }
     }),

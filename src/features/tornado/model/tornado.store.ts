@@ -451,16 +451,20 @@ export const useTornadoStore = defineStore('tornado', () => {
     isSessionActive,
     feedbackMessage,
     topInfoDisplay: computed<TopInfoDisplay>(() => ({
-      title: sessionTheme.value ? t(`chess.tactics.${sessionTheme.value}`) : t('chess.tactics.auto'),
-      mainValue: formattedTimer.value,
-      mainColor: 'var(--color-accent-warning)',
-      badges: [{ text: t('chess.tactics.auto'), type: 'primary' }],
+      title: formattedTimer.value,
+      mainValue: Math.round(sessionRating.value),
+      badges: [
+        { text: 'TORNADO' },
+        { text: (mode.value || '').toUpperCase() }
+      ],
       stats: [
         {
-          icon: 'trending-up',
-          value: sessionRating.value,
-          color: 'var(--color-neon-orange)',
-          label: t('features.puzzleInfo.tacticalRating'),
+          value: sessionTheme.value ? t(`chess.tactics.${sessionTheme.value}`) : t('chess.tactics.auto'),
+          label: 'Theme',
+        },
+        {
+          value: activePuzzle.value?.tactical_rating || '?',
+          label: 'Puzzle Rating',
         },
       ],
       customType: 'tornado',

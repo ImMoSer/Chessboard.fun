@@ -438,9 +438,10 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     }
 
     return {
-      title: '',
+      title: openingName.value || t('features.diamondHunter.settings.startPosition'),
       badges,
       stats,
+      secondaryText: currentEco.value ? `ECO: ${currentEco.value}` : undefined,
     }
   })
 

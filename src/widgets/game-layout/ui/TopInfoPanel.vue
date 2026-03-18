@@ -1,50 +1,8 @@
-<!-- src/widgets/game-layout/TopInfoPanel.vue -->
 <script setup lang="ts">
-import { useGameStore } from '@/entities/game'
-import {
-    BarChartOutline,
-    DiamondOutline,
-    FitnessOutline,
-    FlashOutline,
-    PeopleOutline,
-    TrendingUpOutline
-} from '@vicons/ionicons5'
-import { NIcon, NTag } from 'naive-ui'
-import { computed, markRaw, type Component } from 'vue'
+import { NTooltip } from 'naive-ui'
 import { useTopInfo } from '../model/useTopInfo'
 
 const { displayInfo } = useTopInfo()
-const gameStore = useGameStore()
-
-/**
- * Maps icon names from stores to actual v-icon components
- */
-const iconMap: Record<string, Component> = {
-  'trending-up': markRaw(TrendingUpOutline),
-  'bar-chart': markRaw(BarChartOutline),
-  'flash': markRaw(FlashOutline),
-  'diamond': markRaw(DiamondOutline),
-  'pieces': markRaw(PeopleOutline),
-  'advantage': markRaw(TrendingUpOutline),
-  'material': markRaw(FitnessOutline),
-}
-
-const getIcon = (name: string) => iconMap[name] || markRaw(FlashOutline)
-
-const isValueHidden = computed(() => {
-  // Hide eval in Practical Chess "materialEquality" during color selection
-  if (displayInfo.value.customType === 'practical-chess' && 
-      displayInfo.value.extra?.category === 'materialEquality' && 
-      displayInfo.value.extra?.isWaiting) {
-    return true
-  }
-
-  // Logic for hiding eval in Practical Chess "You move" phase
-  return displayInfo.value.customType === 'puzzle' &&
-         gameStore.gamePhase !== 'GAMEOVER' &&
-         displayInfo.value.mainIcon === 'bar-chart' &&
-         displayInfo.value.title.toLowerCase().includes('equality')
-})
 </script>
 
 <template>
@@ -53,74 +11,54 @@ const isValueHidden = computed(() => {
     :class="[`mode-${displayInfo.customType || 'default'}`]"
   >
     <div class="generic-info-layout">
-      <!-- Left: Badges & Secondary Info -->
+      <!-- Left: Badges (Glued) -->
       <div class="info-left">
-        <div
-          v-for="(badge, index) in displayInfo.badges"
-          :key="index"
-          class="badge-wrapper"
-        >
-          <n-tag
-            :type="badge.type"
-            size="small"
-            round
-            :bordered="false"
-            class="difficulty-tag"
-            :class="{ 'nag-tag': badge.count !== undefined }"
-            :style="badge.color ? { backgroundColor: badge.color, color: '#000' } : {}"
+        <template v-for="(badge, index) in displayInfo.badges" :key="'b' + index">
+          <span 
+            class="glued-item badge-text" 
+            :style="badge.color ? { color: badge.color } : {}"
           >
-            {{ badge.text }}
-          </n-tag>
-          <span v-if="badge.count !== undefined" class="badge-count">x{{ badge.count }}</span>
-        </div>
-        <span v-if="displayInfo.secondaryText" class="secondary-text">
+            {{ badge.text.toUpperCase() }}
+          </span>
+          <span v-if="index < displayInfo.badges.length - 1" class="glue">/</span>
+        </template>
+      </div>
+
+      <!-- Center: Title, MainValue, Secondary (Glued) -->
+      <div class="info-center">
+        <span v-if="displayInfo.title" class="glued-item info-title">
+          {{ displayInfo.title }}
+        </span>
+        
+        <span v-if="displayInfo.title && (displayInfo.mainValue !== undefined || displayInfo.secondaryText)" class="glue">/</span>
+        
+        <span v-if="displayInfo.mainValue !== undefined" class="glued-item main-value" :style="{ color: displayInfo.mainColor }">
+          {{ displayInfo.isValueHidden ? '??' : displayInfo.mainValue }}
+        </span>
+
+        <span v-if="displayInfo.mainValue !== undefined && displayInfo.secondaryText" class="glue">/</span>
+
+        <span v-if="displayInfo.secondaryText" class="glued-item secondary-text">
           {{ displayInfo.secondaryText }}
         </span>
       </div>
 
-      <!-- Center: Title & Main Value -->
-      <div class="info-center">
-        <div class="info-title">{{ displayInfo.title }}</div>
-        <div v-if="displayInfo.mainValue" class="main-display-group">
-          <n-icon v-if="displayInfo.mainIcon" :color="displayInfo.mainColor" size="24">
-            <component :is="getIcon(displayInfo.mainIcon)" />
-          </n-icon>
-          <span
-            class="main-value"
-            :style="{ color: displayInfo.mainColor }"
-            :class="{ 'pulsate-main': displayInfo.customType === 'diamond-hunter' && (gameStore.gamePhase === 'PLAYING' || gameStore.gamePhase === 'LOADING') }"
-          >
-            {{ isValueHidden ? '??' : displayInfo.mainValue }}
-          </span>
-        </div>
-      </div>
-
-      <!-- Right: Stats List -->
+      <!-- Right: Stats (Glued) -->
       <div class="info-right">
-        <div
-          v-for="(stat, index) in displayInfo.stats"
-          :key="index"
-          class="stat-item"
-        >
-          <n-tooltip trigger="hover">
+        <template v-for="(stat, index) in displayInfo.stats" :key="'s' + index">
+          <n-tooltip trigger="hover" v-if="stat.value !== undefined">
             <template #trigger>
-              <div class="stat-trigger">
-                <n-icon :color="stat.color || '#888'" size="20">
-                  <component :is="getIcon(stat.icon)" />
-                </n-icon>
-                <span class="stat-value" :style="{ color: stat.color }">
-                  {{ stat.value }}
-                </span>
-              </div>
+              <span class="glued-item stat-value" :style="{ color: stat.color }">
+                {{ stat.value }}
+              </span>
             </template>
             {{ stat.label || '' }}
           </n-tooltip>
-        </div>
+          <span v-if="index < displayInfo.stats.length - 1 && displayInfo.stats[index+1]?.value" class="glue">/</span>
+        </template>
       </div>
     </div>
   </div>
-
-
 </template>
 
 <style scoped>
@@ -130,7 +68,7 @@ const isValueHidden = computed(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 10px;
+  padding: 0 16px;
   box-sizing: border-box;
 }
 
@@ -139,172 +77,91 @@ const isValueHidden = computed(() => {
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  max-width: 1000px;
-  gap: 8px;
+  gap: 32px; /* ->->->-> Spacing */
 }
 
-/* --- Left Section --- */
+/* --- Columns --- */
 .info-left {
   flex: 1;
   display: flex;
+  justify-content: flex-start;
   align-items: center;
-  gap: 8px;
-  min-width: 100px;
-}
-
-.badge-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.difficulty-tag {
-  font-weight: 600;
-  text-transform: uppercase;
-  font-size: 10px;
-}
-
-.nag-tag {
-  font-size: 14px;
-  font-weight: 900;
-  height: 22px;
-  min-width: 24px;
-  justify-content: center;
-}
-
-.badge-count {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--color-text-muted);
-  font-family: monospace;
-}
-
-.secondary-text {
-  font-size: var(--font-size-small);
-  color: var(--color-text-secondary);
-  font-weight: 500;
   white-space: nowrap;
 }
 
-/* --- Center Section --- */
 .info-center {
   flex: 2;
   display: flex;
-  flex-direction: row;
-  align-items: center;
   justify-content: center;
-  gap: 12px;
-  text-align: center;
-}
-
-.info-title {
-  font-size: var(--font-size-base);
-  color: var(--color-text-link);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  opacity: 0.8;
-  white-space: nowrap;
-}
-
-.main-display-group {
-  display: flex;
   align-items: center;
-  gap: 6px;
-}
-
-.main-value {
-  font-size: var(--font-size-xlarge);
-  font-weight: bold;
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
   white-space: nowrap;
 }
 
-/* --- Right Section --- */
 .info-right {
   flex: 1;
   display: flex;
-  align-items: center;
   justify-content: flex-end;
-  gap: 12px;
-  min-width: 100px;
+  align-items: center;
+  white-space: nowrap;
 }
 
-.stat-trigger {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  cursor: help;
+/* --- Glued Elements --- */
+.glue {
+  color: var(--color-text-muted);
+  font-weight: 300;
+  margin: 0 6px;
+  opacity: 0.6;
+  font-size: 1.2rem;
+}
+
+.glued-item {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  font-size: 1.2rem;
+  text-transform: uppercase;
+}
+
+.badge-text {
+  color: var(--color-text-secondary);
+}
+
+.info-title {
+  color: var(--color-primary);
+}
+
+.main-value {
+  /* No special font size anymore, keeping it uniform */
+}
+
+.secondary-text {
+  color: var(--color-text-secondary);
+  /* The user wants FinishHim's secondaryText (Complex Endgame) to stay as is. 
+     We can disable uppercase here or control it via stores. 
+     Let's disable global uppercase for secondary-text to let the store decide. */
+  text-transform: none; 
 }
 
 .stat-value {
-  font-size: var(--font-size-large);
-  font-weight: 800;
-  font-family: monospace;
-}
-
-/* --- Special Effects --- */
-.mode-tornado .main-value {
-  font-size: 2rem;
-}
-
-.pulsate-main {
-  animation: pulsate 1.5s infinite;
-}
-
-@keyframes pulsate {
-  0% { opacity: 1; }
-  50% { opacity: 0.5; }
-  100% { opacity: 1; }
+  color: var(--color-accent-info);
 }
 
 /* --- Mobile Adaptation --- */
 @media (max-width: 768px) {
-  .top-info-panel-container {
-    padding: 0 8px;
+  .generic-info-layout {
+    gap: 12px;
   }
-
-  .info-left,
-  .info-right {
-    min-width: auto;
-    gap: 4px;
-  }
-
-  .secondary-text,
-  .info-title {
-    display: none;
-  }
-
-  .info-right {
-    gap: 6px;
+  
+  .badge-text, .info-title, .secondary-text, .stat-value {
+    font-size: 0.9rem;
   }
 
   .main-value {
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
 
-  .badge-wrapper {
-    gap: 2px;
-  }
-
-  .nag-tag {
-    font-size: 11px;
-    height: 18px;
-    min-width: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .badge-count {
-    font-size: 10px;
-  }
-
-  .difficulty-tag:not(.nag-tag) {
-    font-size: 0;
-    min-width: 8px;
-    height: 8px;
-    padding: 0;
+  .glue {
+    margin: 0 2px;
   }
 }
 </style>

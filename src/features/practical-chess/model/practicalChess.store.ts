@@ -248,27 +248,14 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
       const puzzle = activePuzzle.value
       if (!puzzle) return { title: '', badges: [], stats: [] }
 
-      const evalValue = puzzle.eval ? (puzzle.eval / 100).toFixed(1) : '?'
-
       return {
-        title: t(`chess.themes.${activeCategory.value}`),
-        mainValue: evalValue,
-        mainIcon: 'bar-chart',
-        mainColor: '#2080f0',
-        customType: 'practical-chess',
-        extra: {
-          category: activeCategory.value,
-          isWaiting: isWaitingForColorSelection.value,
-        },
+        title: t(`chess.themes.${activeCategory.value}`).toUpperCase(),
         badges: [
-          {
-            text: t(`common.difficulties.level_${puzzle.difficulty.toLowerCase()}`),
-            type: puzzle.difficulty === 'Novice' ? 'success' : puzzle.difficulty === 'Pro' ? 'warning' : 'error',
-          },
+          { text: 'PRACTICAL' },
+          { text: t(`common.difficulties.level_${puzzle.difficulty.toLowerCase()}`).toUpperCase() },
         ],
         stats: [
-          { icon: 'pieces', value: puzzle.pieces_count, label: t('features.puzzleInfo.pieces') },
-          { icon: 'material', value: puzzle.material_count, label: 'Mat.' },
+          { value: puzzle.rating || '?', label: 'Rating' },
         ],
       }
     }),
