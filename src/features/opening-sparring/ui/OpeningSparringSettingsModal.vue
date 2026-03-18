@@ -76,7 +76,7 @@ function startSession() {
     @close="$emit('close')"
   >
     <template #header-extra>
-      <n-icon size="24" color="var(--color-accent-warning)">
+      <n-icon size="24" color="var(--color-primary)">
         <BookOutline />
       </n-icon>
     </template>
@@ -209,7 +209,7 @@ function startSession() {
         block
         secondary
         strong
-        class="start-btn exam-btn"
+        class="start-btn"
         @click="startSession"
       >
         <template #icon>

@@ -3,76 +3,97 @@
 @import './fonts.css';
 
 :root {
-  /* --- Layout --- */
-  --header-height: 60px;
-  --panel-border-radius: 12px;
+  /* === BRAND CORE (RAW COLORS - DO NOT USE DIRECTLY IN UI) === */
+  --neon-cyan: #00e5ff;
+  --neon-purple: #b000ff;
+  --neon-pink: #ff007a;
+  --neon-lime: #00ff55;
+  --neon-yellow: #ffe600;
+  --neon-orange: #ff5500;
+  --neon-red: #ff073a;
+  --color-neon-bordeaux: #d9004c;
 
-  /* --- Cyber Neon Palette (Synced with Logo) --- */
-  --color-neon-cyan: #00e5ff;
-  --color-neon-purple: #b000ff;
-  --color-neon-pink: #ff007a;
-  --color-neon-lime: #00ff55;
-  --color-neon-yellow: #ffe600;
-  --color-neon-orange: #ff5500; /* Sharp neon orange */
-  --color-neon-red: #ff073a;
-  --color-neon-gold: #ffd700;
-  --color-neon-bordeaux: #d9004c; /* Deep neon bordeaux */
-  --color-neon-white: rgba(255, 255, 255, 0.9);
+  /* neutral */
+  --white: #ffffff;
+  --black: #000000;
+
+  /* === SEMANTIC COLORS === */
+  /* primary brand */
+  --color-primary: var(--neon-cyan);
+  --color-primary-hover: #00cfe6;
+  --color-primary-glow: rgba(0, 229, 255, 0.35);
+
+  /* secondary */
+  --color-secondary: var(--neon-purple);
+  --color-secondary-glow: rgba(176, 0, 255, 0.35);
+
+  /* accent */
+  --color-accent: var(--neon-pink);
+
+  /* states */
+  --color-success: var(--neon-lime);
+  --color-warning: var(--neon-orange);
+  --color-error: var(--neon-red);
 
   /* --- NAGs Cyber Neon Mapping --- */
-  --color-nag-brilliant: var(--color-neon-purple);
-  --color-nag-best: var(--color-neon-lime);
-  --color-nag-interesting: var(--color-neon-cyan);
-  --color-nag-inaccuracy: var(--color-neon-orange);
-  --color-nag-mistake: var(--color-neon-pink);
-  --color-nag-blunder: var(--color-neon-red);
+  --color-nag-brilliant: var(--neon-purple);
+  --color-nag-best: var(--neon-lime);
+  --color-nag-interesting: var(--neon-cyan);
+  --color-nag-inaccuracy: var(--neon-orange);
+  --color-nag-mistake: var(--neon-pink);
+  --color-nag-blunder: var(--neon-red);
 
-  /* --- Deep Space Surfaces --- */
-  --color-bg-deep: #050508;
-  --color-bg-panel: #0a0b14;
-  --color-bg-active: #151726;
+  /* === BACKGROUNDS === */
+  --bg-0: #050508;   /* deep void */
+  --bg-1: #0a0b14;   /* panels */
+  --bg-2: #12141f;   /* elevated */
+  --bg-3: #1a1d2e;   /* hover */
 
-  /* --- Glassmorphism Tokens --- */
-  --glass-bg: rgba(10, 11, 20, 0.45);
-  --glass-bg-hover: rgba(0, 242, 255, 0.08);
-  --glass-border: rgba(0, 242, 255, 0.15);
-  --glass-border-active: rgba(0, 242, 255, 0.4);
-  --glass-blur: blur(12px);
+  /* glass */
+  --glass-bg: rgba(10, 11, 20, 0.55);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-highlight: rgba(0, 229, 255, 0.12);
+  --glass-blur: blur(16px);
 
-  /* --- Legacy Compatibility & Semantic Mapping --- */
+  /* === GLOW SYSTEM === */
+  --glow-primary: 0 0 12px rgba(0, 229, 255, 0.6);
+  --glow-secondary: 0 0 14px rgba(176, 0, 255, 0.6);
+  --glow-soft: 0 0 8px rgba(255, 255, 255, 0.15);
+  --glow-primary-strong: 0 0 20px rgba(0, 229, 255, 0.9);
+
+  /* === TEXT SYSTEM === */
+  --text-primary: rgba(255, 255, 255, 0.92);
+  --text-secondary: rgba(255, 255, 255, 0.6);
+  --text-disabled: rgba(255, 255, 255, 0.3);
+  --text-accent: var(--color-primary);
+
+  /* --- Legacy Compatibility --- */
   --color-bg-primary: transparent;
-  --color-bg-secondary: var(--color-bg-panel);
-  --color-bg-tertiary: var(--color-bg-active);
+  --color-bg-secondary: var(--bg-1);
+  --color-bg-tertiary: var(--bg-2);
 
-  --color-accent-primary: var(--color-neon-cyan);
-  --color-accent-primary-hover: #00d7e6;
-  --color-accent-secondary: var(--color-neon-purple);
-  --color-accent-warning: var(--color-neon-orange);
-  /* Standard for Warn */
-  --color-accent-error: var(--color-neon-red);
+  --color-accent-primary: var(--color-primary);
+  --color-accent-primary-hover: var(--color-primary-hover);
+  --color-accent-secondary: var(--color-secondary);
+  --color-accent-warning: var(--color-warning);
+  --color-accent-error: var(--color-error);
 
-  --color-text-default: rgba(255, 255, 255, 0.9);
-  --color-text-muted: rgba(255, 255, 255, 0.55);
-  --color-text-link: var(--color-neon-cyan);
+  --color-text-default: var(--text-primary);
+  --color-text-muted: var(--text-secondary);
+  --color-text-link: var(--color-primary);
 
   /* --- Typography --- */
   --font-family-primary: 'Ubuntu', sans-serif;
   --font-family-brand: 'Ubuntu', sans-serif;
-  --font-size-base: 1rem;
-  --font-size-large: 1.5rem;
-  --font-size-xlarge: 2rem;
-  --font-size-xxlarge: 2.5rem;
 }
 
-/* --- Brand Typography --- */
+/* === BRAND TYPOGRAPHY === */
 .brand-text {
   font-family: var(--font-family-brand);
   font-weight: 900;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  background: linear-gradient(180deg,
-      rgba(255, 255, 255, 1) 0%,
-      rgba(255, 255, 255, 0.4) 100%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.4) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -80,74 +101,105 @@
   user-select: none;
 }
 
-/* --- Global Resets --- */
-html,
-body {
+/* === GLOBAL RESETS === */
+html, body {
   margin: 0;
   padding: 0;
   font-family: var(--font-family-primary);
   background-color: transparent;
-  color: var(--color-text-default);
+  color: var(--text-primary);
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
 }
 
-/* --- Scrollbar (Neon Style) --- */
+/* === SCROLLBAR === */
 ::-webkit-scrollbar {
   width: 5px;
 }
-
 ::-webkit-scrollbar-track {
   background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
   background: rgba(0, 242, 255, 0.2);
   border-radius: 10px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 242, 255, 0.4);
 }
 
-/* --- Global Glass Modal Style --- */
-.glass-panel-modal {
-  background: rgba(20, 20, 25, 0.85) !important;
-  backdrop-filter: blur(15px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5) !important;
+/* === GLASS 2.0 (MODALS / PANELS) === */
+.glass, .glass-panel-modal {
+  background: var(--glass-bg) !important;
+  backdrop-filter: var(--glass-blur) !important;
+  border-radius: 14px;
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: inset 0 0 20px rgba(255,255,255,0.02), 0 10px 40px rgba(0,0,0,0.6) !important;
+  transition: border-color 0.3s ease;
+}
+.glass:hover, .glass-panel-modal:hover {
+  border-color: var(--glass-highlight) !important;
+}
+
+/* === BUTTON PRIMARY === */
+.btn-primary, .start-btn {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-secondary)) !important;
+  color: var(--white) !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  border-radius: 12px !important;
+  box-shadow: var(--glow-primary) !important;
+  transition: all 0.25s ease !important;
+  height: 52px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.btn-primary:hover, .start-btn:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: var(--glow-primary-strong) !important;
+}
+.btn-primary:active, .start-btn:active {
+  transform: scale(0.98);
+}
+.start-btn.exam-btn {
+  background: var(--color-warning) !important;
+  box-shadow: 0 0 12px rgba(255, 85, 0, 0.6) !important;
+  color: var(--bg-0) !important;
+}
+.start-btn.exam-btn:hover {
+  box-shadow: 0 0 20px rgba(255, 85, 0, 0.9) !important;
 }
 
 /* --- Common Modal Layout Utilities --- */
 .modal-body-layout, .summary-content {
   padding: 8px 0;
 }
-
 .setting-section {
   display: flex;
   flex-direction: column;
   gap: 5px;
 }
-
 .section-title {
   font-size: 0.95rem;
   margin-bottom: 4px;
-  color: var(--color-text-muted);
+  color: var(--text-secondary);
 }
 .section-title .n-icon {
   font-size: 1.2rem;
-  color: var(--color-accent-warning);
+  color: var(--color-warning);
 }
-
 .hint-text, .selection-hint {
   font-size: 0.8rem;
   line-height: 1.4;
   margin-top: 4px;
-  color: var(--color-text-muted);
+  color: var(--text-secondary);
 }
-
 .modal-actions {
   margin-top: 8px;
 }
@@ -160,25 +212,24 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.05);
   text-align: center;
 }
-
 .stat-box .stat-icon {
   margin-right: 4px;
   font-size: 1.1rem;
 }
-.stat-box .stat-icon.acc { color: var(--color-accent-warning); }
-.stat-box .stat-icon.win { color: var(--color-nag-best); }
-.stat-box .stat-icon.rat { color: var(--color-accent-primary); }
+.stat-box .stat-icon.acc { color: var(--color-warning); }
+.stat-box .stat-icon.win { color: var(--color-success); }
+.stat-box .stat-icon.rat { color: var(--color-primary); }
 
 .engine-eval-section {
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--bg-1);
   border-radius: 16px;
   padding: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--glass-border);
   transition: all 0.3s ease;
 }
 .engine-eval-section.loading {
-  background: rgba(0, 242, 255, 0.05);
-  border-color: rgba(0, 242, 255, 0.2);
+  background: rgba(0, 229, 255, 0.05);
+  border-color: rgba(0, 229, 255, 0.2);
 }
 .engine-eval-section .section-header {
   display: flex;
@@ -186,7 +237,6 @@ body {
   align-items: center;
   margin-bottom: 16px;
 }
-
 .engine-selection-block {
   display: flex;
   flex-direction: column;
@@ -204,15 +254,13 @@ body {
   font-size: 1rem;
   padding: 4px 12px;
 }
-
 .eval-loading .depth-text {
   display: block;
   text-align: center;
   margin-top: 12px;
   font-size: 0.8rem;
-  color: var(--color-text-muted);
+  color: var(--text-secondary);
 }
-
 .eval-result {
   display: flex;
   align-items: center;
@@ -220,53 +268,29 @@ body {
   padding: 10px;
   border-radius: 8px;
 }
-.eval-result.success { color: var(--color-nag-best); background: rgba(0, 255, 85, 0.1); }
-.eval-result.info { color: var(--color-accent-primary); background: rgba(0, 229, 255, 0.1); }
-.eval-result.warning { color: var(--color-nag-inaccuracy); background: rgba(255, 184, 0, 0.1); }
-.eval-result.error { color: var(--color-nag-blunder); background: rgba(255, 7, 58, 0.1); }
+.eval-result.success { color: var(--color-success); background: rgba(0, 255, 85, 0.1); }
+.eval-result.info { color: var(--color-primary); background: rgba(0, 229, 255, 0.1); }
+.eval-result.warning { color: var(--color-warning); background: rgba(255, 184, 0, 0.1); }
+.eval-result.error { color: var(--color-error); background: rgba(255, 7, 58, 0.1); }
 .eval-result .result-msg { font-weight: 500; font-size: 0.95rem; }
 
 /* --- Colors & Swatches --- */
 .color-btn-white {
-  --n-button-color-active: #fff !important;
-  --n-button-text-color-active: #222 !important;
+  --n-button-color-active: var(--white) !important;
+  --n-button-text-color-active: var(--bg-0) !important;
 }
-
 .color-btn-black {
-  --n-button-color-active: #222 !important;
-  --n-button-text-color-active: #fff !important;
+  --n-button-color-active: var(--bg-0) !important;
+  --n-button-text-color-active: var(--white) !important;
 }
-
 .swatch {
   width: 14px;
   height: 14px;
   border-radius: 3px;
   border: 1px solid rgba(0, 0, 0, 0.1);
 }
-.swatch.white { background: #fff; }
-.swatch.black { background: #222; }
-
-/* --- Reusable CTA Button --- */
-.start-btn {
-  height: 52px;
-  font-size: 1.1rem;
-  background: var(--color-accent-primary) !important;
-  color: white !important;
-  border: none !important;
-  border-radius: 12px !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-.start-btn.exam-btn {
-  background: var(--color-accent-warning) !important;
-  color: #222 !important;
-}
-.start-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-}
-.start-btn:active {
-  transform: translateY(0);
-}
+.swatch.white { background: var(--white); }
+.swatch.black { background: var(--bg-0); }
 
 /* Overrides for naive-ui elements inside Modals */
 .engine-selector-wrapper {
@@ -279,15 +303,15 @@ body {
 }
 .engine-selector-wrapper .selector-toggle {
   width: 100%;
-  background-color: rgba(255, 255, 255, 0.04);
+  background-color: var(--bg-1);
   padding: 10px 16px;
   border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--glass-border);
   transition: all 0.2s ease;
 }
 .engine-selector-wrapper .selector-toggle:hover {
-  background-color: rgba(255, 255, 255, 0.08);
-  border-color: rgba(0, 242, 255, 0.3);
+  background-color: var(--bg-2);
+  border-color: var(--color-primary);
 }
 
 /* Mobile Adaptations */
@@ -304,7 +328,7 @@ body {
   .hint-text {
     font-size: 0.65rem;
   }
-  .start-btn {
+  .start-btn, .btn-primary {
     height: 40px;
     font-size: 0.85rem;
     border-radius: 8px !important;

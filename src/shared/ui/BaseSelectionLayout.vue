@@ -1,19 +1,17 @@
-<!-- src/shared/ui/BaseSelectionLayout.vue -->
 <script setup lang="ts">
+import { NCard } from 'naive-ui'
 import { computed } from 'vue'
 
 interface Props {
   title: string
   subtitle?: string
-  accentColor?: string
-  secondaryColor?: string
+  accentType?: 'primary' | 'warning' | 'error' | 'success' | 'info'
   categoryLabel?: string
   isTornado?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  accentColor: 'var(--color-accent-primary)',
-  secondaryColor: 'var(--color-accent-secondary)',
+  accentType: 'primary',
   isTornado: false,
 })
 
@@ -21,18 +19,16 @@ defineEmits<{
   (e: 'start'): void
 }>()
 
-const startButtonStyle = computed(() => ({
-  background: `linear-gradient(135deg, ${props.accentColor}, ${props.secondaryColor})`,
-}))
+const accentColorVar = computed(() => `var(--color-${props.accentType})`)
 </script>
 
 <template>
   <div class="selection-container">
-    <div class="glass-panel selection-card">
+    <n-card class="glass selection-card" :bordered="false">
       <h1
         class="title"
         :class="{ 'tornado-title': isTornado }"
-        :style="{ color: accentColor }"
+        :style="{ color: accentColorVar }"
       >
         <slot name="title">{{ title }}</slot>
       </h1>
@@ -52,11 +48,15 @@ const startButtonStyle = computed(() => ({
       </div>
 
       <div class="actions">
-        <button class="start-btn" :style="startButtonStyle" @click="$emit('start')">
+        <button 
+          class="start-btn" 
+          :class="{ 'exam-btn': accentType === 'warning' || accentType === 'error' }"
+          @click="$emit('start')"
+        >
           <slot name="start-button-label">START</slot>
         </button>
       </div>
-    </div>
+    </n-card>
   </div>
 </template>
 
@@ -72,12 +72,8 @@ const startButtonStyle = computed(() => ({
 .selection-card {
   width: 100%;
   max-width: 650px;
-  padding: 10px;
-  text-align: center;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 20px;
+  padding: 10px;
 }
 
 .title {
@@ -86,6 +82,7 @@ const startButtonStyle = computed(() => ({
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 2px;
+  text-align: center;
 }
 
 .title.tornado-title {
@@ -95,57 +92,32 @@ const startButtonStyle = computed(() => ({
 }
 
 .subtitle {
-  color: var(--color-text-secondary);
+  color: var(--text-secondary);
   margin-bottom: 15px;
   font-size: 1.1rem;
+  text-align: center;
 }
 
 .selection-sections {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  margin-bottom: 40px;
+  margin-bottom: 30px;
 }
 
 :deep(.section) {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 10px;
   text-align: left;
 }
 
 :deep(.section-label) {
   font-weight: 600;
-  color: var(--color-text-default);
+  color: var(--text-secondary);
   font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 1px;
-}
-
-:deep(.toggle-group) {
-  display: flex;
-  background: rgba(0, 0, 0, 0.3);
-  padding: 6px;
-  border-radius: 12px;
-  gap: 6px;
-}
-
-:deep(.toggle-btn) {
-  flex: 1;
-  padding: 12px;
-  border: none;
-  background: transparent;
-  color: var(--color-text-secondary);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  font-weight: 600;
-}
-
-:deep(.toggle-btn.active) {
-  background: v-bind('props.accentColor');
-  color: var(--color-text-dark);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .category-grid {
@@ -159,74 +131,47 @@ const startButtonStyle = computed(() => ({
   gap: 20px;
 }
 
-:deep(.category-btn) {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 15px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 15px;
+:deep(.category-card) {
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  width: 100%;
+  text-align: center;
+  border: 1px solid transparent;
+  background: var(--bg-1);
+  border-radius: 14px;
+  padding: 15px 10px;
 }
 
-:deep(.category-btn:hover) {
-  background: rgba(255, 255, 255, 0.08);
+:deep(.category-card:hover) {
   transform: translateY(-4px);
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: var(--glass-highlight);
 }
 
-:deep(.category-btn.active) {
-  background: color-mix(in srgb, v-bind('props.accentColor') 15%, transparent);
-  border-color: v-bind('props.accentColor');
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-}
-
-:deep(.category-btn.tornado-card) {
-  padding: 30px 20px;
-  min-height: 140px;
-  justify-content: center;
+:deep(.category-card.active) {
+  background: var(--bg-2);
+  border-color: v-bind(accentColorVar);
+  box-shadow: 0 0 15px var(--color-primary-glow);
 }
 
 :deep(.cat-icon) {
   font-size: 1.8rem;
-  color: white;
+  color: var(--white);
   text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+  display: block;
+  margin-bottom: 8px;
 }
 
 :deep(.cat-icon-svg) {
   width: 32px;
   height: 32px;
   filter: brightness(0) invert(1) drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));
+  display: block;
+  margin: 0 auto 8px;
 }
 
 :deep(.cat-name) {
-  color: var(--color-text-default);
+  color: var(--text-primary);
   font-weight: 600;
   font-size: 0.85rem;
-}
-
-.start-btn {
-  width: 100%;
-  padding: 18px;
-  border: none;
-  border-radius: 15px;
-  color: var(--color-text-dark);
-  font-size: 1.25rem;
-  font-weight: 800;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-transform: uppercase;
-  letter-spacing: 3px;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-}
-
-.start-btn:hover {
-  transform: scale(1.02) translateY(-2px);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
 }
 
 /* Mobile Adaptation */
@@ -235,85 +180,26 @@ const startButtonStyle = computed(() => ({
     padding: 8px;
     border-radius: 12px;
   }
-
   .title {
     font-size: 1.25rem;
     letter-spacing: 1px;
   }
-
   .title.tornado-title {
     font-size: 2rem;
     letter-spacing: 4px;
     margin-bottom: 15px;
   }
-
   .subtitle {
     font-size: 0.65rem;
     margin-bottom: 14px;
   }
-
   .selection-sections {
     gap: 14px;
     margin-bottom: 20px;
   }
-
-  :deep(.section) {
-    gap: 8px;
-  }
-
-  :deep(.section-label) {
-    font-size: 0.65rem;
-  }
-
   .category-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 8px;
-  }
-
-  .category-grid.tornado-grid {
-    gap: 12px;
-  }
-
-  :deep(.category-btn) {
-    padding: 8px;
-    border-radius: 10px;
-    gap: 4px;
-  }
-
-  :deep(.cat-icon) {
-    font-size: 1.05rem;
-  }
-
-  :deep(.cat-icon-svg) {
-    width: 22px;
-    height: 22px;
-  }
-
-  :deep(.cat-name) {
-    font-size: 0.6rem;
-  }
-
-  .start-btn {
-    padding: 12px;
-    font-size: 0.85rem;
-    letter-spacing: 2px;
-    border-radius: 10px;
-  }
-
-  :deep(.toggle-group) {
-    padding: 4px;
-    border-radius: 8px;
-  }
-
-  :deep(.toggle-btn) {
-    padding: 6px;
-    font-size: 0.75rem;
-    border-radius: 6px;
-  }
-
-  :deep(.category-btn.tornado-card) {
-    padding: 15px 10px;
-    min-height: 90px;
   }
 }
 </style>

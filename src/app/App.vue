@@ -28,41 +28,41 @@ const isDrawerOpen = ref(false)
 const themeOverrides: GlobalThemeOverrides = {
   common: {
     fontFamily: 'Ubuntu, sans-serif',
-    primaryColor: '#00f2ff',
-    primaryColorHover: '#00d7e6',
-    primaryColorPressed: '#00d7e6',
-    primaryColorSuppl: '#00d7e6',
+    primaryColor: 'var(--neon-cyan)',
+    primaryColorHover: 'var(--color-primary-hover)',
+    primaryColorPressed: 'var(--color-primary-hover)',
+    primaryColorSuppl: 'var(--color-primary-hover)',
     borderRadius: '12px',
   },
   Card: {
-    color: 'rgba(15, 17, 26, 0.45)',
-    borderColor: 'rgba(0, 242, 255, 0.15)',
+    color: 'var(--bg-1)',
+    borderColor: 'var(--glass-border)',
   },
   Select: {
     menuBoxShadow: '0 10px 30px rgba(0, 0, 0, 0.5)',
     peers: {
       InternalSelection: {
-        color: 'rgba(0, 0, 0, 0.3)',
-        colorActive: 'rgba(0, 0, 0, 0.4)',
-        border: '1px solid rgba(255, 255, 255, 0.1)',
-        borderHover: '1px solid rgba(0, 242, 255, 0.4)',
-        borderActive: '1px solid rgba(0, 242, 255, 0.4)',
-        borderFocus: '1px solid rgba(0, 242, 255, 0.4)',
-        boxShadowFocus: '0 0 0 2px rgba(0, 242, 255, 0.2)',
+        color: 'var(--bg-1)',
+        colorActive: 'var(--bg-2)',
+        border: '1px solid var(--glass-border)',
+        borderHover: '1px solid var(--color-primary)',
+        borderActive: '1px solid var(--color-primary)',
+        borderFocus: '1px solid var(--color-primary)',
+        boxShadowFocus: 'var(--glow-primary)',
         borderRadius: '12px',
       },
       InternalSelectMenu: {
-        color: 'rgba(20, 20, 25, 0.85)',
+        color: 'var(--bg-1)',
         borderRadius: '12px',
       }
     }
   },
   DataTable: {
     tdColor: 'transparent',
-    tdColorHover: 'rgba(0, 242, 255, 0.05)',
-    tdColorStriped: 'rgba(255, 255, 255, 0.03)',
-    thColor: 'rgba(255, 255, 255, 0.03)',
-    borderColor: 'rgba(0, 242, 255, 0.15)',
+    tdColorHover: 'var(--bg-3)',
+    tdColorStriped: 'var(--bg-1)',
+    thColor: 'var(--bg-2)',
+    borderColor: 'var(--glass-border)',
   },
 }
 

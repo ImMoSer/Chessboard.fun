@@ -1,8 +1,8 @@
-<!-- src/features/finish-him/ui/FinishHimSelectionView.vue -->
 <script setup lang="ts">
 import BaseSelectionLayout from '@/shared/ui/BaseSelectionLayout.vue'
 import { EngineSelector } from '@/features/engine'
 import { useFinishHimStore } from '@/features/finish-him'
+import { NRadioGroup, NRadioButton } from 'naive-ui'
 import { type FinishHimDifficulty, type FinishHimTheme } from '@/shared/types/api.types'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -68,7 +68,7 @@ function handleStart() {
   <BaseSelectionLayout
     :title="t('features.finishHim.selection.title')"
     :subtitle="t('features.finishHim.selection.subtitle')"
-    accent-color="var(--color-accent-warning)"
+    accent-type="primary"
     :category-label="t('features.finishHim.selection.themeLabel')"
     @start="handleStart"
   >
@@ -76,17 +76,15 @@ function handleStart() {
       <!-- Difficulty Selection -->
       <div class="section">
         <label class="section-label">{{ t('features.theoryEndgames.selection.difficultyLabel') }}</label>
-        <div class="toggle-group">
-          <button
+        <n-radio-group v-model:value="selectedDifficulty" size="large" class="toggle-group-override" expand>
+          <n-radio-button
             v-for="diff in difficultyLevels"
             :key="diff"
-            class="toggle-btn"
-            :class="{ active: selectedDifficulty === diff }"
-            @click="selectedDifficulty = diff"
+            :value="diff"
           >
             {{ t(`common.difficulties.level_${diff.toLowerCase()}`) }}
-          </button>
-        </div>
+          </n-radio-button>
+        </n-radio-group>
       </div>
       <!-- Engine Selection -->
       <div class="section">
@@ -98,11 +96,11 @@ function handleStart() {
     </template>
 
     <template #categories>
-      <button
+      <div
         v-for="cat in categories"
         :key="cat"
-        class="category-btn"
-        :class="{ active: selectedCategory === cat }"
+        class="category-card"
+        :class="{ 'active': selectedCategory === cat }"
         @click="selectedCategory = cat"
       >
         <template v-if="cat === 'expert'">
@@ -110,7 +108,7 @@ function handleStart() {
         </template>
         <span v-else class="cat-icon">{{ getIcon(cat) }}</span>
         <span class="cat-name">{{ t(getThemeKey(cat)) }}</span>
-      </button>
+      </div>
     </template>
 
     <template #start-button-label>
@@ -123,14 +121,11 @@ function handleStart() {
 .engine-selector-wrapper {
   width: 100%;
 }
-
-:deep(.engine-selector) {
-  max-width: 100%;
+.toggle-group-override {
+  width: 100%;
 }
-
-:deep(.selector-toggle) {
-  padding: 15px;
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 12px;
+:deep(.n-radio-button) {
+  flex: 1;
+  text-align: center;
 }
 </style>

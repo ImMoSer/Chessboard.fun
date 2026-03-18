@@ -1,4 +1,3 @@
-<!-- src/features/tornado/ui/TornadoSelectionView.vue -->
 <script setup lang="ts">
 import BaseSelectionLayout from '@/shared/ui/BaseSelectionLayout.vue'
 import { useRouter } from 'vue-router'
@@ -30,21 +29,21 @@ function handleStart() {
   <BaseSelectionLayout
     title="TORNADO"
     :subtitle="t('features.tornado.feedback.selectMode')"
-    accent-color="var(--color-neon-bordeaux)"
+    accent-type="primary"
     is-tornado
     @start="handleStart"
   >
     <template #categories>
-      <button
+      <div
         v-for="cat in categories"
         :key="cat"
-        class="category-btn tornado-card"
-        :class="{ active: selectedCategory === cat }"
+        class="category-card tornado-card"
+        :class="{ 'active': selectedCategory === cat }"
         @click="selectedCategory = cat"
       >
         <span class="cat-icon">{{ getIcon(cat) }}</span>
         <span class="cat-name">{{ t(`features.tornado.modes.${cat}`) }}</span>
-      </button>
+      </div>
     </template>
   </BaseSelectionLayout>
 </template>

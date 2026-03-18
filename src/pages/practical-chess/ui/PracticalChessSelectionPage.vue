@@ -1,8 +1,8 @@
-<!-- src/features/practical-chess/ui/PracticalChessSelectionView.vue -->
 <script setup lang="ts">
 import BaseSelectionLayout from '@/shared/ui/BaseSelectionLayout.vue'
 import { EngineSelector } from '@/features/engine'
 import { usePracticalChessStore } from '@/features/practical-chess'
+import { NRadioGroup, NRadioButton } from 'naive-ui'
 import {
   PRACTICAL_CHESS_CATEGORIES,
   type PracticalChessCategory,
@@ -40,7 +40,7 @@ function handleStart() {
   <BaseSelectionLayout
     :title="t('features.practicalChess.selection.title')"
     :subtitle="t('features.practicalChess.selection.subtitle')"
-    accent-color="var(--color-accent-primary)"
+    accent-type="primary"
     :category-label="t('features.practicalChess.selection.categoryLabel')"
     @start="handleStart"
   >
@@ -48,17 +48,15 @@ function handleStart() {
       <!-- Difficulty Selection -->
       <div class="section">
         <label class="section-label">{{ t('features.theoryEndgames.selection.difficultyLabel') }}</label>
-        <div class="toggle-group">
-          <button
+        <n-radio-group v-model:value="selectedDifficulty" size="large" class="toggle-group-override" expand>
+          <n-radio-button
             v-for="diff in difficultyLevels"
             :key="diff"
-            class="toggle-btn"
-            :class="{ active: selectedDifficulty === diff }"
-            @click="selectedDifficulty = diff"
+            :value="diff"
           >
             {{ t(`common.difficulties.level_${diff.toLowerCase()}`) }}
-          </button>
-        </div>
+          </n-radio-button>
+        </n-radio-group>
       </div>
       <!-- Engine Selection -->
       <div class="section">
@@ -70,16 +68,16 @@ function handleStart() {
     </template>
 
     <template #categories>
-      <button
+      <div
         v-for="cat in PRACTICAL_CHESS_CATEGORIES"
         :key="cat"
-        class="category-btn"
+        class="category-card"
         :class="{ active: selectedCategory === cat }"
         @click="selectedCategory = cat"
       >
         <span class="cat-icon">{{ getIcon(cat) }}</span>
         <span class="cat-name">{{ t(`chess.themes.${cat}`) }}</span>
-      </button>
+      </div>
     </template>
 
     <template #start-button-label>
@@ -92,14 +90,11 @@ function handleStart() {
 .engine-selector-wrapper {
   width: 100%;
 }
-
-:deep(.engine-selector) {
-  max-width: 100%;
+.toggle-group-override {
+  width: 100%;
 }
-
-:deep(.selector-toggle) {
-  padding: 15px;
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 12px;
+:deep(.n-radio-button) {
+  flex: 1;
+  text-align: center;
 }
 </style>
