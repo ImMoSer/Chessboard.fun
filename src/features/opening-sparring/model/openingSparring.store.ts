@@ -8,7 +8,7 @@ import { type SessionMove } from '@/shared/types/openingSparring.types'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
 
-import { type TopInfoBadge, type TopInfoDisplay, type TopInfoStat } from '@/entities/puzzle'
+import { type TopInfoDisplay, type TopInfoStat } from '@/entities/puzzle'
 import i18n from '@/shared/config/i18n'
 import { useRouter } from 'vue-router'
 import { useUiStore } from '@/shared/ui/model/ui.store'
@@ -337,111 +337,72 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     })
   }
 
-  const playoutStats = computed(() => {
-    const stats = {
-      brilliant: 0,
-      best: 0,
-      interesting: 0,
-      inaccuracy: 0,
-      mistake: 0,
-      blunder: 0,
-    }
-
-    sessionHistory.value.forEach((m) => {
-      if (m.phase === 'playout' && m.turn === (playerColor.value === 'white' ? 'w' : 'b')) {
-        if (m.quality) {
-          if (m.quality === 'brilliant') stats.brilliant++
-          else if (['best', 'great', 'good'].includes(m.quality)) stats.best++
-          else if (m.quality === 'interesting') stats.interesting++
-          else if (m.quality === 'inaccuracy') stats.inaccuracy++
-          else if (m.quality === 'mistake') stats.mistake++
-          else if (m.quality === 'blunder') stats.blunder++
-        }
-      }
-    })
-    return stats
+  const playerAccuracy = computed(() => {
+    const playerMoves = sessionHistory.value.filter(
+      (m) =>
+        m.phase === 'playout' &&
+        ((m.turn === 'w' && playerColor.value === 'white') ||
+          (m.turn === 'b' && playerColor.value === 'black')) &&
+        m.evaluation?.delta_wp !== undefined,
+    )
+    if (playerMoves.length === 0) return 0
+    const sum = playerMoves.reduce(
+      (acc, m) => acc + Math.max(0, 100 + (m.evaluation?.delta_wp || 0)),
+      0,
+    )
+    return Math.round(sum / playerMoves.length)
   })
 
   const topInfoDisplay = computed<TopInfoDisplay>(() => {
-    const badges: TopInfoBadge[] = []
+    const gameStore = useGameStore()
+    const phase = isPlayoutMode.value ? 'PLAYOUT' : 'THEORY'
 
-    if (isTheoryOver.value && !isPlayoutMode.value) {
-      badges.push({
-        text: t('features.diamondHunter.header.bookEnded'),
-        type: 'warning',
-      })
+    let opponent = ''
+    if (!isPlayoutMode.value) {
+      opponent =
+        opponentSource.value === 'master' ? 'Masters 2200' : `Lichess ${opponentRatingRange.value}`
+    } else {
+      opponent = gameStore.botEngineId || 'MAIA-2117'
     }
 
-    if (isDeviation.value && !isPlayoutMode.value) {
-      badges.push({
-        text: t('features.diamondHunter.header.deviation'),
-        type: 'error',
-      })
-    }
+    const badges = [
+      { text: 'SPARRING' },
+      { text: phase },
+      { text: opponent.toUpperCase() },
+    ]
 
-    if (isPlayoutMode.value) {
-      // Add NAG badges (Show only if count > 0)
-      const pStats = playoutStats.value
-      if (pStats.brilliant > 0) badges.push({ text: `!!`, type: 'default', color: 'var(--color-nag-brilliant)', count: pStats.brilliant })
-      if (pStats.best > 0) badges.push({ text: `!`, type: 'default', color: 'var(--color-nag-best)', count: pStats.best })
-      if (pStats.interesting > 0) badges.push({ text: `!?`, type: 'default', color: 'var(--color-nag-interesting)', count: pStats.interesting })
-      if (pStats.inaccuracy > 0) badges.push({ text: `?!`, type: 'default', color: 'var(--color-nag-inaccuracy)', count: pStats.inaccuracy })
-      if (pStats.mistake > 0) badges.push({ text: `?`, type: 'default', color: 'var(--color-nag-mistake)', count: pStats.mistake })
-      if (pStats.blunder > 0) badges.push({ text: `??`, type: 'default', color: 'var(--color-nag-blunder)', count: pStats.blunder })
-    }
-
-    // Determine stats based on mode
     const stats: TopInfoStat[] = []
-
     if (!isPlayoutMode.value) {
       stats.push(
-        {
-          icon: 'flash',
-          value: averagePopularity.value,
-          label: t('features.diamondHunter.header.popularity'),
-          color: '#f0a020',
-        },
-        {
-          icon: 'trending-up',
-          value: averageWinRate.value,
-          label: t('features.diamondHunter.header.winRate'),
-          color: '#4caf50',
-        }
+        { value: `POPULARITY (${averagePopularity.value}%)`, label: 'POPULARITY' },
+        { value: `WIN-RATE (${averageWinRate.value}%)`, label: 'WIN-RATE' },
       )
     } else {
-      // Playout Mode: Show evaluation only (Sticky update: show last known eval while calculating)
+      // Get latest eval
       let evalMove = sessionHistory.value[sessionHistory.value.length - 1]
-
-      // If latest move is still loading its evaluation, look back for the previous one
       if (!evalMove || !evalMove.evaluation) {
         for (let i = sessionHistory.value.length - 2; i >= 0; i--) {
-          const m = sessionHistory.value[i]
-          if (m && m.evaluation) {
-            evalMove = m
+          if (sessionHistory.value[i]?.evaluation) {
+            evalMove = sessionHistory.value[i]
             break
           }
         }
       }
-
-      const evaluationValue = (evalMove && evalMove.evaluation)
-        ? (evalMove.evaluation.score_cp / 100).toFixed(1)
-        : '0.0'
+      const evaluationValue =
+        evalMove && evalMove.evaluation ? (evalMove.evaluation.score_cp / 100).toFixed(1) : '0.0'
+      const formattedEval = parseFloat(evaluationValue) >= 0 ? `+${evaluationValue}` : evaluationValue
 
       stats.push(
-        {
-          icon: 'advantage',
-          value: evaluationValue,
-          label: t('features.puzzleInfo.evaluation'),
-          color: parseFloat(evaluationValue) >= 0 ? '#4caf50' : '#f44336',
-        }
+        { value: `ACCURACY (${playerAccuracy.value}%)`, label: 'ACCURACY' },
+        { value: `EVAL (${formattedEval})`, label: 'EVAL' },
       )
     }
 
     return {
-      title: openingName.value || t('features.diamondHunter.settings.startPosition'),
+      title: '',
       badges,
       stats,
-      secondaryText: currentEco.value ? `ECO: ${currentEco.value}` : undefined,
+      customType: 'opening-sparring',
     }
   })
 

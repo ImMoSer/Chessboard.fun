@@ -254,6 +254,8 @@ export function useSparringLoop() {
                 win_prob: bestLineAfter?.win_prob || 0,
                 depth: bestLineAfter?.depth || 0,
                 best_move: bestLineBefore?.move_uci || '',
+                delta_wp: response.quality.delta_wp,
+                delta_cp: response.quality.delta_cp,
               },
             },
           })

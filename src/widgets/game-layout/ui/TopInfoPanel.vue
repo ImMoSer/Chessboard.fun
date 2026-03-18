@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { NTooltip } from 'naive-ui'
-import { useTopInfo } from '../model/useTopInfo'
+import { NTooltip } from 'naive-ui';
+import { useTopInfo } from '../model/useTopInfo';
 
 const { displayInfo } = useTopInfo()
 </script>
@@ -14,8 +14,8 @@ const { displayInfo } = useTopInfo()
       <!-- Left: Badges (Glued) -->
       <div class="info-left">
         <template v-for="(badge, index) in displayInfo.badges" :key="'b' + index">
-          <span 
-            class="glued-item badge-text" 
+          <span
+            class="glued-item badge-text"
             :style="badge.color ? { color: badge.color } : {}"
           >
             {{ badge.text.toUpperCase() }}
@@ -29,9 +29,9 @@ const { displayInfo } = useTopInfo()
         <span v-if="displayInfo.title" class="glued-item info-title">
           {{ displayInfo.title }}
         </span>
-        
+
         <span v-if="displayInfo.title && (displayInfo.mainValue !== undefined || displayInfo.secondaryText)" class="glue">/</span>
-        
+
         <span v-if="displayInfo.mainValue !== undefined" class="glued-item main-value" :style="{ color: displayInfo.mainColor }">
           {{ displayInfo.isValueHidden ? '??' : displayInfo.mainValue }}
         </span>
@@ -130,16 +130,14 @@ const { displayInfo } = useTopInfo()
   color: var(--color-primary);
 }
 
-.main-value {
-  /* No special font size anymore, keeping it uniform */
-}
+
 
 .secondary-text {
   color: var(--color-text-secondary);
-  /* The user wants FinishHim's secondaryText (Complex Endgame) to stay as is. 
-     We can disable uppercase here or control it via stores. 
+  /* The user wants FinishHim's secondaryText (Complex Endgame) to stay as is.
+     We can disable uppercase here or control it via stores.
      Let's disable global uppercase for secondary-text to let the store decide. */
-  text-transform: none; 
+  text-transform: none;
 }
 
 .stat-value {
@@ -162,6 +160,17 @@ const { displayInfo } = useTopInfo()
     flex: none;
     width: 100%;
     justify-content: center;
+  }
+
+  .mode-opening-sparring .info-left {
+    display: flex;
+    flex: none;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .mode-opening-sparring .info-center {
+    display: none;
   }
 
   .glued-item, .glue {

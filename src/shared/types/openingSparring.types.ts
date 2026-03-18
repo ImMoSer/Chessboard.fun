@@ -44,8 +44,9 @@ export interface SessionMove {
     win_prob: number
     best_move: string
     depth: number
+    delta_wp?: number
+    delta_cp?: number
   }
   chaos_index?: number
   is_sacrifice?: boolean
 }
-
