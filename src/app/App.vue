@@ -28,41 +28,41 @@ const isDrawerOpen = ref(false)
 const themeOverrides: GlobalThemeOverrides = {
   common: {
     fontFamily: 'Ubuntu, sans-serif',
-    primaryColor: 'var(--neon-cyan)',
-    primaryColorHover: 'var(--color-primary-hover)',
-    primaryColorPressed: 'var(--color-primary-hover)',
-    primaryColorSuppl: 'var(--color-primary-hover)',
+    primaryColor: '#00e5ff',
+    primaryColorHover: '#00cfe6',
+    primaryColorPressed: '#00cfe6',
+    primaryColorSuppl: '#00cfe6',
     borderRadius: '12px',
   },
   Card: {
-    color: 'var(--bg-1)',
-    borderColor: 'var(--glass-border)',
+    color: '#0a0b14',
+    borderColor: 'rgba(255, 255, 255, 0.08)',
   },
   Select: {
     menuBoxShadow: '0 10px 30px rgba(0, 0, 0, 0.5)',
     peers: {
       InternalSelection: {
-        color: 'var(--bg-1)',
-        colorActive: 'var(--bg-2)',
-        border: '1px solid var(--glass-border)',
-        borderHover: '1px solid var(--color-primary)',
-        borderActive: '1px solid var(--color-primary)',
-        borderFocus: '1px solid var(--color-primary)',
-        boxShadowFocus: 'var(--glow-primary)',
+        color: '#0a0b14',
+        colorActive: '#12141f',
+        border: '1px solid rgba(255, 255, 255, 0.08)',
+        borderHover: '1px solid #00e5ff',
+        borderActive: '1px solid #00e5ff',
+        borderFocus: '1px solid #00e5ff',
+        boxShadowFocus: '0 0 12px rgba(0, 229, 255, 0.6)',
         borderRadius: '12px',
       },
       InternalSelectMenu: {
-        color: 'var(--bg-1)',
+        color: '#0a0b14',
         borderRadius: '12px',
       }
     }
   },
   DataTable: {
     tdColor: 'transparent',
-    tdColorHover: 'var(--bg-3)',
-    tdColorStriped: 'var(--bg-1)',
-    thColor: 'var(--bg-2)',
-    borderColor: 'var(--glass-border)',
+    tdColorHover: '#1a1d2e',
+    tdColorStriped: '#0a0b14',
+    thColor: '#12141f',
+    borderColor: 'rgba(255, 255, 255, 0.08)',
   },
 }
 
