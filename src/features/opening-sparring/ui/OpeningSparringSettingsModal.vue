@@ -2,13 +2,7 @@
 import { theoryGraphService } from '@/entities/opening'
 import { useOpeningSparringStore } from '../index'
 import {
-  BookOutline,
-  ColorPaletteOutline,
-  FilterOutline,
-  PeopleOutline,
-  PlayOutline,
-  ServerOutline,
-  ShuffleOutline,
+  CloseOutline,
 } from '@vicons/ionicons5'
 import type { SelectOption } from 'naive-ui'
 import {
@@ -22,6 +16,8 @@ import {
   NSpace,
   NTag,
   NText,
+  NH1,
+  NCard
 } from 'naive-ui'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -47,13 +43,9 @@ const openingOptions = computed<SelectOption[]>(() => {
   return options
 })
 
-// Removed multi-rating toggle functionality
-
 onMounted(async () => {
   await theoryGraphService.loadBook()
   majorOpenings.value = theoryGraphService.getMajorOpenings()
-
-  // Init from store
   selectedColor.value = openingStore.playerColor
 })
 
@@ -68,159 +60,218 @@ function startSession() {
 <template>
   <n-modal
     :show="true"
-    preset="card"
-    :style="{ width: 'min(600px, calc(100vw - 32px))', borderRadius: '16px' }"
-    class="settings-modal glass-panel-modal"
-    :title="t('nav.openingSparring')"
-    :bordered="false"
+    :style="{ width: 'min(650px, calc(100vw - 32px))' }"
     @close="$emit('close')"
   >
-    <template #header-extra>
-      <n-icon size="24" color="var(--color-primary)">
-        <BookOutline />
-      </n-icon>
-    </template>
-
-    <div class="modal-body-layout" style="max-height: 60vh; overflow-y: auto; padding-right: 8px">
-      <n-space vertical :size="32">
-        <!-- 1. Color Selection -->
-        <div class="setting-section">
-          <n-space align="center" :size="12" class="section-title">
-            <n-icon>
-              <ColorPaletteOutline />
-            </n-icon>
-            <n-text strong>{{ t('features.diamondHunter.settings.color') }}</n-text>
-          </n-space>
-          <n-radio-group v-model:value="selectedColor" name="color" size="large" expand>
-            <n-radio-button value="white" class="color-btn-white">
-              <n-space align="center" justify="center" :wrap="false">
-                <div class="swatch white" />
-                {{ t('features.diamondHunter.settings.white') }}
-              </n-space>
-            </n-radio-button>
-            <n-radio-button value="black" class="color-btn-black">
-              <n-space align="center" justify="center" :wrap="false">
-                <div class="swatch black" />
-                {{ t('features.diamondHunter.settings.black') }}
-              </n-space>
-            </n-radio-button>
-          </n-radio-group>
-          <n-text depth="3" class="hint-text">
-            {{ t('features.diamondHunter.settings.masters') }} (Master DB)
+    <n-card class="glass selection-card" :bordered="false" content-style="padding: 32px">
+      <!-- Close Button Top Right -->
+      <n-button quaternary circle class="close-btn" @click="$emit('close')">
+        <template #icon><n-icon><CloseOutline /></n-icon></template>
+      </n-button>
+      
+      <n-space vertical :size="24" style="width: 100%;">
+        <div class="header">
+          <n-h1 class="title" style="color: var(--color-primary); margin: 0;">
+            {{ t('nav.openingSparring') }}
+          </n-h1>
+          <n-text depth="3" class="subtitle">
+            Configure your Sparring Session
           </n-text>
         </div>
 
-        <!-- 3. Opening Selection -->
-        <div class="setting-section">
-          <n-space align="center" :size="12" class="section-title">
-            <n-icon>
-              <FilterOutline />
-            </n-icon>
-            <n-text strong>{{ t('features.diamondHunter.settings.selectOpening') }}</n-text>
-          </n-space>
-          <n-select
-            v-model:value="selectedOpening"
-            :options="openingOptions"
-            filterable
-            placeholder="Search opening..."
-            size="large"
-          />
-        </div>
-
-        <!-- 4. Opponent Source -->
-        <div class="setting-section">
-          <n-space align="center" :size="12" class="section-title">
-            <n-icon>
-              <PeopleOutline />
-            </n-icon>
-            <n-text strong>{{
-              t('features.diamondHunter.settings.opponentSource', 'Opponent Base')
-            }}</n-text>
-          </n-space>
-          <n-radio-group v-model:value="openingStore.opponentSource" size="large" expand>
-            <n-radio-button value="master">
-              <n-space align="center" justify="center" :size="8">
-                <n-icon><ServerOutline /></n-icon>
-                <span>{{ t('features.diamondHunter.settings.masters') }} (2200+)</span>
-              </n-space>
-            </n-radio-button>
-            <n-radio-button value="lichess">
-              <n-space align="center" justify="center" :size="8">
-                <n-icon><PeopleOutline /></n-icon>
-                <span>{{ t('features.diamondHunter.settings.lichessPlayers') }}</span>
-              </n-space>
-            </n-radio-button>
-          </n-radio-group>
-
-          <div v-if="openingStore.opponentSource === 'lichess'" class="rating-selector" style="margin-top: 12px;">
-            <n-text depth="3" class="hint-text" style="margin-bottom: 8px; display: block">
-              {{ t('features.diamondHunter.settings.selectRatings', 'Select Opponent Ratings') }}
-            </n-text>
-            <n-radio-group v-model:value="openingStore.opponentRatingRange" size="large" expand>
-              <n-radio-button value="1000-1499">1000 - 1499</n-radio-button>
-              <n-radio-button value="1500-1799">1500 - 1799</n-radio-button>
-              <n-radio-button value="1800-2200">1800 - 2200</n-radio-button>
+        <div class="selection-sections">
+          <!-- 1. Color Selection -->
+          <div class="section">
+            <n-text class="section-label">{{ t('features.diamondHunter.settings.color') }}</n-text>
+            <n-radio-group v-model:value="selectedColor" size="large" expand>
+              <n-radio-button value="white" style="text-align: center;">
+                {{ t('features.diamondHunter.settings.white') }}
+              </n-radio-button>
+              <n-radio-button value="black" style="text-align: center;">
+                {{ t('features.diamondHunter.settings.black') }}
+              </n-radio-button>
             </n-radio-group>
           </div>
-          <n-text depth="3" class="hint-text">
-            {{
-              openingStore.opponentSource === 'master'
-                ? t(
-                    'features.diamondHunter.settings.masterHint',
-                    'Bot plays optimal moves from Master games.',
-                  )
-                : t(
-                    'features.diamondHunter.settings.lichessHint',
-                    'Bot simulates human play styles based on selected ratings.',
-                  )
-            }}
-          </n-text>
+
+          <!-- 2. Opening Selection -->
+          <div class="section">
+            <n-text class="section-label">{{ t('features.diamondHunter.settings.selectOpening') }}</n-text>
+            <n-select
+              v-model:value="selectedOpening"
+              :options="openingOptions"
+              filterable
+              placeholder="Search opening..."
+              size="large"
+            />
+          </div>
+
+          <!-- 3. Opponent Source -->
+          <div class="section">
+            <n-text class="section-label">{{ t('features.diamondHunter.settings.opponentSource', 'Opponent Base') }}</n-text>
+            <n-radio-group v-model:value="openingStore.opponentSource" size="large" expand>
+              <n-radio-button value="master" style="text-align: center;">
+                {{ t('features.diamondHunter.settings.masters') }} (2200+)
+              </n-radio-button>
+              <n-radio-button value="lichess" style="text-align: center;">
+                {{ t('features.diamondHunter.settings.lichessPlayers') }}
+              </n-radio-button>
+            </n-radio-group>
+
+            <n-text depth="3" class="hint-text">
+              {{ openingStore.opponentSource === 'master'
+                ? t('features.diamondHunter.settings.masterHint', 'Bot plays optimal moves from Master games.')
+                : t('features.diamondHunter.settings.lichessHint', 'Bot simulates human play styles based on selected ratings.')
+              }}
+            </n-text>
+          </div>
+
+          <!-- 4. Opponent Rating (Only shown if Lichess is selected) -->
+          <div v-if="openingStore.opponentSource === 'lichess'" class="section fade-in">
+            <n-text class="section-label">{{ t('features.diamondHunter.settings.selectRatings', 'Lichess Rating Level') }}</n-text>
+            <n-radio-group v-model:value="openingStore.opponentRatingRange" size="large" expand>
+              <n-radio-button value="1000-1499" style="text-align: center;">1000-1499</n-radio-button>
+              <n-radio-button value="1500-1799" style="text-align: center;">1500-1799</n-radio-button>
+              <n-radio-button value="1800-2200" style="text-align: center;">1800-2200</n-radio-button>
+            </n-radio-group>
+          </div>
+
+          <!-- 5. Variability -->
+          <div class="section">
+            <n-space align="center" justify="space-between">
+              <n-text class="section-label" style="margin: 0;">{{ t('features.diamondHunter.settings.variability', { value: openingStore.variability }) }}</n-text>
+              <n-tag :bordered="false" type="info" size="small">{{ openingStore.variability }} / 7</n-tag>
+            </n-space>
+            <n-slider v-model:value="openingStore.variability" :min="3" :max="7" :step="1" />
+            <n-text depth="3" class="hint-text">
+              {{ t('features.diamondHunter.settings.variabilityHint') }}
+            </n-text>
+          </div>
         </div>
 
-        <!-- 5. Variability -->
-        <div class="setting-section">
-          <n-space align="center" justify="space-between" class="section-title">
-            <n-space align="center" :size="12">
-              <n-icon>
-                <ShuffleOutline />
-              </n-icon>
-              <n-text strong>{{
-                t('features.diamondHunter.settings.variability', {
-                  value: openingStore.variability,
-                })
-              }}</n-text>
-            </n-space>
-            <n-tag :bordered="false" type="info" size="small"
-              >{{ openingStore.variability }} / 7</n-tag
-            >
-          </n-space>
-          <n-slider v-model:value="openingStore.variability" :min="3" :max="7" :step="1" />
-          <n-text depth="3" class="hint-text">
-            {{ t('features.diamondHunter.settings.variabilityHint') }}
-          </n-text>
+        <div class="actions">
+          <n-button 
+            type="primary" 
+            size="large" 
+            block 
+            class="start-btn" 
+            @click="startSession"
+          >
+            {{ t('features.diamondHunter.settings.startSession') }}
+          </n-button>
         </div>
       </n-space>
-    </div>
-
-    <template #footer>
-      <n-button
-        type="primary"
-        size="large"
-        block
-        secondary
-        strong
-        class="start-btn"
-        @click="startSession"
-      >
-        <template #icon>
-          <n-icon>
-            <PlayOutline />
-          </n-icon>
-        </template>
-        {{ t('features.diamondHunter.settings.startSession') }}
-      </n-button>
-    </template>
+    </n-card>
   </n-modal>
 </template>
 
+<style scoped>
+.selection-card {
+  width: 100%;
+  max-width: 650px;
+  border-radius: 20px;
+  background: var(--bg-0, rgba(16, 16, 20, 0.7)); 
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  position: relative;
+}
 
+.close-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 10;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.title {
+  font-size: 2.3rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+}
+
+.selection-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  width: 100%;
+  max-height: 50vh;
+  overflow-y: auto;
+  padding-right: 8px; /* For scrollbar breathing room */
+}
+
+/* Custom Webkit Scrollbar for section scrolling */
+.selection-sections::-webkit-scrollbar {
+  width: 6px;
+}
+.selection-sections::-webkit-scrollbar-track {
+  background: transparent;
+}
+.selection-sections::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+}
+
+.section-label {
+  font-weight: 600;
+  color: var(--text-secondary, #999);
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+.hint-text {
+  font-size: 0.8rem;
+  margin-top: -6px;
+  padding-left: 4px;
+}
+
+.actions {
+  width: 100%;
+  margin-top: 16px;
+}
+
+.start-btn {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  height: 52px;
+  border-radius: 12px;
+  font-size: 1.1rem;
+}
+
+@media (max-width: 600px) {
+  :deep(.n-card__content) {
+    padding: 20px !important;
+  }
+  .title {
+    font-size: 1.5rem;
+  }
+  .selection-sections {
+    gap: 20px;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>

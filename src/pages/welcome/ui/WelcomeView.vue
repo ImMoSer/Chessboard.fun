@@ -43,40 +43,40 @@ const menuItems = [
     path: '/finish-him',
     icon: HammerOutline,
     labelKey: 'welcome.buttons.finishHim',
-    color: 'var(--color-neon-pink)',
+    color: 'var(--neon-pink)',
   },
-  { path: '/tornado', icon: ThunderstormOutline, labelKey: 'welcome.buttons.tornado', color: 'var(--color-neon-cyan)' },
+  { path: '/tornado', icon: ThunderstormOutline, labelKey: 'welcome.buttons.tornado', color: 'var(--neon-cyan)' },
   {
     path: '/theory-endings',
     icon: BookOutline,
     labelKey: 'welcome.buttons.theoryEndgames',
-    color: 'var(--color-neon-purple)',
+    color: 'var(--neon-purple)',
   },
   {
     path: '/practical-chess',
     icon: BuildOutline,
     labelKey: 'welcome.buttons.practicalChess',
-    color: 'var(--color-neon-orange)',
+    color: 'var(--neon-orange)',
   },
   {
     path: '/diamond-hunter',
     icon: DiamondOutline,
     labelKey: 'welcome.buttons.diamondHunter',
-    color: 'var(--color-neon-lime)',
+    color: 'var(--neon-lime)',
   },
   {
     path: '/opening-sparring',
     icon: FlashOutline,
     labelKey: 'welcome.buttons.openingSparring',
-    color: 'var(--color-neon-pink)',
+    color: 'var(--neon-pink)',
   },
-  { path: '/study', icon: SchoolOutline, labelKey: 'welcome.buttons.repertoire', color: 'var(--color-neon-lime)' },
-  { path: '/user-cabinet', icon: PersonOutline, labelKey: 'nav.userCabinet', color: 'var(--color-neon-orange)' },
+  { path: '/study', icon: SchoolOutline, labelKey: 'welcome.buttons.repertoire', color: 'var(--neon-lime)' },
+  { path: '/user-cabinet', icon: PersonOutline, labelKey: 'nav.userCabinet', color: 'var(--neon-orange)' },
   {
     path: '/records',
     icon: TrophyOutline,
     labelKey: 'welcome.buttons.leaderboards',
-    color: 'var(--color-neon-yellow)',
+    color: 'var(--neon-yellow)',
   },
 ]
 
@@ -139,12 +139,18 @@ const filteredMenuItems = computed(() => {
       </div>
 
       <!-- Mode Selection Grid -->
-      <n-grid x-gap="16" y-gap="16" cols="2 s:3 m:3 l:3" responsive="screen" class="menu-grid">
+      <n-grid x-gap="20" y-gap="20" cols="2 s:3 m:3 l:3" responsive="screen" class="menu-grid">
         <n-grid-item v-for="item in filteredMenuItems" :key="item.path">
           <router-link :to="item.path" custom v-slot="{ navigate }">
-            <n-card hoverable class="menu-card glass-card" @click="navigate" :bordered="false">
+            <n-card 
+              hoverable 
+              class="menu-card glass-card" 
+              @click="navigate" 
+              :bordered="false"
+              :style="{ '--card-glow-color': item.color }"
+            >
               <div class="card-content">
-                <n-icon size="32" :color="item.color" class="card-icon">
+                <n-icon size="34" :color="item.color" class="card-icon">
                   <component :is="item.icon" />
                 </n-icon>
                 <n-text class="card-title">
@@ -285,23 +291,42 @@ const filteredMenuItems = computed(() => {
 
 /* Glassmorphism Card Style */
 .glass-card {
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--panel-border-radius);
-  transition: all 0.2s ease;
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--panel-border-radius, 16px);
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
   cursor: pointer;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle underlying colored gradient that fades in on hover */
+.glass-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(circle at center, var(--card-glow-color) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+  mix-blend-mode: screen;
 }
 
 .glass-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--color-neon-cyan);
-  background: var(--glass-bg-hover);
-  box-shadow: 0 0 20px rgba(0, 242, 255, 0.15);
+  transform: translateY(-5px) scale(1.02);
+  border-color: var(--card-glow-color);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.7), 0 0 25px -5px var(--card-glow-color);
+  z-index: 2;
+}
+
+.glass-card:hover::before {
+  opacity: 0.15;
 }
 
 .card-content {
@@ -309,16 +334,37 @@ const filteredMenuItems = computed(() => {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 10px;
+  gap: 8px;
+  padding: 12px 10px;
   text-align: center;
   width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.card-icon {
+  color: var(--card-glow-color) !important;
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.1));
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.glass-card:hover .card-icon {
+  transform: scale(1.15);
+  filter: drop-shadow(0 0 12px var(--card-glow-color));
 }
 
 .card-title {
-  font-size: 1rem;
-  font-weight: 600;
-  line-height: 1.2;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #e0e0e0;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+}
+
+.glass-card:hover .card-title {
+  color: #fff;
+  text-shadow: 0 0 10px var(--card-glow-color);
 }
 
 .footer-section {
