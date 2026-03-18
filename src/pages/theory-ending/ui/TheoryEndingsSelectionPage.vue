@@ -13,6 +13,8 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { ref, onMounted, computed } from 'vue'
 
+import { CHESS_CATEGORY_UI } from '@/shared/config/game-themes.ui'
+
 const { t } = useI18n()
 const router = useRouter()
 const theoryStore = useTheoryEndingsStore()
@@ -28,22 +30,10 @@ onMounted(() => {
 
 const themeOptions = computed(() => {
   return THEORY_ENDING_CATEGORIES.map((cat) => {
-    const icons: Record<string, string> = {
-      pawn: '♔♟',
-      bishop: '♗♙',
-      knight: '♘♙',
-      queen: '♕♙',
-      rook: '♖',
-      rookPawn: '♖♙',
-      rookPieces: '♖♘♗',
-      knightBishop: '♘♗',
-      extraPawn: '♟️',
-    }
-    
     return {
       label: t(`chess.themes.${cat}`),
       value: cat,
-      icon: icons[cat] || '',
+      ...CHESS_CATEGORY_UI[cat],
     }
   })
 })

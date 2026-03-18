@@ -8,6 +8,8 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { ref, onMounted, computed } from 'vue'
 
+import { CHESS_CATEGORY_UI } from '@/shared/config/game-themes.ui'
+
 const { t } = useI18n()
 const router = useRouter()
 const finishHimStore = useFinishHimStore()
@@ -35,32 +37,12 @@ onMounted(() => {
 
 const themeOptions = computed(() => {
   return categories.map((cat) => {
-    let icon = ''
-    let svg = ''
-    if (cat === 'auto') icon = '✨'
-    else if (cat === 'expert') svg = '/svg/crown-svgrepo-com.svg'
-    else {
-      switch (cat) {
-        case 'pawn': icon = '♔♟'; break;
-        case 'bishop': icon = '♗♙'; break;
-        case 'knight': icon = '♘♙'; break;
-        case 'queen': icon = '♕♙'; break;
-        case 'rook': icon = '♖'; break;
-        case 'rookPawn': icon = '♖♙'; break;
-        case 'rookPieces': icon = '♖♘♗'; break;
-        case 'knightBishop': icon = '♘♗'; break;
-        case 'queenPieces': icon = '♕♘♗'; break;
-        case 'extraPawn': icon = '♟️'; break;
-      }
-    }
-    
     const labelKey = cat === 'auto' ? 'chess.tactics.auto' : `chess.themes.${cat}`
 
     return {
       label: t(labelKey),
       value: cat,
-      icon: icon || undefined,
-      svg: svg || undefined
+      ...CHESS_CATEGORY_UI[cat],
     }
   })
 })

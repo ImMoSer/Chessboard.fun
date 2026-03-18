@@ -12,6 +12,8 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { ref, computed } from 'vue'
 
+import { CHESS_CATEGORY_UI } from '@/shared/config/game-themes.ui'
+
 const { t } = useI18n()
 const router = useRouter()
 const practicalStore = usePracticalChessStore()
@@ -22,16 +24,10 @@ const selectedCategory = ref<string>(practicalStore.activeCategory)
 
 const themeOptions = computed(() => {
   return PRACTICAL_CHESS_CATEGORIES.map((cat) => {
-    let icon = ''
-    switch(cat) {
-      case 'extraPawn': icon = '♟️'; break;
-      case 'materialEquality': icon = '⚖️'; break;
-      case 'exchange': icon = '🔄'; break;
-    }
     return {
       label: t(`chess.themes.${cat}`),
       value: cat,
-      icon,
+      ...CHESS_CATEGORY_UI[cat],
     }
   })
 })
