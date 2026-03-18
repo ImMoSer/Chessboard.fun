@@ -5,7 +5,7 @@ export interface ChessCategoryUi {
 
 export const CHESS_CATEGORY_UI: Record<string, ChessCategoryUi> = {
   // Common Endgames
-  pawn: { icon: '♔♟' },
+  pawn: { icon: '♔♙' },
   bishop: { icon: '♗♙' },
   knight: { icon: '♘♙' },
   queen: { icon: '♕♙' },

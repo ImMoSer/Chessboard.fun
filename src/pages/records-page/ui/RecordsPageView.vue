@@ -11,9 +11,7 @@ import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
 // Импорт дочерних компонентов
-import { SkillLeaderboardTable } from '@/features/leaderboards'
-import { ThematicLeaderboardTable } from '@/features/leaderboards'
-import { TimedModeLeaderboardTable } from '@/features/leaderboards'
+import { SkillLeaderboardTable, ThematicLeaderboardTable, TimedModeLeaderboardTable } from '@/features/leaderboards'
 
 const { t } = useI18n()
 
@@ -63,11 +61,7 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
 
 <template>
   <div class="records-page">
-    <img
-      class="records-page__banner"
-      src="/svg/ChessBoardLeader_ob.svg"
-      :alt="t('features.leaderboards.bannerAlt')"
-    />
+    <h1 class="brand-text hall-of-fame-title">HALL OF FAME</h1>
 
     <div v-if="isLoading" class="loading-message">
       <n-spin size="small" /> {{ t('common.actions.loading') }}
@@ -197,12 +191,30 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
   margin: 20px auto;
 }
 
-.records-page__banner {
-  width: 100%;
-  height: auto;
-  object-fit: cover;
-  max-height: 200px;
+.hall-of-fame-title {
+  margin: 0;
+  font-size: clamp(2rem, 6vw, 4.5rem);
+  line-height: 1;
+  text-align: center;
   align-self: center;
+  padding: 20px 0 10px;
+  position: relative;
+  display: inline-block;
+  margin: 0 auto;
+}
+
+.hall-of-fame-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: -15%;
+  width: 130%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--neon-pink), var(--neon-purple));
+  filter: blur(2px);
+  border-radius: 2px;
+  opacity: 0.8;
+  box-shadow: 0 0 15px var(--neon-pink);
 }
 
 .records-page__error-message,
