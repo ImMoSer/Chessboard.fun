@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import BaseSelectionLayout from '@/shared/ui/BaseSelectionLayout.vue'
 import VisualRadioGroup from '@/shared/ui/VisualRadioGroup.vue'
-import { EngineSelector } from '@/features/engine'
 import { useTheoryEndingsStore } from '@/features/theory-endings'
 import { NRadioGroup, NRadioButton, NText } from 'naive-ui'
 import {
@@ -98,14 +97,6 @@ function handleStart() {
             {{ t(`common.difficulties.level_${diff.toLowerCase()}`) }}
           </n-radio-button>
         </n-radio-group>
-      </div>
-
-      <!-- Engine Selection -->
-      <div class="section">
-        <n-text class="section-label">{{ t('features.engine.select') }}</n-text>
-        <div class="engine-selector-wrapper">
-          <EngineSelector />
-        </div>
       </div>
 
       <!-- Categories / Themes Selection -->

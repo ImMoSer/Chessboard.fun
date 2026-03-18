@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import BaseSelectionLayout from '@/shared/ui/BaseSelectionLayout.vue'
 import VisualRadioGroup from '@/shared/ui/VisualRadioGroup.vue'
-import { EngineSelector } from '@/features/engine'
 import { useFinishHimStore } from '@/features/finish-him'
 import { NRadioGroup, NRadioButton, NText } from 'naive-ui'
 import { type FinishHimDifficulty, type FinishHimTheme } from '@/shared/types/api.types'
@@ -98,21 +97,13 @@ function handleStart() {
         </n-radio-group>
       </div>
 
-      <!-- Engine Selection -->
-      <div class="section">
-        <n-text class="section-label">{{ t('features.engine.select') }}</n-text>
-        <div class="engine-selector-wrapper">
-          <EngineSelector />
-        </div>
-      </div>
-      
+
       <!-- Theme Selection -->
       <div class="section">
         <n-text class="section-label">{{ t('features.finishHim.selection.themeLabel') }}</n-text>
         <VisualRadioGroup
           v-model:value="selectedCategory"
           :options="themeOptions"
-          :minWidth="100"
         />
       </div>
     </template>

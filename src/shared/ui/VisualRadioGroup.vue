@@ -1,6 +1,6 @@
 <script setup lang="ts" generic="T extends string | number">
-import { NText } from 'naive-ui'
-import { computed } from 'vue'
+import { NText } from 'naive-ui';
+import { computed } from 'vue';
 
 interface Option<V> {
   label: string
@@ -116,14 +116,14 @@ const gridStyle = computed(() => {
 /* Mobile Adaptation */
 @media (max-width: 600px) {
   .visual-card {
-    padding: 12px 8px;
+    padding: 5px 5px;
   }
   .visual-icon {
     font-size: 1.5rem;
   }
   .visual-svg {
-    width: 28px;
-    height: 28px;
+    width: 35px;
+    height: 35px;
   }
   .visual-label {
     font-size: 0.75rem;

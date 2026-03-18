@@ -1,18 +1,69 @@
 <script setup lang="ts">
 import { useAnalysisStore } from '@/features/analysis'
 import { SmartHintButton } from '@/features/smart-hint'
+import { useEngineSelectionStore } from '@/features/engine'
+import type { EngineId } from '@/shared/types/api.types'
+import { useAuthStore } from '@/entities/user'
+import { useUiStore } from '@/shared/ui/model/ui.store'
 import {
     AnalyticsOutline as AnalysisIcon,
     PlayCircleOutline as NewIcon,
     FlagOutline as ResignIcon,
     RefreshOutline as RestartIcon,
     LinkOutline as ShareIcon,
+    HardwareChipOutline as BotIcon,
 } from '@vicons/ionicons5'
-import { NButton, NIcon, NSpace, NSwitch, NTooltip } from 'naive-ui'
+import { NButton, NIcon, NSpace, NSwitch, NTooltip, NDropdown } from 'naive-ui'
 import { useControlsStore } from '../model/controls.store'
+import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 const controlsStore = useControlsStore()
 const analysisStore = useAnalysisStore()
+const engineStore = useEngineSelectionStore()
+const authStore = useAuthStore()
+const uiStore = useUiStore()
+const { t } = useI18n()
+
+const showEngineDropdown = ref(false)
+
+const engineNames: Record<string, string> = {
+  'badgyal-8': 'BadGyal-8',
+  'elite_2400': 'Elite-2400',
+  'maia-1900': 'Maia-1900',
+  'maia-2200': 'Maia-2200',
+  SF_2200: 'Stockfish (depth:10)',
+}
+
+const engineOptions = computed(() => {
+  return engineStore.availableEngines.map(e => ({
+    label: engineNames[e] || e,
+    key: e,
+  }))
+})
+
+const handleBotClick = async () => {
+  if (authStore.isAuthenticated) {
+    showEngineDropdown.value = !showEngineDropdown.value
+  } else {
+    const userConfirmedLogin = await uiStore.showConfirmation(
+      t('features.auth.requiredForAction'),
+      t('features.userCabinet.loginPrompt'),
+      {
+        confirmText: t('nav.loginWithLichess'),
+        showCancel: true,
+      },
+    )
+    if (userConfirmedLogin === 'confirm') {
+      authStore.login()
+    }
+  }
+}
+
+const selectEngine = (engineKey: string) => {
+  engineStore.setEngine(engineKey as EngineId)
+  showEngineDropdown.value = false
+}
 
 const toggleAnalysis = () => {
   if (analysisStore.isAnalysisActive) {
@@ -63,6 +114,40 @@ const toggleAnalysis = () => {
         </template>
         {{ $t('features.controls.restart') }}
       </n-tooltip>
+
+      <!-- Bot / Sparring Partner Selector -->
+      <n-dropdown
+        placement="top"
+        trigger="manual"
+        :show="showEngineDropdown"
+        :options="engineOptions"
+        :value="engineStore.selectedEngine"
+        class="engine-dropdown-glass"
+        @select="selectEngine"
+        @clickoutside="showEngineDropdown = false"
+      >
+        <span style="display: inline-flex;">
+          <n-tooltip trigger="hover" placement="bottom">
+            <template #trigger>
+              <n-button 
+                circle 
+                size="large" 
+                :quaternary="!showEngineDropdown" 
+                :tertiary="showEngineDropdown" 
+                :type="showEngineDropdown ? 'primary' : 'default'" 
+                @click="handleBotClick"
+              >
+                <template #icon>
+                  <n-icon :class="{ 'icon-bot-active': showEngineDropdown || engineStore.selectedEngine }">
+                    <BotIcon />
+                  </n-icon>
+                </template>
+              </n-button>
+            </template>
+            {{ $t('features.engine.select', 'Sparring Partner') }}
+          </n-tooltip>
+        </span>
+      </n-dropdown>
 
       <!-- Resign OR Analysis Toggle -->
       <n-tooltip trigger="hover">
@@ -148,6 +233,11 @@ const toggleAnalysis = () => {
   filter: drop-shadow(0 0 4px var(--neon-cyan));
 }
 
+.icon-bot-active {
+  color: var(--color-success, #00ff55);
+  filter: drop-shadow(0 0 6px rgba(0, 255, 85, 0.6));
+}
+
 :deep(.n-switch.n-switch--active) {
   --n-button-box-shadow: 0 0 8px var(--neon-cyan);
 }
@@ -200,5 +290,25 @@ const toggleAnalysis = () => {
     --n-height: 44px !important;
     --n-width: 44px !important;
   }
+}
+</style>
+
+<style>
+/* Unscoped style required to target the naive UI teleported body element */
+.engine-dropdown-glass {
+  background: rgba(16, 16, 20, 0.7) !important;
+  backdrop-filter: blur(16px) !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.engine-dropdown-glass .n-dropdown-option-body {
+  padding: 10px 16px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.engine-dropdown-glass .n-dropdown-option-body:hover {
+  background: rgba(255, 255, 255, 0.05);
 }
 </style>
