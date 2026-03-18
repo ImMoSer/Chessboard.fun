@@ -38,6 +38,25 @@ const themeOverrides: GlobalThemeOverrides = {
     color: 'rgba(15, 17, 26, 0.45)',
     borderColor: 'rgba(0, 242, 255, 0.15)',
   },
+  Select: {
+    menuBoxShadow: '0 10px 30px rgba(0, 0, 0, 0.5)',
+    peers: {
+      InternalSelection: {
+        color: 'rgba(0, 0, 0, 0.3)',
+        colorActive: 'rgba(0, 0, 0, 0.4)',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        borderHover: '1px solid rgba(0, 242, 255, 0.4)',
+        borderActive: '1px solid rgba(0, 242, 255, 0.4)',
+        borderFocus: '1px solid rgba(0, 242, 255, 0.4)',
+        boxShadowFocus: '0 0 0 2px rgba(0, 242, 255, 0.2)',
+        borderRadius: '12px',
+      },
+      InternalSelectMenu: {
+        color: 'rgba(20, 20, 25, 0.85)',
+        borderRadius: '12px',
+      }
+    }
+  },
   DataTable: {
     tdColor: 'transparent',
     tdColorHover: 'rgba(0, 242, 255, 0.05)',

@@ -71,7 +71,7 @@ const progressPercent = computed(() => {
     :show="show"
     preset="card"
     :style="{ width: '500px', borderRadius: '20px' }"
-    class="summary-modal"
+    class="summary-modal glass-panel-modal"
     :title="t('features.diamondHunter.header.bookEnded')"
     :bordered="false"
     :closable="false"
@@ -84,7 +84,7 @@ const progressPercent = computed(() => {
           <n-grid-item>
             <div class="stat-box">
               <n-statistic
-                :label="t('openingTrainer.header.popularity') || 'Popularity'"
+                :label="t('features.diamondHunter.header.popularity')"
                 :value="openingStore.averagePopularity"
               >
                 <template #prefix>
@@ -218,162 +218,4 @@ const progressPercent = computed(() => {
   </n-modal>
 </template>
 
-<style scoped lang="scss">
-.summary-modal {
-  :deep(.n-card-header) {
-    padding-bottom: 0;
-  }
-}
 
-.summary-content {
-  padding: 8px 0;
-}
-
-.stat-box {
-  background: rgba(255, 255, 255, 0.03);
-  padding: 16px 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  text-align: center;
-
-  .stat-icon {
-    margin-right: 4px;
-    font-size: 1.1rem;
-
-    &.acc {
-      color: var(--color-accent-warning);
-    }
-    &.win {
-      color: #4caf50;
-    }
-    &.rat {
-      color: var(--color-accent);
-    }
-  }
-}
-
-.engine-eval-section {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 16px;
-  padding: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: all 0.3s ease;
-
-  &.loading {
-    background: rgba(var(--color-accent-rgb), 0.05);
-    border-color: rgba(var(--color-accent-rgb), 0.2);
-  }
-
-  .section-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-  }
-}
-
-.eval-tag {
-  font-family: 'Fira Code', monospace;
-  font-weight: bold;
-  font-size: 1rem;
-  padding: 4px 12px;
-}
-
-.eval-loading {
-  .depth-text {
-    display: block;
-    text-align: center;
-    margin-top: 12px;
-    font-size: 0.8rem;
-  }
-}
-
-.eval-result {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px;
-  border-radius: 8px;
-
-  &.success {
-    color: #4caf50;
-    background: rgba(76, 175, 80, 0.1);
-  }
-  &.info {
-    color: #2196f3;
-    background: rgba(33, 150, 243, 0.1);
-  }
-  &.warning {
-    color: #ff9800;
-    background: rgba(255, 152, 0, 0.1);
-  }
-  &.error {
-    color: #f44336;
-    background: rgba(244, 67, 54, 0.1);
-  }
-
-  .result-msg {
-    font-weight: 500;
-    font-size: 0.95rem;
-  }
-}
-
-.modal-actions {
-  margin-top: 8px;
-}
-
-.engine-selection-block {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 16px;
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.selection-hint {
-  font-size: 0.8rem;
-  text-align: center;
-}
-
-.engine-selector-wrapper {
-  width: 100%;
-
-  :deep(.engine-selector) {
-    width: 100%;
-    max-width: 100%;
-    justify-content: center;
-  }
-
-  :deep(.selector-toggle) {
-    width: 100%;
-    background-color: rgba(255, 255, 255, 0.04);
-    padding: 10px 16px;
-    border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    transition: all 0.2s ease;
-
-    &:hover {
-      background-color: rgba(255, 255, 255, 0.08);
-      border-color: rgba(var(--color-accent-rgb), 0.3);
-    }
-  }
-
-  :deep(.engine-dropdown) {
-    width: 100%;
-  }
-}
-
-:deep(.n-statistic) {
-  .n-statistic-label {
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-  }
-  .n-statistic-value__content {
-    font-size: 1.4rem;
-    font-weight: 800;
-  }
-}
-</style>

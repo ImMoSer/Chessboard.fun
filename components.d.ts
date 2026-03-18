@@ -11,6 +11,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    BaseSelectionLayout: typeof import('./src/shared/ui/BaseSelectionLayout.vue')['default']
     ChessboardPreview: typeof import('./src/shared/ui/board-preview/ChessboardPreview.vue')['default']
     ConfirmationModal: typeof import('./src/shared/ui/ConfirmationModal.vue')['default']
     GalaxyBackground: typeof import('./src/shared/ui/visuals/GalaxyBackground.vue')['default']

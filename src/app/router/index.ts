@@ -36,7 +36,7 @@ const router = createRouter({
     {
       path: '/finish-him',
       name: 'finish-him-selection',
-      component: () => import('@/pages/ending-selection').then(m => m.EndingSelectionPage),
+      component: () => import('@/pages/finish-him/ui/FinishHimSelectionPage.vue'),
       meta: { requiresAuth: true, gameMode: 'finish-him' },
     },
     {
@@ -61,7 +61,7 @@ const router = createRouter({
     {
       path: '/tornado',
       name: 'tornado-selection',
-      component: () => import('@/pages/ending-selection').then(m => m.EndingSelectionPage),
+      component: () => import('@/pages/tornado/ui/TornadoSelectionPage.vue'),
       meta: { requiresAuth: true, gameMode: 'tornado' },
     },
     {
@@ -125,7 +125,7 @@ const router = createRouter({
     {
       path: '/theory-endings',
       name: 'theory-endings-selection',
-      component: () => import('@/pages/ending-selection').then(m => m.EndingSelectionPage),
+      component: () => import('@/pages/theory-ending/ui/TheoryEndingsSelectionPage.vue'),
       meta: { requiresAuth: true, gameMode: 'theory' },
     },
     {
@@ -161,7 +161,7 @@ const router = createRouter({
     {
       path: '/practical-chess',
       name: 'practical-chess',
-      component: () => import('@/pages/ending-selection').then(m => m.EndingSelectionPage),
+      component: () => import('@/pages/practical-chess/ui/PracticalChessSelectionPage.vue'),
       meta: { requiresAuth: true, gameMode: 'practical' },
     },
     {

@@ -13,9 +13,10 @@
   --color-neon-pink: #ff007a;
   --color-neon-lime: #00ff55;
   --color-neon-yellow: #ffe600;
-  --color-neon-orange: #ffb800;
+  --color-neon-orange: #ff5500; /* Sharp neon orange */
   --color-neon-red: #ff073a;
   --color-neon-gold: #ffd700;
+  --color-neon-bordeaux: #d9004c; /* Deep neon bordeaux */
   --color-neon-white: rgba(255, 255, 255, 0.9);
 
   /* --- NAGs Cyber Neon Mapping --- */
@@ -46,9 +47,9 @@
   --color-accent-primary: var(--color-neon-cyan);
   --color-accent-primary-hover: #00d7e6;
   --color-accent-secondary: var(--color-neon-purple);
-  --color-accent-warning: #f2c97d;
+  --color-accent-warning: var(--color-neon-orange);
   /* Standard for Warn */
-  --color-accent-error: #e88080;
+  --color-accent-error: var(--color-neon-red);
 
   --color-text-default: rgba(255, 255, 255, 0.9);
   --color-text-muted: rgba(255, 255, 255, 0.55);
@@ -109,4 +110,203 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 242, 255, 0.4);
+}
+
+/* --- Global Glass Modal Style --- */
+.glass-panel-modal {
+  background: rgba(20, 20, 25, 0.85) !important;
+  backdrop-filter: blur(15px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* --- Common Modal Layout Utilities --- */
+.modal-body-layout, .summary-content {
+  padding: 8px 0;
+}
+
+.setting-section {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.section-title {
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+  color: var(--color-text-muted);
+}
+.section-title .n-icon {
+  font-size: 1.2rem;
+  color: var(--color-accent-warning);
+}
+
+.hint-text, .selection-hint {
+  font-size: 0.8rem;
+  line-height: 1.4;
+  margin-top: 4px;
+  color: var(--color-text-muted);
+}
+
+.modal-actions {
+  margin-top: 8px;
+}
+
+/* --- Stats & Panels (Summary) --- */
+.stat-box {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 16px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  text-align: center;
+}
+
+.stat-box .stat-icon {
+  margin-right: 4px;
+  font-size: 1.1rem;
+}
+.stat-box .stat-icon.acc { color: var(--color-accent-warning); }
+.stat-box .stat-icon.win { color: var(--color-nag-best); }
+.stat-box .stat-icon.rat { color: var(--color-accent-primary); }
+
+.engine-eval-section {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+.engine-eval-section.loading {
+  background: rgba(0, 242, 255, 0.05);
+  border-color: rgba(0, 242, 255, 0.2);
+}
+.engine-eval-section .section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.engine-selection-block {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* --- Eval tags & results --- */
+.eval-tag {
+  font-family: 'Fira Code', monospace;
+  font-weight: bold;
+  font-size: 1rem;
+  padding: 4px 12px;
+}
+
+.eval-loading .depth-text {
+  display: block;
+  text-align: center;
+  margin-top: 12px;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.eval-result {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 8px;
+}
+.eval-result.success { color: var(--color-nag-best); background: rgba(0, 255, 85, 0.1); }
+.eval-result.info { color: var(--color-accent-primary); background: rgba(0, 229, 255, 0.1); }
+.eval-result.warning { color: var(--color-nag-inaccuracy); background: rgba(255, 184, 0, 0.1); }
+.eval-result.error { color: var(--color-nag-blunder); background: rgba(255, 7, 58, 0.1); }
+.eval-result .result-msg { font-weight: 500; font-size: 0.95rem; }
+
+/* --- Colors & Swatches --- */
+.color-btn-white {
+  --n-button-color-active: #fff !important;
+  --n-button-text-color-active: #222 !important;
+}
+
+.color-btn-black {
+  --n-button-color-active: #222 !important;
+  --n-button-text-color-active: #fff !important;
+}
+
+.swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+.swatch.white { background: #fff; }
+.swatch.black { background: #222; }
+
+/* --- Reusable CTA Button --- */
+.start-btn {
+  height: 52px;
+  font-size: 1.1rem;
+  background: var(--color-accent-primary) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 12px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.start-btn.exam-btn {
+  background: var(--color-accent-warning) !important;
+  color: #222 !important;
+}
+.start-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+.start-btn:active {
+  transform: translateY(0);
+}
+
+/* Overrides for naive-ui elements inside Modals */
+.engine-selector-wrapper {
+  width: 100%;
+}
+.engine-selector-wrapper .engine-selector {
+  width: 100%;
+  max-width: 100%;
+  justify-content: center;
+}
+.engine-selector-wrapper .selector-toggle {
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.04);
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.2s ease;
+}
+.engine-selector-wrapper .selector-toggle:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: rgba(0, 242, 255, 0.3);
+}
+
+/* Mobile Adaptations */
+@media (max-width: 600px) {
+  .modal-body-layout {
+    max-height: 50vh !important;
+  }
+  .section-title {
+    font-size: 0.75rem;
+  }
+  .section-title .n-icon {
+    font-size: 0.9rem;
+  }
+  .hint-text {
+    font-size: 0.65rem;
+  }
+  .start-btn {
+    height: 40px;
+    font-size: 0.85rem;
+    border-radius: 8px !important;
+  }
 }
