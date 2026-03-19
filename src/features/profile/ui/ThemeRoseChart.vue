@@ -156,7 +156,7 @@ const option = computed(() => {
             else if (te(`chess.subThemes.${theme}`))
               themeName = t(`chess.subThemes.${theme}`)
 
-            return themeName.length > 10 ? themeName.slice(0, 8) + '..' : themeName
+            return themeName.length > 100 ? themeName.slice(0, 100) + '..' : themeName
           },
         },
         emphasis: {
@@ -235,7 +235,7 @@ const onChartClick = (params: unknown) => {
       let safeX = activePopup.value.x
       let safeY = activePopup.value.y
 
-      const padding = 10
+      const padding = 1
 
       // Check right boundary
       if (safeX + rect.width + padding > window.innerWidth) {
@@ -408,7 +408,7 @@ const onImproveClick = () => {
   -webkit-backdrop-filter: var(--glass-blur, blur(12px));
   border: 1px solid color-mix(in srgb, var(--neon-cyan) 50%, transparent);
   border-radius: 12px;
-  padding: 14px;
+  padding: 10px;
   box-shadow: 0 8px 32px color-mix(in srgb, var(--neon-cyan) 25%, transparent),
               0 0 16px color-mix(in srgb, var(--neon-cyan) 15%, transparent),
               inset 0 0 16px color-mix(in srgb, var(--neon-cyan) 5%, transparent);
@@ -421,10 +421,10 @@ const onImproveClick = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
-  padding-bottom: 8px;
+  margin-bottom: 5px;
+  padding-bottom: 5px;
   border-bottom: 1px solid color-mix(in srgb, var(--neon-cyan) 25%, transparent);
-  gap: 16px;
+  gap: 12px;
 }
 
 .popup-title {
@@ -434,7 +434,7 @@ const onImproveClick = () => {
 }
 
 .popup-theme-name {
-  margin-bottom: 8px;
+  margin-bottom: 1px;
   font-size: 0.95rem;
   font-weight: bold;
   color: var(--color-text-primary);
@@ -447,8 +447,8 @@ const onImproveClick = () => {
 }
 
 .popup-footer {
-  margin-top: 16px;
-  padding-top: 12px;
+  margin-top: 5px;
+  padding-top: 5px;
   border-top: 1px solid color-mix(in srgb, var(--neon-cyan) 25%, transparent);
 }
 
@@ -491,7 +491,7 @@ const onImproveClick = () => {
   width: 100%;
   background-color: var(--color-bg-tertiary);
   border-radius: 12px;
-  padding: 20px;
+  padding: 10px;
   border: 1px solid var(--color-border);
   box-sizing: border-box;
   display: flex;
@@ -502,9 +502,9 @@ const onImproveClick = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 1px;
   flex-wrap: wrap;
-  gap: 16px;
+  gap: 2px;
 }
 
 .header-left-group {
@@ -538,7 +538,7 @@ const onImproveClick = () => {
 .chart-footer {
   display: flex;
   justify-content: center;
-  margin-top: 10px;
+  margin-top: 1px;
 }
 
 .modal-content {
@@ -563,12 +563,12 @@ const onImproveClick = () => {
 
 @media (max-width: 768px) {
   .theme-rose-container {
-    padding: 14px;
+    padding: 10px;
   }
 
   .chart-header {
     gap: 11px;
-    margin-bottom: 7px;
+    margin-bottom: 1px;
   }
 
   .chart-title {
