@@ -209,7 +209,7 @@ const onChartClick = (params: unknown) => {
   isLocked.value = true
   setTimeout(() => {
     isLocked.value = false
-  }, 800)
+  }, 1200)
 
   lastOpenTime.value = Date.now()
 
@@ -469,24 +469,36 @@ const onImproveClick = () => {
   font-weight: bold;
   position: relative;
   overflow: hidden;
+  transition: all 0.3s ease;
 }
 
-.improve-btn::after {
+/* Ensure text is above the loading background */
+.improve-btn :deep(.n-button__content) {
+  position: relative;
+  z-index: 2;
+}
+
+.improve-btn.is-locked {
+  background-color: var(--bg-3) !important;
+  border-color: var(--glass-border) !important;
+  color: var(--text-disabled) !important;
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+.improve-btn.is-locked::before {
   content: '';
   position: absolute;
-  bottom: 0;
+  top: 0;
   left: 0;
-  height: 3px;
-  background-color: var(--neon-cyan);
+  height: 100%;
   width: 0;
-  transition: none;
+  background-color: var(--color-primary);
+  z-index: 1;
+  animation: progress-fill 1200ms linear forwards;
 }
 
-.improve-btn.is-locked::after {
-  animation: progress-load 800ms linear forwards;
-}
-
-@keyframes progress-load {
+@keyframes progress-fill {
   from {
     width: 0;
   }
