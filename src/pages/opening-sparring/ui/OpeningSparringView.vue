@@ -43,9 +43,8 @@ watch(
   (phase) => {
     if (phase === 'GAMEOVER' && openingStore.isPlayoutMode) {
       // Delay slightly to let board update final state/sound
-      setTimeout(async () => {
+      setTimeout(() => {
         openingStore.enterReviewMode()
-        await analysisStore.showPanel(true)
       }, 1000)
     }
   },
@@ -68,14 +67,6 @@ watch(
 
 const showAnalysisPanel = computed(() => {
   return openingStore.isReviewMode
-})
-
-watch(showAnalysisPanel, (val) => {
-  if (val) {
-    analysisStore.showPanel(true)
-  } else {
-    analysisStore.hidePanel()
-  }
 })
 
 onMounted(async () => {
@@ -240,8 +231,6 @@ function goBack() {
   <GameLayout>
     <template #left-panel>
       <div class="left-panel-content">
-        <AnalysisPanel v-if="showAnalysisPanel" :show-pgn="false" style="margin-bottom: 12px; flex-shrink: 0" />
-
         <div class="mozer-book-wrapper">
           <MozerBook
             :blurred="openingStore.isPlayoutMode"
@@ -281,6 +270,8 @@ function goBack() {
     </template>
 
     <template #right-panel>
+      <AnalysisPanel v-if="showAnalysisPanel" :show-pgn="false" style="margin-bottom: 12px; flex-shrink: 0" />
+
       <SessionHistoryList />
 
       <div v-if="openingStore.error" class="error-msg">
