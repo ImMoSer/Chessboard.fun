@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
+import { pgnService, pgnTreeVersion, type PgnNode } from '@/shared/lib/pgn/PgnService'
 import { type SessionMove } from '@/shared/types/openingSparring.types'
 import {
     NDataTable,
@@ -73,23 +73,47 @@ const getQualityColor = (nag?: string) => {
 const renderMoveCell = (move: SessionMove | null) => {
   if (!move) return null
 
-  // Ensure reactivity on pgn changes
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const _v = pgnTreeVersion.value
+  const activeMainlinePly = computed(() => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _v = pgnTreeVersion.value
+    let current: PgnNode | null = pgnService.getCurrentNode()
+    while (current && current.ply > 0) {
+      const histMove = openingStore.sessionHistory.find((m) => m.ply === current?.ply)
+      if (histMove && histMove.moveUci === current.uci) {
+        return current.ply
+      }
+      current = current.parent || null
+    }
+    return 0
+  })
 
-  const globalIndex = openingStore.sessionHistory.indexOf(move)
   const currentNode = pgnService.getCurrentNode()
-  const isCurrentNode = currentNode && currentNode.ply === move.ply
-
-  const isReviewActive = openingStore.isReviewMode && openingStore.reviewMoveIndex === globalIndex
-  const isActive = isReviewActive || isCurrentNode
+  const isCurrentNode = move.ply === activeMainlinePly.value
+  const isDeviationPoint = isCurrentNode && currentNode?.ply !== move.ply
 
   // Render Checkmark for OK
   const isOk = move.nag === 'OK'
 
-  const background = isActive ? (isCurrentNode ? 'rgba(0, 163, 255, 0.3)' : 'var(--color-accent)') : 'transparent'
-  const border = isCurrentNode ? '1px solid rgba(0, 163, 255, 0.3)' : '1px solid transparent'
-  const boxShadow = isCurrentNode ? '0 0 10px rgba(0, 163, 255, 0.4)' : 'none'
+  let background = 'transparent'
+  let border = '1px solid transparent'
+  let boxShadow = 'none'
+  let textColor = 'inherit'
+
+  if (isCurrentNode) {
+    if (isDeviationPoint) {
+      background = 'rgba(255, 152, 0, 0.2)'
+      border = '1px solid rgba(255, 152, 0, 0.4)'
+      boxShadow = '0 0 8px rgba(255, 152, 0, 0.3)'
+      textColor = '#ff9800'
+    } else {
+      background = 'rgba(0, 163, 255, 0.3)'
+      border = '1px solid rgba(0, 163, 255, 0.3)'
+      boxShadow = '0 0 10px rgba(0, 163, 255, 0.4)'
+      textColor = 'var(--neon-cyan)'
+    }
+  }
+
+  const globalIndex = openingStore.sessionHistory.indexOf(move)
 
   return h(
     'div',
@@ -104,7 +128,7 @@ const renderMoveCell = (move: SessionMove | null) => {
         boxShadow,
         padding: '2px 4px',
         borderRadius: '4px',
-        color: isActive ? (isCurrentNode ? 'var(--neon-cyan)' : '#fff') : 'inherit',
+        color: textColor,
         justifyContent: 'center',
         margin: '0 2px',
         transition: 'all 0.2s ease',
@@ -116,7 +140,7 @@ const renderMoveCell = (move: SessionMove | null) => {
     [
       h(
         NText,
-        { strong: true, style: { color: isActive ? (isCurrentNode ? 'var(--neon-cyan)' : '#fff') : 'inherit', fontSize: '13px' } },
+        { strong: true, style: { color: textColor, fontSize: '13px' } },
         { default: () => move.san || move.moveUci },
       ),
       isOk

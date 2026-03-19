@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { type SessionMove } from '@/shared/types/openingSparring.types'
-import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
+import { pgnService, pgnTreeVersion, type PgnNode } from '@/shared/lib/pgn/PgnService'
 import { NDataTable, NDivider, NText, type DataTableColumns } from 'naive-ui'
 import { computed, h, type CSSProperties } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -46,18 +46,26 @@ const renderMove = (row: MovePair, color: 'white' | 'black') => {
   const move = row[color]
   if (!move) return null
 
-  // Ensure reactivity on pgn changes
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const _v = pgnTreeVersion.value
+  const activeMainlinePly = computed(() => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _v = pgnTreeVersion.value // ensure reactivity
+    let current: PgnNode | null = pgnService.getCurrentNode()
+    while (current && current.ply > 0) {
+      const histMove = openingStore.sessionHistory.find((m) => m.ply === current?.ply)
+      if (histMove && histMove.moveUci === current.uci) {
+        return current.ply
+      }
+      current = current.parent || null
+    }
+    return 0
+  })
 
-  const currentNode = pgnService.getCurrentNode()
-  const isCurrentNode = currentNode && currentNode.ply === move.ply
-
-  // Calculate index in GLOBAL history
   const index = openingStore.sessionHistory.indexOf(move)
-
   const isReview = openingStore.isReviewMode
-  const isActive = (isReview && openingStore.reviewMoveIndex === index) || isCurrentNode
+  
+  const currentNode = pgnService.getCurrentNode()
+  const isCurrentNode = move.ply === activeMainlinePly.value
+  const isDeviationPoint = isCurrentNode && currentNode?.ply !== move.ply
 
   const style: CSSProperties = {
     cursor: isReview ? 'pointer' : 'default',
@@ -70,13 +78,20 @@ const renderMove = (row: MovePair, color: 'white' | 'black') => {
     margin: '0 2px',
   }
 
-  if (isActive) {
-    style.backgroundColor = 'var(--color-accent)'
-    style.color = '#fff'
+  let textColor = undefined
+
+  if (isCurrentNode) {
     style.fontWeight = 'bold'
-    if (isCurrentNode) {
-       style.boxShadow = '0 0 10px rgba(0, 163, 255, 0.4)'
-       style.border = '1px solid rgba(0, 163, 255, 0.3)'
+    if (isDeviationPoint) {
+      style.backgroundColor = 'rgba(255, 152, 0, 0.2)'
+      textColor = '#ff9800'
+      style.boxShadow = '0 0 8px rgba(255, 152, 0, 0.4)'
+      style.border = '1px solid rgba(255, 152, 0, 0.4)'
+    } else {
+      style.backgroundColor = 'rgba(0, 163, 255, 0.3)'
+      textColor = 'var(--neon-cyan)'
+      style.boxShadow = '0 0 10px rgba(0, 163, 255, 0.4)'
+      style.border = '1px solid rgba(0, 163, 255, 0.3)'
     }
   }
 
@@ -85,14 +100,14 @@ const renderMove = (row: MovePair, color: 'white' | 'black') => {
     {
       style,
       onClick: isReview ? () => openingStore.setReviewMove(index) : undefined,
-      class: { 'review-move': isReview, 'current-move': isCurrentNode },
+      class: { 'review-move': isReview, 'current-move': isCurrentNode, 'deviation-point': isDeviationPoint },
     },
     [
       h(
         NText,
         {
           strong: true,
-          style: { color: isActive ? '#fff' : undefined },
+          style: { color: textColor },
         },
         { default: () => move.san || move.moveUci },
       ),
