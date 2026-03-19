@@ -319,10 +319,10 @@
     },
     "repertoire": {
       "limitModal": {
-        "title": "Subscription Limit Reached",
-        "message": "Your current subscription tier \"{tier}\" allows saving up to {limit} chapters on the server. All other chapters are stored locally on your device and may be lost if browser cache is cleared.",
-        "confirm": "Pricing & Tiers",
-        "cancel": "Got it"
+        "title": "Cloud Storage Restricted",
+        "message": "Cloud storage is a premium feature available exclusively for our 'King' tier members. Upgrade now to sync your repertoire across all devices and protect your data from being lost if the browser cache is cleared.",
+        "confirm": "Upgrade to King",
+        "cancel": "Not now"
       },
       "sizeModal": {
         "title": "Chapter Too Large",

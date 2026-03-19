@@ -319,10 +319,10 @@
     },
     "repertoire": {
       "limitModal": {
-        "title": "Abo-Limit erreicht",
-        "message": "Deine aktuelle Stufe \"{tier}\" erlaubt das Speichern von bis zu {limit} Kapiteln in der Cloud. Alle weiteren Kapitel werden lokal auf deinem Gerät gespeichert und können verloren gehen, wenn der Browser-Cache geleert wird.",
-        "confirm": "Preise & Stufen",
-        "cancel": "Verstanden"
+        "title": "Cloud-Speicher eingeschränkt",
+        "message": "Cloud-Speicher ist eine Premium-Funktion exklusiv für Mitglieder mit 'King'-Status. Hol dir jetzt das Upgrade, um dein Repertoire auf allen Geräten zu synchronisieren und vor dem Löschen des Browser-Caches zu schützen.",
+        "confirm": "Upgrade auf King",
+        "cancel": "Nicht jetzt"
       },
       "sizeModal": {
         "title": "Kapitel zu groß",

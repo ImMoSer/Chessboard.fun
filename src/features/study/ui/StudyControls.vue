@@ -1,23 +1,33 @@
 <script setup lang="ts">
 import { useBoardStore } from '@/entities/game'
-import { useStudyStore } from '../index'
 import { pgnService } from '@/shared/lib/pgn/PgnService'
-import { NTooltip, useMessage } from 'naive-ui'
+import {
+  AnalyticsOutline as AnalysisIcon,
+  ChevronBackOutline as PrevIcon,
+  ChevronForwardOutline as NextIcon,
+  RefreshOutline as FlipIcon,
+  CutOutline as CutIcon,
+} from '@vicons/ionicons5'
+import { NButton, NIcon, NSpace, NSwitch, NTooltip, useMessage } from 'naive-ui'
+import { useI18n } from 'vue-i18n'
+
+defineProps<{
+  isAnalysisActive: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: 'toggle-analysis'): void
+}>()
 
 const boardStore = useBoardStore()
-const studyStore = useStudyStore()
 const message = useMessage()
+const { t } = useI18n()
 
-const handleFlip = () => {
-  boardStore.flipBoard()
-}
-
-const handleStart = () => boardStore.navigatePgn('start')
+const handleFlip = () => boardStore.flipBoard()
 const handlePrev = () => boardStore.navigatePgn('backward')
 const handleNext = () => boardStore.navigatePgn('forward')
-const handleEnd = () => boardStore.navigatePgn('end')
 
-const handleDelete = () => {
+const handleCut = () => {
   pgnService.deleteCurrentNode()
   boardStore.syncBoardWithPgn()
 }
@@ -25,110 +35,152 @@ const handleDelete = () => {
 const handleCopyFen = () => {
   const fen = pgnService.getCurrentNavigatedFen()
   navigator.clipboard.writeText(fen)
-  message.success('FEN copied!')
+  message.success(t('common.notifications.fenCopied', 'FEN copied!'))
 }
 
 const handleCopyPgn = () => {
   const pgn = pgnService.getFullPgn({})
   navigator.clipboard.writeText(pgn)
-  message.success('PGN copied!')
+  message.success(t('common.notifications.pgnCopied', 'PGN copied!'))
 }
 </script>
 
 <template>
-  <div class="study-controls">
-    <div class="control-group">
-      <n-tooltip v-if="!studyStore.activeChapter?.color" trigger="hover">
-        <template #trigger>
-          <button @click="handleFlip">🔄</button>
-        </template>
-        Flip Board
-      </n-tooltip>
+  <div class="study-controls-container">
+    <n-space justify="center" align="center" :size="[8, 0]">
+      <!-- 1. Previous Move (<) -->
       <n-tooltip trigger="hover">
         <template #trigger>
-          <button @click="handleCopyFen">FEN</button>
+          <n-button circle quaternary size="large" @click="handlePrev">
+            <template #icon><n-icon><PrevIcon /></n-icon></template>
+          </n-button>
         </template>
-        Copy FEN
+        {{ t('common.navigation.prev', 'Previous') }}
       </n-tooltip>
-      <n-tooltip trigger="hover">
-        <template #trigger>
-          <button @click="handleCopyPgn">PGN</button>
-        </template>
-        Copy PGN
-      </n-tooltip>
-    </div>
 
-    <div class="control-group navigation">
-      <button @click="handleStart" title="Start">|&lt;</button>
-      <button @click="handlePrev" title="Previous">&lt;</button>
-      <button @click="handleNext" title="Next">&gt;</button>
-      <button @click="handleEnd" title="End">&gt;|</button>
-    </div>
-
-    <div class="control-group actions">
+      <!-- 2. Flip Board -->
       <n-tooltip trigger="hover">
         <template #trigger>
-          <button @click="handleDelete" class="delete-btn">🗑️</button>
+          <n-button circle quaternary size="large" @click="handleFlip">
+            <template #icon><n-icon><FlipIcon /></n-icon></template>
+          </n-button>
         </template>
-        Delete current move & branch
+        {{ t('features.board.flip', 'Flip Board') }}
       </n-tooltip>
-    </div>
+
+      <!-- 3. FEN (Text) -->
+      <n-tooltip trigger="hover">
+        <template #trigger>
+          <n-button quaternary size="medium" @click="handleCopyFen" class="text-btn">
+            FEN
+          </n-button>
+        </template>
+        {{ t('features.board.copyFen', 'Copy FEN') }}
+      </n-tooltip>
+
+      <!-- 4. Engine Switch -->
+      <n-tooltip trigger="hover">
+        <template #trigger>
+          <div class="switch-wrapper">
+            <n-switch
+              :value="isAnalysisActive"
+              size="medium"
+              @update:value="emit('toggle-analysis')"
+            >
+              <template #checked-icon>
+                <n-icon class="icon-analysis-active"><AnalysisIcon /></n-icon>
+              </template>
+              <template #unchecked-icon>
+                <n-icon><AnalysisIcon /></n-icon>
+              </template>
+            </n-switch>
+          </div>
+        </template>
+        {{ t('features.analysis.engine', 'Engine Analysis') }}
+      </n-tooltip>
+
+      <!-- 5. PGN (Text) -->
+      <n-tooltip trigger="hover">
+        <template #trigger>
+          <n-button quaternary size="medium" @click="handleCopyPgn" class="text-btn">
+            PGN
+          </n-button>
+        </template>
+        {{ t('features.board.copyPgn', 'Copy PGN') }}
+      </n-tooltip>
+
+      <!-- 6. Cut Branch (Scissors) -->
+      <n-tooltip trigger="hover">
+        <template #trigger>
+          <n-button circle quaternary size="large" class="cut-btn" @click="handleCut">
+            <template #icon><n-icon><CutIcon /></n-icon></template>
+          </n-button>
+        </template>
+        {{ t('features.study.cutBranch', 'Delete current move & branch') }}
+      </n-tooltip>
+
+      <!-- 7. Next Move (>) -->
+      <n-tooltip trigger="hover">
+        <template #trigger>
+          <n-button circle quaternary size="large" @click="handleNext">
+            <template #icon><n-icon><NextIcon /></n-icon></template>
+          </n-button>
+        </template>
+        {{ t('common.navigation.next', 'Next') }}
+      </n-tooltip>
+    </n-space>
   </div>
 </template>
 
 <style scoped>
-.study-controls {
+.study-controls-container {
+  padding: 2px 12px;
+  background: var(--glass-bg, rgba(24, 24, 28, 0.7));
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.1));
+  border-radius: 12px;
+  backdrop-filter: var(--glass-blur, blur(12px));
+  width: fit-content;
+  margin: 0 auto;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 0 15px;
-  height: 100%;
-  background: rgba(26, 26, 26, 0.4);
-  backdrop-filter: blur(10px);
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  color: var(--color-text-primary);
+  min-height: 44px;
 }
 
-.control-group {
-  display: flex;
-  gap: 8px;
-  align-items: center;
+.text-btn {
+  font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.5px;
+  min-width: 50px;
 }
 
-button {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: var(--color-text-secondary);
-  border-radius: 6px;
-  padding: 6px 12px;
-  cursor: pointer;
-  font-size: 1em;
+.switch-wrapper {
+  padding: 0 4px;
   display: flex;
   align-items: center;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-button:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--color-text-primary);
-  border-color: rgba(255, 255, 255, 0.2);
-  transform: translateY(-1px);
+.icon-analysis-active {
+  color: var(--neon-cyan, #00f2ff);
+  filter: drop-shadow(0 0 4px var(--neon-cyan, #00f2ff));
 }
 
-button:active {
-  transform: translateY(0);
+.cut-btn:hover {
+  color: #ef4444 !important;
+  background: rgba(239, 68, 68, 0.1) !important;
 }
 
-.navigation button {
-  font-weight: bold;
-  min-width: 36px;
-  justify-content: center;
+:deep(.n-switch.n-switch--active) {
+  --n-button-box-shadow: 0 0 8px var(--neon-cyan, #00f2ff);
 }
 
-.delete-btn:hover {
-  color: #ef4444;
-  background: rgba(239, 68, 68, 0.1);
-  border-color: rgba(239, 68, 68, 0.2);
+@media (orientation: portrait) {
+  .study-controls-container {
+    padding: 0 4px;
+    width: 100%;
+    border-radius: 8px;
+    min-height: 44px;
+    justify-content: space-around;
+  }
 }
 </style>

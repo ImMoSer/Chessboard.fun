@@ -1,23 +1,13 @@
-```
 <script setup lang="ts">
 import { useBoardStore } from '@/entities/game'
-import { useAuthStore } from '@/entities/user'
 import { useAnalysisStore } from '@/features/analysis'
-import { EngineLines } from '@/features/analysis'
+import { AnalysisPanel } from '@/features/analysis'
 import { MozerBook } from '@/features/mozer-book'
 import { LichessOpeningExplorer } from '@/features/opening-explorer'
-import { useStudyStore } from '@/features/study'
-import { RepertoireGeneratorModal } from '@/features/study'
-import { StudyControls } from '@/features/study'
-import { StudyManagerModal } from '@/features/study'
-import { StudyTree } from '@/features/study'
+import { StudyControls, StudyHeader, StudyTree, useStudyStore } from '@/features/study'
 import { pgnService } from '@/shared/lib/pgn/PgnService'
-import { useUiStore } from '@/shared/ui/model/ui.store'
 import { GameLayout } from '@/widgets/game-layout'
-import { CloudOutline, FlashOutline, ShareSocialOutline } from '@vicons/ionicons5'
-import { NIcon, NTooltip, useMessage } from 'naive-ui'
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
@@ -25,69 +15,15 @@ const router = useRouter()
 const boardStore = useBoardStore()
 const studyStore = useStudyStore()
 const analysisStore = useAnalysisStore()
-const authStore = useAuthStore()
-const uiStore = useUiStore()
-const message = useMessage()
-const { t } = useI18n()
 
 const explorerMode = ref<'lichess' | 'mozer'>('mozer')
-const isChapterModalOpen = ref(false)
-const isGeneratorModalOpen = ref(false)
 
-const currentChapterName = computed(() => {
-  const chapter = studyStore.chapters.find((c) => c.id === studyStore.activeChapterId)
-  return chapter ? chapter.name : 'Select Chapter'
-})
-
-const handleCloudSave = async () => {
-  try {
-    if (studyStore.activeChapter?.slug) {
-      if (studyStore.isOwner) {
-        await studyStore.updateInCloud()
-        message.success(t('features.repertoire.notifications.updated'))
-      } else {
-        await studyStore.forkToCloud()
-        message.success(t('features.repertoire.notifications.savedAsCopy'))
-      }
-    } else {
-      await studyStore.saveToCloud()
-      message.success(t('features.repertoire.notifications.saved'))
-    }
-  } catch (e: unknown) {
-    const err = e instanceof Error ? e : { message: String(e) }
-    if (err.message?.includes('limit reached')) {
-      const tier = authStore.userProfile?.subscriptionTier || 'Pawn'
-      const limit = tier === 'King' ? Infinity : (tier === 'Queen' ? 10 : 1)
-
-      const result = await uiStore.showConfirmation(
-        t('features.repertoire.limitModal.title'),
-        t('features.repertoire.limitModal.message', { tier, limit }),
-        {
-          confirmText: t('features.repertoire.limitModal.confirm'),
-          cancelText: t('features.repertoire.limitModal.cancel'),
-          showCancel: true,
-        },
-      )
-
-      if (result === 'confirm') {
-        router.push('/pricing')
-      }
-    } else if (err.message?.includes('shorter than or equal to')) {
-      await uiStore.showConfirmation(t('features.repertoire.sizeModal.title'), t('features.repertoire.sizeModal.message'), {
-        confirmText: t('features.repertoire.sizeModal.confirm'),
-        showCancel: false,
-      })
-    } else {
-      message.error(err.message || t('features.repertoire.notifications.saveError'))
-    }
+const handleToggleAnalysis = () => {
+  if (analysisStore.isAnalysisActive) {
+    analysisStore.hidePanel()
+  } else {
+    analysisStore.showPanel(true)
   }
-}
-
-const handleShare = () => {
-  if (!studyStore.activeChapter?.slug) return
-  const url = `${window.location.origin}/study/chapter/${studyStore.activeChapter.slug}`
-  navigator.clipboard.writeText(url)
-  message.success(t('features.repertoire.notifications.shareLinkCopied'))
 }
 
 onMounted(async () => {
@@ -154,64 +90,7 @@ watch(
 <template>
   <GameLayout>
     <template #top-info>
-      <div class="study-header">
-        <button class="chapter-select-btn" @click="isChapterModalOpen = true">
-          <span class="chapter-title">{{ currentChapterName }}</span>
-          <span class="chapter-count">
-            ({{
-              Math.max(
-                0,
-                studyStore.chapters.findIndex((c) => c.id === studyStore.activeChapterId) + 1,
-              )
-            }}/{{ studyStore.chapters.length }})
-          </span>
-          <span class="dropdown-icon">▼</span>
-        </button>
-
-        <div class="header-actions">
-          <NTooltip trigger="hover">
-            <template #trigger>
-              <button class="icon-btn" @click="isGeneratorModalOpen = true">
-                <NIcon><FlashOutline /></NIcon>
-              </button>
-            </template>
-            {{ t('features.repertoire.repertoireGenerator') }}
-          </NTooltip>
-
-          <NTooltip trigger="hover">
-            <template #trigger>
-              <button
-                class="icon-btn cloud-btn"
-                :class="{ active: studyStore.isOwner && studyStore.activeChapter?.slug }"
-                :disabled="studyStore.cloudLoading"
-                @click="handleCloudSave"
-              >
-                <NIcon v-if="!studyStore.cloudLoading"><CloudOutline /></NIcon>
-                <span v-else class="loader-v2"></span>
-              </button>
-            </template>
-            {{
-              !studyStore.activeChapter?.slug
-                ? 'Save to Cloud'
-                : studyStore.isOwner
-                  ? 'Update in Cloud'
-                  : 'Save as My Copy'
-            }}
-          </NTooltip>
-
-          <NTooltip v-if="studyStore.activeChapter?.slug" trigger="hover">
-            <template #trigger>
-              <button class="icon-btn" @click="handleShare">
-                <NIcon><ShareSocialOutline /></NIcon>
-              </button>
-            </template>
-            Share Chapter Link
-          </NTooltip>
-        </div>
-
-        <StudyManagerModal v-model:show="isChapterModalOpen" />
-        <RepertoireGeneratorModal v-model:show="isGeneratorModalOpen" />
-      </div>
+      <StudyHeader />
     </template>
 
     <template #left-panel>
@@ -230,12 +109,15 @@ watch(
     </template>
 
     <template #controls>
-      <StudyControls />
+      <StudyControls
+        :is-analysis-active="analysisStore.isAnalysisActive"
+        @toggle-analysis="handleToggleAnalysis"
+      />
     </template>
 
     <template #right-panel>
       <div class="right-panel-content">
-        <EngineLines />
+        <AnalysisPanel :show-pgn="false" />
         <StudyTree />
       </div>
     </template>
@@ -243,139 +125,6 @@ watch(
 </template>
 
 <style scoped>
-.study-header {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 15px;
-}
-
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.chapter-select-btn {
-  background: transparent;
-  border: 1px solid var(--color-border);
-  border-radius: var(--panel-border-radius);
-  padding: 8px 16px;
-  color: var(--color-text-primary);
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  transition: background 0.2s;
-  max-width: 100%;
-}
-
-.chapter-select-btn:hover {
-  background: var(--color-bg-tertiary);
-}
-
-.icon-btn {
-  background: transparent;
-  border: 1px solid var(--color-border);
-  border-radius: var(--panel-border-radius);
-  padding: 8px;
-  color: var(--color-text-primary);
-  font-size: 1.2rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition:
-    background 0.2s,
-    color 0.2s,
-    border-color 0.2s;
-}
-
-.icon-btn:hover {
-  background: var(--color-bg-tertiary);
-  color: var(--color-accent-primary);
-}
-
-.cloud-btn.active {
-  background: rgba(34, 197, 94, 0.1);
-  border-color: #22c55e;
-  color: #22c55e;
-}
-
-.cloud-btn.active:hover {
-  background: rgba(34, 197, 94, 0.2);
-  border-color: #22c55e;
-}
-
-/* Spinner for Cloud Loading */
-.loader-v2 {
-  width: 1.2rem;
-  height: 1.2rem;
-  border: 2px solid currentColor;
-  border-bottom-color: transparent;
-  border-radius: 50%;
-  display: inline-block;
-  box-sizing: border-box;
-  animation: rotation 1s linear infinite;
-}
-
-@keyframes rotation {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-.chapter-title {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 200px;
-}
-
-.chapter-count {
-  color: var(--color-text-secondary);
-  font-size: 0.9rem;
-}
-
-.dropdown-icon {
-  font-size: 0.8rem;
-  color: var(--color-text-secondary);
-}
-
-/* Modal Styles */
-.chapters-list {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  max-height: 60vh;
-  overflow-y: auto;
-}
-
-.chapter-item {
-  padding: 10px;
-  border-radius: 4px;
-  cursor: pointer;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.chapter-item:hover {
-  background: var(--color-bg-secondary);
-}
-
-.chapter-item.active {
-  background: var(--color-accent-primary-alpha);
-  color: var(--color-accent-primary);
-  font-weight: bold;
-}
-
 /* Explorer Styles */
 .explorer-wrapper {
   display: flex;
@@ -423,12 +172,5 @@ watch(
 :deep(.study-tree-container) {
   flex: 1;
   min-height: 0;
-}
-
-@media (orientation: portrait) {
-  .chapter-title {
-    max-width: 150px;
-    font-size: 0.9rem;
-  }
 }
 </style>
