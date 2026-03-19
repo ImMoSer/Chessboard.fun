@@ -5,7 +5,6 @@ import type {
     TornadoLeaderboardEntry,
     TornadoMode,
 } from '@/shared/types/api.types'
-import InfoIcon from '@/shared/ui/InfoIcon.vue'
 import type { DataTableColumns } from 'naive-ui'
 import { computed, h, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -18,7 +17,6 @@ const props = defineProps({
   title: { type: String, required: true },
   data: { type: Object as PropType<TimedLeaderboards>, required: true },
   colorClass: { type: String, required: true },
-  infoTopic: { type: String, required: false },
   mode: { type: String as PropType<'tornado' | 'finish_him'>, required: true },
 })
 
@@ -97,7 +95,6 @@ const columns = computed<DataTableColumns<TornadoLeaderboardEntry | FinishHimLea
     <div class="card-header main-header">
       <h3 class="card-title">
         {{ title }}
-        <InfoIcon v-if="infoTopic" :topic="infoTopic" />
       </h3>
     </div>
 

@@ -488,58 +488,12 @@
         "days21": "Letzte 21 Tage"
       }
     },
-    "info": {
-      "modes": {
-        "finish-him": {
-          "title": "Finish Him",
-          "content": "Löse zuerst eine Taktikaufgabe und beweise dann deinen Vorteil im Endspiel gegen die gewählte Engine. Skill-Punkte gibt es für Siege (Summe des Materials: ♟=1, ♞♗=3, ♜=5, ♛=9). Remis und Niederlagen geben keine Punkte."
-        },
-        "tornado": {
-          "title": "Tornado",
-          "content": "Vier Zeitkontrollen: 1+1, 3+2, 5+3 und 10+5. Löse so viele Aufgaben wie möglich im Zeitlimit. Das Rating basiert auf dem Glicko2-System. Jede gelöste Aufgabe gibt 1 Skill-Punkt."
-        }
-      },
-      "leaderboards": {
-        "topFinishHim": {
-          "title": "Finish Him Rekorde",
-          "content": "Spieler-Ranking nach Punkten im 'Finish Him' Modus. Punkte gibt es für jede erfolgreich abgeschlossene Aufgabe."
-        },
-        "theoryLeaderboard": {
-          "title": "Theorie Rekorde",
-          "content": "Ranking nach Punkten in theoretischen Endspielen."
-        },
-        "practicalLeaderboard": {
-          "title": "Praktische Schach Rekorde",
-          "content": "Spieler-Ranking basierend auf Ergebnissen in praktischen Endspielen. Punkte gibt es für jede korrekt gelöste Aufgabe."
-        },
-        "overallSkill": {
-          "title": "Gesamt Skill-Rating",
-          "content": "Summe aller Skill-Punkte über alle Modi im gewählten Zeitraum."
-        },
-        "skillStreak": {
-          "title": "Täglicher Streak",
-          "content": "Spieler, die an aufeinanderfolgenden Tagen mindestens 100 Skill-Punkte sammeln."
-        },
-        "skillStreakMega": {
-          "title": "Tornado +300 Streak",
-          "content": "Für die Elite: Täglich mindestens 300 Skill-Punkte im Tornado-Modus."
-        },
-        "topToday": {
-          "title": "Top Heute",
-          "content": "Die erfolgreichsten Spieler des heutigen Tages."
-        },
-        "tornadoLeaderboard": {
-          "title": "Tornado Rating",
-          "content": "Ranking nach dem höchsten erreichten Glicko2-Rating im Tornado-Modus."
-        }
-      }
-    },
+
     "controls": {
       "new": "Neu",
       "restart": "Neustart",
       "resign": "Aufgeben",
-      "share": "Teilen",
-      "info": "Info"
+      "share": "Teilen"
     },
     "tornado": {
       "modes": {

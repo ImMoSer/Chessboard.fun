@@ -5,7 +5,6 @@ import {
     PRACTICAL_CHESS_CATEGORIES,
     THEORY_ENDING_CATEGORIES,
 } from '@/shared/types/api.types'
-import InfoIcon from '@/shared/ui/InfoIcon.vue'
 import type { DataTableColumns } from 'naive-ui'
 import { computed, h, ref, watch, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -26,7 +25,6 @@ const props = defineProps({
     required: true,
   },
   colorClass: { type: String, required: true },
-  infoTopic: { type: String, required: false },
 })
 
 const { t } = useI18n()
@@ -158,7 +156,6 @@ const swiperModules = [Navigation, Mousewheel, FreeMode]
     <div class="card-header main-header">
       <h3 class="card-title">
         {{ title }}
-        <InfoIcon v-if="infoTopic" :topic="infoTopic" />
       </h3>
     </div>
 

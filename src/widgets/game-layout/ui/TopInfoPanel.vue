@@ -77,7 +77,7 @@ const { displayInfo } = useTopInfo()
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  gap: 32px; /* ->->->-> Spacing */
+  gap: 8px; /* ->->->-> Spacing */
 }
 
 /* --- Columns --- */

@@ -5,7 +5,6 @@ import type {
     SkillPeriod,
     SolveStreakLeaderboardEntry,
 } from '@/shared/types/api.types'
-import InfoIcon from '@/shared/ui/InfoIcon.vue'
 import { BarChart } from 'echarts/charts'
 import {
     GridComponent,
@@ -49,7 +48,6 @@ const props = defineProps({
   showTimer: { type: Boolean, default: false },
   isLoading: { type: Boolean, default: false },
   selectedPeriod: { type: String as PropType<SkillPeriod>, default: '7' },
-  infoTopic: { type: String, required: false },
 })
 
 const emit = defineEmits<{
@@ -211,7 +209,6 @@ const onChartClick = (params: unknown) => {
     <div class="card-header">
       <h3 class="card-title">
         {{ title }}
-        <InfoIcon v-if="infoTopic" :topic="infoTopic" />
       </h3>
     </div>
 

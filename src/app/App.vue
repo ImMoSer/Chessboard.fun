@@ -3,8 +3,6 @@
 import { useGameStore } from '@/entities/game'
 import { SettingsMenu } from '@/features/settings'
 import ConfirmationModal from '@/shared/ui/ConfirmationModal.vue'
-import InfoModal from '@/shared/ui/InfoModal.vue'
-import { useUiStore } from '@/shared/ui/model/ui.store'
 import GalaxyBackground from '@/shared/ui/visuals/GalaxyBackground.vue'
 import GlobalAssetLoader from './GlobalAssetLoader.vue'
 import { NavMenu } from '@/widgets/nav-menu'
@@ -15,7 +13,6 @@ import { useI18n } from 'vue-i18n'
 import { RouterView } from 'vue-router'
 
 const gameStore = useGameStore()
-const uiStore = useUiStore()
 const { t } = useI18n()
 
 const isLandscape = ref(false)
@@ -186,7 +183,6 @@ onUnmounted(() => {
           </n-drawer>
 
           <ConfirmationModal />
-          <InfoModal v-if="uiStore.infoModalKey" />
         </n-layout>
         <GalaxyBackground />
       </n-dialog-provider>

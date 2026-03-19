@@ -86,7 +86,6 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
             :entries="leaderboards.skillStreakMegaLeaderboard"
             color-class="skillStreakMega"
             :show-streak="true"
-            info-topic="skillStreakMega"
           />
 
           <!-- Top Today Leaderboard -->
@@ -96,7 +95,6 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
             :entries="leaderboards.topTodayLeaderboard"
             color-class="topToday"
             :show-timer="true"
-            info-topic="topToday"
           />
 
           <!-- Skill Streak Leaderboard -->
@@ -108,7 +106,6 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
             :entries="leaderboards.skillStreakLeaderboard"
             color-class="skillStreak"
             :show-streak="true"
-            info-topic="skillStreak"
           />
         </div>
       </section>
@@ -124,7 +121,6 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
             :data="leaderboards.tornadoLeaderboard"
             mode="tornado"
             color-class="tornadoLeaderboard"
-            info-topic="tornadoLeaderboard"
           />
 
           <!-- Finish Him Leaderboard -->
@@ -133,7 +129,6 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
             :title="t('features.leaderboards.titles.topFinishHim')"
             :data="leaderboards.finishHimLeaderboard"
             color-class="finishHimLeaderboard"
-            info-topic="topFinishHim"
           />
 
           <!-- Theory Leaderboard -->
@@ -142,7 +137,6 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
             :title="t('features.leaderboards.titles.theoryLeaderboard')"
             :data="leaderboards.theoryLeaderboard"
             color-class="theoryLeaderboard"
-            info-topic="theoryLeaderboard"
           />
 
           <!-- Practical Leaderboard -->
@@ -151,7 +145,6 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
             :title="t('features.leaderboards.titles.practicalLeaderboard')"
             :data="leaderboards.practicalLeaderboard"
             color-class="practicalLeaderboard"
-            info-topic="practicalLeaderboard"
           />
         </div>
       </section>
@@ -168,7 +161,6 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
           :show-filter="true"
           :is-loading="isSkillLeaderboardLoading"
           :selected-period="selectedSkillPeriod"
-          info-topic="overallSkill"
           @period-change="handleSkillPeriodChange"
         />
       </section>

@@ -28,9 +28,6 @@ export const useUiStore = defineStore('ui', () => {
   const isCancelButtonVisible = ref(true)
   const isExtraButtonVisible = ref(false)
 
-  // For Info Modal
-  const infoModalKey = ref<string | null>(null)
-
   let resolvePromise: ResolveFunction | null = null
 
   function showConfirmation(
@@ -95,14 +92,6 @@ export const useUiStore = defineStore('ui', () => {
     isModalPersistent.value = false
   }
 
-  function showInfoModal(key: string) {
-    infoModalKey.value = key
-  }
-
-  function hideInfoModal() {
-    infoModalKey.value = null
-  }
-
   return {
     // Confirmation Modal
     isModalVisible,
@@ -118,10 +107,5 @@ export const useUiStore = defineStore('ui', () => {
     handleCancel,
     handleExtra,
     handleOverlayClick,
-
-    // Info Modal
-    infoModalKey,
-    showInfoModal,
-    hideInfoModal,
   }
 })

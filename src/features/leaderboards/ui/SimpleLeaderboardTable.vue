@@ -1,6 +1,5 @@
 <!-- src/components/recordsPage/SimpleLeaderboardTable.vue -->
 <script setup lang="ts">
-import InfoIcon from '@/shared/ui/InfoIcon.vue'
 import type { FinishHimLeaderboardEntry } from '@/shared/types/api.types'
 import type { DataTableColumns } from 'naive-ui'
 import { h, type PropType } from 'vue'
@@ -12,7 +11,6 @@ const props = defineProps({
   entries: { type: Array as PropType<FinishHimLeaderboardEntry[]>, required: true },
   mode: { type: String as PropType<'finish-him'>, required: true },
   colorClass: { type: String, required: true },
-  infoTopic: { type: String, required: false },
 })
 
 const router = useRouter()
@@ -99,7 +97,6 @@ const columns: DataTableColumns<FinishHimLeaderboardEntry> = [
     <div class="card-header">
       <h3 class="card-title">
         {{ title }}
-        <InfoIcon v-if="infoTopic" :topic="infoTopic" />
       </h3>
     </div>
     <n-data-table

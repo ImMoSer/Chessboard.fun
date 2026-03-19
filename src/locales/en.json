@@ -488,58 +488,12 @@
         "days21": "Last 21 days"
       }
     },
-    "info": {
-      "modes": {
-        "finish-him": {
-          "title": "Finish Him",
-          "content": "First solve a tactical puzzle, then prove your advantage in the endgame against your chosen engine. Skill Points are awarded for wins and equal the sum of material on the board (\u265f=1, \u265e\u265d=3, \u265c=5, \u265b=9). Draws and losses give no points. Completion time is also recorded for leaderboards."
-        },
-        "tornado": {
-          "title": "Tornado",
-          "content": "Four time controls available: 1+1, 3+2, 5+3, and 10+5 (separate rating in each). Solve as many puzzles as possible within the time limit. Rating calculated using the Glicko2 system based on puzzle difficulty and time spent. Each solved puzzle awards 1 Skill Point."
-        }
-      },
-      "leaderboards": {
-        "topFinishHim": {
-          "title": "Finish Him Records",
-          "content": "Player rankings by points earned in the 'Finish Him' mode. Points are awarded for each successfully completed task. You can switch between themes to see the leaders in each category."
-        },
-        "theoryLeaderboard": {
-          "title": "Theory Records",
-          "content": "Player rankings by points earned in theoretical endgames. You can switch between themes to see the leaders in each category."
-        },
-        "practicalLeaderboard": {
-          "title": "Practical Chess Records",
-          "content": "Player rankings based on results in practical endgames. Points are awarded for each correctly solved task."
-        },
-        "overallSkill": {
-          "title": "Overall Skill Rating",
-          "content": "Total Skill Points earned across all game modes for the selected period: week, 14 days, 21 days, or month. Skill Points equal the material sum (\u265f=1, \u265e\u265d=3, \u265c=5, \u265b=9) in Finish Him mode. In Tornado mode, each puzzle awards 1 point. Only wins count."
-        },
-        "skillStreak": {
-          "title": "Daily Streak Rating",
-          "content": "Tracks players who earn at least 100 Skill Points every consecutive day in any mode. Rating based on the number of consecutive days. Missing a day resets the streak. This encourages regular activity and consistent improvement."
-        },
-        "skillStreakMega": {
-          "title": "Tornado +300 Every Day",
-          "content": "For the absolute elite: a streak of earning at least 300 Skill Points in Tornado mode daily. Shows the most dedicated and disciplined players. Missing a day in the mode resets the streak."
-        },
-        "topToday": {
-          "title": "Top Today",
-          "content": "Shows players who earned the most Skill Points during today. The rating resets daily at midnight."
-        },
-        "tornadoLeaderboard": {
-          "title": "Tornado Rating",
-          "content": "Ranks players by their highest rating achieved in Tornado mode. Rating calculated using the Glicko2 system based on solved puzzle difficulty and time spent."
-        }
-      }
-    },
+
     "controls": {
       "new": "New",
       "restart": "Restart",
       "resign": "Resign",
-      "share": "Share",
-      "info": "Info"
+      "share": "Share"
     },
     "tornado": {
       "modes": {
