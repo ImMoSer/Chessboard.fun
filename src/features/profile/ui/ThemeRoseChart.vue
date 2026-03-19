@@ -78,6 +78,7 @@ const activePopup = ref<{ visible: boolean; x: number; y: number; data: PopupDat
 })
 const popupRef = ref<HTMLElement | null>(null)
 const lastOpenTime = ref(0)
+const isLocked = ref(false)
 
 // Close popup when clicking outside
 const handleClickOutside = (event: MouseEvent | TouchEvent) => {
@@ -205,6 +206,11 @@ const onChartClick = (params: unknown) => {
     p.event.event.stopImmediatePropagation()
   }
 
+  isLocked.value = true
+  setTimeout(() => {
+    isLocked.value = false
+  }, 800)
+
   lastOpenTime.value = Date.now()
 
   const modeName = props.title
@@ -258,7 +264,7 @@ const onChartClick = (params: unknown) => {
 }
 
 const onImproveClick = () => {
-  if (!activePopup.value.data) return
+  if (!activePopup.value.data || isLocked.value) return
 
   const { themeId, screenMode } = activePopup.value.data
 
@@ -390,7 +396,14 @@ const onImproveClick = () => {
         </div>
 
         <div class="popup-footer">
-          <n-button type="primary" block @click="onImproveClick" class="improve-btn">
+          <n-button
+            type="primary"
+            block
+            @click="onImproveClick"
+            class="improve-btn"
+            :disabled="isLocked"
+            :class="{ 'is-locked': isLocked }"
+          >
             {{ t('features.userCabinet.stats.improve') }} {{ activePopup.data.subModeName }}
           </n-button>
         </div>
@@ -454,6 +467,32 @@ const onImproveClick = () => {
 
 .improve-btn {
   font-weight: bold;
+  position: relative;
+  overflow: hidden;
+}
+
+.improve-btn::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background-color: var(--neon-cyan);
+  width: 0;
+  transition: none;
+}
+
+.improve-btn.is-locked::after {
+  animation: progress-load 800ms linear forwards;
+}
+
+@keyframes progress-load {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
 }
 
 .popup-content {
