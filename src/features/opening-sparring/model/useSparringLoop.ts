@@ -1,4 +1,5 @@
 import { gameplayService, useBoardStore, useGameStore, type GameStatusInfo, type IGameplayStrategy } from '@/entities/game'
+import type { Key } from '@lichess-org/chessground/types'
 import { useTheoryStore, type MozerBookMove } from '@/entities/opening'
 import { areMovesEqual } from '@/shared/lib/chess-utils'
 import { serverEngineService, type AnalysisResponse, type EvalLine } from '@/shared/lib/engine'
@@ -241,24 +242,36 @@ export function useSparringLoop() {
           const bestLineBefore = response.eval_before?.[0]
           const bestLineAfter = response.eval_after?.[0]
 
-          pgnService.updateNode(currentNode, {
-            metadata: {
-              phase: 'playout',
-              loading: false,
-              nag: response.quality.nag,
-              quality: classifyMoveFromNag(response.quality.nag),
-              chaos_index: response.quality.chaos_index,
-              is_sacrifice: response.quality.is_sacrifice,
-              evaluation: {
-                score_cp: bestLineAfter?.cp || 0,
-                win_prob: bestLineAfter?.win_prob || 0,
-                depth: bestLineAfter?.depth || 0,
-                best_move: bestLineBefore?.move_uci || '',
-                delta_wp: response.quality.delta_wp,
-                delta_cp: response.quality.delta_cp,
+            pgnService.updateNode(currentNode, {
+              metadata: {
+                phase: 'playout',
+                loading: false,
+                nag: response.quality.nag,
+                quality: classifyMoveFromNag(response.quality.nag),
+                chaos_index: response.quality.chaos_index,
+                is_sacrifice: response.quality.is_sacrifice,
+                evaluation: {
+                  score_cp: bestLineAfter?.cp || 0,
+                  win_prob: bestLineAfter?.win_prob || 0,
+                  depth: bestLineAfter?.depth || 0,
+                  best_move: bestLineBefore?.move_uci || '',
+                  delta_wp: response.quality.delta_wp,
+                  delta_cp: response.quality.delta_cp,
+                },
               },
-            },
-          })
+            })
+
+            // Set the marker on the board
+            const targetSquare = uci.slice(2, 4) as Key
+            if (response.quality.nag && response.quality.nag !== 'OK') {
+              boardStore.setLastNag({
+                square: targetSquare,
+                nag: response.quality.nag,
+                quality: classifyMoveFromNag(response.quality.nag),
+              })
+            } else {
+               boardStore.setLastNag(null)
+            }
         }
       } catch (e) {
         console.error('[OpeningSparring] Error in playout recording:', e)
@@ -279,6 +292,13 @@ export function useSparringLoop() {
     if (nag === '!') return 'best'
     if (nag === '!?') return 'interesting'
     return 'good'
+  }
+
+  function getNagDelay(nag?: string): number {
+    if (nag === '??' || nag === '!!') return 2000
+    if (nag === '?' || nag === '!') return 1500
+    if (nag === '?!' || nag === '!?') return 1000
+    return 0
   }
 
   function handlePlayoutGameOver(
@@ -311,6 +331,14 @@ export function useSparringLoop() {
       async onUserMoveExecuted(uci: string) {
         if (store.isPlayoutMode) {
           await _recordPlayoutMove(uci)
+
+          const lastNode = pgnService.getLastMove()
+          const nag = lastNode?.metadata?.nag
+          const delay = getNagDelay(nag)
+          
+          if (delay > 0) {
+            await new Promise((resolve) => setTimeout(resolve, delay))
+          }
         } else {
           await enrichUserMove(uci)
         }

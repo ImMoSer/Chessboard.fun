@@ -11,8 +11,8 @@ import type {
   MoveMetadata,
 } from '@lichess-org/chessground/types'
 import type { Role as ChessopsRole } from 'chessops/types'
-import { onMounted, onUnmounted, ref, shallowRef, watch, type PropType } from 'vue'
-import type { PromotionState } from '../model/board.store'
+import { computed, onMounted, onUnmounted, ref, shallowRef, watch, type PropType } from 'vue'
+import { useBoardStore, type PromotionState } from '../model/board.store'
 import PromotionDialog from './PromotionDialog.vue'
 
 const props = defineProps({
@@ -40,6 +40,42 @@ const emit = defineEmits<{
 
 const chessboardRef = ref<HTMLElement | null>(null)
 const ground = shallowRef<Api | null>(null)
+const boardStore = useBoardStore()
+
+const nagMarkerStyle = computed(() => {
+  if (!boardStore.lastNag) return null
+  const square = boardStore.lastNag.square
+  const file = square.charCodeAt(0) - 97 // a=0
+  const rank = parseInt(square.charAt(1), 10) - 1 // 1=0
+
+  let top, left
+  if (props.orientation === 'white') {
+    top = (7 - rank) * 12.5
+    left = file * 12.5
+  } else {
+    top = rank * 12.5
+    left = (7 - file) * 12.5
+  }
+
+  return {
+    top: `${top}%`,
+    left: `${left}%`,
+    width: '12.5%',
+    height: '12.5%',
+  }
+})
+
+const getNagColor = (quality: string) => {
+  switch (quality) {
+    case 'blunder': return 'var(--color-nag-blunder)'
+    case 'mistake': return 'var(--color-nag-mistake)'
+    case 'inaccuracy': return 'var(--color-nag-inaccuracy)'
+    case 'best': return 'var(--color-nag-best)'
+    case 'brilliant': return 'var(--color-nag-brilliant)'
+    case 'interesting': return 'var(--color-nag-interesting)'
+    default: return 'var(--color-accent)'
+  }
+}
 
 const handleWheel = (event: WheelEvent) => {
   emit('wheel-navigate', event.deltaY > 0 ? 'down' : 'up')
@@ -186,6 +222,14 @@ watch([() => props.animationEnabled, () => props.animationDuration], ([enabled, 
 <template>
   <div class="board-wrapper" @wheel.passive="handleWheel">
     <div ref="chessboardRef" class="chessboard"></div>
+
+    <!-- NAG Marker Overlay -->
+    <div v-if="boardStore.lastNag && nagMarkerStyle" class="nag-container" :style="nagMarkerStyle">
+      <div class="nag-badge" :style="{ backgroundColor: getNagColor(boardStore.lastNag.quality) }">
+        {{ boardStore.lastNag.nag }}
+      </div>
+    </div>
+
     <PromotionDialog
       v-if="promotionState"
       :dest="promotionState.dest"
@@ -208,5 +252,35 @@ watch([() => props.animationEnabled, () => props.animationDuration], ([enabled, 
 .chessboard {
   width: 100%;
   height: 100%;
+}
+
+.nag-container {
+  position: absolute;
+  pointer-events: none;
+  z-index: 5; /* Higher than board but lower than promotion dialog */
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  box-sizing: border-box;
+}
+
+.nag-badge {
+  width: 30%;
+  height: 30%;
+  min-width: 18px;
+  min-height: 18px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #ffffff; /* White text */
+  font-weight: 800; /* Bold */
+  font-size: 1.8em;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.7);
+  border: 1.8px solid #ffffff; /* White border */
+  /* Remove outgoing transform to keep inside the square */
+  user-select: none;
+  z-index: 6;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5); /* Boost contrast for symbols */
 }
 </style>

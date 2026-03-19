@@ -28,6 +28,12 @@ export interface GameEndOutcome {
   reason?: string
 }
 
+export interface NagMarker {
+  square: Key
+  nag: string
+  quality: string
+}
+
 export interface PromotionState {
   orig: Key
   dest: Key
@@ -52,6 +58,7 @@ export const useBoardStore = defineStore('board', () => {
   const drawableShapes = ref<DrawShape[]>([])
   const isAnalysisModeActive = ref(false)
   const queuedPremove = ref<{ orig: Key; dest: Key } | null>(null)
+  const lastNag = ref<NagMarker | null>(null)
 
   // Configuration for sounds (decoupled from GameStore)
   const playGameStatusSounds = ref(true)
@@ -64,8 +71,20 @@ export const useBoardStore = defineStore('board', () => {
     const lastPgnMove = pgnService.getLastMove()
     if (lastPgnMove && lastPgnMove.uci) {
       lastMove.value = [lastPgnMove.uci.slice(0, 2) as Key, lastPgnMove.uci.slice(2, 4) as Key]
+      
+      const meta = lastPgnMove.metadata
+      if (meta && meta.nag && meta.nag !== 'OK') {
+        lastNag.value = {
+          square: lastPgnMove.uci.slice(2, 4) as Key,
+          nag: meta.nag,
+          quality: meta.quality || 'good',
+        }
+      } else {
+        lastNag.value = null
+      }
     } else {
       lastMove.value = undefined
+      lastNag.value = null
     }
   }
 
@@ -143,6 +162,10 @@ export const useBoardStore = defineStore('board', () => {
 
   function _applyUciMove(uci: string): boolean {
     logger.info(`[_applyUciMove] Attempting to apply UCI: ${uci}`)
+    
+    // Clear last NAG when a new move is applied
+    lastNag.value = null
+
     const move = parseUciMove(uci)
     if (!move || !chessPosition.value.isLegal(move)) {
       logger.error(`[_applyUciMove] Illegal move or parse error for UCI: ${uci}`)
@@ -348,6 +371,10 @@ export const useBoardStore = defineStore('board', () => {
     drawableShapes.value = shapes
   }
 
+  function setLastNag(marker: NagMarker | null) {
+    lastNag.value = marker
+  }
+
   function navigatePgn(
     move: 'start' | 'backward' | 'forward' | 'end',
     targetTurn?: ChessgroundColor | null,
@@ -437,11 +464,13 @@ export const useBoardStore = defineStore('board', () => {
     flipBoard,
     getGameStatus,
     setDrawableShapes,
+    setLastNag,
     navigatePgn,
     navigateToNode,
     setAnalysisMode,
     setPlayGameStatusSounds,
     resetBoardState,
     syncBoardWithPgn,
+    lastNag,
   }
 })
