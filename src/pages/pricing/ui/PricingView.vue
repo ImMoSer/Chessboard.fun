@@ -78,8 +78,7 @@ const subscriptionTiers = computed(() => {
       icon: '/piece/alpha/wR.svg',
       pawncoins: ROOK_COINS,
       color: ROOK_COLOR,
-      priceMonthly: t('features.pricing.tiers.rook.priceMonthly'),
-      priceYearly: t('features.pricing.tiers.rook.priceYearly'),
+      price: t('features.pricing.tiers.rook.price'),
       isPurchasable: true,
     },
     {
@@ -89,8 +88,7 @@ const subscriptionTiers = computed(() => {
       icon: '/piece/alpha/wQ.svg',
       pawncoins: QUEEN_COINS,
       color: QUEEN_COLOR,
-      priceMonthly: t('features.pricing.tiers.queen.priceMonthly'),
-      priceYearly: t('features.pricing.tiers.queen.priceYearly'),
+      price: t('features.pricing.tiers.queen.price'),
       isPurchasable: true,
     },
     {
@@ -100,8 +98,7 @@ const subscriptionTiers = computed(() => {
       icon: '/piece/alpha/wK.svg',
       pawncoins: KING_COINS,
       color: KING_COLOR,
-      priceMonthly: t('features.pricing.tiers.king.priceMonthly'),
-      priceYearly: t('features.pricing.tiers.king.priceYearly'),
+      price: t('features.pricing.tiers.king.price'),
       isPurchasable: true,
       isLimitless: true,
     },
@@ -127,8 +124,6 @@ interface SubscriptionTier {
   pawncoins: number
   color: string
   price?: string
-  priceMonthly?: string
-  priceYearly?: string
   highlight?: boolean
   isBonus?: boolean
   isPurchasable?: boolean
@@ -143,12 +138,12 @@ const handleTierClick = (tier: SubscriptionTier) => {
   }
 }
 
-const handleCheckout = async (tierId: string, interval: 'monthly' | 'yearly') => {
+const handleCheckout = async (tierId: string) => {
   try {
-    loadingTier.value = tierId + '-' + interval
+    loadingTier.value = tierId
     const response = await apiClient<{ success: boolean; url: string }>('/billing/checkout', {
       method: 'POST',
-      body: JSON.stringify({ tier: tierId, interval })
+      body: JSON.stringify({ tier: tierId, interval: 'monthly' })
     })
 
     if (response.success && response.url) {
@@ -221,31 +216,18 @@ const handleCheckout = async (tierId: string, interval: 'monthly' | 'yearly') =>
                 </template>
                 <n-divider dashed style="margin: 12px 0" />
 
-                <div v-if="tier.isPurchasable" style="min-height: 72px;">
-                  <n-space vertical size="small">
-                    <n-button
-                      block
-                      type="primary"
-                      ghost
-                      @click.stop="handleCheckout(tier.id, 'monthly')"
-                      :loading="loadingTier === tier.id + '-monthly'"
-                      :disabled="loadingTier !== null"
-                    >
-                      {{ tier.priceMonthly }}
-                    </n-button>
-                    <n-button
-                      block
-                      type="success"
-                      @click.stop="handleCheckout(tier.id, 'yearly')"
-                      :loading="loadingTier === tier.id + '-yearly'"
-                      :disabled="loadingTier !== null"
-                    >
-                      {{ tier.priceYearly }}
-                    </n-button>
-                  </n-space>
-                </div>
-                <div v-else style="min-height: 72px; display: flex; align-items: center; justify-content: center;">
-                  <n-text strong type="success" style="font-size: 1.1em; text-align: center;">
+                <div style="min-height: 48px; display: flex; align-items: center; justify-content: center;">
+                  <n-button
+                    v-if="tier.isPurchasable"
+                    block
+                    type="primary"
+                    @click.stop="handleCheckout(tier.id)"
+                    :loading="loadingTier === tier.id"
+                    :disabled="loadingTier !== null"
+                  >
+                    {{ tier.price }}
+                  </n-button>
+                  <n-text v-else strong type="success" style="font-size: 1.1em; text-align: center;">
                     {{ tier.price }}
                   </n-text>
                 </div>

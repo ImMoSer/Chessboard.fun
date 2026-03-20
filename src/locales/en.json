@@ -269,22 +269,19 @@
           "name": "Rook",
           "role": "The \"No-Brainer\" entry for amateurs.",
           "description": "Daily replenishment up to {pawncoins} PawnCoins",
-          "priceMonthly": "3.99 \u20ac / Month",
-          "priceYearly": "39.99 \u20ac / Year"
+          "price": "3.99 \u20ac / Month"
         },
         "queen": {
           "name": "Queen",
           "role": "The \"Standard\" for ambitious club players.",
           "description": "Daily replenishment up to {pawncoins} PawnCoins",
-          "priceMonthly": "5.99 \u20ac / Month",
-          "priceYearly": "59.99 \u20ac / Year"
+          "price": "5.99 \u20ac / Month"
         },
         "king": {
           "name": "King",
           "role": "The \"Full-Power\" package for pros & analysts.",
           "description": "Daily replenishment up to {pawncoins} PawnCoins",
-          "priceMonthly": "9.99 \u20ac / Month",
-          "priceYearly": "99.99 \u20ac / Year"
+          "price": "9.99 \u20ac / Month"
         },
         "price": {
           "soon": "Price will be announced",
@@ -770,7 +767,7 @@
         ],
         "terminationTitle": "5. Termination and Duration",
         "terminationParagraphs": [
-          "(1) Subscriptions have the chosen duration (e.g., monthly or yearly).",
+          "(1) Subscriptions have the chosen duration (e.g., monthly).",
           "(2) Termination is possible at any time without notice to the end of the paid period.",
           "(3) After termination, the Pro functions remain fully available until the end of the already paid period. A refund of already paid amounts will not be made."
         ],

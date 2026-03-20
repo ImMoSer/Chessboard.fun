@@ -269,22 +269,19 @@
           "name": "Turm",
           "role": "Der ideale Einstieg für Amateure.",
           "description": "Tägliche Auffüllung auf bis zu {pawncoins} PawnCoins",
-          "priceMonthly": "3,99 € / Monat",
-          "priceYearly": "39,99 € / Jahr"
+          "price": "3,99 € / Monat"
         },
         "queen": {
           "name": "Dame",
           "role": "Der Standard für ambitionierte Vereinsspieler.",
           "description": "Tägliche Auffüllung auf bis zu {pawncoins} PawnCoins",
-          "priceMonthly": "5,99 € / Monat",
-          "priceYearly": "59,99 € / Jahr"
+          "price": "5,99 € / Monat"
         },
         "king": {
           "name": "König",
           "role": "Das Kraftpaket für Profis & Analysten.",
           "description": "Tägliche Auffüllung auf bis zu {pawncoins} PawnCoins",
-          "priceMonthly": "9,99 € / Monat",
-          "priceYearly": "99,99 € / Jahr"
+          "price": "9,99 € / Monat"
         },
         "price": {
           "soon": "Preis wird angekündigt",
@@ -770,7 +767,7 @@
         ],
         "terminationTitle": "5. Kündigung und Laufzeit",
         "terminationParagraphs": [
-          "(1) Abonnements haben die jeweils gewählte Laufzeit (z.B. monatlich oder jährlich).",
+          "(1) Abonnements haben die jeweils gewählte Laufzeit (z.B. monatlich).",
           "(2) Eine Kündigung ist jederzeit ohne Einhaltung einer Frist zum Ende des bezahlten Zeitraums möglich.",
           "(3) Nach der Kündigung bleiben die Pro-Funktionen bis zum Ablauf des bereits bezahlten Zeitraums vollumfänglich erhalten. Eine Rückerstattung bereits gezahlter Beträge erfolgt nicht."
         ],
