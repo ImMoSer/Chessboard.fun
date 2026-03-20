@@ -15,8 +15,6 @@ declare module 'vue' {
     ChessboardPreview: typeof import('./src/shared/ui/board-preview/ChessboardPreview.vue')['default']
     ConfirmationModal: typeof import('./src/shared/ui/ConfirmationModal.vue')['default']
     GalaxyBackground: typeof import('./src/shared/ui/visuals/GalaxyBackground.vue')['default']
-    InfoIcon: typeof import('./src/shared/ui/InfoIcon.vue')['default']
-    InfoModal: typeof import('./src/shared/ui/InfoModal.vue')['default']
     NAvatar: typeof import('naive-ui')['NAvatar']
     NButton: typeof import('naive-ui')['NButton']
     NCard: typeof import('naive-ui')['NCard']

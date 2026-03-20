@@ -93,8 +93,8 @@ Our infrastructure utilizes a distributed engine cluster to provide specialized 
 ## 🌍 Economy & Club Integration
 
 We operate on an **"Active-First"** model that rewards community engagement over passive consumption.
-- **FunCoins**: Power your high-intensity engine playouts and advanced analytics.
-- **Lichess Club Bonus**: Earn automatic tier upgrades (**Knight**, **Bishop**, **Rook**) by participating in club tournaments and being an active player.
+- **PawnCoins**: Power your high-intensity engine playouts and advanced analytics.
+- **Lichess Club Bonus**: Earn automatic tier upgrades (**Knight**, **Bishop**) by participating in club tournaments and being an active player.
 - **Verification**: All achievements are verified and linked directly to your **Lichess profile**.
 
 > **🏆 Hall of Fame:** [Check the Current Leaders & Records](https://extrapawn.com/records/example)

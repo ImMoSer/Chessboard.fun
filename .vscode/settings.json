@@ -4,7 +4,6 @@
         "errorLens.warningBackground": "#ffb70020"
     },
     "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": "explicit",
         "source.organizeImports": "explicit"
     },
     "eslint.validate": [
@@ -23,11 +22,11 @@
         "*.json": "jsonc"
     },
     "editor.formatOnSave": true,
-    // Нативного включения проверки всего проекта
-    "typescript.tsserver.experimental.enableProjectDiagnostics": true,
-    "vue.server.diagnosticModel": "project",
-    "typescript.validate.enable": true,
-    "typescript.tsc.autoTasks": "on",
-    "eslint.run": "onType",
+    "typescript.tsserver.experimental.enableProjectDiagnostics": false,
+    "vue.server.diagnosticModel": "none",
+    "typescript.validate.enable": false,
+    "javascript.validate.enable": false,
+    "typescript.tsc.autoTasks": "off",
+    "eslint.enable": false,
     "eslint.problems.shortenToSingleLine": false
 }

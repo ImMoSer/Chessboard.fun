@@ -345,12 +345,26 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
           (m.turn === 'b' && playerColor.value === 'black')) &&
         m.evaluation?.delta_wp !== undefined,
     )
+
     if (playerMoves.length === 0) return 0
-    const sum = playerMoves.reduce(
-      (acc, m) => acc + Math.max(0, 100 + (m.evaluation?.delta_wp || 0)),
-      0,
-    )
-    return Math.round(sum / playerMoves.length)
+
+    let totalWeightedAccuracy = 0
+    let totalWeight = 0
+
+    playerMoves.forEach((m) => {
+      const wpLoss = Math.abs(m.evaluation!.delta_wp || 0)
+      const moveAccuracy = 100 * Math.exp(-0.025 * wpLoss)
+
+      const chaos = m.chaos_index || 0
+      const moveWeight = 1.0 + (Math.min(chaos, 150) / 100)
+
+      totalWeightedAccuracy += moveAccuracy * moveWeight
+      totalWeight += moveWeight
+    })
+
+    if (totalWeight === 0) return 100
+
+    return Math.round(totalWeightedAccuracy / totalWeight)
   })
 
   const topInfoDisplay = computed<TopInfoDisplay>(() => {

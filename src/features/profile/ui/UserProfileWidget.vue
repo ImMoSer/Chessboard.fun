@@ -89,7 +89,7 @@ const avatarUrl = computed(() => {
     <div v-if="isAuthenticated && userProfile" class="stats-view">
       <n-card :bordered="false" size="small" class="profile-card">
         <n-space vertical :size="16">
-          <!-- Header: Avatar, Name & FunCoins -->
+          <!-- Header: Avatar, Name & PawnCoins -->
           <n-space align="center" justify="space-between" :size="12" style="width: 100%">
             <n-space align="center" :size="12">
               <n-avatar
@@ -113,7 +113,7 @@ const avatarUrl = computed(() => {
               </n-space>
             </n-space>
 
-            <n-statistic :label="t('features.userCabinet.stats.pawncoinsLabel')" class="header-funcoins">
+            <n-statistic :label="t('features.userCabinet.stats.pawncoinsLabel')" class="header-pawncoins">
               <template #prefix>
                 <n-icon color="#f0a020">
                   <WalletOutline />
