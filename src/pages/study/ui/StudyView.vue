@@ -3,7 +3,7 @@ import { useBoardStore } from '@/entities/game'
 import { AnalysisPanel, useAnalysisStore } from '@/features/analysis'
 import { MozerBook } from '@/features/mozer-book'
 import { LichessOpeningExplorer } from '@/features/opening-explorer'
-import { StudyControls, StudyHeader, StudyTree, useStudyStore } from '@/features/study'
+import { StudyControls, StudyHeader, StudyTree, useStudyStore, StudySidebar } from '@/features/study'
 import { pgnService } from '@/shared/lib/pgn/PgnService'
 import { GameLayout } from '@/widgets/game-layout'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
@@ -15,7 +15,7 @@ const boardStore = useBoardStore()
 const studyStore = useStudyStore()
 const analysisStore = useAnalysisStore()
 
-const explorerMode = ref<'lichess' | 'mozer'>('mozer')
+const explorerMode = ref<'lichess' | 'mozer' | 'study'>('study')
 
 const handleToggleAnalysis = () => {
   if (analysisStore.isAnalysisActive) {
@@ -89,6 +89,9 @@ watch(
     <template #left-panel>
       <div class="explorer-wrapper">
         <div class="explorer-toggle">
+          <button :class="{ active: explorerMode === 'study' }" @click="explorerMode = 'study'">
+            Study
+          </button>
           <button :class="{ active: explorerMode === 'mozer' }" @click="explorerMode = 'mozer'">
             MozerBook
           </button>
@@ -96,7 +99,8 @@ watch(
             Lichess
           </button>
         </div>
-        <MozerBook v-if="explorerMode === 'mozer'" class="explorer-component" />
+        <StudySidebar v-if="explorerMode === 'study'" class="explorer-component" />
+        <MozerBook v-else-if="explorerMode === 'mozer'" class="explorer-component" />
         <LichessOpeningExplorer v-else class="explorer-component" />
       </div>
     </template>

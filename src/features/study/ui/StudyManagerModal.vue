@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { pgnService } from '@/shared/lib/pgn/PgnService'
-import { useStudyStore, type StudyChapter } from '../index'
+import { useStudyStore, type Study } from '../index'
 import { useUiStore } from '@/shared/ui/model/ui.store'
 import {
   NButton,
@@ -16,12 +15,8 @@ import {
   useMessage,
 } from 'naive-ui'
 import { computed, nextTick, ref } from 'vue'
-import ChapterTemplateModal from './ChapterTemplateModal.vue'
-
 import {
   AddOutline,
-  CreateOutline,
-  DownloadOutline,
   PencilOutline,
   TrashOutline,
 } from '@vicons/ionicons5'
@@ -41,9 +36,7 @@ const message = useMessage()
 // State
 const activeTab = ref('my')
 const showCreateForm = ref(false)
-const showTemplateModal = ref(false)
-const newChapterName = ref('')
-const selectedColor = ref<'white' | 'black'>('white')
+const newStudyTitle = ref('')
 const pgnInput = ref('')
 const lichessStudyInput = ref('')
 const editingId = ref<string | null>(null)
@@ -51,9 +44,18 @@ const editName = ref('')
 const editInputRef = ref<HTMLInputElement | null>(null)
 
 // --- COMPUTED ---
-const myChapters = computed(() => studyStore.chapters)
+const myStudies = computed(() => studyStore.studies)
 
 // --- ACTIONS ---
+
+// Select Study
+function selectStudy(study: Study) {
+  const firstId = study.chapterIds[0]
+  if (firstId) {
+    studyStore.setActiveChapter(firstId)
+    emit('update:show', false)
+  }
+}
 
 // Lichess Import
 async function handleLichessImport() {
@@ -85,20 +87,14 @@ async function handleLichessImport() {
   }
 }
 
-// Select Chapter
-function selectChapter(id: string) {
-  studyStore.setActiveChapter(id)
-  emit('update:show', false)
-}
+// Create Study
+async function handleCreateStudy() {
+  if (!newStudyTitle.value.trim()) return
 
-// Create Manual
-function handleCreateManual() {
-  if (!newChapterName.value.trim()) return
-
-  studyStore.createChapter(newChapterName.value, undefined, selectedColor.value)
-  newChapterName.value = ''
+  await studyStore.createStudy(newStudyTitle.value)
+  newStudyTitle.value = ''
   showCreateForm.value = false
-  message.success('Chapter created')
+  message.success('Study created')
 }
 
 // Import PGN
@@ -116,56 +112,42 @@ function handleImport(color: 'white' | 'black') {
   }
 }
 
-// Edit Name
-async function startEdit(chapter: StudyChapter, e: Event) {
+// Delete Study
+async function confirmDeleteStudy(study: Study, e: Event) {
   e.stopPropagation()
-  editingId.value = chapter.id
-  editName.value = chapter.name
+  const result = await uiStore.showConfirmation(
+    'Delete Study',
+    `Are you sure you want to delete the study "${study.title}" and all its chapters?`,
+  )
+  if (result === 'confirm') {
+    // Delete all chapters of this study
+    const studyChapters = studyStore.chapters.filter((c) => c.studyId === study.id)
+    for (const ch of studyChapters) {
+      await studyStore.deleteChapter(ch.id)
+    }
+    await studyStore.deleteStudy(study.id)
+    message.success('Study deleted')
+  }
+}
+
+// Edit Study Title
+async function startEditStudy(study: Study, e: Event) {
+  e.stopPropagation()
+  editingId.value = study.id
+  editName.value = study.title
   await nextTick()
   editInputRef.value?.focus()
 }
 
-function finishEdit() {
+function finishEditStudy() {
   if (editingId.value && editName.value.trim()) {
-    studyStore.updateChapterMetadata(editingId.value, { name: editName.value.trim() })
+    const study = studyStore.studies.find(s => s.id === editingId.value)
+    if (study) {
+      study.title = editName.value.trim()
+      studyStore.saveStudy(study)
+    }
   }
   editingId.value = null
-}
-
-// Delete
-async function confirmDelete(chapter: StudyChapter, e: Event) {
-  e.stopPropagation()
-  const result = await uiStore.showConfirmation(
-    'Delete Chapter',
-    `Are you sure you want to delete "${chapter.name}"?`,
-  )
-  if (result === 'confirm') {
-    studyStore.deleteChapter(chapter.id)
-    message.success('Chapter deleted')
-  }
-}
-
-// Download
-function downloadChapter(chapter: StudyChapter, e: Event) {
-  e.stopPropagation()
-  const currentRoot = pgnService.getRootNode()
-  const currentPath = pgnService.getCurrentPath()
-
-  pgnService.setRoot(chapter.root)
-  const pgn = pgnService.getFullPgn(chapter.tags)
-
-  // Restore
-  pgnService.setRoot(currentRoot, currentPath)
-
-  const blob = new Blob([pgn], { type: 'text/plain' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `${chapter.name.replace(/\s+/g, '_')}.pgn`
-  document.body.appendChild(a)
-  a.click()
-  document.body.removeChild(a)
-  URL.revokeObjectURL(url)
 }
 </script>
 
@@ -188,114 +170,81 @@ function downloadChapter(chapter: StudyChapter, e: Event) {
               <template #icon>
                 <NIcon><AddOutline /></NIcon>
               </template>
-              New Chapter
-            </NButton>
-            <NButton secondary @click="showTemplateModal = true">
-              <template #icon>
-                <NIcon><CreateOutline /></NIcon>
-              </template>
-              Template
+              Local Study
             </NButton>
           </NSpace>
 
-          <!-- New Chapter Form -->
+          <!-- New Study Form -->
           <div v-if="showCreateForm" class="create-form">
             <NInput
-              v-model:value="newChapterName"
-              placeholder="Chapter Name"
-              @keyup.enter="handleCreateManual"
+              v-model:value="newStudyTitle"
+              placeholder="Study Title"
+              @keyup.enter="handleCreateStudy"
               autofocus
             />
-            <NSpace style="margin-top: 10px">
-              <NButton
-                size="small"
-                :type="selectedColor === 'white' ? 'primary' : 'default'"
-                @click="selectedColor = 'white'"
-              >
-                For White
-              </NButton>
-              <NButton
-                size="small"
-                :type="selectedColor === 'black' ? 'primary' : 'default'"
-                @click="selectedColor = 'black'"
-              >
-                For Black
-              </NButton>
-            </NSpace>
             <NSpace justify="end" style="margin-top: 10px">
               <NButton size="small" @click="showCreateForm = false">Cancel</NButton>
-              <NButton type="primary" size="small" @click="handleCreateManual">Create</NButton>
+              <NButton type="primary" size="small" @click="handleCreateStudy">Create</NButton>
             </NSpace>
           </div>
 
-          <!-- Chapters List -->
-          <NList hoverable clickable>
-            <NListItem
-              v-for="(chapter, index) in myChapters"
-              :key="chapter.id"
-              :class="{ active: studyStore.activeChapterId === chapter.id }"
-              @click="selectChapter(chapter.id)"
-            >
-              <NThing>
-                <template #avatar>
-                  <div
-                    class="color-dot"
-                    :class="chapter.color"
-                    :title="chapter.color ? `For ${chapter.color}` : 'No color'"
-                  ></div>
-                </template>
+          <!-- Studies List -->
+          <div v-if="myStudies.length > 0">
+            <h3 class="section-title">Your Studies</h3>
+            <NList hoverable clickable>
+              <NListItem
+                v-for="study in myStudies"
+                :key="study.id"
+                :class="{ active: studyStore.activeStudy?.id === study.id }"
+                @click="selectStudy(study)"
+              >
+                <NThing>
+                  <template #header>
+                    <div v-if="editingId === study.id" class="edit-input-wrapper">
+                      <input
+                        ref="editInputRef"
+                        v-model="editName"
+                        @click.stop
+                        @blur="finishEditStudy"
+                        @keyup.enter="finishEditStudy"
+                        class="native-edit-input"
+                      />
+                    </div>
+                    <span v-else>{{ study.title }}</span>
+                  </template>
+                  <template #description>
+                    <span style="color: #888">{{ study.chapterIds.length }} Chapters</span>
+                  </template>
+                  <template #header-extra>
+                    <NSpace size="small">
+                      <NButton
+                        v-if="editingId !== study.id"
+                        size="tiny"
+                        secondary
+                        circle
+                        @click="(e) => startEditStudy(study, e)"
+                      >
+                        <template #icon><NIcon><PencilOutline /></NIcon></template>
+                      </NButton>
+                      <NButton
+                        size="tiny"
+                        secondary
+                        circle
+                        type="error"
+                        @click="(e) => confirmDeleteStudy(study, e)"
+                      >
+                        <template #icon><NIcon><TrashOutline /></NIcon></template>
+                      </NButton>
+                    </NSpace>
+                  </template>
+                </NThing>
+              </NListItem>
+            </NList>
+          </div>
 
-                <template #header>
-                  <div v-if="editingId === chapter.id" class="edit-input-wrapper">
-                    <input
-                      ref="editInputRef"
-                      v-model="editName"
-                      @click.stop
-                      @blur="finishEdit"
-                      @keyup.enter="finishEdit"
-                      class="native-edit-input"
-                    />
-                  </div>
-                  <span v-else>{{ index + 1 }}. {{ chapter.name }}</span>
-                </template>
-
-                <template #action>
-                  <NSpace v-if="editingId !== chapter.id" size="small">
-                    <NButton
-                      size="tiny"
-                      secondary
-                      circle
-                      @click="(e) => downloadChapter(chapter, e)"
-                    >
-                      <template #icon
-                        ><NIcon><DownloadOutline /></NIcon
-                      ></template>
-                    </NButton>
-                    <NButton 
-                      size="tiny" secondary circle @click="(e) => startEdit(chapter, e)">
-                      <template #icon
-                        ><NIcon><PencilOutline /></NIcon
-                      ></template>
-                    </NButton>
-                    <NButton
-                      size="tiny"
-                      secondary
-                      circle
-                      type="error"
-                      @click="(e) => confirmDelete(chapter, e)"
-                    >
-                      <template #icon
-                        ><NIcon><TrashOutline /></NIcon
-                      ></template>
-                    </NButton>
-                  </NSpace>
-                </template>
-              </NThing>
-            </NListItem>
-            <div v-if="myChapters.length === 0" class="empty-state">
-              No chapters yet.
-            </div>
-          </NList>
+          <div v-if="myStudies.length === 0" class="empty-state">
+            No studies yet.
+          </div>
         </NSpace>
       </NTabPane>
 
@@ -336,8 +285,6 @@ function downloadChapter(chapter: StudyChapter, e: Event) {
         </NSpace>
       </NTabPane>
     </NTabs>
-
-    <ChapterTemplateModal v-model:show="showTemplateModal" />
   </NModal>
 </template>
 
@@ -373,6 +320,16 @@ function downloadChapter(chapter: StudyChapter, e: Event) {
   text-align: center;
   padding: 20px;
   color: var(--color-text-secondary);
+}
+
+.section-title {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  margin-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-bottom: 4px;
 }
 
 .native-edit-input {
