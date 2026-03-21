@@ -11,6 +11,13 @@ export interface ImportResult {
 }
 
 export class PgnParserService {
+  public parseMultiple(pgn: string): ImportResult[] {
+    const games = pgn.split(/(?=\[Event )/g)
+    return games
+      .map((game) => this.parse(game.trim()))
+      .filter((res) => res.root.children.length > 0 || Object.keys(res.tags).length > 0)
+  }
+
   public parse(pgn: string): ImportResult {
     const tags = this.extractTags(pgn)
     const moveText = this.extractMoveText(pgn)

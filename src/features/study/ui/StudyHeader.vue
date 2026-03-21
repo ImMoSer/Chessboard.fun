@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { useStudyStore } from '@/features/study'
 import {
-  CloudOutline as CloudIcon,
   ChevronDownOutline as DropdownIcon,
   FlashOutline as GeneratorIcon,
-  ShareSocialOutline as ShareIcon,
 } from '@vicons/ionicons5'
-import { NButton, NIcon, NSwitch, NTooltip, useMessage } from 'naive-ui'
+import { NButton, NIcon, NTooltip } from 'naive-ui'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import RepertoireGeneratorModal from './RepertoireGeneratorModal.vue'
@@ -14,7 +12,6 @@ import StudyManagerModal from './StudyManagerModal.vue'
 
 const { t } = useI18n()
 const studyStore = useStudyStore()
-const message = useMessage()
 
 const isChapterModalOpen = ref(false)
 const isGeneratorModalOpen = ref(false)
@@ -28,40 +25,6 @@ const chapterIndexDisplay = computed(() => {
   const index = studyStore.chapters.findIndex((c) => c.id === studyStore.activeChapterId)
   return index >= 0 ? `${index + 1}/${studyStore.chapters.length}` : ''
 })
-
-const handleCloudSave = async () => {
-  if (!studyStore.activeChapter?.isStandard) {
-    message.error(t('features.repertoire.notifications.onlyStandardCanBeSaved') || 'Only standard repertoires can be saved to the cloud.')
-    return
-  }
-
-  try {
-    if (studyStore.activeChapter?.slug) {
-      if (studyStore.isOwner) {
-        await studyStore.updateInCloud()
-        message.success(t('features.repertoire.notifications.updated'))
-      } else {
-        message.error('Cannot save as copy to cloud.')
-      }
-    } else {
-      await studyStore.saveToCloud()
-      message.success(t('features.repertoire.notifications.saved'))
-    }
-  } catch (e: unknown) {
-    const err = e instanceof Error ? e : { message: String(e) }
-    message.error(err.message || t('features.repertoire.notifications.saveError'))
-  }
-}
-
-const handleShare = () => {
-  if (!studyStore.activeChapter?.slug) return
-  const parts = studyStore.activeChapter.slug.split('_')
-  const color = parts.pop()
-  const lichessId = parts.join('_')
-  const url = `${window.location.origin}/study/${lichessId}/${color}`
-  navigator.clipboard.writeText(url)
-  message.success(t('features.repertoire.notifications.shareLinkCopied'))
-}
 </script>
 
 <template>
@@ -96,63 +59,6 @@ const handleShare = () => {
             </n-button>
           </template>
           {{ t('features.repertoire.repertoireGenerator') }}
-        </n-tooltip>
-
-        <n-tooltip trigger="hover" v-if="studyStore.activeChapter?.isStandard">
-          <template #trigger>
-            <n-button
-              circle
-              quaternary
-              size="medium"
-              :class="{ 'cloud-active': studyStore.isOwner && studyStore.activeChapter?.slug }"
-              :disabled="studyStore.cloudLoading"
-              @click="handleCloudSave"
-            >
-              <template #icon>
-                <n-icon v-if="!studyStore.cloudLoading"><CloudIcon /></n-icon>
-                <span v-else class="loader-v2-mini"></span>
-              </template>
-            </n-button>
-          </template>
-          {{
-            !studyStore.activeChapter?.slug
-              ? 'Save to Cloud'
-              : studyStore.isOwner
-                ? 'Update in Cloud'
-                : 'Save as My Copy'
-          }}
-        </n-tooltip>
-
-        <n-tooltip v-if="studyStore.activeChapter?.slug && studyStore.isOwner" trigger="hover">
-          <template #trigger>
-            <div class="public-toggle">
-              <n-switch
-                :value="studyStore.activeChapter?.isPublic !== false"
-                @update:value="(val) => studyStore.togglePublicStatus(val)"
-                size="small"
-              >
-                <template #checked>Public</template>
-                <template #unchecked>Private</template>
-              </n-switch>
-            </div>
-          </template>
-          Toggle Public/Private
-        </n-tooltip>
-
-        <n-tooltip v-if="studyStore.activeChapter?.slug" trigger="hover">
-          <template #trigger>
-            <n-button
-              circle
-              quaternary
-              size="medium"
-              @click="handleShare"
-            >
-              <template #icon>
-                <n-icon><ShareIcon /></n-icon>
-              </template>
-            </n-button>
-          </template>
-          Share Chapter Link
         </n-tooltip>
       </div>
     </div>

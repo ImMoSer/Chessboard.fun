@@ -1,4 +1,4 @@
-import { type StudyChapter } from '../index'
+import { type StudyChapter, type Study } from '../index'
 import { type PgnNode } from '@/shared/lib/pgn/PgnService'
 import { toRaw } from 'vue'
 import { studyDb } from './StudyDatabase'
@@ -60,6 +60,14 @@ class StudyPersistenceService {
     })
   }
 
+  async saveStudy(study: Study): Promise<void> {
+    try {
+      await studyDb.studies.put(toRaw(study))
+    } catch (error) {
+      console.error('[StudyPersistenceService] Error saving study:', error)
+    }
+  }
+
   async getAllChapters(): Promise<StudyChapter[]> {
     try {
       const chapters = await studyDb.chapters.toArray()
@@ -73,6 +81,15 @@ class StudyPersistenceService {
     }
   }
 
+  async getAllStudies(): Promise<Study[]> {
+    try {
+      return await studyDb.studies.toArray()
+    } catch (error) {
+      console.error('[StudyPersistenceService] Error loading studies:', error)
+      return []
+    }
+  }
+
   async deleteChapter(id: string): Promise<void> {
     try {
       await studyDb.chapters.delete(id)
@@ -81,8 +98,17 @@ class StudyPersistenceService {
     }
   }
 
+  async deleteStudy(id: string): Promise<void> {
+    try {
+      await studyDb.studies.delete(id)
+    } catch (error) {
+      console.error('[StudyPersistenceService] Error deleting study:', error)
+    }
+  }
+
   async clearAll(): Promise<void> {
     await studyDb.chapters.clear()
+    await studyDb.studies.clear()
   }
 }
 

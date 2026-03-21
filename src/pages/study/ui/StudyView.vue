@@ -30,10 +30,7 @@ onMounted(async () => {
   await analysisStore.showPanel() // Initialize analysis (threads, etc.) and set visible flag for watcher
   await studyStore.initialize()
 
-  if (route.params.lichessId && route.params.color) {
-    const slug = `${route.params.lichessId}_${route.params.color}`
-    await studyStore.loadFromCloud(slug)
-  } else if (route.params.id) {
+  if (route.params.id) {
     studyStore.setActiveChapter(route.params.id as string)
   } else if (studyStore.activeChapterId) {
     // Redirect to active chapter URL if we just hit /study
@@ -45,14 +42,7 @@ function updateUrl(id: string) {
   const chapter = studyStore.chapters.find((c) => c.id === id)
   if (!chapter) return
 
-  if (chapter.slug) {
-    const parts = chapter.slug.split('_')
-    const color = parts.pop()
-    const lichessId = parts.join('_')
-    router.replace({ name: 'study-cloud', params: { lichessId, color } })
-  } else {
-    router.replace({ name: 'study-local', params: { id: chapter.id } })
-  }
+  router.replace({ name: 'study-local', params: { id: chapter.id } })
 }
 
 // Watch for active chapter changes to update URL

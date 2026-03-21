@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { pgnService } from '@/shared/lib/pgn/PgnService'
 import { useStudyStore, type StudyChapter } from '../index'
-import { useAuthStore } from '@/entities/user'
 import { useUiStore } from '@/shared/ui/model/ui.store'
 import {
   NButton,
@@ -13,20 +12,17 @@ import {
   NSpace,
   NTabPane,
   NTabs,
-  NTag,
   NThing,
   useMessage,
 } from 'naive-ui'
-import { nextTick, ref } from 'vue'
+import { computed, nextTick, ref } from 'vue'
 import ChapterTemplateModal from './ChapterTemplateModal.vue'
 
 import {
   AddOutline,
-  CloudOutline,
   CreateOutline,
   DownloadOutline,
   PencilOutline,
-  SyncOutline,
   TrashOutline,
 } from '@vicons/ionicons5'
 
@@ -39,7 +35,6 @@ const emit = defineEmits<{
 }>()
 
 const studyStore = useStudyStore()
-const authStore = useAuthStore()
 const uiStore = useUiStore()
 const message = useMessage()
 
@@ -50,19 +45,45 @@ const showTemplateModal = ref(false)
 const newChapterName = ref('')
 const selectedColor = ref<'white' | 'black'>('white')
 const pgnInput = ref('')
+const lichessStudyInput = ref('')
 const editingId = ref<string | null>(null)
 const editName = ref('')
 const editInputRef = ref<HTMLInputElement | null>(null)
 
 // --- COMPUTED ---
-const myChapters = computed(() =>
-  studyStore.chapters.filter((c) => c.ownerId === authStore.userProfile?.id || !c.slug),
-)
-const sharedChapters = computed(() =>
-  studyStore.chapters.filter((c) => c.slug && c.ownerId !== authStore.userProfile?.id),
-)
+const myChapters = computed(() => studyStore.chapters)
 
 // --- ACTIONS ---
+
+// Lichess Import
+async function handleLichessImport() {
+  if (!lichessStudyInput.value.trim()) return
+
+  let id = lichessStudyInput.value.trim()
+  // Extract ID if URL is provided
+  const match = id.match(/study\/([a-zA-Z0-9]{8})/)
+  if (match && match[1]) {
+    id = match[1]
+  } else {
+    // maybe user pasted https://lichess.org/study/bUmjtT4G.pgn ?
+    const pgnMatch = id.match(/study\/([a-zA-Z0-9]{8})\.pgn/)
+    if (pgnMatch && pgnMatch[1]) {
+      id = pgnMatch[1]
+    }
+  }
+
+  try {
+    message.loading('Importing from Lichess...')
+    await studyStore.importFromLichess(id)
+    message.success('Lichess Study imported successfully!')
+    lichessStudyInput.value = ''
+    activeTab.value = 'my'
+  } catch (e: unknown) {
+    const error = e instanceof Error ? e.message : 'Failed to import Lichess Study'
+    message.error(error)
+    console.error(e)
+  }
+}
 
 // Select Chapter
 function selectChapter(id: string) {
@@ -109,19 +130,6 @@ function finishEdit() {
     studyStore.updateChapterMetadata(editingId.value, { name: editName.value.trim() })
   }
   editingId.value = null
-}
-
-// Sync
-async function handleSync(chapter: StudyChapter, e: Event) {
-  e.stopPropagation()
-  if (!chapter.slug) return
-  
-  try {
-    await studyStore.syncFromCloud(chapter.slug)
-    message.success('Synchronized with cloud')
-  } catch {
-    message.error('Sync failed')
-  }
 }
 
 // Delete
@@ -251,13 +259,6 @@ function downloadChapter(chapter: StudyChapter, e: Event) {
                   <span v-else>{{ index + 1 }}. {{ chapter.name }}</span>
                 </template>
 
-                <template #header-extra>
-                  <NTag v-if="chapter.slug" size="small" type="info" :bordered="false">
-                    <template #icon><NIcon><CloudOutline /></NIcon></template>
-                    Cloud
-                  </NTag>
-                </template>
-
                 <template #action>
                   <NSpace v-if="editingId !== chapter.id" size="small">
                     <NButton
@@ -271,14 +272,12 @@ function downloadChapter(chapter: StudyChapter, e: Event) {
                       ></template>
                     </NButton>
                     <NButton 
-                      v-if="!chapter.isStandard"
                       size="tiny" secondary circle @click="(e) => startEdit(chapter, e)">
                       <template #icon
                         ><NIcon><PencilOutline /></NIcon
                       ></template>
                     </NButton>
                     <NButton
-                      v-if="!chapter.isStandard"
                       size="tiny"
                       secondary
                       circle
@@ -294,90 +293,46 @@ function downloadChapter(chapter: StudyChapter, e: Event) {
               </NThing>
             </NListItem>
             <div v-if="myChapters.length === 0" class="empty-state">
-              No personal chapters yet.
+              No chapters yet.
             </div>
           </NList>
         </NSpace>
       </NTabPane>
 
-      <NTabPane name="import" tab="Import">
-        <NList hoverable clickable>
-          <NListItem
-            v-for="(chapter, index) in sharedChapters"
-            :key="chapter.id"
-            :class="{ active: studyStore.activeChapterId === chapter.id }"
-            @click="selectChapter(chapter.id)"
-          >
-            <NThing>
-              <template #avatar>
-                <div
-                  class="color-dot"
-                  :class="chapter.color"
-                  :title="chapter.color ? `For ${chapter.color}` : 'No color'"
-                ></div>
-              </template>
-
-              <template #header>
-                <span>{{ index + 1 }}. {{ chapter.name }}</span>
-              </template>
-
-              <template #header-extra>
-                <NTag size="small" type="info" :bordered="false">
-                  <template #icon><NIcon><SyncOutline /></NIcon></template>
-                  Shared
-                </NTag>
-              </template>
-
-              <template #action>
-                <NSpace size="small">
-                  <NButton
-                    size="tiny"
-                    secondary
-                    circle
-                    @click="(e) => handleSync(chapter, e)"
-                  >
-                    <template #icon><NIcon><SyncOutline /></NIcon></template>
-                  </NButton>
-                  <NButton
-                    size="tiny"
-                    secondary
-                    circle
-                    @click="(e) => downloadChapter(chapter, e)"
-                  >
-                    <template #icon><NIcon><DownloadOutline /></NIcon></template>
-                  </NButton>
-                  <NButton
-                    v-if="!chapter.isStandard"
-                    size="tiny"
-                    secondary
-                    circle
-                    type="error"
-                    @click="(e) => confirmDelete(chapter, e)"
-                  >
-                    <template #icon><NIcon><TrashOutline /></NIcon></template>
-                  </NButton>
-                </NSpace>
-              </template>
-            </NThing>
-          </NListItem>
-          <div v-if="sharedChapters.length === 0" class="empty-state">
-            No imported chapters yet.
+      <NTabPane name="import_external" tab="Import">
+        <NSpace vertical size="large">
+          
+          <div class="create-form">
+            <h3>Lichess Study</h3>
+            <p style="font-size: 0.85em; color: #888; margin-bottom: 8px;">
+              Enter a public Lichess Study URL or ID to import all its chapters.
+            </p>
+            <NInput
+              v-model:value="lichessStudyInput"
+              placeholder="e.g. https://lichess.org/study/bUmjtT4G"
+              @keyup.enter="handleLichessImport"
+            />
+            <NSpace justify="end" style="margin-top: 10px">
+              <NButton type="primary" :loading="studyStore.cloudLoading" @click="handleLichessImport">
+                Import from Lichess
+              </NButton>
+            </NSpace>
           </div>
-        </NList>
-      </NTabPane>
 
-      <NTabPane name="pgn" tab="PGN Import">
-        <NSpace vertical>
-          <NInput
-            v-model:value="pgnInput"
-            type="textarea"
-            placeholder="Paste PGN here..."
-            :rows="8"
-          />
-          <NSpace justify="end">
-            <NButton @click="handleImport('white')">Import for White</NButton>
-            <NButton type="primary" @click="handleImport('black')">Import for Black</NButton>
-          </NSpace>
+          <div class="create-form">
+            <h3>Raw PGN</h3>
+            <NInput
+              v-model:value="pgnInput"
+              type="textarea"
+              placeholder="Paste PGN here..."
+              :rows="6"
+            />
+            <NSpace justify="end" style="margin-top: 10px">
+              <NButton @click="handleImport('white')">Import for White</NButton>
+              <NButton type="primary" @click="handleImport('black')">Import for Black</NButton>
+            </NSpace>
+          </div>
+
         </NSpace>
       </NTabPane>
     </NTabs>
