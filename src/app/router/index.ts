@@ -147,10 +147,10 @@ const router = createRouter({
       meta: { isGame: true, game: 'study', requiresAuth: true }, // Optional requiresAuth
     },
     {
-      path: '/study/chapter/:slug',
-      name: 'study-chapter',
+      path: '/study/:lichessId/:color(white|black)',
+      name: 'study-cloud',
       component: () => import('@/pages/study').then(m => m.StudyPage),
-      meta: { isGame: true, game: 'study', requiresAuth: true },
+      meta: { isGame: true, game: 'study', requiresAuth: false },
     },
     {
       path: '/study/local/:id',

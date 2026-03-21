@@ -3,10 +3,10 @@ import { useBoardStore } from '@/entities/game'
 import { pgnService } from '@/shared/lib/pgn/PgnService'
 import {
   AnalyticsOutline as AnalysisIcon,
-  ChevronBackOutline as PrevIcon,
-  ChevronForwardOutline as NextIcon,
-  RefreshOutline as FlipIcon,
   CutOutline as CutIcon,
+  RefreshOutline as FlipIcon,
+  ChevronForwardOutline as NextIcon,
+  ChevronBackOutline as PrevIcon,
 } from '@vicons/ionicons5'
 import { NButton, NIcon, NSpace, NSwitch, NTooltip, useMessage } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
@@ -145,6 +145,7 @@ const handleCopyPgn = () => {
   display: flex;
   align-items: center;
   min-height: 44px;
+  max-width: 95vw;
 }
 
 .text-btn {

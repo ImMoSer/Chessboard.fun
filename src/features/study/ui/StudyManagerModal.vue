@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { pgnService } from '@/shared/lib/pgn/PgnService'
 import { useStudyStore, type StudyChapter } from '../index'
+import { useAuthStore } from '@/entities/user'
 import { useUiStore } from '@/shared/ui/model/ui.store'
 import {
   NButton,
@@ -25,6 +26,7 @@ import {
   CreateOutline,
   DownloadOutline,
   PencilOutline,
+  SyncOutline,
   TrashOutline,
 } from '@vicons/ionicons5'
 
@@ -37,11 +39,12 @@ const emit = defineEmits<{
 }>()
 
 const studyStore = useStudyStore()
+const authStore = useAuthStore()
 const uiStore = useUiStore()
 const message = useMessage()
 
 // State
-const activeTab = ref('chapters')
+const activeTab = ref('my')
 const showCreateForm = ref(false)
 const showTemplateModal = ref(false)
 const newChapterName = ref('')
@@ -50,6 +53,14 @@ const pgnInput = ref('')
 const editingId = ref<string | null>(null)
 const editName = ref('')
 const editInputRef = ref<HTMLInputElement | null>(null)
+
+// --- COMPUTED ---
+const myChapters = computed(() =>
+  studyStore.chapters.filter((c) => c.ownerId === authStore.userProfile?.id || !c.slug),
+)
+const sharedChapters = computed(() =>
+  studyStore.chapters.filter((c) => c.slug && c.ownerId !== authStore.userProfile?.id),
+)
 
 // --- ACTIONS ---
 
@@ -77,7 +88,7 @@ function handleImport(color: 'white' | 'black') {
     studyStore.createChapterFromPgn(pgnInput.value, undefined, color)
     pgnInput.value = ''
     message.success('PGN Imported successfully')
-    activeTab.value = 'chapters' // Switch back to chapters list
+    activeTab.value = 'my' // Switch back to my chapters list
   } catch (e) {
     message.error('Failed to parse PGN')
     console.error(e)
@@ -98,6 +109,19 @@ function finishEdit() {
     studyStore.updateChapterMetadata(editingId.value, { name: editName.value.trim() })
   }
   editingId.value = null
+}
+
+// Sync
+async function handleSync(chapter: StudyChapter, e: Event) {
+  e.stopPropagation()
+  if (!chapter.slug) return
+  
+  try {
+    await studyStore.syncFromCloud(chapter.slug)
+    message.success('Synchronized with cloud')
+  } catch {
+    message.error('Sync failed')
+  }
 }
 
 // Delete
@@ -148,7 +172,7 @@ function downloadChapter(chapter: StudyChapter, e: Event) {
     size="huge"
   >
     <NTabs v-model:value="activeTab" type="segment" animated>
-      <NTabPane name="chapters" tab="Chapters">
+      <NTabPane name="my" tab="My">
         <NSpace vertical>
           <!-- Actions Header -->
           <NSpace justify="space-between">
@@ -199,7 +223,7 @@ function downloadChapter(chapter: StudyChapter, e: Event) {
           <!-- Chapters List -->
           <NList hoverable clickable>
             <NListItem
-              v-for="(chapter, index) in studyStore.chapters"
+              v-for="(chapter, index) in myChapters"
               :key="chapter.id"
               :class="{ active: studyStore.activeChapterId === chapter.id }"
               @click="selectChapter(chapter.id)"
@@ -229,9 +253,7 @@ function downloadChapter(chapter: StudyChapter, e: Event) {
 
                 <template #header-extra>
                   <NTag v-if="chapter.slug" size="small" type="info" :bordered="false">
-                    <template #icon
-                      ><NIcon><CloudOutline /></NIcon
-                    ></template>
+                    <template #icon><NIcon><CloudOutline /></NIcon></template>
                     Cloud
                   </NTag>
                 </template>
@@ -248,12 +270,15 @@ function downloadChapter(chapter: StudyChapter, e: Event) {
                         ><NIcon><DownloadOutline /></NIcon
                       ></template>
                     </NButton>
-                    <NButton size="tiny" secondary circle @click="(e) => startEdit(chapter, e)">
+                    <NButton 
+                      v-if="!chapter.isStandard"
+                      size="tiny" secondary circle @click="(e) => startEdit(chapter, e)">
                       <template #icon
                         ><NIcon><PencilOutline /></NIcon
                       ></template>
                     </NButton>
                     <NButton
+                      v-if="!chapter.isStandard"
                       size="tiny"
                       secondary
                       circle
@@ -268,14 +293,80 @@ function downloadChapter(chapter: StudyChapter, e: Event) {
                 </template>
               </NThing>
             </NListItem>
-            <div v-if="studyStore.chapters.length === 0" class="empty-state">
-              No chapters yet. Create one!
+            <div v-if="myChapters.length === 0" class="empty-state">
+              No personal chapters yet.
             </div>
           </NList>
         </NSpace>
       </NTabPane>
 
-      <NTabPane name="import" tab="Import PGN">
+      <NTabPane name="import" tab="Import">
+        <NList hoverable clickable>
+          <NListItem
+            v-for="(chapter, index) in sharedChapters"
+            :key="chapter.id"
+            :class="{ active: studyStore.activeChapterId === chapter.id }"
+            @click="selectChapter(chapter.id)"
+          >
+            <NThing>
+              <template #avatar>
+                <div
+                  class="color-dot"
+                  :class="chapter.color"
+                  :title="chapter.color ? `For ${chapter.color}` : 'No color'"
+                ></div>
+              </template>
+
+              <template #header>
+                <span>{{ index + 1 }}. {{ chapter.name }}</span>
+              </template>
+
+              <template #header-extra>
+                <NTag size="small" type="info" :bordered="false">
+                  <template #icon><NIcon><SyncOutline /></NIcon></template>
+                  Shared
+                </NTag>
+              </template>
+
+              <template #action>
+                <NSpace size="small">
+                  <NButton
+                    size="tiny"
+                    secondary
+                    circle
+                    @click="(e) => handleSync(chapter, e)"
+                  >
+                    <template #icon><NIcon><SyncOutline /></NIcon></template>
+                  </NButton>
+                  <NButton
+                    size="tiny"
+                    secondary
+                    circle
+                    @click="(e) => downloadChapter(chapter, e)"
+                  >
+                    <template #icon><NIcon><DownloadOutline /></NIcon></template>
+                  </NButton>
+                  <NButton
+                    v-if="!chapter.isStandard"
+                    size="tiny"
+                    secondary
+                    circle
+                    type="error"
+                    @click="(e) => confirmDelete(chapter, e)"
+                  >
+                    <template #icon><NIcon><TrashOutline /></NIcon></template>
+                  </NButton>
+                </NSpace>
+              </template>
+            </NThing>
+          </NListItem>
+          <div v-if="sharedChapters.length === 0" class="empty-state">
+            No imported chapters yet.
+          </div>
+        </NList>
+      </NTabPane>
+
+      <NTabPane name="pgn" tab="PGN Import">
         <NSpace vertical>
           <NInput
             v-model:value="pgnInput"

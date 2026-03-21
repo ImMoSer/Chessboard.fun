@@ -212,6 +212,8 @@ const toggleAnalysis = () => {
   display: flex;
   align-items: center;
   min-height: 40px;
+  max-width: 95vw;
+
 }
 
 .icon-restart {

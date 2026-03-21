@@ -1,25 +1,19 @@
 <script setup lang="ts">
-import { useAuthStore } from '@/entities/user'
 import { useStudyStore } from '@/features/study'
-import { useUiStore } from '@/shared/ui/model/ui.store'
 import {
   CloudOutline as CloudIcon,
+  ChevronDownOutline as DropdownIcon,
   FlashOutline as GeneratorIcon,
   ShareSocialOutline as ShareIcon,
-  ChevronDownOutline as DropdownIcon,
 } from '@vicons/ionicons5'
-import { NButton, NIcon, NTooltip, useMessage } from 'naive-ui'
+import { NButton, NIcon, NSwitch, NTooltip, useMessage } from 'naive-ui'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
 import RepertoireGeneratorModal from './RepertoireGeneratorModal.vue'
 import StudyManagerModal from './StudyManagerModal.vue'
 
 const { t } = useI18n()
 const studyStore = useStudyStore()
-const authStore = useAuthStore()
-const uiStore = useUiStore()
-const router = useRouter()
 const message = useMessage()
 
 const isChapterModalOpen = ref(false)
@@ -36,22 +30,8 @@ const chapterIndexDisplay = computed(() => {
 })
 
 const handleCloudSave = async () => {
-  const currentTier = authStore.userProfile?.subscriptionTier || 'Pawn'
-  if (currentTier !== 'King') {
-    const limit = currentTier === 'Queen' ? 10 : 1
-    const result = await uiStore.showConfirmation(
-      t('features.repertoire.limitModal.title'),
-      t('features.repertoire.limitModal.message', { tier: currentTier, limit }),
-      {
-        confirmText: t('features.repertoire.limitModal.confirm'),
-        cancelText: t('features.repertoire.limitModal.cancel'),
-        showCancel: true,
-      },
-    )
-
-    if (result === 'confirm') {
-      router.push('/pricing')
-    }
+  if (!studyStore.activeChapter?.isStandard) {
+    message.error(t('features.repertoire.notifications.onlyStandardCanBeSaved') || 'Only standard repertoires can be saved to the cloud.')
     return
   }
 
@@ -61,8 +41,7 @@ const handleCloudSave = async () => {
         await studyStore.updateInCloud()
         message.success(t('features.repertoire.notifications.updated'))
       } else {
-        await studyStore.forkToCloud()
-        message.success(t('features.repertoire.notifications.savedAsCopy'))
+        message.error('Cannot save as copy to cloud.')
       }
     } else {
       await studyStore.saveToCloud()
@@ -70,37 +49,16 @@ const handleCloudSave = async () => {
     }
   } catch (e: unknown) {
     const err = e instanceof Error ? e : { message: String(e) }
-    if (err.message?.includes('limit reached')) {
-      const tier = authStore.userProfile?.subscriptionTier || 'Pawn'
-      const limit = tier === 'King' ? Infinity : (tier === 'Queen' ? 10 : 1)
-
-      const result = await uiStore.showConfirmation(
-        t('features.repertoire.limitModal.title'),
-        t('features.repertoire.limitModal.message', { tier, limit }),
-        {
-          confirmText: t('features.repertoire.limitModal.confirm'),
-          cancelText: t('features.repertoire.limitModal.cancel'),
-          showCancel: true,
-        },
-      )
-
-      if (result === 'confirm') {
-        router.push('/pricing')
-      }
-    } else if (err.message?.includes('shorter than or equal to')) {
-      await uiStore.showConfirmation(t('features.repertoire.sizeModal.title'), t('features.repertoire.sizeModal.message'), {
-        confirmText: t('features.repertoire.sizeModal.confirm'),
-        showCancel: false,
-      })
-    } else {
-      message.error(err.message || t('features.repertoire.notifications.saveError'))
-    }
+    message.error(err.message || t('features.repertoire.notifications.saveError'))
   }
 }
 
 const handleShare = () => {
   if (!studyStore.activeChapter?.slug) return
-  const url = `${window.location.origin}/study/chapter/${studyStore.activeChapter.slug}`
+  const parts = studyStore.activeChapter.slug.split('_')
+  const color = parts.pop()
+  const lichessId = parts.join('_')
+  const url = `${window.location.origin}/study/${lichessId}/${color}`
   navigator.clipboard.writeText(url)
   message.success(t('features.repertoire.notifications.shareLinkCopied'))
 }
@@ -140,7 +98,7 @@ const handleShare = () => {
           {{ t('features.repertoire.repertoireGenerator') }}
         </n-tooltip>
 
-        <n-tooltip trigger="hover">
+        <n-tooltip trigger="hover" v-if="studyStore.activeChapter?.isStandard">
           <template #trigger>
             <n-button
               circle
@@ -163,6 +121,22 @@ const handleShare = () => {
                 ? 'Update in Cloud'
                 : 'Save as My Copy'
           }}
+        </n-tooltip>
+
+        <n-tooltip v-if="studyStore.activeChapter?.slug && studyStore.isOwner" trigger="hover">
+          <template #trigger>
+            <div class="public-toggle">
+              <n-switch
+                :value="studyStore.activeChapter?.isPublic !== false"
+                @update:value="(val) => studyStore.togglePublicStatus(val)"
+                size="small"
+              >
+                <template #checked>Public</template>
+                <template #unchecked>Private</template>
+              </n-switch>
+            </div>
+          </template>
+          Toggle Public/Private
         </n-tooltip>
 
         <n-tooltip v-if="studyStore.activeChapter?.slug" trigger="hover">
@@ -192,6 +166,7 @@ const handleShare = () => {
 <style scoped>
 .study-header-container {
   width: 100%;
+  max-width: 90vw;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -205,7 +180,7 @@ const handleShare = () => {
   padding: 4px 16px;
   background: var(--glass-bg, rgba(24, 24, 28, 0.7));
   border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.1));
-  border-radius: 20px;
+  border-radius: 12px;
   backdrop-filter: var(--glass-blur, blur(12px));
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   max-width: 100%;
@@ -267,6 +242,12 @@ const handleShare = () => {
   display: flex;
   align-items: center;
   gap: 4px;
+}
+
+.public-toggle {
+  display: flex;
+  align-items: center;
+  padding: 0 5px;
 }
 
 .cloud-active {

@@ -271,7 +271,7 @@ const handleCheckout = async (tierId: string) => {
     <n-modal
       v-model:show="showBonusModal"
       preset="card"
-      style="max-width: 600px; background-color: var(--color-bg-panel)"
+      style="max-width: 600px; background-color: rgba(10, 11, 20, 0.95)"
       :title="t('features.pricing.bonusInfo.title')"
     >
       <n-space vertical>

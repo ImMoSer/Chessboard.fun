@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useBoardStore } from '@/entities/game'
-import { useAnalysisStore } from '@/features/analysis'
-import { AnalysisPanel } from '@/features/analysis'
+import { AnalysisPanel, useAnalysisStore } from '@/features/analysis'
 import { MozerBook } from '@/features/mozer-book'
 import { LichessOpeningExplorer } from '@/features/opening-explorer'
 import { StudyControls, StudyHeader, StudyTree, useStudyStore } from '@/features/study'
@@ -31,8 +30,9 @@ onMounted(async () => {
   await analysisStore.showPanel() // Initialize analysis (threads, etc.) and set visible flag for watcher
   await studyStore.initialize()
 
-  if (route.params.slug) {
-    await studyStore.loadFromCloud(route.params.slug as string)
+  if (route.params.lichessId && route.params.color) {
+    const slug = `${route.params.lichessId}_${route.params.color}`
+    await studyStore.loadFromCloud(slug)
   } else if (route.params.id) {
     studyStore.setActiveChapter(route.params.id as string)
   } else if (studyStore.activeChapterId) {
@@ -46,7 +46,10 @@ function updateUrl(id: string) {
   if (!chapter) return
 
   if (chapter.slug) {
-    router.replace({ name: 'study-chapter', params: { slug: chapter.slug } })
+    const parts = chapter.slug.split('_')
+    const color = parts.pop()
+    const lichessId = parts.join('_')
+    router.replace({ name: 'study-cloud', params: { lichessId, color } })
   } else {
     router.replace({ name: 'study-local', params: { id: chapter.id } })
   }

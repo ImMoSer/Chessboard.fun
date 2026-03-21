@@ -17,6 +17,8 @@ export interface StudyChapter {
   color?: 'white' | 'black'
   slug?: string // Cloud ID
   ownerId?: string // Cloud Owner ID
+  isStandard?: boolean // Whether it's the standard white/black repertoire
+  isPublic?: boolean // Whether it's public in the cloud
 }
 
 export const useStudyStore = defineStore('study', () => {
@@ -40,6 +42,51 @@ export const useStudyStore = defineStore('study', () => {
     return crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 15)
   }
 
+  function createStandardChapter(color: 'white' | 'black') {
+    const lichessId = authStore.userProfile?.id || 'Player'
+    const name = `${lichessId}_${color}`
+    const startFen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+    
+    let normalizedFen = startFen
+    try {
+      const setup = parseFen(startFen).unwrap()
+      normalizedFen = makeFen(setup)
+    } catch {
+      // ignore
+    }
+
+    const root: PgnNode = {
+      id: '__ROOT__',
+      ply: 0,
+      fenBefore: '',
+      fenAfter: normalizedFen,
+      san: '',
+      uci: '',
+      children: [],
+    }
+
+    const id = `standard-${color}`
+    const newChapter: StudyChapter = {
+      id,
+      name,
+      root,
+      tags: {
+        Event: name,
+        Site: 'Chess App Study',
+        Date: new Date().toISOString().split('T')[0] ?? '',
+        White: color === 'white' ? 'Player' : 'Opponent',
+        Black: color === 'black' ? 'Player' : 'Opponent',
+      },
+      savedPath: '',
+      color,
+      isStandard: true,
+      ownerId: authStore.userProfile?.id
+    }
+
+    chapters.value.push(newChapter)
+    studyPersistenceService.saveChapter(newChapter)
+  }
+
   async function initialize() {
     if (isInitialized.value) return
 
@@ -48,18 +95,32 @@ export const useStudyStore = defineStore('study', () => {
       chapters.value = loadedChapters
     }
 
+    // Ensure standard chapters exist
+    const hasStandardWhite = chapters.value.some(c => c.isStandard && c.color === 'white')
+    const hasStandardBlack = chapters.value.some(c => c.isStandard && c.color === 'black')
+    
+    if (!hasStandardWhite) {
+      createStandardChapter('white')
+    }
+    if (!hasStandardBlack) {
+      createStandardChapter('black')
+    }
+
     // Sync with cloud if authenticated
     if (authStore.isAuthenticated) {
       try {
         const cloudChapters = await chapterApiService.getMyChapters()
         for (const cc of cloudChapters) {
-          const local = chapters.value.find((c) => c.slug === cc.slug)
-          if (!local) {
-            // Import new cloud chapter locally
-            await loadFromCloud(cc.slug)
+          // Identify local standard chapters that might match this cloud chapter
+          const localMatch = chapters.value.find((c) => c.slug === cc.slug || (c.isStandard && c.color === cc.color))
+          if (localMatch) {
+            localMatch.slug = cc.slug
+            localMatch.ownerId = cc.ownerId
+            localMatch.isPublic = cc.isPublic // Assume we add isPublic to interface later or use it in component
+            studyPersistenceService.saveChapter(localMatch)
           } else {
-            // Optional: update local if cloud is newer? For now, just keep slug
-            local.ownerId = cc.ownerId
+            // Import new cloud chapter locally (fallback)
+            await loadFromCloud(cc.slug)
           }
         }
       } catch (e) {
@@ -67,16 +128,14 @@ export const useStudyStore = defineStore('study', () => {
       }
     }
 
-    if (chapters.value.length === 0) {
-      // Create a default chapter if none exist
-      createChapter('My Repertoire', undefined, 'white')
-    }
+    // No need to create default chapter since we now always have the standard ones
+    // if (chapters.value.length === 0) { ... }
 
     if (chapters.value.length > 0) {
       const lastId = localStorage.getItem('lastActiveChapterId')
       if (lastId && chapters.value.some((c) => c.id === lastId)) {
         setActiveChapter(lastId)
-      } else if (chapters.value.length > 0) {
+      } else {
         setActiveChapter(chapters.value[0]!.id)
       }
     }
@@ -179,8 +238,12 @@ export const useStudyStore = defineStore('study', () => {
     if (index !== -1) {
       const chapterToDelete = chapters.value[index]
 
+      if (chapterToDelete?.isStandard) {
+        throw new Error('Standard repertoires cannot be deleted.')
+      }
+
       // If it's a cloud chapter, try to delete from server first
-      if (chapterToDelete?.slug) {
+      if (chapterToDelete?.slug && chapterToDelete.ownerId === authStore.userProfile?.id) {
         try {
           await chapterApiService.deleteChapter(chapterToDelete.slug)
         } catch (e) {
@@ -246,6 +309,9 @@ export const useStudyStore = defineStore('study', () => {
 
   async function saveToCloud() {
     if (!activeChapter.value || cloudLoading.value) return
+    if (!activeChapter.value.isStandard) {
+      throw new Error('Only standard repertoires can be saved to the cloud.')
+    }
     cloudLoading.value = true
     try {
       const pgn = pgnService.getFullPgn(activeChapter.value.tags)
@@ -253,9 +319,11 @@ export const useStudyStore = defineStore('study', () => {
         title: activeChapter.value.name,
         color: activeChapter.value.color || 'white',
         pgn: pgn,
+        isPublic: activeChapter.value.isPublic !== false // default true if not set
       })
       activeChapter.value.slug = result.slug
       activeChapter.value.ownerId = result.ownerId
+      activeChapter.value.isPublic = result.isPublic
       await studyPersistenceService.saveChapter(activeChapter.value)
       return result.slug
     } catch (e) {
@@ -275,6 +343,7 @@ export const useStudyStore = defineStore('study', () => {
         title: activeChapter.value.name,
         color: activeChapter.value.color,
         pgn: pgn,
+        isPublic: activeChapter.value.isPublic
       })
     } catch (e) {
       console.error('Failed to update in cloud', e)
@@ -285,30 +354,38 @@ export const useStudyStore = defineStore('study', () => {
   }
 
   async function forkToCloud() {
-    if (!activeChapter.value || cloudLoading.value) return
+    throw new Error('Custom repertoires can only be saved locally.')
+  }
+
+  async function togglePublicStatus(isPublic: boolean) {
+    if (!activeChapter.value || !activeChapter.value.slug) return
+    activeChapter.value.isPublic = isPublic
+    await updateInCloud()
+  }
+
+  async function syncFromCloud(slug: string) {
     cloudLoading.value = true
     try {
-      const pgn = pgnService.getFullPgn(activeChapter.value.tags)
-      const result = await chapterApiService.createChapter({
-        title: `${activeChapter.value.name} (Copy)`,
-        color: activeChapter.value.color || 'white',
-        pgn: pgn,
-      })
+      const cloudChap = await chapterApiService.getChapter(slug)
+      const local = chapters.value.find((c) => c.slug === slug)
+      
+      const { tags, root } = pgnParserService.parse(cloudChap.pgn)
 
-      const id = createChapterFromPgn(
-        pgn,
-        `${activeChapter.value.name} (Copy)`,
-        activeChapter.value.color,
-      )
-      const newChap = chapters.value.find((c) => c.id === id)
-      if (newChap) {
-        newChap.slug = result.slug
-        newChap.ownerId = result.ownerId
-        await studyPersistenceService.saveChapter(newChap)
+      if (local) {
+        local.root = root
+        local.tags = tags
+        local.name = cloudChap.title
+        local.color = cloudChap.color
+        local.isPublic = cloudChap.isPublic
+        await studyPersistenceService.saveChapter(local)
+        
+        if (activeChapterId.value === local.id) {
+          pgnService.setRoot(local.root, local.savedPath)
+          boardStore.syncBoardWithPgn()
+        }
       }
-      return result.slug
     } catch (e) {
-      console.error('Failed to fork to cloud', e)
+      console.error('Failed to sync from cloud', e)
       throw e
     } finally {
       cloudLoading.value = false
@@ -325,11 +402,17 @@ export const useStudyStore = defineStore('study', () => {
       }
 
       const cloudChap = await chapterApiService.getChapter(slug)
-      const id = createChapterFromPgn(cloudChap.pgn, cloudChap.title, cloudChap.color)
+      // Use slug as title if it's a standard repertoire
+      const displayTitle = (cloudChap.title === 'White Repertoire' || cloudChap.title === 'Black Repertoire')
+        ? cloudChap.slug
+        : cloudChap.title
+
+      const id = createChapterFromPgn(cloudChap.pgn, displayTitle, cloudChap.color)
       const newChap = chapters.value.find((c) => c.id === id)
       if (newChap) {
         newChap.slug = cloudChap.slug
         newChap.ownerId = cloudChap.ownerId
+        newChap.isPublic = cloudChap.isPublic
         await studyPersistenceService.saveChapter(newChap)
       }
       return id
@@ -371,5 +454,7 @@ export const useStudyStore = defineStore('study', () => {
     updateInCloud,
     forkToCloud,
     loadFromCloud,
+    togglePublicStatus,
+    syncFromCloud,
   }
 })
