@@ -461,6 +461,7 @@ export const useStudyStore = defineStore('study', () => {
       }
 
       let firstChapterId: string | null = null
+      const parsedChapters: StudyChapter[] = []
 
       for (let i = 0; i < importResults.length; i++) {
         const { tags, root } = importResults[i]!
@@ -506,11 +507,12 @@ export const useStudyStore = defineStore('study', () => {
 
         chapters.value.push(newChapter)
         study.chapterIds.push(chapterId)
-        await studyPersistenceService.saveChapter(newChapter, ownerId)
+        parsedChapters.push(newChapter)
         
         if (i === 0) firstChapterId = chapterId
       }
 
+      await studyPersistenceService.saveChaptersBulk(parsedChapters, ownerId)
       await studyPersistenceService.saveStudy(study, ownerId)
 
       if (firstChapterId) {

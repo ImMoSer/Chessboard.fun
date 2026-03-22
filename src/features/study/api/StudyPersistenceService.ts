@@ -61,6 +61,22 @@ class StudyPersistenceService {
     })
   }
 
+  async saveChaptersBulk(chapters: StudyChapter[], ownerId: string): Promise<void> {
+    try {
+      const cleanedChapters = chapters.map(chapter => {
+        const rawChapter = toRaw(chapter)
+        return {
+          ...rawChapter,
+          ownerId,
+          root: this.cleanNodeForStorage(rawChapter.root),
+        } as unknown as StudyChapter
+      })
+      await studyDb.chapters.bulkPut(cleanedChapters)
+    } catch (error) {
+      console.error('[StudyPersistenceService] Error saving chapters in bulk:', error)
+    }
+  }
+
   async saveStudy(study: Study, ownerId: string): Promise<void> {
     try {
       const rawStudy = toRaw(study)
