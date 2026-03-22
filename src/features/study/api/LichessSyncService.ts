@@ -9,16 +9,6 @@ export class LichessApiError extends Error {
   }
 }
 
-export interface LichessStudyCreateRequest {
-  name: string
-  visibility: 'public' | 'unlisted' | 'private'
-  chat: string
-  cloneable: string
-  computer: string
-  explorer: string
-  shareable: string
-}
-
 export interface LichessImportPgnRequest {
   pgn: string
   name?: string
@@ -26,9 +16,52 @@ export interface LichessImportPgnRequest {
   variant?: string
 }
 
+class RequestQueue {
+  private queue: (() => Promise<void>)[] = []
+  private isProcessing = false
+  private lastRequestTime = 0
+  private readonly minDelayMs = 500 // Generic throttle between requests to be safe
+
+  async enqueue<T>(task: () => Promise<T>): Promise<T> {
+    return new Promise((resolve, reject) => {
+      this.queue.push(async () => {
+        try {
+          const now = Date.now()
+          const timeSinceLast = now - this.lastRequestTime
+          if (timeSinceLast < this.minDelayMs) {
+            await new Promise(r => setTimeout(r, this.minDelayMs - timeSinceLast))
+          }
+          const result = await task()
+          this.lastRequestTime = Date.now()
+          resolve(result)
+        } catch (error) {
+          reject(error)
+        }
+      })
+
+      this.processQueue()
+    })
+  }
+
+  private async processQueue() {
+    if (this.isProcessing || this.queue.length === 0) return
+    this.isProcessing = true
+
+    while (this.queue.length > 0) {
+      const task = this.queue.shift()
+      if (task) {
+        await task()
+      }
+    }
+
+    this.isProcessing = false
+  }
+}
+
 class LichessSyncService {
   private readonly BASE_URL = 'https://lichess.org/api'
   private readonly TOKEN_KEY = 'lichess_study_token'
+  private readonly queue = new RequestQueue()
 
   /**
    * Checks if a valid study token exists in sessionStorage.
@@ -69,124 +102,170 @@ class LichessSyncService {
     }
   }
 
-  async createStudy(request: LichessStudyCreateRequest): Promise<string> {
-    try {
-      const body = new URLSearchParams()
-      body.append('name', request.name)
-      body.append('visibility', request.visibility)
-      body.append('chat', request.chat)
-      body.append('cloneable', request.cloneable)
-      body.append('computer', request.computer)
-      body.append('explorer', request.explorer)
-      body.append('shareable', request.shareable)
+  async fetchUserStudies(username: string): Promise<{ id: string; name: string; updatedAt: number }[]> {
+    return this.queue.enqueue(async () => {
+      try {
+        const response = await fetch(`${this.BASE_URL}/study/by/${username}`, {
+          method: 'GET',
+          headers: {
+            ...this.getHeaders(),
+            'Accept': 'application/x-ndjson',
+          },
+        })
 
-      const response = await fetch(`${this.BASE_URL}/study`, {
-        method: 'POST',
-        headers: {
-          ...this.getHeaders(),
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: body.toString(),
-      })
+        if (!response.ok) {
+          throw new LichessApiError(response.status, `Failed to fetch studies for ${username}`)
+        }
 
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
-        throw new LichessApiError(
-          response.status,
-          error.error || `Failed to create study: ${response.statusText}`,
-        )
+        const text = await response.text()
+        const lines = text.split('\n').filter(line => line.trim().length > 0)
+        
+        const studies: { id: string; name: string; updatedAt: number }[] = []
+        for (const line of lines) {
+          try {
+            const study = JSON.parse(line)
+            studies.push({
+              id: study.id,
+              name: study.name,
+              updatedAt: study.updatedAt,
+            })
+          } catch {
+            // Ignore parse errors on corrupted lines
+          }
+        }
+        return studies
+      } catch (error) {
+        logger.error(`[LichessSyncService] Error fetching user studies for ${username}:`, error)
+        throw error
       }
+    })
+  }
 
-      if (response.status === 204) return ''
-      const data = await response.json()
-      return data.id // Returns the new studyId
-    } catch (error) {
-      logger.error('[LichessSyncService] Error creating study:', error)
-      throw error
-    }
+  async checkStudyOwnership(username: string, studyId: string): Promise<boolean> {
+    return this.queue.enqueue(async () => {
+      try {
+        const response = await fetch(`${this.BASE_URL}/study/by/${username}`, {
+          method: 'GET',
+          headers: {
+            ...this.getHeaders(),
+            'Accept': 'application/x-ndjson',
+          },
+        })
+
+        if (!response.ok) {
+          throw new LichessApiError(response.status, `Failed to fetch studies for ${username}`)
+        }
+
+        const text = await response.text()
+        const lines = text.split('\n').filter(line => line.trim().length > 0)
+        
+        for (const line of lines) {
+          try {
+            const study = JSON.parse(line)
+            if (study.id === studyId) {
+              return true
+            }
+          } catch {
+            // Ignore parse errors on corrupted lines
+          }
+        }
+        return false
+      } catch (error) {
+        logger.error(`[LichessSyncService] Error checking ownership for ${studyId}:`, error)
+        throw error
+      }
+    })
   }
 
   async importPgnIntoStudy(studyId: string, request: LichessImportPgnRequest): Promise<string> {
-    try {
-      const body = new URLSearchParams()
-      body.append('pgn', request.pgn)
-      if (request.name) body.append('name', request.name)
-      if (request.orientation) body.append('orientation', request.orientation)
-      if (request.variant) body.append('variant', request.variant)
+    return this.queue.enqueue(async () => {
+      try {
+        const body = new URLSearchParams()
+        body.append('pgn', request.pgn)
+        if (request.name) body.append('name', request.name)
+        if (request.orientation) body.append('orientation', request.orientation)
+        if (request.variant) body.append('variant', request.variant)
 
-      const response = await fetch(`${this.BASE_URL}/study/${studyId}/import-pgn`, {
-        method: 'POST',
-        headers: {
-          ...this.getHeaders(),
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: body.toString(),
-      })
+        const response = await fetch(`${this.BASE_URL}/study/${studyId}/import-pgn`, {
+          method: 'POST',
+          headers: {
+            ...this.getHeaders(),
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: body.toString(),
+        })
 
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
-        throw new LichessApiError(
-          response.status,
-          error.error || `Failed to import PGN: ${response.statusText}`,
-        )
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({}))
+          throw new LichessApiError(
+            response.status,
+            error.error || `Failed to import PGN: ${response.statusText}`,
+          )
+        }
+
+        const data = await response.json()
+        if (data.chapters && data.chapters.length > 0) {
+          return data.chapters[0].id // Return the new chapter ID
+        }
+        throw new Error('No chapter was created from the PGN import.')
+      } catch (error) {
+        logger.error(`[LichessSyncService] Error importing PGN to study ${studyId}:`, error)
+        throw error
       }
-
-      const data = await response.json()
-      if (data.chapters && data.chapters.length > 0) {
-        return data.chapters[0].id // Return the new chapter ID
-      }
-      throw new Error('No chapter was created from the PGN import.')
-    } catch (error) {
-      logger.error(`[LichessSyncService] Error importing PGN to study ${studyId}:`, error)
-      throw error
-    }
+    })
   }
 
   async deleteChapter(studyId: string, chapterId: string): Promise<void> {
-    try {
-      const response = await fetch(`${this.BASE_URL}/study/${studyId}/${chapterId}`, {
-        method: 'DELETE',
-        headers: this.getHeaders(),
-      })
+    return this.queue.enqueue(async () => {
+      try {
+        const response = await fetch(`${this.BASE_URL}/study/${studyId}/${chapterId}`, {
+          method: 'DELETE',
+          headers: this.getHeaders(),
+        })
 
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({}))
-        throw new LichessApiError(
-          response.status,
-          error.error || `Failed to delete chapter: ${response.statusText}`,
-        )
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({}))
+          throw new LichessApiError(
+            response.status,
+            error.error || `Failed to delete chapter: ${response.statusText}`,
+          )
+        }
+      } catch (error) {
+        logger.error(`[LichessSyncService] Error deleting chapter ${chapterId}:`, error)
+        throw error
       }
-    } catch (error) {
-      logger.error(`[LichessSyncService] Error deleting chapter ${chapterId}:`, error)
-      throw error
-    }
+    })
   }
 
   async fetchStudyPgn(studyId: string): Promise<string> {
-    if (!/^[a-zA-Z0-9]{8}$/.test(studyId)) {
-      throw new Error(`Invalid Lichess Study ID: ${studyId}. Expected 8 alphanumeric characters.`)
-    }
-    try {
-      const headers: Record<string, string> = {
-        'Accept': 'application/x-chess-pgn',
+    return this.queue.enqueue(async () => {
+      if (!/^[a-zA-Z0-9]{8}$/.test(studyId)) {
+        throw new Error(`Invalid Lichess Study ID: ${studyId}. Expected 8 alphanumeric characters.`)
       }
-      
-      const response = await fetch(`${this.BASE_URL}/study/${studyId}.pgn?orientation=true`, {
-        headers,
-      })
+      try {
+        // Now using token to fetch PGN since we enforce ownership
+        const headers: Record<string, string> = {
+          'Accept': 'application/x-chess-pgn',
+          'Authorization': `Bearer ${this.getToken()}`,
+        }
+        
+        const response = await fetch(`${this.BASE_URL}/study/${studyId}.pgn?orientation=true`, {
+          headers,
+        })
 
-      if (!response.ok) {
-        throw new LichessApiError(
-          response.status,
-          `Failed to fetch study PGN. Is the study public? (${response.statusText})`,
-        )
+        if (!response.ok) {
+          throw new LichessApiError(
+            response.status,
+            `Failed to fetch study PGN. (${response.statusText})`,
+          )
+        }
+
+        return await response.text()
+      } catch (error) {
+        logger.error(`[LichessSyncService] Error fetching study ${studyId}:`, error)
+        throw error
       }
-
-      return await response.text()
-    } catch (error) {
-      logger.error(`[LichessSyncService] Error fetching study ${studyId}:`, error)
-      throw error
-    }
+    })
   }
 }
 

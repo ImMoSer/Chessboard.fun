@@ -146,13 +146,15 @@ class AuthServiceController {
 
   public clearAuthDataLocal(): void {
     localStorage.removeItem('user_profile')
+    // Clear study token from sessionStorage as well
+    sessionStorage.removeItem('lichess_study_token')
     this._setState({
       userProfile: null,
       isAuthenticated: false,
       isProcessing: false,
       error: null,
     })
-    logger.info('[AuthService] Local authentication data cleared.')
+    logger.info('[AuthService] Local authentication data and Lichess study token cleared.')
   }
 
   public getIsAuthenticated(): boolean {

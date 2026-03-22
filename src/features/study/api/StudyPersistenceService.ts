@@ -33,7 +33,7 @@ class StudyPersistenceService {
 
   private saveTimeouts = new Map<string, ReturnType<typeof setTimeout>>()
 
-  async saveChapter(chapter: StudyChapter): Promise<void> {
+  async saveChapter(chapter: StudyChapter, ownerId: string): Promise<void> {
     // Throttle saving for the same chapter
     if (this.saveTimeouts.has(chapter.id)) {
       clearTimeout(this.saveTimeouts.get(chapter.id))
@@ -44,11 +44,12 @@ class StudyPersistenceService {
         this.saveTimeouts.delete(chapter.id)
         try {
           const rawChapter = toRaw(chapter)
-          const cleanedChapter: StudyChapter = {
+          const cleanedChapter: StudyChapter & { ownerId: string } = {
             ...rawChapter,
+            ownerId, // Bind to the specific user
             root: this.cleanNodeForStorage(rawChapter.root),
           }
-          await studyDb.chapters.put(cleanedChapter)
+          await studyDb.chapters.put(cleanedChapter as unknown as StudyChapter)
           resolve()
         } catch (error) {
           console.error('[StudyPersistenceService] Error saving chapter:', error)
@@ -60,17 +61,18 @@ class StudyPersistenceService {
     })
   }
 
-  async saveStudy(study: Study): Promise<void> {
+  async saveStudy(study: Study, ownerId: string): Promise<void> {
     try {
-      await studyDb.studies.put(toRaw(study))
+      const rawStudy = toRaw(study)
+      await studyDb.studies.put({ ...rawStudy, ownerId } as unknown as Study)
     } catch (error) {
       console.error('[StudyPersistenceService] Error saving study:', error)
     }
   }
 
-  async getAllChapters(): Promise<StudyChapter[]> {
+  async getAllChapters(ownerId: string): Promise<StudyChapter[]> {
     try {
-      const chapters = await studyDb.chapters.toArray()
+      const chapters = await studyDb.chapters.where('ownerId').equals(ownerId).toArray()
       for (const chapter of chapters) {
         this.restoreParentReferences(chapter.root)
       }
@@ -81,9 +83,9 @@ class StudyPersistenceService {
     }
   }
 
-  async getAllStudies(): Promise<Study[]> {
+  async getAllStudies(ownerId: string): Promise<Study[]> {
     try {
-      return await studyDb.studies.toArray()
+      return await studyDb.studies.where('ownerId').equals(ownerId).toArray()
     } catch (error) {
       console.error('[StudyPersistenceService] Error loading studies:', error)
       return []

@@ -138,6 +138,10 @@ async function handleSave() {
       undefined,
       formModel.value.color
     )
+    if (!chapterId) {
+      message.error('Failed to create chapter. Ensure a study is active.')
+      return
+    }
     // Update newly created chapter's tags
     const chapter = studyStore.chapters.find(c => c.id === chapterId)
     if (chapter) {
@@ -197,6 +201,8 @@ async function selectTemplate(template: OpeningChapterTemplate) {
     preset="card"
     :title="isCreating ? 'Add New Chapter' : 'Chapter Settings'"
     style="width: 500px; max-width: 95vw"
+    :auto-focus="false"
+    :trap-focus="false"
   >
     <NTabs v-model:value="activeTab" type="segment" animated>
       <NTabPane name="settings" tab="Basic Info">

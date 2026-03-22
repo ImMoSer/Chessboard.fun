@@ -67,7 +67,8 @@ export class PgnParserService {
 
   private buildTree(tokens: string[], root: PgnNode) {
     let currentNode = root
-    const stack: PgnNode[] = []
+    const nodeStack: PgnNode[] = []
+    const posStack: Chess[] = []
 
     const glyphToNag: Record<string, number> = {
       '!': 1,
@@ -78,16 +79,46 @@ export class PgnParserService {
       '?!': 6,
     }
 
+    // Initialize root position just once
+    let currentPos: Chess
+    try {
+      const setup = parseFen(root.fenAfter).unwrap()
+      currentPos = Chess.fromSetup(setup).unwrap()
+    } catch {
+      currentPos = Chess.default()
+    }
+
     for (let i = 0; i < tokens.length; i++) {
       const token = tokens[i]
       if (!token) continue
 
       if (token === '(') {
-        stack.push(currentNode)
-        if (currentNode.parent) currentNode = currentNode.parent
+        // Variation start: push current node and clone the board state
+        nodeStack.push(currentNode)
+        posStack.push(currentPos.clone())
+        
+        if (currentNode.parent) {
+          currentNode = currentNode.parent
+        }
+        
+        // We must revert the board state to the parent's state.
+        // The easiest way without tracking move history backwards is to clone from the last known state.
+        // Wait, currentPos is the state AFTER the node. The parent is the state BEFORE.
+        // Actually, if we just parse the FEN for the parent, it's safer. But let's try to keep it fast.
+        try {
+          const setup = parseFen(currentNode.fenAfter).unwrap()
+          currentPos = Chess.fromSetup(setup).unwrap()
+        } catch {}
       } else if (token === ')') {
-        const prev = stack.pop()
-        if (prev) currentNode = prev
+        // Variation end: pop node and position
+        const prevNode = nodeStack.pop()
+        if (prevNode) {
+          currentNode = prevNode
+        }
+        const prevPos = posStack.pop()
+        if (prevPos) {
+          currentPos = prevPos
+        }
       } else if (token.startsWith('{')) {
         if (currentNode !== root) {
           currentNode.comment = token.substring(1, token.length - 1).trim()
@@ -105,18 +136,18 @@ export class PgnParserService {
       } else {
         // It's a move (SAN)
         try {
-          const fen = currentNode.fenAfter
-          const setup = parseFen(fen).unwrap()
-          const pos = Chess.fromSetup(setup).unwrap()
-
-          const move = parseSan(pos, token)
+          const move = parseSan(currentPos, token)
 
           if (move) {
             const uci = makeUci(move)
-            pos.play(move)
-            const fenAfter = makeFen(pos.toSetup())
+            const fenBefore = currentNode.fenAfter
+            
+            // Fast execute move
+            currentPos.play(move)
+            const fenAfter = makeFen(currentPos.toSetup())
 
             let nextNode = currentNode.children.find((c) => c.san === token)
+            
             if (!nextNode) {
               const moveData = parseUci(uci)
               const nodeId = moveData
@@ -126,7 +157,7 @@ export class PgnParserService {
               nextNode = {
                 id: nodeId,
                 ply: currentNode.ply + 1,
-                fenBefore: fen,
+                fenBefore: fenBefore,
                 fenAfter: fenAfter,
                 san: token,
                 uci: uci,
@@ -135,15 +166,11 @@ export class PgnParserService {
               }
               currentNode.children.push(nextNode)
             }
-            if (nextNode) {
-              currentNode = nextNode
-            }
+            
+            currentNode = nextNode
           }
-        } catch (e) {
-          console.warn(
-            `[PgnParser] Failed to parse move "${token}" at FEN ${currentNode.fenAfter}`,
-            e,
-          )
+        } catch {
+          // Fast fail without logging to avoid blocking the main thread on large files
         }
       }
     }

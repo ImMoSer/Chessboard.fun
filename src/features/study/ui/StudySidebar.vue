@@ -5,7 +5,6 @@ import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { AddOutline, SettingsOutline, TrashOutline, CloudUploadOutline, CloudDownloadOutline, ArrowUpOutline } from '@vicons/ionicons5'
 import { LichessApiError } from '../api/LichessSyncService'
 import ChapterSettingsModal from './ChapterSettingsModal.vue'
-import PublishStudyModal from './PublishStudyModal.vue'
 import LichessErrorModal from './LichessErrorModal.vue'
 
 const studyStore = useStudyStore()
@@ -367,8 +366,6 @@ async function handlePushChapterToLichess(chapter: StudyChapter, e: Event) {
       :chapter="selectedChapter"
       :is-creating="isCreating"
     />
-
-    <PublishStudyModal v-model:show="showPublishModal" />
 
     <LichessErrorModal
       v-model:show="showErrorModal"

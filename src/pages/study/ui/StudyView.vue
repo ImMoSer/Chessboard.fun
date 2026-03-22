@@ -28,6 +28,12 @@ const handleToggleAnalysis = () => {
 onMounted(async () => {
   boardStore.setAnalysisMode(true)
   await analysisStore.showPanel() // Initialize analysis (threads, etc.) and set visible flag for watcher
+  
+  const hasAccess = await studyStore.requireLichessAccess()
+  if (!hasAccess) {
+     return // Wait for user to authorize or cancel
+  }
+  
   await studyStore.initialize()
 
   if (route.params.id) {
@@ -40,6 +46,7 @@ onMounted(async () => {
 
 const handleCancelAuth = () => {
   studyStore.isAuthModalVisible = false
+  router.push('/') // Redirect away from protected route
 }
 
 function updateUrl(id: string) {
