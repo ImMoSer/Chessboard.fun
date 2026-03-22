@@ -1,6 +1,7 @@
 import { useBoardStore } from '@/entities/game'
 import { useAuthStore } from '@/entities/user'
 import { studyPersistenceService } from '../api/StudyPersistenceService'
+import { lichessSyncService, type LichessStudyCreateRequest } from '../api/LichessSyncService'
 import { pgnParserService } from '@/shared/lib/pgn/PgnParserService'
 import { pgnService, pgnTreeVersion, type PgnNode } from '@/shared/lib/pgn/PgnService'
 import { makeFen, parseFen } from 'chessops/fen'
@@ -14,6 +15,13 @@ export interface Study {
   chapterIds: string[] // List of chapter IDs in order
   lichessId?: string
   ownerId?: string
+  // Lichess creation settings
+  visibility?: 'public' | 'unlisted' | 'private'
+  chat?: string
+  cloneable?: string
+  computer?: string
+  explorer?: string
+  shareable?: string
 }
 
 export interface StudyChapter {
@@ -24,6 +32,7 @@ export interface StudyChapter {
   savedPath: string // To restore cursor location
   color?: 'white' | 'black'
   studyId?: string // Reference to parent Study
+  lichessChapterId?: string // Lichess internal chapter ID (e.g. BHEJGiPB)
 }
 
 export const useStudyStore = defineStore('study', () => {
@@ -35,6 +44,7 @@ export const useStudyStore = defineStore('study', () => {
   const activeChapterId = ref<string | null>(null)
   const isInitialized = ref(false)
   const cloudLoading = ref(false)
+  const isAuthModalVisible = ref(false)
 
   const activeChapter = computed(() => chapters.value.find((c) => c.id === activeChapterId.value))
   
@@ -42,6 +52,15 @@ export const useStudyStore = defineStore('study', () => {
     if (!activeChapter.value?.studyId) return null
     return studies.value.find((s) => s.id === activeChapter.value?.studyId) || null
   })
+
+  async function requireLichessAccess(): Promise<boolean> {
+    const hasToken = await lichessSyncService.ensureToken()
+    if (!hasToken) {
+      isAuthModalVisible.value = true
+      return false
+    }
+    return true
+  }
 
   const isOwner = computed(() => {
     // Since we don't have cloud chapters anymore, local chapters are always owned
@@ -237,17 +256,34 @@ export const useStudyStore = defineStore('study', () => {
     }
   }
 
-  async function deleteChapter(id: string) {
+  async function deleteChapter(id: string, removeFromLichess: boolean = false) {
     const index = chapters.value.findIndex((c) => c.id === id)
     if (index !== -1) {
       const chapterToDelete = chapters.value[index]
+      if (!chapterToDelete) return
+
+      if (removeFromLichess && chapterToDelete.lichessChapterId) {
+        const study = studies.value.find(s => s.id === chapterToDelete.studyId)
+        if (study && study.lichessId) {
+          cloudLoading.value = true
+          try {
+            await lichessSyncService.deleteChapter(study.lichessId, chapterToDelete.lichessChapterId)
+          } catch (error) {
+            console.error('Failed to delete chapter on Lichess', error)
+            throw error
+          } finally {
+            cloudLoading.value = false
+          }
+        }
+      }
 
       // Remove from study if it belongs to one
+      let parentStudy: Study | undefined
       if (chapterToDelete?.studyId) {
-        const study = studies.value.find(s => s.id === chapterToDelete.studyId)
-        if (study) {
-          study.chapterIds = study.chapterIds.filter(cid => cid !== id)
-          await studyPersistenceService.saveStudy(study)
+        parentStudy = studies.value.find(s => s.id === chapterToDelete.studyId)
+        if (parentStudy) {
+          parentStudy.chapterIds = parentStudy.chapterIds.filter(cid => cid !== id)
+          await studyPersistenceService.saveStudy(parentStudy)
         }
       }
 
@@ -259,9 +295,24 @@ export const useStudyStore = defineStore('study', () => {
         return
       }
 
+      // If the active chapter was the one we just deleted, we need to pick a new one
       if (activeChapterId.value === id) {
-        const next = chapters.value[0]
-        if (next) setActiveChapter(next.id)
+        let nextChapterId: string | undefined
+
+        // Try to pick another chapter from the same study first
+        if (parentStudy && parentStudy.chapterIds.length > 0) {
+          nextChapterId = parentStudy.chapterIds[0]
+        } 
+        // If the study is empty or we didn't have a parent study, fallback to the first available chapter globally
+        else if (chapters.value.length > 0 && chapters.value[0]) {
+          nextChapterId = chapters.value[0].id
+        }
+
+        if (nextChapterId) {
+          setActiveChapter(nextChapterId)
+        } else {
+          activeChapterId.value = null
+        }
       }
     }
   }
@@ -316,11 +367,7 @@ export const useStudyStore = defineStore('study', () => {
   async function importFromLichess(studyId: string): Promise<string | null> {
     cloudLoading.value = true
     try {
-      const response = await fetch(`https://lichess.org/api/study/${studyId}.pgn`)
-      if (!response.ok) {
-        throw new Error(`Failed to fetch study: ${response.statusText}`)
-      }
-      const pgnData = await response.text()
+      const pgnData = await lichessSyncService.fetchStudyPgn(studyId)
       const importResults = pgnParserService.parseMultiple(pgnData)
       
       if (importResults.length === 0) {
@@ -355,9 +402,14 @@ export const useStudyStore = defineStore('study', () => {
       // Check if study already exists to avoid duplicate chapters
       const existingStudyIndex = studies.value.findIndex(s => s.id === studyId)
       if (existingStudyIndex !== -1) {
-        // Study exists, we overwrite the study object
+        // Study exists - we must purge old chapters from DB and state
+        const oldChapters = chapters.value.filter(c => c.studyId === studyId)
+        for (const c of oldChapters) {
+          await studyPersistenceService.deleteChapter(c.id)
+        }
+        
+        // Update state
         studies.value[existingStudyIndex] = study
-        // Also remove old chapters of this study from the local chapters list
         chapters.value = chapters.value.filter(c => c.studyId !== studyId)
       } else {
         studies.value.push(study)
@@ -386,13 +438,25 @@ export const useStudyStore = defineStore('study', () => {
           chapterName = `Chapter ${i + 1}`
         }
 
+        // Extract Lichess Chapter ID from URL: https://lichess.org/study/studyId/chapterId
+        let lichessChapterId: string | undefined = undefined
+        if (tags['ChapterURL']) {
+          const urlParts = tags['ChapterURL'].split('/')
+          lichessChapterId = urlParts[urlParts.length - 1]
+        }
+
+        // Map Orientation to color
+        const color = tags['Orientation'] === 'black' ? 'black' : 'white'
+
         const newChapter: StudyChapter = {
           id: chapterId,
           name: chapterName,
           root,
           tags,
           savedPath: '',
+          color,
           studyId: study.id,
+          lichessChapterId,
         }
 
         chapters.value.push(newChapter)
@@ -411,6 +475,130 @@ export const useStudyStore = defineStore('study', () => {
       return study.id
     } catch (e) {
       console.error('Failed to import Lichess study', e)
+      throw e
+    } finally {
+      cloudLoading.value = false
+    }
+  }
+
+  // --- SYNC ACTIONS ---
+
+  async function publishChapterToLichess(chapterId: string) {
+    if (!(await requireLichessAccess())) return
+
+    if (!activeStudy.value || !activeStudy.value.lichessId) {
+      throw new Error('This study is not linked to Lichess.')
+    }
+
+    const chapter = chapters.value.find(c => c.id === chapterId)
+    if (!chapter) {
+      throw new Error('Chapter not found.')
+    }
+
+    if (chapter.lichessChapterId) {
+      throw new Error('Chapter is already linked to Lichess.')
+    }
+
+    cloudLoading.value = true
+    try {
+      const pgn = pgnService.getFullPgn(chapter.tags, chapter.root)
+      const newLichessChapterId = await lichessSyncService.importPgnIntoStudy(
+        activeStudy.value.lichessId,
+        {
+          pgn,
+          name: chapter.name,
+          orientation: chapter.color,
+          variant: 'standard'
+        }
+      )
+
+      chapter.lichessChapterId = newLichessChapterId
+      await studyPersistenceService.saveChapter(chapter)
+      return newLichessChapterId
+    } catch (e) {
+      console.error('Failed to publish chapter to Lichess', e)
+      throw e
+    } finally {
+      cloudLoading.value = false
+    }
+  }
+
+  async function syncLichessToApp(studyId: string) {
+    // Just re-import, it will overwrite the study and its chapters
+    return await importFromLichess(studyId)
+  }
+
+  async function pushChapterToLichess(chapterId: string) {
+    if (!(await requireLichessAccess())) return
+
+    if (!activeStudy.value || !activeStudy.value.lichessId) {
+      throw new Error('This study is not linked to Lichess.')
+    }
+
+    const chapter = chapters.value.find(c => c.id === chapterId)
+    if (!chapter) {
+      throw new Error('Chapter not found.')
+    }
+
+    if (!chapter.lichessChapterId) {
+      throw new Error('Chapter is not linked to Lichess.')
+    }
+
+    cloudLoading.value = true
+    try {
+      // Step 1: Delete the existing chapter on Lichess
+      await lichessSyncService.deleteChapter(activeStudy.value.lichessId, chapter.lichessChapterId)
+      
+      // Step 2: Wait 500ms to avoid race conditions or 429s on Lichess side
+      await new Promise(resolve => setTimeout(resolve, 500))
+
+      // Step 3: Re-create the chapter by importing the full PGN
+      const pgn = pgnService.getFullPgn(chapter.tags, chapter.root)
+      const newLichessChapterId = await lichessSyncService.importPgnIntoStudy(
+        activeStudy.value.lichessId,
+        {
+          pgn,
+          name: chapter.name,
+          orientation: chapter.color,
+          variant: 'standard'
+        }
+      )
+
+      // Step 4: Update the local chapter reference
+      chapter.lichessChapterId = newLichessChapterId
+      await studyPersistenceService.saveChapter(chapter)
+
+    } catch (e) {
+      console.error('Failed to push chapter to Lichess', e)
+      throw e
+    } finally {
+      cloudLoading.value = false
+    }
+  }
+
+  async function publishToLichess(request: Omit<LichessStudyCreateRequest, 'name'>) {
+    if (!(await requireLichessAccess())) return
+
+    if (!activeStudy.value) return
+
+    cloudLoading.value = true
+    try {
+      // 1. Create the study on Lichess
+      const lichessId = await lichessSyncService.createStudy({
+        name: activeStudy.value.title,
+        ...request
+      })
+
+      activeStudy.value.lichessId = lichessId
+      
+      // 2. Link existing chapters or push them? 
+      // Lichess creates one empty chapter by default.
+      // For now, we just link the study. Pushing chapters can be a second step.
+      
+      await studyPersistenceService.saveStudy(activeStudy.value)
+      return lichessId
+    } catch (e) {
+      console.error('Failed to publish to Lichess', e)
       throw e
     } finally {
       cloudLoading.value = false
@@ -439,6 +627,8 @@ export const useStudyStore = defineStore('study', () => {
     isInitialized,
     cloudLoading,
     isOwner,
+    isAuthModalVisible,
+    requireLichessAccess,
     initialize,
     createStudy,
     createChapter,
@@ -449,6 +639,10 @@ export const useStudyStore = defineStore('study', () => {
     setActiveChapter,
     updateChapterMetadata,
     importFromLichess,
+    syncLichessToApp,
+    pushChapterToLichess,
+    publishToLichess,
+    publishChapterToLichess,
   }
 })
 

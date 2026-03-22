@@ -11,6 +11,7 @@ export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = ref<boolean>(false)
   const isLoading = ref<boolean>(true)
   const error = ref<string | null>(null)
+  const isLoginModalVisible = ref<boolean>(false)
 
   // --- GETTERS ---
   const getUserProfile = computed(() => userProfile.value)
@@ -35,8 +36,16 @@ export const useAuthStore = defineStore('auth', () => {
     await authService.handleAuthentication()
   }
 
-  async function login() {
-    await authService.login()
+  function login() {
+    isLoginModalVisible.value = true
+  }
+
+  function cancelLogin() {
+    isLoginModalVisible.value = false
+  }
+
+  async function confirmLogin(scopes: string[]) {
+    await authService.login(scopes)
     _syncState()
   }
 
@@ -61,6 +70,7 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated,
     isLoading,
     error,
+    isLoginModalVisible,
     // Getters
     getUserProfile,
     getIsAuthenticated,
@@ -69,6 +79,8 @@ export const useAuthStore = defineStore('auth', () => {
     // Actions
     initialize,
     login,
+    cancelLogin,
+    confirmLogin,
     logout,
     checkSession,
     updateUserStats,

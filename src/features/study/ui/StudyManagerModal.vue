@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useStudyStore, type Study } from '../index'
 import { useUiStore } from '@/shared/ui/model/ui.store'
+import { LichessApiError } from '../api/LichessSyncService'
+import LichessErrorModal from './LichessErrorModal.vue'
 import {
   NButton,
   NIcon,
@@ -37,11 +39,15 @@ const message = useMessage()
 const activeTab = ref('my')
 const showCreateForm = ref(false)
 const newStudyTitle = ref('')
-const pgnInput = ref('')
 const lichessStudyInput = ref('')
 const editingId = ref<string | null>(null)
 const editName = ref('')
 const editInputRef = ref<HTMLInputElement | null>(null)
+
+// Error Modal State
+const showErrorModal = ref(false)
+const errorStatus = ref<number | undefined>(undefined)
+const errorMessage = ref('')
 
 // --- COMPUTED ---
 const myStudies = computed(() => studyStore.studies)
@@ -59,19 +65,27 @@ function selectStudy(study: Study) {
 
 // Lichess Import
 async function handleLichessImport() {
-  if (!lichessStudyInput.value.trim()) return
+  const input = lichessStudyInput.value.trim()
+  if (!input) return
 
-  let id = lichessStudyInput.value.trim()
-  // Extract ID if URL is provided
-  const match = id.match(/study\/([a-zA-Z0-9]{8})/)
-  if (match && match[1]) {
-    id = match[1]
+  let id = ''
+  
+  // 1. Try to extract from full URL (including .pgn or specific chapter)
+  // e.g. https://lichess.org/study/bUmjtT4G/BHEJGiPB or https://lichess.org/study/bUmjtT4G.pgn
+  const urlMatch = input.match(/study\/([a-zA-Z0-9]{8})/)
+  if (urlMatch && urlMatch[1]) {
+    id = urlMatch[1]
   } else {
-    // maybe user pasted https://lichess.org/study/bUmjtT4G.pgn ?
-    const pgnMatch = id.match(/study\/([a-zA-Z0-9]{8})\.pgn/)
-    if (pgnMatch && pgnMatch[1]) {
-      id = pgnMatch[1]
+    // 2. Try direct ID input
+    const idMatch = input.match(/^[a-zA-Z0-9]{8}$/)
+    if (idMatch) {
+      id = input
     }
+  }
+
+  if (!id) {
+    message.error('Invalid Lichess Study URL or ID. Expected 8 characters (e.g. bUmjtT4G)')
+    return
   }
 
   try {
@@ -81,8 +95,14 @@ async function handleLichessImport() {
     lichessStudyInput.value = ''
     activeTab.value = 'my'
   } catch (e: unknown) {
-    const error = e instanceof Error ? e.message : 'Failed to import Lichess Study'
-    message.error(error)
+    if (e instanceof LichessApiError) {
+      errorStatus.value = e.status
+      errorMessage.value = e.message
+      showErrorModal.value = true
+    } else {
+      const error = e instanceof Error ? e.message : 'Failed to import Lichess Study'
+      message.error(error)
+    }
     console.error(e)
   }
 }
@@ -95,21 +115,6 @@ async function handleCreateStudy() {
   newStudyTitle.value = ''
   showCreateForm.value = false
   message.success('Study created')
-}
-
-// Import PGN
-function handleImport(color: 'white' | 'black') {
-  if (!pgnInput.value.trim()) return
-
-  try {
-    studyStore.createChapterFromPgn(pgnInput.value, undefined, color)
-    pgnInput.value = ''
-    message.success('PGN Imported successfully')
-    activeTab.value = 'my' // Switch back to my chapters list
-  } catch (e) {
-    message.error('Failed to parse PGN')
-    console.error(e)
-  }
 }
 
 // Delete Study
@@ -254,7 +259,7 @@ function finishEditStudy() {
           <div class="create-form">
             <h3>Lichess Study</h3>
             <p style="font-size: 0.85em; color: #888; margin-bottom: 8px;">
-              Enter a public Lichess Study URL or ID to import all its chapters.
+              Enter a <strong>PUBLIC</strong> Lichess Study URL or ID to import all its chapters. Private studies are not supported.
             </p>
             <NInput
               v-model:value="lichessStudyInput"
@@ -268,23 +273,15 @@ function finishEditStudy() {
             </NSpace>
           </div>
 
-          <div class="create-form">
-            <h3>Raw PGN</h3>
-            <NInput
-              v-model:value="pgnInput"
-              type="textarea"
-              placeholder="Paste PGN here..."
-              :rows="6"
-            />
-            <NSpace justify="end" style="margin-top: 10px">
-              <NButton @click="handleImport('white')">Import for White</NButton>
-              <NButton type="primary" @click="handleImport('black')">Import for Black</NButton>
-            </NSpace>
-          </div>
-
         </NSpace>
       </NTabPane>
     </NTabs>
+
+    <LichessErrorModal
+      v-model:show="showErrorModal"
+      :status="errorStatus"
+      :message="errorMessage"
+    />
   </NModal>
 </template>
 

@@ -3,6 +3,9 @@ import { ref, watch, computed } from 'vue'
 import { useStudyStore, type StudyChapter } from '../model/study.store'
 import { openingChaptersService, type OpeningChapterTemplate } from '@/entities/opening'
 import {
+  LinkOutline
+} from '@vicons/ionicons5'
+import {
   NModal,
   NForm,
   NFormItem,
@@ -16,6 +19,7 @@ import {
   NListItem,
   NThing,
   NText,
+  NIcon,
   useMessage,
 } from 'naive-ui'
 
@@ -32,10 +36,11 @@ const emit = defineEmits<{
 const studyStore = useStudyStore()
 const message = useMessage()
 
-const activeTab = ref<'settings' | 'templates'>('settings')
+const activeTab = ref<'settings' | 'templates' | 'raw_pgn'>('settings')
 const searchQuery = ref('')
 const templates = ref<OpeningChapterTemplate[]>([])
 const isLoadingTemplates = ref(false)
+const pgnInput = ref('')
 
 const formModel = ref({
   name: '',
@@ -43,6 +48,16 @@ const formModel = ref({
   eco: '',
   opening: '',
   result: '*',
+})
+
+const lichessStudyUrl = computed(() => {
+  if (!studyStore.activeStudy?.lichessId) return null
+  return `https://lichess.org/study/${studyStore.activeStudy.lichessId}`
+})
+
+const lichessChapterUrl = computed(() => {
+  if (!studyStore.activeStudy?.lichessId || !props.chapter?.lichessChapterId) return null
+  return `https://lichess.org/study/${studyStore.activeStudy.lichessId}/${props.chapter.lichessChapterId}`
 })
 
 const filteredTemplates = computed(() => {
@@ -60,6 +75,7 @@ watch(
     if (isShown) {
       if (props.isCreating) {
         activeTab.value = 'settings'
+        pgnInput.value = ''
         formModel.value = {
           name: `Chapter ${studyStore.activeStudy?.chapterIds.length || 0 + 1}`,
           color: 'white',
@@ -76,6 +92,7 @@ watch(
         }
       } else if (props.chapter) {
         activeTab.value = 'settings'
+        pgnInput.value = ''
         formModel.value = {
           name: props.chapter.name,
           color: props.chapter.color || 'white',
@@ -87,6 +104,27 @@ watch(
     }
   }
 )
+
+async function handleImportPgn() {
+  if (!pgnInput.value.trim()) return
+
+  try {
+    if (!studyStore.activeStudy) return
+    
+    await studyStore.createChapterFromPgn(
+      pgnInput.value, 
+      formModel.value.name !== `Chapter ${studyStore.activeStudy.chapterIds.length + 1}` ? formModel.value.name : undefined, 
+      formModel.value.color,
+      studyStore.activeStudy.id
+    )
+    pgnInput.value = ''
+    message.success('PGN Imported successfully')
+    emit('update:show', false)
+  } catch (e) {
+    message.error('Failed to parse PGN')
+    console.error(e)
+  }
+}
 
 async function handleSave() {
   if (!formModel.value.name.trim()) {
@@ -190,6 +228,25 @@ async function selectTemplate(template: OpeningChapterTemplate) {
               <NInput v-model:value="formModel.result" placeholder="e.g. 1-0, 0-1, 1/2-1/2 or *" />
             </NFormItem>
 
+            <div v-if="lichessStudyUrl || lichessChapterUrl" class="lichess-links">
+              <NSpace vertical size="small">
+                <div v-if="lichessStudyUrl" class="lichess-link-item">
+                  <NText depth="3">Study URL: </NText>
+                  <a :href="lichessStudyUrl" target="_blank" rel="noopener noreferrer" class="link">
+                    {{ lichessStudyUrl }}
+                    <NIcon size="12"><LinkOutline /></NIcon>
+                  </a>
+                </div>
+                <div v-if="lichessChapterUrl" class="lichess-link-item">
+                  <NText depth="3">Current Chapter URL: </NText>
+                  <a :href="lichessChapterUrl" target="_blank" rel="noopener noreferrer" class="link">
+                    {{ lichessChapterUrl }}
+                    <NIcon size="12"><LinkOutline /></NIcon>
+                  </a>
+                </div>
+              </NSpace>
+            </div>
+
             <NSpace justify="end" style="margin-top: 20px">
               <NButton @click="emit('update:show', false)">Cancel</NButton>
               <NButton type="primary" @click="handleSave">
@@ -232,6 +289,28 @@ async function selectTemplate(template: OpeningChapterTemplate) {
           </NSpace>
         </div>
       </NTabPane>
+
+      <NTabPane v-if="isCreating" name="raw_pgn" tab="Raw PGN">
+        <div style="padding-top: 15px">
+          <NSpace vertical>
+            <div class="color-hint">
+              <NText depth="3">The selected color ({{ formModel.color }}) will be applied to the imported PGN.</NText>
+            </div>
+            <NInput
+              v-model:value="pgnInput"
+              type="textarea"
+              placeholder="Paste PGN here..."
+              :rows="8"
+            />
+            <NSpace justify="end" style="margin-top: 10px">
+              <NButton @click="emit('update:show', false)">Cancel</NButton>
+              <NButton type="primary" :disabled="!pgnInput.trim()" @click="handleImportPgn">
+                Import Chapter
+              </NButton>
+            </NSpace>
+          </NSpace>
+        </div>
+      </NTabPane>
     </NTabs>
   </NModal>
 </template>
@@ -264,6 +343,35 @@ async function selectTemplate(template: OpeningChapterTemplate) {
   border-radius: 4px;
   border-left: 3px solid var(--color-accent-primary);
   margin-bottom: 8px;
+}
+
+.lichess-links {
+  margin-top: 20px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed var(--color-border);
+  border-radius: 4px;
+}
+
+.lichess-link-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.link {
+  color: var(--color-accent-primary);
+  text-decoration: none;
+  font-family: monospace;
+  font-size: 0.85rem;
+  word-break: break-all;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.link:hover {
+  text-decoration: underline;
 }
 </style>
 

@@ -82,6 +82,7 @@ onUnmounted(() => {
 })
 
 const avatarSize = computed(() => (isMobile.value ? 75 : 150))
+const isLimitless = computed(() => (userProfile.value?.dailyLimit || 0) > 90000)
 </script>
 
 <template>
@@ -114,10 +115,13 @@ const avatarSize = computed(() => (isMobile.value ? 75 : 150))
           <div class="funcoins-stat">
             <n-statistic
               :label="t('features.userCabinet.stats.pawncoinsLabel')"
-              :value="(userProfile.dailyLimit || 0) - (userProfile.spentToday || 0)"
             >
               <template #prefix>🪙</template>
-              <template #suffix> / {{ userProfile.dailyLimit || 0 }}</template>
+              <template #default>
+                <span v-if="isLimitless" class="rainbow-text limitless-symbol">∞</span>
+                <span v-else>{{ (userProfile.dailyLimit || 0) - (userProfile.spentToday || 0) }}</span>
+              </template>
+              <template #suffix v-if="!isLimitless"> / {{ userProfile.dailyLimit || 0 }}</template>
             </n-statistic>
           </div>
         </div>
@@ -291,5 +295,36 @@ const avatarSize = computed(() => (isMobile.value ? 75 : 150))
 :deep(.n-statistic-value__content) {
   font-family: var(--font-family-primary);
   font-weight: bold;
+}
+
+.limitless-symbol {
+  font-size: 2.5em;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.rainbow-text {
+  background: linear-gradient(
+    to right,
+    #ff0000,
+    #ff7f00,
+    #ffff00,
+    #00ff00,
+    #0000ff,
+    #4b0082,
+    #8b00ff
+  );
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: rainbow 3s linear infinite;
+  font-weight: bold;
+}
+
+@keyframes rainbow {
+  to {
+    background-position: 200% center;
+  }
 }
 </style>

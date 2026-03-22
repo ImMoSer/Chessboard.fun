@@ -1,5 +1,8 @@
 export * from './model/study.store'
+export * from './api/LichessSyncService'
 export { default as ChapterSettingsModal } from './ui/ChapterSettingsModal.vue'
+export { default as LichessStudyAuthModal } from './ui/LichessStudyAuthModal.vue'
+export { default as PublishStudyModal } from './ui/PublishStudyModal.vue'
 export { default as RepertoireGeneratorModal } from './ui/RepertoireGeneratorModal.vue'
 export { default as StudyCandidateMoves } from './ui/StudyCandidateMoves.vue'
 export { default as StudyControls } from './ui/StudyControls.vue'

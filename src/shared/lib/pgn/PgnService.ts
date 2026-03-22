@@ -240,18 +240,19 @@ class PgnServiceController {
     return pgn.trim()
   }
 
-  public getFullPgn(tags: Record<string, string>): string {
+  public getFullPgn(tags: Record<string, string>, root?: PgnNode): string {
     let pgn = ''
     for (const [key, value] of Object.entries(tags)) {
       pgn += `[${key} "${value}"]\n`
     }
     if (Object.keys(tags).length > 0) pgn += '\n'
 
-    const rootSetup = parseFen(this.rootNode.fenAfter).unwrap()
+    const targetRoot = root || this.rootNode
+    const rootSetup = parseFen(targetRoot.fenAfter).unwrap()
     const isWhiteToMoveInitially = rootSetup.turn === 'white'
     const initialFullMoveNumber = rootSetup.fullmoves
 
-    pgn += this.renderTree(this.rootNode, isWhiteToMoveInitially, initialFullMoveNumber, false)
+    pgn += this.renderTree(targetRoot, isWhiteToMoveInitially, initialFullMoveNumber, false)
     pgn += ` ${this.gameResult}`
     return pgn.trim()
   }

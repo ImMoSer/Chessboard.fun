@@ -1,22 +1,23 @@
 <script setup lang="ts">
 import { apiClient } from '@/shared/api/client'
 import {
-    NAlert,
-    NButton,
-    NCard,
-    NDivider,
-    NGi,
-    NGrid,
-    NH1,
-    NH2,
-    NLayout,
-    NLayoutContent,
-    NModal,
-    NSpace,
-    NTag,
-    NText,
-    NThing,
-    useMessage,
+  NAlert,
+  NButton,
+  NCard,
+  NDivider,
+  NGi,
+  NGrid,
+  NH1,
+  NH2,
+  NLayout,
+  NLayoutContent,
+  NModal,
+  NSpace,
+  NTag,
+  NText,
+  NThing,
+  NTooltip,
+  useMessage,
 } from 'naive-ui'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -24,11 +25,11 @@ import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 
 // Subscription values and colors
-const PAWN_COINS = 150
+const PAWN_COINS = 250
 const KNIGHT_COINS = 500
 const BISHOP_COINS = 1000
-const ROOK_COINS = 2500
-const QUEEN_COINS = 5000
+const ROOK_COINS = 1500
+const QUEEN_COINS = 3000
 const KING_COINS = 0 // Displayed as LIMITLESS
 
 const PAWN_COLOR = 'var(--neon-cyan)'
@@ -162,7 +163,7 @@ const handleCheckout = async (tierId: string) => {
   <n-layout class="pricing-page-layout">
     <n-layout-content
       class="pricing-content"
-      content-style="padding: 24px; max-width: 1200px; margin: 0 auto;"
+      content-style="padding: 10px; max-width: 1200px; margin: 0 auto;"
     >
       <n-space vertical size="large">
         <n-h1 align-text class="page-title">
@@ -203,9 +204,14 @@ const handleCheckout = async (tierId: string) => {
 
               <n-thing>
                 <template #description>
-                  <n-text v-if="tier.isLimitless" :style="{ color: tier.color, fontWeight: 'bold', fontSize: '1.4em' }">
-                    LIMITLESS
-                  </n-text>
+                  <n-tooltip v-if="tier.isLimitless" trigger="hover">
+                    <template #trigger>
+                      <n-text class="rainbow-text limitless-symbol">
+                        ∞
+                      </n-text>
+                    </template>
+                    {{ t('common.actions.limitless') }}
+                  </n-tooltip>
                   <n-text v-else depth="3" style="font-size: 0.9em">
                     {{ t('features.pricing.tiers.pawn.description').split('{pawncoins}')[0] }}
                     <n-text :style="{ color: tier.color, fontWeight: 'bold', fontSize: '1.2em' }">
@@ -214,7 +220,7 @@ const handleCheckout = async (tierId: string) => {
                     {{ t('features.pricing.tiers.pawn.description').split('{pawncoins}')[1] }}
                   </n-text>
                 </template>
-                <n-divider dashed style="margin: 12px 0" />
+                <n-divider dashed style="margin: 5px 0" />
 
                 <div style="min-height: 48px; display: flex; align-items: center; justify-content: center;">
                   <n-button
@@ -279,7 +285,7 @@ const handleCheckout = async (tierId: string) => {
           <p>{{ t('features.pricing.bonusInfo.p1') }}</p>
           <p>{{ t('features.pricing.bonusInfo.p2') }}</p>
           <p>{{ t('features.pricing.bonusInfo.p3') }}</p>
-          <div style="margin-top: 12px">
+          <div style="margin-top: 5px">
             <a
               href="https://lichess.org/team/xtrapawn"
               target="_blank"
@@ -371,7 +377,41 @@ const handleCheckout = async (tierId: string) => {
 
 @media (max-width: 768px) {
   .pricing-page-layout :deep(.n-layout-content) {
-    padding: 12px !important;
+    padding: 5px !important;
+  }
+}
+
+.limitless-symbol {
+  font-size: 3.5rem;
+  line-height: 1;
+  display: inline-block;
+  cursor: help;
+  padding: 0;
+  margin: 0;
+}
+
+.rainbow-text {
+  background: linear-gradient(
+    to right,
+    #ff0000,
+    #ff7f00,
+    #ffff00,
+    #00ff00,
+    #0000ff,
+    #4b0082,
+    #8b00ff
+  );
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: rainbow 3s linear infinite;
+  font-weight: bold;
+}
+
+@keyframes rainbow {
+  to {
+    background-position: 200% center;
   }
 }
 </style>

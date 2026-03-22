@@ -3,7 +3,7 @@ import { useBoardStore } from '@/entities/game'
 import { AnalysisPanel, useAnalysisStore } from '@/features/analysis'
 import { MozerBook } from '@/features/mozer-book'
 import { LichessOpeningExplorer } from '@/features/opening-explorer'
-import { StudyControls, StudyHeader, StudyTree, useStudyStore, StudySidebar } from '@/features/study'
+import { StudyControls, StudyHeader, StudyTree, useStudyStore, StudySidebar, LichessStudyAuthModal } from '@/features/study'
 import { pgnService } from '@/shared/lib/pgn/PgnService'
 import { GameLayout } from '@/widgets/game-layout'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
@@ -37,6 +37,10 @@ onMounted(async () => {
     updateUrl(studyStore.activeChapterId)
   }
 })
+
+const handleCancelAuth = () => {
+  studyStore.isAuthModalVisible = false
+}
 
 function updateUrl(id: string) {
   const chapter = studyStore.chapters.find((c) => c.id === id)
@@ -119,6 +123,11 @@ watch(
       </div>
     </template>
   </GameLayout>
+
+  <LichessStudyAuthModal
+    :show="studyStore.isAuthModalVisible"
+    @cancel="handleCancelAuth"
+  />
 </template>
 
 <style scoped>

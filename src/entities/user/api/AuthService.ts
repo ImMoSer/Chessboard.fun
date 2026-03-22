@@ -80,10 +80,16 @@ class AuthServiceController {
     })
   }
 
-  public async login(): Promise<void> {
+  public async login(scopes?: string[]): Promise<void> {
     logger.info('[AuthService] Redirecting to backend for Lichess login...')
     this._setState({ isProcessing: true })
-    window.location.href = `${BACKEND_API_URL}/auth/lichess/login`
+    
+    let url = `${BACKEND_API_URL}/auth/lichess/login`
+    if (scopes && scopes.length > 0) {
+      url += `?scopes=${encodeURIComponent(scopes.join(' '))}`
+    }
+    
+    window.location.href = url
   }
 
   public async logout(): Promise<void> {

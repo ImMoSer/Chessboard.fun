@@ -1,6 +1,7 @@
 <!-- src/App.vue -->
 <script setup lang="ts">
 import { useGameStore } from '@/entities/game'
+import { LoginScopeModal } from '@/entities/user'
 import { SettingsMenu } from '@/features/settings'
 import ConfirmationModal from '@/shared/ui/ConfirmationModal.vue'
 import GalaxyBackground from '@/shared/ui/visuals/GalaxyBackground.vue'
@@ -183,6 +184,7 @@ onUnmounted(() => {
           </n-drawer>
 
           <ConfirmationModal />
+          <LoginScopeModal />
         </n-layout>
         <GalaxyBackground />
       </n-dialog-provider>

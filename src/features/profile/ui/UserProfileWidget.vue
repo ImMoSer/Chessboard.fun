@@ -4,19 +4,19 @@ import { useAuthStore } from '@/entities/user'
 import type { TornadoMode } from '@/shared/types/api.types'
 import { GolfOutline, LockClosedOutline, RibbonOutline, WalletOutline } from '@vicons/ionicons5'
 import {
-    NAvatar,
-    NButton,
-    NCard,
-    NDivider,
-    NGrid,
-    NGridItem,
-    NIcon,
-    NNumberAnimation,
-    NSpace,
-    NStatistic,
-    NTag,
-    NText,
-    NTooltip,
+  NAvatar,
+  NButton,
+  NCard,
+  NDivider,
+  NGrid,
+  NGridItem,
+  NIcon,
+  NNumberAnimation,
+  NSpace,
+  NStatistic,
+  NTag,
+  NText,
+  NTooltip,
 } from 'naive-ui'
 import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
@@ -82,6 +82,7 @@ const avatarUrl = computed(() => {
   }
   return 'https://lichess1.org/assets/images/avatar_default.png'
 })
+const isLimitless = computed(() => (userProfile.value?.dailyLimit || 0) > 90000)
 </script>
 
 <template>
@@ -119,8 +120,13 @@ const avatarUrl = computed(() => {
                   <WalletOutline />
                 </n-icon>
               </template>
-              <n-number-animation :from="0" :to="(userProfile.dailyLimit || 0) - (userProfile.spentToday || 0)" />
-              <span class="limit-text"> / {{ userProfile.dailyLimit || 0 }}</span>
+              <template #default>
+                <span v-if="isLimitless" class="rainbow-text limitless-symbol">∞</span>
+                <n-number-animation v-else :from="0" :to="(userProfile.dailyLimit || 0) - (userProfile.spentToday || 0)" />
+              </template>
+              <template #suffix v-if="!isLimitless">
+                <span class="limit-text"> / {{ userProfile.dailyLimit || 0 }}</span>
+              </template>
             </n-statistic>
           </n-space>
 
@@ -305,6 +311,37 @@ const avatarUrl = computed(() => {
     font-size: 1.3rem;
     font-weight: 900;
     font-family: monospace;
+  }
+}
+
+.limitless-symbol {
+  font-size: 2.5em;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.rainbow-text {
+  background: linear-gradient(
+    to right,
+    #ff0000,
+    #ff7f00,
+    #ffff00,
+    #00ff00,
+    #0000ff,
+    #4b0082,
+    #8b00ff
+  );
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: rainbow 3s linear infinite;
+  font-weight: bold;
+}
+
+@keyframes rainbow {
+  to {
+    background-position: 200% center;
   }
 }
 </style>
