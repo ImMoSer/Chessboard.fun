@@ -16,25 +16,25 @@ const studyStore = useStudyStore()
 const isChapterModalOpen = ref(false)
 const isGeneratorModalOpen = ref(false)
 
-const currentChapterName = computed(() => {
-  const chapter = studyStore.chapters.find((c) => c.id === studyStore.activeChapterId)
-  return chapter ? chapter.name : 'Select Chapter'
+const studyTitle = computed(() => {
+  return studyStore.activeStudy ? studyStore.activeStudy.title : t('features.study.myLibrary', 'My Library')
 })
 
-const chapterIndexDisplay = computed(() => {
-  const index = studyStore.chapters.findIndex((c) => c.id === studyStore.activeChapterId)
-  return index >= 0 ? `${index + 1}/${studyStore.chapters.length}` : ''
+const studyIndexInfo = computed(() => {
+  if (!studyStore.activeStudy) return ''
+  const index = studyStore.studies.findIndex((s) => s.id === studyStore.activeStudy?.id)
+  return index >= 0 ? `${index + 1}/${studyStore.studies.length}` : ''
 })
 </script>
 
 <template>
   <div class="study-header-container">
     <div class="header-glass-panel">
-      <!-- Chapter Selection -->
+      <!-- Study Selection -->
       <div class="chapter-info" @click="isChapterModalOpen = true">
         <div class="chapter-main">
-          <span class="chapter-name">{{ currentChapterName }}</span>
-          <span class="chapter-count" v-if="chapterIndexDisplay">{{ chapterIndexDisplay }}</span>
+          <span class="chapter-name">{{ studyTitle }}</span>
+          <span class="chapter-count" v-if="studyIndexInfo">{{ studyIndexInfo }}</span>
         </div>
         <n-icon size="16" class="dropdown-arrow">
           <DropdownIcon />

@@ -60,6 +60,16 @@ const lichessChapterUrl = computed(() => {
   return `https://lichess.org/study/${studyStore.activeStudy.lichessId}/${props.chapter.lichessChapterId}`
 })
 
+const localAppUrl = computed(() => {
+  const chapter = props.chapter || studyStore.activeChapter
+  if (!chapter) return null
+  
+  const studyId = chapter.studyId || 'local'
+  const chapterId = chapter.lichessChapterId || chapter.id
+  
+  return `${window.location.origin}/study/${studyId}/${chapterId}`
+})
+
 const filteredTemplates = computed(() => {
   const query = searchQuery.value.toLowerCase()
   if (!query) return templates.value
@@ -234,17 +244,25 @@ async function selectTemplate(template: OpeningChapterTemplate) {
               <NInput v-model:value="formModel.result" placeholder="e.g. 1-0, 0-1, 1/2-1/2 or *" />
             </NFormItem>
 
-            <div v-if="lichessStudyUrl || lichessChapterUrl" class="lichess-links">
+            <div class="lichess-links">
               <NSpace vertical size="small">
+                <div v-if="localAppUrl" class="lichess-link-item">
+                  <NText depth="3">Local App Link: </NText>
+                  <a :href="localAppUrl" target="_blank" rel="noopener noreferrer" class="link">
+                    {{ localAppUrl }}
+                    <NIcon size="12"><LinkOutline /></NIcon>
+                  </a>
+                </div>
+
                 <div v-if="lichessStudyUrl" class="lichess-link-item">
-                  <NText depth="3">Study URL: </NText>
+                  <NText depth="3">Lichess Study URL: </NText>
                   <a :href="lichessStudyUrl" target="_blank" rel="noopener noreferrer" class="link">
                     {{ lichessStudyUrl }}
                     <NIcon size="12"><LinkOutline /></NIcon>
                   </a>
                 </div>
                 <div v-if="lichessChapterUrl" class="lichess-link-item">
-                  <NText depth="3">Current Chapter URL: </NText>
+                  <NText depth="3">Lichess Current Chapter: </NText>
                   <a :href="lichessChapterUrl" target="_blank" rel="noopener noreferrer" class="link">
                     {{ lichessChapterUrl }}
                     <NIcon size="12"><LinkOutline /></NIcon>

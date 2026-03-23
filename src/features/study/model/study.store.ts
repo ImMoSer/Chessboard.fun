@@ -365,7 +365,7 @@ export const useStudyStore = defineStore('study', () => {
     }
 
     // 2. Switch
-    const next = chapters.value.find((c) => c.id === id)
+    const next = chapters.value.find((c) => c.id === id || c.lichessChapterId === id)
     if (next) {
       activeChapterId.value = id
       localStorage.setItem(`lastActiveChapterId_${ownerId}`, id)

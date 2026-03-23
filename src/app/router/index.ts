@@ -141,22 +141,16 @@ const router = createRouter({
       meta: { isGame: true, requiresAuth: true, game: 'theory' },
     },
     {
-      path: '/study',
-      name: 'study',
+      path: '/study/:studyId?/:chapterId?',
+      name: 'study-view',
       component: () => import('@/pages/study').then(m => m.StudyPage),
-      meta: { isGame: true, game: 'study', requiresAuth: true }, // Optional requiresAuth
+      meta: { isGame: true, game: 'study', requiresAuth: true },
     },
     {
       path: '/study/:lichessId/:color(white|black)',
       name: 'study-cloud',
       component: () => import('@/pages/study').then(m => m.StudyPage),
       meta: { isGame: true, game: 'study', requiresAuth: false },
-    },
-    {
-      path: '/study/local/:id',
-      name: 'study-local',
-      component: () => import('@/pages/study').then(m => m.StudyPage),
-      meta: { isGame: true, game: 'study', requiresAuth: true },
     },
     {
       path: '/practical-chess',

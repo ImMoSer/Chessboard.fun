@@ -35,11 +35,18 @@ onMounted(async () => {
   }
   
   await studyStore.initialize()
-
-  if (route.params.id) {
-    studyStore.setActiveChapter(route.params.id as string)
+  
+  // Try to load from URL params: /study/:studyId/:chapterId
+  if (route.params.chapterId) {
+    studyStore.setActiveChapter(route.params.chapterId as string)
+  } else if (route.params.studyId && route.params.studyId !== 'local') {
+    // If only studyId is provided, select its first chapter
+    const study = studyStore.studies.find(s => s.id === route.params.studyId)
+    if (study && study.chapterIds.length > 0) {
+      studyStore.setActiveChapter(study.chapterIds[0]!)
+    }
   } else if (studyStore.activeChapterId) {
-    // Redirect to active chapter URL if we just hit /study
+    // Redirect /study -> /study/:studyId/:chapterId
     updateUrl(studyStore.activeChapterId)
   }
 })
@@ -53,7 +60,13 @@ function updateUrl(id: string) {
   const chapter = studyStore.chapters.find((c) => c.id === id)
   if (!chapter) return
 
-  router.replace({ name: 'study-local', params: { id: chapter.id } })
+  const studyId = chapter.studyId || 'local'
+  const displayChapterId = chapter.lichessChapterId || chapter.id
+
+  router.replace({ 
+    name: 'study-view', 
+    params: { studyId, chapterId: displayChapterId } 
+  })
 }
 
 // Watch for active chapter changes to update URL

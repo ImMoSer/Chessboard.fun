@@ -149,6 +149,11 @@
         "evaluation": "Unsere Bewertung"
       }
     },
+    "study": {
+      "myLibrary": "Meine Bibliothek",
+      "selectChapter": "Kapitel wählen",
+      "cutBranch": "Aktuellen Zug & Variante löschen"
+    },
     "userCabinet": {
       "title": "Benutzer-Kabinett",
       "loginPrompt": "Melde dich an, um Statistiken und Aktivitäten zu sehen.",

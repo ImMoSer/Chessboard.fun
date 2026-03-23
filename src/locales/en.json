@@ -149,6 +149,11 @@
         "evaluation": "Our Evaluation"
       }
     },
+    "study": {
+      "myLibrary": "My Library",
+      "selectChapter": "Select Chapter",
+      "cutBranch": "Delete current move & branch"
+    },
     "userCabinet": {
       "title": "User Cabinet",
       "loginPrompt": "Log in to view your statistics and activity.",
