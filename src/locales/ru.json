@@ -195,6 +195,7 @@
         "messages": {
           "importing": "Импорт из Lichess...",
           "importingCommunity": "Импорт студии сообщества...",
+          "syncInProgress": "Выполняется синхронизация. Пожалуйста, дождитесь окончания процесса.",
           "importSuccess": "Студия Lichess успешно импортирована!",
           "communitySuccess": "Студия сообщества успешно импортирована!",
           "importFailed": "Ошибка при импорте студии Lichess",

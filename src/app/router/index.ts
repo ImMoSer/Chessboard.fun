@@ -11,6 +11,7 @@ import { useOpeningSparringStore } from '@/features/opening-sparring'
 import { usePracticalChessStore } from '@/features/practical-chess'
 import { useTheoryEndingsStore } from '@/features/theory-endings'
 import { useTornadoStore } from '@/features/tornado'
+import { useStudyStore } from '@/features/study'
 
 import { AboutPage } from '@/pages/about'
 import { LegalPage } from '@/pages/legal'
@@ -182,7 +183,20 @@ router.beforeEach(async (to, from, next) => {
   const gameStore = useGameStore()
   const uiStore = useUiStore()
   const authStore = useAuthStore()
+  const studyStore = useStudyStore()
   const t = i18n.global.t
+
+  if (studyStore.cloudLoading) {
+    await uiStore.showConfirmation(
+       t('common.actions.error'),
+       t('features.study.manager.messages.syncInProgress'),
+       {
+         confirmText: t('common.actions.ok'),
+         showCancel: false,
+       }
+    )
+    return next(false)
+  }
 
   if (authStore.isLoading) {
     await new Promise<void>((resolve) => {

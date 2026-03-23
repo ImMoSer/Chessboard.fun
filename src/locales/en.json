@@ -189,6 +189,7 @@
         "messages": {
           "importing": "Importing from Lichess...",
           "importingCommunity": "Importing Community Study...",
+          "syncInProgress": "Synchronization in progress. Please wait until the process is complete.",
           "importSuccess": "Lichess study imported successfully!",
           "communitySuccess": "Community study imported successfully!",
           "importFailed": "Failed to import Lichess study",

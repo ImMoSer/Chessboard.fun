@@ -189,6 +189,7 @@
         "messages": {
           "importing": "Vom Lichess importieren...",
           "importingCommunity": "Community-Study wird importiert...",
+          "syncInProgress": "Synchronisierung läuft. Bitte warten, bis der Vorgang abgeschlossen ist.",
           "importSuccess": "Lichess-Study erfolgreich importiert!",
           "communitySuccess": "Community-Study erfolgreich importiert!",
           "importFailed": "Fehler beim Importieren der Lichess-Study",

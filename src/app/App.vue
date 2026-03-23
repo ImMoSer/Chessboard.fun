@@ -2,6 +2,7 @@
 <script setup lang="ts">
 import { useGameStore } from '@/entities/game'
 import { LoginScopeModal } from '@/entities/user'
+import { useStudyStore } from '@/features/study'
 import { SettingsMenu } from '@/features/settings'
 import ConfirmationModal from '@/shared/ui/ConfirmationModal.vue'
 import GalaxyBackground from '@/shared/ui/visuals/GalaxyBackground.vue'
@@ -14,6 +15,7 @@ import { useI18n } from 'vue-i18n'
 import { RouterView } from 'vue-router'
 
 const gameStore = useGameStore()
+const studyStore = useStudyStore()
 const { t } = useI18n()
 
 const isLandscape = ref(false)
@@ -74,6 +76,11 @@ const openDrawer = () => {
 
 // Обработчик для перезагрузки/закрытия страницы
 const beforeUnloadHandler = (event: BeforeUnloadEvent) => {
+  if (studyStore.cloudLoading) {
+    event.preventDefault()
+    event.returnValue = t('features.study.manager.messages.syncInProgress')
+    return
+  }
   if (gameStore.isGameActive) {
     event.preventDefault()
     event.returnValue = t('features.gameplay.confirmExit.browserMessage')

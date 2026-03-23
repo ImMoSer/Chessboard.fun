@@ -200,12 +200,20 @@ function finishEditStudy() {
   }
   editingId.value = null
 }
+
+function handleModalUpdate(value: boolean) {
+  if (!value && (studyStore.cloudLoading || isImportingCommunity.value)) {
+    message.warning(t('features.study.manager.messages.syncInProgress'))
+    return
+  }
+  emit('update:show', value)
+}
 </script>
 
 <template>
-  <NModal
+    <NModal
     :show="show"
-    @update:show="(v) => emit('update:show', v)"
+    @update:show="handleModalUpdate"
     preset="card"
     :title="t('features.study.manager.title')"
     style="width: 600px; max-width: 95vw; max-height: 80vh; overflow: hidden; display: flex; flex-direction: column;"
@@ -213,6 +221,9 @@ function finishEditStudy() {
     size="huge"
     :auto-focus="false"
     :trap-focus="false"
+    :mask-closable="!(studyStore.cloudLoading || isImportingCommunity)"
+    :close-on-esc="!(studyStore.cloudLoading || isImportingCommunity)"
+    :closable="!(studyStore.cloudLoading || isImportingCommunity)"
   >
     <NTabs v-model:value="activeTab" type="segment" animated>
       <NTabPane name="my" :tab="t('features.study.manager.tabs.imported')">
