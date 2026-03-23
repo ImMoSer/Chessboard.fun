@@ -147,7 +147,7 @@ class AuthServiceController {
   public clearAuthDataLocal(): void {
     localStorage.removeItem('user_profile')
     // Clear study token from sessionStorage as well
-    sessionStorage.removeItem('lichess_study_token')
+    sessionStorage.removeItem('lichess_study_ready')
     this._setState({
       userProfile: null,
       isAuthenticated: false,

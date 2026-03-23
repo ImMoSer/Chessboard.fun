@@ -60,44 +60,72 @@ class RequestQueue {
 
 class LichessSyncService {
   private readonly BASE_URL = 'https://lichess.org/api'
-  private readonly TOKEN_KEY = 'lichess_study_token'
+  private readonly READY_KEY = 'lichess_study_ready'
   private readonly queue = new RequestQueue()
 
   /**
-   * Checks if a valid study token exists in sessionStorage.
-   * If not, attempts to fetch it from the backend.
-   * Returns true if a token is available, false otherwise (meaning user needs to authorize).
+   * Checks if the user is authorized for study access.
    */
   async ensureToken(): Promise<boolean> {
-    const cachedToken = sessionStorage.getItem(this.TOKEN_KEY)
-    if (cachedToken) {
+    const isReady = sessionStorage.getItem(this.READY_KEY)
+    if (isReady === 'true') {
       return true
     }
 
     try {
-      const data = await apiClient<{ token: string | null; study_ready: boolean }>('/auth/lichess/study-token')
-      if (data && data.token && data.study_ready) {
-        sessionStorage.setItem(this.TOKEN_KEY, data.token)
+      // Just ping to see if ready
+      const data = await apiClient<{ study_ready: boolean }>('/auth/lichess/study-token')
+      if (data && data.study_ready) {
+        sessionStorage.setItem(this.READY_KEY, 'true')
         return true
       }
     } catch (error) {
-      logger.error('[LichessSyncService] Failed to fetch study token from backend:', error)
+      logger.error('[LichessSyncService] Failed to check study token readiness:', error)
     }
 
     return false
   }
 
-  private getToken(): string {
-    const token = sessionStorage.getItem(this.TOKEN_KEY)
-    if (!token) {
+  private async getDecodedToken(): Promise<string> {
+    const isReady = sessionStorage.getItem(this.READY_KEY)
+    if (isReady !== 'true') {
       throw new Error('Lichess study token is missing. Please ensureToken() first.')
     }
-    return token
+
+    try {
+      const data = await apiClient<{ token: string | null; study_ready: boolean }>('/auth/lichess/study-token')
+      if (!data || !data.token) {
+        sessionStorage.removeItem(this.READY_KEY)
+        throw new Error('No encoded token received.')
+      }
+
+      const keyData = await apiClient<{ key: string | null }>('/auth/lichess/master-key')
+      if (!keyData || !keyData.key) {
+        throw new Error('No master key received.')
+      }
+
+      const tokenStr = data.token
+      const keyStr = keyData.key
+
+      const encBytes = Uint8Array.from(atob(tokenStr!), c => c.charCodeAt(0))
+      const keyBytes = Uint8Array.from(atob(keyStr!), c => c.charCodeAt(0))
+      const result = new Uint8Array(encBytes.length)
+
+      for (let i = 0; i < encBytes.length; i++) {
+        result[i] = (encBytes[i] as number) ^ (keyBytes[i % keyBytes.length] as number)
+      }
+
+      return new TextDecoder().decode(result)
+    } catch (error) {
+      logger.error('[LichessSyncService] Failed to fetch or decode token:', error)
+      throw error
+    }
   }
 
-  private getHeaders() {
+  private async getHeaders(): Promise<Record<string, string>> {
+    const token = await this.getDecodedToken()
     return {
-      'Authorization': `Bearer ${this.getToken()}`,
+      'Authorization': `Bearer ${token}`,
       'Accept': 'application/json',
     }
   }
@@ -105,10 +133,11 @@ class LichessSyncService {
   async fetchUserStudies(username: string): Promise<{ id: string; name: string; updatedAt: number }[]> {
     return this.queue.enqueue(async () => {
       try {
+        const headers = await this.getHeaders()
         const response = await fetch(`${this.BASE_URL}/study/by/${username}`, {
           method: 'GET',
           headers: {
-            ...this.getHeaders(),
+            ...headers,
             'Accept': 'application/x-ndjson',
           },
         })
@@ -150,10 +179,11 @@ class LichessSyncService {
         if (request.orientation) body.append('orientation', request.orientation)
         if (request.variant) body.append('variant', request.variant)
 
+        const headers = await this.getHeaders()
         const response = await fetch(`${this.BASE_URL}/study/${studyId}/import-pgn`, {
           method: 'POST',
           headers: {
-            ...this.getHeaders(),
+            ...headers,
             'Content-Type': 'application/x-www-form-urlencoded',
           },
           body: body.toString(),
@@ -182,9 +212,10 @@ class LichessSyncService {
   async deleteChapter(studyId: string, chapterId: string): Promise<void> {
     return this.queue.enqueue(async () => {
       try {
+        const headers = await this.getHeaders()
         const response = await fetch(`${this.BASE_URL}/study/${studyId}/${chapterId}`, {
           method: 'DELETE',
-          headers: this.getHeaders(),
+          headers: headers,
         })
 
         if (!response.ok) {
@@ -208,9 +239,10 @@ class LichessSyncService {
       }
       try {
         // Now using token to fetch PGN since we enforce ownership
+        const token = await this.getDecodedToken()
         const headers: Record<string, string> = {
           'Accept': 'application/x-chess-pgn',
-          'Authorization': `Bearer ${this.getToken()}`,
+          'Authorization': `Bearer ${token}`,
         }
         
         const response = await fetch(`${this.BASE_URL}/study/${studyId}.pgn?orientation=true`, {
