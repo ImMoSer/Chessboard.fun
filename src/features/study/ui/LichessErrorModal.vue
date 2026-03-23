@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { NModal, NText, NButton, NSpace, NIcon } from 'naive-ui'
 import { AlertCircleOutline } from '@vicons/ionicons5'
+import { useI18n } from 'vue-i18n'
+import { computed } from 'vue'
 
-defineProps<{
+const props = defineProps<{
   show: boolean
   status?: number
   message: string
@@ -11,6 +13,15 @@ defineProps<{
 const emit = defineEmits<{
   (e: 'update:show', value: boolean): void
 }>()
+
+const { t } = useI18n()
+
+const displayMessage = computed(() => {
+  if (props.message === 'This study is now private') {
+    return t('features.study.manager.errors.studyPrivate')
+  }
+  return props.message
+})
 </script>
 
 <template>
@@ -18,7 +29,7 @@ const emit = defineEmits<{
     :show="show"
     @update:show="(v) => emit('update:show', v)"
     preset="card"
-    title="Lichess API ERROR"
+    :title="t('common.actions.error')"
     style="width: 400px"
   >
     <NSpace vertical align="center" size="large">
@@ -28,15 +39,15 @@ const emit = defineEmits<{
       
       <div style="text-align: center">
         <NText depth="3" style="font-size: 0.9em; display: block; margin-bottom: 8px">
-          Status Code: {{ status || 'Unknown' }}
+          {{ t('common.status.label') }}: {{ status || t('common.status.unknown') }}
         </NText>
         <NText strong style="font-size: 1.1em">
-          {{ message }}
+          {{ displayMessage }}
         </NText>
       </div>
 
       <NButton block type="primary" @click="emit('update:show', false)">
-        Understood
+        {{ t('common.actions.ok') }}
       </NButton>
     </NSpace>
   </NModal>

@@ -141,42 +141,6 @@ class LichessSyncService {
     })
   }
 
-  async checkStudyOwnership(username: string, studyId: string): Promise<boolean> {
-    return this.queue.enqueue(async () => {
-      try {
-        const response = await fetch(`${this.BASE_URL}/study/by/${username}`, {
-          method: 'GET',
-          headers: {
-            ...this.getHeaders(),
-            'Accept': 'application/x-ndjson',
-          },
-        })
-
-        if (!response.ok) {
-          throw new LichessApiError(response.status, `Failed to fetch studies for ${username}`)
-        }
-
-        const text = await response.text()
-        const lines = text.split('\n').filter(line => line.trim().length > 0)
-        
-        for (const line of lines) {
-          try {
-            const study = JSON.parse(line)
-            if (study.id === studyId) {
-              return true
-            }
-          } catch {
-            // Ignore parse errors on corrupted lines
-          }
-        }
-        return false
-      } catch (error) {
-        logger.error(`[LichessSyncService] Error checking ownership for ${studyId}:`, error)
-        throw error
-      }
-    })
-  }
-
   async importPgnIntoStudy(studyId: string, request: LichessImportPgnRequest): Promise<string> {
     return this.queue.enqueue(async () => {
       try {
@@ -254,9 +218,11 @@ class LichessSyncService {
         })
 
         if (!response.ok) {
+          // Attempt to parse JSON error even if content-type isn't explicitly JSON
+          const error = await response.json().catch(() => ({}))
           throw new LichessApiError(
             response.status,
-            `Failed to fetch study PGN. (${response.statusText})`,
+            error.error || `Failed to fetch study PGN. (${response.statusText})`,
           )
         }
 

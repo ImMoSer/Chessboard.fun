@@ -2,33 +2,33 @@
   <n-modal
     :show="show"
     preset="card"
-    title="Lichess Study Access Required"
+    :title="t('features.study.authModal.title')"
     style="width: 500px; max-width: 90vw;"
     :mask-closable="false"
     :closable="false"
   >
     <div class="p-4 space-y-4">
       <p class="text-base">
-        To synchronize your studies directly with Lichess, this application requires permission to read and write to your Lichess studies.
+        {{ t('features.study.authModal.description') }}
       </p>
 
-      <n-alert title="Why is this needed?" type="info" :show-icon="false">
-        We need the <code>study:read</code> and <code>study:write</code> permissions to:
+      <n-alert :title="t('features.study.authModal.whyTitle')" type="info" :show-icon="false">
+        <span v-html="t('features.study.authModal.whyText', { read: '<code>study:read</code>', write: '<code>study:write</code>' })"></span>
         <ul class="list-disc pl-5 mt-2 space-y-1">
-          <li>Create new studies on your behalf</li>
-          <li>Import PGN chapters to your studies</li>
-          <li>Read your existing studies</li>
+          <li v-for="(item, index) in tm('features.study.authModal.whyList')" :key="index">
+            {{ rt(item) }}
+          </li>
         </ul>
       </n-alert>
 
-      <n-alert title="Security Note" type="warning" :show-icon="false">
-        Your token is securely stored and only used for these specific study operations. You can revoke this access at any time in your Lichess account settings.
+      <n-alert :title="t('features.study.authModal.securityTitle')" type="warning" :show-icon="false">
+        {{ t('features.study.authModal.securityText') }}
       </n-alert>
 
       <div class="flex justify-end space-x-3 mt-6">
-        <n-button @click="$emit('cancel')">Cancel</n-button>
+        <n-button @click="$emit('cancel')">{{ t('common.actions.cancel') }}</n-button>
         <n-button type="primary" @click="handleAuthorize" :loading="isAuthorizing">
-          Authorize via Lichess
+          {{ t('features.study.authModal.authorize') }}
         </n-button>
       </div>
     </div>
@@ -39,6 +39,9 @@
 import { ref } from 'vue'
 import { NModal, NAlert, NButton } from 'naive-ui'
 import { useAuthStore } from '@/entities/user'
+import { useI18n } from 'vue-i18n'
+
+const { t, tm, rt } = useI18n()
 
 defineProps<{
   show: boolean

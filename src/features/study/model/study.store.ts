@@ -15,6 +15,7 @@ export interface Study {
   chapterIds: string[] // List of chapter IDs in order
   lichessId?: string
   ownerId?: string
+  type?: 'owned' | 'community'
 }
 
 export interface StudyChapter {
@@ -367,8 +368,8 @@ export const useStudyStore = defineStore('study', () => {
     // 2. Switch
     const next = chapters.value.find((c) => c.id === id || c.lichessChapterId === id)
     if (next) {
-      activeChapterId.value = id
-      localStorage.setItem(`lastActiveChapterId_${ownerId}`, id)
+      activeChapterId.value = next.id
+      localStorage.setItem(`lastActiveChapterId_${ownerId}`, next.id)
       pgnService.setRoot(next.root, next.savedPath)
       boardStore.syncBoardWithPgn()
 
@@ -395,7 +396,7 @@ export const useStudyStore = defineStore('study', () => {
   }
 
   // --- LICHESS IMPORT ---
-  async function importFromLichess(studyId: string): Promise<string | null> {
+  async function importFromLichess(studyId: string, type: 'owned' | 'community' = 'owned'): Promise<string | null> {
     const ownerId = currentOwnerId.value
     const username = currentUsername.value
     if (!ownerId || !username) return null
@@ -404,13 +405,6 @@ export const useStudyStore = defineStore('study', () => {
 
     cloudLoading.value = true
     try {
-      // 1. Strictly verify ownership before downloading
-      const isOwned = await lichessSyncService.checkStudyOwnership(username, studyId)
-      
-      if (!isOwned) {
-        throw new Error(`OWNERSHIP_REQUIRED:${studyId}`) // Custom prefix for UI to catch
-      }
-
       // 2. Download PGN (Rate limiter in service handles delays automatically)
       const pgnData = await lichessSyncService.fetchStudyPgn(studyId)
       const importResults = pgnParserService.parseMultiple(pgnData)
@@ -441,7 +435,8 @@ export const useStudyStore = defineStore('study', () => {
         title: studyTitle,
         lichessId: studyId,
         chapterIds: [],
-        ownerId
+        ownerId,
+        type
       }
 
       // Check if study already exists to avoid duplicate chapters
@@ -574,8 +569,10 @@ export const useStudyStore = defineStore('study', () => {
   }
 
   async function syncLichessToApp(studyId: string) {
+    const study = studies.value.find(s => s.id === studyId)
+    const type = study?.type || 'owned'
     // Just re-import, it will overwrite the study and its chapters
-    return await importFromLichess(studyId)
+    return await importFromLichess(studyId, type)
   }
 
   async function pushChapterToLichess(chapterId: string) {

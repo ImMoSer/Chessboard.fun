@@ -46,6 +46,10 @@
         "one": "Versuch",
         "other": "{count} Versuche"
       }
+    },
+    "status": {
+      "label": "Status-Code",
+      "unknown": "Unbekannt"
     }
   },
   "gameModes": {
@@ -152,7 +156,195 @@
     "study": {
       "myLibrary": "Meine Bibliothek",
       "selectChapter": "Kapitel wählen",
-      "cutBranch": "Aktuellen Zug & Variante löschen"
+      "cutBranch": "Aktuellen Zug & Variante löschen",
+      "manager": {
+        "title": "Study Manager",
+        "tabs": {
+          "imported": "Importierte Studies",
+          "myStudies": "Meine Studies",
+          "community": "Community"
+        },
+        "stats": {
+          "local": "Deine lokalen Studies",
+          "lichess": "Deine Lichess-Studies",
+          "importCommunity": "Community-Study importieren",
+          "chapters": "{count} Kapitel",
+          "updated": "Aktualisiert"
+        },
+        "alerts": {
+          "selectLichess": "Wähle eine Study aus deinem Lichess-Account zum Importieren.",
+          "communityInfo": "Füge den Link zu einer beliebigen öffentlichen Lichess-Study hier ein. Community-Studies sind lokal schreibgeschützt, aber du kannst Varianten analysieren und durchspielen. Du kannst sie auch synchronisieren, um die neuesten Updates des Autors zu erhalten."
+        },
+        "placeholders": {
+          "link": "https://lichess.org/study/..."
+        },
+        "buttons": {
+          "importReadonly": "Schreibgeschützte Study importieren",
+          "import": "Importieren",
+          "imported": "Importiert"
+        },
+        "badges": {
+          "community": "[Community]"
+        },
+        "messages": {
+          "importing": "Vom Lichess importieren...",
+          "importingCommunity": "Community-Study wird importiert...",
+          "importSuccess": "Lichess-Study erfolgreich importiert!",
+          "communitySuccess": "Community-Study erfolgreich importiert!",
+          "importFailed": "Fehler beim Importieren der Lichess-Study",
+          "communityFailed": "Fehler beim Importieren der Community-Study",
+          "empty": "Noch keine Studies. Gehe zu Importieren, um zu beginnen.",
+          "deleted": "Study gelöscht",
+          "noLichessStudies": "Keine Studies in deinem Lichess-Account gefunden.",
+          "createOne": "Erstelle eine auf Lichess"
+        },
+        "errors": {
+          "studyPrivate": "Diese Study ist privat oder nicht zugänglich.",
+          "failedToFetch": "Fehler beim Laden der Study von Lichess."
+        }
+      },
+      "deepLink": {
+        "title": "Community-Study Import",
+        "content": "Diese Study ({id}) ist noch nicht in deiner lokalen Collection. Möchtest du sie importieren, um sie anzusehen?",
+        "importing": "Importiere Study...",
+        "success": "Study erfolgreich importiert!",
+        "chapterNotFound": "Study importiert, aber gewünschtes Chapter nicht gefunden.",
+        "error": "Fehler beim Importieren der Study: Diese existiert womöglich nicht oder ist privat.",
+        "chapterNotFoundInStudy": "Das angegebene Chapter wurde in dieser Study nicht gefunden."
+      },
+      "authModal": {
+        "title": "Lichess Study Zugriff erforderlich",
+        "description": "Um deine Studies direkt mit Lichess zu synchronisieren, benötigt diese Anwendung die Erlaubnis, deine Lichess-Studies zu lesen und zu schreiben.",
+        "whyTitle": "Warum ist das nötig?",
+        "whyText": "Wir benötigen die Berechtigungen {read} und {write}, um:",
+        "whyList": [
+          "Deine bestehenden Lichess-Studies zu lesen",
+          "Importiere und bearbeite PGN-Kapitel in deinen Studies",
+          "Erstelle neue Studies in deinem Namen"
+        ],
+        "securityTitle": "Sicherheitshinweis",
+        "securityText": "Dein Token wird sicher gespeichert und nur für diese speziellen Study-Operationen verwendet. Du kannst diesen Zugriff jederzeit durch erneutes Einloggen widerrufen.",
+        "authorize": "Über Lichess autorisieren"
+      },
+      "sidebar": {
+        "deleteChapterTitle": "Veröffentlichtes Kapitel löschen",
+        "deleteChapterContent": "Dieses Kapitel ist auf Lichess veröffentlicht. Wenn du es löschst, wird es sowohl von deinem lokalen Gerät als auch von Lichess dauerhaft entfernt. Möchtest du wirklich fortfahren?",
+        "deleteChapterConfirm": "Ja, löschen",
+        "deleteChapterCancel": "Abbrechen",
+        "deletingChapter": "Kapitel wird gelöscht...",
+        "deleteSuccess": "Kapitel lokal und auf Lichess gelöscht",
+        "deleteError": "Fehler beim Löschen des Kapitels auf Lichess",
+        "publishingChapter": "Kapitel wird auf Lichess veröffentlicht...",
+        "publishSuccess": "Kapitel erfolgreich veröffentlicht",
+        "publishError": "Fehler beim Veröffentlichen",
+        "syncConfirmTitle": "Synchronisierung von Lichess bestätigen",
+        "syncConfirmContent": "Alle lokalen Änderungen für diese Study, die noch nicht auf Lichess hochgeladen wurden, gehen dauerhaft verloren. Die lokalen Daten werden vollständig durch den aktuellen Stand von Lichess ersetzt. Möchtest du fortfahren?",
+        "syncConfirmPositive": "Ja, synchronisieren",
+        "syncConfirmNegative": "Abbrechen",
+        "syncing": "Synchronisierung von Lichess...",
+        "syncSuccess": "Study von Lichess aktualisiert",
+        "syncError": "Synchronisierung fehlgeschlagen",
+        "pushing": "Kapiteländerungen werden zu Lichess übertragen...",
+        "pushSuccess": "Kapitel erfolgreich auf Lichess aktualisiert",
+        "pushError": "Übertragung fehlgeschlagen",
+        "syncTooltip": "Von Lichess synchronisieren",
+        "publishStudyTooltip": "Auf Lichess veröffentlichen",
+        "publishButton": "Veröffentlichen",
+        "chapterCount": "{count} / 64 Kapitel",
+        "publishChapterTooltip": "Kapitel auf Lichess veröffentlichen",
+        "pushChapterTooltip": "Kapitel-Updates zu Lichess übertragen",
+        "deleteChapterTooltip": "Kapitel löschen",
+        "addChapter": "Kapitel hinzufügen",
+        "cooldownWait": "Bitte warte {seconds}s bevor du es erneut versuchst.",
+        "cooldownTooltip": "Wartezeit: {seconds}s"
+      },
+      "chapterSettings": {
+        "addChapter": "Neues Kapitel hinzufügen",
+        "settings": "Kapiteleinstellungen",
+        "tabs": {
+          "basicInfo": "Basis-Info",
+          "fromTemplate": "Aus Vorlage",
+          "rawPgn": "Roh-PGN"
+        },
+        "form": {
+          "name": "Name",
+          "namePlaceholder": "z.B. Sizilianischer Drache",
+          "color": "Deine Farbe",
+          "white": "Weiß",
+          "black": "Schwarz",
+          "eco": "ECO",
+          "ecoPlaceholder": "z.B. B76",
+          "opening": "Eröffnung",
+          "openingPlaceholder": "z.B. Sizilianische Verteidigung",
+          "result": "Ergebnis",
+          "resultPlaceholder": "z.B. 1-0, 0-1, 1/2-1/2 oder *"
+        },
+        "links": {
+          "localApp": "Lokaler App-Link:",
+          "lichessStudy": "Lichess Study URL:",
+          "lichessChapter": "Lichess Aktuelles Kapitel:"
+        },
+        "actions": {
+          "cancel": "Abbrechen",
+          "save": "Änderungen speichern",
+          "create": "Kapitel erstellen",
+          "import": "Kapitel importieren"
+        },
+        "templates": {
+          "search": "Eröffnungen suchen...",
+          "noTemplates": "Keine Vorlagen gefunden.",
+          "colorHint": "Die gewählte Farbe ({color}) wird auf die Vorlage angewendet.",
+          "createdFrom": "Erstellt aus Vorlage: {name}"
+        },
+        "pgn": {
+          "placeholder": "PGN hier einfügen...",
+          "colorHint": "Die gewählte Farbe ({color}) wird auf die importierte PGN angewendet.",
+          "success": "PGN erfolgreich importiert",
+          "error": "Fehler beim Parsen der PGN"
+        },
+        "errors": {
+          "emptyName": "Kapitelname darf nicht leer sein",
+          "failedToCreate": "Kapitel konnte nicht erstellt werden. Stelle sicher, dass eine Study aktiv ist."
+        },
+        "messages": {
+          "created": "Kapitel erstellt",
+          "updated": "Kapitel aktualisiert"
+        }
+      },
+      "repertoireGenerator": {
+        "title": "Repertoire generieren",
+        "generatingFor": "Generieren für {color} aus aktueller Position.",
+        "warningColorNotSet": "Warnung: Kapittelfarbe ist nicht gesetzt. Bitte im Study Manager festlegen.",
+        "playStyle": "Spielstil",
+        "actuarialParameters": "Parameter",
+        "opponentCoverage": "Gegner-Abdeckung (%)",
+        "coverageDesc": "Abwägung: Hohe Abdeckung erstellt ein breiteres Repertoire mit weniger Tiefe. Niedrige Abdeckung konzentriert sich auf die beliebtesten Linien mit mehr Tiefe.",
+        "generate": "Generieren",
+        "generateWithStyle": "Generiere {style}",
+        "styles": {
+          "grossmaster": {
+            "label": "🏛️ Großmeister",
+            "name": "Großmeister",
+            "description": "Maximale Zuverlässigkeit und theoretische Fundiertheit. Die Elite-Wahl."
+          },
+          "hustler": {
+            "label": "🃏 Der Hustler",
+            "name": "Hustler",
+            "description": "Er nutzt statistische Varianten wie ein professioneller Pokerspieler, um langfristig die besten Ergebnisse zu erzielen."
+          },
+          "schuler": {
+            "label": "🎭 Der Swindler",
+            "name": "Swindler",
+            "description": "Er nutzt scharfe Fallen und 'giftige' Linien. Provokatives Spiel, um Gegner zu täuschen und in fatale Fehler zu locken."
+          }
+        },
+        "messages": {
+          "setColorFirst": "Bitte lege zuerst die Kapitelfarbe fest (im Study Manager).",
+          "success": "{style} Repertoire integriert!",
+          "error": "Fehler beim Generieren des Repertoires",
+          "abort": "Abbrechen"
+        }
+      }
     },
     "userCabinet": {
       "title": "Benutzer-Kabinett",
@@ -392,7 +584,18 @@
     },
     "auth": {
       "requiredForAction": "Du musst angemeldet sein, um dies zu tun.",
-      "serverEngineAuth": "Authentifizierung für diese Engine erforderlich."
+      "serverEngineAuth": "Authentifizierung für diese Engine erforderlich.",
+      "loginModal": {
+        "title": "Anmeldung über Lichess",
+        "intro": "Wähle die Berechtigungen, die du ExtraPawn gewähren möchtest.",
+        "permissions": {
+          "prefTitle": "Präferenzen lesen",
+          "prefDesc": "Erforderlich, um grundlegende Profilinfos und Seiteneinstellungen zu lesen.",
+          "studyTitle": "Lichess Study Zugriff (Optional)",
+          "studyDesc": "Ermöglicht der App, deine privaten Studies zu lesen und neue Kapitel direkt zu Lichess zu übertragen. Empfohlen für Cloud-Sync-Funktionen."
+        },
+        "continue": "Weiter zu Lichess"
+      }
     },
     "errors": {
       "backendConnectionFailed": "Verbindung zum Server fehlgeschlagen.",

@@ -2,6 +2,7 @@
 import { useStudyStore, type StudyChapter } from '../model/study.store'
 import { NList, NListItem, NThing, NText, NScrollbar, NButton, NIcon, NSpace, useMessage, useDialog } from 'naive-ui'
 import { computed, ref, onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { AddOutline, SettingsOutline, TrashOutline, CloudUploadOutline, CloudDownloadOutline, ArrowUpOutline } from '@vicons/ionicons5'
 import { LichessApiError } from '../api/LichessSyncService'
 import ChapterSettingsModal from './ChapterSettingsModal.vue'
@@ -10,6 +11,7 @@ import LichessErrorModal from './LichessErrorModal.vue'
 const studyStore = useStudyStore()
 const message = useMessage()
 const dialog = useDialog()
+const { t } = useI18n()
 
 const SYNC_COOLDOWN_MS = 300 * 1000 // 300 seconds
 const PUSH_COOLDOWN_MS = 60 * 1000
@@ -27,10 +29,20 @@ const chapterDeleteCooldowns = ref<Record<string, number>>({})
 const publishStudyCooldownRemaining = ref(0)
 
 const activeStudyChapters = computed(() => {
-  if (!studyStore.activeStudy) return []
-  return studyStore.chapters.filter(c => c.studyId === studyStore.activeStudy?.id)
+  const study = studyStore.activeStudy
+  if (!study) return []
+  
+  const chapters = studyStore.chapters.filter(c => c.studyId === study.id)
+  const orderMap = new Map(study.chapterIds.map((id, index) => [id, index]))
+  
+  return chapters.sort((a, b) => {
+    const aIndex = orderMap.get(a.id) ?? 9999
+    const bIndex = orderMap.get(b.id) ?? 9999
+    return aIndex - bIndex
+  })
 })
 
+const isCommunity = computed(() => studyStore.activeStudy?.type === 'community')
 const cooldownActive = computed(() => cooldownRemaining.value > 0)
 
 const showSettingsModal = ref(false)
@@ -134,24 +146,24 @@ async function handleDeleteChapter(chapter: StudyChapter, e: Event) {
 
   if (studyStore.activeStudy?.lichessId && chapter.lichessChapterId) {
     dialog.warning({
-      title: 'Delete Published Chapter',
-      content: 'This chapter is published on Lichess. Deleting it will permanently remove it from both your local device and Lichess. Are you sure you want to proceed?',
-      positiveText: 'Yes, Delete',
-      negativeText: 'Cancel',
+      title: t('features.study.sidebar.deleteChapterTitle'),
+      content: t('features.study.sidebar.deleteChapterContent'),
+      positiveText: t('features.study.sidebar.deleteChapterConfirm'),
+      negativeText: t('features.study.sidebar.deleteChapterCancel'),
       onPositiveClick: async () => {
         try {
-          message.loading('Deleting chapter...')
+          message.loading(t('features.study.sidebar.deletingChapter'))
           await studyStore.deleteChapter(chapter.id, true)
           localStorage.setItem(`del_${chapter.id}`, Date.now().toString())
           startTimerIfNeeded()
-          message.success('Chapter deleted locally and on Lichess')
+          message.success(t('features.study.sidebar.deleteSuccess'))
         } catch (error: unknown) {
           if (error instanceof LichessApiError) {
             errorStatus.value = error.status
             errorMessage.value = error.message
             showErrorModal.value = true
           } else {
-            message.error('Failed to delete chapter on Lichess')
+            message.error(t('features.study.sidebar.deleteError'))
           }
         }
       }
@@ -170,18 +182,18 @@ async function handlePublishChapter(chapter: StudyChapter, e: Event) {
   }
 
   try {
-    message.loading('Publishing chapter to Lichess...')
+    message.loading(t('features.study.sidebar.publishingChapter'))
     await studyStore.publishChapterToLichess(chapter.id)
     localStorage.setItem(`pub_${chapter.id}`, Date.now().toString())
     startTimerIfNeeded()
-    message.success('Chapter published successfully')
+    message.success(t('features.study.sidebar.publishSuccess'))
   } catch (e: unknown) {
     if (e instanceof LichessApiError) {
       errorStatus.value = e.status
       errorMessage.value = e.message
       showErrorModal.value = true
     } else {
-      const error = e instanceof Error ? e.message : 'Publish failed'
+      const error = e instanceof Error ? e.message : t('features.study.sidebar.publishError')
       message.error(error)
     }
   }
@@ -196,13 +208,13 @@ async function handleSyncFromLichess() {
   }
 
   dialog.warning({
-    title: 'Confirm Sync from Lichess',
-    content: 'All local changes for this study that haven\'t been pushed to Lichess will be permanently lost. The local data will be completely replaced with the current state from Lichess. Do you want to proceed?',
-    positiveText: 'Yes, Sync',
-    negativeText: 'Cancel',
+    title: t('features.study.sidebar.syncConfirmTitle'),
+    content: t('features.study.sidebar.syncConfirmContent'),
+    positiveText: t('features.study.sidebar.syncConfirmPositive'),
+    negativeText: t('features.study.sidebar.syncConfirmNegative'),
     onPositiveClick: async () => {
       try {
-        message.loading('Syncing from Lichess...')
+        message.loading(t('features.study.sidebar.syncing'))
         await studyStore.syncLichessToApp(studyStore.activeStudy!.lichessId!)
         
         // Set cooldown
@@ -210,14 +222,14 @@ async function handleSyncFromLichess() {
         localStorage.setItem(`lastSync_${studyStore.activeStudy?.id}`, lastSyncTime.value.toString())
         startTimerIfNeeded()
         
-        message.success('Study updated from Lichess')
+        message.success(t('features.study.sidebar.syncSuccess'))
       } catch (e: unknown) {
         if (e instanceof LichessApiError) {
           errorStatus.value = e.status
           errorMessage.value = e.message
           showErrorModal.value = true
         } else {
-          const error = e instanceof Error ? e.message : 'Sync failed'
+          const error = e instanceof Error ? e.message : t('features.study.sidebar.syncError')
           message.error(error)
         }
       }
@@ -234,18 +246,18 @@ async function handlePushChapterToLichess(chapter: StudyChapter, e: Event) {
   }
 
   try {
-    message.loading('Pushing chapter changes to Lichess...')
+    message.loading(t('features.study.sidebar.pushing'))
     await studyStore.pushChapterToLichess(chapter.id)
     localStorage.setItem(`push_${chapter.id}`, Date.now().toString())
     startTimerIfNeeded()
-    message.success('Chapter updated successfully on Lichess')
+    message.success(t('features.study.sidebar.pushSuccess'))
   } catch (e: unknown) {
     if (e instanceof LichessApiError) {
       errorStatus.value = e.status
       errorMessage.value = e.message
       showErrorModal.value = true
     } else {
-      const error = e instanceof Error ? e.message : 'Push failed'
+      const error = e instanceof Error ? e.message : t('features.study.sidebar.pushError')
       message.error(error)
     }
   }
@@ -265,7 +277,7 @@ async function handlePushChapterToLichess(chapter: StudyChapter, e: Event) {
             circle 
             @click="handleSyncFromLichess" 
             :disabled="cooldownActive"
-            :title="cooldownActive ? `Cooldown: ${cooldownRemaining}s` : 'Sync from Lichess'"
+            :title="cooldownActive ? t('features.study.sidebar.cooldownTooltip', { seconds: cooldownRemaining }) : t('features.study.sidebar.syncTooltip')"
           >
             <template #icon><NIcon class="sync-icon"><CloudDownloadOutline /></NIcon></template>
           </NButton>
@@ -275,13 +287,13 @@ async function handlePushChapterToLichess(chapter: StudyChapter, e: Event) {
           size="tiny" 
           secondary 
           :disabled="publishStudyCooldownRemaining > 0"
-          :title="publishStudyCooldownRemaining > 0 ? `Wait ${publishStudyCooldownRemaining}s` : 'Publish to Lichess'"
+          :title="publishStudyCooldownRemaining > 0 ? t('features.study.sidebar.cooldownWait', { seconds: publishStudyCooldownRemaining }) : t('features.study.sidebar.publishStudyTooltip')"
           @click="showPublishModal = true"
         >
-          Publish
+          {{ t('features.study.sidebar.publishButton') }}
         </NButton>
       </div>
-      <div class="chapter-count-badge">{{ activeStudyChapters.length }} / 64 Chapters</div>
+      <div class="chapter-count-badge">{{ t('features.study.sidebar.chapterCount', { count: activeStudyChapters.length }) }}</div>
     </div>
     
     <NScrollbar class="chapters-scroll">
@@ -302,39 +314,42 @@ async function handlePushChapterToLichess(chapter: StudyChapter, e: Event) {
             <template #header-extra>
               <NSpace size="small">
                 <NButton 
-                  v-if="studyStore.activeStudy?.lichessId && !chapter.lichessChapterId"
+                  v-if="studyStore.activeStudy?.lichessId && !chapter.lichessChapterId && !isCommunity"
                   size="tiny" 
                   quaternary 
                   circle 
                   type="primary"
                   :disabled="!!chapterPublishCooldowns[chapter.id]"
-                  :title="chapterPublishCooldowns[chapter.id] ? `Wait ${chapterPublishCooldowns[chapter.id]}s` : 'Publish chapter to Lichess'"
+                  :title="chapterPublishCooldowns[chapter.id] ? t('features.study.sidebar.cooldownWait', { seconds: chapterPublishCooldowns[chapter.id] }) : t('features.study.sidebar.publishChapterTooltip')"
                   @click="(e) => handlePublishChapter(chapter, e)"
                 >
                   <template #icon><NIcon><ArrowUpOutline /></NIcon></template>
                 </NButton>
                 <NButton 
-                  v-if="studyStore.activeStudy?.lichessId && chapter.lichessChapterId"
+                  v-if="studyStore.activeStudy?.lichessId && chapter.lichessChapterId && !isCommunity"
                   size="tiny" 
                   quaternary 
                   circle 
                   :disabled="!!chapterPushCooldowns[chapter.id]"
-                  :title="chapterPushCooldowns[chapter.id] ? `Wait ${chapterPushCooldowns[chapter.id]}s` : 'Push chapter updates to Lichess'"
+                  :title="chapterPushCooldowns[chapter.id] ? t('features.study.sidebar.cooldownWait', { seconds: chapterPushCooldowns[chapter.id] }) : t('features.study.sidebar.pushChapterTooltip')"
                   @click="(e) => handlePushChapterToLichess(chapter, e)"
                 >
                   <template #icon><NIcon class="sync-icon"><CloudUploadOutline /></NIcon></template>
                 </NButton>
-                <NButton size="tiny" quaternary circle @click="(e) => openSettings(chapter, e)">
+                <NButton 
+                  v-if="!isCommunity"
+                  size="tiny" quaternary circle @click="(e) => openSettings(chapter, e)"
+                >
                   <template #icon><NIcon class="settings-icon"><SettingsOutline /></NIcon></template>
                 </NButton>
                 <NButton 
-                  v-if="activeStudyChapters.length > 1"
+                  v-if="activeStudyChapters.length > 1 && !isCommunity"
                   size="tiny" 
                   quaternary 
                   circle 
                   type="error" 
                   :disabled="!!chapterDeleteCooldowns[chapter.id]"
-                  :title="chapterDeleteCooldowns[chapter.id] ? `Wait ${chapterDeleteCooldowns[chapter.id]}s` : 'Delete chapter'"
+                  :title="chapterDeleteCooldowns[chapter.id] ? t('features.study.sidebar.cooldownWait', { seconds: chapterDeleteCooldowns[chapter.id] }) : t('features.study.sidebar.deleteChapterTooltip')"
                   @click="(e) => handleDeleteChapter(chapter, e)"
                 >
                   <template #icon><NIcon><TrashOutline /></NIcon></template>
@@ -345,7 +360,7 @@ async function handlePushChapterToLichess(chapter: StudyChapter, e: Event) {
         </NListItem>
       </NList>
 
-      <div class="sidebar-actions">
+      <div class="sidebar-actions" v-if="!isCommunity">
         <NButton 
           block 
           dashed 
@@ -356,7 +371,7 @@ async function handlePushChapterToLichess(chapter: StudyChapter, e: Event) {
           <template #icon>
             <NIcon><AddOutline /></NIcon>
           </template>
-          Add Chapter
+          {{ t('features.study.sidebar.addChapter') }}
         </NButton>
       </div>
     </NScrollbar>

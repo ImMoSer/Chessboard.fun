@@ -46,6 +46,10 @@
         "one": "Attempt",
         "other": "{count} Attempts"
       }
+    },
+    "status": {
+      "label": "Status Code",
+      "unknown": "Unknown"
     }
   },
   "gameModes": {
@@ -152,7 +156,195 @@
     "study": {
       "myLibrary": "My Library",
       "selectChapter": "Select Chapter",
-      "cutBranch": "Delete current move & branch"
+      "cutBranch": "Delete current move & branch",
+      "manager": {
+        "title": "Study Manager",
+        "tabs": {
+          "imported": "Imported Studies",
+          "myStudies": "My Studies",
+          "community": "Community"
+        },
+        "stats": {
+          "local": "Your Local Studies",
+          "lichess": "Your Lichess Studies",
+          "importCommunity": "Import a Community Study",
+          "chapters": "{count} Chapters",
+          "updated": "Updated"
+        },
+        "alerts": {
+          "selectLichess": "Select a study from your Lichess account to import.",
+          "communityInfo": "Paste the link to any public Lichess study to import it here. Community studies are read-only locally, but you can analyze and play through the variations. You can also sync them to get the latest updates from the author."
+        },
+        "placeholders": {
+          "link": "https://lichess.org/study/..."
+        },
+        "buttons": {
+          "importReadonly": "Import Read-Only Study",
+          "import": "Import",
+          "imported": "Imported"
+        },
+        "badges": {
+          "community": "[Community]"
+        },
+        "messages": {
+          "importing": "Importing from Lichess...",
+          "importingCommunity": "Importing Community Study...",
+          "importSuccess": "Lichess study imported successfully!",
+          "communitySuccess": "Community study imported successfully!",
+          "importFailed": "Failed to import Lichess study",
+          "communityFailed": "Failed to import Community study",
+          "empty": "No studies yet. Go to import tab to start.",
+          "deleted": "Study deleted",
+          "noLichessStudies": "No studies found on your Lichess account.",
+          "createOne": "Create one on Lichess"
+        },
+        "errors": {
+          "studyPrivate": "This study is private or inaccessible.",
+          "failedToFetch": "Failed to load study from Lichess."
+        }
+      },
+      "deepLink": {
+        "title": "Community Study Import",
+        "content": "This study ({id}) is not in your local collection yet. Would you like to import it to view it?",
+        "importing": "Importing study...",
+        "success": "Study imported successfully!",
+        "chapterNotFound": "Study imported, but the desired chapter was not found.",
+        "error": "Error importing study: It might not exist or is private.",
+        "chapterNotFoundInStudy": "The specified chapter was not found in this study."
+      },
+      "authModal": {
+        "title": "Lichess Study Access Required",
+        "description": "To synchronize your studies directly with Lichess, this application requires permission to read and write to your Lichess studies.",
+        "whyTitle": "Why is this needed?",
+        "whyText": "We need the {read} and {write} permissions to:",
+        "whyList": [
+          "Read your existing Lichess studies",
+          "Import and edit PGN chapters in your studies",
+          "Create new studies on your behalf"
+        ],
+        "securityTitle": "Security Note",
+        "securityText": "Your token is securely stored and only used for these specific study operations. You can revoke this access at any time by next login.",
+        "authorize": "Authorize via Lichess"
+      },
+      "sidebar": {
+        "deleteChapterTitle": "Delete Published Chapter",
+        "deleteChapterContent": "This chapter is published on Lichess. Deleting it will permanently remove it from both your local device and Lichess. Are you sure you want to proceed?",
+        "deleteChapterConfirm": "Yes, Delete",
+        "deleteChapterCancel": "Cancel",
+        "deletingChapter": "Deleting chapter...",
+        "deleteSuccess": "Chapter deleted locally and on Lichess",
+        "deleteError": "Failed to delete chapter on Lichess",
+        "publishingChapter": "Publishing chapter to Lichess...",
+        "publishSuccess": "Chapter published successfully",
+        "publishError": "Publish failed",
+        "syncConfirmTitle": "Confirm Sync from Lichess",
+        "syncConfirmContent": "All local changes for this study that haven't been pushed to Lichess will be permanently lost. The local data will be completely replaced with the current state from Lichess. Do you want to proceed?",
+        "syncConfirmPositive": "Yes, Sync",
+        "syncConfirmNegative": "Cancel",
+        "syncing": "Syncing from Lichess...",
+        "syncSuccess": "Study updated from Lichess",
+        "syncError": "Sync failed",
+        "pushing": "Pushing chapter changes to Lichess...",
+        "pushSuccess": "Chapter updated successfully on Lichess",
+        "pushError": "Push failed",
+        "syncTooltip": "Sync from Lichess",
+        "publishStudyTooltip": "Publish to Lichess",
+        "publishButton": "Publish",
+        "chapterCount": "{count} / 64 Chapters",
+        "publishChapterTooltip": "Publish chapter to Lichess",
+        "pushChapterTooltip": "Push chapter updates to Lichess",
+        "deleteChapterTooltip": "Delete chapter",
+        "addChapter": "Add Chapter",
+        "cooldownWait": "Please wait {seconds}s before trying again.",
+        "cooldownTooltip": "Cooldown: {seconds}s"
+      },
+      "chapterSettings": {
+        "addChapter": "Add New Chapter",
+        "settings": "Chapter Settings",
+        "tabs": {
+          "basicInfo": "Basic Info",
+          "fromTemplate": "From Template",
+          "rawPgn": "Raw PGN"
+        },
+        "form": {
+          "name": "Name",
+          "namePlaceholder": "e.g. Sicilian Dragon",
+          "color": "Your Color",
+          "white": "White",
+          "black": "Black",
+          "eco": "ECO",
+          "ecoPlaceholder": "e.g. B76",
+          "opening": "Opening",
+          "openingPlaceholder": "e.g. Sicilian Defense",
+          "result": "Result",
+          "resultPlaceholder": "e.g. 1-0, 0-1, 1/2-1/2 or *"
+        },
+        "links": {
+          "localApp": "Local App Link:",
+          "lichessStudy": "Lichess Study URL:",
+          "lichessChapter": "Lichess Current Chapter:"
+        },
+        "actions": {
+          "cancel": "Cancel",
+          "save": "Save Changes",
+          "create": "Create Chapter",
+          "import": "Import Chapter"
+        },
+        "templates": {
+          "search": "Search openings...",
+          "noTemplates": "No templates found.",
+          "colorHint": "The selected color ({color}) will be applied to the template.",
+          "createdFrom": "Created from template: {name}"
+        },
+        "pgn": {
+          "placeholder": "Paste PGN here...",
+          "colorHint": "The selected color ({color}) will be applied to the imported PGN.",
+          "success": "PGN successfully imported",
+          "error": "Failed to parse PGN"
+        },
+        "errors": {
+          "emptyName": "Chapter name cannot be empty",
+          "failedToCreate": "Failed to create chapter. Ensure a study is active."
+        },
+        "messages": {
+          "created": "Chapter created",
+          "updated": "Chapter updated"
+        }
+      },
+      "repertoireGenerator": {
+        "title": "Generate Repertoire",
+        "generatingFor": "Generating for {color} from current position.",
+        "warningColorNotSet": "Warning: Chapter color is not set. Please set it in Study Manager.",
+        "playStyle": "Play Style",
+        "actuarialParameters": "Actuarial Parameters",
+        "opponentCoverage": "Opponent Coverage (%)",
+        "coverageDesc": "Trade-off: High coverage creates a wider repertoire but with less depth. Low coverage focuses on the most popular lines with more depth.",
+        "generate": "Generate",
+        "generateWithStyle": "Generate {style}",
+        "styles": {
+          "grossmaster": {
+            "label": "🏛️ GrossMaster",
+            "name": "GrossMaster",
+            "description": "Maximum reliability and theoretical soundness. The elite choice."
+          },
+          "hustler": {
+            "label": "🃏 The Hustler",
+            "name": "The Hustler",
+            "description": "Professional Poker Player: Uses solid sidelines to achieve the best mathematical results over time."
+          },
+          "schuler": {
+            "label": "🎭 The Swindler",
+            "name": "The Swindler",
+            "description": "Sharp traps and \"poisonous\" lines. Provocative play designed to deceive and lure opponents into fatal mistakes."
+          }
+        },
+        "messages": {
+          "setColorFirst": "Please set the chapter color first (in Study Manager).",
+          "success": "{style} repertoire integrated!",
+          "error": "Failed to generate repertoire",
+          "abort": "Cancel"
+        }
+      }
     },
     "userCabinet": {
       "title": "User Cabinet",
@@ -392,7 +584,18 @@
     },
     "auth": {
       "requiredForAction": "You must be logged in to perform this action.",
-      "serverEngineAuth": "Authentication required to use selected engine."
+      "serverEngineAuth": "Authentication required to use selected engine.",
+      "loginModal": {
+        "title": "Login via Lichess",
+        "intro": "Choose the permissions you want to grant to ExtraPawn.",
+        "permissions": {
+          "prefTitle": "Read Preferences",
+          "prefDesc": "Required to read your basic profile info and site preferences.",
+          "studyTitle": "Lichess Study Access (Optional)",
+          "studyDesc": "Allows the app to read your private studies and push new chapters directly to Lichess. Recommended if you want to use the Cloud Sync features."
+        },
+        "continue": "Continue to Lichess"
+      }
     },
     "errors": {
       "backendConnectionFailed": "Could not connect to the server.",

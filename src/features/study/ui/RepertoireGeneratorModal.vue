@@ -11,6 +11,7 @@ import { pgnService, type PgnNode } from '@/shared/lib/pgn/PgnService'
 import { FlashOutline } from '@vicons/ionicons5'
 import { NButton, NIcon, NModal, NSpace, NSlider, NInputNumber, useMessage } from 'naive-ui'
 import { computed, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 defineProps<{
   show: boolean
@@ -23,44 +24,49 @@ const emit = defineEmits<{
 const studyStore = useStudyStore()
 const boardStore = useBoardStore()
 const message = useMessage()
+const { t } = useI18n()
 
 // State
 const isGenerating = ref(false)
 const selectedStyle = ref<RepertoireStyle>('grossmaster')
 const opponentCoverageDisplay = ref(50) // User sees 30-90
 
-const styleOptions = [
+const styleOptions = computed(() => [
   {
-    label: '🏛️ GrossMaster',
+    label: t('features.study.repertoireGenerator.styles.grossmaster.label'),
     value: 'grossmaster',
-    description: 'Maximum reliability and theoretical soundness. The elite choice.',
+    description: t('features.study.repertoireGenerator.styles.grossmaster.description'),
   },
   {
-    label: '🃏 The Hustler',
+    label: t('features.study.repertoireGenerator.styles.hustler.label'),
     value: 'hustler',
-    description: 'Professional Poker Player: Uses solid sidelines to achieve the best mathematical results over time.',
+    description: t('features.study.repertoireGenerator.styles.hustler.description'),
   },
   {
-    label: '🎭 The Swindler',
+    label: t('features.study.repertoireGenerator.styles.schuler.label'),
     value: 'schuler',
-    description: 'Sharp traps and "poisonous" lines. Provocative play designed to deceive and lure opponents into fatal mistakes.',
+    description: t('features.study.repertoireGenerator.styles.schuler.description'),
   },
-]
+])
 
 const selectedStyleCleanName = computed(() => {
-  const opt = styleOptions.find((s) => s.value === selectedStyle.value)
-  return opt ? opt.label.split(' ').slice(1).join(' ') : ''
+  const styles = {
+    grossmaster: t('features.study.repertoireGenerator.styles.grossmaster.name'),
+    hustler: t('features.study.repertoireGenerator.styles.hustler.name'),
+    schuler: t('features.study.repertoireGenerator.styles.schuler.name'),
+  }
+  return styles[selectedStyle.value as keyof typeof styles] || ''
 })
 
-const handleGenerateRepertoire = async () => {
+async function handleGenerateRepertoire() {
   if (!studyStore.activeChapter || !studyStore.activeChapter.color) {
-    message.warning('Please set the chapter color first (in Study Manager).')
+    message.warning(t('features.study.repertoireGenerator.messages.setColorFirst'))
     return
   }
 
   isGenerating.value = true
   const styleLabel =
-    styleOptions.find((s) => s.value === selectedStyle.value)?.label || selectedStyle.value
+    styleOptions.value.find((s) => s.value === selectedStyle.value)?.label || selectedStyle.value
 
   try {
     const currentPgn = pgnService.getCurrentPgnString({ showVariations: false })
@@ -93,15 +99,15 @@ const handleGenerateRepertoire = async () => {
       pgnService.mergeSubtree(pgnService.getCurrentNode(), sourceNode)
       boardStore.syncBoardWithPgn()
 
-      message.success(`${styleLabel} repertoire integrated!`)
+      message.success(t('features.study.repertoireGenerator.messages.success', { style: styleLabel }))
       emit('update:show', false)
     } else {
-      message.error('Failed to generate repertoire')
+      message.error(t('features.study.repertoireGenerator.messages.error'))
     }
   } catch (e: unknown) {
     const error = e as Error
     console.error(error)
-    message.error(error.message || 'An error occurred during generation')
+    message.error(error.message || t('features.study.repertoireGenerator.messages.error'))
   } finally {
     isGenerating.value = false
   }
@@ -113,20 +119,20 @@ const handleGenerateRepertoire = async () => {
     :show="show"
     @update:show="(v) => emit('update:show', v)"
     preset="card"
-    title="Generate Repertoire"
+    :title="t('features.study.repertoireGenerator.title')"
     style="width: 550px; max-width: 95vw"
   >
     <NSpace vertical size="large">
       <div v-if="studyStore.activeChapter?.color">
-        Generating for <strong style="text-transform: capitalize;">{{ studyStore.activeChapter.color }}</strong> from current position.
+        {{ t('features.study.repertoireGenerator.generatingFor', { color: t(`features.study.chapterSettings.form.${studyStore.activeChapter.color}`).toLowerCase() }) }}
       </div>
       <div v-else class="warning-text">
-        Warning: Chapter color is not set. Please set it in Study Manager.
+        {{ t('features.study.repertoireGenerator.warningColorNotSet') }}
       </div>
 
       <!-- Style Selector -->
       <div>
-        <label class="section-label">Play Style</label>
+        <label class="section-label">{{ t('features.study.repertoireGenerator.playStyle') }}</label>
         <div class="style-list">
           <div
             v-for="s in styleOptions"
@@ -143,14 +149,13 @@ const handleGenerateRepertoire = async () => {
 
       <!-- Parameters -->
       <div class="params-section">
-        <label class="section-label">Actuarial Parameters</label>
+        <label class="section-label">{{ t('features.study.repertoireGenerator.actuarialParameters') }}</label>
         
         <div class="param-row">
           <div class="param-info">
-            <span class="param-name">Opponent Coverage (%)</span>
+            <span class="param-name">{{ t('features.study.repertoireGenerator.opponentCoverage') }}</span>
             <span class="param-desc">
-              Trade-off: High coverage creates a wider repertoire but with less depth. 
-              Low coverage focuses on the most popular lines with more depth.
+              {{ t('features.study.repertoireGenerator.coverageDesc') }}
             </span>
           </div>
           <div class="param-control">
@@ -161,7 +166,7 @@ const handleGenerateRepertoire = async () => {
       </div>
 
       <NSpace justify="end" style="margin-top: 10px;">
-        <NButton @click="emit('update:show', false)">Cancel</NButton>
+        <NButton @click="emit('update:show', false)">{{ t('features.study.repertoireGenerator.messages.abort') }}</NButton>
         <NButton
           type="primary"
           :loading="isGenerating"
@@ -171,7 +176,7 @@ const handleGenerateRepertoire = async () => {
           <template #icon>
             <NIcon><FlashOutline /></NIcon>
           </template>
-          Generate {{ selectedStyleCleanName }}
+          {{ t('features.study.repertoireGenerator.generateWithStyle', { style: selectedStyleCleanName }) }}
         </NButton>
       </NSpace>
     </NSpace>

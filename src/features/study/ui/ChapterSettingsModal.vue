@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useStudyStore, type StudyChapter } from '../model/study.store'
 import { openingChaptersService, type OpeningChapterTemplate } from '@/entities/opening'
 import {
@@ -35,6 +36,7 @@ const emit = defineEmits<{
 
 const studyStore = useStudyStore()
 const message = useMessage()
+const { t } = useI18n()
 
 const activeTab = ref<'settings' | 'templates' | 'raw_pgn'>('settings')
 const searchQuery = ref('')
@@ -87,7 +89,7 @@ watch(
         activeTab.value = 'settings'
         pgnInput.value = ''
         formModel.value = {
-          name: `Chapter ${studyStore.activeStudy?.chapterIds.length || 0 + 1}`,
+          name: `${t('features.study.sidebar.addChapter')} ${studyStore.activeStudy?.chapterIds.length || 0 + 1}`,
           color: 'white',
           eco: 'NULL',
           opening: 'NULL',
@@ -123,22 +125,22 @@ async function handleImportPgn() {
     
     await studyStore.createChapterFromPgn(
       pgnInput.value, 
-      formModel.value.name !== `Chapter ${studyStore.activeStudy.chapterIds.length + 1}` ? formModel.value.name : undefined, 
+      formModel.value.name !== `${t('features.study.sidebar.addChapter')} ${studyStore.activeStudy.chapterIds.length + 1}` ? formModel.value.name : undefined, 
       formModel.value.color,
       studyStore.activeStudy.id
     )
     pgnInput.value = ''
-    message.success('PGN Imported successfully')
+    message.success(t('features.study.chapterSettings.pgn.success'))
     emit('update:show', false)
   } catch (e) {
-    message.error('Failed to parse PGN')
+    message.error(t('features.study.chapterSettings.pgn.error'))
     console.error(e)
   }
 }
 
 async function handleSave() {
   if (!formModel.value.name.trim()) {
-    message.error('Chapter name cannot be empty')
+    message.error(t('features.study.chapterSettings.errors.emptyName'))
     return
   }
 
@@ -149,7 +151,7 @@ async function handleSave() {
       formModel.value.color
     )
     if (!chapterId) {
-      message.error('Failed to create chapter. Ensure a study is active.')
+      message.error(t('features.study.chapterSettings.errors.failedToCreate'))
       return
     }
     // Update newly created chapter's tags
@@ -164,7 +166,7 @@ async function handleSave() {
       studyStore.updateChapterMetadata(chapterId, { tags: updatedTags })
     }
     studyStore.setActiveChapter(chapterId)
-    message.success('Chapter created')
+    message.success(t('features.study.chapterSettings.messages.created'))
   } else if (props.chapter) {
     const updatedTags = {
       ...props.chapter.tags,
@@ -179,7 +181,7 @@ async function handleSave() {
       color: formModel.value.color,
       tags: updatedTags,
     })
-    message.success('Chapter updated')
+    message.success(t('features.study.chapterSettings.messages.updated'))
   }
 
   emit('update:show', false)
@@ -195,10 +197,10 @@ async function selectTemplate(template: OpeningChapterTemplate) {
       formModel.value.color,
       studyStore.activeStudy.id
     )
-    message.success(`Created from template: ${template.name}`)
+    message.success(t('features.study.chapterSettings.templates.createdFrom', { name: template.name }))
     emit('update:show', false)
   } catch (e) {
-    message.error('Failed to create from template')
+    message.error(t('features.study.chapterSettings.templates.noTemplates'))
     console.error(e)
   }
 }
@@ -209,45 +211,45 @@ async function selectTemplate(template: OpeningChapterTemplate) {
     :show="show"
     @update:show="(v) => emit('update:show', v)"
     preset="card"
-    :title="isCreating ? 'Add New Chapter' : 'Chapter Settings'"
+    :title="isCreating ? t('features.study.chapterSettings.addChapter') : t('features.study.chapterSettings.settings')"
     style="width: 500px; max-width: 95vw"
     :auto-focus="false"
     :trap-focus="false"
   >
     <NTabs v-model:value="activeTab" type="segment" animated>
-      <NTabPane name="settings" tab="Basic Info">
+      <NTabPane name="settings" :tab="t('features.study.chapterSettings.tabs.basicInfo')">
         <div style="padding-top: 15px">
           <NForm :model="formModel" label-placement="left" label-width="100">
-            <NFormItem label="Name" path="name">
-              <NInput v-model:value="formModel.name" placeholder="e.g. Sicilian Dragon" />
+            <NFormItem :label="t('features.study.chapterSettings.form.name')" path="name">
+              <NInput v-model:value="formModel.name" :placeholder="t('features.study.chapterSettings.form.namePlaceholder')" />
             </NFormItem>
             
-            <NFormItem label="Your Color" path="color">
+            <NFormItem :label="t('features.study.chapterSettings.form.color')" path="color">
               <NSelect
                 v-model:value="formModel.color"
                 :options="[
-                  { label: 'White', value: 'white' },
-                  { label: 'Black', value: 'black' }
+                  { label: t('features.study.chapterSettings.form.white'), value: 'white' },
+                  { label: t('features.study.chapterSettings.form.black'), value: 'black' }
                 ]"
               />
             </NFormItem>
 
-            <NFormItem label="ECO" path="eco">
-              <NInput v-model:value="formModel.eco" placeholder="e.g. B76" />
+            <NFormItem :label="t('features.study.chapterSettings.form.eco')" path="eco">
+              <NInput v-model:value="formModel.eco" :placeholder="t('features.study.chapterSettings.form.ecoPlaceholder')" />
             </NFormItem>
 
-            <NFormItem label="Opening" path="opening">
-              <NInput v-model:value="formModel.opening" placeholder="e.g. Sicilian Defense" />
+            <NFormItem :label="t('features.study.chapterSettings.form.opening')" path="opening">
+              <NInput v-model:value="formModel.opening" :placeholder="t('features.study.chapterSettings.form.openingPlaceholder')" />
             </NFormItem>
 
-            <NFormItem label="Result" path="result">
-              <NInput v-model:value="formModel.result" placeholder="e.g. 1-0, 0-1, 1/2-1/2 or *" />
+            <NFormItem :label="t('features.study.chapterSettings.form.result')" path="result">
+              <NInput v-model:value="formModel.result" :placeholder="t('features.study.chapterSettings.form.resultPlaceholder')" />
             </NFormItem>
 
             <div class="lichess-links">
               <NSpace vertical size="small">
                 <div v-if="localAppUrl" class="lichess-link-item">
-                  <NText depth="3">Local App Link: </NText>
+                  <NText depth="3">{{ t('features.study.chapterSettings.links.localApp') }}</NText>
                   <a :href="localAppUrl" target="_blank" rel="noopener noreferrer" class="link">
                     {{ localAppUrl }}
                     <NIcon size="12"><LinkOutline /></NIcon>
@@ -255,14 +257,14 @@ async function selectTemplate(template: OpeningChapterTemplate) {
                 </div>
 
                 <div v-if="lichessStudyUrl" class="lichess-link-item">
-                  <NText depth="3">Lichess Study URL: </NText>
+                  <NText depth="3">{{ t('features.study.chapterSettings.links.lichessStudy') }}</NText>
                   <a :href="lichessStudyUrl" target="_blank" rel="noopener noreferrer" class="link">
                     {{ lichessStudyUrl }}
                     <NIcon size="12"><LinkOutline /></NIcon>
                   </a>
                 </div>
                 <div v-if="lichessChapterUrl" class="lichess-link-item">
-                  <NText depth="3">Lichess Current Chapter: </NText>
+                  <NText depth="3">{{ t('features.study.chapterSettings.links.lichessChapter') }}</NText>
                   <a :href="lichessChapterUrl" target="_blank" rel="noopener noreferrer" class="link">
                     {{ lichessChapterUrl }}
                     <NIcon size="12"><LinkOutline /></NIcon>
@@ -272,24 +274,24 @@ async function selectTemplate(template: OpeningChapterTemplate) {
             </div>
 
             <NSpace justify="end" style="margin-top: 20px">
-              <NButton @click="emit('update:show', false)">Cancel</NButton>
+              <NButton @click="emit('update:show', false)">{{ t('features.study.chapterSettings.actions.cancel') }}</NButton>
               <NButton type="primary" @click="handleSave">
-                {{ isCreating ? 'Create Chapter' : 'Save Changes' }}
+                {{ isCreating ? t('features.study.chapterSettings.actions.create') : t('features.study.chapterSettings.actions.save') }}
               </NButton>
             </NSpace>
           </NForm>
         </div>
       </NTabPane>
 
-      <NTabPane v-if="isCreating" name="templates" tab="From Template">
+      <NTabPane v-if="isCreating" name="templates" :tab="t('features.study.chapterSettings.tabs.fromTemplate')">
         <div style="padding-top: 15px">
           <NSpace vertical>
             <div class="color-hint">
-              <NText depth="3">The selected color ({{ formModel.color }}) will be applied to the template.</NText>
+              <NText depth="3">{{ t('features.study.chapterSettings.templates.colorHint', { color: formModel.color }) }}</NText>
             </div>
             <NInput
               v-model:value="searchQuery"
-              placeholder="Search openings..."
+              :placeholder="t('features.study.chapterSettings.templates.search')"
               clearable
             />
             <div class="template-list-container">
@@ -306,7 +308,7 @@ async function selectTemplate(template: OpeningChapterTemplate) {
                   </NThing>
                 </NListItem>
                 <div v-if="filteredTemplates.length === 0" class="empty-state">
-                  No templates found.
+                  {{ t('features.study.chapterSettings.templates.noTemplates') }}
                 </div>
               </NList>
             </div>
@@ -314,22 +316,22 @@ async function selectTemplate(template: OpeningChapterTemplate) {
         </div>
       </NTabPane>
 
-      <NTabPane v-if="isCreating" name="raw_pgn" tab="Raw PGN">
+      <NTabPane v-if="isCreating" name="raw_pgn" :tab="t('features.study.chapterSettings.tabs.rawPgn')">
         <div style="padding-top: 15px">
           <NSpace vertical>
             <div class="color-hint">
-              <NText depth="3">The selected color ({{ formModel.color }}) will be applied to the imported PGN.</NText>
+              <NText depth="3">{{ t('features.study.chapterSettings.pgn.colorHint', { color: formModel.color }) }}</NText>
             </div>
             <NInput
               v-model:value="pgnInput"
               type="textarea"
-              placeholder="Paste PGN here..."
+              :placeholder="t('features.study.chapterSettings.pgn.placeholder')"
               :rows="8"
             />
             <NSpace justify="end" style="margin-top: 10px">
-              <NButton @click="emit('update:show', false)">Cancel</NButton>
+              <NButton @click="emit('update:show', false)">{{ t('features.study.chapterSettings.actions.cancel') }}</NButton>
               <NButton type="primary" :disabled="!pgnInput.trim()" @click="handleImportPgn">
-                Import Chapter
+                {{ t('features.study.chapterSettings.actions.import') }}
               </NButton>
             </NSpace>
           </NSpace>

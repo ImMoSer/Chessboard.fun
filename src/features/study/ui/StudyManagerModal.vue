@@ -16,6 +16,7 @@ import {
   NThing,
   NSpin,
   NAlert,
+  NInput,
   useMessage,
 } from 'naive-ui'
 import { computed, nextTick, ref, watch } from 'vue'
@@ -25,6 +26,8 @@ import {
   CloudDownloadOutline
 } from '@vicons/ionicons5'
 
+import { useI18n } from 'vue-i18n'
+
 const props = defineProps<{
   show: boolean
 }>()
@@ -33,6 +36,7 @@ const emit = defineEmits<{
   (e: 'update:show', value: boolean): void
 }>()
 
+const { t } = useI18n()
 const studyStore = useStudyStore()
 const authStore = useAuthStore()
 const uiStore = useUiStore()
@@ -58,8 +62,13 @@ const showErrorModal = ref(false)
 const errorStatus = ref<number | undefined>(undefined)
 const errorMessage = ref('')
 
+// Community Tab State
+const communityLink = ref('')
+const isImportingCommunity = ref(false)
+
 // --- COMPUTED ---
 const myStudies = computed(() => studyStore.studies)
+const isValidCommunityLink = computed(() => /^https:\/\/lichess\.org\/study\/[a-zA-Z0-9]{8}(\/.*)?$/.test(communityLink.value))
 
 // --- WATCHERS ---
 watch(() => props.show, (newShow) => {
@@ -87,7 +96,7 @@ async function fetchLichessStudies() {
     lichessStudies.value = studies.sort((a, b) => b.updatedAt - a.updatedAt)
   } catch (error) {
     console.error('Failed to fetch user studies', error)
-    message.error('Failed to load your Lichess studies')
+    message.error(t('features.study.manager.messages.importFailed'))
   } finally {
     isLoadingLichessStudies.value = false
   }
@@ -109,36 +118,48 @@ function selectStudy(study: Study) {
 // Lichess Import
 async function handleLichessImport(id: string) {
   try {
-    message.loading('Importing from Lichess...')
-    await studyStore.importFromLichess(id)
-    message.success('Lichess Study imported successfully!')
+    message.loading(t('features.study.manager.messages.importing'))
+    await studyStore.importFromLichess(id, 'owned')
+    message.success(t('features.study.manager.messages.importSuccess'))
     activeTab.value = 'my'
   } catch (e: unknown) {
-    if (e instanceof Error && e.message && e.message.startsWith('OWNERSHIP_REQUIRED:')) {
-       const studyIdToClone = e.message.split(':')[1]
-       const cloneUrl = `https://lichess.org/study/${studyIdToClone}/clone`
-       
-       uiStore.showConfirmation(
-         'Lichess Study Clone Required',
-         `You cannot modify a study you don't own. Please clone it to your Lichess account first. \n\nClick OK to open Lichess, clone the study, and then import your new study ID here.`,
-         { confirmText: 'OK, Clone it' }
-       ).then((res) => {
-          if (res === 'confirm') {
-             window.open(cloneUrl, '_blank', 'noopener,noreferrer')
-          }
-       })
-       return
-    }
-
     if (e instanceof LichessApiError) {
       errorStatus.value = e.status
       errorMessage.value = e.message
       showErrorModal.value = true
     } else {
-      const error = e instanceof Error ? e.message : 'Failed to import Lichess Study'
+      const error = e instanceof Error ? e.message : t('features.study.manager.messages.importFailed')
       message.error(error)
     }
-    console.error(e)
+  }
+}
+
+async function handleCommunityImport() {
+  if (!isValidCommunityLink.value) return
+  const match = communityLink.value.match(/study\/([a-zA-Z0-9]{8})/)
+  if (!match) return
+  
+  const studyId = match[1]
+  if (!studyId) return
+  
+  isImportingCommunity.value = true
+  try {
+    message.loading(t('features.study.manager.messages.importingCommunity'))
+    await studyStore.importFromLichess(studyId, 'community')
+    message.success(t('features.study.manager.messages.communitySuccess'))
+    communityLink.value = ''
+    activeTab.value = 'my'
+  } catch (e: unknown) {
+    if (e instanceof LichessApiError) {
+      errorStatus.value = e.status
+      errorMessage.value = e.message
+      showErrorModal.value = true
+    } else {
+      const error = e instanceof Error ? e.message : t('features.study.manager.messages.communityFailed')
+      message.error(error)
+    }
+  } finally {
+    isImportingCommunity.value = false
   }
 }
 
@@ -146,8 +167,8 @@ async function handleLichessImport(id: string) {
 async function confirmDeleteStudy(study: Study, e: Event) {
   e.stopPropagation()
   const result = await uiStore.showConfirmation(
-    'Delete Study',
-    `Are you sure you want to delete the study "${study.title}" and all its chapters?`,
+    t('common.actions.delete'),
+    t('common.actions.confirm') + ` "${study.title}"?`,
   )
   if (result === 'confirm') {
     // Delete all chapters of this study
@@ -156,7 +177,7 @@ async function confirmDeleteStudy(study: Study, e: Event) {
       await studyStore.deleteChapter(ch.id)
     }
     await studyStore.deleteStudy(study.id)
-    message.success('Study deleted')
+    message.success(t('features.study.manager.messages.deleted'))
   }
 }
 
@@ -186,7 +207,7 @@ function finishEditStudy() {
     :show="show"
     @update:show="(v) => emit('update:show', v)"
     preset="card"
-    title="Study Manager"
+    :title="t('features.study.manager.title')"
     style="width: 600px; max-width: 95vw; max-height: 80vh; overflow: hidden; display: flex; flex-direction: column;"
     :bordered="false"
     size="huge"
@@ -194,12 +215,12 @@ function finishEditStudy() {
     :trap-focus="false"
   >
     <NTabs v-model:value="activeTab" type="segment" animated>
-      <NTabPane name="my" tab="My Studies">
+      <NTabPane name="my" :tab="t('features.study.manager.tabs.imported')">
         <NSpace vertical style="max-height: 60vh; overflow-y: auto; padding-right: 10px;">
 
           <!-- Studies List -->
           <div v-if="myStudies.length > 0">
-            <h3 class="section-title">Your Imported Studies</h3>
+            <h3 class="section-title">{{ t('features.study.manager.stats.local') }}</h3>
             <NList hoverable clickable>
               <NListItem
                 v-for="study in myStudies"
@@ -219,10 +240,13 @@ function finishEditStudy() {
                         class="native-edit-input"
                       />
                     </div>
-                    <span v-else>{{ study.title }}</span>
-                  </template>
-                  <template #description>
-                    <span style="color: #888">{{ study.chapterIds.length }} Chapters</span>
+                      <span v-else>
+                        {{ study.title }}
+                        <span v-if="study.type === 'community'" class="community-badge">{{ t('features.study.manager.badges.community') }}</span>
+                      </span>
+                    </template>
+                    <template #description>
+                    <span style="color: #888">{{ t('features.study.manager.stats.chapters', { count: study.chapterIds.length }) }}</span>
                   </template>
                   <template #header-extra>
                     <NSpace size="small">
@@ -252,31 +276,31 @@ function finishEditStudy() {
           </div>
 
           <div v-if="myStudies.length === 0" class="empty-state">
-            No studies yet. Go to Import to get started.
+            {{ t('features.study.manager.messages.empty') }}
           </div>
         </NSpace>
       </NTabPane>
 
-      <NTabPane name="import_external" tab="Import from Lichess">
+      <NTabPane name="import_external" :tab="t('features.study.manager.tabs.myStudies')">
         <NSpace vertical size="large" style="max-height: 60vh; overflow-y: auto; padding-right: 10px;">
           
           <div class="create-form">
-            <h3>Your Lichess Studies</h3>
+            <h3>{{ t('features.study.manager.stats.lichess') }}</h3>
             
             <NAlert type="info" :show-icon="false" style="margin-bottom: 15px;">
-              Select a study from your Lichess account to import. If you want to import a study from someone else, please open it on Lichess and clone it to your account first.
+              {{ t('features.study.manager.alerts.selectLichess') }}
             </NAlert>
 
             <div v-if="isLoadingLichessStudies" class="loading-state">
               <NSpin size="medium" />
-              <div style="margin-top: 10px; color: #888;">Loading your Lichess studies...</div>
+              <div style="margin-top: 10px; color: #888;">{{ t('common.actions.loading') }}</div>
             </div>
 
             <div v-else-if="lichessStudies.length === 0" class="empty-state">
-              No studies found on your Lichess account. 
+              {{ t('features.study.manager.messages.noLichessStudies') }}
               <br><br>
               <a href="https://lichess.org/study" target="_blank" style="color: var(--color-accent-primary);">
-                Create one on Lichess
+                {{ t('features.study.manager.messages.createOne') }}
               </a>
             </div>
 
@@ -287,7 +311,7 @@ function finishEditStudy() {
                     {{ study.name }}
                   </template>
                   <template #description>
-                    <span style="color: #888">Updated: {{ formatDate(study.updatedAt) }}</span>
+                    <span style="color: #888">{{ t('features.study.manager.stats.updated') }}: {{ formatDate(study.updatedAt) }}</span>
                   </template>
                   <template #header-extra>
                     <NButton 
@@ -299,7 +323,7 @@ function finishEditStudy() {
                       @click="handleLichessImport(study.id)"
                     >
                       <template #icon><NIcon><CloudDownloadOutline /></NIcon></template>
-                      {{ myStudies.some(s => s.lichessId === study.id) ? 'Imported' : 'Import' }}
+                      {{ myStudies.some(s => s.lichessId === study.id) ? t('features.study.manager.buttons.imported') : t('features.study.manager.buttons.import') }}
                     </NButton>
                   </template>
                 </NThing>
@@ -307,6 +331,35 @@ function finishEditStudy() {
             </NList>
           </div>
 
+        </NSpace>
+      </NTabPane>
+
+      <NTabPane name="community" :tab="t('features.study.manager.tabs.community')">
+        <NSpace vertical size="large" style="max-height: 60vh; overflow-y: auto; padding-right: 10px;">
+          <div class="create-form">
+            <h3>{{ t('features.study.manager.stats.importCommunity') }}</h3>
+            <NAlert type="info" :show-icon="false" style="margin-bottom: 15px;">
+              {{ t('features.study.manager.alerts.communityInfo') }}
+            </NAlert>
+            <NSpace vertical>
+              <NInput
+                v-model:value="communityLink"
+                :placeholder="t('features.study.manager.placeholders.link')"
+                clearable
+                @keyup.enter="handleCommunityImport"
+              />
+              <NButton 
+                type="primary" 
+                block 
+                :disabled="!isValidCommunityLink"
+                :loading="isImportingCommunity"
+                @click="handleCommunityImport"
+              >
+                <template #icon><NIcon><CloudDownloadOutline /></NIcon></template>
+                {{ t('features.study.manager.buttons.importReadonly') }}
+              </NButton>
+            </NSpace>
+          </div>
         </NSpace>
       </NTabPane>
     </NTabs>
@@ -361,5 +414,12 @@ function finishEditStudy() {
   padding: 2px 5px;
   border-radius: 4px;
   width: 100%;
+}
+
+.community-badge {
+  font-size: 0.75rem;
+  color: var(--neon-pink);
+  margin-left: 8px;
+  font-weight: bold;
 }
 </style>

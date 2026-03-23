@@ -3,19 +3,30 @@ import { useBoardStore } from '@/entities/game'
 import { AnalysisPanel, useAnalysisStore } from '@/features/analysis'
 import { MozerBook } from '@/features/mozer-book'
 import { LichessOpeningExplorer } from '@/features/opening-explorer'
-import { StudyControls, StudyHeader, StudyTree, useStudyStore, StudySidebar, LichessStudyAuthModal } from '@/features/study'
+import { StudyControls, StudyHeader, StudyTree, useStudyStore, StudySidebar, LichessStudyAuthModal, LichessErrorModal, LichessApiError } from '@/features/study'
 import { pgnService } from '@/shared/lib/pgn/PgnService'
 import { GameLayout } from '@/widgets/game-layout'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useMessage, useDialog } from 'naive-ui'
 
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 const route = useRoute()
 const router = useRouter()
+const message = useMessage()
+const dialog = useDialog()
 const boardStore = useBoardStore()
 const studyStore = useStudyStore()
 const analysisStore = useAnalysisStore()
 
 const explorerMode = ref<'lichess' | 'mozer' | 'study'>('study')
+
+// Error modal state
+const showErrorModal = ref(false)
+const errorStatus = ref<number | undefined>(undefined)
+const errorMessage = ref('')
 
 const handleToggleAnalysis = () => {
   if (analysisStore.isAnalysisActive) {
@@ -36,17 +47,80 @@ onMounted(async () => {
   
   await studyStore.initialize()
   
-  // Try to load from URL params: /study/:studyId/:chapterId
-  if (route.params.chapterId) {
-    studyStore.setActiveChapter(route.params.chapterId as string)
-  } else if (route.params.studyId && route.params.studyId !== 'local') {
-    // If only studyId is provided, select its first chapter
-    const study = studyStore.studies.find(s => s.id === route.params.studyId)
-    if (study && study.chapterIds.length > 0) {
-      studyStore.setActiveChapter(study.chapterIds[0]!)
+  const routeStudyId = route.params.studyId as string | undefined
+  const routeChapterId = route.params.chapterId as string | undefined
+
+  if (routeStudyId && routeStudyId !== 'local') {
+    // 1. Check if study exists locally
+    const localStudy = studyStore.studies.find(s => s.id === routeStudyId)
+    
+    if (!localStudy) {
+      // Study is missing! Show import dialog
+      dialog.info({
+        title: t('features.study.deepLink.title'),
+        content: t('features.study.deepLink.content', { id: routeStudyId }),
+        positiveText: t('features.study.manager.buttons.import'),
+        negativeText: t('common.actions.cancel'),
+        onPositiveClick: async () => {
+          const loadingMsg = message.loading(t('features.study.deepLink.importing'), { duration: 0 })
+          try {
+            await studyStore.importFromLichess(routeStudyId, 'community')
+            loadingMsg.destroy()
+            message.success(t('features.study.deepLink.success'))
+            
+            // Try to activate the specific chapter if provided
+            if (routeChapterId) {
+              const chapterExists = studyStore.chapters.some(c => c.lichessChapterId === routeChapterId || c.id === routeChapterId)
+              if (chapterExists) {
+                studyStore.setActiveChapter(routeChapterId)
+              } else {
+                message.warning(t('features.study.deepLink.chapterNotFound'))
+                const newStudy = studyStore.studies.find(s => s.id === routeStudyId)
+                if (newStudy && newStudy.chapterIds.length > 0) studyStore.setActiveChapter(newStudy.chapterIds[0]!)
+              }
+            } else {
+               const newStudy = studyStore.studies.find(s => s.id === routeStudyId)
+               if (newStudy && newStudy.chapterIds.length > 0) studyStore.setActiveChapter(newStudy.chapterIds[0]!)
+            }
+          } catch (error: unknown) {
+             console.error('Failed to auto-import community study:', error)
+             loadingMsg.destroy()
+             if (error instanceof LichessApiError) {
+               errorStatus.value = error.status
+               errorMessage.value = error.message
+               showErrorModal.value = true
+             } else {
+               message.error(t('features.study.deepLink.error'))
+             }
+             if (studyStore.activeChapterId) updateUrl(studyStore.activeChapterId)
+          }
+        },
+        onNegativeClick: () => {
+          if (studyStore.activeChapterId) {
+            updateUrl(studyStore.activeChapterId)
+          } else {
+            router.push('/')
+          }
+        }
+      })
+      return // Wait for user decision
+    } else {
+      // Study exists locally
+      if (routeChapterId) {
+        const chapterExists = studyStore.chapters.some(c => c.lichessChapterId === routeChapterId || c.id === routeChapterId)
+        if (chapterExists) {
+          studyStore.setActiveChapter(routeChapterId)
+        } else {
+          message.warning(t('features.study.deepLink.chapterNotFoundInStudy'))
+          if (localStudy.chapterIds.length > 0) studyStore.setActiveChapter(localStudy.chapterIds[0]!)
+        }
+      } else {
+        if (localStudy.chapterIds.length > 0) studyStore.setActiveChapter(localStudy.chapterIds[0]!)
+      }
     }
+  } else if (routeChapterId && !routeStudyId) {
+    studyStore.setActiveChapter(routeChapterId)
   } else if (studyStore.activeChapterId) {
-    // Redirect /study -> /study/:studyId/:chapterId
     updateUrl(studyStore.activeChapterId)
   }
 })
@@ -147,6 +221,12 @@ watch(
   <LichessStudyAuthModal
     :show="studyStore.isAuthModalVisible"
     @cancel="handleCancelAuth"
+  />
+
+  <LichessErrorModal
+    v-model:show="showErrorModal"
+    :status="errorStatus"
+    :message="errorMessage"
   />
 </template>
 
