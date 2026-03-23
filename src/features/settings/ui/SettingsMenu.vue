@@ -1,12 +1,14 @@
 <!-- src/components/SettingsMenu.vue -->
 <script setup lang="ts">
 import { useAuthStore } from '@/entities/user'
-import { useThemeStore } from '../index'
 import { changeLang } from '@/shared/config/i18n'
 import { soundService } from '@/shared/lib/sound.service'
+import { SettingsOutline } from '@vicons/ionicons5'
+import { NIcon } from 'naive-ui'
 import { storeToRefs } from 'pinia'
 import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useThemeStore } from '../index'
 
 const themeStore = useThemeStore()
 const authStore = useAuthStore()
@@ -114,7 +116,9 @@ onUnmounted(() => {
       @click="toggleMenu"
       :title="t('features.settings.title')"
     >
-      ⚙️
+      <n-icon class="settings-gear-icon">
+        <SettingsOutline />
+      </n-icon>
     </button>
 
     <Teleport to="body">
@@ -282,16 +286,22 @@ onUnmounted(() => {
 .settings-toggle-button {
   background: none;
   border: none;
-  font-size: 1.5rem;
   cursor: pointer;
-  color: var(--color-text-muted);
-  transition:
-    color 0.2s ease,
-    transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  transition: transform 0.3s ease;
 }
+
+.settings-gear-icon {
+  font-size: 1.85rem;
+  color: var(--neon-yellow);
+  filter: drop-shadow(0 0 8px rgba(255, 230, 0, 0.3));
+}
+
 .settings-toggle-button:hover {
-  color: var(--color-text-default);
-  transform: rotate(30deg);
+  transform: rotate(60deg) scale(1.1);
 }
 
 .dropdown-menu {

@@ -267,7 +267,7 @@ async function handlePushChapterToLichess(chapter: StudyChapter, e: Event) {
             :disabled="cooldownActive"
             :title="cooldownActive ? `Cooldown: ${cooldownRemaining}s` : 'Sync from Lichess'"
           >
-            <template #icon><NIcon><CloudDownloadOutline /></NIcon></template>
+            <template #icon><NIcon class="sync-icon"><CloudDownloadOutline /></NIcon></template>
           </NButton>
         </NSpace>
         <NButton 
@@ -322,10 +322,10 @@ async function handlePushChapterToLichess(chapter: StudyChapter, e: Event) {
                   :title="chapterPushCooldowns[chapter.id] ? `Wait ${chapterPushCooldowns[chapter.id]}s` : 'Push chapter updates to Lichess'"
                   @click="(e) => handlePushChapterToLichess(chapter, e)"
                 >
-                  <template #icon><NIcon><CloudUploadOutline /></NIcon></template>
+                  <template #icon><NIcon class="sync-icon"><CloudUploadOutline /></NIcon></template>
                 </NButton>
                 <NButton size="tiny" quaternary circle @click="(e) => openSettings(chapter, e)">
-                  <template #icon><NIcon><SettingsOutline /></NIcon></template>
+                  <template #icon><NIcon class="settings-icon"><SettingsOutline /></NIcon></template>
                 </NButton>
                 <NButton 
                   v-if="activeStudyChapters.length > 1"
@@ -457,5 +457,11 @@ async function handlePushChapterToLichess(chapter: StudyChapter, e: Event) {
 
 :deep(.n-list-item:hover) {
   background: rgba(255, 255, 255, 0.05);
+}
+.sync-icon {
+  color: var(--color-primary-hover);
+}
+.settings-icon {
+  color: var(--neon-yellow);
 }
 </style>
