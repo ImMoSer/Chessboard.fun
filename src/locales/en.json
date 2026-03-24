@@ -159,6 +159,22 @@
         "evaluation": "Our Evaluation"
       }
     },
+    "speedrun": {
+      "title": "SPEEDRUN",
+      "setupTitle": "Speedrun Setup",
+      "selectEngine": "Select Engine Strength",
+      "readyToStart": "Are you ready to start the speedrun? The timer will start immediately for the first chapter.",
+      "startBtn": "Start Speedrun",
+      "completed": "Run Completed!",
+      "returnToStudy": "Return to Study",
+      "chapter": "Chapter",
+      "of": "of",
+      "target": "Target",
+      "quitRun": "Quit Run",
+      "listTitle": "SPEEDRUN LIST",
+      "totalTime": "Total Time",
+      "noValidChapters": "No valid speedrun chapters found. (Need result tag 1-0, 0-1, or 1/2-1/2)"
+    },
     "study": {
       "myLibrary": "My Library",
       "selectChapter": "Select Chapter",

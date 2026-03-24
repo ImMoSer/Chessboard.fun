@@ -3,12 +3,14 @@ import { AddOutline, CloudDownloadOutline, SettingsOutline } from '@vicons/ionic
 import { NButton, NIcon, NList, NListItem, NScrollbar, NSpace, NText, NThing, useDialog, useMessage } from 'naive-ui'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import { LichessApiError } from '../api/LichessSyncService'
 import { useStudyStore, type StudyChapter } from '../model/study.store'
 import ChapterSettingsModal from './ChapterSettingsModal.vue'
 import LichessErrorModal from './LichessErrorModal.vue'
 
 const studyStore = useStudyStore()
+const router = useRouter()
 const message = useMessage()
 const dialog = useDialog()
 const { t } = useI18n()
@@ -109,6 +111,20 @@ function openSettings(chapter: StudyChapter, e: Event) {
 
 function handleStartSpeedrun() {
   console.log('[StudySidebar] START_SPEEDRUN clicked for study:', studyStore.activeStudy?.id)
+  
+  const speedrunChapters = activeStudyChapters.value.filter(chapter => 
+    chapter.chapter_type === 'speedrun' && 
+    ['1-0', '0-1', '1/2-1/2'].includes(chapter.tags.Result || '')
+  )
+
+  if (speedrunChapters.length > 0) {
+    router.push({ 
+      name: 'study-speedrun', 
+      query: { studyId: studyStore.activeStudy?.id } 
+    })
+  } else {
+    message.warning(t('features.speedrun.noValidChapters'))
+  }
 }
 
 // Handlers moved to ChapterSettingsModal

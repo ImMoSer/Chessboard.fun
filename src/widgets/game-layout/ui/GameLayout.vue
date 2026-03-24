@@ -19,7 +19,7 @@ const isAnimationEnabled = computed(() => themeStore.currentTheme.animationDurat
 
 // Force analysis mode if we are in study views, to prevent race conditions or store resets
 const effectiveAnalysisMode = computed(() => {
-  return boardStore.isAnalysisModeActive || route.path.startsWith('/study')
+  return boardStore.isAnalysisModeActive || (route.path.startsWith('/study') && !route.path.startsWith('/study-speedrun'))
 })
 
 const handleUserMove = ({ orig, dest }: { orig: Key; dest: Key }) => {

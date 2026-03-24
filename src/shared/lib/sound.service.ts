@@ -37,6 +37,7 @@ export type SoundEvent =
   | 'game_tacktics_error'
   | 'game_tacktics_success'
   | 'game_you_move'
+  | 'game_speedrun_finished'
   | 'blunder'
 
 // --- КОНЕЦ ИЗМЕНЕНИЙ ---
@@ -99,6 +100,10 @@ const soundDefinitions: Record<SoundEvent, { track: SoundTrack; path: string | s
   game_you_move: {
     track: 'voice',
     path: '/sounds/gameStore/during_game/play_out_start/play_out_start_1.mp3',
+  },
+  game_speedrun_finished: {
+    track: 'background',
+    path: createPool('/sounds/gameStore/applaus_backround'),
   },
   blunder: {
     track: 'voice',

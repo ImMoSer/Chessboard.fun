@@ -159,6 +159,22 @@
         "evaluation": "Unsere Bewertung"
       }
     },
+    "speedrun": {
+      "title": "SPEEDRUN",
+      "setupTitle": "Speedrun Vorbereitung",
+      "selectEngine": "Engine-Stärke wählen",
+      "readyToStart": "Bist du bereit, den Speedrun zu starten? Der Timer beginnt sofort für das erste Kapitel.",
+      "startBtn": "Speedrun starten",
+      "completed": "Run abgeschlossen!",
+      "returnToStudy": "Zurück zur Studie",
+      "chapter": "Kapitel",
+      "of": "von",
+      "target": "Ziel",
+      "quitRun": "Run abbrechen",
+      "listTitle": "SPEEDRUN LISTE",
+      "totalTime": "Gesamtzeit",
+      "noValidChapters": "Keine gültigen Speedrun-Kapitel gefunden. (Benötigt Result-Tag 1-0, 0-1 oder 1/2-1/2)"
+    },
     "study": {
       "myLibrary": "Meine Bibliothek",
       "selectChapter": "Kapitel wählen",
