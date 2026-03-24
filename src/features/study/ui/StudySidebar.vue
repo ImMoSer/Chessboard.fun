@@ -35,6 +35,14 @@ const activeStudyChapters = computed(() => {
 const isCommunity = computed(() => studyStore.activeStudy?.type === 'community')
 const cooldownActive = computed(() => cooldownRemaining.value > 0)
 
+const isSpeedrunReady = computed(() => {
+  if (activeStudyChapters.value.length === 0) return false
+  return activeStudyChapters.value.every(chapter => 
+    chapter.chapter_type === 'speedrun' && 
+    ['1-0', '0-1', '1/2-1/2'].includes(chapter.tags.Result || '')
+  )
+})
+
 const showSettingsModal = ref(false)
 const showErrorModal = ref(false)
 const errorStatus = ref<number | undefined>(undefined)
@@ -99,6 +107,10 @@ function openSettings(chapter: StudyChapter, e: Event) {
   showSettingsModal.value = true
 }
 
+function handleStartSpeedrun() {
+  console.log('[StudySidebar] START_SPEEDRUN clicked for study:', studyStore.activeStudy?.id)
+}
+
 // Handlers moved to ChapterSettingsModal
 
 async function handleSyncFromLichess() {
@@ -161,6 +173,11 @@ async function handleSyncFromLichess() {
           </NButton>
         </NSpace>
       </div>
+      
+      <div v-if="isSpeedrunReady" class="speedrun-ready-badge" @click="handleStartSpeedrun">
+        SPEEDRUN READY
+      </div>
+
       <div class="chapter-count-badge">{{ t('features.study.sidebar.chapterCount', { count: activeStudyChapters.length }) }}</div>
     </div>
 
@@ -180,7 +197,20 @@ async function handleSyncFromLichess() {
               <NSpace align="center" :size="6" style="flex-wrap: nowrap; overflow: hidden; max-width: 100%;">
                 <span class="chapter-name">{{ chapter.name }}</span>
                 <span v-if="chapter.chapter_type === 'repertoire'" class="tag-rep">REP</span>
-                <span v-if="chapter.chapter_type === 'speedrun'" class="tag-fen">FEN</span>
+                <template v-else-if="chapter.chapter_type === 'speedrun'">
+                  <span 
+                    v-if="['1-0', '0-1', '1/2-1/2'].includes(chapter.tags.Result || '')" 
+                    class="tag-speed"
+                    :class="{
+                      'tag-win-white': chapter.tags.Result === '1-0',
+                      'tag-win-black': chapter.tags.Result === '0-1',
+                      'tag-draw': chapter.tags.Result === '1/2-1/2'
+                    }"
+                  >
+                    {{ chapter.tags.Result }}
+                  </span>
+                  <span v-else class="tag-result">RESULT</span>
+                </template>
               </NSpace>
             </template>
             <template #header-extra>
@@ -267,6 +297,27 @@ async function handleSyncFromLichess() {
   opacity: 0.8;
 }
 
+.speedrun-ready-badge {
+  font-size: 0.7rem;
+  font-weight: 900;
+  color: white;
+  background: var(--neon-bordeaux);
+  border-radius: 4px;
+  padding: 2px 8px;
+  cursor: pointer;
+  align-self: flex-start;
+  margin-top: 2px;
+  letter-spacing: 1px;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 10px rgba(217, 0, 76, 0.3);
+}
+
+.speedrun-ready-badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 15px rgba(217, 0, 76, 0.6);
+  filter: brightness(1.1);
+}
+
 .chapters-scroll {
   flex: 1;
 }
@@ -303,7 +354,31 @@ async function handleSyncFromLichess() {
   flex-shrink: 0;
 }
 
-.tag-fen {
+.tag-speed {
+  font-size: 0.65rem;
+  font-weight: 800;
+  border-radius: 4px;
+  padding: 0 4px;
+  flex-shrink: 0;
+  border: 1px solid transparent;
+}
+
+.tag-win-white {
+  color: var(--neon-cyan);
+  border-color: var(--neon-cyan);
+}
+
+.tag-win-black {
+  color: var(--neon-purple);
+  border-color: var(--neon-purple);
+}
+
+.tag-draw {
+  color: var(--neon-yellow);
+  border-color: var(--neon-yellow);
+}
+
+.tag-result {
   font-size: 0.65rem;
   font-weight: 800;
   color: var(--neon-red);
@@ -312,6 +387,7 @@ async function handleSyncFromLichess() {
   padding: 0 4px;
   flex-shrink: 0;
 }
+
 
 .active {
   background-color: rgba(var(--color-primary-rgb), 0.15) !important;

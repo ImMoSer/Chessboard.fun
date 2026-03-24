@@ -82,7 +82,9 @@ async function handleGenerateRepertoire() {
 
     const pgn = await repertoireApiService.generateRepertoire(request)
     if (pgn) {
-      const { root: parsedRoot } = pgnParserService.parse(pgn)
+      const parsed = pgnParserService.parse(pgn)
+      if (!parsed) throw new Error('Failed to parse generated repertoire')
+      const { root: parsedRoot } = parsed
 
       let sourceNode = parsedRoot
       const currentPly = pgnService.getCurrentPly()

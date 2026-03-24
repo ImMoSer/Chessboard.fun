@@ -15,15 +15,26 @@ export class PgnParserService {
     const games = pgn.split(/(?=\[Event )/g)
     return games
       .map((game) => this.parse(game.trim()))
+      .filter((res): res is ImportResult => res !== null)
       .filter((res) => res.root.children.length > 0 || Object.keys(res.tags).length > 0)
   }
 
-  public parse(pgn: string): ImportResult {
+  public parse(pgn: string): ImportResult | null {
     const tags = this.extractTags(pgn)
     const moveText = this.extractMoveText(pgn)
     const tokens = this.tokenize(moveText)
 
     const startFen = tags['FEN'] || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+    
+    // Strict FEN validation
+    try {
+      const setup = parseFen(startFen).unwrap()
+      Chess.fromSetup(setup).unwrap()
+    } catch {
+      console.warn('[PgnParserService] Skipping chapter due to invalid FEN:', startFen)
+      return null
+    }
+
     const root: PgnNode = {
       id: '__ROOT__',
       ply: 0,
@@ -34,7 +45,12 @@ export class PgnParserService {
       children: [],
     }
 
-    this.buildTree(tokens, root)
+    try {
+      this.buildTree(tokens, root)
+    } catch (e) {
+      console.warn('[PgnParserService] Skipping chapter due to invalid moves/PGN structure:', e)
+      return null
+    }
 
     return { tags, root }
   }
@@ -79,14 +95,9 @@ export class PgnParserService {
       '?!': 6,
     }
 
-    // Initialize root position just once
-    let currentPos: Chess
-    try {
-      const setup = parseFen(root.fenAfter).unwrap()
-      currentPos = Chess.fromSetup(setup).unwrap()
-    } catch {
-      currentPos = Chess.default()
-    }
+    // FEN already validated in parse()
+    const setup = parseFen(root.fenAfter).unwrap()
+    let currentPos = Chess.fromSetup(setup).unwrap()
 
     for (let i = 0; i < tokens.length; i++) {
       const token = tokens[i]
@@ -101,14 +112,8 @@ export class PgnParserService {
           currentNode = currentNode.parent
         }
         
-        // We must revert the board state to the parent's state.
-        // The easiest way without tracking move history backwards is to clone from the last known state.
-        // Wait, currentPos is the state AFTER the node. The parent is the state BEFORE.
-        // Actually, if we just parse the FEN for the parent, it's safer. But let's try to keep it fast.
-        try {
-          const setup = parseFen(currentNode.fenAfter).unwrap()
-          currentPos = Chess.fromSetup(setup).unwrap()
-        } catch {}
+        const setup = parseFen(currentNode.fenAfter).unwrap()
+        currentPos = Chess.fromSetup(setup).unwrap()
       } else if (token === ')') {
         // Variation end: pop node and position
         const prevNode = nodeStack.pop()
@@ -135,46 +140,46 @@ export class PgnParserService {
         continue
       } else {
         // It's a move (SAN)
-        try {
-          const move = parseSan(currentPos, token)
+        const move = parseSan(currentPos, token)
 
-          if (move) {
-            const uci = makeUci(move)
-            const fenBefore = currentNode.fenAfter
-            
-            // Fast execute move
-            currentPos.play(move)
-            const fenAfter = makeFen(currentPos.toSetup())
+        if (move) {
+          const uci = makeUci(move)
+          const fenBefore = currentNode.fenAfter
+          
+          // Fast execute move
+          currentPos.play(move)
+          const fenAfter = makeFen(currentPos.toSetup())
 
-            let nextNode = currentNode.children.find((c) => c.san === token)
-            
-            if (!nextNode) {
-              const moveData = parseUci(uci)
-              const nodeId = moveData
-                ? scalachessCharPair(moveData)
-                : uci + Math.random().toString(36).substr(2, 4)
+          let nextNode = currentNode.children.find((c) => c.san === token)
+          
+          if (!nextNode) {
+            const moveData = parseUci(uci)
+            const nodeId = moveData
+              ? scalachessCharPair(moveData)
+              : uci + Math.random().toString(36).substr(2, 4)
 
-              nextNode = {
-                id: nodeId,
-                ply: currentNode.ply + 1,
-                fenBefore: fenBefore,
-                fenAfter: fenAfter,
-                san: token,
-                uci: uci,
-                parent: currentNode,
-                children: [],
-              }
-              currentNode.children.push(nextNode)
+            nextNode = {
+              id: nodeId,
+              ply: currentNode.ply + 1,
+              fenBefore: fenBefore,
+              fenAfter: fenAfter,
+              san: token,
+              uci: uci,
+              parent: currentNode,
+              children: [],
             }
-            
-            currentNode = nextNode
+            currentNode.children.push(nextNode)
           }
-        } catch {
-          // Fast fail without logging to avoid blocking the main thread on large files
+          
+          currentNode = nextNode
+        } else {
+          throw new Error(`Invalid move: ${token}`)
         }
       }
     }
   }
+
 }
 
 export const pgnParserService = new PgnParserService()
+

@@ -245,7 +245,7 @@ class LichessSyncService {
           'Authorization': `Bearer ${token}`,
         }
         
-        const response = await fetch(`${this.BASE_URL}/study/${studyId}.pgn?orientation=true`, {
+        const response = await fetch(`${this.BASE_URL}/study/${studyId}.pgn?orientation=true&t=${Date.now()}`, {
           headers,
         })
 

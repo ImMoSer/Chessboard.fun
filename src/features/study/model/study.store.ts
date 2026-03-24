@@ -216,7 +216,12 @@ export const useStudyStore = defineStore('study', () => {
     }
 
     try {
-      const { tags, root } = pgnParserService.parse(pgn)
+      const parsed = pgnParserService.parse(pgn)
+      if (!parsed) {
+        throw new Error('Invalid or illegal chapter data.')
+      }
+
+      const { tags, root } = parsed
 
       const color =
         colorOverride ||
@@ -453,15 +458,14 @@ export const useStudyStore = defineStore('study', () => {
 
       // Check if study already exists to avoid duplicate chapters
       const existingStudyIndex = studies.value.findIndex(s => s.id === studyId)
+      
+      // Before importing, we must purge old chapters linked to this study ID from DB
+      await studyPersistenceService.deleteChaptersByStudyId(studyId)
+
       if (existingStudyIndex !== -1) {
-        // Study exists - we must purge old chapters from DB and state
-        const oldChapters = chapters.value.filter(c => c.studyId === studyId)
-        for (const c of oldChapters) {
-          await studyPersistenceService.deleteChapter(c.id)
-        }
-        
-        // Update state
+        // Study exists - we update state
         studies.value[existingStudyIndex] = study
+        // State cleanup: remove from chapters array
         chapters.value = chapters.value.filter(c => c.studyId !== studyId)
       } else {
         studies.value.push(study)

@@ -124,6 +124,14 @@ class StudyPersistenceService {
     }
   }
 
+  async deleteChaptersByStudyId(studyId: string): Promise<void> {
+    try {
+      await studyDb.chapters.where('studyId').equals(studyId).delete()
+    } catch (error) {
+      console.error('[StudyPersistenceService] Error deleting chapters by studyId:', error)
+    }
+  }
+
   async clearAll(): Promise<void> {
     await studyDb.chapters.clear()
     await studyDb.studies.clear()
