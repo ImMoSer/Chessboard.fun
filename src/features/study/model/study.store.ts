@@ -27,6 +27,8 @@ export interface StudyChapter {
   color?: 'white' | 'black'
   studyId?: string // Reference to parent Study
   lichessChapterId?: string // Lichess internal chapter ID (e.g. BHEJGiPB)
+  start_position?: boolean
+  chapter_type?: 'repertoire' | 'speedrun'
 }
 
 export const useStudyStore = defineStore('study', () => {
@@ -138,7 +140,11 @@ export const useStudyStore = defineStore('study', () => {
     }
 
     let normalizedFen = startFen
+    let start_position = true
     try {
+      if (startFen !== 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1') {
+        start_position = false
+      }
       const setup = parseFen(startFen).unwrap()
       normalizedFen = makeFen(setup)
     } catch (e) {
@@ -178,6 +184,8 @@ export const useStudyStore = defineStore('study', () => {
       savedPath: '',
       color,
       studyId,
+      start_position,
+      chapter_type: start_position ? 'repertoire' : 'speedrun',
     }
 
     chapters.value.push(newChapter)
@@ -228,6 +236,8 @@ export const useStudyStore = defineStore('study', () => {
       const utcDate = now.toISOString().split('T')[0]?.replace(/-/g, '.') || ''
       const utcTime = now.toISOString().split('T')[1]?.split('.')[0] || ''
 
+      const start_position = !tags['FEN'] || tags['FEN'] === 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+
       const newChapter: StudyChapter = {
         id,
         name,
@@ -247,6 +257,8 @@ export const useStudyStore = defineStore('study', () => {
         savedPath: '',
         color,
         studyId,
+        start_position,
+        chapter_type: start_position ? 'repertoire' : 'speedrun',
       }
 
       chapters.value.push(newChapter)
@@ -489,6 +501,8 @@ export const useStudyStore = defineStore('study', () => {
         // Map Orientation to color
         const color = tags['Orientation'] === 'black' ? 'black' : 'white'
 
+        const start_position = !tags['FEN'] || tags['FEN'] === 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+
         const newChapter: StudyChapter = {
           id: chapterId,
           name: chapterName,
@@ -498,6 +512,8 @@ export const useStudyStore = defineStore('study', () => {
           color,
           studyId: study.id,
           lichessChapterId,
+          start_position,
+          chapter_type: start_position ? 'repertoire' : 'speedrun',
         }
 
         chapters.value.push(newChapter)

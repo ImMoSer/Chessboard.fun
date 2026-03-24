@@ -4,7 +4,8 @@ import { useI18n } from 'vue-i18n'
 import { useStudyStore, type StudyChapter } from '../model/study.store'
 import { openingChaptersService, type OpeningChapterTemplate } from '@/entities/opening'
 import {
-  LinkOutline
+  LinkOutline,
+  ShareOutline
 } from '@vicons/ionicons5'
 import {
   NModal,
@@ -204,6 +205,38 @@ async function selectTemplate(template: OpeningChapterTemplate) {
     console.error(e)
   }
 }
+
+async function handleCopyLink() {
+  if (!localAppUrl.value) return
+  try {
+    await navigator.clipboard.writeText(localAppUrl.value)
+    message.success(t('common.actions.linkCopied'))
+  } catch {
+    message.error(t('common.actions.copyFailed'))
+  }
+}
+
+async function handleShare() {
+  if (!localAppUrl.value) return
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: props.chapter?.name || 'Chess Study',
+        url: localAppUrl.value
+      })
+    } catch (e) {
+      if ((e as Error).name !== 'AbortError') {
+        handleCopyLink()
+      }
+    }
+  } else {
+    handleCopyLink()
+  }
+}
+
+function openUrl(url: string | null) {
+  if (url) window.open(url, '_blank')
+}
 </script>
 
 <template>
@@ -250,25 +283,38 @@ async function selectTemplate(template: OpeningChapterTemplate) {
               <NSpace vertical size="small">
                 <div v-if="localAppUrl" class="lichess-link-item">
                   <NText depth="3">{{ t('features.study.chapterSettings.links.localApp') }}</NText>
-                  <a :href="localAppUrl" target="_blank" rel="noopener noreferrer" class="link">
-                    {{ localAppUrl }}
-                    <NIcon size="12"><LinkOutline /></NIcon>
-                  </a>
+                  <NSpace size="small" style="margin-top: 4px">
+                    <NButton size="small" tertiary class="action-btn" @click="handleCopyLink">
+                      <template #icon><NIcon class="neon-icon"><LinkOutline/></NIcon></template>
+                      {{ t('common.actions.copyLink') }}
+                    </NButton>
+                    <NButton size="small" tertiary class="action-btn" @click="handleShare">
+                      <template #icon><NIcon class="neon-icon"><ShareOutline/></NIcon></template>
+                      {{ t('common.controls.share') }}
+                    </NButton>
+                  </NSpace>
                 </div>
 
-                <div v-if="lichessStudyUrl" class="lichess-link-item">
-                  <NText depth="3">{{ t('features.study.chapterSettings.links.lichessStudy') }}</NText>
-                  <a :href="lichessStudyUrl" target="_blank" rel="noopener noreferrer" class="link">
-                    {{ lichessStudyUrl }}
-                    <NIcon size="12"><LinkOutline /></NIcon>
-                  </a>
-                </div>
-                <div v-if="lichessChapterUrl" class="lichess-link-item">
-                  <NText depth="3">{{ t('features.study.chapterSettings.links.lichessChapter') }}</NText>
-                  <a :href="lichessChapterUrl" target="_blank" rel="noopener noreferrer" class="link">
-                    {{ lichessChapterUrl }}
-                    <NIcon size="12"><LinkOutline /></NIcon>
-                  </a>
+                <div v-if="lichessStudyUrl || lichessChapterUrl" class="lichess-link-item" style="margin-top: 12px">
+                  <NText depth="3">Lichess Links:</NText>
+                  <NSpace size="small" style="margin-top: 4px; width: 100%;">
+                    <NButton v-if="lichessStudyUrl" size="small" tertiary class="action-btn" @click="openUrl(lichessStudyUrl)">
+                      <template #icon>
+                        <NIcon class="lichess-orange-icon">
+                          <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M19,22H5V20H19V22M17,10C15,7 13,3 8,2C9.5,4.5 10.5,7 10.5,10C10.5,12 9.5,14 8,16C10.5,16 13,15 15,13C16.5,11.5 17,11 17,10M17,18H7V16H17V18Z" /></svg>
+                        </NIcon>
+                      </template>
+                      Open Study
+                    </NButton>
+                    <NButton v-if="lichessChapterUrl" size="small" tertiary class="action-btn" @click="openUrl(lichessChapterUrl)">
+                      <template #icon>
+                        <NIcon class="lichess-orange-icon">
+                          <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M19,22H5V20H19V22M17,10C15,7 13,3 8,2C9.5,4.5 10.5,7 10.5,10C10.5,12 9.5,14 8,16C10.5,16 13,15 15,13C16.5,11.5 17,11 17,10M17,18H7V16H17V18Z" /></svg>
+                        </NIcon>
+                      </template>
+                      Open Chapter
+                    </NButton>
+                  </NSpace>
                 </div>
               </NSpace>
             </div>
@@ -398,6 +444,18 @@ async function selectTemplate(template: OpeningChapterTemplate) {
 
 .link:hover {
   text-decoration: underline;
+}
+
+.action-btn {
+  flex: 1;
+}
+
+.neon-icon {
+  color: var(--neon-blue);
+}
+
+.lichess-orange-icon {
+  color: var(--neon-orange);
 }
 </style>
 

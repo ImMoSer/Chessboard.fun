@@ -47,6 +47,12 @@
         "other": "{count} Versuche"
       }
     },
+    "controls": {
+      "new": "Neu",
+      "restart": "Neustart",
+      "resign": "Aufgeben",
+      "share": "Teilen"
+    },
     "status": {
       "label": "Status-Code",
       "unknown": "Unbekannt"

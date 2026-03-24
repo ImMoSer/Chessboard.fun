@@ -309,7 +309,11 @@ async function handlePushChapterToLichess(chapter: StudyChapter, e: Event) {
               <div class="chapter-index">{{ index + 1 }}</div>
             </template>
             <template #header>
-              <span class="chapter-name">{{ chapter.name }}</span>
+              <NSpace align="center" :size="6" style="flex-wrap: nowrap">
+                <span class="chapter-name">{{ chapter.name }}</span>
+                <span v-if="chapter.chapter_type === 'repertoire'" class="tag-rep">REP</span>
+                <span v-if="chapter.chapter_type === 'speedrun'" class="tag-fen">FEN</span>
+              </NSpace>
             </template>
             <template #header-extra>
               <NSpace size="small">
@@ -449,6 +453,29 @@ async function handlePushChapterToLichess(chapter: StudyChapter, e: Event) {
 .chapter-name {
   font-size: 0.9rem;
   font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tag-rep {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--neon-blue);
+  border: 1px solid var(--neon-blue);
+  border-radius: 4px;
+  padding: 0 4px;
+  flex-shrink: 0;
+}
+
+.tag-fen {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--neon-red);
+  border: 1px solid var(--neon-red);
+  border-radius: 4px;
+  padding: 0 4px;
+  flex-shrink: 0;
 }
 
 .active {

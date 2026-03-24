@@ -47,6 +47,12 @@
         "other": "{count} Attempts"
       }
     },
+    "controls": {
+      "new": "New",
+      "restart": "Restart",
+      "resign": "Resign",
+      "share": "Share"
+    },
     "status": {
       "label": "Status Code",
       "unknown": "Unknown"
