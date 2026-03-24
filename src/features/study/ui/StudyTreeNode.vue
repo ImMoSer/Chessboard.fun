@@ -270,7 +270,14 @@ export default {
     <template v-if="node.id !== '__ROOT__' && mode !== 'continuation'">
       <span
         class="move-san"
-        :class="[depthClass, { active: isActive, 'has-comment': !!node.comment }]"
+        :class="[
+          depthClass,
+          {
+            active: isActive,
+            'has-comment': !!node.comment,
+            'speedrun-node': node.metadata?.isSpeedrun,
+          },
+        ]"
         @click.stop="activateNode"
         @contextmenu="handleContextMenu"
       >
@@ -413,6 +420,16 @@ export default {
   background-color: var(--color-accent-primary, #369a3c);
   color: white;
   font-weight: bold;
+}
+
+.move-san.speedrun-node {
+  color: var(--neon-orange, #ff5500);
+  border: 1px solid rgba(255, 85, 0, 0.3);
+}
+
+.move-san.speedrun-node.active {
+  background-color: var(--neon-orange, #ff5500);
+  color: white;
 }
 
 .move-index {

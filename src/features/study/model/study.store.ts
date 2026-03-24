@@ -683,5 +683,35 @@ export const useStudyStore = defineStore('study', () => {
     syncLichessToApp,
     pushChapterToLichess,
     publishChapterToLichess,
+    addSpeedrunHistory: (chapterId: string, moves: { san: string; uci: string; fenBefore: string; fenAfter: string }[]) => {
+      const ownerId = currentOwnerId.value
+      if (!ownerId) return
+
+      const chapter = chapters.value.find(c => c.id === chapterId)
+      if (!chapter) return
+
+      // 1. Remove previous speedrun variation if it exists
+      const removeSpeedrunNodes = (node: PgnNode) => {
+        node.children = node.children.filter(child => child.metadata?.isSpeedrun !== true)
+        node.children.forEach(removeSpeedrunNodes)
+      }
+      removeSpeedrunNodes(chapter.root)
+
+      // 2. Add new speedrun variation
+      if (moves.length > 0) {
+        pgnService.addVariation(chapter.root, moves, { isSpeedrun: true })
+      }
+
+      // 3. Save
+      studyPersistenceService.saveChapter(chapter, ownerId)
+      
+      // If this is the active chapter, we need to refresh the pgnService to show the new nodes
+      if (activeChapterId.value === chapterId) {
+        // Trigger a fake tree update if pgnService is currently using this root
+        // (Since pgnService uses the same object reference, we just need to increment version)
+        // pgnService doesn't have a direct "triggerUpdate", but we can use navigateToNode
+        pgnService.navigateToNode(pgnService.getCurrentNode())
+      }
+    },
   }
 })

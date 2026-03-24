@@ -1,18 +1,23 @@
 import { useGameStore, gameplayService, type GameStatusInfo, type IGameplayStrategy } from '@/entities/game'
-import { type StudyChapter } from '@/features/study'
+import { type StudyChapter, useStudyStore } from '@/features/study'
 import { soundService } from '@/shared/lib/sound.service'
+import { pgnService } from '@/shared/lib/pgn/PgnService'
 import type { Color as ChessgroundColor } from '@lichess-org/chessground/types'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
 export const useSpeedrunStore = defineStore('speedrun', () => {
   const gameStore = useGameStore()
+  const studyStore = useStudyStore()
   
   const chaptersToPlay = ref<StudyChapter[]>([])
   const currentChapterIndex = ref(0)
   const isPlaying = ref(false)
   const isFinished = ref(false)
   
+  // Track moves for the current chapter attempt
+  const currentAttemptMoves = ref<{ san: string; uci: string; fenBefore: string; fenAfter: string }[]>([])
+
   // Track times for each chapter index
   const chapterTimes = ref<Record<number, number>>({})
 
@@ -61,6 +66,28 @@ export const useSpeedrunStore = defineStore('speedrun', () => {
           return null
         }
       },
+      onBotMoveExecuted: () => {
+        const lastMove = pgnService.getLastMove()
+        if (lastMove) {
+          currentAttemptMoves.value.push({
+            san: lastMove.san,
+            uci: lastMove.uci,
+            fenBefore: lastMove.fenBefore,
+            fenAfter: lastMove.fenAfter
+          })
+        }
+      },
+      onUserMoveExecuted: () => {
+        const lastMove = pgnService.getLastMove()
+        if (lastMove) {
+          currentAttemptMoves.value.push({
+            san: lastMove.san,
+            uci: lastMove.uci,
+            fenBefore: lastMove.fenBefore,
+            fenAfter: lastMove.fenAfter
+          })
+        }
+      },
       checkWinCondition: (status: GameStatusInfo) => {
         const isUserWin = status.outcome?.winner === userColor
         const isDraw = status.outcome !== undefined && status.outcome.winner === undefined
@@ -78,6 +105,12 @@ export const useSpeedrunStore = defineStore('speedrun', () => {
         stopTimer()
         // We use the same logic as checkWinCondition
         const isSuccess = this.checkWinCondition!(status)
+
+        // Save history regardless of success/failure
+        const chapter = chaptersToPlay.value[currentChapterIndex.value]
+        if (chapter) {
+          studyStore.addSpeedrunHistory(chapter.id, [...currentAttemptMoves.value])
+        }
 
         if (isSuccess) {
           handleChapterSuccess(currentTimeMs.value)
@@ -97,6 +130,9 @@ export const useSpeedrunStore = defineStore('speedrun', () => {
       soundService.playSound('game_speedrun_finished')
       return
     }
+
+    // Reset attempt moves
+    currentAttemptMoves.value = []
 
     // Default to white if color is undefined or not standard
     const userColor: ChessgroundColor = (chapter.color === 'black') ? 'black' : 'white'

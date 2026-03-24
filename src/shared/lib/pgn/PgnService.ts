@@ -589,6 +589,36 @@ class PgnServiceController {
     treeVersion.value++
   }
 
+  public addVariation(startNode: PgnNode, moves: { san: string; uci: string; fenBefore: string; fenAfter: string }[], metadata?: Record<string, unknown>): void {
+    let current = startNode
+    for (const move of moves) {
+      const chessopsMove = parseUci(move.uci)
+      if (!chessopsMove) continue
+      const nodeId = scalachessCharPair(chessopsMove)
+
+      let next = current.children.find(child => child.id === nodeId)
+      if (!next) {
+        next = {
+          id: nodeId,
+          ply: current.ply + 1,
+          fenBefore: move.fenBefore,
+          fenAfter: move.fenAfter,
+          san: move.san,
+          uci: move.uci,
+          parent: current,
+          children: [],
+          metadata: metadata ? { ...metadata } : undefined
+        }
+        current.children.push(next)
+      } else if (metadata) {
+        // Update metadata for existing nodes in the variation
+        next.metadata = { ...next.metadata, ...metadata }
+      }
+      current = next
+    }
+    treeVersion.value++
+  }
+
   public getGameResult(): string {
     return this.gameResult
   }
