@@ -3,7 +3,6 @@ import { useBoardStore } from '@/entities/game'
 import { pgnService } from '@/shared/lib/pgn/PgnService'
 import {
   AnalyticsOutline as AnalysisIcon,
-  CutOutline as CutIcon,
   RefreshOutline as FlipIcon,
   ChevronForwardOutline as NextIcon,
   ChevronBackOutline as PrevIcon,
@@ -26,11 +25,6 @@ const { t } = useI18n()
 const handleFlip = () => boardStore.flipBoard()
 const handlePrev = () => boardStore.navigatePgn('backward')
 const handleNext = () => boardStore.navigatePgn('forward')
-
-const handleCut = () => {
-  pgnService.deleteCurrentNode()
-  boardStore.syncBoardWithPgn()
-}
 
 const handleCopyFen = () => {
   const fen = pgnService.getCurrentNavigatedFen()
@@ -109,16 +103,6 @@ const handleCopyPgn = () => {
         {{ t('features.board.copyPgn', 'Copy PGN') }}
       </n-tooltip>
 
-      <!-- 6. Cut Branch (Scissors) -->
-      <n-tooltip trigger="hover">
-        <template #trigger>
-          <n-button circle quaternary size="large" class="cut-btn" @click="handleCut">
-            <template #icon><n-icon><CutIcon /></n-icon></template>
-          </n-button>
-        </template>
-        {{ t('features.study.cutBranch', 'Delete current move & branch') }}
-      </n-tooltip>
-
       <!-- 7. Next Move (>) -->
       <n-tooltip trigger="hover">
         <template #trigger>
@@ -164,11 +148,6 @@ const handleCopyPgn = () => {
 .icon-analysis-active {
   color: var(--neon-cyan, #00f2ff);
   filter: drop-shadow(0 0 4px var(--neon-cyan, #00f2ff));
-}
-
-.cut-btn:hover {
-  color: #ef4444 !important;
-  background: rgba(239, 68, 68, 0.1) !important;
 }
 
 :deep(.n-switch.n-switch--active) {

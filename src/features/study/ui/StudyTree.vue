@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
 import { computed } from 'vue'
+import PgnInstruments from './PgnInstruments.vue'
 import StudyCandidateMoves from './StudyCandidateMoves.vue'
 import StudyTreeNode from './StudyTreeNode.vue'
 
@@ -20,6 +21,7 @@ const gameResult = computed(() => {
 
 <template>
   <div class="study-tree-container">
+    <PgnInstruments />
     <div class="tree-content">
       <div v-if="!rootNode" class="empty-tree">
         <p>Start moving on the board to create lines!</p>

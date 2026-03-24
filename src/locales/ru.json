@@ -284,7 +284,13 @@
           "opening": "Дебют",
           "openingPlaceholder": "н-р: Сицилианская защита",
           "result": "Результат",
-          "resultPlaceholder": "н-р: 1-0, 0-1, 1/2-1/2 или *"
+          "resultPlaceholder": "н-р: 1-0, 0-1, 1/2-1/2 или *",
+          "results": {
+            "whiteWins": "Победа белых (1-0)",
+            "blackWins": "Победа черных (0-1)",
+            "draw": "Ничья (1/2-1/2)",
+            "unknown": "В процессе / Неизвестно (*)"
+          }
         },
         "links": {
           "localApp": "Ссылка в приложении:",

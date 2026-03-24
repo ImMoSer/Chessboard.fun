@@ -284,7 +284,13 @@
           "opening": "Eröffnung",
           "openingPlaceholder": "z.B. Sizilianische Verteidigung",
           "result": "Ergebnis",
-          "resultPlaceholder": "z.B. 1-0, 0-1, 1/2-1/2 oder *"
+          "resultPlaceholder": "z.B. 1-0, 0-1, 1/2-1/2 oder *",
+          "results": {
+            "whiteWins": "Weiß gewinnt (1-0)",
+            "blackWins": "Schwarz gewinnt (0-1)",
+            "draw": "Remis (1/2-1/2)",
+            "unknown": "Laufende Partie / Unbekannt (*)"
+          }
         },
         "links": {
           "localApp": "Lokaler App-Link:",

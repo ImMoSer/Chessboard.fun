@@ -284,7 +284,13 @@
           "opening": "Opening",
           "openingPlaceholder": "e.g. Sicilian Defense",
           "result": "Result",
-          "resultPlaceholder": "e.g. 1-0, 0-1, 1/2-1/2 or *"
+          "resultPlaceholder": "e.g. 1-0, 0-1, 1/2-1/2 or *",
+          "results": {
+            "whiteWins": "White wins (1-0)",
+            "blackWins": "Black wins (0-1)",
+            "draw": "Draw (1/2-1/2)",
+            "unknown": "Ongoing / Unknown (*)"
+          }
         },
         "links": {
           "localApp": "Local App Link:",
