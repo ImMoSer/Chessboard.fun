@@ -5,6 +5,7 @@ import {
   NAlert,
   NButton,
   NCard,
+  NCheckbox,
   NDivider,
   NGi,
   NGrid,
@@ -22,9 +23,11 @@ import {
 } from 'naive-ui'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 
 const { t } = useI18n()
 const authStore = useAuthStore()
+const router = useRouter()
 
 // Subscription values and colors
 const PAWN_COINS = 250
@@ -42,8 +45,13 @@ const QUEEN_COLOR = 'var(--color-accent-error)'
 const KING_COLOR = 'var(--neon-gold)' // Gold for King
 
 const showBonusModal = ref(false)
+const showUpgradeModal = ref(false)
+const upgradeTarget = ref<SubscriptionTier | null>(null)
+const agbAccepted = ref(false)
 
 const loadingTier = ref<string | null>(null)
+const isUpgrading = ref(false)
+const upgradeSuccess = ref(false)
 
 const tierRanks: Record<string, number> = {
   pawn: 0,
@@ -176,21 +184,65 @@ const handleTierClick = (tier: SubscriptionTier) => {
   }
 }
 
+const initiateCheckout = (tier: SubscriptionTier) => {
+  if (tier.isUpgrade) {
+    upgradeTarget.value = tier
+    agbAccepted.value = false
+    upgradeSuccess.value = false
+    showUpgradeModal.value = true
+  } else {
+    handleCheckout(tier)
+  }
+}
+
+const confirmUpgrade = async () => {
+  if (!upgradeTarget.value) return
+  
+  if (!agbAccepted.value) {
+    message.warning(t('common.terms.acceptRequired', 'Bitte akzeptiere die AGB.'))
+    return
+  }
+
+  isUpgrading.value = true
+  try {
+    const response = await apiClient<{ success: boolean }>('/billing/upgrade', {
+      method: 'POST',
+      body: JSON.stringify({ tier: upgradeTarget.value.id })
+    })
+    
+    if (response.success) {
+      // Refresh the session to get the new tier locally
+      await authStore.checkSession()
+      // Wait a short moment to ensure the state has settled
+      await new Promise(resolve => setTimeout(resolve, 500))
+      
+      upgradeSuccess.value = true
+    }
+  } catch (error: unknown) {
+    console.error('Upgrade error:', error)
+    message.error('Fehler beim Upgrade. Bitte versuche es später noch einmal.')
+  } finally {
+    isUpgrading.value = false
+  }
+}
+
+const handleModalClose = () => {
+  if (upgradeSuccess.value) {
+    // If they just close the modal after success, ensure page reflects it
+    window.location.reload()
+  } else {
+    showUpgradeModal.value = false
+  }
+}
+
+const goToCabinet = () => {
+  showUpgradeModal.value = false
+  router.push('/cabinet')
+}
+
 const handleCheckout = async (tier: SubscriptionTier) => {
   try {
     loadingTier.value = tier.id
-
-    if (tier.isUpgrade) {
-      const response = await apiClient<{ success: boolean }>('/billing/upgrade', {
-        method: 'POST',
-        body: JSON.stringify({ tier: tier.id })
-      })
-      if (response.success) {
-        message.success('Upgrade successful!')
-        authStore.checkSession()
-      }
-      return
-    }
 
     const response = await apiClient<{ success: boolean; url: string }>('/billing/checkout', {
       method: 'POST',
@@ -277,7 +329,7 @@ const handleCheckout = async (tier: SubscriptionTier) => {
                     v-if="tier.canBuy"
                     block
                     type="primary"
-                    @click.stop="handleCheckout(tier)"
+                    @click.stop="initiateCheckout(tier)"
                     :loading="loadingTier === tier.id"
                     :disabled="loadingTier !== null"
                   >
@@ -366,6 +418,84 @@ const handleCheckout = async (tier: SubscriptionTier) => {
         </template>
       </n-space>
     </n-modal>
+
+    <n-modal
+      v-model:show="showUpgradeModal"
+      preset="card"
+      style="max-width: 500px; background-color: rgba(10, 11, 20, 0.95)"
+      title="Abonnement Upgrade"
+      :on-after-leave="handleModalClose"
+      :closable="!isUpgrading"
+      :mask-closable="!isUpgrading"
+    >
+      <n-space vertical size="large">
+        <template v-if="!upgradeSuccess">
+          <n-alert type="success" :show-icon="false">
+            <n-text strong style="font-size: 1.1em; color: var(--neon-cyan);">
+              Fantastisch! Du möchtest auf {{ upgradeTarget?.name }} upgraden.
+            </n-text>
+          </n-alert>
+
+          <n-text depth="2">
+            Dein aktuelles Abo <n-text strong type="info" style="text-transform: capitalize">{{ currentUserTier }}</n-text> wird ab sofort auf 
+            <n-text strong :style="{ color: upgradeTarget?.color }">{{ upgradeTarget?.name }}</n-text> hochgestuft!
+          </n-text>
+
+          <n-card size="small" style="background-color: var(--glass-bg); border-color: var(--glass-border);">
+            <ul style="margin: 0; padding-left: 20px; color: var(--text-color-3)">
+              <li style="margin-bottom: 8px;">
+                <n-text>Das Abrechnungsdatum für die nächste Rechnung bleibt wie gehabt.</n-text>
+              </li>
+              <li style="margin-bottom: 8px;">
+                <n-text>Das neue Abo <strong :style="{ color: upgradeTarget?.color }">{{ upgradeTarget?.name }}</strong> startet <strong>ab sofort</strong>.</n-text>
+              </li>
+              <li>
+                <n-text>Die Preisdifferenz wird automatisch berechnet und sofort von deinem hinterlegten Zahlungsmittel abgebucht.</n-text>
+              </li>
+            </ul>
+          </n-card>
+
+          <n-alert type="warning" size="small">
+            Bitte stelle sicher, dass die Zahlung auf deinem hinterlegten Zahlungsmittel nicht verhindert wird, da ansonsten das Upgrade rückgängig gemacht wird.
+          </n-alert>
+
+          <n-checkbox v-model:checked="agbAccepted" :disabled="isUpgrading">
+            Ich stimme den <a href="/agb" target="_blank" style="color: var(--neon-cyan)">Allgemeinen Geschäftsbedingungen</a> zu und bestätige den sofortigen Beginn der Ausführung des Vertrags.
+          </n-checkbox>
+
+          <n-button 
+            type="primary" 
+            block 
+            size="large"
+            :disabled="!agbAccepted"
+            :loading="isUpgrading"
+            @click="confirmUpgrade"
+          >
+            Jetzt kostenpflichtig upgraden
+          </n-button>
+        </template>
+        
+        <template v-else>
+          <div style="text-align: center; padding: 20px 0;">
+            <div style="font-size: 4rem; margin-bottom: 10px;">🎉</div>
+            <n-h2 style="color: var(--neon-cyan); margin-bottom: 10px;">Upgrade Erfolgreich!</n-h2>
+            <n-text depth="2">
+              Dein Account wurde soeben auf <strong :style="{ color: upgradeTarget?.color }">{{ upgradeTarget?.name }}</strong> hochgestuft. Du hast nun vollen Zugriff auf alle neuen Funktionen!
+            </n-text>
+          </div>
+          
+          <n-button 
+            type="primary" 
+            block 
+            size="large"
+            @click="goToCabinet"
+          >
+            Zum User Cabinet
+          </n-button>
+        </template>
+      </n-space>
+    </n-modal>
+
   </n-layout>
 </template>
 
