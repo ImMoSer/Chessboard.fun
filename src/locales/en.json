@@ -476,6 +476,24 @@
         "p1": "Welcome to the information page about our future subscription system. Open testing phase is active."
       },
       "repertoireGenerator": "Repertoire Generator",
+      "upgrade": {
+        "title": "Subscription Upgrade",
+        "intro": "Fantastic! You want to upgrade to {targetTier}.",
+        "details": "Your current subscription {currentTier} will be upgraded to {targetTier} immediately!",
+        "bullet1": "The billing date for the next invoice remains unchanged.",
+        "bullet2": "The new subscription starts immediately.",
+        "bullet3": "The price difference will be calculated automatically and charged to your saved payment method right away.",
+        "warning": "Please ensure that the payment via your saved payment method is not blocked, otherwise the upgrade will be reversed.",
+        "agbLabel": "I agree to the ",
+        "agbLinkText": "Terms of Service",
+        "agbSuffix": " and confirm the immediate start of the contract execution.",
+        "button": "Upgrade now (paid)",
+        "successTitle": "Upgrade Successful!",
+        "successMessage": "Your account has just been upgraded to {targetTier}. You now have full access to all new features!",
+        "toCabinet": "Go to User Cabinet",
+        "error": "Upgrade error. Please try again later.",
+        "successToast": "Upgrade successful! You now have immediate access."
+      },
       "tiers": {
         "title": "Subscription Tiers",
         "pawn": {

@@ -476,6 +476,24 @@
         "p1": "Willkommen auf der Infoseite zu unserem zukünftigen Abosystem. Die offene Testphase ist aktiv."
       },
       "repertoireGenerator": "Repertoire Generator",
+      "upgrade": {
+        "title": "Abonnement Upgrade",
+        "intro": "Fantastisch! Du möchtest auf {targetTier} upgraden.",
+        "details": "Dein aktuelles Abo {currentTier} wird ab sofort auf {targetTier} hochgestuft!",
+        "bullet1": "Das Abrechnungsdatum für die nächste Rechnung bleibt wie gehabt.",
+        "bullet2": "Das neue Abo startet ab sofort.",
+        "bullet3": "Die Preisdifferenz wird automatisch berechnet und sofort von deinem hinterlegten Zahlungsmittel abgebucht.",
+        "warning": "Bitte stelle sicher, dass die Zahlung auf deinem hinterlegten Zahlungsmittel nicht verhindert wird, da ansonsten das Upgrade rückgängig gemacht wird.",
+        "agbLabel": "Ich stimme den ",
+        "agbLinkText": "Allgemeinen Geschäftsbedingungen",
+        "agbSuffix": " zu und bestätige den sofortigen Beginn der Ausführung des Vertrags.",
+        "button": "Jetzt kostenpflichtig upgraden",
+        "successTitle": "Upgrade Erfolgreich!",
+        "successMessage": "Dein Account wurde soeben auf {targetTier} hochgestuft. Du hast nun vollen Zugriff auf alle neuen Funktionen!",
+        "toCabinet": "Zum User Cabinet",
+        "error": "Fehler beim Upgrade. Bitte versuche es später noch einmal.",
+        "successToast": "Upgrade erfolgreich! Du hast nun sofortigen Zugriff."
+      },
       "tiers": {
         "title": "Abonnement-Stufen",
         "pawn": {

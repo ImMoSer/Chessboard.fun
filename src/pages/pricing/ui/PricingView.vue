@@ -23,11 +23,9 @@ import {
 } from 'naive-ui'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
 
 const { t } = useI18n()
 const authStore = useAuthStore()
-const router = useRouter()
 
 // Subscription values and colors
 const PAWN_COINS = 250
@@ -220,7 +218,7 @@ const confirmUpgrade = async () => {
     }
   } catch (error: unknown) {
     console.error('Upgrade error:', error)
-    message.error('Fehler beim Upgrade. Bitte versuche es später noch einmal.')
+    message.error(t('features.pricing.upgrade.error'))
   } finally {
     isUpgrading.value = false
   }
@@ -237,7 +235,8 @@ const handleModalClose = () => {
 
 const goToCabinet = () => {
   showUpgradeModal.value = false
-  router.push('/cabinet')
+  // Wir nutzen window.location.href um einen echten Page-Reload auszulösen
+  window.location.href = '/user-cabinet'
 }
 
 const handleCheckout = async (tier: SubscriptionTier) => {
@@ -333,7 +332,7 @@ const handleCheckout = async (tier: SubscriptionTier) => {
                     :loading="loadingTier === tier.id"
                     :disabled="loadingTier !== null"
                   >
-                    {{ tier.isUpgrade ? 'Upgrade - ' + tier.price : tier.price }}
+                    {{ tier.isUpgrade ? t('features.pricing.upgrade.title') + ' - ' + tier.price : tier.price }}
                   </n-button>
                   <n-text v-else-if="tier.isCurrent" strong type="success" style="font-size: 1.1em; text-align: center;">
                     Current Tier
@@ -423,7 +422,7 @@ const handleCheckout = async (tier: SubscriptionTier) => {
       v-model:show="showUpgradeModal"
       preset="card"
       style="max-width: 500px; background-color: rgba(10, 11, 20, 0.95)"
-      title="Abonnement Upgrade"
+      :title="t('features.pricing.upgrade.title')"
       :on-after-leave="handleModalClose"
       :closable="!isUpgrading"
       :mask-closable="!isUpgrading"
@@ -432,35 +431,38 @@ const handleCheckout = async (tier: SubscriptionTier) => {
         <template v-if="!upgradeSuccess">
           <n-alert type="success" :show-icon="false">
             <n-text strong style="font-size: 1.1em; color: var(--neon-cyan);">
-              Fantastisch! Du möchtest auf {{ upgradeTarget?.name }} upgraden.
+              {{ t('features.pricing.upgrade.intro', { targetTier: upgradeTarget?.name }) }}
             </n-text>
           </n-alert>
 
           <n-text depth="2">
-            Dein aktuelles Abo <n-text strong type="info" style="text-transform: capitalize">{{ currentUserTier }}</n-text> wird ab sofort auf 
-            <n-text strong :style="{ color: upgradeTarget?.color }">{{ upgradeTarget?.name }}</n-text> hochgestuft!
+            {{ t('features.pricing.upgrade.details', { currentTier: currentUserTier, targetTier: upgradeTarget?.name }).split(upgradeTarget?.name ?? '')[0] }}
+            <n-text strong :style="{ color: upgradeTarget?.color }">{{ upgradeTarget?.name }}</n-text>
+            {{ t('features.pricing.upgrade.details', { currentTier: currentUserTier, targetTier: upgradeTarget?.name }).split(upgradeTarget?.name ?? '')[1] }}
           </n-text>
 
           <n-card size="small" style="background-color: var(--glass-bg); border-color: var(--glass-border);">
             <ul style="margin: 0; padding-left: 20px; color: var(--text-color-3)">
               <li style="margin-bottom: 8px;">
-                <n-text>Das Abrechnungsdatum für die nächste Rechnung bleibt wie gehabt.</n-text>
+                <n-text>{{ t('features.pricing.upgrade.bullet1') }}</n-text>
               </li>
               <li style="margin-bottom: 8px;">
-                <n-text>Das neue Abo <strong :style="{ color: upgradeTarget?.color }">{{ upgradeTarget?.name }}</strong> startet <strong>ab sofort</strong>.</n-text>
+                <n-text>{{ t('features.pricing.upgrade.bullet2') }}</n-text>
               </li>
               <li>
-                <n-text>Die Preisdifferenz wird automatisch berechnet und sofort von deinem hinterlegten Zahlungsmittel abgebucht.</n-text>
+                <n-text>{{ t('features.pricing.upgrade.bullet3') }}</n-text>
               </li>
             </ul>
           </n-card>
 
           <n-alert type="warning" size="small">
-            Bitte stelle sicher, dass die Zahlung auf deinem hinterlegten Zahlungsmittel nicht verhindert wird, da ansonsten das Upgrade rückgängig gemacht wird.
+            {{ t('features.pricing.upgrade.warning') }}
           </n-alert>
 
           <n-checkbox v-model:checked="agbAccepted" :disabled="isUpgrading">
-            Ich stimme den <a href="/agb" target="_blank" style="color: var(--neon-cyan)">Allgemeinen Geschäftsbedingungen</a> zu und bestätige den sofortigen Beginn der Ausführung des Vertrags.
+            {{ t('features.pricing.upgrade.agbLabel') }}
+            <a href="https://extrapawn.com/legal#terms" target="_blank" style="color: var(--neon-cyan)">{{ t('features.pricing.upgrade.agbLinkText') }}</a>
+            {{ t('features.pricing.upgrade.agbSuffix') }}
           </n-checkbox>
 
           <n-button 
@@ -471,16 +473,18 @@ const handleCheckout = async (tier: SubscriptionTier) => {
             :loading="isUpgrading"
             @click="confirmUpgrade"
           >
-            Jetzt kostenpflichtig upgraden
+            {{ t('features.pricing.upgrade.button') }}
           </n-button>
         </template>
         
         <template v-else>
           <div style="text-align: center; padding: 20px 0;">
             <div style="font-size: 4rem; margin-bottom: 10px;">🎉</div>
-            <n-h2 style="color: var(--neon-cyan); margin-bottom: 10px;">Upgrade Erfolgreich!</n-h2>
+            <n-h2 style="color: var(--neon-cyan); margin-bottom: 10px;">{{ t('features.pricing.upgrade.successTitle') }}</n-h2>
             <n-text depth="2">
-              Dein Account wurde soeben auf <strong :style="{ color: upgradeTarget?.color }">{{ upgradeTarget?.name }}</strong> hochgestuft. Du hast nun vollen Zugriff auf alle neuen Funktionen!
+              {{ t('features.pricing.upgrade.successMessage', { targetTier: upgradeTarget?.name }).split(upgradeTarget?.name ?? '')[0] }}
+              <strong :style="{ color: upgradeTarget?.color }">{{ upgradeTarget?.name }}</strong>
+              {{ t('features.pricing.upgrade.successMessage', { targetTier: upgradeTarget?.name }).split(upgradeTarget?.name ?? '')[1] }}
             </n-text>
           </div>
           
@@ -490,7 +494,7 @@ const handleCheckout = async (tier: SubscriptionTier) => {
             size="large"
             @click="goToCabinet"
           >
-            Zum User Cabinet
+            {{ t('features.pricing.upgrade.toCabinet') }}
           </n-button>
         </template>
       </n-space>

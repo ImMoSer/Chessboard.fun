@@ -324,7 +324,7 @@ const handleManageSubscription = async () => {
     <n-modal
       v-model:show="showSuccessModal"
       preset="card"
-      style="max-width: 400px; background-color: var(--color-bg-panel)"
+      style="max-width: 400px; background-color: rgba(10, 11, 20, 0.95);"
       :title="t('features.userCabinet.gift.successTitle')"
       :mask-closable="false"
       @close="handleSuccessOk"
@@ -343,7 +343,7 @@ const handleManageSubscription = async () => {
     <n-modal
       v-model:show="showPolarSuccessModal"
       preset="card"
-      style="max-width: 400px; background-color: var(--color-bg-panel)"
+      style="max-width: 400px; background-color: rgba(10, 11, 20, 0.95);"
       :title="t('features.userCabinet.polar.successTitle')"
       :mask-closable="false"
     >
