@@ -68,7 +68,8 @@ export class PgnParserService {
   }
 
   private extractMoveText(pgn: string): string {
-    const text = pgn.replace(/\[.*\]/g, '')
+    // Remove tags (lines starting with [)
+    const text = pgn.replace(/^\[.*\]/gm, '')
     return text.trim()
   }
 
