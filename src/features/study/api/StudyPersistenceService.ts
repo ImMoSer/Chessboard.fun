@@ -108,25 +108,25 @@ class StudyPersistenceService {
     }
   }
 
-  async deleteChapter(id: string): Promise<void> {
+  async deleteChapter(id: string, ownerId: string): Promise<void> {
     try {
-      await studyDb.chapters.delete(id)
+      await studyDb.chapters.delete([id, ownerId])
     } catch (error) {
       console.error('[StudyPersistenceService] Error deleting chapter:', error)
     }
   }
 
-  async deleteStudy(id: string): Promise<void> {
+  async deleteStudy(id: string, ownerId: string): Promise<void> {
     try {
-      await studyDb.studies.delete(id)
+      await studyDb.studies.delete([id, ownerId])
     } catch (error) {
       console.error('[StudyPersistenceService] Error deleting study:', error)
     }
   }
 
-  async deleteChaptersByStudyId(studyId: string): Promise<void> {
+  async deleteChaptersByStudyId(studyId: string, ownerId: string): Promise<void> {
     try {
-      await studyDb.chapters.where('studyId').equals(studyId).delete()
+      await studyDb.chapters.where('[studyId+ownerId]').equals([studyId, ownerId]).delete()
     } catch (error) {
       console.error('[StudyPersistenceService] Error deleting chapters by studyId:', error)
     }

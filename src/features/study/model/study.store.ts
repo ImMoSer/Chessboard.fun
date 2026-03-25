@@ -315,7 +315,7 @@ export const useStudyStore = defineStore('study', () => {
       }
 
       chapters.value.splice(index, 1)
-      await studyPersistenceService.deleteChapter(id)
+      await studyPersistenceService.deleteChapter(id, ownerId)
 
       if (chapters.value.length === 0) {
         activeChapterId.value = null
@@ -345,17 +345,17 @@ export const useStudyStore = defineStore('study', () => {
   }
 
   async function deleteStudy(id: string) {
+    const ownerId = currentOwnerId.value
+    if (!ownerId) return
+
     const index = studies.value.findIndex((s) => s.id === id)
     if (index !== -1) {
       studies.value.splice(index, 1)
-      // Delete associated chapters
-      const chaptersToDelete = chapters.value.filter(c => c.studyId === id)
-      for (const c of chaptersToDelete) {
-        await studyPersistenceService.deleteChapter(c.id)
-      }
+      // Delete associated chapters from both memory and DB
       chapters.value = chapters.value.filter(c => c.studyId !== id)
+      await studyPersistenceService.deleteChaptersByStudyId(id, ownerId)
       
-      await studyPersistenceService.deleteStudy(id)
+      await studyPersistenceService.deleteStudy(id, ownerId)
       
       if (activeChapterId.value && !chapters.value.some(c => c.id === activeChapterId.value)) {
          setActiveChapter(chapters.value.length > 0 ? chapters.value[0]!.id : null)
@@ -413,17 +413,17 @@ export const useStudyStore = defineStore('study', () => {
   }
 
   // --- LICHESS IMPORT ---
-  async function importFromLichess(studyId: string, type: 'owned' | 'community' = 'owned'): Promise<string | null> {
+  async function importFromLichess(studyId: string, type: 'owned' | 'community' = 'owned', tokenOverride?: string): Promise<string | null> {
     const ownerId = currentOwnerId.value
     const username = currentUsername.value
     if (!ownerId || !username) return null
 
-    if (!(await requireLichessAccess())) return null
+    if (!tokenOverride && !(await requireLichessAccess())) return null
 
     cloudLoading.value = true
     try {
       // 2. Download PGN (Rate limiter in service handles delays automatically)
-      const pgnData = await lichessSyncService.fetchStudyPgn(studyId)
+      const pgnData = await lichessSyncService.fetchStudyPgn(studyId, tokenOverride)
       const importResults = pgnParserService.parseMultiple(pgnData)
       
       if (importResults.length === 0) {
@@ -459,8 +459,8 @@ export const useStudyStore = defineStore('study', () => {
       // Check if study already exists to avoid duplicate chapters
       const existingStudyIndex = studies.value.findIndex(s => s.id === studyId)
       
-      // Before importing, we must purge old chapters linked to this study ID from DB
-      await studyPersistenceService.deleteChaptersByStudyId(studyId)
+      // Before importing, we must purge old chapters linked to this study ID from DB for THIS user
+      await studyPersistenceService.deleteChaptersByStudyId(studyId, ownerId)
 
       if (existingStudyIndex !== -1) {
         // Study exists - we update state
@@ -476,7 +476,15 @@ export const useStudyStore = defineStore('study', () => {
 
       for (let i = 0; i < importResults.length; i++) {
         const { tags, root } = importResults[i]!
-        const chapterId = generateId()
+        
+        // Extract Lichess Chapter ID from URL: https://lichess.org/study/studyId/chapterId
+        let lichessChapterId: string | undefined = undefined
+        if (tags['ChapterURL']) {
+          const urlParts = tags['ChapterURL'].split('/')
+          lichessChapterId = urlParts[urlParts.length - 1]
+        }
+
+        const chapterId: string = lichessChapterId || generateId()
         
         // Extract chapter name
         let chapterName = tags['ChapterName']
@@ -493,13 +501,6 @@ export const useStudyStore = defineStore('study', () => {
 
         if (!chapterName) {
           chapterName = `Chapter ${i + 1}`
-        }
-
-        // Extract Lichess Chapter ID from URL: https://lichess.org/study/studyId/chapterId
-        let lichessChapterId: string | undefined = undefined
-        if (tags['ChapterURL']) {
-          const urlParts = tags['ChapterURL'].split('/')
-          lichessChapterId = urlParts[urlParts.length - 1]
         }
 
         // Map Orientation to color

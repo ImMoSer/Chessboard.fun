@@ -195,13 +195,13 @@
         },
         "alerts": {
           "selectLichess": "Wähle eine Study aus deinem Lichess-Account zum Importieren.",
-          "communityInfo": "Füge den Link zu einer beliebigen öffentlichen Lichess-Study hier ein. Community-Studies sind lokal schreibgeschützt, aber du kannst Varianten analysieren und durchspielen. Du kannst sie auch synchronisieren, um die neuesten Updates des Autors zu erhalten."
+          "communityInfo": "Hier werden die Studien unserer Community angeboten. Wenn du deine Studie gerne mit anderen teilen möchtest, sende bitte dem User {link} eine persönliche Nachricht (EN, RU, DE) mit dem Link zu deiner Studie. Dafür muss deine Studie interessant und öffentlich sein sowie das Klonen erlauben. Deine Studie wird geklont und du wirst als Contributor eingesetzt, sodass du jederzeit an der Studie mitwirken kannst."
         },
         "placeholders": {
           "link": "https://lichess.org/study/..."
         },
         "buttons": {
-          "importReadonly": "Schreibgeschützte Study importieren",
+          "importReadonly": "Importieren",
           "import": "Importieren",
           "imported": "Importiert"
         },
@@ -376,7 +376,7 @@
       }
     },
     "userCabinet": {
-      "title": "Benutzer-Kabinett",
+      "title": "Kabinett",
       "loginPrompt": "Melde dich an, um Statistiken und Aktivitäten zu sehen.",
       "info": {
         "lichessId": "Lichess ID",
@@ -881,11 +881,11 @@
     "tornado": "Tornado",
     "speedrun": "Speedrun",
     "leaderboards": "Bestenliste",
-    "userCabinet": "Profil",
+    "userCabinet": "Kabinett",
     "pricing": "Preise",
     "about": "Über uns",
     "legal": "Rechtliches",
-    "repertoire": "Repertoire",
+    "repertoire": "Study",
     "login": "Anmelden",
     "logout": "Abmelden",
     "loginWithLichess": "Mit Lichess anmelden"
@@ -1159,9 +1159,9 @@
       "practicalChess": "Praxis",
       "tornado": "Tornado",
       "leaderboards": "Bestenliste",
-      "diamondHunter": "Diamond Hunter",
+      "diamondHunter": "Brillanten",
       "openingSparring": "Sparring",
-      "repertoire": "Repertoire"
+      "repertoire": "Studien"
     },
     "loginPrompt": "Oder melde dich an, um alle Funktionen zu nutzen:"
   }

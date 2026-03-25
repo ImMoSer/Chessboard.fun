@@ -16,7 +16,6 @@ import {
   NThing,
   NSpin,
   NAlert,
-  NInput,
   useMessage,
 } from 'naive-ui'
 import { computed, nextTick, ref, watch } from 'vue'
@@ -63,23 +62,31 @@ const errorStatus = ref<number | undefined>(undefined)
 const errorMessage = ref('')
 
 // Community Tab State
-const communityLink = ref('')
+const communityStudies = ref<LichessStudyPreview[]>([])
+const isLoadingCommunityStudies = ref(false)
+const communityToken = ref('')
 const isImportingCommunity = ref(false)
 
 // --- COMPUTED ---
 const myStudies = computed(() => studyStore.studies)
-const isValidCommunityLink = computed(() => /^https:\/\/lichess\.org\/study\/[a-zA-Z0-9]{8}(\/.*)?$/.test(communityLink.value))
+const communityId = ref('')
 
 // --- WATCHERS ---
 watch(() => props.show, (newShow) => {
-  if (newShow && activeTab.value === 'import_external') {
-    fetchLichessStudies()
+  if (newShow) {
+    if (activeTab.value === 'import_external') {
+      fetchLichessStudies()
+    } else if (activeTab.value === 'community') {
+      fetchCommunityStudies()
+    }
   }
 })
 
 watch(activeTab, (newTab) => {
   if (newTab === 'import_external') {
     fetchLichessStudies()
+  } else if (newTab === 'community') {
+    fetchCommunityStudies()
   }
 })
 
@@ -99,6 +106,25 @@ async function fetchLichessStudies() {
     message.error(t('features.study.manager.messages.importFailed'))
   } finally {
     isLoadingLichessStudies.value = false
+  }
+}
+
+async function fetchCommunityStudies() {
+  isLoadingCommunityStudies.value = true
+  try {
+    const info = await lichessSyncService.fetchCommunityStudyInfo()
+    communityToken.value = info.token
+    communityId.value = info.lichessId
+    
+    if (communityId.value) {
+      const studies = await lichessSyncService.fetchUserStudies(communityId.value, communityToken.value)
+      communityStudies.value = studies.sort((a, b) => b.updatedAt - a.updatedAt)
+    }
+  } catch (error) {
+    console.error('Failed to fetch community studies', error)
+    message.error(t('features.study.manager.messages.communityFailed'))
+  } finally {
+    isLoadingCommunityStudies.value = false
   }
 }
 
@@ -134,20 +160,12 @@ async function handleLichessImport(id: string) {
   }
 }
 
-async function handleCommunityImport() {
-  if (!isValidCommunityLink.value) return
-  const match = communityLink.value.match(/study\/([a-zA-Z0-9]{8})/)
-  if (!match) return
-  
-  const studyId = match[1]
-  if (!studyId) return
-  
+async function handleCommunityImport(id: string) {
   isImportingCommunity.value = true
   try {
     message.loading(t('features.study.manager.messages.importingCommunity'))
-    await studyStore.importFromLichess(studyId, 'community')
+    await studyStore.importFromLichess(id, 'community', communityToken.value)
     message.success(t('features.study.manager.messages.communitySuccess'))
-    communityLink.value = ''
     activeTab.value = 'my'
   } catch (e: unknown) {
     if (e instanceof LichessApiError) {
@@ -171,11 +189,6 @@ async function confirmDeleteStudy(study: Study, e: Event) {
     t('common.actions.confirm') + ` "${study.title}"?`,
   )
   if (result === 'confirm') {
-    // Delete all chapters of this study
-    const studyChapters = studyStore.chapters.filter((c) => c.studyId === study.id)
-    for (const ch of studyChapters) {
-      await studyStore.deleteChapter(ch.id)
-    }
     await studyStore.deleteStudy(study.id)
     message.success(t('features.study.manager.messages.deleted'))
   }
@@ -350,26 +363,47 @@ function handleModalUpdate(value: boolean) {
           <div class="create-form">
             <h3>{{ t('features.study.manager.stats.importCommunity') }}</h3>
             <NAlert type="info" :show-icon="false" style="margin-bottom: 15px;">
-              {{ t('features.study.manager.alerts.communityInfo') }}
+              <i18n-t keypath="features.study.manager.alerts.communityInfo">
+                <template #link>
+                  <a href="https://lichess.org/@/ExtraPawnCOM" target="_blank" style="color: var(--color-accent-primary); font-weight: bold;">https://lichess.org/@/ExtraPawnCOM</a>
+                </template>
+              </i18n-t>
             </NAlert>
-            <NSpace vertical>
-              <NInput
-                v-model:value="communityLink"
-                :placeholder="t('features.study.manager.placeholders.link')"
-                clearable
-                @keyup.enter="handleCommunityImport"
-              />
-              <NButton 
-                type="primary" 
-                block 
-                :disabled="!isValidCommunityLink"
-                :loading="isImportingCommunity"
-                @click="handleCommunityImport"
-              >
-                <template #icon><NIcon><CloudDownloadOutline /></NIcon></template>
-                {{ t('features.study.manager.buttons.importReadonly') }}
-              </NButton>
-            </NSpace>
+
+            <div v-if="isLoadingCommunityStudies" class="loading-state">
+              <NSpin size="medium" />
+              <div style="margin-top: 10px; color: #888;">{{ t('common.actions.loading') }}</div>
+            </div>
+
+            <div v-else-if="communityStudies.length === 0" class="empty-state">
+              {{ t('features.study.manager.messages.noCommunityStudies') }}
+            </div>
+
+            <NList v-else hoverable>
+              <NListItem v-for="study in communityStudies" :key="study.id">
+                <NThing>
+                  <template #header>
+                    {{ study.name }}
+                  </template>
+                  <template #description>
+                    <span style="color: #888">{{ t('features.study.manager.stats.updated') }}: {{ formatDate(study.updatedAt) }}</span>
+                  </template>
+                  <template #header-extra>
+                    <NButton 
+                      size="small" 
+                      type="primary" 
+                      secondary
+                      :disabled="myStudies.some(s => s.lichessId === study.id)"
+                      :loading="isImportingCommunity" 
+                      @click="handleCommunityImport(study.id)"
+                    >
+                      <template #icon><NIcon><CloudDownloadOutline /></NIcon></template>
+                      {{ myStudies.some(s => s.lichessId === study.id) ? t('features.study.manager.buttons.imported') : t('features.study.manager.buttons.importReadonly') }}
+                    </NButton>
+                  </template>
+                </NThing>
+              </NListItem>
+            </NList>
           </div>
         </NSpace>
       </NTabPane>

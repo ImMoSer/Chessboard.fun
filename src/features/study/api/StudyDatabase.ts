@@ -7,9 +7,9 @@ export class StudyDatabase extends Dexie {
 
   constructor() {
     super('StudyDatabase')
-    this.version(3).stores({
-      chapters: 'id, name, studyId, ownerId', // Primary key is id, index name, studyId, and ownerId
-      studies: 'id, title, ownerId',
+    this.version(4).stores({
+      chapters: '[id+ownerId], [studyId+ownerId], ownerId', // Composite primary key and composite index
+      studies: '[id+ownerId], ownerId',
     })
   }
 }

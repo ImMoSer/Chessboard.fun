@@ -195,13 +195,13 @@
         },
         "alerts": {
           "selectLichess": "Select a study from your Lichess account to import.",
-          "communityInfo": "Paste the link to any public Lichess study to import it here. Community studies are read-only locally, but you can analyze and play through the variations. You can also sync them to get the latest updates from the author."
+          "communityInfo": "Here you can find studies from our community. If you would like to share your study with others, please send a private message (EN, RU, DE) to user {link} with the link to your study. To be included, your study must be interesting, public, and cloning must be allowed. Your study will be cloned, and you will be added as a contributor so that you can continue to participate in the study at any time."
         },
         "placeholders": {
           "link": "https://lichess.org/study/..."
         },
         "buttons": {
-          "importReadonly": "Import Read-Only Study",
+          "importReadonly": "Import",
           "import": "Import",
           "imported": "Imported"
         },
@@ -885,7 +885,7 @@
     "pricing": "Pricing",
     "about": "About",
     "legal": "Legal",
-    "repertoire": "Repertoire",
+    "repertoire": "Study",
     "login": "Login",
     "logout": "Logout",
     "loginWithLichess": "Login with Lichess"
@@ -1159,9 +1159,9 @@
       "practicalChess": "Practical",
       "tornado": "Tornado",
       "leaderboards": "Leaderboards",
-      "diamondHunter": "Diamond Hunter",
+      "diamondHunter": "Brilliants",
       "openingSparring": "Sparring",
-      "repertoire": "Repertoire"
+      "repertoire": "Study"
     },
     "loginPrompt": "Or log in to access all features:"
   }

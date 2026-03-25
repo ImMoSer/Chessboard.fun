@@ -122,18 +122,22 @@ class LichessSyncService {
     }
   }
 
-  private async getHeaders(): Promise<Record<string, string>> {
-    const token = await this.getDecodedToken()
+  private async getHeaders(tokenOverride?: string): Promise<Record<string, string>> {
+    const token = tokenOverride || await this.getDecodedToken()
     return {
       'Authorization': `Bearer ${token}`,
       'Accept': 'application/json',
     }
   }
 
-  async fetchUserStudies(username: string): Promise<{ id: string; name: string; updatedAt: number }[]> {
+  async fetchCommunityStudyInfo(): Promise<{ token: string; lichessId: string }> {
+    return await apiClient<{ token: string; lichessId: string }>('/auth/lichess/community-study-r')
+  }
+
+  async fetchUserStudies(username: string, tokenOverride?: string): Promise<{ id: string; name: string; updatedAt: number }[]> {
     return this.queue.enqueue(async () => {
       try {
-        const headers = await this.getHeaders()
+        const headers = await this.getHeaders(tokenOverride)
         const response = await fetch(`${this.BASE_URL}/study/by/${username}`, {
           method: 'GET',
           headers: {
@@ -232,14 +236,14 @@ class LichessSyncService {
     })
   }
 
-  async fetchStudyPgn(studyId: string): Promise<string> {
+  async fetchStudyPgn(studyId: string, tokenOverride?: string): Promise<string> {
     return this.queue.enqueue(async () => {
       if (!/^[a-zA-Z0-9]{8}$/.test(studyId)) {
         throw new Error(`Invalid Lichess Study ID: ${studyId}. Expected 8 alphanumeric characters.`)
       }
       try {
         // Now using token to fetch PGN since we enforce ownership
-        const token = await this.getDecodedToken()
+        const token = tokenOverride || await this.getDecodedToken()
         const headers: Record<string, string> = {
           'Accept': 'application/x-chess-pgn',
           'Authorization': `Bearer ${token}`,
