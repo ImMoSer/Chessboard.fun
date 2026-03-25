@@ -7,6 +7,15 @@ import { parseUci } from 'chessops/util'
 import { readonly, ref } from 'vue'
 import logger from '@/shared/lib/logger'
 
+export interface DrawShape {
+  orig: string
+  dest?: string
+  brush?: string
+  modifiers?: {
+    lineWidth?: number
+  }
+}
+
 export interface PgnNode {
   id: string
   ply: number
@@ -20,6 +29,7 @@ export interface PgnNode {
   eval?: number | undefined
   nag?: number | undefined
   isCollapsed?: boolean | undefined
+  shapes?: DrawShape[] | undefined
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metadata?: Record<string, any> | undefined
 }

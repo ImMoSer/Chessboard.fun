@@ -1,6 +1,7 @@
 // src/stores/board.store.ts
 import logger from '@/shared/lib/logger'
 import { pgnService, type PgnNode } from '@/shared/lib/pgn/PgnService'
+import { pgnParserService } from '@/shared/lib/pgn/PgnParserService'
 import { soundService } from '@/shared/lib/sound.service'
 import type { DrawShape } from '@lichess-org/chessground/draw'
 import type {
@@ -69,22 +70,38 @@ export const useBoardStore = defineStore('board', () => {
     chessPosition.value = Chess.fromSetup(setup).unwrap()
     fen.value = makeFen(chessPosition.value.toSetup())
     const lastPgnMove = pgnService.getLastMove()
-    if (lastPgnMove && lastPgnMove.uci) {
-      lastMove.value = [lastPgnMove.uci.slice(0, 2) as Key, lastPgnMove.uci.slice(2, 4) as Key]
+    if (lastPgnMove) {
+      if (lastPgnMove.uci) {
+        lastMove.value = [lastPgnMove.uci.slice(0, 2) as Key, lastPgnMove.uci.slice(2, 4) as Key]
+      }
       
       const meta = lastPgnMove.metadata
       if (meta && meta.nag && meta.nag !== 'OK') {
         lastNag.value = {
-          square: lastPgnMove.uci.slice(2, 4) as Key,
+          square: lastPgnMove.uci ? (lastPgnMove.uci.slice(2, 4) as Key) : ('a1' as Key),
           nag: meta.nag,
           quality: meta.quality || 'good',
         }
       } else {
         lastNag.value = null
       }
+
+      // Late extraction for already existing data or dynamic updates
+      if (lastPgnMove.comment && (lastPgnMove.comment.includes('[%cal') || lastPgnMove.comment.includes('[%csl'))) {
+        const shapes = pgnParserService.parseShapes(lastPgnMove.comment)
+        if (shapes) {
+           // Combine with existing shapes and clean up comment
+           lastPgnMove.shapes = [...(lastPgnMove.shapes || []), ...shapes]
+           lastPgnMove.comment = pgnParserService.cleanComment(lastPgnMove.comment)
+        }
+      }
+
+      // Sync shapes (arrows and squares)
+      drawableShapes.value = (lastPgnMove.shapes as DrawShape[]) || []
     } else {
       lastMove.value = undefined
       lastNag.value = null
+      drawableShapes.value = []
     }
   }
 

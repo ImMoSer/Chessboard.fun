@@ -3,7 +3,7 @@ import { parseFen, makeFen } from 'chessops/fen'
 import { parseSan } from 'chessops/san'
 import { makeUci, parseUci } from 'chessops/util'
 import { scalachessCharPair } from 'chessops/compat'
-import { type PgnNode } from './PgnService'
+import { type PgnNode, type DrawShape } from './PgnService'
 
 export interface ImportResult {
   tags: Record<string, string>
@@ -82,6 +82,50 @@ export class PgnParserService {
     )
   }
 
+  private cleanComment(comment: string): string {
+    // Remove [%cal ...] and [%csl ...] from the visible comment text
+    // Handle multiple occurrences and potential case differences
+    return comment.replace(/\[%(cal|csl)\s+[^\]]*\]/gi, '').replace(/\s\s+/g, ' ').trim()
+  }
+
+  private parseShapes(comment: string): DrawShape[] | undefined {
+    const shapes: DrawShape[] = []
+    const brushMap: Record<string, string> = {
+      G: 'green',
+      R: 'red',
+      B: 'blue',
+      Y: 'yellow',
+    }
+
+    // Use a simpler regex and loop to be more robust
+    const tagRegex = /\[%(cal|csl)\s+([^\]]*)\]/gi
+    let match
+    while ((match = tagRegex.exec(comment)) !== null) {
+      const type = match[1].toLowerCase()
+      const content = match[2]
+      const items = content.split(',')
+      
+      for (const item of items) {
+        const trimmed = item.trim()
+        if (trimmed.length < 3) continue
+        
+        const brush = brushMap[trimmed[0].toUpperCase()]
+        if (!brush) continue
+
+        if (type === 'cal' && trimmed.length >= 5) {
+          const orig = trimmed.substring(1, 3)
+          const dest = trimmed.substring(3, 5)
+          shapes.push({ orig, dest, brush })
+        } else if (type === 'csl') {
+          const orig = trimmed.substring(1, 3)
+          shapes.push({ orig, brush })
+        }
+      }
+    }
+
+    return shapes.length > 0 ? shapes : undefined
+  }
+
   private buildTree(tokens: string[], root: PgnNode) {
     let currentNode = root
     const nodeStack: PgnNode[] = []
@@ -127,7 +171,9 @@ export class PgnParserService {
         }
       } else if (token.startsWith('{')) {
         if (currentNode !== root) {
-          currentNode.comment = token.substring(1, token.length - 1).trim()
+          const comment = token.substring(1, token.length - 1).trim()
+          currentNode.comment = this.cleanComment(comment)
+          currentNode.shapes = this.parseShapes(comment)
         }
       } else if (token.startsWith('$')) {
         if (currentNode !== root) {
