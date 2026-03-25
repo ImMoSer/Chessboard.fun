@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { apiClient } from '@/shared/api/client'
+import { useAuthStore } from '@/entities/user'
 import {
   NAlert,
   NButton,
@@ -23,6 +24,7 @@ import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
+const authStore = useAuthStore()
 
 // Subscription values and colors
 const PAWN_COINS = 250
@@ -43,8 +45,23 @@ const showBonusModal = ref(false)
 
 const loadingTier = ref<string | null>(null)
 
+const tierRanks: Record<string, number> = {
+  pawn: 0,
+  knight: 1,
+  bishop: 2,
+  rook: 3,
+  queen: 4,
+  king: 5
+}
+
+const currentUserTier = computed(() => {
+  return authStore.getUserProfile?.subscriptionTier?.toLowerCase() || 'pawn'
+})
+
+const currentUserRank = computed(() => tierRanks[currentUserTier.value] ?? 0)
+
 const subscriptionTiers = computed(() => {
-  return [
+  const baseTiers = [
     {
       id: 'pawn',
       name: t('features.pricing.tiers.pawn.name'),
@@ -104,6 +121,21 @@ const subscriptionTiers = computed(() => {
       isLimitless: true,
     },
   ]
+
+  return baseTiers.map(tier => {
+    const rank = tierRanks[tier.id] ?? 0
+    const isCurrent = currentUserTier.value === tier.id
+    const canBuy = !!tier.isPurchasable && rank > currentUserRank.value
+    // If user is already Rook or Queen, buying a higher tier is an upgrade
+    const isUpgrade = canBuy && currentUserRank.value >= 3
+
+    return {
+      ...tier,
+      isCurrent,
+      canBuy,
+      isUpgrade
+    }
+  })
 })
 
 const gameCosts = computed(() => {
@@ -130,6 +162,10 @@ interface SubscriptionTier {
   isBonus?: boolean
   isPurchasable?: boolean
   role?: string
+  isCurrent?: boolean
+  canBuy?: boolean
+  isUpgrade?: boolean
+  isLimitless?: boolean
 }
 
 const message = useMessage()
@@ -140,12 +176,25 @@ const handleTierClick = (tier: SubscriptionTier) => {
   }
 }
 
-const handleCheckout = async (tierId: string) => {
+const handleCheckout = async (tier: SubscriptionTier) => {
   try {
-    loadingTier.value = tierId
+    loadingTier.value = tier.id
+
+    if (tier.isUpgrade) {
+      const response = await apiClient<{ success: boolean }>('/billing/upgrade', {
+        method: 'POST',
+        body: JSON.stringify({ tier: tier.id })
+      })
+      if (response.success) {
+        message.success('Upgrade successful!')
+        authStore.checkSession()
+      }
+      return
+    }
+
     const response = await apiClient<{ success: boolean; url: string }>('/billing/checkout', {
       method: 'POST',
-      body: JSON.stringify({ tier: tierId, interval: 'monthly' })
+      body: JSON.stringify({ tier: tier.id, interval: 'monthly' })
     })
 
     if (response.success && response.url) {
@@ -225,16 +274,19 @@ const handleCheckout = async (tierId: string) => {
 
                 <div style="min-height: 48px; display: flex; align-items: center; justify-content: center;">
                   <n-button
-                    v-if="tier.isPurchasable"
+                    v-if="tier.canBuy"
                     block
                     type="primary"
-                    @click.stop="handleCheckout(tier.id)"
+                    @click.stop="handleCheckout(tier)"
                     :loading="loadingTier === tier.id"
                     :disabled="loadingTier !== null"
                   >
-                    {{ tier.price }}
+                    {{ tier.isUpgrade ? 'Upgrade - ' + tier.price : tier.price }}
                   </n-button>
-                  <n-text v-else strong type="success" style="font-size: 1.1em; text-align: center;">
+                  <n-text v-else-if="tier.isCurrent" strong type="success" style="font-size: 1.1em; text-align: center;">
+                    Current Tier
+                  </n-text>
+                  <n-text v-else-if="!tier.isPurchasable" strong type="success" style="font-size: 1.1em; text-align: center;">
                     {{ tier.price }}
                   </n-text>
                 </div>

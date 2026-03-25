@@ -985,39 +985,47 @@
       "sections": {
         "introTitle": "1. Geltungsbereich und Anbieter",
         "introParagraphs": [
-          "Diese AGB gelten für die Nutzung der Plattform EXTRAPAWN, betrieben durch Sergej Siemens, M.Eng., Schuhbauerstraße 19, 84166 Adlkofen (nachfolgend „Anbieter“)."
+          "Diese AGB gelten für die Nutzung der Plattform EXTRAPAWN, betrieben durch:\n\n**Sergej Siemens, M.Eng.**\nSchuhbauerstraße 19\n84166 Adlkofen\nE-Mail: immozerai{'@'}gmail.com\n\n(nachfolgend „Anbieter“)"
         ],
         "subjectTitle": "2. Vertragsgegenstand und Leistungsbeschreibung",
         "subjectParagraphs": [
-          "(1) EXTRAPAWN ist eine Analyse- and Trainingsplattform für Schachspieler. Die Plattform wird im Freemium-Modell betrieben.",
+          "(1) EXTRAPAWN ist eine Analyse- und Trainingsplattform für Schachspieler. Die Plattform wird im Freemium-Modell betrieben.",
           "(2) Kostenlose Grundversion: Nutzer können Basisfunktionen ohne Entgelt nutzen. Es besteht kein Anspruch auf dauerhafte Verfügbarkeit dieser Funktionen.",
           "(3) Kostenpflichtiges Abonnement (Pro): Die kostenpflichtige Hauptleistung umfasst den Zugang zu erweiterten Trainingsmodulen, insbesondere einer umfangreichen Datenbank für Taktikaufgaben und Endspiel-Training (theoretischer und praktischer Natur).",
-          "(4) Zusatzfunktionen (Statistiken/KI): Der Anbieter stellt im Rahmen des Abonnements ggf. grafische Analysen, Statistiken und KI-gestützte Auswertungen bereit. Diese Funktionen sind ausdrücklich freiwillige Zusatzleistungen. Sie sind nicht Bestandteil der garantierten Beschaffenheit der Pro-Version. Der Anbieter behält sich vor, diese Funktionen im Rahmen der technischen Weiterentwicklung jederzeit zu ändern, zu erweitern oder zu entfernen."
+          "(4) Zusatzfunktionen (Statistiken/KI): Der Anbieter stellt im Rahmen des Abonnements grafische Analysen, Statistiken und KI-gestützte Auswertungen bereit. Diese Funktionen sind ausdrücklich freiwillige Zusatzleistungen und nicht Bestandteil der garantierten Beschaffenheit der Pro-Version. Der Anbieter behält sich vor, diese Funktionen im Rahmen der technischen Weiterentwicklung jederzeit zu ändern, zu erweitern oder zu entfernen."
         ],
         "contractTitle": "3. Vertragsschluss und Zahlungsabwicklung",
         "contractParagraphs": [
-          "(1) Der Erwerb von Abonnements erfolgt über den Dienstleister Polar.sh (Merchant of Record). Es gelten hierfür ergänzend die Geschäftsbedingungen von Polar.sh.",
-          "(2) Der Vertrag über das Abonnement kommt zustande, sobald der Nutzer den Zahlungsprozess bei Polar.sh erfolgreich abgeschlossen hat."
+          "(1) Der Erwerb von Abonnements erfolgt über Polar Signals AB (Polar.sh) als Merchant of Record. Der Verkauf, die Abrechnung sowie alle damit verbundenen gesetzlichen Informationspflichten – einschließlich Widerrufsbelehrung und Verbraucherschutzhinweisen – werden vollständig durch Polar.sh im Rahmen des Checkout-Prozesses übernommen. Es gelten ergänzend die Verkaufsbedingungen von Polar.sh.",
+          "(2) Der Vertrag über das Abonnement kommt zustande, sobald der Nutzer den Zahlungsprozess bei Polar.sh erfolgreich abgeschlossen hat.",
+          "(3) Vor dem Kauf ist die ausdrückliche Zustimmung zu diesen AGB durch Aktivierung der entsprechenden Checkbox erforderlich. Ohne diese Zustimmung ist ein Kauf nicht möglich."
         ],
-        "withdrawalTitle": "4. Widerrufsrecht bei digitalen Inhalten",
-        "withdrawalParagraphs": [
-          "Mit dem Kauf eines Abonnements und der sofortigen Bereitstellung der digitalen Inhalte erklärt sich der Nutzer ausdrücklich damit einverstanden, dass der Anbieter vor Ablauf der Widerrufsfrist mit der Ausführung des Vertrags beginnt. Der Nutzer bestätigt seine Kenntnis davon, dass er durch diese Zustimmung sein Widerrufsrecht verliert. Ein entsprechendes Kontrollkästchen wird im Checkout-Prozess bereitgestellt."
-        ],
-        "terminationTitle": "5. Kündigung und Laufzeit",
+        "terminationTitle": "4. Laufzeit und Kündigung",
         "terminationParagraphs": [
-          "(1) Abonnements haben die jeweils gewählte Laufzeit (z.B. monatlich).",
+          "(1) Abonnements haben eine monatliche Laufzeit.",
           "(2) Eine Kündigung ist jederzeit ohne Einhaltung einer Frist zum Ende des bezahlten Zeitraums möglich.",
           "(3) Nach der Kündigung bleiben die Pro-Funktionen bis zum Ablauf des bereits bezahlten Zeitraums vollumfänglich erhalten. Eine Rückerstattung bereits gezahlter Beträge erfolgt nicht."
         ],
-        "liabilityTitle": "6. Haftungsbeschränkung",
+        "dataTitle": "5. Plattformdaten und Statistiken",
+        "dataParagraphs": [
+          "Spielstatistiken, Analysen und KI-Auswertungen sind vom Anbieter berechnete und vorgehaltene Plattformdaten. Der Anbieter behält sich vor, diese Daten im Rahmen der Weiterentwicklung jederzeit zu ändern, zurückzusetzen oder zu löschen. Hieraus entstehen keine Ansprüche des Nutzers. Die originären Partiedaten des Nutzers verbleiben ausschließlich bei Lichess; der Nutzer ist für die Sicherung dieser Daten selbst verantwortlich."
+        ],
+        "liabilityTitle": "6. Haftung",
         "liabilityParagraphs": [
           "(1) Der Anbieter haftet unbeschränkt bei Vorsatz oder grober Fahrlässigkeit sowie bei Verletzung von Leben, Körper oder Gesundheit.",
-          "(2) Bei leichter Fahrlässigkeit haftet der Anbieter nur bei Verletzung einer wesentlichen Vertragspflicht (Kardinalpflicht). In diesem Fall ist die Haftung auf den bei Vertragsschluss vorhersehbaren, typischen Schaden begrenzt.",
-          "(3) Die Haftung für den Verlust von Spieldaten, Statistiken oder Fortschrittswerten im Rahmen der freiwilligen Zusatzleistungen (siehe § 2 Abs. 4) ist ausgeschlossen, sofern kein vorsätzliches Handeln vorliegt. Der Nutzer ist für die Sicherung seiner bei Lichess generierten Daten selbst verantwortlich."
+          "(2) Bei leichter Fahrlässigkeit haftet der Anbieter nur bei Verletzung einer wesentlichen Vertragspflicht (Kardinalpflicht). In diesem Fall ist die Haftung auf den bei Vertragsschluss vorhersehbaren, typischen Schaden begrenzt."
         ],
-        "changesTitle": "7. Änderungen der App und der AGB",
+        "changesTitle": "7. Änderungen der Plattform und der AGB",
         "changesParagraphs": [
-          "Der Anbieter ist berechtigt, die App im Rahmen der technischen Verbesserung und Weiterentwicklung anzupassen (Update-Recht). Wesentliche Änderungen der AGB werden dem Nutzer rechtzeitig mitgeteilt."
+          "Der Anbieter ist berechtigt, die Plattform im Rahmen der technischen Verbesserung und Weiterentwicklung anzupassen. Wesentliche Änderungen der AGB werden dem Nutzer rechtzeitig mitgeteilt."
+        ],
+        "lawTitle": "8. Anwendbares Recht",
+        "lawParagraphs": [
+          "Es gilt das Recht der Bundesrepublik Deutschland. Gegenüber Verbrauchern gilt dies nur, soweit keine zwingenden Vorschriften des Rechts des Staates, in dem der Verbraucher seinen gewöhnlichen Aufenthalt hat, entgegenstehen."
+        ],
+        "finalTitle": "9. Schlussbestimmungen",
+        "finalParagraphs": [
+          "Sollten einzelne Bestimmungen dieser AGB unwirksam sein oder werden, bleibt die Wirksamkeit der übrigen Bestimmungen unberührt."
         ]
       }
     }

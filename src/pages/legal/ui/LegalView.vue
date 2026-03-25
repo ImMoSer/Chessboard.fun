@@ -64,10 +64,12 @@ const orderedTermsKeys = [
   'intro',
   'subject',
   'contract',
-  'withdrawal',
   'termination',
+  'data',
   'liability',
   'changes',
+  'law',
+  'final',
 ]
 
 const showPrecedenceNotice = computed(() => {
