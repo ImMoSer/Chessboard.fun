@@ -63,7 +63,7 @@
     "finishHim": "Finish Him",
     "theoryEndgames": "Endgames",
     "practicalChess": "Practical",
-    "diamondHunter": "Diamond Hunter",
+    "diamondHunter": "Brilliants",
     "repertoire": "Repertoire",
     "openingSparring": "Sparring"
   },
@@ -341,7 +341,7 @@
         }
       },
       "repertoireGenerator": {
-        "title": "Generate Repertoire",
+        "title": "Generator",
         "generatingFor": "Generating for {color} from current position.",
         "warningColorNotSet": "Warning: Chapter color is not set. Please set it in Study Manager.",
         "playStyle": "Play Style",
@@ -398,7 +398,7 @@
         "finishHimRatingLabel": "FinishHim Rating",
         "tornadoTitle": "Tornado Ratings",
         "global": {
-          "title": "Activity Statistics"
+          "title": "Activity"
         },
         "activity": {
           "titleWithTime": "Today's activity (resets at {time})"
@@ -890,7 +890,7 @@
   },
   "nav": {
     "home": "Home",
-    "diamondHunter": "Diamond Hunter",
+    "diamondHunter": "Brilliants",
     "openingExam": "Sparring",
     "openingSparring": "Sparring",
     "finishHim": "Finish Him",
@@ -1071,7 +1071,7 @@
     "modes": {
       "conversionTitle": "Conversion Mastery (Finish Him): ",
       "conversion": "Master the art of winning won positions. Proves your advantage against elite engines until Mate or clear resignation.",
-      "automaticTacticalTrainerTitle": "Diamond Hunter (The Search for !!): ",
+      "automaticTacticalTrainerTitle": "Brilliants (The Search for !!): ",
       "automaticTacticalTrainer": "Our flagship mode. Transform the discovery of brilliant moves into a repeatable skill. Use Gravity Maps to find 'Diamonds', refute blunders, and secure achievements by replaying lines from memory.",
       "botSelectionTitle": "Engine & AI Intelligence: ",
       "botSelectionIntro": "Choose your sparring partner based on your training goals:",

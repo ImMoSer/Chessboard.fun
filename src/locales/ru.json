@@ -63,7 +63,7 @@
     "finishHim": "Finish Him",
     "theoryEndgames": "Эндшпиль",
     "practicalChess": "Практика",
-    "diamondHunter": "Diamond Hunter",
+    "diamondHunter": "Бриллианты",
     "repertoire": "Репертуар",
     "openingSparring": "Спарринг"
   },
@@ -341,7 +341,7 @@
         }
       },
       "repertoireGenerator": {
-        "title": "Генерация репертуара",
+        "title": "Генератор",
         "generatingFor": "Генерация для {color} из текущей позиции.",
         "warningColorNotSet": "Внимание! Цвет не установлен. Пожалуйста, установите его в менеджере студий.",
         "playStyle": "Игровой стиль",
@@ -398,7 +398,7 @@
         "finishHimRatingLabel": "Рейтинг FinishHim",
         "tornadoTitle": "Рейтинги Торнадо",
         "global": {
-          "title": "Статистика активности"
+          "title": "Akтивность"
         },
         "activity": {
           "titleWithTime": "Активность сегодня (сброс в {time})"
@@ -475,7 +475,7 @@
       "intro": {
         "p1": "Добро пожаловать на информационную страницу о нашей будущей системе подписок. Активна фаза открытого тестирования."
       },
-      "repertoireGenerator": "Генератор репертуара",
+      "repertoireGenerator": "Генератор",
       "upgrade": {
         "title": "Улучшение подписки",
         "intro": "Потрясающе! Вы хотите перейти на {targetTier}.",
@@ -890,7 +890,7 @@
   },
   "nav": {
     "home": "Главная",
-    "diamondHunter": "Diamond Hunter",
+    "diamondHunter": "Бриллианты",
     "openingExam": "Спарринг",
     "openingSparring": "Спарринг",
     "finishHim": "Finish Him",

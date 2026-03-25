@@ -63,7 +63,7 @@
     "finishHim": "Finish Him",
     "theoryEndgames": "Endspiele",
     "practicalChess": "Praxis",
-    "diamondHunter": "Diamond Hunter",
+    "diamondHunter": "Brilliante",
     "repertoire": "Repertoire",
     "openingSparring": "Sparring"
   },
@@ -341,7 +341,7 @@
         }
       },
       "repertoireGenerator": {
-        "title": "Repertoire generieren",
+        "title": "Generator",
         "generatingFor": "Generieren für {color} aus aktueller Position.",
         "warningColorNotSet": "Warnung: Kapittelfarbe ist nicht gesetzt. Bitte im Study Manager festlegen.",
         "playStyle": "Spielstil",
@@ -380,13 +380,13 @@
       "loginPrompt": "Melde dich an, um Statistiken und Aktivitäten zu sehen.",
       "info": {
         "lichessId": "Lichess ID",
-        "subscriptionTier": "Abonnement",
+        "subscriptionTier": "Abo",
         "tierExpires": " (bis {date})",
         "tierPermanent": " (dauerhaft)"
       },
       "subscription": {
-        "title": "Abonnement verwalten",
-        "description": "Verwalte deine Zahlungsinformationen, lade Rechnungen herunter oder kündige dein Abonnement.",
+        "title": "Abo verwalten",
+        "description": "Verwalte deine Zahlungsinformationen, lade Rechnungen herunter oder kündige dein Abo.",
         "openPortal": "Kundenportal öffnen",
         "error": "Kundenportal konnte nicht geöffnet werden."
       },
@@ -398,7 +398,7 @@
         "finishHimRatingLabel": "FinishHim Rating",
         "tornadoTitle": "Tornado Ratings",
         "global": {
-          "title": "Aktivitäts-Statistik"
+          "title": "Aktivitäten"
         },
         "activity": {
           "titleWithTime": "Heutige Aktivität (Reset um {time})"
@@ -466,7 +466,7 @@
       },
       "polar": {
         "successTitle": "Zahlung erfolgreich! 🎉",
-        "successMessage": "Vielen Dank für dein Abonnement. Dein Konto wurde hochgestuft und dein PawnCoins-Guthaben entspricht deiner neuen Stufe.",
+        "successMessage": "Vielen Dank für dein Abo. Dein Konto wurde hochgestuft und dein PawnCoins-Guthaben entspricht deiner neuen Stufe.",
         "ok": "Training starten"
       }
     },
@@ -477,7 +477,7 @@
       },
       "repertoireGenerator": "Repertoire Generator",
       "upgrade": {
-        "title": "Abonnement Upgrade",
+        "title": "Abo Upgrade",
         "intro": "Fantastisch! Du möchtest auf {targetTier} upgraden.",
         "details": "Dein aktuelles Abo {currentTier} wird ab sofort auf {targetTier} hochgestuft!",
         "bullet1": "Das Abrechnungsdatum für die nächste Rechnung bleibt wie gehabt.",
@@ -495,7 +495,7 @@
         "successToast": "Upgrade erfolgreich! Du hast nun sofortigen Zugriff."
       },
       "tiers": {
-        "title": "Abonnement-Stufen",
+        "title": "Abo-Stufen",
         "pawn": {
           "name": "Bauer",
           "description": "Tägliche Auffüllung auf bis zu {pawncoins} PawnCoins",
@@ -890,7 +890,7 @@
   },
   "nav": {
     "home": "Startseite",
-    "diamondHunter": "Diamond Hunter",
+    "diamondHunter": "Brilliante",
     "openingExam": "Sparring",
     "openingSparring": "Sparring",
     "finishHim": "Finish Him",
@@ -970,7 +970,7 @@
         ],
         "paymentTitle": "5. Zahlungsabwicklung (Polar.sh / Stripe)",
         "paymentParagraphs": [
-          "Für den Abschluss von Abonnements nutzen wir die Dienste von Polar.sh und Stripe.",
+          "Für den Abschluss von Abos nutzen wir die Dienste von Polar.sh und Stripe.",
           "Abwicklung: Wenn du ein Upgrade durchführst, werden deine Zahlungsdaten direkt von Polar/Stripe erhoben und verarbeitet. Wir speichern zu keinem Zeitpunkt Kreditkartendaten auf unseren eigenen Servern. Weitere Informationen zur Datenverarbeitung findest du in der Datenschutzerklärung von Polar.sh:"
         ],
         "paymentLink": "https://polar.sh/legal/privacy",
@@ -1009,18 +1009,18 @@
         "subjectParagraphs": [
           "(1) EXTRAPAWN ist eine Analyse- und Trainingsplattform für Schachspieler. Die Plattform wird im Freemium-Modell betrieben.",
           "(2) Kostenlose Grundversion: Nutzer können Basisfunktionen ohne Entgelt nutzen. Es besteht kein Anspruch auf dauerhafte Verfügbarkeit dieser Funktionen.",
-          "(3) Kostenpflichtiges Abonnement (Pro): Die kostenpflichtige Hauptleistung umfasst den Zugang zu erweiterten Trainingsmodulen, insbesondere einer umfangreichen Datenbank für Taktikaufgaben und Endspiel-Training (theoretischer und praktischer Natur).",
-          "(4) Zusatzfunktionen (Statistiken/KI): Der Anbieter stellt im Rahmen des Abonnements grafische Analysen, Statistiken und KI-gestützte Auswertungen bereit. Diese Funktionen sind ausdrücklich freiwillige Zusatzleistungen und nicht Bestandteil der garantierten Beschaffenheit der Pro-Version. Der Anbieter behält sich vor, diese Funktionen im Rahmen der technischen Weiterentwicklung jederzeit zu ändern, zu erweitern oder zu entfernen."
+          "(3) Kostenpflichtiges Abo (Pro): Die kostenpflichtige Hauptleistung umfasst den Zugang zu erweiterten Trainingsmodulen, insbesondere einer umfangreichen Datenbank für Taktikaufgaben und Endspiel-Training (theoretischer und praktischer Natur).",
+          "(4) Zusatzfunktionen (Statistiken/KI): Der Anbieter stellt im Rahmen des Abos grafische Analysen, Statistiken und KI-gestützte Auswertungen bereit. Diese Funktionen sind ausdrücklich freiwillige Zusatzleistungen und nicht Bestandteil der garantierten Beschaffenheit der Pro-Version. Der Anbieter behält sich vor, diese Funktionen im Rahmen der technischen Weiterentwicklung jederzeit zu ändern, zu erweitern oder zu entfernen."
         ],
         "contractTitle": "3. Vertragsschluss und Zahlungsabwicklung",
         "contractParagraphs": [
-          "(1) Der Erwerb von Abonnements erfolgt über Polar Signals AB (Polar.sh) als Merchant of Record. Der Verkauf, die Abrechnung sowie alle damit verbundenen gesetzlichen Informationspflichten – einschließlich Widerrufsbelehrung und Verbraucherschutzhinweisen – werden vollständig durch Polar.sh im Rahmen des Checkout-Prozesses übernommen. Es gelten ergänzend die Verkaufsbedingungen von Polar.sh.",
-          "(2) Der Vertrag über das Abonnement kommt zustande, sobald der Nutzer den Zahlungsprozess bei Polar.sh erfolgreich abgeschlossen hat.",
+          "(1) Der Erwerb von Abos erfolgt über Polar Signals AB (Polar.sh) als Merchant of Record. Der Verkauf, die Abrechnung sowie alle damit verbundenen gesetzlichen Informationspflichten – einschließlich Widerrufsbelehrung und Verbraucherschutzhinweisen – werden vollständig durch Polar.sh im Rahmen des Checkout-Prozesses übernommen. Es gelten ergänzend die Verkaufsbedingungen von Polar.sh.",
+          "(2) Der Vertrag über das Abo kommt zustande, sobald der Nutzer den Zahlungsprozess bei Polar.sh erfolgreich abgeschlossen hat.",
           "(3) Vor dem Kauf ist die ausdrückliche Zustimmung zu diesen AGB durch Aktivierung der entsprechenden Checkbox erforderlich. Ohne diese Zustimmung ist ein Kauf nicht möglich."
         ],
         "terminationTitle": "4. Laufzeit und Kündigung",
         "terminationParagraphs": [
-          "(1) Abonnements haben eine monatliche Laufzeit.",
+          "(1) Abos haben eine monatliche Laufzeit.",
           "(2) Eine Kündigung ist jederzeit ohne Einhaltung einer Frist zum Ende des bezahlten Zeitraums möglich.",
           "(3) Nach der Kündigung bleiben die Pro-Funktionen bis zum Ablauf des bereits bezahlten Zeitraums vollumfänglich erhalten. Eine Rückerstattung bereits gezahlter Beträge erfolgt nicht."
         ],
@@ -1071,7 +1071,7 @@
     "modes": {
       "conversionTitle": "Gewinnführung (Finish Him): ",
       "conversion": "Meistere die Kunst, gewonnene Stellungen zu gewinnen. Beweise deinen Vorteil gegen Elite-Engines bis zum Matt oder zur klaren Aufgabe.",
-      "automaticTacticalTrainerTitle": "Diamond Hunter (Suche nach !!): ",
+      "automaticTacticalTrainerTitle": "Brilliante (Suche nach !!): ",
       "automaticTacticalTrainer": "Unser Flaggschiff-Modus. Verwandle das Entdecken brillanter Züge in eine wiederholbare Fähigkeit. Nutze Gravity Maps, um 'Diamanten' zu finden, Fehler zu widerlegen und Erfolge zu sichern.",
       "botSelectionTitle": "Engine & KI Intelligenz: ",
       "botSelectionIntro": "Wähle deinen Sparringspartner basierend auf deinen Trainingszielen:",

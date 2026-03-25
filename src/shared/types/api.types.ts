@@ -326,7 +326,7 @@ export interface ActivityPeriodStats {
   tornado: ActivityModeStats
   theory: ActivityModeStats
   'practical-chess': ActivityModeStats
-  repertoire: ActivityModeStats
+  rep_generator: ActivityModeStats
   'diamond-hunter': ActivityModeStats
   'opening-sparring': ActivityModeStats
   speedrun?: ActivityModeStats

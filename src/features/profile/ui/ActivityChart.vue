@@ -16,9 +16,15 @@ interface TooltipParam {
   axisValue: string
   value: number
   color: string
+  data: {
+    value: number
+    itemStyle: { color: string }
+    requested: number
+    cost: number
+  }
 }
 
-import type { PersonalActivityStatsResponse } from '@/shared/types/api.types'
+import type { ActivityPeriodStats, PersonalActivityStatsResponse } from '@/shared/types/api.types'
 
 const props = defineProps<{
   stats: PersonalActivityStatsResponse | null | undefined
@@ -30,13 +36,6 @@ const { t } = useI18n()
 // Local state for the selected period tab
 const selectedActivityPeriod = ref<ActivityPeriod>('daily')
 
-const modeColors = {
-  finish_him: { solved: '#42b883', requested: 'rgba(66, 184, 131, 0.2)' },
-  tornado: { solved: '#f39c12', requested: 'rgba(243, 156, 18, 0.2)' },
-  theory: { solved: '#9b59b6', requested: 'rgba(155, 89, 182, 0.2)' },
-  'practical-chess': { solved: '#3498db', requested: 'rgba(52, 152, 219, 0.2)' },
-}
-
 const handlePeriodChange = (period: string) => {
   selectedActivityPeriod.value = period as ActivityPeriod
 }
@@ -44,13 +43,17 @@ const handlePeriodChange = (period: string) => {
 const chartOption = computed(() => {
   if (!props.stats) return {}
 
-  const periodData = props.stats[selectedActivityPeriod.value]
+  const periodData = props.stats[selectedActivityPeriod.value] as ActivityPeriodStats
 
   const modes = [
-    { key: 'theory', name: t('features.userCabinet.stats.modes.theory') },
-    { key: 'tornado', name: t('nav.tornado') },
-    { key: 'finish_him', name: t('nav.finishHim') },
-    { key: 'practical-chess', name: t('features.leaderboards.titles.practicalLeaderboard') },
+    { key: 'theory', name: t('nav.theoryEndgames'), cost: 5, color: '#9b59b6' },
+    { key: 'tornado', name: t('nav.tornado'), cost: 10, color: '#f39c12' },
+    { key: 'finish_him', name: t('nav.finishHim'), cost: 10, color: '#42b883' },
+    { key: 'practical-chess', name: t('nav.practicalChess'), cost: 5, color: '#3498db' },
+    { key: 'rep_generator', name: t('features.study.repertoireGenerator.title'), cost: 50, color: '#e74c3c' },
+    { key: 'diamond-hunter', name: t('nav.diamondHunter'), cost: 25, color: '#1abc9c' },
+    { key: 'opening-sparring', name: t('nav.openingExam'), cost: 25, color: '#e67e22' },
+    { key: 'speedrun', name: t('nav.speedrun'), cost: 25, color: '#8e44ad' },
   ] as const
 
   return {
@@ -63,24 +66,22 @@ const chartOption = computed(() => {
       textStyle: { color: '#CCCCCC' },
       formatter: (params: unknown) => {
         const p = params as TooltipParam[]
-        if (!p || !p[0] || !p[1]) return ''
+        if (!p || !p[0]) return ''
         const modeName = p[0].axisValue
-        const solved = p[0].value
-        const remaining = p[1].value
-        const total = solved + remaining
+        const spent = p[0].value
+        const color = p[0].color
+        const requested = p[0].data.requested
+        const cost = p[0].data.cost
 
         return `<div style="padding: 4px; min-width: 140px;">
                   <b style="color: #FFFFFF; display: block; margin-bottom: 8px; border-bottom: 1px solid #5A5A5A; padding-bottom: 4px;">${modeName}</b>
                   <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                    <span style="color: ${p[0].color}; font-weight: bold;">${t('features.leaderboards.table.solved')}:</span>
-                    <span style="color: #FFF; margin-left: 12px;">${solved}</span>
+                    <span style="color: #888;">${modeName}:</span>
+                    <span style="color: #FFF; margin-left: 12px;">${requested}x${cost}</span>
                   </div>
                   <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-                    <span style="color: #888; font-weight: bold;">${t('features.leaderboards.table.requested')}:</span>
-                    <span style="color: #FFF; margin-left: 12px;">${total}</span>
-                  </div>
-                  <div style="margin-top: 8px; border-top: 1px solid #5A5A5A; padding-top: 4px; text-align: right;">
-                    <b style="color: var(--color-accent-success)">${total > 0 ? Math.round((solved / total) * 100) : 0}% Accuracy</b>
+                    <span style="color: ${color}; font-weight: bold;">PawnCoins:</span>
+                    <span style="color: #FFF; margin-left: 12px; font-weight: bold;">${spent}</span>
                   </div>
                 </div>`
       },
@@ -104,36 +105,28 @@ const chartOption = computed(() => {
       data: modes.map((m) => m.name),
       axisLabel: {
         color: '#CCC',
-        fontSize: 13,
+        fontSize: 12,
         fontWeight: 'bold',
+        interval: 0,
       },
       axisLine: { show: false },
       axisTick: { show: false },
     },
     series: [
       {
-        name: t('features.leaderboards.table.solved'),
+        name: 'PawnCoins',
         type: 'bar',
-        stack: 'total',
-        barWidth: 35,
-        data: modes.map((m) => ({
-          value: periodData?.[m.key]?.puzzles_solved || 0,
-          itemStyle: { color: modeColors[m.key].solved },
-        })),
-      },
-      {
-        name: t('features.leaderboards.table.requested'),
-        type: 'bar',
-        stack: 'total',
-        data: modes.map((m) => ({
-          value: Math.max(
-            0,
-            (periodData?.[m.key]?.puzzles_requested || 0) -
-              (periodData?.[m.key]?.puzzles_solved || 0),
-          ),
-          itemStyle: { color: modeColors[m.key].requested },
-        })),
-      },
+        barWidth: 20,
+        data: modes.map((m) => {
+          const requested = (periodData as ActivityPeriodStats)?.[m.key as keyof ActivityPeriodStats]?.puzzles_requested || 0
+          return {
+            value: requested * m.cost,
+            itemStyle: { color: m.color },
+            requested: requested,
+            cost: m.cost
+          }
+        }),
+      }
     ],
   }
 })
@@ -191,7 +184,7 @@ const chartOption = computed(() => {
 }
 
 .chart-container {
-  height: 220px;
+  height: 380px;
   width: 100%;
 }
 
@@ -213,7 +206,7 @@ const chartOption = computed(() => {
     width: 100%;
   }
   .chart-container {
-    height: 160px;
+    height: 340px;
   }
 }
 </style>
