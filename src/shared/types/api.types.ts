@@ -294,6 +294,7 @@ export interface SolvedByMode {
   theory: number
   'practical-chess': number
   tacticalTrainer?: number
+  speedrun?: number
 }
 
 export interface OverallSolvedLeaderboardEntry {
@@ -328,6 +329,7 @@ export interface ActivityPeriodStats {
   repertoire: ActivityModeStats
   'diamond-hunter': ActivityModeStats
   'opening-sparring': ActivityModeStats
+  speedrun?: ActivityModeStats
 }
 
 export interface PersonalActivityStatsResponse {

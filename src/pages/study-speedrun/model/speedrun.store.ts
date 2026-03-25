@@ -5,10 +5,14 @@ import { pgnService } from '@/shared/lib/pgn/PgnService'
 import type { Color as ChessgroundColor } from '@lichess-org/chessground/types'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
+import { apiClient } from '@/shared/api/client'
+import { useAuthStore } from '@/entities/user'
+import type { UserStatsUpdate } from '@/shared/types/api.types'
 
 export const useSpeedrunStore = defineStore('speedrun', () => {
   const gameStore = useGameStore()
   const studyStore = useStudyStore()
+  const authStore = useAuthStore()
   
   const chaptersToPlay = ref<StudyChapter[]>([])
   const currentChapterIndex = ref(0)
@@ -165,13 +169,30 @@ export const useSpeedrunStore = defineStore('speedrun', () => {
     playCurrentChapter()
   }
 
-  function startSpeedrun(chapters: StudyChapter[]) {
-    chaptersToPlay.value = chapters
-    currentChapterIndex.value = 0
-    isPlaying.value = true
-    isFinished.value = false
-    chapterTimes.value = {}
-    playCurrentChapter()
+  async function startSpeedrun(chapters: StudyChapter[]) {
+    try {
+      // 1. Charge PawnCoins on Server
+      const response = await apiClient<{ userStatsUpdate: UserStatsUpdate }>('/speedrun/start', {
+        method: 'POST',
+        body: JSON.stringify({ subMode: 'study' })
+      })
+
+      // 2. Update user stats in global store
+      if (response.userStatsUpdate) {
+        authStore.updateUserStats(response.userStatsUpdate)
+      }
+
+      // 3. Initialize local state
+      chaptersToPlay.value = chapters
+      currentChapterIndex.value = 0
+      isPlaying.value = true
+      isFinished.value = false
+      chapterTimes.value = {}
+      playCurrentChapter()
+    } catch (error) {
+      console.error('[SpeedrunStore] Failed to start speedrun:', error)
+      throw error // Re-throw to handle in UI (e.g. show InsufficientPawnCoins error)
+    }
   }
 
   function quitSpeedrun() {
