@@ -472,9 +472,7 @@
     },
     "pricing": {
       "title": "Abos & Preise",
-      "intro": {
-        "p1": "Willkommen auf der Infoseite zu unserem zukünftigen Abosystem. Die offene Testphase ist aktiv."
-      },
+
       "repertoireGenerator": "Repertoire Generator",
       "upgrade": {
         "title": "Abo Upgrade",

@@ -271,11 +271,7 @@ const handleCheckout = async (tier: SubscriptionTier) => {
           <n-text style="color: var(--neon-cyan)">{{ t('features.pricing.title') }}</n-text>
         </n-h1>
 
-        <n-alert type="info" :bordered="false" class="intro-alert">
-          <n-text depth="2">
-            {{ t('features.pricing.intro.p1') }}
-          </n-text>
-        </n-alert>
+
 
         <n-divider title-placement="left">
           <n-h2 prefix="bar" align-text type="success">
@@ -516,12 +512,7 @@ const handleCheckout = async (tier: SubscriptionTier) => {
   text-transform: uppercase;
 }
 
-.intro-alert {
-  background-color: var(--glass-bg) !important;
-  backdrop-filter: var(--glass-blur);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--panel-border-radius);
-}
+
 
 .tier-card {
   height: 100%;
