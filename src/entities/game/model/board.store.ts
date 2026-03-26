@@ -1,6 +1,6 @@
 // src/stores/board.store.ts
 import logger from '@/shared/lib/logger'
-import { pgnService, type PgnNode } from '@/shared/lib/pgn/PgnService'
+import { pgnService, type PgnNode, NAG_MAPPING } from '@/shared/lib/pgn/PgnService'
 import { pgnParserService } from '@/shared/lib/pgn/PgnParserService'
 import { soundService } from '@/shared/lib/sound.service'
 import type { DrawShape } from '@lichess-org/chessground/draw'
@@ -81,6 +81,17 @@ export const useBoardStore = defineStore('board', () => {
           square: lastPgnMove.uci ? (lastPgnMove.uci.slice(2, 4) as Key) : ('a1' as Key),
           nag: meta.nag,
           quality: meta.quality || 'good',
+        }
+      } else if (lastPgnMove.nag) {
+        const mapping = NAG_MAPPING[lastPgnMove.nag]
+        if (mapping) {
+          lastNag.value = {
+            square: lastPgnMove.uci ? (lastPgnMove.uci.slice(2, 4) as Key) : ('a1' as Key),
+            nag: mapping.symbol,
+            quality: mapping.quality,
+          }
+        } else {
+          lastNag.value = null
         }
       } else {
         lastNag.value = null

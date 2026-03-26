@@ -16,6 +16,15 @@ export interface DrawShape {
   }
 }
 
+export const NAG_MAPPING: Record<number, { symbol: string; quality: string }> = {
+  1: { symbol: '!', quality: 'best' },
+  2: { symbol: '?', quality: 'mistake' },
+  3: { symbol: '!!', quality: 'brilliant' },
+  4: { symbol: '??', quality: 'blunder' },
+  5: { symbol: '!?', quality: 'interesting' },
+  6: { symbol: '?!', quality: 'inaccuracy' },
+}
+
 export interface PgnNode {
   id: string
   ply: number

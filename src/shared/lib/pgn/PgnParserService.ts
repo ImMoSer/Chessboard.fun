@@ -82,13 +82,13 @@ export class PgnParserService {
     )
   }
 
-  private cleanComment(comment: string): string {
+  public cleanComment(comment: string): string {
     // Remove [%cal ...] and [%csl ...] from the visible comment text
     // Handle multiple occurrences and potential case differences
     return comment.replace(/\[%(cal|csl)\s+[^\]]*\]/gi, '').replace(/\s\s+/g, ' ').trim()
   }
 
-  private parseShapes(comment: string): DrawShape[] | undefined {
+  public parseShapes(comment: string): DrawShape[] | undefined {
     const shapes: DrawShape[] = []
     const brushMap: Record<string, string> = {
       G: 'green',
@@ -101,15 +101,20 @@ export class PgnParserService {
     const tagRegex = /\[%(cal|csl)\s+([^\]]*)\]/gi
     let match
     while ((match = tagRegex.exec(comment)) !== null) {
-      const type = match[1].toLowerCase()
+      const type = match[1]?.toLowerCase()
       const content = match[2]
+      if (!type || content === undefined) continue
+
       const items = content.split(',')
       
       for (const item of items) {
         const trimmed = item.trim()
         if (trimmed.length < 3) continue
         
-        const brush = brushMap[trimmed[0].toUpperCase()]
+        const key = trimmed[0]?.toUpperCase()
+        if (!key) continue
+        
+        const brush = brushMap[key]
         if (!brush) continue
 
         if (type === 'cal' && trimmed.length >= 5) {
