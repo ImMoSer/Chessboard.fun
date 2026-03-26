@@ -199,15 +199,29 @@ const showCommentModal = ref(false)
 const commentText = ref('')
 
 const openCommentModal = () => {
-  commentText.value = props.node.comment || ''
+  // Show only text to the user
+  commentText.value = pgnService.getCleanComment(props.node.comment || '')
   showCommentModal.value = true
 }
 
 const saveComment = () => {
-  pgnService.updateNode(props.node, { comment: commentText.value })
+  // Take current user text and re-append existing tags from the raw node comment
+  const currentComment = props.node.comment || ''
+  const tagMatch = currentComment.match(/\[%(cal|csl)\s+[^\]]*\]/gi)
+  const tags = tagMatch ? tagMatch.join(' ') : ''
+  
+  const finalComment = tags 
+    ? (commentText.value ? `${commentText.value} ${tags}` : tags)
+    : commentText.value
+    
+  pgnService.updateNode(props.node, { comment: finalComment })
 }
 
 // --- comment parsing ---
+const hasShapes = computed(() => {
+  return props.node.comment?.includes('[%cal') || props.node.comment?.includes('[%csl')
+})
+
 const parsedComment = computed(() => {
   if (!props.node.comment) return null
   const comment = props.node.comment
@@ -217,7 +231,7 @@ const parsedComment = computed(() => {
   // Look for P:... (Opponent moves)
   const probMatch = comment.match(/P:(\d+)%/)
 
-  let cleanComment = comment
+  let cleanComment = pgnService.getCleanComment(comment)
   if (statsMatch) cleanComment = cleanComment.replace(statsMatch[0], '').trim()
   if (probMatch) cleanComment = cleanComment.replace(probMatch[0], '').trim()
 
@@ -308,6 +322,8 @@ export default {
           :title="node.comment"
           >💬</span
         >
+
+        <span v-if="hasShapes" class="shape-indicator" title="Markers (Arrows/Circles)">🎨</span>
 
         <span v-if="node.eval !== undefined" class="eval-tag" :class="getEvalClass(node.eval)">
           {{ formatEval(node.eval) }}
@@ -492,6 +508,11 @@ export default {
 .comment-indicator {
   font-size: 0.8em;
   opacity: 0.7;
+}
+
+.shape-indicator {
+  font-size: 0.8em;
+  opacity: 0.9;
 }
 
 .nag-text {

@@ -1,7 +1,6 @@
 // src/stores/board.store.ts
 import logger from '@/shared/lib/logger'
 import { pgnService, type PgnNode, NAG_MAPPING } from '@/shared/lib/pgn/PgnService'
-import { pgnParserService } from '@/shared/lib/pgn/PgnParserService'
 import { soundService } from '@/shared/lib/sound.service'
 import type { DrawShape } from '@lichess-org/chessground/draw'
 import type {
@@ -95,16 +94,6 @@ export const useBoardStore = defineStore('board', () => {
         }
       } else {
         lastNag.value = null
-      }
-
-      // Late extraction for already existing data or dynamic updates
-      if (lastPgnMove.comment && (lastPgnMove.comment.includes('[%cal') || lastPgnMove.comment.includes('[%csl'))) {
-        const shapes = pgnParserService.parseShapes(lastPgnMove.comment)
-        if (shapes) {
-           // Combine with existing shapes and clean up comment
-           lastPgnMove.shapes = [...(lastPgnMove.shapes || []), ...shapes]
-           lastPgnMove.comment = pgnParserService.cleanComment(lastPgnMove.comment)
-        }
       }
 
       // Sync shapes (arrows and squares)
@@ -397,6 +386,12 @@ export const useBoardStore = defineStore('board', () => {
 
   function setDrawableShapes(shapes: DrawShape[]) {
     drawableShapes.value = shapes
+    
+    // Sync to PGN comment
+    const currentNode = pgnService.getCurrentNode()
+    if (currentNode && currentNode.id !== '__ROOT__') {
+      pgnService.updateCommentShapes(currentNode, shapes as Parameters<typeof pgnService.updateCommentShapes>[1])
+    }
   }
 
   function setLastNag(marker: NagMarker | null) {

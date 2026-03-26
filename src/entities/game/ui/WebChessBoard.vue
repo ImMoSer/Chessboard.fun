@@ -36,6 +36,7 @@ const emit = defineEmits<{
   (e: 'unset-premove'): void
   (e: 'complete-promotion', role: ChessopsRole): void
   (e: 'wheel-navigate', direction: 'up' | 'down'): void
+  (e: 'shapes-change', shapes: DrawShape[]): void
 }>()
 
 const chessboardRef = ref<HTMLElement | null>(null)
@@ -124,6 +125,9 @@ onMounted(() => {
       drawable: {
         enabled: true,
         shapes: props.drawableShapes,
+        onChange: (shapes) => {
+          emit('shapes-change', shapes as DrawShape[])
+        },
       },
     }
     ground.value = Chessground(chessboardRef.value, config)

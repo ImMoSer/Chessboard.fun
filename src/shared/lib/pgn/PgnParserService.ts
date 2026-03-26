@@ -177,7 +177,7 @@ export class PgnParserService {
       } else if (token.startsWith('{')) {
         if (currentNode !== root) {
           const comment = token.substring(1, token.length - 1).trim()
-          currentNode.comment = this.cleanComment(comment)
+          currentNode.comment = comment
           currentNode.shapes = this.parseShapes(comment)
         }
       } else if (token.startsWith('$')) {

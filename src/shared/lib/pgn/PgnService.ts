@@ -16,6 +16,13 @@ export interface DrawShape {
   }
 }
 
+const BRUSH_TO_LICHESS: Record<string, string> = {
+  green: 'G',
+  red: 'R',
+  blue: 'B',
+  yellow: 'Y',
+}
+
 export const NAG_MAPPING: Record<number, { symbol: string; quality: string }> = {
   1: { symbol: '!', quality: 'best' },
   2: { symbol: '?', quality: 'mistake' },
@@ -570,15 +577,49 @@ class PgnServiceController {
 
   public updateNode(
     node: PgnNode,
-    data: Partial<Pick<PgnNode, 'comment' | 'eval' | 'nag' | 'metadata'>>,
+    data: Partial<Pick<PgnNode, 'comment' | 'eval' | 'nag' | 'metadata' | 'shapes'>>,
   ): void {
     if (data.comment !== undefined) node.comment = data.comment
     if (data.eval !== undefined) node.eval = data.eval
     if (data.nag !== undefined) node.nag = data.nag
+    if (data.shapes !== undefined) node.shapes = data.shapes
     if (data.metadata !== undefined) {
       node.metadata = { ...node.metadata, ...data.metadata }
     }
     treeVersion.value++
+  }
+
+  public updateCommentShapes(node: PgnNode, shapes: DrawShape[]): void {
+    node.shapes = shapes
+    const cleanComment = this.getCleanComment(node.comment || '')
+    const tags = this.formatShapesToTags(shapes)
+    node.comment = tags ? (cleanComment ? `${cleanComment} ${tags}` : tags) : cleanComment
+    treeVersion.value++
+  }
+
+  public getCleanComment(comment: string): string {
+    return comment.replace(/\[%(cal|csl)\s+[^\]]*\]/gi, '').replace(/\s\s+/g, ' ').trim()
+  }
+
+  private formatShapesToTags(shapes: DrawShape[]): string {
+    if (shapes.length === 0) return ''
+
+    const cals: string[] = []
+    const csls: string[] = []
+
+    for (const shape of shapes) {
+      const brushChar = BRUSH_TO_LICHESS[shape.brush || 'green'] || 'G'
+      if (shape.dest) {
+        cals.push(`${brushChar}${shape.orig}${shape.dest}`)
+      } else {
+        csls.push(`${brushChar}${shape.orig}`)
+      }
+    }
+
+    let result = ''
+    if (cals.length > 0) result += `[%cal ${cals.join(',')}]`
+    if (csls.length > 0) result += `[%csl ${csls.join(',')}]`
+    return result
   }
 
   public toggleNodeCollapse(node: PgnNode): void {

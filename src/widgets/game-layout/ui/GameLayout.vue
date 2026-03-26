@@ -111,6 +111,7 @@ onUnmounted(() => {
               @unset-premove="() => boardStore.clearPremove()"
               @complete-promotion="boardStore.completePromotion"
               @wheel-navigate="handleBoardWheel"
+              @shapes-change="(shapes) => boardStore.setDrawableShapes(shapes)"
             />
             <!-- Center slot for overlays or additional content -->
             <div class="center-column-overlay">
