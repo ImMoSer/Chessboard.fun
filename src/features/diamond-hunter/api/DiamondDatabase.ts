@@ -1,73 +1,37 @@
-import Dexie, { type EntityTable } from 'dexie'
 
-export interface DiamondRecord {
-  id: number
-  diamondHash: string // The Zobrist Hash or FEN of the position *before* the blunder
-  fen: string // The full FEN string
-  pgn: string // The PGN/move list leading to this diamond
-  collectedAt: number // Timestamp (Date.now())
-}
-
-export interface BrilliantRecord {
-  id: number
-  hash: string
-  fen: string
-  pgn: string
-  collectedAt: number
-}
-
-class DiamondDatabase extends Dexie {
-  diamonds!: EntityTable<DiamondRecord, 'id'>
-  brilliants!: EntityTable<BrilliantRecord, 'id'>
-
-  constructor() {
-    super('DiamondDB')
-    this.version(1).stores({
-      diamonds: '++id, diamondHash, collectedAt',
-    })
-    this.version(2).stores({
-      diamonds: '++id, diamondHash, collectedAt',
-      brilliants: '++id, hash, collectedAt',
-    })
-  }
-}
-
-export const db = new DiamondDatabase()
+import { diamondRepository } from '@/shared/api/storage/repositories/DiamondRepository'
 
 export async function checkDiamondLimit(hash: string): Promise<boolean> {
-  const startOfDay = new Date()
-  startOfDay.setHours(0, 0, 0, 0)
-
-  const count = await db.diamonds
-    .where('diamondHash')
-    .equals(hash)
-    .and((r) => r.collectedAt > startOfDay.getTime())
-    .count()
-
+  const count = await diamondRepository.getDiamondCountForHashToday(hash)
   return count < 2
 }
 
-export async function recordDiamond(hash: string, fen: string, pgn: string): Promise<void> {
-  await db.diamonds.add({
-    diamondHash: hash,
-    fen,
-    pgn,
-    collectedAt: Date.now(),
-  } as DiamondRecord)
+export async function getDiamondsCount(): Promise<number> {
+  return await diamondRepository.getDiamondCount()
 }
 
-export async function recordBrilliant(hash: string, fen: string, pgn: string): Promise<void> {
-  await db.brilliants.add({
+export async function getBrilliantsCount(): Promise<number> {
+  return await diamondRepository.getBrilliantCount()
+}
+
+export async function recordDiamond(hash: string, fen: string, pgn: string): Promise<void> {
+  await diamondRepository.addDiamond({
     hash,
     fen,
     pgn,
-    collectedAt: Date.now(),
-  } as BrilliantRecord)
+    collected_at: Date.now(),
+  })
+}
+
+export async function recordBrilliant(hash: string, fen: string, pgn: string): Promise<void> {
+  await diamondRepository.addBrilliant({
+    hash,
+    fen,
+    pgn,
+    collected_at: Date.now(),
+  })
 }
 
 export async function removeLastBrilliant(): Promise<void> {
-  const lastRecord = await db.brilliants.orderBy('collectedAt').last()
-  if (lastRecord?.id !== undefined) {
-    await db.brilliants.delete(lastRecord.id)
-  }
+  await diamondRepository.removeLastBrilliant()
 }

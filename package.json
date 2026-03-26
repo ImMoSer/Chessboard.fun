@@ -29,10 +29,10 @@
   "dependencies": {
     "@lichess-org/chessground": "^10.0.1",
     "@lichess-org/stockfish-web": "^0.2.3",
+    "@sqlite.org/sqlite-wasm": "3.51.2-build8",
     "@tanstack/vue-query": "^5.92.9",
     "@vicons/ionicons5": "^0.13.0",
     "chessops": "^0.15.0",
-    "dexie": "^4.3.0",
     "dompurify": "^3.3.1",
     "echarts": "^6.0.0",
     "naive-ui": "^2.43.2",

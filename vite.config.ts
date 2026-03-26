@@ -56,6 +56,18 @@ export default defineConfig(({ mode }) => {
             src: 'node_modules/stockfish/bin/stockfish-18-lite-single.wasm',
             dest: 'stockfish/single',
           },
+          {
+            src: 'node_modules/@sqlite.org/sqlite-wasm/dist/sqlite3.wasm',
+            dest: '',
+          },
+          {
+            src: 'node_modules/@sqlite.org/sqlite-wasm/dist/sqlite3-opfs-async-proxy.js',
+            dest: '',
+          },
+          {
+            src: 'node_modules/@sqlite.org/sqlite-wasm/dist/sqlite3-worker1.mjs',
+            dest: '',
+          },
         ],
       }),
 

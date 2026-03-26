@@ -3,6 +3,8 @@ import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { DEFAULT_NNUE_FILE } from '@/shared/config/engine.constants'
 import { changeLang } from '@/shared/config/i18n'
+import { databaseClient } from '@/shared/api/storage/DatabaseClient'
+import { authService } from '@/entities/user/api/AuthService'
 
 const emit = defineEmits<{
   (e: 'ready'): void
@@ -53,14 +55,14 @@ async function preloadAssets() {
   try {
     // 0. Environment Compatibility Check (Kill-Switch)
     // We require:
-    // - SharedArrayBuffer for Stockfish (WASM Multi-threading)
-    // - IndexedDB for local storage & state persistence
+    // - SharedArrayBuffer for Stockfish (WASM Multi-threading) & SQLite
+    // - OPFS (Origin Private File System) for local storage
     // - Cache API for ServiceWorker/Offline functionality
     const hasSharedArrayBuffer = typeof SharedArrayBuffer !== 'undefined'
-    const hasIndexedDB = !!window.indexedDB
+    const hasOPFS = typeof navigator.storage?.getDirectory === 'function'
     const hasCacheApi = 'caches' in window
 
-    if (!hasSharedArrayBuffer || !hasIndexedDB || !hasCacheApi) {
+    if (!hasSharedArrayBuffer || !hasOPFS || !hasCacheApi) {
       isWebview.value = true
       return // Stop loading, show incompatibility/webview block screen
     }
@@ -124,6 +126,17 @@ async function preloadAssets() {
           progress.value = Math.min(Math.round((currentLoaded / totalBytes.value) * 100), 99)
         }
       }
+    }
+
+    // 3. Database Initialization
+    progress.value = 95
+    try {
+      await databaseClient.init()
+      const userId = authService.getUserProfile()?.id || 'anon'
+      await databaseClient.openUserDb(userId)
+    } catch (dbError) {
+      console.error('Database initialization failed:', dbError)
+      throw new Error(`Database initialization failed: ${dbError instanceof Error ? dbError.message : String(dbError)}`)
     }
 
     // Finalize progress

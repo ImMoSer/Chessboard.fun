@@ -1,6 +1,7 @@
 import { useBoardStore } from '@/entities/game'
 import { useAuthStore } from '@/entities/user'
 import { studyPersistenceService } from '../api/StudyPersistenceService'
+import { settingsRepository } from '@/shared/api/storage/repositories/SettingsRepository'
 import { lichessSyncService } from '../api/LichessSyncService'
 import { pgnParserService } from '@/shared/lib/pgn/PgnParserService'
 import { pgnService, pgnTreeVersion, type PgnNode } from '@/shared/lib/pgn/PgnService'
@@ -83,22 +84,22 @@ export const useStudyStore = defineStore('study', () => {
       return
     }
 
-    const loadedChapters = await studyPersistenceService.getAllChapters(ownerId)
+    const loadedChapters = await studyPersistenceService.getAllChapters()
     if (loadedChapters.length > 0) {
       chapters.value = loadedChapters
     }
 
-    const loadedStudies = await studyPersistenceService.getAllStudies(ownerId)
+    const loadedStudies = await studyPersistenceService.getAllStudies()
     if (loadedStudies.length > 0) {
       studies.value = loadedStudies
     }
 
     if (chapters.value.length > 0) {
-      const lastId = localStorage.getItem(`lastActiveChapterId_${ownerId}`)
+      const lastId = await settingsRepository.getSetting<string | null>(`lastActiveChapterId_${ownerId}`, null)
       if (lastId && chapters.value.some((c) => c.id === lastId)) {
-        setActiveChapter(lastId)
+        await setActiveChapter(lastId)
       } else {
-        setActiveChapter(chapters.value[0]!.id)
+        await setActiveChapter(chapters.value[0]!.id)
       }
     }
 
@@ -192,8 +193,8 @@ export const useStudyStore = defineStore('study', () => {
     study.chapterIds.push(id)
 
     // Save immediately
-    await studyPersistenceService.saveChapter(newChapter, ownerId)
-    await studyPersistenceService.saveStudy(study, ownerId)
+    await studyPersistenceService.saveChapter(newChapter)
+    await studyPersistenceService.saveStudy(study)
 
     return id
   }
@@ -269,8 +270,8 @@ export const useStudyStore = defineStore('study', () => {
       chapters.value.push(newChapter)
       study.chapterIds.push(id)
 
-      await studyPersistenceService.saveChapter(newChapter, ownerId)
-      await studyPersistenceService.saveStudy(study, ownerId)
+      await studyPersistenceService.saveChapter(newChapter)
+      await studyPersistenceService.saveStudy(study)
 
       setActiveChapter(id)
       return id
@@ -310,12 +311,12 @@ export const useStudyStore = defineStore('study', () => {
         parentStudy = studies.value.find(s => s.id === chapterToDelete.studyId)
         if (parentStudy) {
           parentStudy.chapterIds = parentStudy.chapterIds.filter(cid => cid !== id)
-          await studyPersistenceService.saveStudy(parentStudy, ownerId)
+          await studyPersistenceService.saveStudy(parentStudy)
         }
       }
 
       chapters.value.splice(index, 1)
-      await studyPersistenceService.deleteChapter(id, ownerId)
+      await studyPersistenceService.deleteChapter(id)
 
       if (chapters.value.length === 0) {
         activeChapterId.value = null
@@ -353,17 +354,17 @@ export const useStudyStore = defineStore('study', () => {
       studies.value.splice(index, 1)
       // Delete associated chapters from both memory and DB
       chapters.value = chapters.value.filter(c => c.studyId !== id)
-      await studyPersistenceService.deleteChaptersByStudyId(id, ownerId)
+      await studyPersistenceService.deleteChaptersByStudyId(id)
       
-      await studyPersistenceService.deleteStudy(id, ownerId)
+      await studyPersistenceService.deleteStudy(id)
       
       if (activeChapterId.value && !chapters.value.some(c => c.id === activeChapterId.value)) {
-         setActiveChapter(chapters.value.length > 0 ? chapters.value[0]!.id : null)
+         await setActiveChapter(chapters.value.length > 0 ? chapters.value[0]!.id : null)
       }
     }
   }
 
-  function setActiveChapter(id: string | null) {
+  async function setActiveChapter(id: string | null) {
     const ownerId = currentOwnerId.value
     if (!ownerId) return
 
@@ -372,13 +373,13 @@ export const useStudyStore = defineStore('study', () => {
       const prev = chapters.value.find((c) => c.id === activeChapterId.value)
       if (prev) {
         prev.savedPath = pgnService.getCurrentPath()
-        studyPersistenceService.saveChapter(prev, ownerId)
+        await studyPersistenceService.saveChapter(prev)
       }
     }
 
     if (!id) {
        activeChapterId.value = null
-       localStorage.removeItem(`lastActiveChapterId_${ownerId}`)
+       await settingsRepository.deleteSetting(`lastActiveChapterId_${ownerId}`)
        return
     }
 
@@ -386,7 +387,7 @@ export const useStudyStore = defineStore('study', () => {
     const next = chapters.value.find((c) => c.id === id || c.lichessChapterId === id)
     if (next) {
       activeChapterId.value = next.id
-      localStorage.setItem(`lastActiveChapterId_${ownerId}`, next.id)
+      await settingsRepository.saveSetting(`lastActiveChapterId_${ownerId}`, next.id)
       pgnService.setRoot(next.root, next.savedPath)
       boardStore.syncBoardWithPgn()
 
@@ -408,7 +409,7 @@ export const useStudyStore = defineStore('study', () => {
     if (chapter) {
       if (metadata.name) chapter.name = metadata.name
       if (metadata.tags) chapter.tags = { ...chapter.tags, ...metadata.tags }
-      studyPersistenceService.saveChapter(chapter, ownerId)
+      studyPersistenceService.saveChapter(chapter)
     }
   }
 
@@ -460,7 +461,7 @@ export const useStudyStore = defineStore('study', () => {
       const existingStudyIndex = studies.value.findIndex(s => s.id === studyId)
       
       // Before importing, we must purge old chapters linked to this study ID from DB for THIS user
-      await studyPersistenceService.deleteChaptersByStudyId(studyId, ownerId)
+      await studyPersistenceService.deleteChaptersByStudyId(studyId)
 
       if (existingStudyIndex !== -1) {
         // Study exists - we update state
@@ -528,8 +529,8 @@ export const useStudyStore = defineStore('study', () => {
         if (i === 0) firstChapterId = chapterId
       }
 
-      await studyPersistenceService.saveChaptersBulk(parsedChapters, ownerId)
-      await studyPersistenceService.saveStudy(study, ownerId)
+      await studyPersistenceService.saveChaptersBulk(parsedChapters)
+      await studyPersistenceService.saveStudy(study)
 
       if (firstChapterId) {
         setActiveChapter(firstChapterId)
@@ -579,7 +580,7 @@ export const useStudyStore = defineStore('study', () => {
       )
 
       chapter.lichessChapterId = newLichessChapterId
-      await studyPersistenceService.saveChapter(chapter, ownerId)
+      await studyPersistenceService.saveChapter(chapter)
       return newLichessChapterId
     } catch (e) {
       console.error('Failed to publish chapter to Lichess', e)
@@ -634,7 +635,7 @@ export const useStudyStore = defineStore('study', () => {
 
       // Step 3: Update the local chapter reference
       chapter.lichessChapterId = newLichessChapterId
-      await studyPersistenceService.saveChapter(chapter, ownerId)
+      await studyPersistenceService.saveChapter(chapter)
 
     } catch (e) {
       console.error('Failed to push chapter to Lichess', e)
@@ -652,7 +653,7 @@ export const useStudyStore = defineStore('study', () => {
       if (activeChapter.value && ownerId) {
         // Update savedPath to current before saving
         activeChapter.value.savedPath = pgnService.getCurrentPath()
-        studyPersistenceService.saveChapter(activeChapter.value, ownerId)
+        studyPersistenceService.saveChapter(activeChapter.value)
       }
     },
     { deep: false },
@@ -676,7 +677,7 @@ export const useStudyStore = defineStore('study', () => {
     deleteStudy,
     saveStudy: (study: Study) => {
        const ownerId = currentOwnerId.value
-       if (ownerId) return studyPersistenceService.saveStudy(study, ownerId)
+       if (ownerId) return studyPersistenceService.saveStudy(study)
     },
     setActiveChapter,
     updateChapterMetadata,
@@ -704,7 +705,7 @@ export const useStudyStore = defineStore('study', () => {
       }
 
       // 3. Save
-      studyPersistenceService.saveChapter(chapter, ownerId)
+      studyPersistenceService.saveChapter(chapter)
       
       // If this is the active chapter, we need to refresh the pgnService to show the new nodes
       if (activeChapterId.value === chapterId) {

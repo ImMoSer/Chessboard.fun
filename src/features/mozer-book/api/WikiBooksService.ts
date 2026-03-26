@@ -1,7 +1,8 @@
+
 // src/services/WikiBooksService.ts
 import logger from '@/shared/lib/logger'
 import type { WikiApiResponse, WikiPageExtract } from '@/shared/types/wikibooks.types'
-import Dexie, { type Table } from 'dexie'
+import { globalCacheRepository } from '@/shared/api/storage/repositories/GlobalCacheRepository'
 
 // --- Slug Builder ---
 export class WikiUrlBuilder {
@@ -40,24 +41,6 @@ export class WikiUrlBuilder {
   }
 }
 
-// --- Database ---
-export interface WikiCacheEntry extends WikiPageExtract {
-  slug: string
-}
-
-class WikiBooksDatabase extends Dexie {
-  wikiCache!: Table<WikiCacheEntry>
-
-  constructor() {
-    super('WikiBooksDatabase')
-    this.version(1).stores({
-      wikiCache: 'slug, timestamp',
-    })
-  }
-}
-
-export const wikiDb = new WikiBooksDatabase()
-
 // --- API Service ---
 class WikiBooksApiService {
   private readonly BASE_URL = 'https://en.wikibooks.org/w/api.php'
@@ -66,14 +49,20 @@ class WikiBooksApiService {
   public async fetchTheory(slug: string): Promise<WikiPageExtract | null> {
     // 1. Check Cache
     try {
-      const cached = await wikiDb.wikiCache.get(slug)
+      const cached = await globalCacheRepository.getWikiContent(slug);
       if (
         cached &&
         Date.now() - cached.timestamp < this.CACHE_TTL &&
-        cached.extract &&
-        cached.extract.trim() !== ''
+        cached.content &&
+        cached.content.trim() !== ''
       ) {
-        return cached
+        return {
+            pageid: 0, // Not stored in SQLite, but we don't really use it
+            ns: 0,
+            title: slug,
+            extract: cached.content,
+            timestamp: cached.timestamp
+        };
       }
     } catch (err) {
       logger.error('[WikiBooksApiService] Cache read error:', err)
@@ -82,7 +71,7 @@ class WikiBooksApiService {
     // 2. Fetch from API
     try {
       const url = new URL(this.BASE_URL)
-      const params = {
+      const params: Record<string, string> = {
         action: 'query',
         format: 'json',
         prop: 'extracts',
@@ -122,7 +111,11 @@ class WikiBooksApiService {
       }
 
       // 3. Update Cache
-      await wikiDb.wikiCache.put({ ...result, slug })
+      await globalCacheRepository.saveWikiContent({
+          slug,
+          content: result.extract,
+          timestamp: result.timestamp
+      });
 
       return result
     } catch (err) {

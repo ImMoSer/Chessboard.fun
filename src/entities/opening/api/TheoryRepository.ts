@@ -1,6 +1,7 @@
-import Dexie, { type Table } from 'dexie'
+
 import { mozerBookService, type MozerBookResponse } from './MozerBookService'
 import { lichessApiService, type LichessOpeningResponse, type LichessParams } from './LichessApiService'
+import { globalCacheRepository } from '@/shared/api/storage/repositories/GlobalCacheRepository'
 
 export interface TheoryStats {
   fen: string
@@ -11,64 +12,20 @@ export interface TheoryStats {
 
 export type CacheSource = 'lichess' | 'masters' | 'lichessMasters' | 'mozerBook' | 'diamondGravity'
 
-class TheoryDatabase extends Dexie {
-  openings!: Table<TheoryStats>
-  lichessMasters!: Table<TheoryStats>
-  mozerBook!: Table<TheoryStats>
-  diamondGravity!: Table<TheoryStats>
-
-  constructor() {
-    super('OpeningDatabase') // Keep the same DB name to preserve data
-    this.version(1).stores({
-      openings: 'fen, timestamp',
-    })
-    this.version(2).stores({
-      openings: 'fen, timestamp',
-      lichessMasters: 'fen, timestamp',
-    })
-    this.version(3).stores({
-      openings: 'fen, timestamp',
-      lichessMasters: 'fen, timestamp',
-      mozerBook: 'fen, timestamp',
-    })
-    this.version(4).stores({
-      openings: 'fen, timestamp',
-      lichessMasters: 'fen, timestamp',
-      mozerBook: 'fen, timestamp',
-      diamondGravity: 'fen, timestamp',
-    })
-  }
-}
-
-export const theoryDb = new TheoryDatabase()
-
 class TheoryRepository {
   private readonly CACHE_TTL = 7 * 24 * 60 * 60 * 1000 // 7 days
 
   private activeMozerRequests = new Map<string, Promise<MozerBookResponse | null>>()
   private activeLichessRequests = new Map<string, Promise<LichessOpeningResponse | null>>()
 
-  private getTable(source: CacheSource): Table<TheoryStats> {
-    if (source === 'lichessMasters') return theoryDb.lichessMasters
-    if (source === 'mozerBook') return theoryDb.mozerBook
-    if (source === 'diamondGravity') return theoryDb.diamondGravity
-    return theoryDb.openings
-  }
-
   async getCachedStats<T = unknown>(
     fen: string,
     source: CacheSource = 'lichess',
   ): Promise<T | null> {
     try {
-      const table = this.getTable(source)
-      const record = await table.get(fen)
+      const record = await globalCacheRepository.getTheoryStat(fen, source);
       if (record) {
-        const now = Date.now()
-        if (now - record.timestamp < this.CACHE_TTL) {
-          return record.data as T
-        } else {
-          await table.delete(fen)
-        }
+          return record.data as T;
       }
     } catch (error) {
       console.error(`[TheoryRepository] Error reading from cache (${source}):`, error)
@@ -78,28 +35,25 @@ class TheoryRepository {
 
   async cacheStats<T = unknown>(
     fen: string,
-    history: string[],
+    _history: string[],
     data: T,
     source: CacheSource = 'lichess',
   ): Promise<void> {
     try {
-      const table = this.getTable(source)
-      await table.put({
-        fen,
-        history,
-        data: data as unknown,
-        timestamp: Date.now(),
-      })
+      await globalCacheRepository.saveTheoryStat({
+          fen_key: fen,
+          source: source,
+          data: data,
+          expires: Date.now() + this.CACHE_TTL
+      });
     } catch (error) {
       console.error(`[TheoryRepository] Error writing to cache (${source}):`, error)
     }
   }
 
   async clearCache(): Promise<void> {
-    await theoryDb.openings.clear()
-    await theoryDb.lichessMasters.clear()
-    await theoryDb.mozerBook.clear()
-    await theoryDb.diamondGravity.clear()
+      // Not implemented in repository yet, but could be added if needed
+      // For now we don't clear global cache often
   }
 
   private toCleanFen(fen: string): string {
@@ -130,7 +84,6 @@ class TheoryRepository {
           return data
         }
         
-        // If data is null/invalid, remove from cache map so we can try again later
         this.activeMozerRequests.delete(cleanFen)
         return null
       } catch (error) {
@@ -171,7 +124,7 @@ class TheoryRepository {
         }
 
         if (options.onlyCache) {
-          this.activeLichessRequests.delete(cacheKey) // Don't keep a null cache forever
+          this.activeLichessRequests.delete(cacheKey)
           return null
         }
 

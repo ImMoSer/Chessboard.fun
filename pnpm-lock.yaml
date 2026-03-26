@@ -14,6 +14,9 @@ importers:
       '@lichess-org/stockfish-web':
         specifier: ^0.2.3
         version: 0.2.3
+      '@sqlite.org/sqlite-wasm':
+        specifier: 3.51.2-build8
+        version: 3.51.2-build8
       '@tanstack/vue-query':
         specifier: ^5.92.9
         version: 5.92.9(vue@3.5.27(typescript@5.9.3))
@@ -23,9 +26,6 @@ importers:
       chessops:
         specifier: ^0.15.0
         version: 0.15.0
-      dexie:
-        specifier: ^4.3.0
-        version: 4.3.0
       dompurify:
         specifier: ^3.3.1
         version: 3.3.1
@@ -867,6 +867,10 @@ packages:
   '@rtsao/scc@1.1.0':
     resolution: {integrity: sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==}
 
+  '@sqlite.org/sqlite-wasm@3.51.2-build8':
+    resolution: {integrity: sha512-NvWLTgbqGu1XOLKxePE5Jvc5bzy6QACAQLURQnumSFm0hQms09r2rjMp5i1rvh1DXCe5Rx1FEGcEeQ9BnBB2+Q==}
+    engines: {node: '>=22'}
+
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
 
@@ -1532,9 +1536,6 @@ packages:
   detect-libc@2.1.2:
     resolution: {integrity: sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ==}
     engines: {node: '>=8'}
-
-  dexie@4.3.0:
-    resolution: {integrity: sha512-5EeoQpJvMKHe6zWt/FSIIuRa3CWlZeIl6zKXt+Lz7BU6RoRRLgX9dZEynRfXrkLcldKYCBiz7xekTEylnie1Ug==}
 
   doctrine@2.1.0:
     resolution: {integrity: sha512-35mSku4ZXK0vfCuHEDAwt55dg2jNajHZ1odvF+8SSr82EsZY4QmXfuWso8oEd8zRhVObSN18aM0CjSdoBX7zIw==}
@@ -3757,6 +3758,8 @@ snapshots:
 
   '@rtsao/scc@1.1.0': {}
 
+  '@sqlite.org/sqlite-wasm@3.51.2-build8': {}
+
   '@standard-schema/spec@1.1.0': {}
 
   '@tanstack/match-sorter-utils@8.19.4':
@@ -4500,8 +4503,6 @@ snapshots:
 
   detect-libc@2.1.2:
     optional: true
-
-  dexie@4.3.0: {}
 
   doctrine@2.1.0:
     dependencies:

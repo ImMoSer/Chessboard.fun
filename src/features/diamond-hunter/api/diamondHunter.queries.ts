@@ -1,6 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { diamondApiService, type GravityMove } from './DiamondApiService'
-import { checkDiamondLimit, db, recordBrilliant, recordDiamond, removeLastBrilliant } from './DiamondDatabase'
+import {
+  checkDiamondLimit,
+  getBrilliantsCount,
+  getDiamondsCount,
+  recordBrilliant,
+  recordDiamond,
+  removeLastBrilliant,
+} from './DiamondDatabase'
 
 const DIAMOND_HUNTER_KEYS = {
   all: ['diamond-hunter'] as const,
@@ -19,12 +26,12 @@ export function useDiamondHunterQueries() {
   // 1. Database Queries
   const diamondsCountQuery = useQuery({
     queryKey: DIAMOND_HUNTER_KEYS.db.diamondsCount(),
-    queryFn: () => db.diamonds.count(),
+    queryFn: () => getDiamondsCount(),
   })
 
   const brilliantsCountQuery = useQuery({
     queryKey: DIAMOND_HUNTER_KEYS.db.brilliantsCount(),
-    queryFn: () => db.brilliants.count(),
+    queryFn: () => getBrilliantsCount(),
   })
 
   // 2. Database Mutations
