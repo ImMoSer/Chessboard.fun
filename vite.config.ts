@@ -9,6 +9,8 @@ import { viteStaticCopy } from 'vite-plugin-static-copy'
 import VueDevTools from 'vite-plugin-vue-devtools'
 import { visualizer } from 'rollup-plugin-visualizer'
 import pkg from './package.json'
+import { writeFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 
 export default defineConfig(({ mode }) => {
   return {
@@ -73,6 +75,17 @@ export default defineConfig(({ mode }) => {
 
       ...(mode === 'development' ? [VueDevTools()] : []),
       visualizer({ open: false, filename: 'stats.html' }),
+      
+      // Auto-generate version.json for cache busting detection
+      {
+        name: 'generate-version-json',
+        apply: 'build',
+        closeBundle() {
+          const versionPath = resolve(__dirname, 'dist/version.json');
+          const data = { version: pkg.version, timestamp: Date.now() };
+          writeFileSync(versionPath, JSON.stringify(data, null, 2));
+        }
+      }
     ],
 
     resolve: {

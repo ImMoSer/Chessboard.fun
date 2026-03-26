@@ -8,6 +8,7 @@ import ConfirmationModal from '@/shared/ui/ConfirmationModal.vue'
 import GalaxyBackground from '@/shared/ui/visuals/GalaxyBackground.vue'
 import GlobalAssetLoader from './GlobalAssetLoader.vue'
 import { NavMenu } from '@/widgets/nav-menu'
+import AppUpdateNotifier from './ui/AppUpdateNotifier.vue'
 import { MenuOutline } from '@vicons/ionicons5'
 import { darkTheme, type GlobalThemeOverrides } from 'naive-ui'
 import { onMounted, onUnmounted, ref } from 'vue'
@@ -192,6 +193,7 @@ onUnmounted(() => {
 
           <ConfirmationModal />
           <LoginScopeModal />
+          <AppUpdateNotifier />
         </n-layout>
         <GalaxyBackground />
       </n-dialog-provider>
