@@ -125,12 +125,6 @@ onUnmounted(() => {
 
     <template #top-info>
       <div class="top-info-banner" v-if="speedrunStore.currentChapter && !speedrunStore.isFinished">
-        <div class="chapter-badge">
-          {{ t('features.speedrun.chapter') }} {{ speedrunStore.currentChapterIndex + 1 }}
-        </div>
-        
-        <NText class="chapter-name-banner" strong>{{ speedrunStore.currentChapter.name }}</NText>
-        
         <div class="target-badge" :class="targetClass">
            {{ targetText.toUpperCase() }}
         </div>
@@ -269,12 +263,12 @@ onUnmounted(() => {
 .top-info-banner {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 24px;
   background: rgba(0, 0, 0, 0.4);
-  padding: 6px 20px;
+  padding: 8px 24px;
   border-radius: 12px;
   border: 1px solid var(--glass-border);
-  min-width: 500px;
   backdrop-filter: blur(8px);
 }
 
@@ -327,9 +321,7 @@ onUnmounted(() => {
   font-weight: 800;
   color: var(--neon-yellow);
   font-size: 1.1rem;
-  margin-left: 20px;
-  min-width: 100px;
-  text-align: right;
+  min-width: 80px;
 }
 
 .speedrun-finished {
