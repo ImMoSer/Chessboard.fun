@@ -10,6 +10,8 @@ import {
   type WdlStats,
 } from './types'
 
+const STORAGE_KEY_THREADS = 'engine-threads-count'
+
 /**
  * Сервис, управляющий экземпляром МНОГОПОТОЧНОГО движка для анализа.
  * Если многопоточность не поддерживается, движок не будет загружен.
@@ -24,6 +26,8 @@ class MultiThreadEngineManagerController {
   private resolveInitPromise!: () => void
   private rejectInitPromise!: (reason?: unknown) => void
 
+  private currentThreads: number = 1
+  private preferredAnalysisThreads: number = 1
   private commandQueue: string[] = []
   private infiniteAnalysisCallback: AnalysisUpdateCallback | null = null
   private lastIsReadyTime: number = 0
@@ -34,6 +38,23 @@ class MultiThreadEngineManagerController {
 
   constructor() {
     logger.info('[MultiThreadEngineManager] Service created. Engine will be loaded on demand.')
+    this._loadSavedThreads()
+  }
+
+  private _loadSavedThreads() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY_THREADS)
+      if (saved) {
+        const count = parseInt(saved, 10)
+        if (!isNaN(count) && count >= 1) {
+          this.preferredAnalysisThreads = count
+          this.currentThreads = count
+          logger.info(`[MultiThreadEngineManager] Restored preferred threads: ${count}`)
+        }
+      }
+    } catch (e) {
+      logger.warn('[MultiThreadEngineManager] Failed to load saved threads.', e)
+    }
   }
 
   public async ensureReady(): Promise<void> {
@@ -133,6 +154,11 @@ class MultiThreadEngineManagerController {
       this.sendCommand(`setoption name EvalFile value ${DEFAULT_NNUE_FILE}`)
       this.sendCommand(`setoption name Hash value ${this.getOptimalHashSize()}`)
       this.sendCommand('setoption name UCI_ShowWDL value true')
+      
+      // Initialize with preferred threads (defaults to 1 if not saved)
+      this.sendCommand(`setoption name Threads value ${this.preferredAnalysisThreads}`)
+      this.currentThreads = this.preferredAnalysisThreads
+      
       this.sendCommand('isready')
     } else if (message === 'readyok') {
       const waitTime = performance.now() - (this.lastIsReadyTime || 0)
@@ -243,10 +269,54 @@ class MultiThreadEngineManagerController {
       await this.stopAnalysis()
     }
 
+    // Always respect the preferred/current setting. No automatic scaling to max.
+    if (this.currentThreads !== this.preferredAnalysisThreads) {
+      await this.setThreads(this.preferredAnalysisThreads)
+    }
+
     this.infiniteAnalysisCallback = callback
     this.isSearching = true
     this.sendCommand(`position fen ${fen}`)
     this.sendCommand('go infinite')
+  }
+
+  public async getBestMoveOnly(
+    fen: string,
+    options: { depth?: number; movetime?: number } = {},
+  ): Promise<string | null> {
+    await this.ensureReady()
+    if (!this.engine) return null
+
+    if (this.isSearching) {
+      await this.stopAnalysis()
+    }
+
+    // For simple gameplay moves (depth <= 10 or default), use 1 thread as requested
+    const useSingleThread = (options.depth || 10) <= 10
+    if (useSingleThread && this.currentThreads !== 1) {
+      await this.setThreads(1)
+    } else if (!useSingleThread && this.currentThreads !== this.preferredAnalysisThreads) {
+      await this.setThreads(this.preferredAnalysisThreads)
+    }
+
+    return new Promise((resolve) => {
+      const internalCallback = (_lines: EvaluatedLine[], bestMoveUci?: string | null) => {
+        if (bestMoveUci !== undefined && bestMoveUci !== null) {
+          this.infiniteAnalysisCallback = null
+          this.isSearching = false
+          resolve(bestMoveUci)
+        }
+      }
+
+      this.infiniteAnalysisCallback = internalCallback
+      this.isSearching = true
+
+      this.sendCommand(`position fen ${fen}`)
+      const goCommand = `go ${options.depth ? `depth ${options.depth}` : ''} ${
+        options.movetime ? `movetime ${options.movetime}` : ''
+      }`.trim()
+      this.sendCommand(goCommand || 'go depth 10')
+    })
   }
 
   public async startNewGame(): Promise<void> {
@@ -328,9 +398,20 @@ class MultiThreadEngineManagerController {
     this.sendCommand(`setoption name ${name} value ${value}`)
     await this.waitReady()
 
-    // Resume if we were searching (Note: startAnalysis expects caller to provide FEN,
-    // so resuming here is tricky. Usually, the Store handles orchestration.
-    // For now, we just ensure the option is set and engine is ready.)
+    if (name === 'Threads') {
+      const count = typeof value === 'string' ? parseInt(value, 10) : value
+      this.currentThreads = count
+      this.preferredAnalysisThreads = count
+      try {
+        localStorage.setItem(STORAGE_KEY_THREADS, String(count))
+      } catch (e) {
+        logger.warn('[MultiThreadEngineManager] Failed to save threads preference.', e)
+      }
+    }
+  }
+
+  public async setThreads(count: number): Promise<void> {
+    await this.setOption('Threads', count)
   }
 
   public isMultiThreadingSupported(): boolean {

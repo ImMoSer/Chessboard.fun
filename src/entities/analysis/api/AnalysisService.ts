@@ -1,9 +1,7 @@
-// src/services/AnalysisService.ts
 import {
   type AnalysisUpdateCallback,
   type EvaluatedLine,
   multiThreadEngineManager,
-  singleThreadEngineManager,
   type WdlStats,
 } from '@/shared/lib/engine'
 import logger from '@/shared/lib/logger'
@@ -22,10 +20,7 @@ export interface EvaluatedLineWithSan extends EvaluatedLine {
 }
 
 class AnalysisServiceController {
-  private activeEngineManager:
-    | typeof multiThreadEngineManager
-    | typeof singleThreadEngineManager
-    | null = null
+  private activeEngineManager: typeof multiThreadEngineManager | null = null
   private sanCache = new Map<
     string,
     { pvSan: string[]; initialFullMoveNumber: number; initialTurn: ChessopsColor }
@@ -39,15 +34,8 @@ class AnalysisServiceController {
     // Инициализация происходит один раз при старте приложения
     // Пытаемся инициализировать многопоточный движок (он сам проверит поддержку)
     await multiThreadEngineManager.ensureReady()
-
-    if (multiThreadEngineManager.isMultiThreadingSupported()) {
-      this.activeEngineManager = multiThreadEngineManager
-      logger.info(`[AnalysisService] Initialized with Multi-Threaded Engine (NNUE).`)
-    } else {
-      await singleThreadEngineManager.ensureReady()
-      this.activeEngineManager = singleThreadEngineManager
-      logger.info(`[AnalysisService] Initialized with Single-Threaded Engine fallback.`)
-    }
+    this.activeEngineManager = multiThreadEngineManager
+    logger.info(`[AnalysisService] Initialized with Multi-Threaded Engine (NNUE).`)
   }
 
   public isMultiThreadAvailable(): boolean {
@@ -95,14 +83,7 @@ class AnalysisServiceController {
       return []
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const manager = this.activeEngineManager as any
-    if (typeof manager.calculateFixedDepth !== 'function') {
-      logger.error('[AnalysisService] Manager does not support calculateFixedDepth')
-      return []
-    }
-
-    const lines = await manager.calculateFixedDepth(fen, depth, multiPV)
+    const lines = await this.activeEngineManager.calculateFixedDepth(fen, depth, multiPV)
     
     // Restore default MultiPV just in case (optional, but good practice)
     await this.activeEngineManager.setOption('MultiPV', 1)
@@ -125,11 +106,9 @@ class AnalysisServiceController {
   }
 
   public async setThreads(count: number) {
-    if (this.activeEngineManager === multiThreadEngineManager) {
-      await this.activeEngineManager.setOption('Threads', count)
+    if (this.activeEngineManager) {
+      await this.activeEngineManager.setThreads(count)
       logger.info(`[AnalysisService] Threads set to ${count}`)
-    } else {
-      logger.warn(`[AnalysisService] Cannot set threads for single-threaded engine.`)
     }
   }
 

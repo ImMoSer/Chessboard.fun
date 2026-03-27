@@ -45,7 +45,6 @@ const CACHE_NAME = 'stockfish-assets'
 const assetsToLoad = [
   `/stockfish/nnue/${DEFAULT_NNUE_FILE}`,
   '/stockfish/nnue/sf_18_smallnet.wasm',
-  '/stockfish/single/stockfish-18-lite-single.wasm',
 ]
 
 async function preloadAssets() {

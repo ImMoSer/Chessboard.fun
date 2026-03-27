@@ -1,5 +1,5 @@
 // src/services/GameplayService.ts
-import { serverEngineService, singleThreadEngineManager } from '@/shared/lib/engine'
+import { serverEngineService, multiThreadEngineManager } from '@/shared/lib/engine'
 import logger from '@/shared/lib/logger'
 import type { EngineId } from '@/shared/types/api.types'
 
@@ -45,7 +45,8 @@ class GameplayServiceController {
         `[GameplayService] Using local engine for ${engineId} with depth ${config.depth}`
       )
       try {
-        return await singleThreadEngineManager.getBestMoveOnly(fen, { depth: config.depth })
+        await multiThreadEngineManager.ensureReady()
+        return await multiThreadEngineManager.getBestMoveOnly(fen, { depth: config.depth })
       } catch (error) {
         logger.error(`[GameplayService] Local engine failed for ${engineId}:`, error)
         return null // В случае ошибки локального движка, ход не будет сделан
@@ -87,7 +88,8 @@ class GameplayServiceController {
 
     logger.warn(`[GameplayService] Server engine failed or timed out. Using local fallback.`)
     // В качестве фолбэка используем среднюю силу
-    return singleThreadEngineManager.getBestMoveOnly(fen, { depth: 8 })
+    await multiThreadEngineManager.ensureReady()
+    return multiThreadEngineManager.getBestMoveOnly(fen, { depth: 8 })
   }
 }
 

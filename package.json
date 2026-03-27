@@ -10,7 +10,7 @@
     "onlyBuiltDependencies": [
       "@parcel/watcher",
       "esbuild",
-      "stockfish",
+
       "unrs-resolver",
       "vue-demi"
     ]
@@ -37,7 +37,6 @@
     "echarts": "^6.0.0",
     "naive-ui": "^2.43.2",
     "pinia": "^3.0.4",
-    "stockfish": "^18.0.5",
     "swiper": "^12.1.0",
     "vue": "^3.5.27",
     "vue-echarts": "^8.0.1",

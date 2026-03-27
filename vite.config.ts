@@ -1,16 +1,16 @@
 // vite.config.ts
 import vue from '@vitejs/plugin-vue'
+import { writeFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { fileURLToPath, URL } from 'node:url'
+import { visualizer } from 'rollup-plugin-visualizer'
 import AutoImport from 'unplugin-auto-import/vite'
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
 import Components from 'unplugin-vue-components/vite'
 import { defineConfig } from 'vite'
 import { viteStaticCopy } from 'vite-plugin-static-copy'
 import VueDevTools from 'vite-plugin-vue-devtools'
-import { visualizer } from 'rollup-plugin-visualizer'
 import pkg from './package.json'
-import { writeFileSync } from 'node:fs'
-import { resolve } from 'node:path'
 
 export default defineConfig(({ mode }) => {
   return {
@@ -51,14 +51,6 @@ export default defineConfig(({ mode }) => {
             dest: 'stockfish/nnue',
           },
           {
-            src: 'node_modules/stockfish/bin/stockfish-18-lite-single.js',
-            dest: 'stockfish/single',
-          },
-          {
-            src: 'node_modules/stockfish/bin/stockfish-18-lite-single.wasm',
-            dest: 'stockfish/single',
-          },
-          {
             src: 'node_modules/@sqlite.org/sqlite-wasm/dist/sqlite3.wasm',
             dest: '',
           },
@@ -75,7 +67,7 @@ export default defineConfig(({ mode }) => {
 
       ...(mode === 'development' ? [VueDevTools()] : []),
       visualizer({ open: false, filename: 'stats.html' }),
-      
+
       // Auto-generate version.json for cache busting detection
       {
         name: 'generate-version-json',

@@ -17,40 +17,6 @@ export interface EngineController {
   terminate?(): void
 }
 
-export function loadSingleThreadEngine(): Promise<EngineController> {
-  // Используем Lite Single версию из npm пакета stockfish
-  const loaderPath = '/stockfish/single/stockfish-18-lite-single.js'
-  logger.info(`[EngineLoader] Loading single-threaded engine from ${loaderPath}`)
-  return new Promise((resolve, reject) => {
-    try {
-      const worker = new Worker(loaderPath)
-
-      const engineWrapper: EngineController = {
-        postMessage(command: string) {
-          worker.postMessage(command)
-        },
-        addMessageListener(callback: (message: string) => void) {
-          worker.onmessage = (event: MessageEvent) => {
-            callback(event.data)
-          }
-        },
-        terminate() {
-          worker.terminate()
-        },
-      }
-      worker.onerror = (err) => {
-        logger.error('[EngineLoader] Single-threaded worker error.', err)
-        reject(err)
-      }
-      logger.info('[EngineLoader] Single-threaded worker and wrapper created successfully.')
-      resolve(engineWrapper)
-    } catch (error) {
-      logger.error('[EngineLoader] Error creating single-threaded worker.', error)
-      reject(error)
-    }
-  })
-}
-
 /**
  * Интерфейс модуля Stockfish от Lichess.
  * Они используют метод uci() для отправки команд вместо postMessage.
