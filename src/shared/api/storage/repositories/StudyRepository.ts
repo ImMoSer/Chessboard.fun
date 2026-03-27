@@ -6,6 +6,7 @@ export interface Study {
   id: string
   title: string
   chapterIds: string[]
+  lichessId?: string
   type?: 'owned' | 'community'
   order_index?: number
 }
@@ -37,6 +38,7 @@ interface RawStudyRow {
   id: string
   title: string
   chapterIds: string
+  lichessId?: string
   type?: 'owned' | 'community'
   order_index?: number
 }
@@ -84,14 +86,22 @@ export class StudyRepository {
   async saveStudy(study: Study): Promise<void> {
     const raw = toRaw(study)
     await databaseClient.exec('user', `
-      INSERT INTO studies (id, title, chapterIds, type, order_index)
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO studies (id, title, chapterIds, lichessId, type, order_index)
+      VALUES (?, ?, ?, ?, ?, ?)
       ON CONFLICT(id) DO UPDATE SET
         title       = excluded.title,
         chapterIds  = excluded.chapterIds,
+        lichessId   = excluded.lichessId,
         type        = excluded.type,
         order_index = excluded.order_index
-    `, [raw.id, raw.title, JSON.stringify(raw.chapterIds), raw.type ?? null, raw.order_index ?? 0])
+    `, [
+      raw.id,
+      raw.title,
+      JSON.stringify(raw.chapterIds),
+      raw.lichessId ?? null,
+      raw.type ?? null,
+      raw.order_index ?? 0
+    ])
   }
 
   async getAllChapters(): Promise<StudyChapter[]> {

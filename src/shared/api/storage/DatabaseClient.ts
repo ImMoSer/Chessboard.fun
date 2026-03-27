@@ -22,6 +22,8 @@ type DbId = string
 type PromiserFactoryV2 = (config?: unknown) => Promise<Worker1Promiser>
 const promiserFactoryV2 = sqlite3Worker1Promiser as unknown as PromiserFactoryV2
 
+const DB_SCHEMA_VERSION = 2 // Incremented to trigger reset for lichessId update
+
 class DatabaseClient {
   private promiser: Worker1Promiser | null = null
   private globalDbId: DbId | null = null
@@ -39,7 +41,24 @@ class DatabaseClient {
   }
 
   private async _doInit(): Promise<void> {
-    // Explicitly set the worker URL to /sqlite3-worker1.mjs which is
+    // 1. Check for schema reset
+    const savedVersion = localStorage.getItem('app_db_schema_version')
+    if (!savedVersion || parseInt(savedVersion, 10) < DB_SCHEMA_VERSION) {
+      console.warn(`[DatabaseClient] Schema version mismatch (saved: ${savedVersion}, current: ${DB_SCHEMA_VERSION}). Resetting OPFS...`)
+      try {
+        const root = await navigator.storage.getDirectory()
+        // We use a for-await-of loop to clear all entries in OPFS
+        for await (const name of (root as unknown as { keys(): AsyncIterable<string> }).keys()) {
+          await root.removeEntry(name, { recursive: true })
+        }
+        localStorage.setItem('app_db_schema_version', DB_SCHEMA_VERSION.toString())
+        console.info('[DatabaseClient] OPFS reset complete.')
+      } catch (err) {
+        console.error('[DatabaseClient] Failed to reset OPFS storage:', err)
+      }
+    }
+
+    // 2. Explicitly set the worker URL to /sqlite3-worker1.mjs which is
     // where we copy it via vite-plugin-static-copy.
     const promiser = await promiserFactoryV2({
       worker: () => new Worker('/sqlite3-worker1.mjs', { type: 'module' }),
@@ -124,6 +143,7 @@ class DatabaseClient {
         id          TEXT PRIMARY KEY,
         title       TEXT NOT NULL,
         chapterIds  TEXT NOT NULL DEFAULT '[]',
+        lichessId   TEXT,
         type        TEXT,
         order_index INTEGER DEFAULT 0
       )
