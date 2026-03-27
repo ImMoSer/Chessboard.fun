@@ -1,10 +1,11 @@
 import { useBoardStore } from '@/entities/game'
 import { useStudyStore } from '@/entities/study'
-import { pgnService, type PgnNode } from '@/shared/lib/pgn/PgnService'
+import logger from '@/shared/lib/logger'
+import { pgnService } from '@/shared/lib/pgn/PgnService'
+import { soundService } from '@/shared/lib/sound.service'
+import type { Key } from '@lichess-org/chessground/types'
 import { useReplyTrainingStore } from '../model/reply-training.store'
 import { srsService } from './SrsService'
-import type { Key } from '@lichess-org/chessground/types'
-import logger from '@/shared/lib/logger'
 
 // Use dynamic message to show praise
 import { createDiscreteApi } from 'naive-ui'
@@ -15,6 +16,8 @@ export class TrainingController {
   private _boardStore: ReturnType<typeof useBoardStore> | null = null
   private _trainingStore: ReturnType<typeof useReplyTrainingStore> | null = null
   private _studyStore: ReturnType<typeof useStudyStore> | null = null
+
+  private sessionMistakes = 0
 
   // Lazy loaders for stores to avoid circular dependency issues in some setups
   private get boardStore() {
@@ -49,29 +52,36 @@ export class TrainingController {
 
     if (matchingChild) {
       logger.info(`[TrainingController] Correct Move! Matched child node ID: ${matchingChild.id}`)
-      // The move is roughly correct (ignoring explicit promotion role here)
+      // The move is roughly correct
       // We update success stats
       this.trainingStore.sessionStats.correct++
       this.trainingStore.sessionStats.streak++
-      this.updateNodeMetadata(matchingChild, true)
-      
-      // READ-ONLY PROTECTION: 
+
+      // READ-ONLY PROTECTION:
       // Do not allow BoardStore to write/duplicate the move.
       // We just quietly navigate to the node and manually trigger logical progression.
       this.boardStore.navigateToNode(matchingChild)
+
+      // Trigger user sound based on move characteristics
+      if (matchingChild.san.includes('x')) {
+        soundService.playSound('board_capture')
+      } else if (matchingChild.san.includes('O-O')) {
+        soundService.playSound('board_castle')
+      } else if (matchingChild.san.includes('+') || matchingChild.san.includes('#')) {
+        soundService.playSound('board_check')
+      } else {
+        soundService.playSound('board_move')
+      }
+
       this.onMoveSuccessfullyApplied()
-      
+
       return true // Intercept entirely! Do not pass to boardStore.handleAnalysisMove
     } else {
       logger.warn(`[TrainingController] Incorrect Move. Played ${uciPrefix}, but expected one of: ${children.map(c => c.uci).join(', ')}`)
       // Move not in repertoire
       this.trainingStore.sessionStats.wrong++
       this.trainingStore.sessionStats.streak = 0
-
-      // If the previous move was the system's challenge, we reduce its success rate
-      if (currentNode.id !== '__ROOT__') {
-        this.updateNodeMetadata(currentNode, false)
-      }
+      this.sessionMistakes++ // Unkraut wächst!
 
       // Revert board (undo the piece drop)
       this.boardStore.syncBoardWithPgn()
@@ -95,17 +105,46 @@ export class TrainingController {
 
   private onVariationEnded() {
     if (!this.trainingStore.isReplyTrainingActive) return
-    
+
+    // JÄTEN FINISHED! End of the garden path.
+    const currentNode = pgnService.getCurrentNode()
+    const N = Math.max(1, currentNode.ply || 1)
+
+    // Mathematics of the Garden
+    const alpha = 0.5 // Learning rate
+    const errorRate = Math.min(this.sessionMistakes, N) / N
+
+    if (!currentNode.metadata) currentNode.metadata = {}
+    if (!currentNode.metadata.training) {
+      currentNode.metadata.training = { mastery: 0, lastTrained: 0, successes: 0, attempts: 0 }
+    }
+
+    const training = currentNode.metadata.training
+    if (training.mastery === undefined) {
+      training.mastery = training.attempts > 0 ? (training.successes / training.attempts) : 0
+    }
+
+    training.mastery = (alpha * (1.0 - errorRate)) + ((1.0 - alpha) * training.mastery)
+    training.lastTrained = Date.now()
+    training.attempts = (training.attempts || 0) + 1
+
+    logger.info(`[TrainingController] Variation ended. Line <${currentNode.id}> Jäten finished. Mistakes: ${this.sessionMistakes}/${N}. Mastery updated to: ${(training.mastery * 100).toFixed(1)}%`)
+
+    pgnService.updateNode(currentNode, { metadata: { ...currentNode.metadata } })
+
+    // Reset session errors for the next run
+    this.sessionMistakes = 0
+
     logger.info(`[TrainingController] Variation ended. Resetting to start.`)
     message.success('Variation finished! Excellent work.', { duration: 2500 })
-    
+
     // Wait briefly then reset to start
     setTimeout(() => {
       if (!this.trainingStore.isReplyTrainingActive) return
-      
+
       this.boardStore.navigatePgn('start')
       this.boardStore.syncBoardWithPgn()
-      
+
       // Let system move again if the user is black
       this.checkOpponentReply()
     }, 1500)
@@ -144,28 +183,11 @@ export class TrainingController {
             }
           }
         }
-      }, 600) // Small delay for "human-like" feel
+      }, 100) // Minimum possible delay to allow DOM updates, maximum speed!
     }
   }
 
-  private updateNodeMetadata(node: PgnNode, isSuccess: boolean) {
-    if (!node.metadata) node.metadata = {}
-    if (!node.metadata.training) {
-      node.metadata.training = { successes: 0, attempts: 0 }
-    }
-
-    const training = node.metadata.training
-    training.attempts++
-    if (isSuccess) {
-      training.successes++
-    }
-    training.lastTrained = Date.now()
-
-    logger.info(`[TrainingController] Node <${node.id}> (${node.uci}) SRS metadata updated. Successes: ${training.successes}/${training.attempts}`)
-
-    // Increment pgnTreeVersion to trigger UI updates and auto-saves
-    pgnService.updateNode(node, { metadata: { ...node.metadata } })
-  }
+  // Deprecated node-by-node metadata updater, removed in favor of leaf-node mastery update
 }
 
 export const trainingController = new TrainingController()
