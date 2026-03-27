@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
-import { useStudyStore } from '@/entities/study'
+import { useStudyStore, isChapterTrimmed } from '@/entities/study'
 
 export const useReplyTrainingStore = defineStore('reply-training', () => {
   const studyStore = useStudyStore()
@@ -13,8 +13,8 @@ export const useReplyTrainingStore = defineStore('reply-training', () => {
     const studyChapters = studyStore.chapters.filter((c) => c.studyId === studyStore.activeStudy?.id)
     if (studyChapters.length === 0) return false
 
-    // Strict rule: all chapters in the study must be repertoire
-    return studyChapters.every((c) => c.chapter_type === 'repertoire')
+    // Strict rule: all chapters in the study must be repertoire and fully trimmed
+    return studyChapters.every((c) => isChapterTrimmed(c))
   })
 
   const sessionStats = ref({

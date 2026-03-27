@@ -8,7 +8,7 @@ import { useRouter } from 'vue-router'
 import { srsService, trainingController, useReplyTrainingStore } from '../../study-reply-training'
 import { LichessApiError } from '../api/LichessSyncService'
 import { useBoardStore } from '@/entities/game'
-import { useStudyStore, type StudyChapter } from '@/entities/study'
+import { useStudyStore, type StudyChapter, isChapterTrimmed } from '@/entities/study'
 import ChapterSettingsModal from './ChapterSettingsModal.vue'
 import LichessErrorModal from './LichessErrorModal.vue'
 
@@ -251,7 +251,10 @@ async function handleSyncFromLichess() {
             <template #header>
               <NSpace align="center" :size="6" style="flex-wrap: nowrap; overflow: hidden; max-width: 100%;">
                 <span class="chapter-name">{{ chapter.name }}</span>
-                <span v-if="chapter.chapter_type === 'repertoire'" class="tag-rep">REP</span>
+                <template v-if="chapter.chapter_type === 'repertoire'">
+                  <span v-if="isChapterTrimmed(chapter)" class="tag-rep">REP</span>
+                  <span v-else class="tag-trim" title="You have multiple choices defined. Trim the tree!">TRIM</span>
+                </template>
                 <template v-else-if="chapter.chapter_type === 'speedrun'">
                   <span
                     v-if="['1-0', '0-1', '1/2-1/2'].includes(chapter.tags.Result || '')"
@@ -423,6 +426,16 @@ async function handleSyncFromLichess() {
   font-weight: 800;
   color: var(--neon-blue);
   border: 1px solid var(--neon-blue);
+  border-radius: 4px;
+  padding: 0 4px;
+  flex-shrink: 0;
+}
+
+.tag-trim {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--neon-pink);
+  border: 1px solid var(--neon-pink);
   border-radius: 4px;
   padding: 0 4px;
   flex-shrink: 0;

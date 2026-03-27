@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useBoardStore } from '@/entities/game'
+import { useStudyStore, isNodeNeedingTrim } from '@/entities/study'
 import type { PgnNode } from '@/shared/lib/pgn/PgnService'
 import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
 import { NDropdown, NInput, NModal } from 'naive-ui'
@@ -19,6 +20,14 @@ const props = withDefaults(
 )
 
 const boardStore = useBoardStore()
+const studyStore = useStudyStore()
+
+const needsTrim = computed(() => {
+  const v = pgnTreeVersion.value // react to changes
+  const activeChapter = studyStore.activeChapter
+  if (!activeChapter || activeChapter.chapter_type !== 'repertoire' || !activeChapter.color) return false
+  return isNodeNeedingTrim(props.node, activeChapter.color)
+})
 
 const isActive = computed(() => {
   const v = pgnTreeVersion.value
@@ -290,6 +299,7 @@ export default {
             active: isActive,
             'has-comment': !!node.comment,
             'speedrun-node': node.metadata?.isSpeedrun,
+            'needs-trim': needsTrim
           },
         ]"
         @click.stop="activateNode"
@@ -446,6 +456,18 @@ export default {
 .move-san.speedrun-node.active {
   background-color: var(--neon-orange, #ff5500);
   color: white;
+}
+
+.move-san.needs-trim {
+  color: var(--neon-pink, #ff5555);
+  text-decoration: underline dotted var(--neon-pink, #ff5555);
+  text-underline-offset: 2px;
+}
+
+.move-san.needs-trim.active {
+  background-color: var(--neon-pink, #ff5555);
+  color: white;
+  text-decoration: none;
 }
 
 .move-index {
