@@ -9,20 +9,20 @@
  * - We communicate via the type-safe sqlite3Worker1Promiser.v2() Promise API.
  * - Two databases: `global` (theory cache, shared) and `user` (per lichess_id).
  */
-import { sqlite3Worker1Promiser } from '@sqlite.org/sqlite-wasm'
 import type { Worker1Promiser } from '@sqlite.org/sqlite-wasm'
+import { sqlite3Worker1Promiser } from '@sqlite.org/sqlite-wasm'
 
 type DbId = string
 
 /**
- * The ESM bundle of sqlite-wasm directly exports the 'v2' promiser function 
- * as `sqlite3Worker1Promiser`, contrary to the TypeScript definition which 
+ * The ESM bundle of sqlite-wasm directly exports the 'v2' promiser function
+ * as `sqlite3Worker1Promiser`, contrary to the TypeScript definition which
  * defines it as a factory object with a `.v2` property.
  */
 type PromiserFactoryV2 = (config?: unknown) => Promise<Worker1Promiser>
 const promiserFactoryV2 = sqlite3Worker1Promiser as unknown as PromiserFactoryV2
 
-const DB_SCHEMA_VERSION = 2 // Incremented to trigger reset for lichessId update
+const DB_SCHEMA_VERSION = 3 // Incremented to trigger reset for lichessId update
 
 class DatabaseClient {
   private promiser: Worker1Promiser | null = null
@@ -208,9 +208,9 @@ class DatabaseClient {
   ): Promise<T[]> {
     await this.init() // Ensure base initialization is done
     const dbId = await this._getDbId(target)
-    
+
     if (!this.promiser) throw new Error('[DatabaseClient] Not initialized.')
-    
+
     try {
       const response = await this.promiser({
         type: 'exec',
@@ -222,7 +222,7 @@ class DatabaseClient {
           returnValue: 'resultRows',
         },
       })
-      
+
       return (response.result.resultRows ?? []) as T[]
     } catch (err) {
       console.error(`[DatabaseClient] SQL Query Error: ${sql}`, err)
@@ -245,8 +245,8 @@ class DatabaseClient {
     }
 
     if (!this.userDbId) {
-      // If userDbId is missing, it's either because openUserDb wasn't called 
-      // or we are in a race. 
+      // If userDbId is missing, it's either because openUserDb wasn't called
+      // or we are in a race.
       let attempts = 0
       while (!this.userDbId && attempts < 10) {
         await new Promise(r => setTimeout(r, 100))
