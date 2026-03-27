@@ -1,4 +1,4 @@
-export * from './model/study.store'
+export * from '@/entities/study'
 export * from './api/LichessSyncService'
 export { default as ChapterSettingsModal } from './ui/ChapterSettingsModal.vue'
 export { default as LichessStudyAuthModal } from './ui/LichessStudyAuthModal.vue'

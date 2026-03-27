@@ -1,4 +1,4 @@
-import type { StudyChapter, Study } from '@/entities/study'
+import type { StudyChapter, Study } from '../model/study.store'
 import { studyRepository } from '@/shared/api/storage/repositories/StudyRepository'
 import type { StudyChapter as RepoChapter, Study as RepoStudy } from '@/shared/api/storage/repositories/StudyRepository'
 

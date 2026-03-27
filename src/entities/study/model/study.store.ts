@@ -1,13 +1,12 @@
-import { useBoardStore } from '@/entities/game'
-import { useAuthStore } from '@/entities/user'
-import { studyPersistenceService } from '../api/StudyPersistenceService'
+
 import { settingsRepository } from '@/shared/api/storage/repositories/SettingsRepository'
-import { lichessSyncService } from '../api/LichessSyncService'
 import { pgnParserService } from '@/shared/lib/pgn/PgnParserService'
 import { pgnService, pgnTreeVersion, type PgnNode } from '@/shared/lib/pgn/PgnService'
 import { makeFen, parseFen } from 'chessops/fen'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
+import { lichessSyncService } from '../api/LichessSyncService'
+import { studyPersistenceService } from '../api/StudyPersistenceService'
 
 export interface Study {
   id: string // Lichess ID 'bUmjtT4G'
@@ -33,8 +32,7 @@ export interface StudyChapter {
 }
 
 export const useStudyStore = defineStore('study', () => {
-  const boardStore = useBoardStore()
-  const authStore = useAuthStore()
+
 
   const studies = ref<Study[]>([])
   const chapters = ref<StudyChapter[]>([])
@@ -44,14 +42,25 @@ export const useStudyStore = defineStore('study', () => {
   const isAuthModalVisible = ref(false)
 
   const activeChapter = computed(() => chapters.value.find((c) => c.id === activeChapterId.value))
-  
+
   const activeStudy = computed(() => {
     if (!activeChapter.value?.studyId) return null
     return studies.value.find((s) => s.id === activeChapter.value?.studyId) || null
   })
 
-  const currentOwnerId = computed(() => authStore.userProfile?.id || null)
-  const currentUsername = computed(() => authStore.userProfile?.username || null)
+  const _currentOwnerId = ref<string | null>(null)
+  const _currentUsername = ref<string | null>(null)
+
+  const currentOwnerId = computed(() => _currentOwnerId.value)
+  const currentUsername = computed(() => _currentUsername.value)
+
+  function setOwner(id: string | null, username: string | null) {
+    if (_currentOwnerId.value !== id) {
+      _currentOwnerId.value = id
+      _currentUsername.value = username
+      // Watcher below will trigger initialize()
+    }
+  }
 
   async function requireLichessAccess(): Promise<boolean> {
     const hasToken = await lichessSyncService.ensureToken()
@@ -108,7 +117,7 @@ export const useStudyStore = defineStore('study', () => {
 
   // Watch for user changes to reload studies
   watch(
-    () => authStore.userProfile?.id,
+    () => currentOwnerId.value,
     (newId, oldId) => {
       if (newId !== oldId) {
         initialize()
@@ -128,14 +137,14 @@ export const useStudyStore = defineStore('study', () => {
     if (!studyId && activeStudy.value) {
       studyId = activeStudy.value.id
     }
-    
+
     if (!studyId) {
       throw new Error('You must import a Lichess Study first to create chapters.')
     }
 
     const study = studies.value.find(s => s.id === studyId)
     if (!study) throw new Error('Study not found')
-    
+
     if (study.chapterIds.length >= 64) {
       throw new Error('A study cannot have more than 64 chapters.')
     }
@@ -211,7 +220,7 @@ export const useStudyStore = defineStore('study', () => {
     if (!studyId && activeStudy.value) {
       studyId = activeStudy.value.id
     }
-    
+
     if (!studyId) {
       throw new Error('You must import a Lichess Study first to add a chapter from PGN.')
     }
@@ -237,7 +246,7 @@ export const useStudyStore = defineStore('study', () => {
       if (!study) throw new Error('Study not found')
 
       const id = generateId()
-      
+
       const now = new Date()
       const utcDate = now.toISOString().split('T')[0]?.replace(/-/g, '.') || ''
       const utcTime = now.toISOString().split('T')[1]?.split('.')[0] || ''
@@ -330,7 +339,7 @@ export const useStudyStore = defineStore('study', () => {
         // Try to pick another chapter from the same study first
         if (parentStudy && parentStudy.chapterIds.length > 0) {
           nextChapterId = parentStudy.chapterIds[0]
-        } 
+        }
         // If the study is empty or we didn't have a parent study, fallback to the first available chapter globally
         else if (chapters.value.length > 0 && chapters.value[0]) {
           nextChapterId = chapters.value[0].id
@@ -355,9 +364,9 @@ export const useStudyStore = defineStore('study', () => {
       // Delete associated chapters from both memory and DB
       chapters.value = chapters.value.filter(c => c.studyId !== id)
       await studyPersistenceService.deleteChaptersByStudyId(id)
-      
+
       await studyPersistenceService.deleteStudy(id)
-      
+
       if (activeChapterId.value && !chapters.value.some(c => c.id === activeChapterId.value)) {
          await setActiveChapter(chapters.value.length > 0 ? chapters.value[0]!.id : null)
       }
@@ -389,12 +398,7 @@ export const useStudyStore = defineStore('study', () => {
       activeChapterId.value = next.id
       await settingsRepository.saveSetting(`lastActiveChapterId_${ownerId}`, next.id)
       pgnService.setRoot(next.root, next.savedPath)
-      boardStore.syncBoardWithPgn()
 
-      // Auto-flip board based on chapter color
-      if (next.color) {
-        boardStore.orientation = next.color
-      }
     }
   }
 
@@ -426,7 +430,7 @@ export const useStudyStore = defineStore('study', () => {
       // 2. Download PGN (Rate limiter in service handles delays automatically)
       const pgnData = await lichessSyncService.fetchStudyPgn(studyId, tokenOverride)
       const importResults = pgnParserService.parseMultiple(pgnData)
-      
+
       if (importResults.length === 0) {
         throw new Error('No chapters found in the study.')
       }
@@ -434,7 +438,7 @@ export const useStudyStore = defineStore('study', () => {
       // Extract study title
       const firstTags = importResults[0]?.tags || {}
       let studyTitle = firstTags['StudyName']
-      
+
       // Fallback: If no StudyName tag, try to split Event "Study: Chapter"
       if (!studyTitle && firstTags['Event']) {
         if (firstTags['Event'].includes(': ')) {
@@ -443,11 +447,11 @@ export const useStudyStore = defineStore('study', () => {
           studyTitle = firstTags['Event']
         }
       }
-      
+
       if (!studyTitle) {
         studyTitle = `Lichess Study ${studyId}`
       }
-      
+
       const study: Study = {
         id: studyId, // Use lichess ID as our local study ID
         title: studyTitle,
@@ -459,7 +463,7 @@ export const useStudyStore = defineStore('study', () => {
 
       // Check if study already exists to avoid duplicate chapters
       const existingStudyIndex = studies.value.findIndex(s => s.id === studyId)
-      
+
       // Before importing, we must purge old chapters linked to this study ID from DB for THIS user
       await studyPersistenceService.deleteChaptersByStudyId(studyId)
 
@@ -477,7 +481,7 @@ export const useStudyStore = defineStore('study', () => {
 
       for (let i = 0; i < importResults.length; i++) {
         const { tags, root } = importResults[i]!
-        
+
         // Extract Lichess Chapter ID from URL: https://lichess.org/study/studyId/chapterId
         let lichessChapterId: string | undefined = undefined
         if (tags['ChapterURL']) {
@@ -486,10 +490,10 @@ export const useStudyStore = defineStore('study', () => {
         }
 
         const chapterId: string = lichessChapterId || generateId()
-        
+
         // Extract chapter name
         let chapterName = tags['ChapterName']
-        
+
         // Fallback: If no ChapterName tag, try to get it from Event
         if (!chapterName && tags['Event']) {
           if (tags['Event'].includes(': ')) {
@@ -525,7 +529,7 @@ export const useStudyStore = defineStore('study', () => {
         chapters.value.push(newChapter)
         study.chapterIds.push(chapterId)
         parsedChapters.push(newChapter)
-        
+
         if (i === 0) firstChapterId = chapterId
       }
 
@@ -535,7 +539,7 @@ export const useStudyStore = defineStore('study', () => {
       if (firstChapterId) {
         setActiveChapter(firstChapterId)
       }
-      
+
       return study.id
     } catch (e) {
       console.error('Failed to import Lichess study', e)
@@ -620,7 +624,7 @@ export const useStudyStore = defineStore('study', () => {
     try {
       // Step 1: Delete the existing chapter on Lichess
       await lichessSyncService.deleteChapter(activeStudy.value.lichessId, chapter.lichessChapterId)
-      
+
       // Step 2: Re-create the chapter by importing the full PGN
       const pgn = pgnService.getFullPgn(chapter.tags, chapter.root)
       const newLichessChapterId = await lichessSyncService.importPgnIntoStudy(
@@ -706,7 +710,7 @@ export const useStudyStore = defineStore('study', () => {
 
       // 3. Save
       studyPersistenceService.saveChapter(chapter)
-      
+
       // If this is the active chapter, we need to refresh the pgnService to show the new nodes
       if (activeChapterId.value === chapterId) {
         // Trigger a fake tree update if pgnService is currently using this root
@@ -715,5 +719,6 @@ export const useStudyStore = defineStore('study', () => {
         pgnService.navigateToNode(pgnService.getCurrentNode())
       }
     },
+    setOwner,
   }
 })

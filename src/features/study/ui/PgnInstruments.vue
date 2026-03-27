@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useBoardStore } from '@/entities/game'
-import { useStudyStore } from '../model/study.store'
+import { useStudyStore } from '@/entities/study'
 import { pgnService, pgnTreeVersion } from '@/shared/lib/pgn/PgnService'
 import {
   ChatboxEllipsesOutline,

@@ -1,19 +1,32 @@
 <script setup lang="ts">
 import { AddOutline, CloudDownloadOutline, SettingsOutline } from '@vicons/ionicons5'
-import { NButton, NIcon, NList, NListItem, NScrollbar, NSpace, NText, NThing, useDialog, useMessage } from 'naive-ui'
+import { NButton, NIcon, NList, NListItem, NScrollbar, NSpace, NSwitch, NText, NThing, useDialog, useMessage } from 'naive-ui'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
+// eslint-disable-next-line boundaries/element-types
+import { trainingController, useReplyTrainingStore } from '../../study-reply-training'
 import { LichessApiError } from '../api/LichessSyncService'
-import { useStudyStore, type StudyChapter } from '../model/study.store'
+import { useStudyStore, type StudyChapter } from '@/entities/study'
+import type { PgnNode } from '@/shared/lib/pgn/PgnService'
 import ChapterSettingsModal from './ChapterSettingsModal.vue'
 import LichessErrorModal from './LichessErrorModal.vue'
 
 const studyStore = useStudyStore()
+const trainingStore = useReplyTrainingStore()
 const router = useRouter()
 const message = useMessage()
 const dialog = useDialog()
 const { t } = useI18n()
+
+import { watch } from 'vue'
+
+watch(() => trainingStore.isReplyTrainingActive, (active) => {
+  if (active) {
+    trainingStore.resetSession()
+    trainingController.checkOpponentReply()
+  }
+})
 
 const SYNC_COOLDOWN_MS = 60 * 1000 // 60 seconds
 const lastSyncTime = ref<number>(0)
@@ -39,11 +52,36 @@ const cooldownActive = computed(() => cooldownRemaining.value > 0)
 
 const isSpeedrunReady = computed(() => {
   if (activeStudyChapters.value.length === 0) return false
-  return activeStudyChapters.value.every(chapter => 
-    chapter.chapter_type === 'speedrun' && 
+  return activeStudyChapters.value.every(chapter =>
+    chapter.chapter_type === 'speedrun' &&
     ['1-0', '0-1', '1/2-1/2'].includes(chapter.tags.Result || '')
   )
 })
+
+const getChapterProgress = (chapter: StudyChapter) => {
+  let totalNodes = 0
+  let totalSuccess = 0
+
+  const traverse = (node: PgnNode) => {
+    // We only care about user moves? Or any move?
+    // User said "repertoire", so we usually train all our moves.
+    // Let's count all nodes for now to see "completion" of the tree.
+    if (node.id !== '__ROOT__') {
+      totalNodes++
+      const training = node.metadata?.training as { successes: number, attempts: number } | undefined
+      if (training && training.attempts > 0) {
+        totalSuccess += (training.successes / training.attempts)
+      }
+    }
+    node.children?.forEach(traverse)
+  }
+
+  traverse(chapter.root)
+  if (totalNodes === 0) return 0
+
+  // Progress is (weighted success of all nodes) / totalNodes
+  return (totalSuccess / totalNodes)
+}
 
 const showSettingsModal = ref(false)
 const showErrorModal = ref(false)
@@ -111,16 +149,16 @@ function openSettings(chapter: StudyChapter, e: Event) {
 
 function handleStartSpeedrun() {
   console.log('[StudySidebar] START_SPEEDRUN clicked for study:', studyStore.activeStudy?.id)
-  
-  const speedrunChapters = activeStudyChapters.value.filter(chapter => 
-    chapter.chapter_type === 'speedrun' && 
+
+  const speedrunChapters = activeStudyChapters.value.filter(chapter =>
+    chapter.chapter_type === 'speedrun' &&
     ['1-0', '0-1', '1/2-1/2'].includes(chapter.tags.Result || '')
   )
 
   if (speedrunChapters.length > 0) {
-    router.push({ 
-      name: 'study-speedrun', 
-      query: { studyId: studyStore.activeStudy?.id } 
+    router.push({
+      name: 'study-speedrun',
+      query: { studyId: studyStore.activeStudy?.id }
     })
   } else {
     message.warning(t('features.speedrun.noValidChapters'))
@@ -189,12 +227,24 @@ async function handleSyncFromLichess() {
           </NButton>
         </NSpace>
       </div>
-      
+
       <div v-if="isSpeedrunReady" class="speedrun-ready-badge" @click="handleStartSpeedrun">
         SPEEDRUN READY
       </div>
 
       <div class="chapter-count-badge">{{ t('features.study.sidebar.chapterCount', { count: activeStudyChapters.length }) }}</div>
+
+      <!-- Reply Training Tumbler -->
+      <div v-if="trainingStore.isReadyToReply" class="reply-training-toggle">
+        <NSpace align="center" justify="space-between" style="width: 100%">
+          <NText :depth="2" style="font-size: 0.8rem; font-weight: bold;">REPLY TRAINING</NText>
+          <NSwitch
+            v-model:value="trainingStore.isReplyTrainingActive"
+            size="small"
+            style="--n-rail-color-active: var(--neon-cyan)"
+          />
+        </NSpace>
+      </div>
     </div>
 
     <NScrollbar class="chapters-scroll">
@@ -214,8 +264,8 @@ async function handleSyncFromLichess() {
                 <span class="chapter-name">{{ chapter.name }}</span>
                 <span v-if="chapter.chapter_type === 'repertoire'" class="tag-rep">REP</span>
                 <template v-else-if="chapter.chapter_type === 'speedrun'">
-                  <span 
-                    v-if="['1-0', '0-1', '1/2-1/2'].includes(chapter.tags.Result || '')" 
+                  <span
+                    v-if="['1-0', '0-1', '1/2-1/2'].includes(chapter.tags.Result || '')"
                     class="tag-speed"
                     :class="{
                       'tag-win-white': chapter.tags.Result === '1-0',
@@ -231,7 +281,7 @@ async function handleSyncFromLichess() {
             </template>
             <template #header-extra>
               <NSpace size="small">
-                <NButton 
+                <NButton
                   v-if="!isCommunity"
                   size="tiny" quaternary circle @click="(e) => openSettings(chapter, e)"
                 >
@@ -239,6 +289,13 @@ async function handleSyncFromLichess() {
                 </NButton>
               </NSpace>
             </template>
+            <!-- Progress Bar -->
+            <div class="chapter-progress-container">
+               <div
+                 class="chapter-progress-bar"
+                 :style="{ width: `${getChapterProgress(chapter) * 100}%` }"
+               ></div>
+            </div>
           </NThing>
         </NListItem>
       </NList>
@@ -289,7 +346,15 @@ async function handleSyncFromLichess() {
   border-bottom: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
+}
+
+.reply-training-toggle {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background: rgba(var(--neon-cyan-rgb), 0.05);
+  border: 1px solid rgba(var(--neon-cyan-rgb), 0.2);
+  border-radius: 6px;
 }
 
 .header-main-row {
@@ -368,6 +433,22 @@ async function handleSyncFromLichess() {
   border-radius: 4px;
   padding: 0 4px;
   flex-shrink: 0;
+}
+
+.chapter-progress-container {
+  height: 3px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 2px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+
+.chapter-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--neon-cyan), var(--neon-blue));
+  transition: width 0.5s ease;
+  box-shadow: 0 0 5px var(--neon-cyan);
 }
 
 .tag-speed {

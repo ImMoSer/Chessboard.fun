@@ -1,7 +1,7 @@
 <!-- src/App.vue -->
 <script setup lang="ts">
 import { useGameStore } from '@/entities/game'
-import { LoginScopeModal } from '@/entities/user'
+import { LoginScopeModal, useAuthStore } from '@/entities/user'
 import { useStudyStore } from '@/features/study'
 import { SettingsMenu } from '@/features/settings'
 import ConfirmationModal from '@/shared/ui/ConfirmationModal.vue'
@@ -11,13 +11,22 @@ import { NavMenu } from '@/widgets/nav-menu'
 import AppUpdateNotifier from './ui/AppUpdateNotifier.vue'
 import { MenuOutline } from '@vicons/ionicons5'
 import { darkTheme, type GlobalThemeOverrides } from 'naive-ui'
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterView } from 'vue-router'
 
 const gameStore = useGameStore()
 const studyStore = useStudyStore()
+const authStore = useAuthStore()
 const { t } = useI18n()
+
+watch(
+  () => [authStore.userProfile?.id, authStore.userProfile?.username] as const,
+  ([id, username]) => {
+    studyStore.setOwner(id || null, username || null)
+  },
+  { immediate: true }
+)
 
 const isLandscape = ref(false)
 const isSidebarCollapsed = ref(true)

@@ -2,6 +2,7 @@
 <script setup lang="ts">
 import { useBoardStore, useGameStore, WebChessBoard } from '@/entities/game'
 import { EvalBar, useAnalysisStore } from '@/features/analysis'
+import { useReplyTrainingStore, trainingController } from '@/features/study-reply-training'
 import { useThemeStore } from '@/features/settings'
 import type { Key } from '@lichess-org/chessground/types'
 import { storeToRefs } from 'pinia'
@@ -11,6 +12,7 @@ import { useRoute } from 'vue-router'
 const themeStore = useThemeStore()
 const boardStore = useBoardStore()
 const gameStore = useGameStore()
+const trainingStore = useReplyTrainingStore()
 const analysisStore = useAnalysisStore()
 const { analysisLines } = storeToRefs(analysisStore)
 const route = useRoute()
@@ -22,11 +24,23 @@ const effectiveAnalysisMode = computed(() => {
   return boardStore.isAnalysisModeActive || (route.path.startsWith('/study') && !route.path.startsWith('/study-speedrun'))
 })
 
-const handleUserMove = ({ orig, dest }: { orig: Key; dest: Key }) => {
+const handleUserMove = async ({ orig, dest }: { orig: Key; dest: Key }) => {
+  let uci: string | null = null
   if (effectiveAnalysisMode.value) {
-    boardStore.handleAnalysisMove({ orig, dest })
+    if (trainingStore.isReplyTrainingActive) {
+      // Check if move is wrong. If wrong, trainingController reverts it and returns true.
+      const isIntercepted = trainingController.handleWrongMoveIntercept(orig, dest)
+      if (isIntercepted) return
+    }
+
+    uci = await boardStore.handleAnalysisMove({ orig, dest })
+    
+    if (uci && trainingStore.isReplyTrainingActive) {
+      // Move was correct and mapped directly to PGN. Let trainingController process variation sequence.
+      trainingController.onMoveSuccessfullyApplied()
+    }
   } else {
-    gameStore.handleUserMove(orig, dest)
+    await gameStore.handleUserMove(orig, dest)
   }
 }
 

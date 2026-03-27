@@ -3,12 +3,12 @@ import { useBoardStore } from '@/entities/game'
 import { AnalysisPanel, useAnalysisStore } from '@/features/analysis'
 import { MozerBook } from '@/features/mozer-book'
 import { LichessOpeningExplorer } from '@/features/opening-explorer'
-import { StudyControls, StudyHeader, StudyTree, useStudyStore, StudySidebar, LichessStudyAuthModal, LichessErrorModal, LichessApiError } from '@/features/study'
+import { LichessApiError, LichessErrorModal, LichessStudyAuthModal, StudyControls, StudyHeader, StudySidebar, StudyTree, useStudyStore } from '@/features/study'
 import { pgnService } from '@/shared/lib/pgn/PgnService'
 import { GameLayout } from '@/widgets/game-layout'
+import { useDialog, useMessage } from 'naive-ui'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useMessage, useDialog } from 'naive-ui'
 
 import { useI18n } from 'vue-i18n'
 
@@ -39,21 +39,21 @@ const handleToggleAnalysis = () => {
 onMounted(async () => {
   boardStore.setAnalysisMode(true)
   await analysisStore.showPanel() // Initialize analysis (threads, etc.) and set visible flag for watcher
-  
+
   const hasAccess = await studyStore.requireLichessAccess()
   if (!hasAccess) {
      return // Wait for user to authorize or cancel
   }
-  
+
   await studyStore.initialize()
-  
+
   const routeStudyId = route.params.studyId as string | undefined
   const routeChapterId = route.params.chapterId as string | undefined
 
   if (routeStudyId && routeStudyId !== 'local') {
     // 1. Check if study exists locally
     const localStudy = studyStore.studies.find(s => s.id === routeStudyId)
-    
+
     if (!localStudy) {
       // Study is missing! Show import dialog
       dialog.info({
@@ -67,7 +67,7 @@ onMounted(async () => {
             await studyStore.importFromLichess(routeStudyId, 'community')
             loadingMsg.destroy()
             message.success(t('features.study.deepLink.success'))
-            
+
             // Try to activate the specific chapter if provided
             if (routeChapterId) {
               const chapterExists = studyStore.chapters.some(c => c.lichessChapterId === routeChapterId || c.id === routeChapterId)
@@ -137,9 +137,9 @@ function updateUrl(id: string) {
   const studyId = chapter.studyId || 'local'
   const displayChapterId = chapter.lichessChapterId || chapter.id
 
-  router.replace({ 
-    name: 'study-view', 
-    params: { studyId, chapterId: displayChapterId } 
+  router.replace({
+    name: 'study-view',
+    params: { studyId, chapterId: displayChapterId }
   })
 }
 
@@ -147,7 +147,13 @@ function updateUrl(id: string) {
 watch(
   () => studyStore.activeChapterId,
   (newId) => {
-    if (newId) updateUrl(newId)
+    if (newId) {
+      updateUrl(newId)
+      boardStore.syncBoardWithPgn()
+      if (studyStore.activeChapter?.color) {
+        boardStore.orientation = studyStore.activeChapter.color
+      }
+    }
   },
 )
 

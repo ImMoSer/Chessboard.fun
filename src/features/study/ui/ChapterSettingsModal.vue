@@ -7,7 +7,7 @@
  */
 import { ref, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStudyStore, type StudyChapter } from '../model/study.store'
+import { useStudyStore, type StudyChapter } from '@/entities/study'
 import { openingChaptersService, type OpeningChapterTemplate } from '@/entities/opening'
 import {
   ArrowUpOutline,

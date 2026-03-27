@@ -1,0 +1,153 @@
+import { useBoardStore } from '@/entities/game'
+import { useStudyStore } from '@/entities/study'
+import { pgnService, type PgnNode } from '@/shared/lib/pgn/PgnService'
+import { useReplyTrainingStore } from '../model/reply-training.store'
+import { srsService } from './SrsService'
+import type { Key } from '@lichess-org/chessground/types'
+
+// Use dynamic message to show praise
+import { createDiscreteApi } from 'naive-ui'
+
+const { message } = createDiscreteApi(['message'])
+
+export class TrainingController {
+  private _boardStore: ReturnType<typeof useBoardStore> | null = null
+  private _trainingStore: ReturnType<typeof useReplyTrainingStore> | null = null
+  private _studyStore: ReturnType<typeof useStudyStore> | null = null
+
+  // Lazy loaders for stores to avoid circular dependency issues in some setups
+  private get boardStore() {
+    if (!this._boardStore) this._boardStore = useBoardStore()
+    return this._boardStore
+  }
+  private get trainingStore() {
+    if (!this._trainingStore) this._trainingStore = useReplyTrainingStore()
+    return this._trainingStore
+  }
+  private get studyStore() {
+    if (!this._studyStore) this._studyStore = useStudyStore()
+    return this._studyStore
+  }
+
+  /**
+   * Intercepts user moves before they are played.
+   * If the move is not in the repertoire, records failure and reverts board (returns true).
+   * If it IS in the repertoire, returns false, allowing the normal analysis flow to apply it.
+   */
+  public handleWrongMoveIntercept(orig: Key, dest: Key): boolean {
+    if (!this.trainingStore.isReplyTrainingActive) return false
+
+    const uciPrefix = orig + dest
+    const currentNode = pgnService.getCurrentNode()
+    const children = currentNode.children || []
+
+    const matchingChild = children.find((c) => c.uci.startsWith(uciPrefix))
+
+    if (matchingChild) {
+      // The move is roughly correct (ignoring explicit promotion role here)
+      // We update success stats
+      this.trainingStore.sessionStats.correct++
+      this.trainingStore.sessionStats.streak++
+      this.updateNodeMetadata(matchingChild, true)
+      
+      return false // Let it proceed
+    } else {
+      // Move not in repertoire
+      this.trainingStore.sessionStats.wrong++
+      this.trainingStore.sessionStats.streak = 0
+
+      // If the previous move was the system's challenge, we reduce its success rate
+      if (currentNode.id !== '__ROOT__') {
+        this.updateNodeMetadata(currentNode, false)
+      }
+
+      // Revert board (undo the piece drop)
+      this.boardStore.syncBoardWithPgn()
+
+      return true // Intercepted
+    }
+  }
+
+  /**
+   * Called via GameLayout when a correct move was successfully added/navigated in PGN.
+   */
+  public onMoveSuccessfullyApplied() {
+    const currentNode = pgnService.getCurrentNode()
+    // It's the system's turn to play, check if variation ended
+    if (!currentNode.children || currentNode.children.length === 0) {
+      this.onVariationEnded()
+    } else {
+      this.checkOpponentReply()
+    }
+  }
+
+  private onVariationEnded() {
+    if (!this.trainingStore.isReplyTrainingActive) return
+    
+    message.success('Variation finished! Excellent work.', { duration: 2500 })
+    
+    // Wait briefly then reset to start
+    setTimeout(() => {
+      if (!this.trainingStore.isReplyTrainingActive) return
+      
+      this.boardStore.navigatePgn('start')
+      this.boardStore.syncBoardWithPgn()
+      
+      // Let system move again if the user is black
+      this.checkOpponentReply()
+    }, 1500)
+  }
+
+  /**
+   * Plays the system's move automatically if it's the opponent's turn.
+   */
+  public checkOpponentReply() {
+    if (!this.trainingStore.isReplyTrainingActive) return
+
+    const chapterColor = this.studyStore.activeChapter?.color || 'white'
+    const turn = this.boardStore.turn // 'white' | 'black'
+
+    // Only move if it's not the user's turn
+    if (turn !== chapterColor) {
+      setTimeout(() => {
+        if (!this.trainingStore.isReplyTrainingActive) return // Check again after delay
+
+        const currentNode = pgnService.getCurrentNode()
+        const children = currentNode.children || []
+
+        if (children.length > 0) {
+          // SELECTION: Favor nodes with lower success or higher age
+          const challengeNode = srsService.selectNextChallenge(children)
+          if (challengeNode) {
+            // Apply the move (Logic in boardStore handles PGN sync as well)
+            this.boardStore.applyUciMove(challengeNode.uci)
+
+            // If variation immediately ends after system's move (e.g. system plays the last move of repertoire)
+            if (!challengeNode.children || challengeNode.children.length === 0) {
+              this.onVariationEnded()
+            }
+          }
+        }
+      }, 600) // Small delay for "human-like" feel
+    }
+  }
+
+  private updateNodeMetadata(node: PgnNode, isSuccess: boolean) {
+    if (!node.metadata) node.metadata = {}
+    if (!node.metadata.training) {
+      node.metadata.training = { successes: 0, attempts: 0 }
+    }
+
+    const training = node.metadata.training
+    training.attempts++
+    if (isSuccess) {
+      training.successes++
+    }
+    training.lastTrained = Date.now()
+
+    // Increment pgnTreeVersion to trigger UI updates and auto-saves
+    pgnService.updateNode(node, { metadata: { ...node.metadata } })
+  }
+}
+
+export const trainingController = new TrainingController()
