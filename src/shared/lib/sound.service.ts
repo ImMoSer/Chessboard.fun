@@ -38,6 +38,7 @@ export type SoundEvent =
   | 'game_tacktics_success'
   | 'game_you_move'
   | 'game_speedrun_finished'
+  | 'game_training_error'
   | 'blunder'
 
 // --- КОНЕЦ ИЗМЕНЕНИЙ ---
@@ -105,6 +106,7 @@ const soundDefinitions: Record<SoundEvent, { track: SoundTrack; path: string | s
     track: 'background',
     path: createPool('/sounds/gameStore/applaus_backround'),
   },
+  game_training_error: { track: 'background', path: '/sounds/gameStore/ErrorChpock.mp3' },
   blunder: {
     track: 'voice',
     path: '/sounds/gameStore/during_game/play_out_start/play_out_start_2.mp3',

@@ -5,15 +5,16 @@ import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 // eslint-disable-next-line boundaries/element-types
-import { trainingController, useReplyTrainingStore } from '../../study-reply-training'
+import { srsService, trainingController, useReplyTrainingStore } from '../../study-reply-training'
 import { LichessApiError } from '../api/LichessSyncService'
+import { useBoardStore } from '@/entities/game'
 import { useStudyStore, type StudyChapter } from '@/entities/study'
-import type { PgnNode } from '@/shared/lib/pgn/PgnService'
 import ChapterSettingsModal from './ChapterSettingsModal.vue'
 import LichessErrorModal from './LichessErrorModal.vue'
 
 const studyStore = useStudyStore()
 const trainingStore = useReplyTrainingStore()
+const boardStore = useBoardStore()
 const router = useRouter()
 const message = useMessage()
 const dialog = useDialog()
@@ -58,29 +59,14 @@ const isSpeedrunReady = computed(() => {
   )
 })
 
-const getChapterProgress = (chapter: StudyChapter) => {
-  let totalNodes = 0
-  let totalSuccess = 0
+const getChapterProgress = (chapter: StudyChapter): number => {
+  return srsService.getChapterCleanliness(chapter.root)
+}
 
-  const traverse = (node: PgnNode) => {
-    // We only care about user moves? Or any move?
-    // User said "repertoire", so we usually train all our moves.
-    // Let's count all nodes for now to see "completion" of the tree.
-    if (node.id !== '__ROOT__') {
-      totalNodes++
-      const training = node.metadata?.training as { successes: number, attempts: number } | undefined
-      if (training && training.attempts > 0) {
-        totalSuccess += (training.successes / training.attempts)
-      }
-    }
-    node.children?.forEach(traverse)
-  }
-
-  traverse(chapter.root)
-  if (totalNodes === 0) return 0
-
-  // Progress is (weighted success of all nodes) / totalNodes
-  return (totalSuccess / totalNodes)
+const getProgressBarColor = (progress: number): string => {
+  if (progress < 0.3) return 'var(--neon-red)'
+  if (progress < 0.7) return 'var(--neon-yellow)'
+  return 'var(--neon-cyan)'
 }
 
 const showSettingsModal = ref(false)
@@ -130,6 +116,9 @@ onUnmounted(() => {
 
 function selectChapter(id: string) {
   studyStore.setActiveChapter(id)
+  // Ensure start position
+  boardStore.navigatePgn('start')
+  boardStore.syncBoardWithPgn()
 }
 
 function handleAddChapter() {
@@ -293,7 +282,11 @@ async function handleSyncFromLichess() {
             <div class="chapter-progress-container">
                <div
                  class="chapter-progress-bar"
-                 :style="{ width: `${getChapterProgress(chapter) * 100}%` }"
+                 :style="{ 
+                    width: `${getChapterProgress(chapter) * 100}%`,
+                    background: getProgressBarColor(getChapterProgress(chapter)),
+                    boxShadow: `0 0 5px ${getProgressBarColor(getChapterProgress(chapter))}`
+                 }"
                ></div>
             </div>
           </NThing>

@@ -98,6 +98,24 @@ class SrsService {
 
     return branchScores[0]!.branch
   }
+
+  /**
+   * Calculates the overall cleanliness (Progress) of a chapter.
+   * 0.0 = Totally weedy (urgent)
+   * 1.0 = Perfectly clean
+   */
+  public getChapterCleanliness(rootNode: PgnNode): number {
+    const leafs = this.getLeafNodes(rootNode)
+    if (leafs.length === 0) return 1.0 // Nothing to do, so it's clean-ish? Or 0? Let's say 1.0.
+
+    let totalWeed = 0
+    for (const leaf of leafs) {
+      totalWeed += this.calculateWeedPressure(leaf)
+    }
+
+    const avgWeed = totalWeed / leafs.length
+    return 1.0 - avgWeed
+  }
 }
 
 export const srsService = new SrsService()

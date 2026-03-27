@@ -83,6 +83,8 @@ export class TrainingController {
       this.trainingStore.sessionStats.streak = 0
       this.sessionMistakes++ // Unkraut wächst!
 
+      soundService.playSound('game_training_error')
+
       // Revert board (undo the piece drop)
       this.boardStore.syncBoardWithPgn()
 
