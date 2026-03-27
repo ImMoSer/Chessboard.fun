@@ -1,4 +1,5 @@
 import type { PgnNode } from '@/shared/lib/pgn/PgnService'
+import logger from '@/shared/lib/logger'
 
 export interface TrainingMetadata {
   successes: number
@@ -20,7 +21,15 @@ class SrsService {
 
     if (training.attempts === 0) {
       // New nodes get maximum priority to ensure exploration
-      return 1000
+      // Mainline gets 1000. Variations get slightly less so main is tested first.
+      let rankPenalty = 0
+      if (node.parent && node.parent.children) {
+        const index = node.parent.children.findIndex(c => c.id === node.id)
+        if (index > 0) {
+          rankPenalty = index * 50
+        }
+      }
+      return 1000 - rankPenalty
     }
 
     const successRate = training.successes / training.attempts
@@ -62,8 +71,23 @@ class SrsService {
       weight: this.calculateWeight(n)
     }))
 
+    // Shuffle the array first using Fisher-Yates or simple random sort
+    // so that nodes with the exact same weight (e.g. 1000 for untried) are selected randomly
+    weightedNodes.sort(() => Math.random() - 0.5)
+
     // Sort by weight descending (highest weight = highest priority)
+    // The underlying stable sort will keep the random order for ties.
     weightedNodes.sort((a, b) => b.weight - a.weight)
+
+    logger.info(`[SrsService] Evaluated ${nodes.length} options for system reply:`)
+    weightedNodes.forEach(wn => {
+       const metadata = wn.node.metadata?.training as TrainingMetadata
+       const ageStr = metadata?.lastTrained 
+         ? Math.floor((Date.now() - metadata.lastTrained) / (1000 * 60 * 60 * 24)) + ' days'
+         : 'Never'
+       logger.info(`  - ${wn.node.uci} (Weight: ${wn.weight.toFixed(2)}, Attempts: ${metadata?.attempts || 0}, Age: ${ageStr})`)
+    })
+    logger.info(`[SrsService] -> Selected: ${weightedNodes[0]!.node.uci}`)
 
     return weightedNodes[0]!.node
   }

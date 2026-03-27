@@ -2,6 +2,7 @@ import { Chess } from 'chessops/chess'
 import { parseFen, makeFen } from 'chessops/fen'
 import { parseSan } from 'chessops/san'
 import { makeUci, parseUci } from 'chessops/util'
+import type { Move } from 'chessops/types'
 import { scalachessCharPair } from 'chessops/compat'
 import { type PgnNode, type DrawShape } from './PgnService'
 
@@ -25,6 +26,13 @@ export class PgnParserService {
     const tokens = this.tokenize(moveText)
 
     const startFen = tags['FEN'] || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+    
+    // Strict Variant Standard check
+    const variantTag = tags['Variant'] || tags['variant']
+    if (variantTag && variantTag.toLowerCase() !== 'standard') {
+      console.warn(`[PgnParserService] Skipping chapter due to non-Standard Variant: ${variantTag}`)
+      return null
+    }
     
     // Strict FEN validation
     try {
@@ -53,6 +61,27 @@ export class PgnParserService {
     }
 
     return { tags, root }
+  }
+
+  private getStandardUci(move: Move, pos: Chess): string {
+    if ('from' in move && 'to' in move) {
+      const piece = pos.board.get(move.from)
+      const targetPiece = pos.board.get(move.to)
+      
+      // Standard rule: if King captures a friendly piece (Rook in chessops), it is Castling
+      if (piece?.role === 'king' && targetPiece && piece.color === targetPiece.color) {
+        const fileFrom = move.from % 8
+        const rankFrom = Math.floor(move.from / 8)
+        const fileTo = move.to % 8
+        
+        const isKingside = fileTo > fileFrom
+        const targetFile = isKingside ? 6 : 2 // 'g' = 6, 'c' = 2
+        
+        const destSquare = (rankFrom * 8) + targetFile
+        return makeUci({ from: move.from, to: destSquare, promotion: move.promotion })
+      }
+    }
+    return makeUci(move)
   }
 
   private extractTags(pgn: string): Record<string, string> {
@@ -195,7 +224,7 @@ export class PgnParserService {
         const move = parseSan(currentPos, token)
 
         if (move) {
-          const uci = makeUci(move)
+          const uci = this.getStandardUci(move, currentPos)
           const fenBefore = currentNode.fenAfter
           
           // Fast execute move

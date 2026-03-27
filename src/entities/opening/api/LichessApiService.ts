@@ -58,31 +58,14 @@ class LichessApiService {
       if (!response.ok) throw new Error(`Player API Error: ${response.statusText}`)
 
       const data: LichessOpeningResponse = await response.json()
-      return this.normalizeLichessData(data)
+      return data
     } catch (error) {
       logger.error(`[LichessApiService] Error:`, error)
       return null
     }
   }
 
-  private normalizeLichessData(data: LichessOpeningResponse): LichessOpeningResponse {
-    if (!data || !data.moves) return data
 
-    const CASTLING_MAP: Record<string, string> = {
-      e1h1: 'e1g1',
-      e1a1: 'e1c1',
-      e8h8: 'e8g8',
-      e8a8: 'e8c8',
-    }
-
-    data.moves.forEach((move) => {
-      const normalized = CASTLING_MAP[move.uci]
-      if (normalized) {
-        move.uci = normalized
-      }
-    })
-    return data
-  }
 }
 
 export const lichessApiService = new LichessApiService()

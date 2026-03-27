@@ -4,6 +4,7 @@ import { pgnService, type PgnNode } from '@/shared/lib/pgn/PgnService'
 import { useReplyTrainingStore } from '../model/reply-training.store'
 import { srsService } from './SrsService'
 import type { Key } from '@lichess-org/chessground/types'
+import logger from '@/shared/lib/logger'
 
 // Use dynamic message to show praise
 import { createDiscreteApi } from 'naive-ui'
@@ -38,20 +39,31 @@ export class TrainingController {
     if (!this.trainingStore.isReplyTrainingActive) return false
 
     const uciPrefix = orig + dest
+
     const currentNode = pgnService.getCurrentNode()
     const children = currentNode.children || []
 
     const matchingChild = children.find((c) => c.uci.startsWith(uciPrefix))
 
+    logger.info(`[TrainingController] User played ${orig}-${dest}. Normalized to ${uciPrefix}. Valid children: ${children.map(c => c.uci).join(', ')}`)
+
     if (matchingChild) {
+      logger.info(`[TrainingController] Correct Move! Matched child node ID: ${matchingChild.id}`)
       // The move is roughly correct (ignoring explicit promotion role here)
       // We update success stats
       this.trainingStore.sessionStats.correct++
       this.trainingStore.sessionStats.streak++
       this.updateNodeMetadata(matchingChild, true)
       
-      return false // Let it proceed
+      // READ-ONLY PROTECTION: 
+      // Do not allow BoardStore to write/duplicate the move.
+      // We just quietly navigate to the node and manually trigger logical progression.
+      this.boardStore.navigateToNode(matchingChild)
+      this.onMoveSuccessfullyApplied()
+      
+      return true // Intercept entirely! Do not pass to boardStore.handleAnalysisMove
     } else {
+      logger.warn(`[TrainingController] Incorrect Move. Played ${uciPrefix}, but expected one of: ${children.map(c => c.uci).join(', ')}`)
       // Move not in repertoire
       this.trainingStore.sessionStats.wrong++
       this.trainingStore.sessionStats.streak = 0
@@ -84,6 +96,7 @@ export class TrainingController {
   private onVariationEnded() {
     if (!this.trainingStore.isReplyTrainingActive) return
     
+    logger.info(`[TrainingController] Variation ended. Resetting to start.`)
     message.success('Variation finished! Excellent work.', { duration: 2500 })
     
     // Wait briefly then reset to start
@@ -107,6 +120,8 @@ export class TrainingController {
     const chapterColor = this.studyStore.activeChapter?.color || 'white'
     const turn = this.boardStore.turn // 'white' | 'black'
 
+    logger.info(`[TrainingController] Checking opponent reply. Turn: ${turn}, UserColor: ${chapterColor}`)
+
     // Only move if it's not the user's turn
     if (turn !== chapterColor) {
       setTimeout(() => {
@@ -119,6 +134,7 @@ export class TrainingController {
           // SELECTION: Favor nodes with lower success or higher age
           const challengeNode = srsService.selectNextChallenge(children)
           if (challengeNode) {
+            logger.info(`[TrainingController] System generated reply: ${challengeNode.uci}`)
             // Apply the move (Logic in boardStore handles PGN sync as well)
             this.boardStore.applyUciMove(challengeNode.uci)
 
@@ -144,6 +160,8 @@ export class TrainingController {
       training.successes++
     }
     training.lastTrained = Date.now()
+
+    logger.info(`[TrainingController] Node <${node.id}> (${node.uci}) SRS metadata updated. Successes: ${training.successes}/${training.attempts}`)
 
     // Increment pgnTreeVersion to trigger UI updates and auto-saves
     pgnService.updateNode(node, { metadata: { ...node.metadata } })
