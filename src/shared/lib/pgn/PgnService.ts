@@ -579,12 +579,16 @@ class PgnServiceController {
     node: PgnNode,
     data: Partial<Pick<PgnNode, 'comment' | 'eval' | 'nag' | 'metadata' | 'shapes'>>,
   ): void {
-    if (data.comment !== undefined) node.comment = data.comment
-    if (data.eval !== undefined) node.eval = data.eval
-    if (data.nag !== undefined) node.nag = data.nag
-    if (data.shapes !== undefined) node.shapes = data.shapes
-    if (data.metadata !== undefined) {
-      node.metadata = { ...node.metadata, ...data.metadata }
+    if ('comment' in data) node.comment = data.comment
+    if ('eval' in data) node.eval = data.eval
+    if ('nag' in data) node.nag = data.nag
+    if ('shapes' in data) node.shapes = data.shapes
+    if ('metadata' in data) {
+      if (data.metadata === undefined) {
+        node.metadata = undefined
+      } else {
+        node.metadata = { ...node.metadata, ...data.metadata }
+      }
     }
     treeVersion.value++
   }
