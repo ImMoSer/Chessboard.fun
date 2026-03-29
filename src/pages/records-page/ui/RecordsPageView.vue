@@ -72,9 +72,23 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
     </div>
 
     <div v-else-if="leaderboards" class="records-page__grid">
+      <!-- СЕКЦИЯ: HALL OF FAME (Overall) -->
+      <section class="records-section">
+        <!-- Overall Skill Leaderboard -->
+        <SkillLeaderboardTable
+          v-if="leaderboards.overallSkillLeaderboard"
+          :title="t('features.leaderboards.titles.overallSkill')"
+          :entries="leaderboards.overallSkillLeaderboard"
+          color-class="overallSkill"
+          :show-filter="true"
+          :is-loading="isSkillLeaderboardLoading"
+          :selected-period="selectedSkillPeriod"
+          @period-change="handleSkillPeriodChange"
+        />
+      </section>
+
       <!-- СЕКЦИЯ: HOT (Activity & Streaks) -->
       <section class="records-section">
-        <h2 class="section-divider">{{ t('features.leaderboards.sections.hot') }}</h2>
         <div class="section-grid">
           <!-- Skill Streak Mega Leaderboard -->
           <SkillLeaderboardTable
@@ -149,21 +163,6 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
         </div>
       </section>
 
-      <!-- СЕКЦИЯ: HALL OF FAME (Overall) -->
-      <section class="records-section">
-        <h2 class="section-divider">{{ t('features.leaderboards.sections.hallOfFame') }}</h2>
-        <!-- Overall Skill Leaderboard -->
-        <SkillLeaderboardTable
-          v-if="leaderboards.overallSkillLeaderboard"
-          :title="t('features.leaderboards.titles.overallSkill')"
-          :entries="leaderboards.overallSkillLeaderboard"
-          color-class="overallSkill"
-          :show-filter="true"
-          :is-loading="isSkillLeaderboardLoading"
-          :selected-period="selectedSkillPeriod"
-          @period-change="handleSkillPeriodChange"
-        />
-      </section>
     </div>
   </div>
 </template>

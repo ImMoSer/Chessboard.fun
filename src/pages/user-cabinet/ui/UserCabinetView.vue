@@ -213,10 +213,6 @@ const handleManageSubscription = async () => {
       <n-space vertical size="large">
         <UserProfileHeader :profile-override="displayProfile" />
 
-        <ActivityChart
-          :stats="personalActivityStats"
-          :is-loading="isExample ? false : isActivityPending"
-        />
 
         <div class="charts-grid">
           <ThemeRoseChart
@@ -271,6 +267,11 @@ const handleManageSubscription = async () => {
             :themes="currentPracticalThemes"
             :title="t('features.userCabinet.stats.modes.practical')"
             @improve="launchGame"
+          />
+
+          <ActivityChart
+            :stats="personalActivityStats"
+            :is-loading="isExample ? false : isActivityPending"
           />
         </div>
 

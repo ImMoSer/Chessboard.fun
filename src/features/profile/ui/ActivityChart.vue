@@ -133,59 +133,73 @@ const chartOption = computed(() => {
 </script>
 
 <template>
-  <n-card class="activity-chart-card" :loading="isLoading">
-    <template #header>
-      <div class="card-header-flex">
-        <span class="card-title">{{ t('features.userCabinet.stats.global.title') }}</span>
-        <n-tabs
-          type="segment"
-          :value="selectedActivityPeriod"
-          @update:value="handlePeriodChange"
-          class="period-tabs"
-          size="small"
-        >
-          <n-tab-pane name="daily" :tab="t('features.userCabinet.stats.periods.day')" />
-          <n-tab-pane name="weekly" :tab="t('features.userCabinet.stats.periods.week')" />
-          <n-tab-pane name="monthly" :tab="t('features.userCabinet.stats.periods.month')" />
-        </n-tabs>
+  <div class="activity-chart-container" v-if="!isLoading">
+    <div class="chart-header">
+      <div class="header-left-group">
+        <span class="chart-title">{{ t('features.userCabinet.stats.global.title') }}</span>
       </div>
-    </template>
+      <n-tabs
+        type="segment"
+        :value="selectedActivityPeriod"
+        @update:value="handlePeriodChange"
+        class="period-tabs"
+        size="small"
+      >
+        <n-tab-pane name="daily" :tab="t('features.userCabinet.stats.periods.day')" />
+        <n-tab-pane name="weekly" :tab="t('features.userCabinet.stats.periods.week')" />
+        <n-tab-pane name="monthly" :tab="t('features.userCabinet.stats.periods.month')" />
+      </n-tabs>
+    </div>
 
-    <div class="chart-container">
+    <div class="chart-wrapper">
       <v-chart v-if="stats" class="chart" :option="chartOption" autoresize />
       <n-empty v-else :description="t('features.userCabinet.stats.noData')" />
     </div>
-  </n-card>
+  </div>
+  <n-card v-else class="activity-chart-container" :loading="true" />
 </template>
 
 <style scoped>
-.activity-chart-card {
+.activity-chart-container {
+  width: 100%;
   background-color: var(--color-bg-tertiary);
   border-radius: 12px;
-  border: 1px solid var(--color-border-hover);
+  padding: 10px;
+  border: 1px solid var(--color-border);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
-.card-header-flex {
+.chart-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
+  margin-bottom: 1px;
+  flex-wrap: wrap;
+  gap: 2px;
 }
 
-.card-title {
-  font-family: var(--font-family-primary);
+.header-left-group {
+  display: flex;
+  align-items: center;
+}
+
+.chart-title {
+  margin: 0;
   color: var(--color-accent-success);
-  font-size: var(--font-size-large);
-  font-weight: bold;
+  font-family: var(--font-family-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
 }
 
 .period-tabs {
-  width: 300px;
+  width: 250px;
 }
 
-.chart-container {
-  height: 380px;
+.chart-wrapper {
   width: 100%;
+  height: 400px;
 }
 
 .chart {
@@ -193,20 +207,27 @@ const chartOption = computed(() => {
   height: 100%;
 }
 
-@media (max-width: 600px) {
-  .card-header-flex {
+@media (max-width: 768px) {
+  .activity-chart-container {
+    padding: 10px;
+  }
+
+  .chart-header {
     flex-direction: column;
-    gap: 11px;
     align-items: flex-start;
+    gap: 12px;
   }
-  .card-title {
-    font-size: 1.1rem;
+
+  .chart-title {
+    font-size: 0.88rem;
   }
+
+  .chart-wrapper {
+    height: 280px;
+  }
+
   .period-tabs {
     width: 100%;
-  }
-  .chart-container {
-    height: 340px;
   }
 }
 </style>
