@@ -329,6 +329,7 @@ export interface ActivityPeriodStats {
   rep_generator: ActivityModeStats
   'diamond-hunter': ActivityModeStats
   'opening-sparring': ActivityModeStats
+  'study-reply'?: ActivityModeStats
   speedrun?: ActivityModeStats
 }
 

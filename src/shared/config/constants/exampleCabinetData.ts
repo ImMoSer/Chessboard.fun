@@ -51,6 +51,7 @@ export const EXAMPLE_ACTIVITY_STATS: PersonalActivityStatsResponse = {
     rep_generator: { puzzles_requested: 0, puzzles_solved: 0 },
     'diamond-hunter': { puzzles_requested: 0, puzzles_solved: 0 },
     'opening-sparring': { puzzles_requested: 0, puzzles_solved: 0 },
+    'study-reply': { puzzles_requested: 0, puzzles_solved: 0 },
   },
   weekly: {
     tornado: { puzzles_requested: 3185, puzzles_solved: 3164 },
@@ -60,6 +61,7 @@ export const EXAMPLE_ACTIVITY_STATS: PersonalActivityStatsResponse = {
     rep_generator: { puzzles_requested: 0, puzzles_solved: 0 },
     'diamond-hunter': { puzzles_requested: 0, puzzles_solved: 0 },
     'opening-sparring': { puzzles_requested: 0, puzzles_solved: 0 },
+    'study-reply': { puzzles_requested: 0, puzzles_solved: 0 },
   },
   monthly: {
     tornado: { puzzles_requested: 11751, puzzles_solved: 11646 },
@@ -69,6 +71,7 @@ export const EXAMPLE_ACTIVITY_STATS: PersonalActivityStatsResponse = {
     rep_generator: { puzzles_requested: 0, puzzles_solved: 0 },
     'diamond-hunter': { puzzles_requested: 0, puzzles_solved: 0 },
     'opening-sparring': { puzzles_requested: 0, puzzles_solved: 0 },
+    'study-reply': { puzzles_requested: 0, puzzles_solved: 0 },
   },
 }
 

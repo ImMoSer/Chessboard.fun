@@ -53,6 +53,7 @@ const chartOption = computed(() => {
     { key: 'rep_generator', name: t('features.study.repertoireGenerator.title'), cost: 50, color: '#e74c3c' },
     { key: 'diamond-hunter', name: t('nav.diamondHunter'), cost: 25, color: '#1abc9c' },
     { key: 'opening-sparring', name: t('nav.openingExam'), cost: 25, color: '#e67e22' },
+    { key: 'study-reply', name: t('features.study.sidebar.replyTraining', 'Reply Training'), cost: 25, color: '#f1c40f' },
     { key: 'speedrun', name: t('nav.speedrun'), cost: 25, color: '#8e44ad' },
   ] as const
 

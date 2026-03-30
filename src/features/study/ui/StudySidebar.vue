@@ -11,6 +11,7 @@ import { useBoardStore } from '@/entities/game'
 import { useStudyStore, type StudyChapter, isChapterTrimmed } from '@/entities/study'
 import ChapterSettingsModal from './ChapterSettingsModal.vue'
 import LichessErrorModal from './LichessErrorModal.vue'
+import { apiClient } from '@/shared/api/client'
 
 const studyStore = useStudyStore()
 const trainingStore = useReplyTrainingStore()
@@ -19,6 +20,30 @@ const router = useRouter()
 const message = useMessage()
 const dialog = useDialog()
 const { t } = useI18n()
+
+const isStartingReply = ref(false)
+
+const startReplyTraining = async (chapter: StudyChapter) => {
+  if (isStartingReply.value) return
+  isStartingReply.value = true
+  try {
+    await apiClient('/opening/study-reply/start', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ chapterId: chapter.id }),
+    })
+    selectChapter(chapter.id)
+    trainingStore.isReplyTrainingActive = true
+    message.success(t('features.study.sidebar.replyStarted', 'Reply Training Started (-25 PawnCoins)'))
+  } catch (error: unknown) {
+    const err = error as { response?: { data?: { message?: string } }, message?: string }
+    message.error(err.response?.data?.message || err.message || 'Error starting training')
+  } finally {
+    isStartingReply.value = false
+  }
+}
 
 import { watch } from 'vue'
 
@@ -252,7 +277,7 @@ async function handleSyncFromLichess() {
               <NSpace align="center" :size="6" style="flex-wrap: nowrap; overflow: hidden; max-width: 100%;">
                 <span class="chapter-name">{{ chapter.name }}</span>
                 <template v-if="chapter.chapter_type === 'repertoire'">
-                  <span v-if="isChapterTrimmed(chapter)" class="tag-rep">REP</span>
+                  <span v-if="isChapterTrimmed(chapter)" class="tag-reply" @click.stop="startReplyTraining(chapter)">REPLY</span>
                   <span v-else class="tag-trim" title="You have multiple choices defined. Trim the tree!">TRIM</span>
                 </template>
                 <template v-else-if="chapter.chapter_type === 'speedrun'">
@@ -421,14 +446,22 @@ async function handleSyncFromLichess() {
   flex: 1;
 }
 
-.tag-rep {
+.tag-reply {
   font-size: 0.65rem;
   font-weight: 800;
-  color: var(--neon-blue);
-  border: 1px solid var(--neon-blue);
+  color: var(--neon-cyan);
+  border: 1px solid var(--neon-cyan);
+  background-color: rgba(0, 255, 255, 0.1);
   border-radius: 4px;
   padding: 0 4px;
   flex-shrink: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tag-reply:hover {
+  background-color: var(--neon-cyan);
+  color: #000;
 }
 
 .tag-trim {
