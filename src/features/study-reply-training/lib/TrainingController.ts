@@ -3,6 +3,7 @@ import { useStudyStore } from '@/entities/study'
 import logger from '@/shared/lib/logger'
 import { pgnService } from '@/shared/lib/pgn/PgnService'
 import { soundService } from '@/shared/lib/sound.service'
+import i18n from '@/shared/config/i18n'
 import type { Key } from '@lichess-org/chessground/types'
 import { useReplyTrainingStore } from '../model/reply-training.store'
 import { srsService } from './SrsService'
@@ -54,8 +55,7 @@ export class TrainingController {
       logger.info(`[TrainingController] Correct Move! Matched child node ID: ${matchingChild.id}`)
       // The move is roughly correct
       // We update success stats
-      this.trainingStore.sessionStats.correct++
-      this.trainingStore.sessionStats.streak++
+      this.trainingStore.variantStats.correct++
 
       // READ-ONLY PROTECTION:
       // Do not allow BoardStore to write/duplicate the move.
@@ -79,8 +79,7 @@ export class TrainingController {
     } else {
       logger.warn(`[TrainingController] Incorrect Move. Played ${uciPrefix}, but expected one of: ${children.map(c => c.uci).join(', ')}`)
       // Move not in repertoire
-      this.trainingStore.sessionStats.wrong++
-      this.trainingStore.sessionStats.streak = 0
+      this.trainingStore.variantStats.wrong++
       this.sessionMistakes++ // Unkraut wächst!
 
       soundService.playSound('game_training_error')
@@ -112,6 +111,12 @@ export class TrainingController {
     const currentNode = pgnService.getCurrentNode()
     const N = Math.max(1, currentNode.ply || 1)
 
+    // Update Session Stats
+    this.trainingStore.sessionStats.variantsPlayed++
+    if (this.sessionMistakes === 0) {
+      this.trainingStore.sessionStats.variantsSolved++
+    }
+
     // Mathematics of the Garden
     const alpha = 0.5 // Learning rate
     const errorRate = Math.min(this.sessionMistakes, N) / N
@@ -129,6 +134,9 @@ export class TrainingController {
     training.mastery = (alpha * (1.0 - errorRate)) + ((1.0 - alpha) * training.mastery)
     training.lastTrained = Date.now()
     training.attempts = (training.attempts || 0) + 1
+    if (this.sessionMistakes === 0) {
+        training.successes = (training.successes || 0) + 1
+    }
 
     logger.info(`[TrainingController] Variation ended. Line <${currentNode.id}> Jäten finished. Mistakes: ${this.sessionMistakes}/${N}. Mastery updated to: ${(training.mastery * 100).toFixed(1)}%`)
 
@@ -138,12 +146,13 @@ export class TrainingController {
     this.sessionMistakes = 0
 
     logger.info(`[TrainingController] Variation ended. Resetting to start.`)
-    message.success('Variation finished! Excellent work.', { duration: 2500 })
+    message.success(i18n.global.t('features.study.replyTraining.variationFinished'), { duration: 2500 })
 
     // Wait briefly then reset to start
     setTimeout(() => {
       if (!this.trainingStore.isReplyTrainingActive) return
 
+      this.trainingStore.resetVariant()
       this.boardStore.navigatePgn('start')
       this.boardStore.syncBoardWithPgn()
 

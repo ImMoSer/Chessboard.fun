@@ -280,9 +280,31 @@
         "addChapter": "Kapitel hinzufügen",
         "cooldownWait": "Bitte warte {seconds}s bevor du es erneut versuchst.",
         "cooldownTooltip": "Wartezeit: {seconds}s"
-      },
-      "chapterSettings": {
-        "addChapter": "Neues Kapitel hinzufügen",
+        },
+        "replyTraining": {
+        "title": "REPLY TRAINING",
+        "updateButton": "Update",
+        "startedMessage": "Reply Training gestartet (-25 PawnCoins)",
+        "errorStarting": "Fehler beim Starten des Trainings",
+        "session": {
+          "gardenCleanliness": "Garten Sauberkeit",
+          "sessionTotal": "Session (Gesamt)",
+          "variantsPlayed": "Varianten gespielt:",
+          "variantsSolved": "Varianten fehlerfrei:",
+          "currentVariant": "Aktuelle Variante",
+          "errors": "Fehler:",
+          "accuracy": "Genauigkeit:",
+          "exitButton": "Session beenden",
+          "exitDialog": {
+            "title": "Session beenden?",
+            "content": "Möchtest du das Reply Training wirklich beenden? Die investierten PawnCoins werden nicht erstattet, aber dein Fortschritt bleibt gespeichert.",
+            "confirm": "Beenden",
+            "cancel": "Weiter trainieren"
+          }
+        },
+        "variationFinished": "Variante abgeschlossen! Ausgezeichnete Arbeit."
+        },
+        "chapterSettings": {        "addChapter": "Neues Kapitel hinzufügen",
         "settings": "Kapiteleinstellungen",
         "tabs": {
           "basicInfo": "Basis-Info",

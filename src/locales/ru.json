@@ -280,9 +280,31 @@
         "addChapter": "Добавить главу",
         "cooldownWait": "Пожалуйста, подождите {seconds} сек. перед повторной попыткой.",
         "cooldownTooltip": "Ожидание: {seconds} сек."
-      },
-      "chapterSettings": {
-        "addChapter": "Добавить новую главу",
+        },
+        "replyTraining": {
+        "title": "REPLY TRAINING",
+        "updateButton": "Обновить",
+        "startedMessage": "Тренировка начата (-25 PawnCoins)",
+        "errorStarting": "Ошибка при запуске тренировки",
+        "session": {
+          "gardenCleanliness": "Чистота сада",
+          "sessionTotal": "Сессия (Всего)",
+          "variantsPlayed": "Вариантов пройдено:",
+          "variantsSolved": "Вариантов без ошибок:",
+          "currentVariant": "Текущий вариант",
+          "errors": "Ошибки:",
+          "accuracy": "Точность:",
+          "exitButton": "Завершить сессию",
+          "exitDialog": {
+            "title": "Завершить сессию?",
+            "content": "Вы действительно хотите завершить тренировку? Потраченные PawnCoins не будут возвращены, но ваш прогресс будет сохранен.",
+            "confirm": "Завершить",
+            "cancel": "Продолжить тренировку"
+          }
+        },
+        "variationFinished": "Вариант завершен! Отличная работа."
+        },
+        "chapterSettings": {        "addChapter": "Добавить новую главу",
         "settings": "Настройки главы",
         "tabs": {
           "basicInfo": "Основная инфо",

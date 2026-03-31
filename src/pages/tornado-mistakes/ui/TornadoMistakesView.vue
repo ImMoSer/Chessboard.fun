@@ -13,25 +13,25 @@ import { useTornadoMistakesStore } from '@/features/tornado'
 import type { GamePuzzle } from '@/shared/types/api.types'
 
 import {
-    AnalyticsOutline,
-    ExitOutline,
-    FileTrayOutline,
-    InformationCircleOutline,
-    PlayForwardOutline,
-    RibbonOutline,
+  AnalyticsOutline,
+  ExitOutline,
+  FileTrayOutline,
+  InformationCircleOutline,
+  PlayForwardOutline,
+  RibbonOutline,
 } from '@vicons/ionicons5'
 import {
-    NButton,
-    NCard,
-    NEmpty,
-    NGrid,
-    NGridItem,
-    NIcon,
-    NScrollbar,
-    NSpace,
-    NStatistic,
-    NTag,
-    NText,
+  NButton,
+  NCard,
+  NEmpty,
+  NGrid,
+  NGridItem,
+  NIcon,
+  NScrollbar,
+  NSpace,
+  NStatistic,
+  NTag,
+  NText,
 } from 'naive-ui'
 
 // --- STORES ---
@@ -286,7 +286,7 @@ async function handleExit() {
                   round
                   class="theme-tag"
                 >
-                  {{ t(`chess.tornado.${theme}`) }}
+                  {{ t(`chess.tactics.${theme}`) }}
                 </n-tag>
                 <n-text v-if="formattedThemes.length === 0" depth="3" italic>
                   {{ t('common.none') }}

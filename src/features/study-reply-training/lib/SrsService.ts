@@ -38,12 +38,16 @@ class SrsService {
     const msSinceLast = Date.now() - lastTrained
     const daysSinceLast = msSinceLast / (1000 * 60 * 60 * 24)
     
-    // Resilience S(M) = 1 + 30 * M
-    const S = 1.0 + 30.0 * mastery
+    // Weed grows by 14% per day. Max 100% after ~7 days.
+    // Base weed pressure is determined by how well it was mastered
+    // If mastery is 1.0 (perfect), initial weed is 0.0.
+    // If mastery is lower, base weed is higher.
+    const baseWeed = 1.0 - mastery;
+    const weedGrowth = daysSinceLast * 0.14;
     
-    // Weed Pressure function: 1 - e^(-t / S)
-    const W = 1.0 - Math.exp(-daysSinceLast / S)
-    return Math.max(0, Math.min(1, W)) // Clamp safety
+    const W = baseWeed + weedGrowth;
+    
+    return Math.max(0, Math.min(1.0, W)) // Clamp between 0 and 1
   }
 
   /**

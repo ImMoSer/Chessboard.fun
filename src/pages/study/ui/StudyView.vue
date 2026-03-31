@@ -4,6 +4,7 @@ import { AnalysisPanel, useAnalysisStore } from '@/features/analysis'
 import { MozerBook } from '@/features/mozer-book'
 import { LichessOpeningExplorer } from '@/features/opening-explorer'
 import { LichessApiError, LichessErrorModal, LichessStudyAuthModal, StudyControls, StudyHeader, StudySidebar, StudyTree, useStudyStore } from '@/features/study'
+import { useReplyTrainingStore, ReplySessionWindow } from '@/features/study-reply-training'
 import { pgnService } from '@/shared/lib/pgn/PgnService'
 import { GameLayout } from '@/widgets/game-layout'
 import { useDialog, useMessage } from 'naive-ui'
@@ -20,6 +21,7 @@ const dialog = useDialog()
 const boardStore = useBoardStore()
 const studyStore = useStudyStore()
 const analysisStore = useAnalysisStore()
+const trainingStore = useReplyTrainingStore()
 
 const explorerMode = ref<'lichess' | 'mozer' | 'study'>('study')
 
@@ -191,7 +193,8 @@ watch(
     </template>
 
     <template #left-panel>
-      <div class="explorer-wrapper">
+      <ReplySessionWindow v-if="trainingStore.isReplyTrainingActive" />
+      <div v-else class="explorer-wrapper">
         <div class="explorer-toggle">
           <button :class="{ active: explorerMode === 'study' }" @click="explorerMode = 'study'">
             Study

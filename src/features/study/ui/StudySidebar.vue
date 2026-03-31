@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { AddOutline, CloudDownloadOutline, SettingsOutline } from '@vicons/ionicons5'
-import { NButton, NIcon, NList, NListItem, NScrollbar, NSpace, NSwitch, NText, NThing, useDialog, useMessage } from 'naive-ui'
+import { NButton, NIcon, NList, NListItem, NScrollbar, NSpace, NText, NThing, useDialog, useMessage } from 'naive-ui'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 // eslint-disable-next-line boundaries/element-types
-import { srsService, trainingController, useReplyTrainingStore } from '../../study-reply-training'
+import { srsService, useReplyTrainingStore } from '../../study-reply-training'
 import { LichessApiError } from '../api/LichessSyncService'
 import { useBoardStore } from '@/entities/game'
 import { useStudyStore, type StudyChapter, isChapterTrimmed } from '@/entities/study'
@@ -35,24 +35,16 @@ const startReplyTraining = async (chapter: StudyChapter) => {
       body: JSON.stringify({ chapterId: chapter.id }),
     })
     selectChapter(chapter.id)
+    trainingStore.trainingChapterId = chapter.id
     trainingStore.isReplyTrainingActive = true
-    message.success(t('features.study.sidebar.replyStarted', 'Reply Training Started (-25 PawnCoins)'))
+    message.success(t('features.study.replyTraining.startedMessage'))
   } catch (error: unknown) {
     const err = error as { response?: { data?: { message?: string } }, message?: string }
-    message.error(err.response?.data?.message || err.message || 'Error starting training')
+    message.error(err.response?.data?.message || err.message || t('features.study.replyTraining.errorStarting'))
   } finally {
     isStartingReply.value = false
   }
 }
-
-import { watch } from 'vue'
-
-watch(() => trainingStore.isReplyTrainingActive, (active) => {
-  if (active) {
-    trainingStore.resetSession()
-    trainingController.checkOpponentReply()
-  }
-})
 
 const SYNC_COOLDOWN_MS = 60 * 1000 // 60 seconds
 const lastSyncTime = ref<number>(0)
@@ -84,7 +76,16 @@ const isSpeedrunReady = computed(() => {
   )
 })
 
+const progressTrigger = ref(0)
+
+const forceProgressUpdate = () => {
+  progressTrigger.value++
+}
+
 const getChapterProgress = (chapter: StudyChapter): number => {
+  // Access progressTrigger to establish reactivity dependency
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _trigger = progressTrigger.value
   return srsService.getChapterCleanliness(chapter.root)
 }
 
@@ -248,15 +249,13 @@ async function handleSyncFromLichess() {
 
       <div class="chapter-count-badge">{{ t('features.study.sidebar.chapterCount', { count: activeStudyChapters.length }) }}</div>
 
-      <!-- Reply Training Tumbler -->
+      <!-- Reply Training Action Header -->
       <div v-if="trainingStore.isReadyToReply" class="reply-training-toggle">
         <NSpace align="center" justify="space-between" style="width: 100%">
-          <NText :depth="2" style="font-size: 0.8rem; font-weight: bold;">REPLY TRAINING</NText>
-          <NSwitch
-            v-model:value="trainingStore.isReplyTrainingActive"
-            size="small"
-            style="--n-rail-color-active: var(--neon-cyan)"
-          />
+          <NText :depth="2" style="font-size: 0.8rem; font-weight: bold;">{{ t('features.study.replyTraining.title') }}</NText>
+          <NButton size="tiny" quaternary type="primary" @click="forceProgressUpdate">
+            {{ t('features.study.replyTraining.updateButton') }}
+          </NButton>
         </NSpace>
       </div>
     </div>
@@ -552,5 +551,20 @@ async function handleSyncFromLichess() {
 }
 .settings-icon {
   color: var(--neon-yellow);
+}
+
+.chapter-progress-container {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  margin-top: 8px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.chapter-progress-bar {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease, background 0.3s ease;
 }
 </style>
