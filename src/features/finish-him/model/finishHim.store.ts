@@ -18,7 +18,9 @@ import type {
     UserProfileStatsDto,
 } from '@/shared/types/api.types'
 import { useUiStore } from '@/shared/ui/model/ui.store'
-import { parseFen } from 'chessops/fen'
+import { makeFen, parseFen } from 'chessops/fen'
+import { Chess } from 'chessops/chess'
+import { parseUci } from 'chessops/util'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -41,6 +43,27 @@ export const useFinishHimStore = defineStore('finishHim', () => {
   const requestedPuzzleId = ref<string | undefined>(undefined)
 
   const isProcessingGameOver = ref(false)
+
+  const fenFinal = computed(() => {
+    const puzzle = activePuzzle.value
+    if (!puzzle || !puzzle.initial_fen || !puzzle.tactical_solution) return ''
+
+    try {
+      const setup = parseFen(puzzle.initial_fen).unwrap()
+      const chess = Chess.fromSetup(setup).unwrap()
+      const moves = puzzle.tactical_solution.split(' ')
+      for (const moveStr of moves) {
+        const move = parseUci(moveStr)
+        if (move) {
+          chess.play(move)
+        }
+      }
+      return makeFen(chess.toSetup())
+    } catch (e) {
+      logger.error('[FinishHimStore] Failed to calculate fenFinal:', e)
+      return ''
+    }
+  })
 
   const { puzzleQuery, resultMutation } = useFinishHimQueries({
     theme: selectedTheme,
@@ -337,5 +360,6 @@ export const useFinishHimStore = defineStore('finishHim', () => {
     reset,
     setParams,
     setThemeAndLoadPuzzle,
+    fenFinal,
   }
 })

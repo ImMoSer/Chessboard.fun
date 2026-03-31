@@ -1,6 +1,6 @@
 <!-- src/pages/TornadoMistakesView.vue -->
 <script setup lang="ts">
-import { useGameStore } from '@/entities/game'
+import { useBoardStore, useGameStore } from '@/entities/game'
 import { AnalysisPanel, useAnalysisStore } from '@/features/analysis'
 import ChessboardPreview from '@/shared/ui/board-preview/ChessboardPreview.vue'
 import { useUiStore } from '@/shared/ui/model/ui.store'
@@ -36,6 +36,7 @@ import {
 
 // --- STORES ---
 const gameStore = useGameStore()
+const boardStore = useBoardStore()
 const analysisStore = useAnalysisStore()
 const uiStore = useUiStore()
 const mistakesStore = useTornadoMistakesStore()
@@ -296,6 +297,13 @@ async function handleExit() {
           </n-space>
         </n-card>
 
+        <ChessboardPreview
+          v-if="mistakesStore.fenFinal"
+          :fen="mistakesStore.fenFinal"
+          :orientation="boardStore.orientation"
+          class="final-position-preview"
+        />
+
         <AnalysisPanel v-if="analysisStore.isPanelVisible" class="analysis-panel-overlay" />
       </div>
     </template>
@@ -405,6 +413,8 @@ async function handleExit() {
   flex-direction: column;
   gap: 20px;
   height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .info-glass-card {
@@ -479,6 +489,13 @@ async function handleExit() {
 
 .empty-mistakes {
   padding: 40px 0;
+}
+
+.final-position-preview {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
 :deep(.n-statistic) {

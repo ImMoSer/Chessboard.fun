@@ -1,10 +1,10 @@
 <!-- src/shared/ui/board-preview/ChessboardPreview.vue -->
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref, watch, shallowRef } from 'vue'
 import { Chessground } from '@lichess-org/chessground'
 import type { Api } from '@lichess-org/chessground/api'
 import type { Config } from '@lichess-org/chessground/config'
 import type { Color as ChessgroundColor } from '@lichess-org/chessground/types'
+import { onMounted, onUnmounted, ref, shallowRef, watch } from 'vue'
 
 const props = defineProps({
   fen: {
@@ -70,10 +70,11 @@ watch(
 <style scoped>
 .chessboard-preview {
   width: 100%;
-  padding-bottom: 100%;
-  /* Соотношение сторон 1:1 */
+  aspect-ratio: 1 / 1;
   position: relative;
   overflow: hidden;
+  display: block; /* Avoid inline-block whitespace issues */
+  flex-shrink: 0;
 }
 
 .chessboard-preview :deep(.cg-wrap) {

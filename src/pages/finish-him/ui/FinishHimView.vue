@@ -1,24 +1,26 @@
 <!-- src/pages/FinishHimView.vue -->
 <script setup lang="ts">
-import { useGameStore } from '@/entities/game'
+import { useBoardStore, useGameStore } from '@/entities/game'
 import { useAnalysisStore } from '@/features/analysis'
 import { useFinishHimStore } from '@/features/finish-him'
-import { shareService } from '@/shared/lib/share.service'
 import { useSmartHintStore } from '@/features/smart-hint'
-import { onMounted, watch, computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { shareService } from '@/shared/lib/share.service'
+import ChessboardPreview from '@/shared/ui/board-preview/ChessboardPreview.vue'
+import { computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRoute, useRouter } from 'vue-router'
 
+import { useAuthStore } from '@/entities/user'
 import { AnalysisPanel } from '@/features/analysis'
-import { UserProfileWidget, ThemeRoseChart } from '@/features/profile'
-import { ControlPanel, GameLayout, TopInfoPanel, useControlsStore } from '@/widgets/game-layout'
+import { ThemeRoseChart, UserProfileWidget } from '@/features/profile'
 import { useDetailedStatsQuery } from '@/shared/api/queries/userCabinet.queries'
 import { normalizeProfileStats } from '@/shared/lib/statsNormalizer'
-import { useAuthStore } from '@/entities/user'
-import type { GameLaunchOptions, FinishHimDifficulty } from '@/shared/types/api.types'
+import type { FinishHimDifficulty, GameLaunchOptions } from '@/shared/types/api.types'
+import { ControlPanel, GameLayout, TopInfoPanel, useControlsStore } from '@/widgets/game-layout'
 
 const finishHimStore = useFinishHimStore()
 const gameStore = useGameStore()
+const boardStore = useBoardStore()
 const controlsStore = useControlsStore()
 const analysisStore = useAnalysisStore()
 const smartHintStore = useSmartHintStore()
@@ -44,7 +46,7 @@ const handleImprove = (options: GameLaunchOptions) => {
     if (!options.subMode) {
       throw new Error('[FinishHimView] handleImprove was called without a subMode (difficulty)!')
     }
-    
+
     finishHimStore.setParams(options.theme, options.subMode as FinishHimDifficulty)
     finishHimStore.loadNewPuzzle()
   }
@@ -130,7 +132,15 @@ watch(
 <template>
   <GameLayout>
     <template #left-panel>
-      <UserProfileWidget />
+      <div class="left-panel-content-wrapper">
+        <UserProfileWidget />
+        <ChessboardPreview
+          v-if="finishHimStore.fenFinal"
+          :fen="finishHimStore.fenFinal"
+          :orientation="boardStore.orientation"
+          class="final-position-preview"
+        />
+      </div>
     </template>
 
     <template #top-info>
@@ -161,11 +171,20 @@ watch(
 </template>
 
 <style scoped>
-.right-panel-content-wrapper {
+.right-panel-content-wrapper,
+.left-panel-content-wrapper {
   display: flex;
   flex-direction: column;
   gap: 10px;
   height: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.final-position-preview {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 </style>

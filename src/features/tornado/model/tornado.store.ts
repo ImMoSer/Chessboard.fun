@@ -10,7 +10,9 @@ import { soundService } from '@/shared/lib/sound.service'
 import type { TornadoPuzzle, TornadoSessionResult } from '@/shared/types/api.types'
 import { type TornadoMode } from '@/shared/types/api.types'
 import { useUiStore } from '@/shared/ui/model/ui.store'
-import { parseFen } from 'chessops/fen'
+import { makeFen, parseFen } from 'chessops/fen'
+import { Chess } from 'chessops/chess'
+import { parseUci } from 'chessops/util'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -62,6 +64,27 @@ export const useTornadoStore = defineStore('tornado', () => {
   const isProcessingMove = ref(false)
   const puzzlesSolved = ref(0)
   const puzzlesAttempted = ref(0)
+
+  const fenFinal = computed(() => {
+    const puzzle = activePuzzle.value
+    if (!puzzle || !puzzle.initial_fen || !puzzle.tactical_solution) return ''
+
+    try {
+      const setup = parseFen(puzzle.initial_fen).unwrap()
+      const chess = Chess.fromSetup(setup).unwrap()
+      const moves = puzzle.tactical_solution.split(' ')
+      for (const moveStr of moves) {
+        const move = parseUci(moveStr)
+        if (move) {
+          chess.play(move)
+        }
+      }
+      return makeFen(chess.toSetup())
+    } catch (e) {
+      logger.error('[TornadoStore] Failed to calculate fenFinal:', e)
+      return ''
+    }
+  })
 
   const tenSecondsWarningPlayed = ref(false)
   const eightSecondsWarningPlayed = ref(false)
@@ -474,5 +497,6 @@ export const useTornadoStore = defineStore('tornado', () => {
     handleRestart,
     handleResign,
     handleNew,
+    fenFinal,
   }
 })

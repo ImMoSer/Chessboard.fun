@@ -209,7 +209,7 @@ const isLimitless = computed(() => (userProfile.value?.dailyLimit || 0) > 90000)
 
 <style scoped lang="scss">
 .user-stats-container {
-  height: 100%;
+  height: auto;
 }
 
 .profile-card {

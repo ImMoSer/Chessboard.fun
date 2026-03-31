@@ -3,7 +3,9 @@ import { useGameStore, type IGameplayStrategy } from '@/entities/game'
 import i18n from '@/shared/config/i18n'
 import { soundService } from '@/shared/lib/sound.service'
 import type { GamePuzzle } from '@/shared/types/api.types'
-import { parseFen } from 'chessops/fen'
+import { makeFen, parseFen } from 'chessops/fen'
+import { Chess } from 'chessops/chess'
+import { parseUci } from 'chessops/util'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
@@ -28,6 +30,30 @@ export const useTornadoMistakesStore = defineStore('tornado-mistakes', () => {
   const allMistakesSolved = computed(() => 
     mistakes.value.length > 0 && mistakes.value.every((p) => solvedStatus.value[p.PuzzleId || p.puzzle_id || ''])
   )
+
+  const fenFinal = computed(() => {
+    const puzzle = selectedPuzzle.value
+    if (!puzzle) return ''
+    const fen = puzzle.FEN_0 || puzzle.initial_fen || ''
+    const solution = puzzle.Moves || puzzle.tactical_solution || ''
+    if (!fen || !solution) return ''
+
+    try {
+      const setup = parseFen(fen).unwrap()
+      const chess = Chess.fromSetup(setup).unwrap()
+      const moves = solution.split(' ').filter(Boolean)
+      for (const moveStr of moves) {
+        const move = parseUci(moveStr)
+        if (move) {
+          chess.play(move)
+        }
+      }
+      return makeFen(chess.toSetup())
+    } catch (e) {
+      console.error('[TornadoMistakesStore] Failed to calculate fenFinal:', e)
+      return ''
+    }
+  })
 
   function loadMistakes() {
     const stored = localStorage.getItem(MISTAKES_STORAGE_KEY)
@@ -117,6 +143,7 @@ export const useTornadoMistakesStore = defineStore('tornado-mistakes', () => {
     allMistakesSolved,
     loadMistakes,
     clearMistakes,
-    selectPuzzle
+    selectPuzzle,
+    fenFinal
   }
 })

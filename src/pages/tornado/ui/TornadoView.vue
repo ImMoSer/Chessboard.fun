@@ -1,10 +1,11 @@
 <!-- src/pages/TornadoView.vue -->
 <script setup lang="ts">
-import { useGameStore } from '@/entities/game'
+import { useBoardStore, useGameStore } from '@/entities/game'
 import { AnalysisPanel } from '@/features/analysis'
 import { UserProfileWidget, ThemeRoseChart } from '@/features/profile'
 import { useTornadoStore, type TornadoMode } from '@/features/tornado'
 import { useSmartHintStore } from '@/features/smart-hint'
+import ChessboardPreview from '@/shared/ui/board-preview/ChessboardPreview.vue'
 import { computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -18,6 +19,7 @@ const tornadoStore = useTornadoStore()
 const controlsStore = useControlsStore()
 const smartHintStore = useSmartHintStore()
 const gameStore = useGameStore()
+const boardStore = useBoardStore()
 const authStore = useAuthStore()
 const route = useRoute()
 const router = useRouter()
@@ -107,6 +109,12 @@ watch(
     <template #left-panel>
       <div class="panel-content-wrapper">
         <UserProfileWidget />
+        <ChessboardPreview
+          v-if="tornadoStore.fenFinal"
+          :fen="tornadoStore.fenFinal"
+          :orientation="boardStore.orientation"
+          class="final-position-preview"
+        />
       </div>
     </template>
 
@@ -142,5 +150,13 @@ watch(
   gap: 10px;
   height: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.final-position-preview {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 </style>
