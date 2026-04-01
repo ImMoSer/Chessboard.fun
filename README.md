@@ -52,17 +52,18 @@ Raw data transformed into actionable insights via **Apache ECharts**.
 | **🌪️ Tornado** | Speed & Pattern Recognition | High-intensity time-assault (1m to 10m) |
 | **⚔️ Finish Him** | Conversion Technique | Play positions with +2.0 advantage until Mate |
 | **📖 Open Sparring** | Strategic Preparation | Interactive debut study with "Remote Commentator" |
-| **📘 Repertoire** | Theory Architecture | Infinite-depth study trees integrated with **MozerBook** |
+| **📘 Study!** | Knowledge & Training | Lichess-integrated studies with SRS "Weed Pressure" & Speedruns |
 | **🧩 Practical** | Calculation & Intuition | Real-game "messy" endgames with side selection |
 | **🎓 Theoretical** | Fundamental Endgames | Structured mastery of classic endgame positions |
 
-### Professional Study Tools
+### Professional Study & Training Tools
 <p align="center">
   <img src="tech_docs/screenshots/Opening_Sparring_Selection.png" width="440" alt="Mode Selection">
   <img src="tech_docs/screenshots/StudyManager.png" width="440" alt="Study Manager">
 </p>
 
-- **Interactive Opening Sparring**: Train your repertoire against the engine with real-time feedback and theoretical notes from **MozerBook**.
+- **Study! (The Grandmaster's Studio)**: Manage and train your Lichess studies with gamified **Speedruns** and SRS-based **Reply Training** (using the "Weed Pressure" algorithm).
+- **Interactive Opening Sparring**: Train your preparation against the engine with real-time feedback and theoretical notes from **MozerBook**.
 - **Specialized Endgames**: Master precision in both theoretical basics and practical "messy" endgames.
 
 <p align="center">

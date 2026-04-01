@@ -18,7 +18,7 @@ Every mode is built with the "Grandmaster's Training" in mind:
 | **Practical** | Calculation & Intuition | Stockfish / Maia |
 | **Diamond Hunter** | Master-level Accuracy ("!!" Search) | Stockfish + BadGyal |
 | **Open Sparring** | Interactive Opening Prep | MozerBook + Commentator |
-| **Repertoire** | Line Management | MozerBook |
+| **Study!** | Knowledge & Training | MozerBook / SRS |
 
 ---
 *Next Section: [4.1 Finish Him](./04_1_Finish_Him.md)*

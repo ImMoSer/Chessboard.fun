@@ -33,4 +33,4 @@ A signature feature of the platform is the **Game Review**, powered by our "Remo
 To provide a comprehensive sparring partner that covers everything from the first move to the final resignation, making opening study a practical, interactive experience.
 
 ---
-*Back to: [Game Modes Overview](./04_GameModes_Overview.md) | Next Section: [4.7 Repertoire](./04_7_Repertoire.md)*
+*Back to: [Game Modes Overview](./04_GameModes_Overview.md) | Next Section: [4.7 Study!](./04_7_Repertoire.md)*
