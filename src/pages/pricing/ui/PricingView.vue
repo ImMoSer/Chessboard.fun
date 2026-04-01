@@ -66,6 +66,10 @@ const currentUserTier = computed(() => {
 
 const currentUserRank = computed(() => tierRanks[currentUserTier.value] ?? 0)
 
+const isSubscriptionCanceled = computed(() => {
+  return authStore.getUserProfile?.polarStatus === 'canceled'
+})
+
 const subscriptionTiers = computed(() => {
   const baseTiers = [
     {
@@ -138,8 +142,9 @@ const subscriptionTiers = computed(() => {
     return {
       ...tier,
       isCurrent,
-      canBuy,
-      isUpgrade
+      canBuy: canBuy && !isSubscriptionCanceled.value,
+      isUpgrade,
+      isBlockedByCancel: canBuy && isSubscriptionCanceled.value
     }
   })
 })
@@ -331,6 +336,14 @@ const handleCheckout = async (tier: SubscriptionTier) => {
                   >
                     {{ tier.isUpgrade ? t('features.pricing.upgrade.title') + ' - ' + tier.price : tier.price }}
                   </n-button>
+                  <n-tooltip v-else-if="tier.isBlockedByCancel" trigger="hover">
+                    <template #trigger>
+                      <n-button block disabled>
+                        {{ t('features.pricing.upgrade.title') }}
+                      </n-button>
+                    </template>
+                    {{ t('features.userCabinet.subscription.reactivateTooltip', 'Bitte reaktiviere dein Abo zuerst.') }}
+                  </n-tooltip>
                   <n-text v-else-if="tier.isCurrent" strong type="success" style="font-size: 1.1em; text-align: center;">
                     Current Tier
                   </n-text>

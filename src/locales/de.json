@@ -410,6 +410,8 @@
         "title": "Abo verwalten",
         "description": "Verwalte deine Zahlungsinformationen, lade Rechnungen herunter oder kündige dein Abo.",
         "openPortal": "Kundenportal öffnen",
+        "reactivate": "Reaktivieren",
+        "reactivateTooltip": "Bitte reaktiviere dein Abo im Kundenportal, um Upgrades vorzunehmen.",
         "error": "Kundenportal konnte nicht geöffnet werden."
       },
       "stats": {

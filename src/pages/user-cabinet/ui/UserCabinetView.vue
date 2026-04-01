@@ -211,7 +211,10 @@ const handleManageSubscription = async () => {
 
     <div class="user-cabinet-content">
       <n-space vertical size="large">
-        <UserProfileHeader :profile-override="displayProfile" />
+        <UserProfileHeader 
+          :profile-override="displayProfile" 
+          @reactivate="handleManageSubscription"
+        />
 
 
         <div class="charts-grid">

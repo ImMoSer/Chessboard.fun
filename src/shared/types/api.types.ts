@@ -409,6 +409,7 @@ export interface UserSessionProfile extends LichessUserProfile {
   base_puzzle_rating: number
   subscriptionTier: SubscriptionTier
   isPolarCustomer?: boolean
+  polarStatus?: string | null
   validatedAt?: number
   TierExpire?: string | null
   endgame_skill: number

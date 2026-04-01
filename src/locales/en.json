@@ -410,6 +410,8 @@
         "title": "Manage Subscription",
         "description": "Manage your billing details, download invoices, or cancel your subscription.",
         "openPortal": "Open Customer Portal",
+        "reactivate": "Reactivate",
+        "reactivateTooltip": "Please reactivate your subscription in the customer portal to make upgrades.",
         "error": "Failed to open customer portal."
       },
       "stats": {

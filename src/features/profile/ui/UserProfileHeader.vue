@@ -27,6 +27,10 @@ const tierToPieceMap: Record<string, string> = {
   Administrator: 'wK.svg',
 }
 
+defineEmits<{
+  (e: 'reactivate'): void
+}>()
+
 const avatarUrl = computed(() => {
   const tier = userProfile.value?.subscriptionTier
   if (tier && tierToPieceMap[tier]) {
@@ -83,6 +87,16 @@ onUnmounted(() => {
 
 const avatarSize = computed(() => (isMobile.value ? 75 : 150))
 const isLimitless = computed(() => (userProfile.value?.dailyLimit || 0) > 90000)
+
+const polarStatusType = computed(() => {
+  const status = userProfile.value?.polarStatus
+  if (status === 'active') return 'success'
+  if (status === 'canceled') return 'warning'
+  if (status === 'past_due' || status === 'unpaid' || status === 'revoked') return 'error'
+  return 'default'
+})
+
+const showReactivateButton = computed(() => userProfile.value?.polarStatus === 'canceled')
 </script>
 
 <template>
@@ -107,9 +121,22 @@ const isLimitless = computed(() => (userProfile.value?.dailyLimit || 0) > 90000)
             <n-tag :type="getTierType(userProfile.subscriptionTier)" round size="small">
               {{ userProfile.subscriptionTier }}
             </n-tag>
+            <n-tag v-if="userProfile.polarStatus" :type="polarStatusType" size="small" round ghost>
+              {{ userProfile.polarStatus }}
+            </n-tag>
             <n-text depth="3" class="expire-date">
               {{ formatTierExpireDate(userProfile.TierExpire) }}
             </n-text>
+            <n-button 
+              v-if="showReactivateButton" 
+              size="tiny" 
+              type="warning" 
+              secondary 
+              round
+              @click="$emit('reactivate')"
+            >
+              {{ t('features.userCabinet.subscription.reactivate') }}
+            </n-button>
           </n-space>
 
           <div class="funcoins-stat">
