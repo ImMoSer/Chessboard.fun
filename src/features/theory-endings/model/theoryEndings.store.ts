@@ -117,15 +117,24 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
       if (response && response.userStatsUpdate) {
         authStore.updateUserStats(response.userStatsUpdate)
         
-        if (response.userStatsUpdate.theory) {
-          queryClient.setQueryData(['user-cabinet', 'detailed-stats'], (oldData: UserProfileStatsDto | undefined) => {
-            if (!oldData) return oldData;
-            return {
-              ...oldData,
-              theory: response.userStatsUpdate!.theory
-            }
-          })
-        }
+        queryClient.setQueryData(['user-cabinet', 'detailed-stats'], (oldData: UserProfileStatsDto | undefined) => {
+          if (!oldData) return oldData;
+          const updated = { ...oldData };
+          
+          if (response.userStatsUpdate!.theory_win) {
+            updated.theory_win = response.userStatsUpdate!.theory_win;
+          }
+          if (response.userStatsUpdate!.theory_draw) {
+            updated.theory_draw = response.userStatsUpdate!.theory_draw;
+          }
+          // Fallback if the backend still sends consolidated theory
+          if (response.userStatsUpdate!.theory) {
+             if (activeType.value === 'win') updated.theory_win = response.userStatsUpdate!.theory;
+             else updated.theory_draw = response.userStatsUpdate!.theory;
+          }
+          
+          return updated;
+        })
       } else {
         await authStore.checkSession()
       }

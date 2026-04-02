@@ -386,6 +386,8 @@ export interface UserStatsUpdate {
   finish_him?: FinishHimProfileDto
   tornado?: TornadoProfileDto
   theory?: TheoryEndingProfileDto
+  theory_win?: TheoryEndingProfileDto
+  theory_draw?: TheoryEndingProfileDto
   practical?: PracticalChessProfileDto
   tornadoHighScores?: {
     blitz?: number
