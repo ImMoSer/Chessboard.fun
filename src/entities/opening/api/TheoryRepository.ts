@@ -1,7 +1,7 @@
 
-import { mozerBookService, type MozerBookResponse } from './MozerBookService'
-import { lichessApiService, type LichessOpeningResponse, type LichessParams } from './LichessApiService'
 import { globalCacheRepository } from '@/shared/api/storage/repositories/GlobalCacheRepository'
+import { lichessApiService, type LichessOpeningResponse, type LichessParams } from './LichessApiService'
+import { mozerBookService, type MozerBookResponse } from './MozerBookService'
 
 export interface TheoryStats {
   fen: string
@@ -17,6 +17,9 @@ class TheoryRepository {
 
   private activeMozerRequests = new Map<string, Promise<MozerBookResponse | null>>()
   private activeLichessRequests = new Map<string, Promise<LichessOpeningResponse | null>>()
+
+  private latestMozerFenRequest: string | null = null
+  private latestLichessCacheKeyRequest: string | null = null
 
   async getCachedStats<T = unknown>(
     fen: string,
@@ -61,9 +64,11 @@ class TheoryRepository {
   }
 
   // --- Mozer Book ---
-  async getMozerBookStats(fen: string): Promise<MozerBookResponse | null> {
+  async getMozerBookStats(fen: string, options: { skipDebounce?: boolean } = {}): Promise<MozerBookResponse | null> {
     const cleanFen = this.toCleanFen(fen)
     const cacheSource = 'mozerBook'
+
+    this.latestMozerFenRequest = cleanFen
 
     if (this.activeMozerRequests.has(cleanFen)) {
       return this.activeMozerRequests.get(cleanFen)!
@@ -77,13 +82,22 @@ class TheoryRepository {
           return cached
         }
 
+        if (!options.skipDebounce) {
+          // Debounce network requests by 350ms
+          await new Promise(resolve => setTimeout(resolve, 350))
+          if (this.latestMozerFenRequest !== cleanFen) {
+            this.activeMozerRequests.delete(cleanFen)
+            return null
+          }
+        }
+
         const data = await mozerBookService.fetchStats(cleanFen)
         if (data) {
           await this.cacheStats(cleanFen, [], data, cacheSource)
           this.activeMozerRequests.delete(cleanFen)
           return data
         }
-        
+
         this.activeMozerRequests.delete(cleanFen)
         return null
       } catch (error) {
@@ -96,7 +110,7 @@ class TheoryRepository {
     return requestPromise
   }
 
-  // --- Lichess ---
+  // --- Lichess Players Stats ---
   private getLichessCacheKey(cleanFen: string, params?: LichessParams): string {
     const ratingsKey = params?.ratingRange || '0-1500'
     return `lichess_player:${ratingsKey}:${cleanFen}`
@@ -105,11 +119,13 @@ class TheoryRepository {
   async getLichessStats(
     fen: string,
     params?: LichessParams,
-    options: { onlyCache?: boolean } = {},
+    options: { onlyCache?: boolean; skipDebounce?: boolean } = {},
   ): Promise<LichessOpeningResponse | null> {
     const cleanFen = this.toCleanFen(fen)
     const cacheKey = this.getLichessCacheKey(cleanFen, params)
     const cacheSource = 'lichess'
+
+    this.latestLichessCacheKeyRequest = cacheKey
 
     if (this.activeLichessRequests.has(cacheKey)) {
       return this.activeLichessRequests.get(cacheKey)!
@@ -128,13 +144,22 @@ class TheoryRepository {
           return null
         }
 
+        if (!options.skipDebounce) {
+          // Debounce network requests by 350ms
+          await new Promise(resolve => setTimeout(resolve, 350))
+          if (this.latestLichessCacheKeyRequest !== cacheKey) {
+            this.activeLichessRequests.delete(cacheKey)
+            return null
+          }
+        }
+
         const data = await lichessApiService.fetchStats(cleanFen, params)
         if (data) {
           await this.cacheStats(cacheKey, [], data, cacheSource)
           this.activeLichessRequests.delete(cacheKey)
           return data
         }
-        
+
         this.activeLichessRequests.delete(cacheKey)
         return null
       } catch (error) {

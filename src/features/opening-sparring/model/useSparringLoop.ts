@@ -46,7 +46,7 @@ export function useSparringLoop() {
     }
 
     const fenBefore = node.fenBefore
-    const stats = await theoryStore.awaitMozerStatsForFen(fenBefore)
+    const stats = await theoryStore.awaitMozerStatsForFen(fenBefore, true)
 
     if (!stats || !stats.moves || stats.moves.length === 0) {
       console.log('[OpeningSparring] Theory over: No stats available for enrichment.')
@@ -102,8 +102,8 @@ export function useSparringLoop() {
     const fen = boardStore.fen
 
     const stats = isLichess
-      ? await theoryStore.awaitLichessStatsForFen(fen)
-      : await theoryStore.awaitMozerStatsForFen(fen)
+      ? await theoryStore.awaitLichessStatsForFen(fen, undefined, true)
+      : await theoryStore.awaitMozerStatsForFen(fen, true)
 
     if (!stats || !stats.moves || stats.moves.length === 0) {
       store.isTheoryOver = true
@@ -145,8 +145,8 @@ export function useSparringLoop() {
     const fenBefore = node?.fenBefore || boardStore.fen
 
     const stats = isLichess
-      ? await theoryStore.awaitLichessStatsForFen(fenBefore)
-      : await theoryStore.awaitMozerStatsForFen(fenBefore)
+      ? await theoryStore.awaitLichessStatsForFen(fenBefore, undefined, true)
+      : await theoryStore.awaitMozerStatsForFen(fenBefore, true)
 
     type UnifiedMove = { uci: string; san: string; total: number; win_p: number; draw_p: number; loss_p: number }
     type UnifiedStats = { summary?: { total: number }; total?: number; moves: UnifiedMove[] }

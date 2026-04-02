@@ -14,8 +14,10 @@ export function setupErrorHandler(app: App) {
 
   // 2. Global Script Errors (window.onerror)
   window.onerror = (message, source, lineno, colno, error) => {
-    const msgString = typeof message === 'string' ? message : (message as any)?.message || String(message);
-    if (msgString.includes('ResizeObserver')) {
+    const msgString = typeof message === 'string' 
+      ? message 
+      : ((message as unknown as { message?: string })?.message || String(message));
+    if (typeof msgString === 'string' && msgString.includes('ResizeObserver')) {
       return false; // Ignore harmless ResizeObserver errors
     }
 

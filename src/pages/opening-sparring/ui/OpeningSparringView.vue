@@ -1,7 +1,7 @@
 <!-- src/pages/OpeningExamView.vue -->
 <script setup lang="ts">
 import { useGameStore } from '@/entities/game'
-import { theoryGraphService } from '@/entities/opening'
+import { theoryGraphService, useTheoryStore } from '@/entities/opening'
 import { AnalysisPanel, useAnalysisStore } from '@/features/analysis'
 import { EngineSelector } from '@/features/engine'
 import { MozerBook } from '@/features/mozer-book'
@@ -22,6 +22,7 @@ import { useRoute, useRouter } from 'vue-router'
 const t = i18n.global.t
 const controlsStore = useControlsStore()
 const openingStore = useOpeningSparringStore()
+const theoryStore = useTheoryStore()
 const gameStore = useGameStore()
 const uiStore = useUiStore()
 const analysisStore = useAnalysisStore()
@@ -70,6 +71,7 @@ const showAnalysisPanel = computed(() => {
 })
 
 onMounted(async () => {
+  theoryStore.setForceSkipDebounceGlobal(true)
   if (route.params.openingSlug || route.params.color) {
     await handleRouteParams()
   }
@@ -106,6 +108,7 @@ async function handleRouteParams() {
 }
 
 onUnmounted(() => {
+  theoryStore.setForceSkipDebounceGlobal(false)
   openingStore.reset()
   analysisStore.setPlayerColor(null)
   if (!isNavigatingToPlayout.value) {

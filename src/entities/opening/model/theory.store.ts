@@ -13,6 +13,8 @@ export const useTheoryStore = defineStore('openingTheory', () => {
 
   const isMozerLoading = ref(false)
   const isLichessLoading = ref(false)
+  
+  const forceSkipDebounceGlobal = ref(false)
 
   // Current Lichess settings (these can be driven by the feature that needs them)
   const activeLichessParams = ref<LichessParams>({ ratingRange: '1000-1499' })
@@ -28,11 +30,15 @@ export const useTheoryStore = defineStore('openingTheory', () => {
     activeLichessParams.value = params
   }
 
+  function setForceSkipDebounceGlobal(val: boolean) {
+    forceSkipDebounceGlobal.value = val
+  }
+
   // Reactive Fetchers (For UI)
   async function fetchMozerStats(fen: string): Promise<MozerBookResponse | null> {
     isMozerLoading.value = true
     try {
-      const data = await theoryRepository.getMozerBookStats(fen)
+      const data = await theoryRepository.getMozerBookStats(fen, { skipDebounce: forceSkipDebounceGlobal.value })
       // Only set to state if the FEN hasn't changed while we were fetching
       if (fen === currentFen.value) {
         currentMozerStats.value = data
@@ -51,7 +57,7 @@ export const useTheoryStore = defineStore('openingTheory', () => {
   async function fetchLichessStats(fen: string): Promise<LichessOpeningResponse | null> {
     isLichessLoading.value = true
     try {
-      const data = await theoryRepository.getLichessStats(fen, activeLichessParams.value)
+      const data = await theoryRepository.getLichessStats(fen, activeLichessParams.value, { skipDebounce: forceSkipDebounceGlobal.value })
       if (fen === currentFen.value) {
         currentLichessStats.value = data
       }
@@ -68,12 +74,12 @@ export const useTheoryStore = defineStore('openingTheory', () => {
 
   // Imperative fetchers (For Game Loops / Bots) that strictly return data
   // These guarantee data for the requested FEN.
-  async function awaitMozerStatsForFen(fen: string): Promise<MozerBookResponse | null> {
-    return await theoryRepository.getMozerBookStats(fen)
+  async function awaitMozerStatsForFen(fen: string, skipDebounce = false): Promise<MozerBookResponse | null> {
+    return await theoryRepository.getMozerBookStats(fen, { skipDebounce })
   }
 
-  async function awaitLichessStatsForFen(fen: string, params?: LichessParams): Promise<LichessOpeningResponse | null> {
-    return await theoryRepository.getLichessStats(fen, params || activeLichessParams.value)
+  async function awaitLichessStatsForFen(fen: string, params?: LichessParams, skipDebounce = false): Promise<LichessOpeningResponse | null> {
+    return await theoryRepository.getLichessStats(fen, params || activeLichessParams.value, { skipDebounce })
   }
 
   // Reset internal state
@@ -91,7 +97,9 @@ export const useTheoryStore = defineStore('openingTheory', () => {
     isMozerLoading,
     isLichessLoading,
     activeLichessParams,
+    forceSkipDebounceGlobal,
     setLichessParams,
+    setForceSkipDebounceGlobal,
     fetchMozerStats,
     fetchLichessStats,
     awaitMozerStatsForFen,

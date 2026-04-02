@@ -446,12 +446,6 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     currentLichessStats,
     isStatsLoading,
     initializeSession,
-    handlePlayerMove: () => {
-      console.warn('Called removed handlePlayerMove from store. Use useSparringLoop instead.')
-    },
-    triggerBotMove: () => {
-      console.warn('Called removed triggerBotMove from store. Use useSparringLoop instead.')
-    },
     runFinalEvaluation,
     topInfoDisplay,
     reset,
