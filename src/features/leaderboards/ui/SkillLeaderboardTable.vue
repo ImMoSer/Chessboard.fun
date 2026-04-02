@@ -86,7 +86,7 @@ onUnmounted(() => {
 })
 
 const chartOption = computed(() => {
-  const displayEntries = [...props.entries].slice(0, 20).reverse()
+  const displayEntries = [...props.entries].slice(0, 20)
 
   return {
     backgroundColor: 'transparent',
@@ -138,9 +138,10 @@ const chartOption = computed(() => {
     },
     yAxis: {
       type: 'category',
+      inverse: true, // Rank 1 at the top
       triggerEvent: true, // Enables click events on axis labels
       data: displayEntries.map((e, idx) => {
-        const rank = props.entries.length - (displayEntries.length - 1 - idx)
+        const rank = idx + 1
         const streak = props.showStreak && 'current_streak' in e ? ` (${e.current_streak}🔥)` : ''
         return `${rank}. ${e.username}${streak}`
       }),
@@ -193,7 +194,7 @@ const onChartClick = (params: unknown) => {
   // Only redirect if clicking on the Y-axis labels (username)
   // or if explicitly clicking on the name part of the data
   if (p.componentType === 'yAxis' || p.componentType === 'series') {
-    const entry = [...props.entries].slice(0, 20).reverse()[p.dataIndex]
+    const entry = [...props.entries].slice(0, 20)[p.dataIndex]
 
     // On mobile, first touch shows tooltip.
     // We can decide to only redirect if clicking the Y-axis (the name)

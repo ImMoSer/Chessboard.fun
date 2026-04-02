@@ -6,9 +6,10 @@ import {
   usePersonalActivityStatsQuery,
 } from '@/shared/api/queries/userCabinet.queries'
 import {
-  EXAMPLE_ACTIVITY_STATS,
-  EXAMPLE_USER_PROFILE,
-} from '@/shared/config/constants/exampleCabinetData'
+  generateRandomActivityStats,
+  generateRandomDetailedStats,
+  generateRandomUserProfile,
+} from '@/shared/lib/statsRandomizer'
 import { apiClient } from '@/shared/api/client'
 import type { FinishHimDifficulty, TornadoMode } from '@/shared/types/api.types'
 import {
@@ -33,7 +34,7 @@ import { ActivityChart } from '@/features/profile'
 import { ThemeRoseChart } from '@/features/profile'
 import { UserProfileHeader } from '@/features/profile'
 import { useGameLauncher } from '../lib/composables/useGameLauncher'
-import { normalizeProfileStats, generateExampleStats } from '@/shared/lib/statsNormalizer'
+import { normalizeProfileStats } from '@/shared/lib/statsNormalizer'
 
 const { t } = useI18n()
 const { launchGame } = useGameLauncher()
@@ -85,17 +86,17 @@ const {
 
 // Computed wrappers to support Example Mode
 const personalActivityStats = computed(() => {
-  return isExample.value ? EXAMPLE_ACTIVITY_STATS : personalActivityData.value
+  return isExample.value ? generateRandomActivityStats() : personalActivityData.value
 })
 
 const displayProfile = computed(() => {
-  if (isExample.value) return EXAMPLE_USER_PROFILE
+  if (isExample.value) return generateRandomUserProfile()
   return userProfile.value
 })
 
 const detailedStats = computed(() => {
   if (isExample.value) {
-    return generateExampleStats(displayProfile.value?.base_puzzle_rating || 1500)
+    return generateRandomDetailedStats(displayProfile.value?.base_puzzle_rating || 1500)
   }
   const stats = detailedStatsData.value
   const baseRating = displayProfile.value?.base_puzzle_rating || 1000

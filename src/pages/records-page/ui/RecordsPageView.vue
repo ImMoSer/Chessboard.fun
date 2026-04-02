@@ -4,7 +4,7 @@ import {
   useCombinedLeaderboardsQuery,
   useOverallSkillLeaderboardQuery,
 } from '@/shared/api/queries/leaderboard.queries'
-import { EXAMPLE_HALL_OF_FAME_DATA } from '@/shared/config/constants/exampleCabinetData'
+import { generateRandomHallOfFame } from '@/shared/lib/statsRandomizer'
 import type { SkillPeriod } from '@/shared/types/api.types'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -36,7 +36,7 @@ const {
 // Merged Data logic
 const leaderboards = computed(() => {
   if (isExample.value) {
-    return EXAMPLE_HALL_OF_FAME_DATA
+    return generateRandomHallOfFame()
   }
   if (!combinedData.value) return null
 
