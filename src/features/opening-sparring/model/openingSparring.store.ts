@@ -89,16 +89,27 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
       : '1000-1499'
   )
 
+  const savedCharacter = localStorage.getItem('openingSparring.opponentCharacter') as 'none' | 'grossmaster' | 'hustler' | 'schuler' | null
+  const opponentCharacter = ref<'none' | 'grossmaster' | 'hustler' | 'schuler'>(savedCharacter || 'none')
+
+  const savedShowMozerBook = localStorage.getItem('openingSparring.showMozerBook')
+  const showMozerBook = ref<boolean>(savedShowMozerBook !== 'false')
+
   // Persist settings
   watch(
-    [opponentSource, opponentRatingRange],
+    [opponentSource, opponentRatingRange, opponentCharacter, showMozerBook],
     () => {
       localStorage.setItem('openingSparring.opponentSource', opponentSource.value)
       localStorage.setItem('openingSparring.opponentRatingRange', opponentRatingRange.value)
+      localStorage.setItem('openingSparring.opponentCharacter', opponentCharacter.value)
+      localStorage.setItem('openingSparring.showMozerBook', String(showMozerBook.value))
       theoryStore.setLichessParams({ ratingRange: opponentRatingRange.value })
     },
     { deep: true, immediate: true },
   )
+
+
+
 
   // Link UI state to the unified Theory Store
   const currentStats = computed(() => theoryStore.currentMozerStats)
@@ -313,7 +324,7 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     await analysisService.initialize()
 
     const cores = navigator.hardwareConcurrency || 1
-    const threads = Math.max(1, Math.min(4, Math.floor(cores / 2)))
+    const threads = Math.max(1, Math.min(16, Math.floor(cores / 2)))
     await analysisService.setThreads(threads)
 
     return new Promise<void>((resolve) => {
@@ -443,6 +454,8 @@ export const useOpeningSparringStore = defineStore('openingSparring', () => {
     finalEvalDepth,
     opponentSource,
     opponentRatingRange,
+    opponentCharacter,
+    showMozerBook,
     currentLichessStats,
     isStatsLoading,
     initializeSession,

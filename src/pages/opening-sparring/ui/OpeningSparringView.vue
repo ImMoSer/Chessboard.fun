@@ -1,4 +1,4 @@
-<!-- src/pages/OpeningExamView.vue -->
+<!-- src/pages/OpeningSparringView.vue -->
 <script setup lang="ts">
 import { useGameStore } from '@/entities/game'
 import { theoryGraphService, useTheoryStore } from '@/entities/opening'
@@ -6,16 +6,18 @@ import { AnalysisPanel, useAnalysisStore } from '@/features/analysis'
 import { EngineSelector } from '@/features/engine'
 import { MozerBook } from '@/features/mozer-book'
 import {
-    OpeningSparringSettingsModal,
-    OpeningSparringSummaryModal,
-    SessionHistoryList,
-    useOpeningSparringStore,
-    useSparringLoop
+  OpeningSparringSettingsModal,
+  OpeningSparringSummaryModal,
+  SessionHistoryList,
+  useOpeningSparringStore,
+  useSparringLoop
 } from '@/features/opening-sparring'
 import { useSmartHintStore } from '@/features/smart-hint'
 import i18n from '@/shared/config/i18n'
 import { useUiStore } from '@/shared/ui/model/ui.store'
 import { ControlPanel, GameLayout, TopInfoPanel, useControlsStore } from '@/widgets/game-layout'
+import { EyeOffOutline, EyeOutline } from '@vicons/ionicons5'
+import { NButton, NIcon, NText, NTooltip } from 'naive-ui'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -69,6 +71,16 @@ watch(
 const showAnalysisPanel = computed(() => {
   return openingStore.isReviewMode
 })
+
+// Trigger fetch when book is toggled back on
+watch(
+  () => openingStore.showMozerBook,
+  (show) => {
+    if (show && !openingStore.isPlayoutMode && !openingStore.isReviewMode && gameStore.gamePhase === 'PLAYING') {
+      loop.fetchStats()
+    }
+  },
+)
 
 onMounted(async () => {
   theoryStore.setForceSkipDebounceGlobal(true)
@@ -140,7 +152,7 @@ async function startSession(color: 'white' | 'black', moves: string[] = [], slug
 async function handleNewGame() {
   const confirmed = await uiStore.showConfirmation(
     t('features.gameplay.confirmExit.title'),
-    'Start a new exam?',
+    'Start a new sparring?',
   )
   if (confirmed === 'confirm') {
     openingStore.reset()
@@ -153,7 +165,7 @@ async function handleNewGame() {
 async function handleRestart() {
   const confirmed = await uiStore.showConfirmation(
     t('features.gameplay.confirmExit.title'),
-    'Restart the current exam?',
+    'Start a new sparring?',
   )
   if (confirmed === 'confirm') {
     openingStore.reset()
@@ -234,11 +246,42 @@ function goBack() {
   <GameLayout>
     <template #left-panel>
       <div class="left-panel-content">
-        <div class="mozer-book-wrapper">
+        <div class="mozer-book-header">
+           <n-tooltip trigger="hover">
+             <template #trigger>
+               <n-button
+                 quaternary
+                 circle
+                 size="small"
+                 class="toggle-book-btn"
+                 @click="openingStore.showMozerBook = !openingStore.showMozerBook"
+               >
+                 <template #icon>
+                   <n-icon>
+                     <EyeOutline v-if="openingStore.showMozerBook" />
+                     <EyeOffOutline v-else />
+                   </n-icon>
+                 </template>
+               </n-button>
+             </template>
+             {{ openingStore.showMozerBook ? 'Hide Book' : 'Show Book' }}
+           </n-tooltip>
+        </div>
+
+        <div class="mozer-book-wrapper" v-if="openingStore.showMozerBook">
           <MozerBook
             :blurred="openingStore.isPlayoutMode"
             :is-paused="openingStore.isPlayoutMode"
           />
+        </div>
+        <div v-else class="book-placeholder">
+           <div class="placeholder-content">
+              <n-icon size="48" depth="3"><EyeOffOutline /></n-icon>
+              <n-text depth="3">MozerBook is hidden</n-text>
+              <n-button secondary size="small" @click="openingStore.showMozerBook = true">
+                Show Theory
+              </n-button>
+           </div>
         </div>
       </div>
 
@@ -295,6 +338,31 @@ function goBack() {
 .mozer-book-wrapper {
   flex: 1;
   min-height: 0; /* Important for flex child scroll */
+}
+
+.mozer-book-header {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 8px;
+}
+
+.book-placeholder {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  margin: 12px;
+}
+
+.placeholder-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  opacity: 0.6;
 }
 
 .history-list-wrapper {

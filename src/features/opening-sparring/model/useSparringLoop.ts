@@ -1,7 +1,9 @@
 import { gameplayService, useBoardStore, useGameStore, type GameStatusInfo, type IGameplayStrategy } from '@/entities/game'
 import type { Key } from '@lichess-org/chessground/types'
-import { useTheoryStore, type MozerBookMove } from '@/entities/opening'
-import { areMovesEqual } from '@/shared/lib/chess-utils'
+import { useTheoryStore } from '@/entities/opening'
+import type { MozerBookResponse, MozerBookMove } from '@/entities/opening'
+
+import { areMovesEqual, normalizeUciMove } from '@/shared/lib/chess-utils'
 import { serverEngineService, type AnalysisResponse, type EvalLine } from '@/shared/lib/engine'
 import { pgnService } from '@/shared/lib/pgn/PgnService'
 import { soundService } from '@/shared/lib/sound.service'
@@ -21,7 +23,9 @@ export function useSparringLoop() {
     store.isLoading = true
     store.error = null
     try {
-      await theoryStore.fetchMozerStats(boardStore.fen)
+      if (store.showMozerBook) {
+        await theoryStore.fetchMozerStats(boardStore.fen)
+      }
       if (store.opponentSource === 'lichess' && boardStore.turn !== store.playerColor) {
         await theoryStore.fetchLichessStats(boardStore.fen)
       }
@@ -110,34 +114,37 @@ export function useSparringLoop() {
       return null
     }
 
-    // Determine candidate moves
-    const movesPool = stats.moves
+    // 1. Character Style override (Master DB only)
+    if (!isLichess && store.opponentCharacter !== 'none') {
+       const mozerStats = stats as MozerBookResponse
+       if (mozerStats.styles) {
+         const charStyle = mozerStats.styles[store.opponentCharacter as keyof typeof mozerStats.styles]
+         if (charStyle && charStyle.uci) {
+             return normalizeUciMove(charStyle.uci)
+         }
+       }
+    }
 
-    const candidates = movesPool
-      .slice(0, store.variability)
-      .map((m: { uci: string; total: number }) => {
-        return { uci: m.uci, total: m.total }
-      })
+    // Determine candidate moves
+    const candidates = stats.moves.slice(0, store.variability)
+      .map((m: { uci: string; total: number }) => ({ uci: m.uci, total: m.total }))
 
     if (candidates.length === 0) {
       store.isTheoryOver = true
       return null
     }
 
-    const totalGames = candidates.reduce((acc: number, m: { total: number }) => acc + m.total, 0)
-    let random = Math.random() * totalGames
-    let selectedMove = candidates[0]!
+    const totalWeight = candidates.reduce((sum: number, c: { total: number }) => sum + c.total, 0)
+    let random = Math.random() * totalWeight
 
-    for (const move of candidates) {
-      if (random < move.total) {
-        selectedMove = move
-        break
-      }
-      random -= move.total
+    for (const c of candidates) {
+      random -= c.total
+      if (random <= 0) return normalizeUciMove(c.uci)
     }
 
-    return selectedMove.uci
+    return normalizeUciMove(candidates[0]!.uci)
   }
+
 
   async function enrichBotMove(selectedUci: string) {
     const isLichess = store.opponentSource === 'lichess'

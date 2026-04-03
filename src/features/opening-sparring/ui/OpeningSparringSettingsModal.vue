@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { theoryGraphService } from '@/entities/opening'
-import { useOpeningSparringStore } from '../index'
 import {
   CloseOutline,
 } from '@vicons/ionicons5'
 import type { SelectOption } from 'naive-ui'
 import {
   NButton,
+  NCard,
+  NH1,
   NIcon,
   NModal,
   NRadioButton,
@@ -15,12 +16,11 @@ import {
   NSlider,
   NSpace,
   NTag,
-  NText,
-  NH1,
-  NCard
+  NText
 } from 'naive-ui'
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useOpeningSparringStore } from '../index'
 
 const emit = defineEmits(['start', 'close'])
 const { t } = useI18n()
@@ -68,7 +68,7 @@ function startSession() {
       <n-button quaternary circle class="close-btn" @click="$emit('close')">
         <template #icon><n-icon><CloseOutline /></n-icon></template>
       </n-button>
-      
+
       <n-space vertical :size="24" style="width: 100%;">
         <div class="header">
           <n-h1 class="title" style="color: var(--color-primary); margin: 0;">
@@ -125,6 +125,32 @@ function startSession() {
             </n-text>
           </div>
 
+          <!-- 3.5 Opponent Character (Only shown if Master Database is selected) -->
+          <div v-if="openingStore.opponentSource === 'master'" class="section fade-in">
+            <n-text class="section-label">{{ t('features.diamondHunter.settings.selectCharacter', 'Master Character Style') }}</n-text>
+            <n-radio-group v-model:value="openingStore.opponentCharacter" size="large" expand>
+              <n-radio-button value="none" style="text-align: center;">{{ t('features.diamondHunter.settings.random', 'Random') }}</n-radio-button>
+              <n-radio-button value="grossmaster" style="text-align: center; color: #4caf50;">
+                {{ t('features.study.repertoireGenerator.styles.grossmaster.name') }}
+              </n-radio-button>
+              <n-radio-button value="hustler" style="text-align: center; color: #2196f3;">
+                {{ t('features.study.repertoireGenerator.styles.hustler.name') }}
+              </n-radio-button>
+              <n-radio-button value="schuler" style="text-align: center; color: #f44336;">
+                {{ t('features.study.repertoireGenerator.styles.schuler.name') }}
+              </n-radio-button>
+            </n-radio-group>
+
+            <n-text depth="3" class="hint-text">
+              <template v-if="openingStore.opponentCharacter === 'none'">
+                {{ t('features.diamondHunter.settings.characterDefaultHint', 'Bot plays random top moves based on variability.') }}
+              </template>
+              <template v-else>
+                {{ t(`features.study.repertoireGenerator.styles.${openingStore.opponentCharacter}.description`) }}
+              </template>
+            </n-text>
+          </div>
+
           <!-- 4. Opponent Rating (Only shown if Lichess is selected) -->
           <div v-if="openingStore.opponentSource === 'lichess'" class="section fade-in">
             <n-text class="section-label">{{ t('features.diamondHunter.settings.selectRatings', 'Lichess Rating Level') }}</n-text>
@@ -136,7 +162,7 @@ function startSession() {
           </div>
 
           <!-- 5. Variability -->
-          <div class="section">
+          <div class="section fade-in" v-if="openingStore.opponentSource === 'lichess' || openingStore.opponentCharacter === 'none'">
             <n-space align="center" justify="space-between">
               <n-text class="section-label" style="margin: 0;">{{ t('features.diamondHunter.settings.variability', { value: openingStore.variability }) }}</n-text>
               <n-tag :bordered="false" type="info" size="small">{{ openingStore.variability }} / 7</n-tag>
@@ -149,11 +175,11 @@ function startSession() {
         </div>
 
         <div class="actions">
-          <n-button 
-            type="primary" 
-            size="large" 
-            block 
-            class="start-btn" 
+          <n-button
+            type="primary"
+            size="large"
+            block
+            class="start-btn"
             @click="startSession"
           >
             {{ t('features.diamondHunter.settings.startSession') }}
@@ -169,7 +195,7 @@ function startSession() {
   width: 100%;
   max-width: 650px;
   border-radius: 20px;
-  background: var(--bg-0, rgba(16, 16, 20, 0.7)); 
+  background: var(--bg-0, rgba(16, 16, 20, 0.7));
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.05);
   position: relative;
@@ -184,11 +210,11 @@ function startSession() {
 
 .header {
   text-align: center;
-  margin-bottom: 12px;
+  margin-bottom: 5px;
 }
 
 .title {
-  font-size: 2.3rem;
+  font-size: 2.1rem;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 2px;
@@ -201,11 +227,11 @@ function startSession() {
 .selection-sections {
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 10px;
   width: 100%;
   max-height: 50vh;
   overflow-y: auto;
-  padding-right: 8px; /* For scrollbar breathing room */
+  padding-right: 5px; /* For scrollbar breathing room */
 }
 
 /* Custom Webkit Scrollbar for section scrolling */

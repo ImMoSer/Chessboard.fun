@@ -905,6 +905,10 @@
         "startPosition": "Startposition",
         "variability": "Variabilität: {value}",
         "variabilityHint": "Höhere Variabilität bedeutet, dass der Bot seltener gespielte Züge öfter wählt.",
+        "selectCharacter": "Master Charakter-Stil",
+        "random": "Zufällig",
+        "characterDefaultHint": "Der Bot spielt zufällige Top-Züge basierend auf der Variabilität.",
+        "characterSpecificHint": "Der Bot spielt ausschließlich die theoretischen Züge des gewählten Charakters.",
         "engineHint": "Engine für Playout-Modus wählen.",
         "startSession": "Session starten"
       }

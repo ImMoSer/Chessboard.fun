@@ -78,7 +78,7 @@ const renderMoveCell = (move: SessionMove | null) => {
     const _v = pgnTreeVersion.value
     let current: PgnNode | null = pgnService.getCurrentNode()
     while (current && current.ply > 0) {
-      const histMove = openingStore.sessionHistory.find((m) => m.ply === current?.ply)
+      const histMove = openingStore.sessionHistory.find((m: SessionMove) => m.ply === current?.ply)
       if (histMove && histMove.moveUci === current.uci) {
         return current.ply
       }
