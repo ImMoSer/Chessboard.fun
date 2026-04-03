@@ -56,6 +56,7 @@ export const useBoardStore = defineStore('board', () => {
   const orientation = ref<ChessgroundColor>('white')
   const promotionState = ref<PromotionState | null>(null)
   const drawableShapes = ref<DrawShape[]>([])
+  const autoShapes = ref<DrawShape[]>([])
   const isAnalysisModeActive = ref(false)
   const queuedPremove = ref<{ orig: Key; dest: Key } | null>(null)
   const lastNag = ref<NagMarker | null>(null)
@@ -98,10 +99,12 @@ export const useBoardStore = defineStore('board', () => {
 
       // Sync shapes (arrows and squares)
       drawableShapes.value = (lastPgnMove.shapes as DrawShape[]) || []
+      autoShapes.value = []
     } else {
       lastMove.value = undefined
       lastNag.value = null
       drawableShapes.value = []
+      autoShapes.value = []
     }
   }
 
@@ -472,6 +475,7 @@ export const useBoardStore = defineStore('board', () => {
     orientation,
     promotionState,
     drawableShapes,
+    autoShapes,
     isAnalysisModeActive,
     playGameStatusSounds,
     boardSyncCounter,
@@ -487,6 +491,9 @@ export const useBoardStore = defineStore('board', () => {
     flipBoard,
     getGameStatus,
     setDrawableShapes,
+    setAutoShapes(shapes: DrawShape[]) {
+      autoShapes.value = shapes
+    },
     setLastNag,
     navigatePgn,
     navigateToNode,

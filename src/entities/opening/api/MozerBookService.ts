@@ -20,6 +20,11 @@ export interface MozerBookMove extends MozerBookTheoryItem {
   children?: MozerBookTheoryItem[]
 }
 
+export interface MozerStyleMove {
+  san: string
+  uci: string
+}
+
 export interface MozerBookResponse {
   summary: {
     total: number
@@ -30,6 +35,11 @@ export interface MozerBookResponse {
   } | null
   moves: MozerBookMove[]
   theory?: MozerBookTheoryItem[]
+  styles?: {
+    grossmaster: MozerStyleMove
+    hustler: MozerStyleMove
+    schuler: MozerStyleMove
+  }
 }
 
 class MozerBookService {

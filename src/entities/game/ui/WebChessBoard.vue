@@ -124,9 +124,12 @@ onMounted(() => {
       },
       drawable: {
         enabled: true,
-        shapes: props.drawableShapes,
+        shapes: combinedShapes.value as DrawShape[],
         onChange: (shapes) => {
-          emit('shapes-change', shapes as DrawShape[])
+          const autoKey = (s: DrawShape) => `${s.orig}-${s.dest}-${s.brush}`
+          const autoKeys = new Set(boardStore.autoShapes.map(autoKey))
+          const userShapes = (shapes as DrawShape[]).filter(s => !autoKeys.has(autoKey(s)))
+          emit('shapes-change', userShapes)
         },
       },
     }
@@ -207,10 +210,14 @@ watch(
 )
 
 // 5. Shapes
+const combinedShapes = computed(() => {
+  return [...props.drawableShapes, ...boardStore.autoShapes]
+})
+
 watch(
-  () => props.drawableShapes,
+  combinedShapes,
   (shapes) => {
-    ground.value?.setShapes(shapes)
+    ground.value?.setShapes(shapes as DrawShape[])
   },
   { deep: true },
 )

@@ -10,7 +10,7 @@
       "delete": "Löschen",
       "play": "Spielen",
       "notAvailable": "N/A",
-      "linkCopied": "Link in die Zwischenablage kopiert!",
+      "linkCopied": "Link kopiert!",
       "copyFailed": "Konnte Link nicht kopieren.",
       "copyLink": "Link kopieren",
       "copied": "Kopiert!",
@@ -87,7 +87,7 @@
       "bishopVsKnight": "Läufer gegen Springer",
       "knightVsKnight": "Springer gegen Springer",
       "opColBishop": "Ungleichfarbige Läufer",
-      "twoMinorsVsRook": "Zwei Leichtfiguren gegen Turm",
+      "twoMinorsVsRook": "Leichtfiguren gegen Turm",
       "opColBishopPlus": "Ungleichfarbige Läufer +"
     },
     "themes": {
@@ -102,7 +102,7 @@
       "pawn": "Bauernendspiel",
       "extraPawn": "Mehrbauer",
       "materialEquality": "Materialgleichheit",
-      "exchange": "Abtausch",
+      "exchange": "Qualität",
       "rook": "Turmendspiel"
     },
     "tactics": {
@@ -121,7 +121,7 @@
       "backRankMate": "Grundreihenmatt",
       "interference": "Unterbrechung",
       "xRayAttack": "Röntgenangriff",
-      "auto": "Automatisch"
+      "auto": "Auto-Auswahl"
     },
     "types": {
       "win": "Sieg",
