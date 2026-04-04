@@ -622,25 +622,13 @@ export const useStudyStore = defineStore('study', () => {
 
     cloudLoading.value = true
     try {
-      // Step 1: Delete the existing chapter on Lichess
-      await lichessSyncService.deleteChapter(activeStudy.value.lichessId, chapter.lichessChapterId)
-
-      // Step 2: Re-create the chapter by importing the full PGN
+      // Use new Lichess moves endpoint which preserves the chapter ID
       const pgn = pgnService.getFullPgn(chapter.tags, chapter.root)
-      const newLichessChapterId = await lichessSyncService.importPgnIntoStudy(
-        activeStudy.value.lichessId,
-        {
-          pgn,
-          name: chapter.name,
-          orientation: chapter.color,
-          variant: 'standard'
-        }
+      await lichessSyncService.updateChapterMoves(
+        activeStudy.value.lichessId, 
+        chapter.lichessChapterId, 
+        pgn
       )
-
-      // Step 3: Update the local chapter reference
-      chapter.lichessChapterId = newLichessChapterId
-      await studyPersistenceService.saveChapter(chapter)
-
     } catch (e) {
       console.error('Failed to push chapter to Lichess', e)
       throw e
@@ -689,6 +677,29 @@ export const useStudyStore = defineStore('study', () => {
     syncLichessToApp,
     pushChapterToLichess,
     publishChapterToLichess,
+    syncChapterTagsToLichess: async (chapterId: string) => {
+      const ownerId = currentOwnerId.value
+      if (!ownerId) return
+
+      if (!(await requireLichessAccess())) return
+
+      const chapter = chapters.value.find(c => c.id === chapterId)
+      if (!chapter || !chapter.lichessChapterId || !activeStudy.value?.lichessId) {
+        return
+      }
+
+      cloudLoading.value = true
+      try {
+        const result = chapter.tags['Result'] || '*'
+        const pgn = `[Result "${result}"]\n\n*`
+        await lichessSyncService.updateChapterTags(activeStudy.value.lichessId, chapter.lichessChapterId, pgn)
+      } catch (e) {
+        console.error('Failed to sync chapter tags to Lichess', e)
+        throw e
+      } finally {
+        cloudLoading.value = false
+      }
+    },
     addSpeedrunHistory: (chapterId: string, moves: { san: string; uci: string; fenBefore: string; fenAfter: string }[]) => {
       const ownerId = currentOwnerId.value
       if (!ownerId) return

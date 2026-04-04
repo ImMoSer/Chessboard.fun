@@ -238,7 +238,13 @@ class SoundServiceController {
       }
 
       audio.play().catch((error) => {
-        logger.warn(`[SoundService] Error playing sound '${path}':`, (error as Error).message)
+        const message = (error as Error).message
+        if (message.includes('user didn\'t interact') || (error as Error).name === 'NotAllowedError') {
+          logger.info(`[SoundService] Autoplay blocked for sound '${path}'. User interaction required.`)
+        } else {
+          logger.warn(`[SoundService] Error playing sound '${path}':`, message)
+        }
+        
         if (isBackground) {
           this.activeBackgroundSounds.delete(audio)
         }

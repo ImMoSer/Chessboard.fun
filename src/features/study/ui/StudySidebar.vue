@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AddOutline, CloudDownloadOutline, SettingsOutline } from '@vicons/ionicons5'
+import { AddOutline, CloudDownloadOutline, SettingsOutline, ArrowUpOutline, CloudUploadOutline } from '@vicons/ionicons5'
 import { NButton, NIcon, NList, NListItem, NScrollbar, NSpace, NText, NThing, useDialog, useMessage } from 'naive-ui'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -47,8 +47,13 @@ const startReplyTraining = async (chapter: StudyChapter) => {
 }
 
 const SYNC_COOLDOWN_MS = 60 * 1000 // 60 seconds
+const PUSH_COOLDOWN_MS = 5 * 1000
+const PUBLISH_COOLDOWN_MS = 5 * 1000
+
 const lastSyncTime = ref<number>(0)
 const cooldownRemaining = ref(0)
+const chapterCooldowns = ref<Record<string, { push: number; pub: number }>>({})
+
 let cooldownTimer: number | null = null
 
 const activeStudyChapters = computed(() => {
@@ -102,7 +107,7 @@ const errorMessage = ref('')
 const isCreating = ref(false)
 const selectedChapter = ref<StudyChapter | null>(null)
 
-function updateCooldown() {
+function updateCooldowns() {
   const now = Date.now()
 
   // Sync Study Cooldown
@@ -110,21 +115,29 @@ function updateCooldown() {
   cooldownRemaining.value = Math.max(0, Math.ceil((SYNC_COOLDOWN_MS - elapsedSync) / 1000))
 
   // Chapter Cooldowns
-  // Logic removed (moved to ChapterSettingsModal.vue)
+  let anyChapterCooldown = false
+  studyStore.chapters.forEach(chapter => {
+    const pushLast = parseInt(localStorage.getItem(`push_${chapter.id}`) || '0', 10)
+    const pubLast = parseInt(localStorage.getItem(`pub_${chapter.id}`) || '0', 10)
+    
+    const pushVal = Math.max(0, Math.ceil((PUSH_COOLDOWN_MS - (now - pushLast)) / 1000))
+    const pubVal = Math.max(0, Math.ceil((PUBLISH_COOLDOWN_MS - (now - pubLast)) / 1000))
+    
+    if (pushVal > 0 || pubVal > 0) anyChapterCooldown = true
+    
+    chapterCooldowns.value[chapter.id] = { push: pushVal, pub: pubVal }
+  })
 
-  // Clear interval if no cooldowns are active
-  const hasActiveCooldowns = cooldownRemaining.value > 0
-
-  if (!hasActiveCooldowns && cooldownTimer) {
+  if (cooldownRemaining.value === 0 && !anyChapterCooldown && cooldownTimer) {
     clearInterval(cooldownTimer)
     cooldownTimer = null
   }
 }
 
 function startTimerIfNeeded() {
-  updateCooldown()
+  updateCooldowns()
   if (!cooldownTimer) {
-    cooldownTimer = window.setInterval(updateCooldown, 1000)
+    cooldownTimer = window.setInterval(updateCooldowns, 1000)
   }
 }
 
@@ -180,8 +193,6 @@ function handleStartSpeedrun() {
   }
 }
 
-// Handlers moved to ChapterSettingsModal
-
 async function handleSyncFromLichess() {
   if (!studyStore.activeStudy?.lichessId) return
 
@@ -220,7 +231,45 @@ async function handleSyncFromLichess() {
   })
 }
 
-// Handlers moved to ChapterSettingsModal
+async function handlePublish(chapter: StudyChapter, e: Event) {
+  e.stopPropagation()
+  const cooldown = chapterCooldowns.value[chapter.id]?.pub || 0
+  if (cooldown > 0) {
+    message.warning(`Please wait ${cooldown}s before publishing again.`)
+    return
+  }
+
+  try {
+    message.loading(t('features.study.sidebar.publishingChapter'))
+    await studyStore.publishChapterToLichess(chapter.id)
+    localStorage.setItem(`pub_${chapter.id}`, Date.now().toString())
+    startTimerIfNeeded()
+    message.success(t('features.study.sidebar.publishSuccess'))
+  } catch (e: unknown) {
+    const error = e instanceof Error ? e.message : t('features.study.sidebar.publishError')
+    message.error(error)
+  }
+}
+
+async function handlePush(chapter: StudyChapter, e: Event) {
+  e.stopPropagation()
+  const cooldown = chapterCooldowns.value[chapter.id]?.push || 0
+  if (cooldown > 0) {
+    message.warning(`Please wait ${cooldown}s before pushing again.`)
+    return
+  }
+
+  try {
+    message.loading(t('features.study.sidebar.pushing'))
+    await studyStore.pushChapterToLichess(chapter.id)
+    localStorage.setItem(`push_${chapter.id}`, Date.now().toString())
+    startTimerIfNeeded()
+    message.success(t('features.study.sidebar.pushSuccess'))
+  } catch (e: unknown) {
+    const error = e instanceof Error ? e.message : t('features.study.sidebar.pushError')
+    message.error(error)
+  }
+}
 </script>
 
 <template>
@@ -296,7 +345,34 @@ async function handleSyncFromLichess() {
               </NSpace>
             </template>
             <template #header-extra>
-              <NSpace size="small">
+              <NSpace size="small" align="center">
+                <!-- Publish to Lichess -->
+                <NButton
+                  v-if="studyStore.activeStudy?.lichessId && !chapter.lichessChapterId && !isCommunity"
+                  size="tiny"
+                  quaternary
+                  circle
+                  type="primary"
+                  :disabled="(chapterCooldowns[chapter.id]?.pub || 0) > 0"
+                  :title="(chapterCooldowns[chapter.id]?.pub || 0) > 0 ? t('features.study.sidebar.cooldownWait', { seconds: chapterCooldowns[chapter.id]?.pub }) : t('features.study.sidebar.publishChapterTooltip')"
+                  @click="(e) => handlePublish(chapter, e)"
+                >
+                  <template #icon><NIcon><ArrowUpOutline /></NIcon></template>
+                </NButton>
+
+                <!-- Push Update to Lichess -->
+                <NButton
+                  v-if="studyStore.activeStudy?.lichessId && chapter.lichessChapterId && !isCommunity"
+                  size="tiny"
+                  quaternary
+                  circle
+                  :disabled="(chapterCooldowns[chapter.id]?.push || 0) > 0"
+                  :title="(chapterCooldowns[chapter.id]?.push || 0) > 0 ? t('features.study.sidebar.cooldownWait', { seconds: chapterCooldowns[chapter.id]?.push }) : t('features.study.sidebar.pushChapterTooltip')"
+                  @click="(e) => handlePush(chapter, e)"
+                >
+                  <template #icon><NIcon class="sync-icon"><CloudUploadOutline /></NIcon></template>
+                </NButton>
+
                 <NButton
                   v-if="!isCommunity"
                   size="tiny" quaternary circle @click="(e) => openSettings(chapter, e)"

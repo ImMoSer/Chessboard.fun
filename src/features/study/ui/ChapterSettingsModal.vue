@@ -10,8 +10,6 @@ import { useI18n } from 'vue-i18n'
 import { useStudyStore, type StudyChapter } from '@/entities/study'
 import { openingChaptersService, type OpeningChapterTemplate } from '@/entities/opening'
 import {
-  ArrowUpOutline,
-  CloudUploadOutline,
   LinkOutline,
   ShareOutline,
   TrashOutline
@@ -57,12 +55,7 @@ const pgnInput = ref('')
 const dialog = useDialog()
 
 // Cooldown states
-const PUSH_COOLDOWN_MS = 5 * 1000
-const PUBLISH_CHAPTER_COOLDOWN_MS = 5 * 1000
 const DELETE_COOLDOWN_MS = 5 * 1000
-
-const pushCooldown = ref(0)
-const publishCooldown = ref(0)
 const deleteCooldown = ref(0)
 let cooldownTimer: number | null = null
 
@@ -70,16 +63,10 @@ function updateCooldowns() {
   if (!props.chapter) return
   const now = Date.now()
   
-  const pushLast = parseInt(localStorage.getItem(`push_${props.chapter.id}`) || '0', 10)
-  pushCooldown.value = Math.max(0, Math.ceil((PUSH_COOLDOWN_MS - (now - pushLast)) / 1000))
-
-  const pubLast = parseInt(localStorage.getItem(`pub_${props.chapter.id}`) || '0', 10)
-  publishCooldown.value = Math.max(0, Math.ceil((PUBLISH_CHAPTER_COOLDOWN_MS - (now - pubLast)) / 1000))
-
   const delLast = parseInt(localStorage.getItem(`del_${props.chapter.id}`) || '0', 10)
   deleteCooldown.value = Math.max(0, Math.ceil((DELETE_COOLDOWN_MS - (now - delLast)) / 1000))
   
-  if (pushCooldown.value === 0 && publishCooldown.value === 0 && deleteCooldown.value === 0 && cooldownTimer) {
+  if (deleteCooldown.value === 0 && cooldownTimer) {
      clearInterval(cooldownTimer)
      cooldownTimer = null
   }
@@ -87,7 +74,7 @@ function updateCooldowns() {
 
 function startCooldownTimer() {
   updateCooldowns()
-  if (!cooldownTimer && (pushCooldown.value > 0 || publishCooldown.value > 0 || deleteCooldown.value > 0)) {
+  if (!cooldownTimer && (deleteCooldown.value > 0)) {
     cooldownTimer = window.setInterval(updateCooldowns, 1000)
   }
 }
@@ -126,6 +113,11 @@ const resultOptions = computed(() => [
   { label: t('features.study.chapterSettings.form.results.draw'), value: '1/2-1/2' },
   { label: t('features.study.chapterSettings.form.results.unknown'), value: '*' },
 ])
+
+const isResultChanged = computed(() => {
+  if (props.isCreating || !props.chapter) return false
+  return formModel.value.result !== (props.chapter.tags['Result'] || '*')
+})
 
 const filteredTemplates = computed(() => {
   const query = searchQuery.value.toLowerCase()
@@ -230,20 +222,27 @@ async function handleSave() {
     studyStore.setActiveChapter(chapterId)
     message.success(t('features.study.chapterSettings.messages.created'))
   } else if (props.chapter) {
+    const resultChanged = isResultChanged.value
+    
     const updatedTags = {
       ...props.chapter.tags,
-      Event: formModel.value.name,
-      ECO: formModel.value.eco,
-      Opening: formModel.value.opening,
       Result: formModel.value.result,
     }
 
     studyStore.updateChapterMetadata(props.chapter.id, {
-      name: formModel.value.name,
-      color: formModel.value.color,
       tags: updatedTags,
     })
-    message.success(t('features.study.chapterSettings.messages.updated'))
+
+    if (resultChanged && props.chapter.lichessChapterId) {
+      try {
+        await studyStore.syncChapterTagsToLichess(props.chapter.id)
+        message.success(t('features.study.chapterSettings.messages.updated'))
+      } catch {
+        message.error('Failed to sync changes to Lichess.')
+      }
+    } else {
+       message.success(t('features.study.chapterSettings.messages.updated'))
+    }
   }
 
   emit('update:show', false)
@@ -285,7 +284,7 @@ async function handleShare() {
         title: props.chapter?.name || 'Chess Study',
         url: localAppUrl.value
       })
-    } catch (e) {
+    } catch (e: unknown) {
       if ((e as Error).name !== 'AbortError') {
         handleCopyLink()
       }
@@ -332,44 +331,6 @@ async function handleDelete() {
     await deleteAction()
   }
 }
-
-async function handlePublish() {
-  if (!props.chapter) return
-  if (publishCooldown.value > 0) {
-    message.warning(`Please wait ${publishCooldown.value}s before publishing again.`)
-    return
-  }
-
-  try {
-    message.loading(t('features.study.sidebar.publishingChapter'))
-    await studyStore.publishChapterToLichess(props.chapter.id)
-    localStorage.setItem(`pub_${props.chapter.id}`, Date.now().toString())
-    startCooldownTimer()
-    message.success(t('features.study.sidebar.publishSuccess'))
-  } catch (e: unknown) {
-    const error = e instanceof Error ? e.message : t('features.study.sidebar.publishError')
-    message.error(error)
-  }
-}
-
-async function handlePush() {
-  if (!props.chapter) return
-  if (pushCooldown.value > 0) {
-    message.warning(`Please wait ${pushCooldown.value}s before pushing again.`)
-    return
-  }
-
-  try {
-    message.loading(t('features.study.sidebar.pushing'))
-    await studyStore.pushChapterToLichess(props.chapter.id)
-    localStorage.setItem(`push_${props.chapter.id}`, Date.now().toString())
-    startCooldownTimer()
-    message.success(t('features.study.sidebar.pushSuccess'))
-  } catch (e: unknown) {
-    const error = e instanceof Error ? e.message : t('features.study.sidebar.pushError')
-    message.error(error)
-  }
-}
 </script>
 
 <template>
@@ -384,33 +345,6 @@ async function handlePush() {
   >
     <template v-if="!isCreating && chapter" #header-extra>
       <NSpace size="small" align="center">
-        <!-- Publish to Lichess -->
-        <NButton
-          v-if="studyStore.activeStudy?.lichessId && !chapter.lichessChapterId"
-          size="small"
-          quaternary
-          circle
-          type="primary"
-          :disabled="publishCooldown > 0"
-          :title="publishCooldown > 0 ? t('features.study.sidebar.cooldownWait', { seconds: publishCooldown }) : t('features.study.sidebar.publishChapterTooltip')"
-          @click="handlePublish"
-        >
-          <template #icon><NIcon><ArrowUpOutline /></NIcon></template>
-        </NButton>
-
-        <!-- Push Update to Lichess -->
-        <NButton
-          v-if="studyStore.activeStudy?.lichessId && chapter.lichessChapterId"
-          size="small"
-          quaternary
-          circle
-          :disabled="pushCooldown > 0"
-          :title="pushCooldown > 0 ? t('features.study.sidebar.cooldownWait', { seconds: pushCooldown }) : t('features.study.sidebar.pushChapterTooltip')"
-          @click="handlePush"
-        >
-          <template #icon><NIcon class="sync-icon"><CloudUploadOutline /></NIcon></template>
-        </NButton>
-
         <!-- Delete Chapter -->
         <NButton
           v-if="chaptersInStudyCount > 1"
@@ -431,12 +365,13 @@ async function handlePush() {
         <div style="padding-top: 15px">
           <NForm :model="formModel" label-placement="left" label-width="100">
             <NFormItem :label="t('features.study.chapterSettings.form.name')" path="name">
-              <NInput v-model:value="formModel.name" :placeholder="t('features.study.chapterSettings.form.namePlaceholder')" />
+              <NInput v-model:value="formModel.name" :disabled="!isCreating" :placeholder="t('features.study.chapterSettings.form.namePlaceholder')" />
             </NFormItem>
             
             <NFormItem :label="t('features.study.chapterSettings.form.color')" path="color">
               <NSelect
                 v-model:value="formModel.color"
+                :disabled="!isCreating"
                 :options="[
                   { label: t('features.study.chapterSettings.form.white'), value: 'white' },
                   { label: t('features.study.chapterSettings.form.black'), value: 'black' }
@@ -445,11 +380,11 @@ async function handlePush() {
             </NFormItem>
 
             <NFormItem :label="t('features.study.chapterSettings.form.eco')" path="eco">
-              <NInput v-model:value="formModel.eco" :placeholder="t('features.study.chapterSettings.form.ecoPlaceholder')" />
+              <NInput v-model:value="formModel.eco" :disabled="!isCreating" :placeholder="t('features.study.chapterSettings.form.ecoPlaceholder')" />
             </NFormItem>
 
             <NFormItem :label="t('features.study.chapterSettings.form.opening')" path="opening">
-              <NInput v-model:value="formModel.opening" :placeholder="t('features.study.chapterSettings.form.openingPlaceholder')" />
+              <NInput v-model:value="formModel.opening" :disabled="!isCreating" :placeholder="t('features.study.chapterSettings.form.openingPlaceholder')" />
             </NFormItem>
 
             <NFormItem :label="t('features.study.chapterSettings.form.result')" path="result">
@@ -498,7 +433,7 @@ async function handlePush() {
 
             <NSpace justify="end" style="margin-top: 20px">
               <NButton @click="emit('update:show', false)">{{ t('features.study.chapterSettings.actions.cancel') }}</NButton>
-              <NButton type="primary" @click="handleSave">
+              <NButton type="primary" :disabled="!isCreating && !isResultChanged" @click="handleSave">
                 {{ isCreating ? t('features.study.chapterSettings.actions.create') : t('features.study.chapterSettings.actions.save') }}
               </NButton>
             </NSpace>

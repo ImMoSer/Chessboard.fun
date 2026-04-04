@@ -65,11 +65,16 @@ export const useBoardStore = defineStore('board', () => {
   const playGameStatusSounds = ref(true)
 
   function _updateBoardStateFromPgn() {
+    const prevFen = fen.value
     const pgnFen = pgnService.getCurrentNavigatedFen()
     const setup = parseFen(pgnFen).unwrap()
     chessPosition.value = Chess.fromSetup(setup).unwrap()
-    fen.value = makeFen(chessPosition.value.toSetup())
+    const newFen = makeFen(chessPosition.value.toSetup())
+    fen.value = newFen
+
+    const isChanged = prevFen !== newFen
     const lastPgnMove = pgnService.getLastMove()
+
     if (lastPgnMove) {
       if (lastPgnMove.uci) {
         lastMove.value = [lastPgnMove.uci.slice(0, 2) as Key, lastPgnMove.uci.slice(2, 4) as Key]
@@ -106,11 +111,44 @@ export const useBoardStore = defineStore('board', () => {
       drawableShapes.value = []
       autoShapes.value = []
     }
+
+    return { isChanged, lastPgnMove }
   }
 
   function syncBoardWithPgn() {
     _updateBoardStateFromPgn()
     boardSyncCounter.value++
+  }
+
+  function _playNavigationSound(san?: string) {
+    if (!san) {
+      soundService.playSound('board_load_position')
+      return
+    }
+
+    if (san.includes('=') || san.includes('Q') || san.includes('R') || san.includes('B') || san.includes('N')) {
+       // Simple check for promotion in SAN if it follows standard notation
+       if (san.includes('=')) {
+         soundService.playSound('board_promote')
+       }
+    }
+
+    if (san.includes('O-O')) {
+      soundService.playSound('board_castle')
+    } else if (san.includes('x')) {
+      soundService.playSound('board_capture')
+    } else {
+      soundService.playSound('board_move')
+    }
+
+    // Check sounds
+    if (playGameStatusSounds.value) {
+      if (san.includes('#')) {
+        soundService.playSound('board_checkmate')
+      } else if (san.includes('+')) {
+        soundService.playSound('board_check')
+      }
+    }
   }
 
   function setupPosition(newFen: string, newOrientation?: ChessgroundColor) {
@@ -120,7 +158,7 @@ export const useBoardStore = defineStore('board', () => {
       }
       pgnService.reset(newFen === 'start' ? INITIAL_FEN : newFen)
       _updateBoardStateFromPgn()
-      soundService.playSound('board_load_position')
+      _playNavigationSound()
     } catch (e) {
       console.error('Invalid FEN provided:', newFen, e)
     }
@@ -420,9 +458,14 @@ export const useBoardStore = defineStore('board', () => {
         pgnService.navigateToEnd()
         break
     }
-    _updateBoardStateFromPgn()
+    const { isChanged, lastPgnMove } = _updateBoardStateFromPgn()
 
-    // 2. Smart Navigation (Skip Bot Moves)
+    // 2. Play sound ONLY if board changed
+    if (isChanged) {
+      _playNavigationSound(lastPgnMove?.san)
+    }
+
+    // 3. Smart Navigation (Skip Bot Moves)
     // If targetTurn is set, and we are not at the very start/end (where jumping might not be possible),
     // and the resulting turn is NOT the target turn, we jump one more time.
     if (targetTurn && (move === 'backward' || move === 'forward')) {
@@ -433,14 +476,22 @@ export const useBoardStore = defineStore('board', () => {
         if (move === 'backward') pgnService.navigateBackward()
         else pgnService.navigateForward()
 
-        _updateBoardStateFromPgn()
+        const skipResult = _updateBoardStateFromPgn()
+        
+        // Play sound again for the skipped move if board changed
+        if (skipResult.isChanged) {
+          _playNavigationSound(skipResult.lastPgnMove?.san)
+        }
       }
     }
   }
 
   function navigateToNode(node: PgnNode) {
     if (pgnService.navigateToNode(node)) {
-      _updateBoardStateFromPgn()
+      const { isChanged } = _updateBoardStateFromPgn()
+      if (isChanged) {
+        _playNavigationSound(node.san)
+      }
     }
   }
 

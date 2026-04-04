@@ -236,6 +236,66 @@ class LichessSyncService {
     })
   }
 
+  async updateChapterTags(studyId: string, chapterId: string, pgn: string): Promise<void> {
+    return this.queue.enqueue(async () => {
+      try {
+        const body = new URLSearchParams()
+        body.append('pgn', pgn)
+
+        const headers = await this.getHeaders()
+        const response = await fetch(`${this.BASE_URL}/study/${studyId}/${chapterId}/tags`, {
+          method: 'POST',
+          headers: {
+            ...headers,
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: body.toString(),
+        })
+
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({}))
+          throw new LichessApiError(
+            response.status,
+            error.error || `Failed to update tags: ${response.statusText}`,
+          )
+        }
+      } catch (error) {
+        logger.error(`[LichessSyncService] Error updating tags for study ${studyId} chapter ${chapterId}:`, error)
+        throw error
+      }
+    })
+  }
+
+  async updateChapterMoves(studyId: string, chapterId: string, pgn: string): Promise<void> {
+    return this.queue.enqueue(async () => {
+      try {
+        const body = new URLSearchParams()
+        body.append('pgn', pgn)
+
+        const headers = await this.getHeaders()
+        const response = await fetch(`${this.BASE_URL}/study/${studyId}/${chapterId}/moves`, {
+          method: 'POST',
+          headers: {
+            ...headers,
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: body.toString(),
+        })
+
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({}))
+          throw new LichessApiError(
+            response.status,
+            error.error || `Failed to update moves: ${response.statusText}`,
+          )
+        }
+      } catch (error) {
+        logger.error(`[LichessSyncService] Error updating moves for study ${studyId} chapter ${chapterId}:`, error)
+        throw error
+      }
+    })
+  }
+
   async fetchStudyPgn(studyId: string, tokenOverride?: string): Promise<string> {
     return this.queue.enqueue(async () => {
       if (!/^[a-zA-Z0-9]{8}$/.test(studyId)) {
@@ -249,7 +309,7 @@ class LichessSyncService {
           'Authorization': `Bearer ${token}`,
         }
         
-        const response = await fetch(`${this.BASE_URL}/study/${studyId}.pgn?orientation=true&t=${Date.now()}`, {
+        const response = await fetch(`${this.BASE_URL}/study/${studyId}.pgn?orientation=true&clocks=false&t=${Date.now()}`, {
           headers,
         })
 
