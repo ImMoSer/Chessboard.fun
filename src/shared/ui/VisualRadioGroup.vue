@@ -24,7 +24,10 @@ const gridStyle = computed(() => {
   if (props.columns) {
     return { gridTemplateColumns: `repeat(${props.columns}, 1fr)` }
   }
-  return { gridTemplateColumns: `repeat(auto-fit, minmax(${props.minWidth || 110}px, 1fr))` }
+  if (props.minWidth) {
+    return { gridTemplateColumns: `repeat(auto-fit, minmax(${props.minWidth}px, 1fr))` }
+  }
+  return {}
 })
 </script>
 
@@ -55,6 +58,14 @@ const gridStyle = computed(() => {
   display: grid;
   gap: 12px;
   width: 100%;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+@media (max-width: 700px) {
+  .visual-grid {
+    grid-template-columns: repeat(2, 1fr);
+    row-gap: 8px;
+  }
 }
 
 .visual-card {
@@ -100,12 +111,12 @@ const gridStyle = computed(() => {
 .visual-svg {
   width: 32px;
   height: 32px;
-  filter: brightness(0) invert(1) drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+
 }
 
 .visual-card.active .visual-icon,
 .visual-card.active .visual-svg {
-  filter: drop-shadow(0 0 8px var(--color-primary, #63e2b7)) brightness(0) invert(1);
+  filter: drop-shadow(0 0 8px var(--neon-blue)) brightness(1.1) invert(0);
 }
 
 .visual-label {

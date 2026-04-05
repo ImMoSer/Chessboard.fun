@@ -336,4 +336,8 @@ html, body {
     font-size: 0.85rem;
     border-radius: 8px !important;
   }
+  .n-radio-group, .n-radio-button {
+    --n-height: 34px !important;
+    font-size: 0.85rem !important;
+  }
 }

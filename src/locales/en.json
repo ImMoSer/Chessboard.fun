@@ -374,18 +374,18 @@
         "generateWithStyle": "Generate {style}",
         "styles": {
           "grossmaster": {
-            "label": "🏛️ GrossMaster",
-            "name": "GrossMaster",
+            "label": "🏛️ Master",
+            "name": "Master",
             "description": "Maximum reliability and theoretical soundness. The elite choice."
           },
           "hustler": {
-            "label": "🃏 The Hustler",
-            "name": "The Hustler",
+            "label": "🃏 Hustler",
+            "name": "Hustler",
             "description": "He, like a professional poker player, uses statistical variations to achieve the best results in the long run."
           },
           "schuler": {
-            "label": "🎭 The Swindler",
-            "name": "The Swindler",
+            "label": "🎭 Swindler",
+            "name": "Swindler",
             "description": "He, like a swindler, uses sharp traps and \"poisonous\" lines. Provocative play designed to deceive and lure opponents into fatal mistakes."
           }
         },
@@ -889,6 +889,7 @@
       },
       "settings": {
         "title": "Opening Trainer Settings",
+        "subtitle": "Configure your Sparring Session",
         "color": "Choose Color",
         "white": "White",
         "black": "Black",

@@ -23,11 +23,11 @@ const accentColorVar = computed(() => `var(--color-${props.accentType})`)
 
 <template>
   <div class="selection-container">
-    <n-card class="glass selection-card" :bordered="false" content-style="padding: 32px">
+    <n-card class="glass selection-card" :bordered="false" content-style="padding: 12px">
       <n-space vertical :size="24" style="width: 100%;">
         <div class="header" :class="{ 'tornado-header': isTornado }">
-          <n-h1 
-            class="title" 
+          <n-h1
+            class="title"
             :class="{ 'tornado-title': isTornado }"
             :style="{ color: accentColorVar, margin: 0 }"
           >
@@ -43,11 +43,11 @@ const accentColorVar = computed(() => `var(--color-${props.accentType})`)
         </div>
 
         <div class="actions">
-          <n-button 
-            type="primary" 
-            size="large" 
-            block 
-            class="start-btn" 
+          <n-button
+            type="primary"
+            size="large"
+            block
+            class="start-btn"
             @click="emit('start')"
             :style="accentType === 'warning' || accentType === 'error' ? { backgroundColor: accentColorVar, borderColor: accentColorVar, boxShadow: `0 0 10px ${accentColorVar}` } : {}"
           >
@@ -64,44 +64,41 @@ const accentColorVar = computed(() => `var(--color-${props.accentType})`)
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 80vh;
-  padding: 20px;
+  min-height: 85vh;
+  padding: 5px;
 }
 
 .selection-card {
   width: 100%;
   max-width: 650px;
   border-radius: 20px;
-  background: var(--bg-0, rgba(16, 16, 20, 0.7)); 
+  background: var(--bg-0, rgba(16, 16, 20, 0.7));
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .header {
   text-align: center;
-  margin-bottom: 12px;
+  margin-bottom: 5px;
 }
 
 .title {
-  font-size: 2.3rem;
+  font-size: 2.5rem;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 2px;
 }
 
-.tornado-header .title {
-  font-size: 4rem;
-  letter-spacing: 12px;
-}
-
 .subtitle {
-  font-size: 1.1rem;
+  font-size: 1.0rem;
+  margin: 0;
+  padding: 0;
 }
 
 .selection-sections {
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 20px;
   width: 100%;
 }
 
@@ -136,20 +133,25 @@ const accentColorVar = computed(() => `var(--color-${props.accentType})`)
 
 @media (max-width: 600px) {
   :deep(.n-card__content) {
-    padding: 20px !important;
+    padding: 10px !important;
   }
   .title {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
   }
-  .tornado-header .title {
-    font-size: 2.5rem;
-    letter-spacing: 6px;
-  }
+
   .subtitle {
-    font-size: 0.9rem;
+    display: none;
   }
   .selection-sections {
-    gap: 20px;
+    gap: 5px;
   }
+  :deep(.section-label) {
+  font-weight: 600;
+  color: var(--text-secondary, #999);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  }
+
 }
 </style>

@@ -27,7 +27,7 @@ const { t } = useI18n()
 const openingStore = useOpeningSparringStore()
 
 const selectedColor = ref<'white' | 'black'>('white')
-const selectedOpening = ref<string | null>(null)
+const selectedOpening = ref<string | null>('start')
 const majorOpenings = ref<{ name: string; eco?: string; moves: string[]; slug: string }[]>([])
 
 const openingOptions = computed<SelectOption[]>(() => {
@@ -60,10 +60,9 @@ function startSession() {
 <template>
   <n-modal
     :show="true"
-    :style="{ width: 'min(650px, calc(100vw - 32px))' }"
     @close="$emit('close')"
   >
-    <n-card class="glass selection-card" :bordered="false" content-style="padding: 32px">
+    <n-card class="glass selection-card" :bordered="false" content-style="padding: 20px">
       <!-- Close Button Top Right -->
       <n-button quaternary circle class="close-btn" @click="$emit('close')">
         <template #icon><n-icon><CloseOutline /></n-icon></template>
@@ -71,11 +70,11 @@ function startSession() {
 
       <n-space vertical :size="24" style="width: 100%;">
         <div class="header">
-          <n-h1 class="title" style="color: var(--color-primary); margin: 0;">
+          <n-h1 class="title">
             {{ t('nav.openingSparring') }}
           </n-h1>
           <n-text depth="3" class="subtitle">
-            Configure your Sparring Session
+            {{ t('features.diamondHunter.settings.subtitle') }}
           </n-text>
         </div>
 
@@ -99,8 +98,6 @@ function startSession() {
             <n-select
               v-model:value="selectedOpening"
               :options="openingOptions"
-              filterable
-              placeholder="Search opening..."
               size="large"
             />
           </div>
@@ -164,7 +161,7 @@ function startSession() {
           <!-- 5. Variability -->
           <div class="section fade-in" v-if="openingStore.opponentSource === 'lichess' || openingStore.opponentCharacter === 'none'">
             <n-space align="center" justify="space-between">
-              <n-text class="section-label" style="margin: 0;">{{ t('features.diamondHunter.settings.variability', { value: openingStore.variability }) }}</n-text>
+              <n-text class="section-label">{{ t('features.diamondHunter.settings.variability', { value: openingStore.variability }) }}</n-text>
               <n-tag :bordered="false" type="info" size="small">{{ openingStore.variability }} / 7</n-tag>
             </n-space>
             <n-slider v-model:value="openingStore.variability" :min="3" :max="7" :step="1" />
@@ -192,8 +189,7 @@ function startSession() {
 
 <style scoped>
 .selection-card {
-  width: 100%;
-  max-width: 650px;
+  width: min(650px, calc(100vw - 12px));
   border-radius: 20px;
   background: var(--bg-0, rgba(16, 16, 20, 0.7));
   backdrop-filter: blur(12px);
@@ -214,6 +210,8 @@ function startSession() {
 }
 
 .title {
+  color: var(--color-primary);
+  margin: 0;
   font-size: 2.1rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -254,6 +252,7 @@ function startSession() {
 }
 
 .section-label {
+  margin: 0;
   font-weight: 600;
   color: var(--text-secondary, #999);
   font-size: 0.85rem;
