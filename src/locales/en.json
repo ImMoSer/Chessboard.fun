@@ -1085,7 +1085,9 @@
       "message": "Welcome! The app is on your device for the first time or it need to be updated and needs to be fully downloaded. This only happens once.",
       "hint": "Once the download is finished, the app can be used completely offline.",
       "webviewWarning": "It seems you have opened the app in an integrated browser (e.g., Telegram, Instagram). For full functionality, we require a real browser like Google Chrome or Safari.",
-      "webviewAction": "Please copy the link and open it in your default browser (Chrome or Safari)."
+      "webviewAction": "Please copy the link and open it in your default browser (Chrome or Safari).",
+      "warmingMessage": "Initializing engine...",
+      "warmingHint": "Compiling the engine can take a few seconds on mobile devices."
     }
   },
   "about": {

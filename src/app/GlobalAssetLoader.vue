@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { DEFAULT_NNUE_FILE } from '@/shared/config/engine.constants'
+import { useAnalysisEngineStore } from '@/entities/analysis'
 import { changeLang } from '@/shared/config/i18n'
 import { databaseClient } from '@/shared/api/storage/DatabaseClient'
 import { authService } from '@/entities/user/api/AuthService'
@@ -11,9 +12,11 @@ const emit = defineEmits<{
 }>()
 
 const isReady = ref(false)
+const isWarming = ref(false)
 const hasError = ref(false)
 const errorMessage = ref('')
 const progress = ref(0)
+const warmingProgress = ref(0)
 const loadedBytes = ref(0)
 const totalBytes = ref(0) // Will be updated during fetch
 
@@ -53,10 +56,6 @@ async function preloadAssets() {
   
   try {
     // 0. Environment Compatibility Check (Kill-Switch)
-    // We require:
-    // - SharedArrayBuffer for Stockfish (WASM Multi-threading) & SQLite
-    // - OPFS (Origin Private File System) for local storage
-    // - Cache API for ServiceWorker/Offline functionality
     const hasSharedArrayBuffer = typeof SharedArrayBuffer !== 'undefined'
     const hasOPFS = typeof navigator.storage?.getDirectory === 'function'
     const hasCacheApi = 'caches' in window
@@ -70,20 +69,18 @@ async function preloadAssets() {
 
     // 1. Parallelize size checks (Check Cache API first, then HEAD)
     const sizePromises = assetsToLoad.map(async (url) => {
-      try {
-        const cachedResponse = await cache.match(url)
-        if (cachedResponse) {
-          const size = parseInt(cachedResponse.headers.get('content-length') || '0', 10)
-          return { url, size, cached: true }
-        }
-        
-        const res = await fetch(url, { method: 'HEAD' })
-        const size = parseInt(res.headers.get('content-length') || '0', 10)
-        return { url, size, cached: false }
-      } catch (e) {
-        console.warn('Failed to get size for', url, e)
-        return { url, size: 0, cached: false }
+      const cachedResponse = await cache.match(url)
+      if (cachedResponse) {
+        const size = parseInt(cachedResponse.headers.get('content-length') || '0', 10)
+        return { url, size, cached: true }
       }
+      
+      const res = await fetch(url, { method: 'HEAD' })
+      if (!res.ok) {
+        throw new Error(`Asset not found: ${url} (${res.status} ${res.statusText})`)
+      }
+      const size = parseInt(res.headers.get('content-length') || '0', 10)
+      return { url, size, cached: false }
     })
 
     const assetInfos = await Promise.all(sizePromises)
@@ -98,7 +95,9 @@ async function preloadAssets() {
 
     // 2. Fetch files with progress
     for (const info of assetInfos) {
-      if (info.size === 0 && !info.cached) continue
+      if (info.size === 0 && !info.cached) {
+        throw new Error(`Asset has size 0 or is missing: ${info.url}`)
+      }
 
       let response: Response
       
@@ -106,7 +105,9 @@ async function preloadAssets() {
         response = (await cache.match(info.url))!
       } else {
         const fetchResponse = await fetch(info.url)
-        if (!fetchResponse.ok) throw new Error(`Failed to fetch ${info.url}: ${fetchResponse.statusText}`)
+        if (!fetchResponse.ok) {
+          throw new Error(`Failed to fetch ${info.url}: ${fetchResponse.statusText}`)
+        }
         
         // Explicitly put in Cache API
         await cache.put(info.url, fetchResponse.clone())
@@ -128,7 +129,7 @@ async function preloadAssets() {
     }
 
     // 3. Database Initialization
-    progress.value = 95
+    progress.value = 100
     try {
       await databaseClient.init()
       const userId = authService.getUserProfile()?.id || 'anon'
@@ -138,10 +139,26 @@ async function preloadAssets() {
       throw new Error(`Database initialization failed: ${dbError instanceof Error ? dbError.message : String(dbError)}`)
     }
 
-    // Finalize progress
-    currentLoaded += EXPECTED_SOUNDS_SIZE
-    loadedBytes.value = currentLoaded
-    progress.value = 100
+    // 4. Engine Warming (Compiling WASM & Handshake)
+    isWarming.value = true
+    warmingProgress.value = 0
+    
+    // Simulate some progress for the UI while warming (compilation is an opaque async process)
+    const warmingInterval = setInterval(() => {
+      if (warmingProgress.value < 90) {
+        warmingProgress.value += 1
+      }
+    }, 150)
+
+    try {
+      const engineStore = useAnalysisEngineStore()
+      await engineStore.initialize()
+      warmingProgress.value = 100
+    } catch (warmError) {
+      console.warn('Engine warming failed, but proceeding anyway:', warmError)
+    } finally {
+      clearInterval(warmingInterval)
+    }
     
     setTimeout(() => {
       isReady.value = true
@@ -226,19 +243,27 @@ onMounted(() => {
     <div class="loader-content">
       <img src="/png/extra_pawn_black.png" alt="Logo" class="loader-logo" />
       <h2 class="loader-title">EXTRAPAWN</h2>
+      
       <p class="loader-text">
-        {{ t('app.globalLoader.message') }}
+        {{ isWarming ? t('app.globalLoader.warmingMessage') : t('app.globalLoader.message') }}
       </p>
       
       <div class="progress-container">
-        <div class="progress-bar" :style="{ width: progress + '%' }"></div>
+        <div 
+          class="progress-bar" 
+          :class="{ 'is-warming': isWarming }" 
+          :style="{ width: (isWarming ? warmingProgress : progress) + '%' }"
+        ></div>
       </div>
       
       <div class="loader-detail">
-        <span v-if="totalBytes > 0">{{ loadedMb }} MB / {{ totalMb }} MB</span>
-        <span v-else>{{ progress }}%</span>
+        <span v-if="!isWarming && totalBytes > 0">{{ loadedMb }} MB / {{ totalMb }} MB</span>
+        <span v-else>{{ isWarming ? warmingProgress : progress }}%</span>
       </div>
-      <p class="loader-hint">{{ t('app.globalLoader.hint') }}</p>
+      
+      <p class="loader-hint">
+        {{ isWarming ? t('app.globalLoader.warmingHint') : t('app.globalLoader.hint') }}
+      </p>
 
       <div class="loader-lang-switcher">
         <button class="lang-btn" :class="{ active: locale === 'en' }" @click="handleChangeLang('en')">EN</button>
@@ -318,6 +343,11 @@ onMounted(() => {
   border-radius: 4px;
   transition: width 0.3s ease;
   box-shadow: 0 0 10px #00f2ff;
+}
+
+.progress-bar.is-warming {
+  background: linear-gradient(90deg, #8a2be2, #4b0082); /* Purple/Indigo for warming */
+  box-shadow: 0 0 10px #8a2be2;
 }
 
 .loader-detail {

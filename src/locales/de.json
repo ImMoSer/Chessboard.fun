@@ -1085,7 +1085,9 @@
       "message": "Willkommen! Die App ist zum ersten Mal auf deinem Gerät oder benötigt ein Update und muss vollständig heruntergeladen werden. Dies passiert nur einmal.",
       "hint": "Sobald der Download abgeschlossen ist, kann die App vollständig offline genutzt werden.",
       "webviewWarning": "Es scheint, als hättest du die App in einem integrierten Browser (z.B. Telegram, Instagram) geöffnet. Für den vollen Funktionsumfang benötigen wir einen echten Browser wie Google Chrome oder Safari.",
-      "webviewAction": "Bitte kopiere den Link und öffne ihn in deinem Standard-Browser (Chrome oder Safari)."
+      "webviewAction": "Bitte kopiere den Link und öffne ihn in deinem Standard-Browser (Chrome oder Safari).",
+      "warmingMessage": "Engine wird initialisiert...",
+      "warmingHint": "Das Kompilieren der Engine kann auf Mobilgeräten einige Sekunden dauern."
     }
   },
   "about": {
