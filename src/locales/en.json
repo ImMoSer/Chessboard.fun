@@ -555,19 +555,17 @@
         }
       },
       "bonusInfo": {
-        "title": "\ud83c\udf89 Updated Subscription Bonus Tiers!",
-        "p1": "Hello, friends \ud83d\udc4b",
-        "p2": "We have updated the terms for automatic bonuses for the most active club players.",
-        "p3": "Now you can get a premium tier for free \u2014 just by playing in team tournaments \ud83c\udfc6",
-        "teamLink": "Join our Lichess Club here!",
-        "howItWorks": "\ud83d\udcc5 How it works:",
-        "p4": "Every day, the system analyzes your activity over the last 30 days (tournaments, points, and games) and awards activity points.",
-        "p5": "Depending on the amount, one of the tiers is assigned:",
-        "knight": "\u2658 Knight \u2014 from 250 points",
-        "bishop": "\u2657 Bishop \u2014 from 500 points",
-        "p6": "\u2728 The tier is recalculated automatically and may change depending on your activity.",
-        "p7": "No applications needed \u2014 just play, and the system will do everything itself \u2705",
-        "p8": "Thank you for supporting the club \u2764\ufe0f\u265f"
+        "title": "🎉 xtrapawn Bonus Program",
+        "howItWorks": "📅 How does it work?",
+        "p1": "Our bonus program rewards the most active members of the xtrapawn club on Lichess.",
+        "p2": "Bonuses are assigned automatically. The calculation is done daily at 05:29 AM (UTC+1) based on performance over the last 30 days.",
+        "p3": "1st Place (King), 2nd Place (Queen), 3rd Place (Rook).",
+        "p4a": "Players with Vector 500+ receive Bishop.",
+        "p4b": "Players with Vector 250+ receive Knight.",
+        "p5": "Status is updated daily and remains valid until the next calculation.",
+        "homepageLink": "Club Homepage",
+        "alertText": "Prefer to earn instead of buy? Check out our",
+        "alertButton": "Bonus Program"
       },
       "costs": {
         "title": "Game Mode Costs",
@@ -1217,5 +1215,16 @@
       "repertoire": "Study"
     },
     "loginPrompt": "Or log in to access all features:"
+  },
+  "clubPage": {
+    "mostValuablePlayersTitle": "Club Top 20 & Bonus Status",
+    "table": {
+      "player": "Player",
+      "vector": "Vector",
+      "performance": "Perf.",
+      "gamesPlayed": "Games",
+      "winRate": "Win %",
+      "streak": "Streak"
+    }
   }
 }

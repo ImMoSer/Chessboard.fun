@@ -104,6 +104,11 @@ const router = createRouter({
       component: PricingPage,
     },
     {
+      path: '/bonus',
+      name: 'bonus',
+      component: () => import('@/pages/bonus/ui/BonusView.vue'),
+    },
+    {
       path: '/diamond-hunter/:openingSlug?/:color?',
       name: 'diamond-hunter',
       component: () => import('@/pages/diamond-hunter').then(m => m.DiamondHunterPage),

@@ -28,16 +28,11 @@ const { t } = useI18n()
 const authStore = useAuthStore()
 
 // Subscription values and colors
-const PAWN_COINS = 250
-const KNIGHT_COINS = 500
-const BISHOP_COINS = 1000
+// Subscription values and colors
 const ROOK_COINS = 1500
 const QUEEN_COINS = 3000
 const KING_COINS = 0 // Displayed as LIMITLESS
 
-const PAWN_COLOR = 'var(--neon-cyan)'
-const KNIGHT_COLOR = 'var(--neon-cyan)'
-const BISHOP_COLOR = 'var(--color-accent-warning)'
 const ROOK_COLOR = 'var(--neon-purple)'
 const QUEEN_COLOR = 'var(--color-accent-error)'
 const KING_COLOR = 'var(--neon-gold)' // Gold for King
@@ -72,33 +67,6 @@ const isSubscriptionCanceled = computed(() => {
 
 const subscriptionTiers = computed(() => {
   const baseTiers = [
-    {
-      id: 'pawn',
-      name: t('features.pricing.tiers.pawn.name'),
-      icon: '/piece/alpha/wP.svg',
-      pawncoins: PAWN_COINS,
-      color: PAWN_COLOR,
-      price: t('features.pricing.tiers.pawn.price'),
-      highlight: true,
-    },
-    {
-      id: 'knight',
-      name: t('features.pricing.tiers.knight.name'),
-      icon: '/piece/alpha/wN.svg',
-      pawncoins: KNIGHT_COINS,
-      color: KNIGHT_COLOR,
-      price: t('features.pricing.tiers.price.bonus'),
-      isBonus: true,
-    },
-    {
-      id: 'bishop',
-      name: t('features.pricing.tiers.bishop.name'),
-      icon: '/piece/alpha/wB.svg',
-      pawncoins: BISHOP_COINS,
-      color: BISHOP_COLOR,
-      price: t('features.pricing.tiers.price.bonus'),
-      isBonus: true,
-    },
     {
       id: 'rook',
       name: t('features.pricing.tiers.rook.name'),
@@ -285,12 +253,20 @@ const handleCheckout = async (tier: SubscriptionTier) => {
           </n-h2>
         </n-divider>
 
+        <n-alert type="info" :show-icon="false" style="margin-bottom: 8px;">
+          <n-space justify="space-between" align="center">
+            <n-text>{{ t('features.pricing.bonusInfo.alertText') }}</n-text>
+            <n-button type="primary" secondary size="small" @click="$router.push('/bonus')">
+              {{ t('features.pricing.bonusInfo.alertButton') }}
+            </n-button>
+          </n-space>
+        </n-alert>
+
         <n-grid cols="1 600:2 900:3" x-gap="16" y-gap="16">
           <n-gi v-for="tier in subscriptionTiers" :key="tier.name">
             <n-card
               hoverable
               class="tier-card"
-              :class="{ 'highlight-tier': tier.highlight, 'clickable-tier': tier.isBonus }"
               @click="handleTierClick(tier)"
             >
               <template #header>
