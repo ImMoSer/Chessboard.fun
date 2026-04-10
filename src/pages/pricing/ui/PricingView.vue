@@ -56,13 +56,23 @@ const tierRanks: Record<string, number> = {
 }
 
 const currentUserTier = computed(() => {
-  return authStore.getUserProfile?.subscriptionTier?.toLowerCase() || 'pawn'
+  const profile = authStore.getUserProfile
+  return (profile?.activeTier || profile?.subscriptionTier || 'pawn').toLowerCase()
 })
 
-const currentUserRank = computed(() => tierRanks[currentUserTier.value] ?? 0)
+const polarUserTier = computed(() => {
+  const profile = authStore.getUserProfile
+  return (profile?.polarTier || 'pawn').toLowerCase()
+})
+
+const polarUserRank = computed(() => tierRanks[polarUserTier.value] ?? 0)
 
 const isSubscriptionCanceled = computed(() => {
   return authStore.getUserProfile?.polarStatus === 'canceled'
+})
+
+const isPolarCustomer = computed(() => {
+  return !!authStore.getUserProfile?.isPolarCustomer
 })
 
 const subscriptionTiers = computed(() => {
@@ -103,9 +113,22 @@ const subscriptionTiers = computed(() => {
   return baseTiers.map(tier => {
     const rank = tierRanks[tier.id] ?? 0
     const isCurrent = currentUserTier.value === tier.id
-    const canBuy = !!tier.isPurchasable && rank > currentUserRank.value
-    // If user is already Rook or Queen, buying a higher tier is an upgrade
-    const isUpgrade = canBuy && currentUserRank.value >= 3
+    
+    let canBuy = false
+    let isUpgrade = false
+
+    if (tier.isPurchasable) {
+      if (!isPolarCustomer.value) {
+        // Nicht-Abonnenten (oder reine Gift-User ohne Polar-Abo) dürfen ALLES kaufen.
+        // Nichts davon zählt als "Upgrade" bei Polar, sondern als neues Abo.
+        canBuy = true
+        isUpgrade = false
+      } else {
+        // Polar-Abonnenten können nur in echt höhere Tiers per Button upgraden.
+        canBuy = rank > polarUserRank.value
+        isUpgrade = canBuy && polarUserRank.value >= 3
+      }
+    }
 
     return {
       ...tier,

@@ -410,6 +410,8 @@ export interface UserSessionProfile extends LichessUserProfile {
   spentToday: number
   base_puzzle_rating: number
   subscriptionTier: SubscriptionTier
+  activeTier?: SubscriptionTier
+  polarTier?: SubscriptionTier | null
   isPolarCustomer?: boolean
   polarStatus?: string | null
   validatedAt?: number
