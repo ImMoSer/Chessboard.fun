@@ -56,6 +56,11 @@
     "status": {
       "label": "Status Code",
       "unknown": "Unknown"
+    },
+    "updateNotification": {
+      "title": "New Version Available!",
+      "content": "A new version (v{version}) is online. Please update the app to receive all the latest features and fixes.",
+      "button": "Update Now"
     }
   },
   "gameModes": {

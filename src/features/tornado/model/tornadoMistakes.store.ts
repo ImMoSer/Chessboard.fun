@@ -94,6 +94,28 @@ export const useTornadoMistakesStore = defineStore('tornado-mistakes', () => {
     gameStore.startWithStrategy(fen, createStrategy(puzzle), humanColor)
   }
 
+  function selectNextUnsolvedPuzzle() {
+    const currentIndex = mistakes.value.findIndex(
+      (p) => (p.PuzzleId || p.puzzle_id) === selectedPuzzleId.value,
+    )
+    
+    // Search circular starting from next item
+    const nextPuzzles = [
+      ...mistakes.value.slice(currentIndex + 1),
+      ...mistakes.value.slice(0, currentIndex + 1),
+    ]
+
+    const nextUnsolved = nextPuzzles.find((p) => !solvedStatus.value[p.PuzzleId || p.puzzle_id || ''])
+
+    if (nextUnsolved) {
+      selectPuzzle(nextUnsolved)
+      return true
+    } else if (allMistakesSolved.value) {
+      feedbackMessage.value = t('features.tornado.mistakes.feedback.allSolved')
+    }
+    return false
+  }
+
   function createStrategy(puzzle: GamePuzzle): IGameplayStrategy {
     const moves = (puzzle.Moves || puzzle.tactical_solution || '').split(' ').filter(Boolean)
     let moveIndex = 0
@@ -116,9 +138,20 @@ export const useTornadoMistakesStore = defineStore('tornado-mistakes', () => {
       async onUserMoveExecuted() {
         if (moveIndex >= moves.length) {
           const id = puzzle.PuzzleId || puzzle.puzzle_id
-          if (id) solvedStatus.value[id] = true
-          soundService.playSound('game_tacktics_success')
-          feedbackMessage.value = t('features.tornado.mistakes.feedback.solved')
+          if (id) {
+            const wasSolved = solvedStatus.value[id]
+            solvedStatus.value[id] = true
+            soundService.playSound('game_tacktics_success')
+            feedbackMessage.value = t('features.tornado.mistakes.feedback.solved')
+
+            if (!wasSolved) {
+              setTimeout(() => {
+                if (selectedPuzzleId.value === id) {
+                  selectNextUnsolvedPuzzle()
+                }
+              }, 1500)
+            }
+          }
         }
       },
       async requestBotMove(): Promise<string | null> {
@@ -144,6 +177,7 @@ export const useTornadoMistakesStore = defineStore('tornado-mistakes', () => {
     loadMistakes,
     clearMistakes,
     selectPuzzle,
+    selectNextUnsolvedPuzzle,
     fenFinal
   }
 })

@@ -1,7 +1,9 @@
 import { useDialog } from 'naive-ui'
 import { onMounted, onUnmounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 export function useVersionUpdate() {
+  const { t } = useI18n()
   const dialog = useDialog()
   const CURRENT_VERSION = import.meta.env.VITE_APP_VERSION
   
@@ -38,9 +40,9 @@ export function useVersionUpdate() {
 
   const showUpdateModal = (newVersion: string) => {
     dialog.success({
-      title: 'Neue Version verfügbar!',
-      content: `Eine neue Version (v.${newVersion}) ist online. Bitte aktualisiere die App, um alle Neuerungen und Fixes zu erhalten.`,
-      positiveText: 'Jetzt aktualisieren',
+      title: t('common.updateNotification.title'),
+      content: t('common.updateNotification.content', { version: newVersion }),
+      positiveText: t('common.updateNotification.button'),
       closable: false,
       maskClosable: false,
       onPositiveClick: () => {

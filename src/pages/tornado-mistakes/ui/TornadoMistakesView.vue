@@ -14,6 +14,8 @@ import type { GamePuzzle } from '@/shared/types/api.types'
 
 import {
   AnalyticsOutline,
+  CheckmarkDoneOutline,
+  ConstructOutline,
   ExitOutline,
   FileTrayOutline,
   InformationCircleOutline,
@@ -63,21 +65,7 @@ const formattedThemes = computed(() => {
 
 // --- METHODS ---
 function selectNextUnsolvedPuzzle() {
-  const currentIndex = mistakesStore.mistakes.findIndex(
-    (p) => (p.PuzzleId || p.puzzle_id) === mistakesStore.selectedPuzzleId,
-  )
-  const nextPuzzles = [
-    ...mistakesStore.mistakes.slice(currentIndex + 1),
-    ...mistakesStore.mistakes.slice(0, currentIndex + 1),
-  ]
-
-  const nextUnsolved = nextPuzzles.find((p) => !mistakesStore.solvedStatus[p.PuzzleId || p.puzzle_id || ''])
-
-  if (nextUnsolved) {
-    handleSelectPuzzle(nextUnsolved)
-  } else if (mistakesStore.allMistakesSolved) {
-    mistakesStore.feedbackMessage = t('features.tornado.mistakes.feedback.allSolved')
-  }
+  mistakesStore.selectNextUnsolvedPuzzle()
 }
 
 function handleSelectPuzzle(puzzle: GamePuzzle) {
@@ -139,9 +127,9 @@ async function handleExit() {
         </template>
 
         <n-scrollbar style="max-height: calc(100vh - 200px)">
-          <div v-if="mistakesStore.unsolvedMistakes.length > 0" class="mistakes-grid">
+          <div v-if="mistakesStore.mistakes.length > 0" class="mistakes-grid">
             <div
-              v-for="puzzle in mistakesStore.unsolvedMistakes"
+              v-for="puzzle in mistakesStore.mistakes"
               :key="puzzle.PuzzleId || puzzle.puzzle_id"
               class="mistake-item-wrapper"
               :class="{
@@ -155,9 +143,13 @@ async function handleExit() {
                 orientation="white"
                 class="mini-board"
               />
-              <div v-if="mistakesStore.solvedStatus[puzzle.PuzzleId || puzzle.puzzle_id || '']" class="solved-overlay">
-                <n-icon size="24" color="var(--neon-lime)">
-                  <RibbonOutline />
+              <div 
+                class="status-badge" 
+                :class="mistakesStore.solvedStatus[puzzle.PuzzleId || puzzle.puzzle_id || ''] ? 'solved' : 'unsolved'"
+              >
+                <n-icon size="18">
+                  <CheckmarkDoneOutline v-if="mistakesStore.solvedStatus[puzzle.PuzzleId || puzzle.puzzle_id || '']" />
+                  <ConstructOutline v-else />
                 </n-icon>
               </div>
             </div>
@@ -195,7 +187,7 @@ async function handleExit() {
               secondary
               strong
               size="large"
-              :disabled="mistakesStore.unsolvedMistakes.length <= 1 || mistakesStore.allMistakesSolved"
+              :disabled="mistakesStore.mistakes.length <= 1 || mistakesStore.allMistakesSolved"
               @click="selectNextUnsolvedPuzzle"
               class="action-button glass-btn lime"
             >
@@ -367,17 +359,33 @@ async function handleExit() {
   width: 100%;
 }
 
-.solved-overlay {
+.status-badge {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 255, 85, 0.1);
+  top: 4px;
+  right: 4px;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  pointer-events: none;
+  backdrop-filter: blur(4px);
+  z-index: 2;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+
+  &.solved {
+    background: rgba(0, 255, 85, 0.2);
+    color: var(--neon-lime);
+    border-color: rgba(0, 255, 85, 0.3);
+  }
+
+  &.unsolved {
+    background: rgba(255, 0, 122, 0.2);
+    color: var(--neon-pink);
+    border-color: rgba(255, 0, 122, 0.3);
+  }
 }
 
 .glass-header, .controls-glass-panel {
