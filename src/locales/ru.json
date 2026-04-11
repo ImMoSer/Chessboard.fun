@@ -47,11 +47,11 @@
         "other": "секунд"
       },
       "attempts": {
-        "one": "попытка",
-        "few": "попытки",
-        "many": "попыток",
-        "other": "попыток"
-      }
+        "one": "Попытка",
+        "other": "{count} Попытки"
+      },
+      "ratingChange": "Рейтинг {delta}",
+      "attemptNoRating": "Попытка {count}: Без изменения рейтинга."
     },
     "status": {
       "label": "Статус-код",

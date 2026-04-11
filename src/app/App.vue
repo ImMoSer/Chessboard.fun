@@ -9,6 +9,7 @@ import GalaxyBackground from '@/shared/ui/visuals/GalaxyBackground.vue'
 import GlobalAssetLoader from './GlobalAssetLoader.vue'
 import { NavMenu } from '@/widgets/nav-menu'
 import AppUpdateNotifier from './ui/AppUpdateNotifier.vue'
+import MessageBridge from './ui/MessageBridge.vue'
 import { MenuOutline } from '@vicons/ionicons5'
 import { darkTheme, type GlobalThemeOverrides } from 'naive-ui'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
@@ -102,7 +103,6 @@ const beforeUnloadHandler = (event: BeforeUnloadEvent) => {
   if (gameStore.isGameActive) {
     event.preventDefault()
     event.returnValue = t('features.gameplay.confirmExit.browserMessage')
-    gameStore.handleGameResignation()
   }
 }
 
@@ -124,8 +124,9 @@ onUnmounted(() => {
 <template>
   <GlobalAssetLoader>
     <n-config-provider :theme="darkTheme" :theme-overrides="themeOverrides">
-      <n-message-provider>
-      <n-dialog-provider>
+      <n-message-provider :duration="6000">
+        <MessageBridge />
+        <n-dialog-provider>
         <n-layout has-sider position="absolute" class="root-layout">
           <!-- Desktop Sidebar (Landscape) -->
           <n-layout-sider

@@ -45,7 +45,9 @@
       "attempts": {
         "one": "Versuch",
         "other": "{count} Versuche"
-      }
+      },
+      "ratingChange": "Rating {delta}",
+      "attemptNoRating": "Versuch {count}: Keine ELO-Änderung."
     },
     "controls": {
       "new": "Neu",

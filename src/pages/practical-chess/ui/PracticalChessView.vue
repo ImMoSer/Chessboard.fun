@@ -95,7 +95,7 @@ watch(
     controlsStore.setControls({
       canRequestNew: isGameOver || isIdle,
       canRestart:
-        (isGameOver || isIdle || !gameStore.isGameActive) && !!practicalStore.activePuzzle,
+        gameStore.gamePhase === 'GAMEOVER' && !!practicalStore.activePuzzle,
       canResign: isPlaying,
       canShare: !!practicalStore.activePuzzle,
       canRequestHint: isPlaying,
@@ -106,9 +106,7 @@ watch(
           practicalStore.loadNewPuzzle()
         }
       },
-      onRestart: () => {
-        practicalStore.restartPuzzle()
-      },
+      onRestart: practicalStore.restartPuzzle,
       onResign: practicalStore.handleResign,
       onShare: async () => {
         if (practicalStore.activePuzzle) {

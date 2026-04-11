@@ -114,29 +114,46 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
 
     try {
       const response = await resultMutation.mutateAsync(dto)
-      if (response && response.userStatsUpdate) {
-        authStore.updateUserStats(response.userStatsUpdate)
-        
-        queryClient.setQueryData(['user-cabinet', 'detailed-stats'], (oldData: UserProfileStatsDto | undefined) => {
-          if (!oldData) return oldData;
-          const updated = { ...oldData };
+      if (response) {
+        // Show rating feedback messages
+        if (response.attempts && response.attempts > 1) {
+          window.$message?.info(t('common.stats.attemptNoRating', { count: response.attempts }))
+        } else if (response.ratingDelta !== undefined) {
+          const delta = response.ratingDelta
+          const sign = delta >= 0 ? '+' : ''
+          const msg = t('common.stats.ratingChange', { delta: `${sign}${delta}` })
           
-          if (response.userStatsUpdate!.theory_win) {
-            updated.theory_win = response.userStatsUpdate!.theory_win;
+          if (delta >= 0) {
+            window.$message?.success(msg)
+          } else {
+            window.$message?.error(msg)
           }
-          if (response.userStatsUpdate!.theory_draw) {
-            updated.theory_draw = response.userStatsUpdate!.theory_draw;
-          }
-          // Fallback if the backend still sends consolidated theory
-          if (response.userStatsUpdate!.theory) {
-             if (activeType.value === 'win') updated.theory_win = response.userStatsUpdate!.theory;
-             else updated.theory_draw = response.userStatsUpdate!.theory;
-          }
+        }
+
+        if (response.userStatsUpdate) {
+          authStore.updateUserStats(response.userStatsUpdate)
           
-          return updated;
-        })
-      } else {
-        await authStore.checkSession()
+          queryClient.setQueryData(['user-cabinet', 'detailed-stats'], (oldData: UserProfileStatsDto | undefined) => {
+            if (!oldData) return oldData;
+            const updated = { ...oldData };
+            
+            if (response.userStatsUpdate!.theory_win) {
+              updated.theory_win = response.userStatsUpdate!.theory_win;
+            }
+            if (response.userStatsUpdate!.theory_draw) {
+              updated.theory_draw = response.userStatsUpdate!.theory_draw;
+            }
+            // Fallback if the backend still sends consolidated theory
+            if (response.userStatsUpdate!.theory) {
+              if (activeType.value === 'win') updated.theory_win = response.userStatsUpdate!.theory;
+              else updated.theory_draw = response.userStatsUpdate!.theory;
+            }
+            
+            return updated;
+          })
+        } else {
+          await authStore.checkSession()
+        }
       }
     } catch (error) {
       logger.error('[TheoryEndingsStore] Error sending Theory Endings stats:', error)
@@ -276,7 +293,7 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
           t('features.gameplay.confirmExit.title'),
           t('features.gameplay.confirmExit.message'),
         )
-        if (confirmed) {
+        if (confirmed === 'confirm') {
           gameStore.handleGameResignation()
           await loadNewPuzzle(activeType.value!, activePuzzle.value.puzzle_id)
         }
@@ -292,7 +309,9 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
         t('features.gameplay.confirmExit.title'),
         t('features.gameplay.confirmExit.message'),
       )
-      if (!confirmed) {
+      if (confirmed === 'confirm') {
+        gameStore.handleGameResignation()
+      } else {
         return
       }
     }

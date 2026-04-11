@@ -167,20 +167,37 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
           wasCorrect: isWin,
         },
       })
-      if (response && response.userStatsUpdate) {
-        authStore.updateUserStats(response.userStatsUpdate)
-        
-        if (response.userStatsUpdate.practical) {
-          queryClient.setQueryData(['user-cabinet', 'detailed-stats'], (oldData: UserProfileStatsDto | undefined) => {
-            if (!oldData) return oldData;
-            return {
-              ...oldData,
-              practical: response.userStatsUpdate!.practical
-            }
-          })
+      if (response) {
+        // Show rating feedback messages
+        if (response.attempts && response.attempts > 1) {
+          window.$message?.info(t('common.stats.attemptNoRating', { count: response.attempts }))
+        } else if (response.ratingDelta !== undefined) {
+          const delta = response.ratingDelta
+          const sign = delta >= 0 ? '+' : ''
+          const msg = t('common.stats.ratingChange', { delta: `${sign}${delta}` })
+          
+          if (delta >= 0) {
+            window.$message?.success(msg)
+          } else {
+            window.$message?.error(msg)
+          }
         }
-      } else {
-        await authStore.checkSession()
+
+        if (response.userStatsUpdate) {
+          authStore.updateUserStats(response.userStatsUpdate)
+          
+          if (response.userStatsUpdate.practical) {
+            queryClient.setQueryData(['user-cabinet', 'detailed-stats'], (oldData: UserProfileStatsDto | undefined) => {
+              if (!oldData) return oldData;
+              return {
+                ...oldData,
+                practical: response.userStatsUpdate!.practical
+              }
+            })
+          }
+        } else {
+          await authStore.checkSession()
+        }
       }
     } catch (error) {
       logger.error('[PracticalChessStore] Error sending Practical Chess stats:', error)

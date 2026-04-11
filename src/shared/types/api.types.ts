@@ -401,6 +401,10 @@ export interface GameResultResponse {
   success: boolean
   status?: string
   message?: string
+  ratingDelta?: number
+  newRating?: number
+  attempts?: number
+  info?: string
   userStatsUpdate?: UserStatsUpdate
 }
 

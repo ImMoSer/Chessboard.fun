@@ -122,7 +122,7 @@ watch(
 
     controlsStore.setControls({
       canRequestNew: isGameOver || isIdle,
-      canRestart: (isGameOver || isIdle || !gameStore.isGameActive) && !!theoryStore.activePuzzle,
+      canRestart: gameStore.gamePhase === 'GAMEOVER' && !!theoryStore.activePuzzle,
       canResign: isPlaying,
       canShare: !!theoryStore.activePuzzle,
       canRequestHint: isPlaying,
@@ -133,11 +133,7 @@ watch(
           theoryStore.loadNewPuzzle()
         }
       },
-      onRestart: () => {
-        if (theoryStore.activePuzzle) {
-          theoryStore.loadNewPuzzle(theoryStore.activeType!, theoryStore.activePuzzle.puzzle_id)
-        }
-      },
+      onRestart: theoryStore.handleRestart,
       onResign: theoryStore.handleResign,
       onShare: async () => {
         if (theoryStore.activePuzzle && theoryStore.activeType) {

@@ -111,7 +111,7 @@ watch(
     controlsStore.setControls({
       canRequestNew: isGameOver || isIdle,
       canRestart:
-        (isGameOver || isIdle || !gameStore.isGameActive) && !!finishHimStore.activePuzzle,
+        gameStore.gamePhase === 'GAMEOVER' && !!finishHimStore.activePuzzle,
       canResign: isPlaying,
       canShare: !!finishHimStore.activePuzzle,
       canRequestHint: isPlaying,

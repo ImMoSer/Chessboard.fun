@@ -174,25 +174,42 @@ export const useFinishHimStore = defineStore('finishHim', () => {
 
     try {
       const response = await resultMutation.mutateAsync(dto)
-      if (response && response.userStatsUpdate) {
-        logger.info('[FinishHimStore] Stats sent and userStatsUpdate received.')
-        authStore.updateUserStats(response.userStatsUpdate)
-        
-        if (response.userStatsUpdate?.finish_him) {
-           queryClient.setQueryData(['user-cabinet', 'detailed-stats'], (oldData: UserProfileStatsDto | undefined) => {
-              if (!oldData) return oldData;
-              return {
-                 ...oldData,
-                 finish_him: response.userStatsUpdate!.finish_him
-              }
-           })
+      if (response) {
+        // Show rating feedback messages
+        if (response.attempts && response.attempts > 1) {
+          window.$message?.info(t('common.stats.attemptNoRating', { count: response.attempts }))
+        } else if (response.ratingDelta !== undefined) {
+          const delta = response.ratingDelta
+          const sign = delta >= 0 ? '+' : ''
+          const msg = t('common.stats.ratingChange', { delta: `${sign}${delta}` })
+          
+          if (delta >= 0) {
+            window.$message?.success(msg)
+          } else {
+            window.$message?.error(msg)
+          }
         }
-      } else {
-        logger.warn(
-          '[FinishHimStore] Did not receive userStatsUpdate, falling back to full profile refresh.',
-          response,
-        )
-        await authStore.checkSession()
+
+        if (response.userStatsUpdate) {
+          logger.info('[FinishHimStore] Stats sent and userStatsUpdate received.')
+          authStore.updateUserStats(response.userStatsUpdate)
+          
+          if (response.userStatsUpdate?.finish_him) {
+            queryClient.setQueryData(['user-cabinet', 'detailed-stats'], (oldData: UserProfileStatsDto | undefined) => {
+                if (!oldData) return oldData;
+                return {
+                  ...oldData,
+                  finish_him: response.userStatsUpdate!.finish_him
+                }
+            })
+          }
+        } else {
+          logger.warn(
+            '[FinishHimStore] Did not receive userStatsUpdate, falling back to full profile refresh.',
+            response,
+          )
+          await authStore.checkSession()
+        }
       }
     } catch (error) {
       logger.error('[FinishHimStore] Error sending Finish Him stats:', error)
@@ -301,7 +318,7 @@ export const useFinishHimStore = defineStore('finishHim', () => {
         t('features.gameplay.confirmExit.title'),
         t('features.gameplay.confirmExit.message'),
       )
-      if (confirmed) {
+      if (confirmed === 'confirm') {
         gameStore.handleGameResignation()
         if (activePuzzle.value) {
           loadNewPuzzle(activePuzzle.value.puzzle_id)
@@ -318,7 +335,9 @@ export const useFinishHimStore = defineStore('finishHim', () => {
         t('features.gameplay.confirmExit.title'),
         t('features.gameplay.confirmExit.message'),
       )
-      if (!confirmed) {
+      if (confirmed === 'confirm') {
+        gameStore.handleGameResignation()
+      } else {
         return
       }
     }

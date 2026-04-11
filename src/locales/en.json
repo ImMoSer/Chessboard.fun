@@ -45,7 +45,9 @@
       "attempts": {
         "one": "Attempt",
         "other": "{count} Attempts"
-      }
+      },
+      "ratingChange": "Rating {delta}",
+      "attemptNoRating": "Attempt {count}: No rating change."
     },
     "controls": {
       "new": "New",

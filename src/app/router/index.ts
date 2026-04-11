@@ -259,6 +259,7 @@ router.beforeEach(async (to, from, next) => {
       )
 
       if (userConfirmed === 'confirm') {
+        await gameStore.handleGameResignation()
         await gameStore.resetGame()
         next()
       } else {
