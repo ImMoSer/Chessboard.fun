@@ -22,7 +22,7 @@ type DbId = string
 type PromiserFactoryV2 = (config?: unknown) => Promise<Worker1Promiser>
 const promiserFactoryV2 = sqlite3Worker1Promiser as unknown as PromiserFactoryV2
 
-const DB_SCHEMA_VERSION = 4 // Incremented to trigger reset for lichessId update
+const DB_SCHEMA_VERSION = 5 // Incremented to trigger reset for lichessId update
 
 class DatabaseClient {
   private promiser: Worker1Promiser | null = null
@@ -109,6 +109,8 @@ class DatabaseClient {
    * Call this after the user is identified (after auth check).
    */
   async openUserDb(lichessId: string): Promise<void> {
+    await this.init() // Ensure base initialization is done before attempting to open user db
+
     if (!this.promiser) throw new Error('[DatabaseClient] Not initialized. Call init() first.')
 
     // Close previous user DB if open

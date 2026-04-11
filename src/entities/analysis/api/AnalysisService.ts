@@ -26,16 +26,23 @@ class AnalysisServiceController {
     { pvSan: string[]; initialFullMoveNumber: number; initialTurn: ChessopsColor }
   >()
 
+  private initPromise: Promise<void> | null = null
+
   constructor() {
     logger.info('[AnalysisService] Created.')
   }
 
-  public async initialize() {
-    // Инициализация происходит один раз при старте приложения
-    // Пытаемся инициализировать многопоточный движок (он сам проверит поддержку)
-    await multiThreadEngineManager.ensureReady()
-    this.activeEngineManager = multiThreadEngineManager
-    logger.info(`[AnalysisService] Initialized with Multi-Threaded Engine (NNUE).`)
+  public initialize(): Promise<void> {
+    if (!this.initPromise) {
+      this.initPromise = (async () => {
+        // Инициализация происходит один раз при старте приложения
+        // Пытаемся инициализировать многопоточный движок (он сам проверит поддержку)
+        await multiThreadEngineManager.ensureReady()
+        this.activeEngineManager = multiThreadEngineManager
+        logger.info(`[AnalysisService] Initialized with Multi-Threaded Engine (NNUE).`)
+      })()
+    }
+    return this.initPromise
   }
 
   public isMultiThreadAvailable(): boolean {
@@ -51,6 +58,11 @@ class AnalysisServiceController {
     callback: (lines: EvaluatedLineWithSan[]) => void,
     multiPV = 3,
   ) {
+    if (!this.activeEngineManager) {
+      logger.info('[AnalysisService] Engine manager not active. Waiting for initialization...')
+      await this.initialize()
+    }
+
     if (!this.activeEngineManager) {
       logger.error('[AnalysisService] Cannot start analysis, no engine manager is active.')
       return
@@ -92,6 +104,9 @@ class AnalysisServiceController {
   }
 
   public async startNewGame() {
+    if (!this.activeEngineManager) {
+      await this.initialize()
+    }
     if (this.activeEngineManager === multiThreadEngineManager) {
       await multiThreadEngineManager.startNewGame()
     }
@@ -99,13 +114,15 @@ class AnalysisServiceController {
 
   public async stopAnalysis() {
     if (!this.activeEngineManager) {
-      logger.warn('[AnalysisService] Cannot stop analysis, no engine manager is active.')
       return
     }
     await this.activeEngineManager.stopAnalysis()
   }
 
   public async setThreads(count: number) {
+    if (!this.activeEngineManager) {
+      await this.initialize()
+    }
     if (this.activeEngineManager) {
       await this.activeEngineManager.setThreads(count)
       logger.info(`[AnalysisService] Threads set to ${count}`)

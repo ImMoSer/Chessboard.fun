@@ -14,6 +14,7 @@ import { darkTheme, type GlobalThemeOverrides } from 'naive-ui'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterView } from 'vue-router'
+import { databaseClient } from '@/shared/api/storage/DatabaseClient'
 
 const gameStore = useGameStore()
 const studyStore = useStudyStore()
@@ -22,7 +23,14 @@ const { t } = useI18n()
 
 watch(
   () => [authStore.userProfile?.id, authStore.userProfile?.username] as const,
-  ([id, username]) => {
+  async ([id, username]) => {
+    if (id) {
+      try {
+        await databaseClient.openUserDb(id)
+      } catch (err) {
+        console.error('Failed to open user DB:', err)
+      }
+    }
     studyStore.setOwner(id || null, username || null)
   },
   { immediate: true }

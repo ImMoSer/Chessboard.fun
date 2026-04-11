@@ -96,7 +96,24 @@ export function loadMultiThreadEngine(): Promise<EngineController | null> {
           // Load and set NNUE network
           try {
             logger.info(`[EngineLoader] Fetching NNUE file from ${nnuePath}...`)
-            const response = await fetch(nnuePath)
+            let response: Response | undefined
+
+            if ('caches' in window) {
+              try {
+                const cache = await caches.open('stockfish-assets')
+                response = await cache.match(nnuePath)
+                if (response) {
+                  logger.info(`[EngineLoader] Loaded NNUE file from explicit Cache API.`)
+                }
+              } catch (cacheErr) {
+                logger.warn('[EngineLoader] Failed to read from cache, falling back to fetch.', cacheErr)
+              }
+            }
+
+            if (!response) {
+              response = await fetch(nnuePath)
+            }
+
             if (!response.ok) {
               if (response.status === 404) {
                 logger.error(

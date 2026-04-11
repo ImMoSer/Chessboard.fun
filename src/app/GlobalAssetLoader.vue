@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { DEFAULT_NNUE_FILE } from '@/shared/config/engine.constants'
 import { useAnalysisEngineStore } from '@/entities/analysis'
 import { changeLang } from '@/shared/config/i18n'
+import logger from '@/shared/lib/logger'
 
 const emit = defineEmits<{
   (e: 'ready'): void
@@ -21,20 +22,6 @@ const totalBytes = ref(0) // Will be updated during fetch
 
 const { t, locale } = useI18n({ useScope: 'global' })
 
-const isWebview = ref(false)
-const appUrl = window.location.origin
-const copied = ref(false)
-
-async function copyLink() {
-  try {
-    await navigator.clipboard.writeText(appUrl)
-    copied.value = true
-    setTimeout(() => (copied.value = false), 2000)
-  } catch (err) {
-    console.error('Failed to copy:', err)
-  }
-}
-
 const handleChangeLang = (lang: 'en' | 'ru' | 'de') => {
   changeLang(lang)
 }
@@ -50,33 +37,41 @@ const assetsToLoad = [
 ]
 
 async function preloadAssets() {
+  const tTotalStart = performance.now()
+  let uiShownTime: number | null = null
+
+  logger.info('[LoaderProfiler] Starting global asset loading sequence...')
   hasError.value = false
   errorMessage.value = ''
   
   // Show the loader UI only if initialization takes more than 500ms
   setTimeout(() => {
-    if (!isReady.value && !hasError.value && !isWebview.value) {
+    if (!isReady.value && !hasError.value) {
       showLoaderUI.value = true
+      uiShownTime = performance.now()
+      logger.debug(`[LoaderProfiler] UI Progress Bar rendered (500ms threshold reached).`)
     }
   }, 500)
 
   try {
-    // 0. Environment Compatibility Check (Kill-Switch)
-    const hasSharedArrayBuffer = typeof SharedArrayBuffer !== 'undefined'
-    const hasCacheApi = 'caches' in window
-
-    if (!hasSharedArrayBuffer || !hasCacheApi) {
-      isWebview.value = true
-      return // Stop loading, show incompatibility/webview block screen
+    const tEnvStart = performance.now()
+    if (typeof SharedArrayBuffer === 'undefined' || !('caches' in window)) {
+      throw new Error('Critical Environment checks failed (SharedArrayBuffer or caches missing).')
     }
+    const tEnvEnd = performance.now()
+    logger.debug(`[LoaderProfiler] Secondary Environment check passed in ${(tEnvEnd - tEnvStart).toFixed(2)}ms`)
 
     const cache = await caches.open(CACHE_NAME)
 
     // 1. Parallelize size checks (Check Cache API first, then HEAD)
+    const tSizeCheckStart = performance.now()
     const sizePromises = assetsToLoad.map(async (url) => {
+      const tCheckStart = performance.now()
       const cachedResponse = await cache.match(url)
       if (cachedResponse) {
         const size = parseInt(cachedResponse.headers.get('content-length') || '0', 10)
+        const tCheckEnd = performance.now()
+        logger.debug(`[LoaderProfiler] File [${url}] found in CACHE. Size: ${(size / 1024 / 1024).toFixed(2)}MB. Check took ${(tCheckEnd - tCheckStart).toFixed(2)}ms.`)
         return { url, size, cached: true }
       }
       
@@ -85,25 +80,31 @@ async function preloadAssets() {
         throw new Error(`Asset not found: ${url} (${res.status} ${res.statusText})`)
       }
       const size = parseInt(res.headers.get('content-length') || '0', 10)
+      const tCheckEnd = performance.now()
+      logger.debug(`[LoaderProfiler] File [${url}] requires NETWORK FETCH. Size: ${(size / 1024 / 1024).toFixed(2)}MB. Check took ${(tCheckEnd - tCheckStart).toFixed(2)}ms.`)
       return { url, size, cached: false }
     })
 
     const assetInfos = await Promise.all(sizePromises)
+    const tSizeCheckEnd = performance.now()
     let totalSize = assetInfos.reduce((acc, info) => acc + info.size, 0)
 
     // Add some arbitrarily chosen size for sounds assuming they load in background
     const EXPECTED_SOUNDS_SIZE = 3 * 1024 * 1024 // ~3MB
     totalSize += EXPECTED_SOUNDS_SIZE
     totalBytes.value = totalSize
+    logger.info(`[LoaderProfiler] Size checks completed in ${(tSizeCheckEnd - tSizeCheckStart).toFixed(2)}ms. Total size to process: ${(totalSize / 1024 / 1024).toFixed(2)}MB (incl. 3MB audio buffer).`)
 
     let currentLoaded = 0
 
     // 2. Fetch files with progress
+    const tFetchTotalStart = performance.now()
     for (const info of assetInfos) {
       if (info.size === 0 && !info.cached) {
         throw new Error(`Asset has size 0 or is missing: ${info.url}`)
       }
 
+      const tFileStart = performance.now()
       let response: Response
       
       if (info.cached) {
@@ -122,12 +123,13 @@ async function preloadAssets() {
       if (!response.body) continue
 
       // CRITICAL FIX: If the file is already cached, DO NOT read it chunk-by-chunk.
-      // Reading 30MB of cached data in JS just to update a progress bar is what causes the reload delay.
       if (info.cached) {
         currentLoaded += info.size
         loadedBytes.value = currentLoaded
         progress.value = Math.min(Math.round((currentLoaded / totalBytes.value) * 100), 99)
-        continue // Skip the reader loop completely!
+        const tFileEnd = performance.now()
+        logger.info(`[LoaderProfiler] LOADED FROM CACHE: [${info.url}] in ${(tFileEnd - tFileStart).toFixed(2)}ms.`)
+        continue
       }
 
       const reader = response.body.getReader()
@@ -141,35 +143,37 @@ async function preloadAssets() {
           progress.value = Math.min(Math.round((currentLoaded / totalBytes.value) * 100), 99)
         }
       }
+      const tFileEnd = performance.now()
+      logger.info(`[LoaderProfiler] DOWNLOADED FROM NETWORK: [${info.url}] in ${(tFileEnd - tFileStart).toFixed(2)}ms.`)
     }
+    const tFetchTotalEnd = performance.now()
+    logger.info(`[LoaderProfiler] All assets fetched/loaded in ${(tFetchTotalEnd - tFetchTotalStart).toFixed(2)}ms.`)
 
-    // 3. Engine Warming (Compiling WASM & Handshake)
-    progress.value = 100
-    isWarming.value = true
-    warmingProgress.value = 0
-    
-    // Simulate some progress for the UI while warming (compilation is an opaque async process)
-    const warmingInterval = setInterval(() => {
-      if (warmingProgress.value < 90) {
-        warmingProgress.value += 1
-      }
-    }, 150)
-
-    try {
-      const engineStore = useAnalysisEngineStore()
-      await engineStore.initialize()
-      warmingProgress.value = 100
-    } catch (warmError) {
-      console.warn('Engine warming failed, but proceeding anyway:', warmError)
-    } finally {
-      clearInterval(warmingInterval)
-    }
+    // 3. Engine Warming (Compiling WASM & Handshake) - NOW IN BACKGROUND
+    logger.info(`[LoaderProfiler] Starting Engine Warming Phase (WASM compilation & UCI Handshake) IN BACKGROUND...`)
     
     isReady.value = true
-    emit('ready')
+    emit('ready') // Freigabe der UI sofort nach Phase 1 (Data Fetch).
+    
+    const tTotalEnd = performance.now()
+    logger.info(`[LoaderProfiler] SUCCESS! Data fetch sequence completed in ${(tTotalEnd - tTotalStart).toFixed(2)}ms.`)
+    if (uiShownTime !== null) {
+      logger.debug(`[LoaderProfiler] Progress Bar UI was visible to the user for ${(tTotalEnd - uiShownTime).toFixed(2)}ms. (Phase 1 only)`)
+    } else {
+      logger.debug(`[LoaderProfiler] Progress Bar UI was NOT shown (boot without network fetch was faster than 500ms).`)
+    }
+
+    const tWarmStart = performance.now()
+    useAnalysisEngineStore().initialize().then(() => {
+      const tWarmEnd = performance.now()
+      logger.info(`[LoaderProfiler] Engine Background-Warming completed smoothly in ${(tWarmEnd - tWarmStart).toFixed(2)}ms.`)
+    }).catch((warmError) => {
+      console.warn('[LoaderProfiler] Engine warming failed in background:', warmError)
+    })
 
   } catch (error) {
-    console.error('Error preloading assets:', error)
+    const tFail = performance.now()
+    logger.error(`[LoaderProfiler] FATAL ERROR during boot sequence after ${(tFail - tTotalStart).toFixed(2)}ms:`, error)
     hasError.value = true
     errorMessage.value = error instanceof Error ? error.message : String(error)
   }
@@ -185,38 +189,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <!-- WebView Blocker Screen -->
-  <div v-if="isWebview" class="global-loader-wrapper">
-    <div class="loader-content webview-blocker">
-      <img src="/png/extra_pawn_black.png" alt="Logo" class="loader-logo static" />
-      <h2 class="loader-title error-text">OOPS!</h2>
-      <p class="loader-text">
-        {{ t('app.globalLoader.webviewWarning') }}
-      </p>
-      
-      <div class="copy-section">
-        <input type="text" readonly :value="appUrl" class="copy-input" />
-        <button @click="copyLink" class="copy-button" :class="{ 'is-copied': copied }">
-          {{ copied ? t('common.actions.copied') : t('common.actions.copyLink') }}
-        </button>
-      </div>
-      
-      <p class="loader-hint" style="margin-top: 20px;">
-        {{ t('app.globalLoader.webviewAction') }}
-      </p>
-
-      <div class="loader-lang-switcher">
-        <button class="lang-btn" :class="{ active: locale === 'en' }" @click="handleChangeLang('en')">EN</button>
-        <span class="lang-divider">|</span>
-        <button class="lang-btn" :class="{ active: locale === 'ru' }" @click="handleChangeLang('ru')">RU</button>
-        <span class="lang-divider">|</span>
-        <button class="lang-btn" :class="{ active: locale === 'de' }" @click="handleChangeLang('de')">DE</button>
-      </div>
-    </div>
-  </div>
-
   <!-- Error Screen -->
-  <div v-else-if="hasError" class="global-loader-wrapper">
+  <div v-if="hasError" class="global-loader-wrapper">
     <div class="loader-content webview-blocker">
       <img src="/png/extra_pawn_black.png" alt="Logo" class="loader-logo static" />
       <h2 class="loader-title error-text">{{ t('common.actions.error') }}</h2>
