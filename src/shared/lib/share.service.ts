@@ -28,7 +28,7 @@ class ShareServiceController {
         .writeText(text)
         .then(() => {
           logger.info('[ShareService] Link copied via Clipboard API:', text)
-          this.showNotification('common.ok', 'common.linkCopied')
+          this.showNotification('common.actions.ok', 'common.actions.linkCopied')
         })
         .catch((err) => {
           logger.error('[ShareService] Could not copy link via Clipboard API:', err)
@@ -53,10 +53,10 @@ class ShareServiceController {
     try {
       document.execCommand('copy')
       logger.info('[ShareService] Link copied via execCommand fallback:', text)
-      this.showNotification('common.ok', 'common.linkCopied')
+      this.showNotification('common.actions.ok', 'common.actions.linkCopied')
     } catch (err) {
       logger.error('[ShareService] Could not copy link via fallback:', err)
-      this.showNotification('common.error', 'common.copyFailed')
+      this.showNotification('common.actions.error', 'common.actions.copyFailed')
     }
     document.body.removeChild(textArea)
   }
@@ -75,7 +75,6 @@ class ShareServiceController {
       theoryType?: 'win' | 'draw'
     },
   ): Promise<void> {
-    const t = i18n.global.t
     let url = `${window.location.origin}/${mode}/${id}`
 
     if (mode === 'theory-endings' && options?.theoryType) {
@@ -83,8 +82,7 @@ class ShareServiceController {
     }
 
     const shareData = {
-      title: t('app.title'),
-      text: t(`nav.${mode}`),
+      title: 'Extrapawn.com Challenge YOU!',
       url: url,
     }
 
