@@ -22,7 +22,7 @@ type DbId = string
 type PromiserFactoryV2 = (config?: unknown) => Promise<Worker1Promiser>
 const promiserFactoryV2 = sqlite3Worker1Promiser as unknown as PromiserFactoryV2
 
-const DB_SCHEMA_VERSION = 5 // Incremented to trigger reset for lichessId update
+const DB_SCHEMA_VERSION = 6 // Incremented to trigger reset for lichessId update
 
 class DatabaseClient {
   private promiser: Worker1Promiser | null = null
