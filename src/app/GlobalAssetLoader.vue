@@ -87,13 +87,10 @@ async function preloadAssets() {
 
     const assetInfos = await Promise.all(sizePromises)
     const tSizeCheckEnd = performance.now()
-    let totalSize = assetInfos.reduce((acc, info) => acc + info.size, 0)
+    const totalSize = assetInfos.reduce((acc, info) => acc + info.size, 0)
 
-    // Add some arbitrarily chosen size for sounds assuming they load in background
-    const EXPECTED_SOUNDS_SIZE = 3 * 1024 * 1024 // ~3MB
-    totalSize += EXPECTED_SOUNDS_SIZE
     totalBytes.value = totalSize
-    logger.info(`[LoaderProfiler] Size checks completed in ${(tSizeCheckEnd - tSizeCheckStart).toFixed(2)}ms. Total size to process: ${(totalSize / 1024 / 1024).toFixed(2)}MB (incl. 3MB audio buffer).`)
+    logger.info(`[LoaderProfiler] Size checks completed in ${(tSizeCheckEnd - tSizeCheckStart).toFixed(2)}ms. Total size to process: ${(totalSize / 1024 / 1024).toFixed(2)}MB.`)
 
     let currentLoaded = 0
 
