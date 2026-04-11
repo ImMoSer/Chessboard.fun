@@ -4,14 +4,13 @@ import { useI18n } from 'vue-i18n'
 import { DEFAULT_NNUE_FILE } from '@/shared/config/engine.constants'
 import { useAnalysisEngineStore } from '@/entities/analysis'
 import { changeLang } from '@/shared/config/i18n'
-import { databaseClient } from '@/shared/api/storage/DatabaseClient'
-import { authService } from '@/entities/user/api/AuthService'
 
 const emit = defineEmits<{
   (e: 'ready'): void
 }>()
 
 const isReady = ref(false)
+const showLoaderUI = ref(false)
 const isWarming = ref(false)
 const hasError = ref(false)
 const errorMessage = ref('')
@@ -54,13 +53,19 @@ async function preloadAssets() {
   hasError.value = false
   errorMessage.value = ''
   
+  // Show the loader UI only if initialization takes more than 500ms
+  setTimeout(() => {
+    if (!isReady.value && !hasError.value && !isWebview.value) {
+      showLoaderUI.value = true
+    }
+  }, 500)
+
   try {
     // 0. Environment Compatibility Check (Kill-Switch)
     const hasSharedArrayBuffer = typeof SharedArrayBuffer !== 'undefined'
-    const hasOPFS = typeof navigator.storage?.getDirectory === 'function'
     const hasCacheApi = 'caches' in window
 
-    if (!hasSharedArrayBuffer || !hasOPFS || !hasCacheApi) {
+    if (!hasSharedArrayBuffer || !hasCacheApi) {
       isWebview.value = true
       return // Stop loading, show incompatibility/webview block screen
     }
@@ -115,6 +120,16 @@ async function preloadAssets() {
       }
 
       if (!response.body) continue
+
+      // CRITICAL FIX: If the file is already cached, DO NOT read it chunk-by-chunk.
+      // Reading 30MB of cached data in JS just to update a progress bar is what causes the reload delay.
+      if (info.cached) {
+        currentLoaded += info.size
+        loadedBytes.value = currentLoaded
+        progress.value = Math.min(Math.round((currentLoaded / totalBytes.value) * 100), 99)
+        continue // Skip the reader loop completely!
+      }
+
       const reader = response.body.getReader()
       
       while (true) {
@@ -128,18 +143,8 @@ async function preloadAssets() {
       }
     }
 
-    // 3. Database Initialization
+    // 3. Engine Warming (Compiling WASM & Handshake)
     progress.value = 100
-    try {
-      await databaseClient.init()
-      const userId = authService.getUserProfile()?.id || 'anon'
-      await databaseClient.openUserDb(userId)
-    } catch (dbError) {
-      console.error('Database initialization failed:', dbError)
-      throw new Error(`Database initialization failed: ${dbError instanceof Error ? dbError.message : String(dbError)}`)
-    }
-
-    // 4. Engine Warming (Compiling WASM & Handshake)
     isWarming.value = true
     warmingProgress.value = 0
     
@@ -160,10 +165,8 @@ async function preloadAssets() {
       clearInterval(warmingInterval)
     }
     
-    setTimeout(() => {
-      isReady.value = true
-      emit('ready')
-    }, 500)
+    isReady.value = true
+    emit('ready')
 
   } catch (error) {
     console.error('Error preloading assets:', error)
@@ -240,7 +243,7 @@ onMounted(() => {
 
   <!-- Normal Asset Loader Screen -->
   <div v-else-if="!isReady" class="global-loader-wrapper">
-    <div class="loader-content">
+    <div v-if="showLoaderUI" class="loader-content">
       <img src="/png/extra_pawn_black.png" alt="Logo" class="loader-logo" />
       <h2 class="loader-title">EXTRAPAWN</h2>
       
