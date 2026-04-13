@@ -71,8 +71,18 @@ class DatabaseClient {
     })
     this.globalDbId = response.result.dbId
 
+    // Set auto_vacuum to prevent future bloat
+    await this._exec(this.globalDbId, 'PRAGMA auto_vacuum = FULL;')
+
     // Initialize global schema
     await this._initGlobalSchema()
+
+    // Background VACUUM to reclaim space leaked by previous bugs
+    setTimeout(() => {
+      if (this.globalDbId) {
+        this._exec(this.globalDbId, 'VACUUM;').catch(err => console.warn('[DatabaseClient] Global DB VACUUM failed:', err))
+      }
+    }, 5000)
   }
 
   private async _initGlobalSchema(): Promise<void> {
@@ -125,8 +135,18 @@ class DatabaseClient {
     })
     this.userDbId = response.result.dbId
 
+    // Set auto_vacuum to prevent future bloat
+    await this._exec(this.userDbId, 'PRAGMA auto_vacuum = FULL;')
+
     // Initialize user schema
     await this._initUserSchema()
+
+    // Background VACUUM to reclaim space leaked by previous bugs
+    setTimeout(() => {
+      if (this.userDbId) {
+        this._exec(this.userDbId, 'VACUUM;').catch(err => console.warn('[DatabaseClient] User DB VACUUM failed:', err))
+      }
+    }, 10000)
   }
 
   private async _initUserSchema(): Promise<void> {
