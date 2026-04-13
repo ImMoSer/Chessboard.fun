@@ -121,10 +121,10 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
   }
 
   // --- Reactive UI Sync ---
-  watch([() => boardStore.fen, state], async ([, newState]: [string, HunterState]) => {
+  watch([() => boardStore.fen, state], async ([, newState], [, oldState]) => {
     if (newState === 'HUNTING') {
       await updateArrows()
-    } else if (newState === 'IDLE') {
+    } else if (newState === 'IDLE' && oldState !== 'IDLE') {
       boardStore.setDrawableShapes([])
       hints.value = []
     }

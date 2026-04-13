@@ -39,6 +39,7 @@ const handleToggleAnalysis = () => {
 }
 
 onMounted(async () => {
+  studyStore.isActiveMode = true
   boardStore.setAnalysisMode(true)
   await analysisStore.showPanel() // Initialize analysis (threads, etc.) and set visible flag for watcher
 
@@ -160,6 +161,7 @@ watch(
 )
 
 onUnmounted(() => {
+  studyStore.isActiveMode = false
   boardStore.setAnalysisMode(false)
   analysisStore.resetAnalysisState()
 })

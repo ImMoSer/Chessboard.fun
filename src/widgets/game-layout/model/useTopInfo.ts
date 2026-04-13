@@ -11,22 +11,16 @@ import { useRoute } from 'vue-router'
 
 export function useTopInfo() {
     const route = useRoute()
-    const tornadoStore = useTornadoStore()
-    const finishHimStore = useFinishHimStore()
-    const theoryStore = useTheoryEndingsStore()
-    const practicalStore = usePracticalChessStore()
-    const diamondHunterStore = useDiamondHunterStore()
-    const openingStore = useOpeningSparringStore()
 
     const displayInfo = computed<TopInfoDisplay>(() => {
         const routeName = route.name?.toString() || ''
 
-        if (routeName === 'tornado') return tornadoStore.topInfoDisplay
-        if (routeName === 'diamond-hunter') return diamondHunterStore.topInfoDisplay
-        if (routeName.startsWith('finish-him')) return finishHimStore.topInfoDisplay
-        if (routeName.startsWith('theory-endings')) return theoryStore.topInfoDisplay
-        if (routeName.startsWith('practical-chess')) return practicalStore.topInfoDisplay
-        if (routeName === 'opening-sparring') return openingStore.topInfoDisplay
+        if (routeName === 'tornado') return useTornadoStore().topInfoDisplay
+        if (routeName === 'diamond-hunter') return useDiamondHunterStore().topInfoDisplay
+        if (routeName.startsWith('finish-him')) return useFinishHimStore().topInfoDisplay
+        if (routeName.startsWith('theory-endings')) return useTheoryEndingsStore().topInfoDisplay
+        if (routeName.startsWith('practical-chess')) return usePracticalChessStore().topInfoDisplay
+        if (routeName === 'opening-sparring') return useOpeningSparringStore().topInfoDisplay
 
         // Default fallback
         return {

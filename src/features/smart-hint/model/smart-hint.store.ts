@@ -69,10 +69,12 @@ export const useSmartHintStore = defineStore('smartHint', () => {
   // Watch for board FEN changes to clear hints and cancel active requests
   watch(() => boardStore.fen, (newFen, oldFen) => {
     if (newFen !== oldFen) {
-      if (lastRequestedFen.value === oldFen) {
-        lastRequestedFen.value = null // Cancel active request logically
+      if (lastRequestedFen.value !== null) {
+        if (lastRequestedFen.value === oldFen) {
+          lastRequestedFen.value = null // Cancel active request logically
+        }
+        boardStore.setDrawableShapes([]) // Clear any visible hint shapes
       }
-      boardStore.setDrawableShapes([]) // Clear any visible hint shapes
     }
   })
 

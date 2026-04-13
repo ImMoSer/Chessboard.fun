@@ -40,6 +40,7 @@ export const useStudyStore = defineStore('study', () => {
   const isInitialized = ref(false)
   const cloudLoading = ref(false)
   const isAuthModalVisible = ref(false)
+  const isActiveMode = ref(false)
 
   const activeChapter = computed(() => chapters.value.find((c) => c.id === activeChapterId.value))
 
@@ -642,7 +643,7 @@ export const useStudyStore = defineStore('study', () => {
     pgnTreeVersion,
     () => {
       const ownerId = currentOwnerId.value
-      if (activeChapter.value && ownerId) {
+      if (isActiveMode.value && activeChapter.value && ownerId) {
         // Update savedPath to current before saving
         activeChapter.value.savedPath = pgnService.getCurrentPath()
         studyPersistenceService.saveChapter(activeChapter.value)
@@ -661,6 +662,7 @@ export const useStudyStore = defineStore('study', () => {
     cloudLoading,
     isOwner,
     isAuthModalVisible,
+    isActiveMode,
     requireLichessAccess,
     initialize,
     createChapter,

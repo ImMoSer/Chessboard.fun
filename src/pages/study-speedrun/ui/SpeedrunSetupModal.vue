@@ -31,6 +31,8 @@ function handleCancel() {
     :show="props.show"
     @update:show="(v) => emit('update:show', v)"
     transform-origin="center"
+    :mask-closable="false"
+    :close-on-esc="false"
   >
     <NCard
       style="width: 400px"
