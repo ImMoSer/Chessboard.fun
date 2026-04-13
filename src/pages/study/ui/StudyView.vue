@@ -3,6 +3,7 @@ import { useBoardStore } from '@/entities/game'
 import { AnalysisPanel, useAnalysisStore } from '@/features/analysis'
 import { MozerBook } from '@/features/mozer-book'
 import { LichessOpeningExplorer } from '@/features/opening-explorer'
+import { useAuthStore } from '@/entities/user'
 import { LichessApiError, LichessErrorModal, LichessStudyAuthModal, StudyControls, StudyHeader, StudySidebar, StudyTree, useStudyStore } from '@/features/study'
 import { useReplyTrainingStore, ReplySessionWindow } from '@/features/study-reply-training'
 import { pgnService } from '@/shared/lib/pgn/PgnService'
@@ -22,6 +23,15 @@ const boardStore = useBoardStore()
 const studyStore = useStudyStore()
 const analysisStore = useAnalysisStore()
 const trainingStore = useReplyTrainingStore()
+const authStore = useAuthStore()
+
+watch(
+  () => [authStore.userProfile?.id, authStore.userProfile?.username] as const,
+  ([id, username]) => {
+    studyStore.setOwner(id || null, username || null)
+  },
+  { immediate: true }
+)
 
 const explorerMode = ref<'lichess' | 'mozer' | 'study'>('study')
 
@@ -38,7 +48,15 @@ const handleToggleAnalysis = () => {
   }
 }
 
+const beforeUnloadHandler = (event: BeforeUnloadEvent) => {
+  if (studyStore.cloudLoading) {
+    event.preventDefault()
+    event.returnValue = t('features.study.manager.messages.syncInProgress')
+  }
+}
+
 onMounted(async () => {
+  window.addEventListener('beforeunload', beforeUnloadHandler)
   studyStore.isActiveMode = true
   boardStore.setAnalysisMode(true)
   await analysisStore.showPanel() // Initialize analysis (threads, etc.) and set visible flag for watcher
@@ -161,6 +179,7 @@ watch(
 )
 
 onUnmounted(() => {
+  window.removeEventListener('beforeunload', beforeUnloadHandler)
   studyStore.isActiveMode = false
   boardStore.setAnalysisMode(false)
   analysisStore.resetAnalysisState()

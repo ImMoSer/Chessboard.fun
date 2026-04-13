@@ -2,7 +2,6 @@
 <script setup lang="ts">
 import { useGameStore } from '@/entities/game'
 import { LoginScopeModal, useAuthStore } from '@/entities/user'
-import { useStudyStore } from '@/features/study'
 import { SettingsMenu } from '@/features/settings'
 import ConfirmationModal from '@/shared/ui/ConfirmationModal.vue'
 import GalaxyBackground from '@/shared/ui/visuals/GalaxyBackground.vue'
@@ -18,13 +17,12 @@ import { RouterView } from 'vue-router'
 import { databaseClient } from '@/shared/api/storage/DatabaseClient'
 
 const gameStore = useGameStore()
-const studyStore = useStudyStore()
 const authStore = useAuthStore()
 const { t } = useI18n()
 
 watch(
-  () => [authStore.userProfile?.id, authStore.userProfile?.username] as const,
-  async ([id, username]) => {
+  () => [authStore.userProfile?.id] as const,
+  async ([id]) => {
     if (id) {
       try {
         await databaseClient.openUserDb(id)
@@ -32,7 +30,6 @@ watch(
         console.error('Failed to open user DB:', err)
       }
     }
-    studyStore.setOwner(id || null, username || null)
   },
   { immediate: true }
 )
@@ -95,11 +92,6 @@ const openDrawer = () => {
 
 // Обработчик для перезагрузки/закрытия страницы
 const beforeUnloadHandler = (event: BeforeUnloadEvent) => {
-  if (studyStore.cloudLoading) {
-    event.preventDefault()
-    event.returnValue = t('features.study.manager.messages.syncInProgress')
-    return
-  }
   if (gameStore.isGameActive) {
     event.preventDefault()
     event.returnValue = t('features.gameplay.confirmExit.browserMessage')
