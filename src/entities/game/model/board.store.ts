@@ -114,8 +114,9 @@ export const useBoardStore = defineStore('board', () => {
   }
 
   function syncBoardWithPgn() {
-    _updateBoardStateFromPgn()
+    const result = _updateBoardStateFromPgn()
     boardSyncCounter.value++
+    return result
   }
 
   function _playNavigationSound(san?: string) {
@@ -155,7 +156,7 @@ export const useBoardStore = defineStore('board', () => {
         orientation.value = newOrientation
       }
       pgnService.reset(newFen === 'start' ? INITIAL_FEN : newFen)
-      _updateBoardStateFromPgn()
+      syncBoardWithPgn()
       _playNavigationSound()
     } catch (e) {
       console.error('Invalid FEN provided:', newFen, e)
@@ -225,6 +226,7 @@ export const useBoardStore = defineStore('board', () => {
     const move = parseUciMove(uci)
     if (!move || !chessPosition.value.isLegal(move)) {
       logger.error(`[_applyUciMove] Illegal move or parse error for UCI: ${uci}`)
+      syncBoardWithPgn() // Snap back the visual board
       return false
     }
 
@@ -252,8 +254,8 @@ export const useBoardStore = defineStore('board', () => {
     }
 
     _playSoundsForMove(move, san)
-    // Verify sync
-    _updateBoardStateFromPgn()
+    // Verify sync and pulse UI
+    syncBoardWithPgn()
 
     return true
   }
@@ -457,7 +459,7 @@ export const useBoardStore = defineStore('board', () => {
         pgnService.navigateToEnd()
         break
     }
-    const { isChanged, lastPgnMove } = _updateBoardStateFromPgn()
+    const { isChanged, lastPgnMove } = syncBoardWithPgn()
 
     // 2. Play sound ONLY if board changed
     if (isChanged) {
@@ -475,7 +477,7 @@ export const useBoardStore = defineStore('board', () => {
         if (move === 'backward') pgnService.navigateBackward()
         else pgnService.navigateForward()
 
-        const skipResult = _updateBoardStateFromPgn()
+        const skipResult = syncBoardWithPgn()
         
         // Play sound again for the skipped move if board changed
         if (skipResult.isChanged) {
@@ -487,7 +489,7 @@ export const useBoardStore = defineStore('board', () => {
 
   function navigateToNode(node: PgnNode) {
     if (pgnService.navigateToNode(node)) {
-      const { isChanged } = _updateBoardStateFromPgn()
+      const { isChanged } = syncBoardWithPgn()
       if (isChanged) {
         _playNavigationSound(node.san)
       }
@@ -505,7 +507,7 @@ export const useBoardStore = defineStore('board', () => {
 
   function resetBoardState() {
     pgnService.reset(INITIAL_FEN)
-    _updateBoardStateFromPgn()
+    syncBoardWithPgn()
 
     orientation.value = 'white'
     promotionState.value = null
