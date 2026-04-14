@@ -232,8 +232,8 @@ export const useBoardStore = defineStore('board', () => {
     const san = makeSan(toRaw(chessPosition.value) as unknown as Position, move)
 
     chessPosition.value.play(move)
-    // Synchronize shallowRef by re-creating or re-assigning after mutation
-    chessPosition.value = Chess.fromSetup(chessPosition.value.toSetup()).unwrap()
+    // Synchronize shallowRef by cloning the instance to trigger re-computations (e.g. dests/turn)
+    chessPosition.value = chessPosition.value.clone()
     const fenAfter = makeFen(chessPosition.value.toSetup())
     fen.value = fenAfter
 
@@ -331,7 +331,7 @@ export const useBoardStore = defineStore('board', () => {
               _applyUciMove(uci)
               resolve(uci)
             } else {
-              _updateBoardStateFromPgn()
+              syncBoardWithPgn() // Revert visual board upon cancellation
               resolve(null)
             }
           },
@@ -348,7 +348,7 @@ export const useBoardStore = defineStore('board', () => {
         return uci
       } else {
         logger.warn(`[handleAnalysisMove] Move illegal or invalid: ${uci}`)
-        _updateBoardStateFromPgn() // Revert visual board to legally known state
+        syncBoardWithPgn() // Correctly trigger the snap-back counter for illegal analysis moves
         return null
       }
     }
