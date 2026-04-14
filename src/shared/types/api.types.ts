@@ -87,7 +87,10 @@ export type FinishHimDifficulty = 'Novice' | 'Pro' | 'Master'
 export interface FinishHimResultDto {
   puzzleId: string
   wasCorrect: boolean
+  pgn_moves?: string
+  initial_fen?: string
 }
+
 // --- END FINISH HIM MODE ---
 // --- THEORY ENDINGS MODE ---
 export const THEORY_ENDING_CATEGORIES = [
