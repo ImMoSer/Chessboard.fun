@@ -385,6 +385,10 @@ export const useDiamondHunterStore = defineStore('diamondHunter', () => {
       pgnService.updateNode(blunderNode, { nag: 4 })
     }
     puzzleFen.value = boardStore.fen
+    
+    // Pre-fetch gravity moves to make the first user move validation instant
+    fetchGravityForFen(boardStore.fen)
+
     state.value = 'SOLVING'
     message.value = 'Tactics available! Punishment time!'
     const dest = move.uci.substring(2, 4)

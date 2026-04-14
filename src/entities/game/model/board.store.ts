@@ -16,12 +16,13 @@ import type {
   Color as ChessopsColor,
   Move as ChessopsMove,
   Outcome as ChessopsOutcome,
+  Position,
   Role as ChessopsRole,
-} from 'chessops/types'
-import { isNormal } from 'chessops/types'
+} from 'chessops'
+import { isNormal } from 'chessops'
 import { makeUci, parseSquare, parseUci as parseUciMove } from 'chessops/util'
 import { defineStore } from 'pinia'
-import { computed, ref, watch } from 'vue'
+import { computed, ref, shallowRef, watch, toRaw } from 'vue'
 
 export interface GameEndOutcome {
   winner: ChessopsColor | undefined
@@ -46,11 +47,10 @@ const INITIAL_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 export const useBoardStore = defineStore('board', () => {
   const fen = ref<string>(INITIAL_FEN)
   const boardSyncCounter = ref(0)
-  const chessPosition = ref(Chess.fromSetup(parseFen(fen.value).unwrap()).unwrap())
+  const chessPosition = shallowRef(Chess.fromSetup(parseFen(fen.value).unwrap()).unwrap())
 
   const turn = computed(() => chessPosition.value.turn)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const dests = computed<Dests>(() => chessgroundDests(chessPosition.value as any))
+  const dests = computed<Dests>(() => chessgroundDests(toRaw(chessPosition.value) as unknown as Position))
   const lastMove = ref<[Key, Key] | undefined>(undefined)
   const isCheck = computed(() => chessPosition.value.isCheck())
   const orientation = ref<ChessgroundColor>('white')
@@ -114,10 +114,8 @@ export const useBoardStore = defineStore('board', () => {
   }
 
   function syncBoardWithPgn() {
-    const { isChanged } = _updateBoardStateFromPgn()
-    if (isChanged) {
-      boardSyncCounter.value++
-    }
+    _updateBoardStateFromPgn()
+    boardSyncCounter.value++
   }
 
   function _playNavigationSound(san?: string) {
@@ -231,10 +229,11 @@ export const useBoardStore = defineStore('board', () => {
     }
 
     const fenBefore = makeFen(chessPosition.value.toSetup())
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const san = makeSan(chessPosition.value as any, move)
+    const san = makeSan(toRaw(chessPosition.value) as unknown as Position, move)
 
     chessPosition.value.play(move)
+    // Synchronize shallowRef by re-creating or re-assigning after mutation
+    chessPosition.value = Chess.fromSetup(chessPosition.value.toSetup()).unwrap()
     const fenAfter = makeFen(chessPosition.value.toSetup())
     fen.value = fenAfter
 
