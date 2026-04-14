@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { changeLang } from '@/shared/config/i18n'
 
 const { t, locale } = useI18n({ useScope: 'global' })
-const appUrl = window.location.origin
+const appUrl = window.location.href
 const copied = ref(false)
 
 async function copyLink() {
