@@ -1,6 +1,6 @@
 // src/stores/board.store.ts
 import logger from '@/shared/lib/logger'
-import { pgnService, type PgnNode, NAG_MAPPING } from '@/shared/lib/pgn/PgnService'
+import { pgnService, pgnTreeVersion, type PgnNode, NAG_MAPPING } from '@/shared/lib/pgn/PgnService'
 import { soundService } from '@/shared/lib/sound.service'
 import type { DrawShape } from '@lichess-org/chessground/draw'
 import type {
@@ -21,7 +21,7 @@ import type {
 import { isNormal } from 'chessops/types'
 import { makeUci, parseSquare, parseUci as parseUciMove } from 'chessops/util'
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 export interface GameEndOutcome {
   winner: ChessopsColor | undefined
@@ -73,51 +73,51 @@ export const useBoardStore = defineStore('board', () => {
     fen.value = newFen
 
     const isChanged = prevFen !== newFen
+    const currentNode = pgnService.getCurrentNode()
     const lastPgnMove = pgnService.getLastMove()
 
-    if (lastPgnMove) {
-      if (lastPgnMove.uci) {
-        lastMove.value = [lastPgnMove.uci.slice(0, 2) as Key, lastPgnMove.uci.slice(2, 4) as Key]
+    // 1. Sync last move highlights (only if it's NOT the root)
+    if (lastPgnMove && lastPgnMove.uci) {
+      lastMove.value = [lastPgnMove.uci.slice(0, 2) as Key, lastPgnMove.uci.slice(2, 4) as Key]
+    } else {
+      lastMove.value = undefined
+    }
+
+    // 2. Sync NAGs (Annotation Glyphs) - can be on root too
+    const meta = currentNode.metadata
+    if (meta && meta.nag && meta.nag !== 'OK') {
+      lastNag.value = {
+        square: currentNode.uci ? (currentNode.uci.slice(2, 4) as Key) : ('a1' as Key),
+        nag: meta.nag,
+        quality: meta.quality || 'good',
       }
-      
-      const meta = lastPgnMove.metadata
-      if (meta && meta.nag && meta.nag !== 'OK') {
+    } else if (currentNode.nag) {
+      const mapping = NAG_MAPPING[currentNode.nag]
+      if (mapping) {
         lastNag.value = {
-          square: lastPgnMove.uci ? (lastPgnMove.uci.slice(2, 4) as Key) : ('a1' as Key),
-          nag: meta.nag,
-          quality: meta.quality || 'good',
-        }
-      } else if (lastPgnMove.nag) {
-        const mapping = NAG_MAPPING[lastPgnMove.nag]
-        if (mapping) {
-          lastNag.value = {
-            square: lastPgnMove.uci ? (lastPgnMove.uci.slice(2, 4) as Key) : ('a1' as Key),
-            nag: mapping.symbol,
-            quality: mapping.quality,
-          }
-        } else {
-          lastNag.value = null
+          square: currentNode.uci ? (currentNode.uci.slice(2, 4) as Key) : ('a1' as Key),
+          nag: mapping.symbol,
+          quality: mapping.quality,
         }
       } else {
         lastNag.value = null
       }
-
-      // Sync shapes (arrows and squares)
-      drawableShapes.value = (lastPgnMove.shapes as DrawShape[]) || []
-      autoShapes.value = []
     } else {
-      lastMove.value = undefined
       lastNag.value = null
-      drawableShapes.value = []
-      autoShapes.value = []
     }
 
-    return { isChanged, lastPgnMove }
+    // 3. Sync shapes (arrows and squares)
+    drawableShapes.value = (currentNode.shapes as DrawShape[]) || []
+    autoShapes.value = []
+
+    return { isChanged, lastPgnMove: currentNode }
   }
 
   function syncBoardWithPgn() {
-    _updateBoardStateFromPgn()
-    boardSyncCounter.value++
+    const { isChanged } = _updateBoardStateFromPgn()
+    if (isChanged) {
+      boardSyncCounter.value++
+    }
   }
 
   function _playNavigationSound(san?: string) {
@@ -430,7 +430,7 @@ export const useBoardStore = defineStore('board', () => {
     
     // Sync to PGN comment
     const currentNode = pgnService.getCurrentNode()
-    if (currentNode && currentNode.id !== '__ROOT__') {
+    if (currentNode) {
       pgnService.updateCommentShapes(currentNode, shapes as Parameters<typeof pgnService.updateCommentShapes>[1])
     }
   }
@@ -551,7 +551,14 @@ export const useBoardStore = defineStore('board', () => {
     setAnalysisMode,
     setPlayGameStatusSounds,
     resetBoardState,
-    syncBoardWithPgn,
     lastNag,
+    syncBoardWithPgn,
+    // Watch for PGN tree changes to sync the board state
+    // We only auto-sync if we are in Analysis/Study modes to avoid board jumps during game play
+    registerWatcher: watch(pgnTreeVersion, () => {
+      if (isAnalysisModeActive.value) {
+        syncBoardWithPgn()
+      }
+    }),
   }
 })

@@ -204,11 +204,9 @@ export class PgnParserService {
           currentPos = prevPos
         }
       } else if (token.startsWith('{')) {
-        if (currentNode !== root) {
-          const comment = token.substring(1, token.length - 1).trim()
-          currentNode.comment = comment
-          currentNode.shapes = this.parseShapes(comment)
-        }
+        const comment = token.substring(1, token.length - 1).trim()
+        currentNode.comment = comment
+        currentNode.shapes = this.parseShapes(comment)
       } else if (token.startsWith('$')) {
         if (currentNode !== root) {
           currentNode.nag = parseInt(token.substring(1))

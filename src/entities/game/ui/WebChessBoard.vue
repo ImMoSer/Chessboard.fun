@@ -74,7 +74,23 @@ const getNagColor = (quality: string) => {
     case 'best': return 'var(--color-nag-best)'
     case 'brilliant': return 'var(--color-nag-brilliant)'
     case 'interesting': return 'var(--color-nag-interesting)'
-    default: return 'var(--color-accent)'
+    case 'better-white':
+    case 'advantage-white':
+    case 'winning-white':
+    case 'decisive-white':
+      return 'var(--color-success)'
+    case 'better-black':
+    case 'advantage-black':
+    case 'winning-black':
+    case 'decisive-black':
+      return 'var(--color-error)'
+    case 'equal': return 'var(--color-text-secondary)'
+    case 'novelty': return 'var(--color-accent-primary)'
+    case 'initiative':
+    case 'attack':
+    case 'counterplay':
+      return 'var(--color-warning)'
+    default: return 'var(--color-accent-primary)'
   }
 }
 
@@ -153,6 +169,7 @@ watch(
     ground.value.set({
       fen: newFen,
       turnColor: props.turnColor, // Ensure turn color is synced with FEN
+      drawable: { shapes: combinedShapes.value as DrawShape[] }
     })
   },
 )
@@ -167,6 +184,7 @@ watch(
       lastMove: props.lastMove,
       check: props.check,
       turnColor: props.turnColor,
+      drawable: { shapes: combinedShapes.value as DrawShape[] },
     })
   },
 )
@@ -286,12 +304,20 @@ watch([() => props.animationEnabled, () => props.animationDuration], ([enabled, 
   align-items: center;
   color: #ffffff; /* White text */
   font-weight: 800; /* Bold */
-  font-size: 1.8em;
+  font-size: 1.5rem;
   box-shadow: 0 3px 6px rgba(0,0,0,0.7);
   border: 1.8px solid #ffffff; /* White border */
   /* Remove outgoing transform to keep inside the square */
   user-select: none;
   z-index: 6;
   text-shadow: 0 1px 2px rgba(0,0,0,0.5); /* Boost contrast for symbols */
+}
+
+@media (max-width: 768px) {
+  .nag-badge {
+    font-size: 0.9rem;
+    min-width: 16px;
+    min-height: 16px;
+  }
 }
 </style>

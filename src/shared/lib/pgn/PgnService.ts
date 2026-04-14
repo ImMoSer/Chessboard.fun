@@ -30,6 +30,23 @@ export const NAG_MAPPING: Record<number, { symbol: string; quality: string }> = 
   4: { symbol: '??', quality: 'blunder' },
   5: { symbol: '!?', quality: 'interesting' },
   6: { symbol: '?!', quality: 'inaccuracy' },
+  7: { symbol: '□', quality: 'forced' },
+  10: { symbol: '=', quality: 'equal' }, // Drawish
+  13: { symbol: '∞', quality: 'unclear' },
+  14: { symbol: '±', quality: 'better-white' }, // White is slightly better
+  15: { symbol: '∓', quality: 'better-black' }, // Black is slightly better
+  16: { symbol: '±', quality: 'better-white' }, // +/=
+  17: { symbol: '∓', quality: 'better-black' }, // =/+
+  18: { symbol: '+-', quality: 'winning-white' }, // +-
+  19: { symbol: '-+', quality: 'winning-black' }, // -+
+  20: { symbol: '+-', quality: 'winning-white' }, // Decisive advantage white
+  21: { symbol: '-+', quality: 'winning-black' }, // Decisive advantage black
+  32: { symbol: '⟳', quality: 'development' },
+  36: { symbol: '↑', quality: 'initiative' },
+  40: { symbol: '→', quality: 'attack' },
+  44: { symbol: '⇄', quality: 'counterplay' },
+  132: { symbol: '⇆', quality: 'counterplay' },
+  146: { symbol: 'N', quality: 'novelty' },
 }
 
 export interface PgnNode {
