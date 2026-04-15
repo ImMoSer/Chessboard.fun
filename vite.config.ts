@@ -43,14 +43,6 @@ export default defineConfig(({ mode }) => {
       viteStaticCopy({
         targets: [
           {
-            src: 'node_modules/@lichess-org/stockfish-web/sf_18_smallnet.js',
-            dest: 'stockfish/nnue',
-          },
-          {
-            src: 'node_modules/@lichess-org/stockfish-web/sf_18_smallnet.wasm',
-            dest: 'stockfish/nnue',
-          },
-          {
             src: 'node_modules/@sqlite.org/sqlite-wasm/dist/sqlite3.wasm',
             dest: '',
           },

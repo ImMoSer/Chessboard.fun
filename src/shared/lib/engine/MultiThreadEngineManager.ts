@@ -1,12 +1,9 @@
-// src/services/MultiThreadEngineManager.ts
-import { DEFAULT_NNUE_FILE } from '@/shared/config/engine.constants'
 import { loadMultiThreadEngine, type EngineController } from '@/shared/lib/engine.loader'
 import logger from '@/shared/lib/logger'
 
 import {
   type AnalysisUpdateCallback,
   type EvaluatedLine,
-  type ScoreInfo,
   type WdlStats,
 } from './types'
 
@@ -14,9 +11,9 @@ const STORAGE_KEY_THREADS = 'engine-threads-count'
 
 /**
  * Сервис, управляющий экземпляром МНОГОПОТОЧНОГО движка для анализа.
- * Если многопоточность не поддерживается, движок не будет загружен.
+ * Теперь может инстанцироваться несколько раз для разных задач.
  */
-class MultiThreadEngineManagerController {
+export class MultiThreadEngineManager {
   private engine: EngineController | null = null
   private isSupported = false
   private isReady = false
@@ -142,10 +139,9 @@ class MultiThreadEngineManagerController {
 
   private handleEngineMessage(message: string): void {
     const parts = message.split(' ')
+    const cmd = parts[0]
 
     if (message === 'uciok') {
-      this.sendCommand('setoption name Use NNUE value true')
-      this.sendCommand(`setoption name EvalFile value ${DEFAULT_NNUE_FILE}`)
       this.sendCommand(`setoption name Hash value ${this.getOptimalHashSize()}`)
       this.sendCommand('setoption name UCI_ShowWDL value true')
       
@@ -170,9 +166,9 @@ class MultiThreadEngineManagerController {
         this.readyResolve = null
         resolve()
       }
-    } else if (parts[0] === 'info') {
+    } else if (cmd === 'info') {
       this.parseInfoLine(message)
-    } else if (parts[0] === 'bestmove') {
+    } else if (cmd === 'bestmove') {
       this.isSearching = false
       const bestMoveUci = parts[1] && parts[1] !== '(none)' ? parts[1] : null
 
@@ -194,11 +190,12 @@ class MultiThreadEngineManagerController {
     try {
       let currentLineId = 1,
         depth = 0
-      let score: ScoreInfo | null = null
+      let score: { type: 'cp' | 'mate'; value: number } | null = null
       let wdl: WdlStats | undefined
       let pvUci: string[] = []
       const parts = line.split(' ')
       let i = 0
+      
       while (i < parts.length) {
         const token = parts[i]
         switch (token) {
@@ -240,11 +237,13 @@ class MultiThreadEngineManagerController {
           }
           case 'pv':
             pvUci = parts.slice(i + 1)
-            i = parts.length
+            i = parts.length // Завершаем цикл, так как pv всегда идет в конце
             break
         }
         i++
       }
+      
+      // Отправляем данные только если есть минимально полезный набор
       if (score && pvUci.length > 0 && !isNaN(depth) && depth > 0) {
         const parsedData: EvaluatedLine = { id: currentLineId, depth, score, wdl, pvUci }
         this.infiniteAnalysisCallback([parsedData], null)
@@ -366,16 +365,8 @@ class MultiThreadEngineManagerController {
     return new Promise((resolve) => {
       this.stopResolve = resolve
       this.sendCommand('stop')
-
-      // Safety timeout: if bestmove doesn't arrive in 2s, force resolve
-      setTimeout(() => {
-        if (this.stopResolve === resolve) {
-          logger.warn('[MultiThreadEngineManager] Stop timeout reached. Forcing stop.')
-          this.isSearching = false
-          this.stopResolve = null
-          resolve()
-        }
-      }, 2000)
+      // Removed the dangerous setTimeout. 
+      // We now strictly rely on the 'bestmove' engine event to resolve this promise and reset the state.
     })
   }
 
@@ -417,4 +408,5 @@ class MultiThreadEngineManagerController {
   }
 }
 
-export const multiThreadEngineManager = new MultiThreadEngineManagerController()
+// Global instance for backwards compatibility / default analysis engine
+export const multiThreadEngineManager = new MultiThreadEngineManager()

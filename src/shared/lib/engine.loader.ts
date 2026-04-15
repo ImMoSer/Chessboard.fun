@@ -1,170 +1,98 @@
-import { DEFAULT_NNUE_FILE } from '@/shared/config/engine.constants'
 import logger from '@/shared/lib/logger'
 
-declare global {
-  interface Window {
-    Stockfish?: () => Promise<EngineController>
-  }
-}
-
-/**
- * Унифицированный интерфейс для контроллера движка Stockfish.
- * Обе версии (многопоточная и однопоточная обертка) будут его реализовывать.
- */
 export interface EngineController {
   postMessage(command: string): void
   addMessageListener(callback: (message: string) => void): void
   terminate?(): void
 }
 
-/**
- * Интерфейс модуля Stockfish от Lichess.
- * Они используют метод uci() для отправки команд вместо postMessage.
- */
-interface LichessModule {
-  uci(command: string): void
-  setNnueBuffer(buffer: ArrayBuffer | Uint8Array): void
-  getRecommendedNnue?(): string
-  addMessageListener?: never // Этого метода нет в оригинале
-  postMessage?: never // Этого метода нет в оригинале
-}
-
-/**
- * Загружает и инициализирует многопоточную версию движка Stockfish (NNUE).
- * @returns {Promise<EngineController | null>} Промис, который разрешается контроллером движка или null.
- */
 export function loadMultiThreadEngine(): Promise<EngineController | null> {
-  const isCrossOriginIsolated = window.crossOriginIsolated
-  if (!isCrossOriginIsolated) {
-    logger.warn(`[EngineLoader] Multi-threaded engine not supported: crossOriginIsolated is false.`)
+  if (!window.crossOriginIsolated) {
+    logger.warn('[EngineLoader] Multi-threaded engine not supported: crossOriginIsolated is false.')
     return Promise.resolve(null)
   }
 
-  // Путь к основному движку с вшитой сетью (Lichess SmallNet)
-  const loaderPath = '/stockfish/nnue/sf_18_smallnet.js'
-
-  logger.info(`[EngineLoader] Loading multi-threaded engine (NNUE) from ${loaderPath}`)
+  const workerPath = '/npm_stockfish/sf_1807_multi_lite/stockfish-18-lite.js'
+  logger.info(`[EngineLoader] Initializing Web Worker from ${workerPath}`)
 
   return new Promise((resolve, reject) => {
-    ; (async () => {
-      try {
-        // Используем динамический импорт для загрузки ESM модуля
-        const module = await import(/* @vite-ignore */ loaderPath)
+    try {
+      const worker = new Worker(workerPath)
+      const listeners: ((message: string) => void)[] = []
 
-        // Lichess stockfish-web экспортирует фабрику как default export
-        const StockfishFactory = module.default || module.Stockfish || module
+      worker.onmessage = (event: MessageEvent) => {
+        const message = typeof event.data === 'string' ? event.data : String(event.data)
+        listeners.forEach((callback) => callback(message))
+      }
 
-        if (typeof StockfishFactory !== 'function') {
-          throw new Error('[EngineLoader] Stockfish factory is not a function.')
-        }
-
-        logger.info('[EngineLoader] Multi-threaded loader module imported.')
-
-        // Массив подписчиков на сообщения от движка
-        const listeners: ((message: string) => void)[] = []
-
-        try {
-          // Инициализируем движок.
-          // Передаем callback 'listen', который будет транслировать сообщения нашим подписчикам.
-          const engineInstance = (await StockfishFactory({
-            locateFile: (path: string, prefix: string) => {
-              if (path.endsWith('.wasm')) {
-                return `/stockfish/nnue/${path}`
-              }
-              return prefix + path
-            },
-            listen: (line: string) => {
-              listeners.forEach((callback) => callback(line))
-            },
-          })) as LichessModule
-
-          logger.info('[EngineLoader] Multi-threaded Stockfish instance created successfully.')
-
-          // Получаем рекомендуемое имя файла от самого движка
-          let nnueFileName = DEFAULT_NNUE_FILE // Fallback
-          if (typeof engineInstance.getRecommendedNnue === 'function') {
-            try {
-              nnueFileName = engineInstance.getRecommendedNnue()
-              logger.info(`[EngineLoader] Engine recommended NNUE file: ${nnueFileName}`)
-            } catch (e) {
-              logger.warn('[EngineLoader] Failed to get recommended NNUE name, using fallback.', e)
-            }
-          }
-
-          const nnuePath = `/stockfish/nnue/${nnueFileName}`
-
-          // Load and set NNUE network
-          try {
-            logger.info(`[EngineLoader] Fetching NNUE file from ${nnuePath}...`)
-            let response: Response | undefined
-
-            if ('caches' in window) {
-              try {
-                const cache = await caches.open('stockfish-assets')
-                response = await cache.match(nnuePath)
-                if (response) {
-                  logger.info(`[EngineLoader] Loaded NNUE file from explicit Cache API.`)
-                }
-              } catch (cacheErr) {
-                logger.warn('[EngineLoader] Failed to read from cache, falling back to fetch.', cacheErr)
-              }
-            }
-
-            if (!response) {
-              response = await fetch(nnuePath)
-            }
-
-            if (!response.ok) {
-              if (response.status === 404) {
-                logger.error(
-                  `[EngineLoader] NNUE file not found! Please download ${nnueFileName} and place it in public/stockfish/nnue/`,
-                )
-              }
-              throw new Error(`Failed to fetch NNUE file: ${response.status} ${response.statusText}`)
-            }
-            const buffer = await response.arrayBuffer()
-            logger.info(
-              `[EngineLoader] NNUE file fetched (${buffer.byteLength} bytes). Setting buffer...`,
-            )
-
-            if (typeof engineInstance.setNnueBuffer === 'function') {
-              engineInstance.setNnueBuffer(new Uint8Array(buffer))
-              logger.info('[EngineLoader] NNUE buffer set successfully.')
-            } else {
-              logger.warn('[EngineLoader] setNnueBuffer function not found on engine instance!')
-            }
-          } catch (nnueError) {
-            logger.error('[EngineLoader] Critical error loading NNUE file:', nnueError)
-            // Можно реджектить, если без сети движок бесполезен
-            reject(nnueError)
-            return
-          }
-
-          // Создаем адаптер, чтобы движок выглядел как EngineController
-          const engineAdapter: EngineController = {
-            postMessage: (command: string) => {
-              engineInstance.uci(command)
-            },
-            addMessageListener: (callback: (message: string) => void) => {
-              listeners.push(callback)
-            },
-            terminate: () => {
-              // Прямого метода terminate у WASM модуля обычно нет, если он запущен в главном потоке.
-              // Можно просто очистить слушателей.
-              listeners.length = 0
-              logger.warn('[EngineLoader] Terminate called on main-thread WASM engine (no-op).')
-            },
-          }
-
-          resolve(engineAdapter)
-        } catch (error) {
-          logger.error('[EngineLoader] Error initializing multi-threaded Stockfish instance.', error)
-          reject(error)
-        }
-      } catch (error) {
-        logger.error(`[EngineLoader] Failed to load module: ${loaderPath}`, error)
+      worker.onerror = (error) => {
+        logger.error('[EngineLoader] Worker execution error:', error)
         reject(error)
       }
-    })()
+
+      const engineAdapter: EngineController = {
+        postMessage: (command: string) => {
+          worker.postMessage(command)
+        },
+        addMessageListener: (callback: (message: string) => void) => {
+          listeners.push(callback)
+        },
+        terminate: () => {
+          worker.terminate()
+          listeners.length = 0
+          logger.info('[EngineLoader] Engine Worker terminated.')
+        },
+      }
+
+      resolve(engineAdapter)
+    } catch (error) {
+      logger.error('[EngineLoader] Failed to spawn engine worker.', error)
+      reject(error)
+    }
+  })
+}
+
+/**
+ * Загружает однопоточную версию движка (Fallback & Gameplay).
+ * Не требует CORS изоляции.
+ */
+export function loadSingleThreadEngine(): Promise<EngineController | null> {
+  const workerPath = '/npm_stockfish/sf_1807_single_lite/stockfish-18-lite-single.js'
+  logger.info(`[EngineLoader] Initializing Single-Thread Web Worker from ${workerPath}`)
+
+  return new Promise((resolve, reject) => {
+    try {
+      const worker = new Worker(workerPath)
+      const listeners: ((message: string) => void)[] = []
+
+      worker.onmessage = (event: MessageEvent) => {
+        const message = typeof event.data === 'string' ? event.data : String(event.data)
+        listeners.forEach((callback) => callback(message))
+      }
+
+      worker.onerror = (error) => {
+        logger.error('[EngineLoader] Single-thread worker error:', error)
+        reject(error)
+      }
+
+      const engineAdapter: EngineController = {
+        postMessage: (command: string) => {
+          worker.postMessage(command)
+        },
+        addMessageListener: (callback: (message: string) => void) => {
+          listeners.push(callback)
+        },
+        terminate: () => {
+          worker.terminate()
+          listeners.length = 0
+          logger.info('[EngineLoader] Single-Thread Engine Worker terminated.')
+        },
+      }
+
+      resolve(engineAdapter)
+    } catch (error) {
+      logger.error('[EngineLoader] Failed to spawn single-thread engine worker.', error)
+      reject(error)
+    }
   })
 }

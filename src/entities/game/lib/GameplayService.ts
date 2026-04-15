@@ -1,5 +1,5 @@
 // src/services/GameplayService.ts
-import { serverEngineService, multiThreadEngineManager } from '@/shared/lib/engine'
+import { serverEngineService, singleThreadEngineManager } from '@/shared/lib/engine'
 import logger from '@/shared/lib/logger'
 import type { EngineId } from '@/shared/types/api.types'
 
@@ -30,6 +30,10 @@ export const engineConfigs: Record<EngineId, EngineConfig> = {
 class GameplayServiceController {
   constructor() {
     logger.info('[GameplayService] Initialized with new local engine configurations.')
+    // Asynchronously pre-load the engine in the background to avoid delay during first fallback
+    singleThreadEngineManager.ensureReady().catch((err) => {
+      logger.warn('[GameplayService] Early engine pre-loading failed.', err)
+    })
   }
 
   public async getBestMove(engineId: EngineId, fen: string): Promise<string | null> {
@@ -45,8 +49,8 @@ class GameplayServiceController {
         `[GameplayService] Using local engine for ${engineId} with depth ${config.depth}`
       )
       try {
-        await multiThreadEngineManager.ensureReady()
-        return await multiThreadEngineManager.getBestMoveOnly(fen, { depth: config.depth })
+        await singleThreadEngineManager.ensureReady()
+        return await singleThreadEngineManager.getBestMoveOnly(fen, { depth: config.depth })
       } catch (error) {
         logger.error(`[GameplayService] Local engine failed for ${engineId}:`, error)
         return null // В случае ошибки локального движка, ход не будет сделан
@@ -64,10 +68,11 @@ class GameplayServiceController {
   }
 
   private async getMoveWithFallback(fen: string, modelId: string): Promise<string | null> {
+    const controller = new AbortController()
     let fallbackTimer: number | null = null
 
     try {
-      const serverPromise = serverEngineService.getMoveFromServer(fen, modelId)
+      const serverPromise = serverEngineService.getMoveFromServer(fen, modelId, controller.signal)
 
       const timeoutPromise = new Promise<null>((resolve) => {
         fallbackTimer = window.setTimeout(() => resolve(null), FALLBACK_TIMEOUT_MS)
@@ -81,15 +86,25 @@ class GameplayServiceController {
         logger.info(`[GameplayService] Server engine responded in time with move: ${result}`)
         return result
       }
-    } catch (error) {
+      
+      // If we are here, the timeoutPromise won. Cancel the server request.
+      controller.abort()
+      logger.warn(`[GameplayService] Server engine timed out after ${FALLBACK_TIMEOUT_MS}ms. Aborting request.`)
+
+    } catch (error: unknown) {
       if (fallbackTimer) clearTimeout(fallbackTimer)
-      logger.error(`[GameplayService] Server engine request for model ${modelId} failed:`, error)
+      
+      if (error instanceof Error && error.name === 'AbortError') {
+        // This was our own abort, we already logged the warning above.
+      } else {
+        logger.error(`[GameplayService] Server engine request for model ${modelId} failed:`, error)
+      }
     }
 
-    logger.warn(`[GameplayService] Server engine failed or timed out. Using local fallback.`)
+    logger.warn(`[GameplayService] Falling back to local engine.`)
     // В качестве фолбэка используем среднюю силу
-    await multiThreadEngineManager.ensureReady()
-    return multiThreadEngineManager.getBestMoveOnly(fen, { depth: 8 })
+    await singleThreadEngineManager.ensureReady()
+    return singleThreadEngineManager.getBestMoveOnly(fen, { depth: 8 })
   }
 }
 

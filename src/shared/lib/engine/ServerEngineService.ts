@@ -47,7 +47,11 @@ export class ServerEngineServiceController {
     )
   }
 
-  public async getMoveFromServer(fen: string, engine: string): Promise<string | null> {
+  public async getMoveFromServer(
+    fen: string,
+    engine: string,
+    signal?: AbortSignal,
+  ): Promise<string | null> {
     if (this.isThinking) {
       logger.warn(
         '[ServerEngineService] getMoveFromServer called while already thinking. Request rejected.',
@@ -61,8 +65,8 @@ export class ServerEngineServiceController {
     )
 
     try {
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), MOVE_TIMEOUT_MS)
+      const internalController = new AbortController()
+      const timeoutId = setTimeout(() => internalController.abort(), MOVE_TIMEOUT_MS)
 
       const params = new URLSearchParams({
         fen: fen,
@@ -70,9 +74,14 @@ export class ServerEngineServiceController {
       })
       const url = `${SERVER_ENGINE_ENDPOINT}?${params.toString()}`
 
+      // Combine signals if both exist
+      const combinedSignal = signal 
+        ? (AbortSignal as unknown as { any: (signals: AbortSignal[]) => AbortSignal }).any([internalController.signal, signal]) 
+        : internalController.signal;
+
       const response = await fetch(url, {
         method: 'GET',
-        signal: controller.signal,
+        signal: combinedSignal,
         credentials: 'include',
       })
 

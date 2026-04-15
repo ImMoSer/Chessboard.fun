@@ -2,6 +2,7 @@ import {
   type AnalysisUpdateCallback,
   type EvaluatedLine,
   multiThreadEngineManager,
+  singleThreadEngineManager,
   type WdlStats,
 } from '@/shared/lib/engine'
 import logger from '@/shared/lib/logger'
@@ -20,7 +21,7 @@ export interface EvaluatedLineWithSan extends EvaluatedLine {
 }
 
 class AnalysisServiceController {
-  private activeEngineManager: typeof multiThreadEngineManager | null = null
+  private activeEngineManager: typeof multiThreadEngineManager | typeof singleThreadEngineManager | null = null
   private sanCache = new Map<
     string,
     { pvSan: string[]; initialFullMoveNumber: number; initialTurn: ChessopsColor }
@@ -35,11 +36,21 @@ class AnalysisServiceController {
   public initialize(): Promise<void> {
     if (!this.initPromise) {
       this.initPromise = (async () => {
-        // Инициализация происходит один раз при старте приложения
-        // Пытаемся инициализировать многопоточный движок (он сам проверит поддержку)
+        logger.info('[AnalysisService] Initializing engines...')
+        
+        // 1. Versuch: Multi-Thread laden
         await multiThreadEngineManager.ensureReady()
-        this.activeEngineManager = multiThreadEngineManager
-        logger.info(`[AnalysisService] Initialized with Multi-Threaded Engine (NNUE).`)
+        
+        // 2. Prüfen, ob der Multi-Thread Manager wirklich eine Engine geladen hat
+        if (multiThreadEngineManager.isMultiThreadingSupported()) {
+          this.activeEngineManager = multiThreadEngineManager
+          logger.info(`[AnalysisService] Initialized successfully with Multi-Threaded Engine.`)
+        } else {
+          // 3. FALLBACK: Single-Thread laden, wenn CORS fehlt
+          logger.warn(`[AnalysisService] Multi-threading not supported. Falling back to Single-Thread Engine for analysis.`)
+          await singleThreadEngineManager.ensureReady()
+          this.activeEngineManager = singleThreadEngineManager
+        }
       })()
     }
     return this.initPromise
@@ -124,8 +135,13 @@ class AnalysisServiceController {
       await this.initialize()
     }
     if (this.activeEngineManager) {
-      await this.activeEngineManager.setThreads(count)
-      logger.info(`[AnalysisService] Threads set to ${count}`)
+      // Check if the engine manager has a setThreads method (MultiThreadEngineManager has it)
+      if ('setThreads' in this.activeEngineManager) {
+        await this.activeEngineManager.setThreads(count)
+        logger.info(`[AnalysisService] Threads set to ${count}`)
+      } else {
+        logger.warn(`[AnalysisService] activeEngineManager does not support setThreads. Ignoring request for ${count} threads.`)
+      }
     }
   }
 
