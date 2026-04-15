@@ -11,10 +11,11 @@ import FallbackApp from './FallbackApp.vue'
 // Basic synchronous checks
 const checkEnvironment = () => {
   const hasSharedArrayBuffer = typeof SharedArrayBuffer !== 'undefined'
+  const isIsolated = window.crossOriginIsolated
   const hasCacheApi = 'caches' in window
   const hasOpfs = navigator.storage && typeof navigator.storage.getDirectory === 'function'
 
-  return hasSharedArrayBuffer && hasCacheApi && hasOpfs
+  return hasSharedArrayBuffer && isIsolated && hasCacheApi && hasOpfs
 }
 
 async function boot() {

@@ -14,19 +14,31 @@ export function setupErrorHandler(app: App) {
 
   // 2. Global Script Errors (window.onerror)
   window.onerror = (message, source, lineno, colno, error) => {
-    const msgString = typeof message === 'string' 
-      ? message 
-      : ((message as unknown as { message?: string })?.message || String(message));
-    if (typeof msgString === 'string' && msgString.includes('ResizeObserver')) {
+    let msgString = String(message)
+    let details: { filename?: string; lineno?: number; colno?: number } = {}
+
+    if (message instanceof ErrorEvent) {
+      msgString = `[ErrorEvent] ${message.message || 'unknown message'}`
+      details = {
+        filename: message.filename,
+        lineno: message.lineno,
+        colno: message.colno,
+      }
+    } else if (typeof message !== 'string') {
+      msgString = (message as unknown as { message?: string })?.message || String(message)
+    }
+
+    if (msgString.includes('ResizeObserver')) {
       return false; // Ignore harmless ResizeObserver errors
     }
 
     logger.error('[Window Error]:', {
         message: msgString,
-        source,
-        lineno,
-        colno,
-        error
+        source: source || details.filename,
+        lineno: lineno || details.lineno,
+        colno: colno || details.colno,
+        error: error instanceof Error ? { message: error.message, stack: error.stack } : error,
+        ...details
     });
     return false; // Позволяем ошибке всплыть в консоль
   };
