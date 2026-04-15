@@ -137,13 +137,7 @@ class MultiThreadEngineManagerController {
   }
 
   private getOptimalHashSize(): number {
-    try {
-      const nav = navigator as Navigator & { deviceMemory?: number }
-      const ramGb = nav.deviceMemory || 4
-      return ramGb >= 4 ? 512 : 64
-    } catch {
-      return 64
-    }
+    return 64
   }
 
   private handleEngineMessage(message: string): void {
