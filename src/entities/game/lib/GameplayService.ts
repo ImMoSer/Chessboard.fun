@@ -21,8 +21,7 @@ export const engineConfigs: Record<EngineId, EngineConfig> = {
   'SF_2200': { type: 'local', depth: 10 },
   'maia-1900': { type: 'server', model: 'maia-1900', fallback: true },
   'maia-2200': { type: 'server', model: 'maia-2200', fallback: true },
-  'badgyal-8': { type: 'server', model: 'badgyal-8', fallback: true },
-  'elite_2400': { type: 'server', model: 'elite_2400', fallback: true },
+  'Maia_2400': { type: 'server', model: 'Maia_2400', fallback: true },
 }
 
 

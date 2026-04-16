@@ -1111,9 +1111,9 @@
       "botSelectionIntro": "Choose your sparring partner based on your training goals:",
       "bots": {
         "stockfish_2500": " (Stockfish 18 - Absolute truth, mathematically perfect defense)",
-        "badgyal-8": " (BadGyal-8 - Aggressive tactical opponent optimized for classification)",
         "maia-2200": " (Maia-2200 - Master-level human-like play and realistic error patterns)",
-        "maia-1900": " (Maia-1900 - Club-level human-like play with typical amateur traps)"
+        "maia-1900": " (Maia-1900 - Club-level human-like play with typical amateur traps)",
+        "Maia_2400": " (Maia-2400 - Top-tier human-like play with extremely refined technique)"
       },
       "userCabinetTitle": "Tactical Fingerprint: ",
       "userCabinet": "Your personal command center. Visualize your technical DNA with Nightingale Rose charts across 25+ tactical themes.",
@@ -1142,7 +1142,7 @@
       "boardRendering": "Data Visualization: ",
       "boardRenderingStack": "Apache ECharts for complex analytics",
       "chessEngine": "Analysis Cluster: ",
-      "chessEngineStack": "Stockfish 18, LCZero (Maia/BadGyal), n8n workflow core",
+      "chessEngineStack": "Stockfish 18, LCZero (Maia), n8n workflow core",
       "api": "Protocols: ",
       "apiStack": "Lichess REST API & OAuth2 ("
     },
@@ -1160,8 +1160,8 @@
         "gratitude": "Deepest gratitude to the Stockfish team for defining the standard of chess evaluation."
       },
       "maia": {
-        "title": "Maia & BadGyal-8",
-        "text": "Realistic sparring is provided by **Maia Chess** and specialized **BadGyal-8** weights. These neural networks are trained on millions of games to predict moves that feel human, not mechanical. Special thanks to the CSSLab and dkappe for these incredible weights.",
+        "title": "Maia Chess",
+        "text": "Realistic sparring is provided by **Maia Chess** weights. These neural networks are trained on millions of games to predict moves that feel human, not mechanical. Special thanks to the CSSLab for these incredible weights.",
         "links": {
           "website": "Maia Website",
           "github": "Maia GitHub",

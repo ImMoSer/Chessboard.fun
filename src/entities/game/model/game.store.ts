@@ -15,7 +15,7 @@ export const useGameStore = defineStore('game', () => {
 
   const userMovesCount = ref(0)
   const isGameActive = ref(false)
-  const botEngineId = ref<EngineId>('badgyal-8')
+  const botEngineId = ref<EngineId>('maia-2200')
   const currentStrategy = ref<IGameplayStrategy | null>(null)
 
   const boardStore = useBoardStore()

@@ -20,7 +20,7 @@ export const useEngineSelectionStore = defineStore('engine-selection', () => {
     } catch (error) {
       logger.error('[EngineSelectionStore] Failed to load engine from localStorage', error)
     }
-    return 'badgyal-8'
+    return 'maia-2200'
   }
 
   const selectedEngine = ref<EngineId>(loadSavedEngine())

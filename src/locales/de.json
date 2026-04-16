@@ -1111,9 +1111,9 @@
       "botSelectionIntro": "Wähle deinen Sparringspartner basierend auf deinen Trainingszielen:",
       "bots": {
         "stockfish_2500": " (Stockfish 18 - Absolute Wahrheit, mathematisch perfekte Verteidigung)",
-        "badgyal-8": " (BadGyal-8 - Aggressiver taktischer Gegner, optimiert für Klassifizierung)",
         "maia-2200": " (Maia-2200 - Menschliches Spiel auf Meisterniveau und realistische Fehlermuster)",
-        "maia-1900": " (Maia-1900 - Menschliches Spiel auf Vereinsniveau mit typischen Amateur-Fallen)"
+        "maia-1900": " (Maia-1900 - Menschliches Spiel auf Vereinsniveau mit typischen Amateur-Fallen)",
+        "Maia_2400": " (Maia-2400 - Menschliches Spiel auf Top-Niveau mit extrem verfeinerter Technik)"
       },
       "userCabinetTitle": "Taktischer Fingerabdruck: ",
       "userCabinet": "Dein persönliches Kommandozentrum. Visualisiere deine technische DNA mit Nightingale-Rose-Diagrammen über 25+ taktische Themen.",
@@ -1142,7 +1142,7 @@
       "boardRendering": "Datenvisualisierung: ",
       "boardRenderingStack": "Apache ECharts für komplexe Analysen",
       "chessEngine": "Analyse-Cluster: ",
-      "chessEngineStack": "Stockfish 18, LCZero (Maia/BadGyal), n8n Workflow-Kern",
+      "chessEngineStack": "Stockfish 18, LCZero (Maia), n8n Workflow-Kern",
       "api": "Protokolle: ",
       "apiStack": "Lichess REST API & OAuth2 ("
     },
@@ -1160,8 +1160,8 @@
         "gratitude": "Tiefste Dankbarkeit an das Stockfish-Team für das Definieren des Standards der Schachbewertung."
       },
       "maia": {
-        "title": "Maia & BadGyal-8",
-        "text": "Realistisches Sparring wird durch **Maia Chess** und spezialisierte **BadGyal-8** Gewichte ermöglicht. Diese neuronalen Netze sind auf Millionen von Partien trainiert, um Züge vorherzusagen, die sich menschlich anfühlen. Besonderen Dank an das CSSLab und dkappe.",
+        "title": "Maia Chess",
+        "text": "Realistisches Sparring wird durch **Maia Chess** Gewichte ermöglicht. Diese neuronalen Netze sind auf Millionen von Partien trainiert, um Züge vorherzusagen, die sich menschlich anfühlen. Besonderen Dank an das CSSLab.",
         "links": {
           "website": "Maia Webseite",
           "github": "Maia GitHub",
