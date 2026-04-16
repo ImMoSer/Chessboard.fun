@@ -21,6 +21,8 @@ export const useAnalysisStore = defineStore('analysis', () => {
 
   // --- FEATURE STATE ---
   const isPanelVisible = ref(false)
+  let lastArrowsSignature = ''
+  let fenDebounceTimer: ReturnType<typeof setTimeout> | null = null
 
   // --- ENTITY STATE PROXIES ---
   const {
@@ -48,12 +50,22 @@ export const useAnalysisStore = defineStore('analysis', () => {
     () => boardStore.fen,
     (newFen) => {
       if (isAnalysisActive.value) {
-        logger.debug(`[AnalysisFeature] FEN changed. Restarting analysis.`)
-        // Delegate to engineStore
-        engineStore.startAnalysis(newFen)
+        if (fenDebounceTimer) clearTimeout(fenDebounceTimer)
+        fenDebounceTimer = setTimeout(() => {
+          logger.debug(`[AnalysisFeature] FEN changed (debounced). Restarting analysis.`)
+          // Delegate to engineStore
+          engineStore.startAnalysis(newFen)
+        }, 250)
       }
     },
   )
+
+  watch(isPanelVisible, (isVisible) => {
+    if (!isVisible && isAnalysisActive.value) {
+      logger.info('[AnalysisFeature] Panel set to invisible. Hard-stopping engine.')
+      engineStore.stopAnalysis()
+    }
+  })
 
   // Watch lines to update board arrows (Pure Feature Logic)
   watch(analysisLines, (lines) => {
@@ -99,8 +111,17 @@ export const useAnalysisStore = defineStore('analysis', () => {
   }
 
   function drawAnalysisArrows(lines: EvaluatedLineWithSan[]) {
+    const topMoves = lines.slice(0, 3)
+    const signature = topMoves.map((l) => l.pvUci[0] || '').join(',')
+
+    if (signature === lastArrowsSignature) {
+      return
+    }
+
+    lastArrowsSignature = signature
+
     const shapes: DrawShape[] = []
-    lines.slice(0, 3).forEach((line, index) => {
+    topMoves.forEach((line, index) => {
       if (line.pvUci && line.pvUci.length > 0) {
         const uciMove = line.pvUci[0]
         if (typeof uciMove === 'string' && uciMove.length >= 4) {
@@ -124,6 +145,7 @@ export const useAnalysisStore = defineStore('analysis', () => {
   async function resetAnalysisState() {
     const wasActive = isAnalysisActive.value
     isPanelVisible.value = false
+    lastArrowsSignature = ''
 
     if (wasActive) {
       await engineStore.stopAnalysis()

@@ -19,7 +19,7 @@ import { ControlPanel, GameLayout, TopInfoPanel, useControlsStore } from '@/widg
 import { EyeOffOutline, EyeOutline } from '@vicons/ionicons5'
 import { NButton, NIcon, NText, NTooltip } from 'naive-ui'
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 
 const t = i18n.global.t
 const controlsStore = useControlsStore()
@@ -122,10 +122,15 @@ async function handleRouteParams() {
 onUnmounted(() => {
   theoryStore.setForceSkipDebounceGlobal(false)
   openingStore.reset()
+  analysisStore.hidePanel()
   analysisStore.setPlayerColor(null)
   if (!isNavigatingToPlayout.value) {
     gameStore.resetGame()
   }
+})
+
+onBeforeRouteLeave(() => {
+  analysisStore.hidePanel()
 })
 
 async function startSession(color: 'white' | 'black', moves: string[] = [], slug?: string) {

@@ -6,7 +6,7 @@ import { useTheoryEndingsStore } from '@/features/theory-endings'
 import { useSmartHintStore } from '@/features/smart-hint'
 import { shareService } from '@/shared/lib/share.service'
 import { computed, onMounted, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
 import type { TheoryEndingType, GameLaunchOptions, TheoryEndingDifficulty, TheoryEndingCategory } from '@/shared/types/api.types'
@@ -78,6 +78,10 @@ onMounted(() => {
     return
   }
   theoryStore.loadNewPuzzle(type, puzzleId)
+})
+
+onBeforeRouteLeave(() => {
+  analysisStore.hidePanel()
 })
 
 watch(

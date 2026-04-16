@@ -1,13 +1,13 @@
 <!-- src/pages/TornadoView.vue -->
 <script setup lang="ts">
 import { useBoardStore, useGameStore } from '@/entities/game'
-import { AnalysisPanel } from '@/features/analysis'
+import { AnalysisPanel, useAnalysisStore } from '@/features/analysis'
 import { UserProfileWidget, ThemeRoseChart } from '@/features/profile'
 import { useTornadoStore, type TornadoMode } from '@/features/tornado'
 import { useSmartHintStore } from '@/features/smart-hint'
 import ChessboardPreview from '@/shared/ui/board-preview/ChessboardPreview.vue'
 import { computed, onMounted, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { ControlPanel, GameLayout, TopInfoPanel, useControlsStore } from '@/widgets/game-layout'
 import { useDetailedStatsQuery } from '@/shared/api/queries/userCabinet.queries'
@@ -16,6 +16,7 @@ import { useAuthStore } from '@/entities/user'
 import type { GameLaunchOptions } from '@/shared/types/api.types'
 
 const tornadoStore = useTornadoStore()
+const analysisStore = useAnalysisStore()
 const controlsStore = useControlsStore()
 const smartHintStore = useSmartHintStore()
 const gameStore = useGameStore()
@@ -73,6 +74,10 @@ onMounted(() => {
   if (mode) {
     tornadoStore.startSession(mode, theme)
   }
+})
+
+onBeforeRouteLeave(() => {
+  analysisStore.hidePanel()
 })
 
 watch(

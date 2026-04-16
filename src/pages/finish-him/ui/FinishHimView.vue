@@ -8,7 +8,7 @@ import { shareService } from '@/shared/lib/share.service'
 import ChessboardPreview from '@/shared/ui/board-preview/ChessboardPreview.vue'
 import { computed, onMounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 
 import { useAuthStore } from '@/entities/user'
 import { AnalysisPanel } from '@/features/analysis'
@@ -68,6 +68,10 @@ onMounted(() => {
     // If accessed without parameters, redirect to selection
     router.push('/finish-him')
   }
+})
+
+onBeforeRouteLeave(() => {
+  analysisStore.hidePanel()
 })
 
 watch(

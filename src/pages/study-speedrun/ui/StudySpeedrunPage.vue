@@ -4,7 +4,7 @@ import { GameLayout } from '@/widgets/game-layout'
 import { NButton, NIcon, NText, NProgress, NList, NListItem, NScrollbar, NThing } from 'naive-ui'
 import { CloseCircleOutline } from '@vicons/ionicons5'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 import { AnalysisPanel, useAnalysisStore } from '@/features/analysis'
 import { useStudyStore, type StudyChapter } from '@/features/study'
 import { useI18n } from 'vue-i18n'
@@ -68,8 +68,13 @@ function handleQuit() {
   router.push('/study')
 }
 
+onBeforeRouteLeave(() => {
+  analysisStore.hidePanel()
+})
+
 // Ensure cleanup if user navigates away
 onUnmounted(() => {
+  analysisStore.hidePanel()
   if (speedrunStore.isPlaying) {
     speedrunStore.quitSpeedrun()
   }

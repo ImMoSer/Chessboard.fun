@@ -6,7 +6,7 @@ import { usePracticalChessStore } from '@/features/practical-chess'
 import { useSmartHintStore } from '@/features/smart-hint'
 import { shareService } from '@/shared/lib/share.service'
 import { computed, onMounted, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
 import { AnalysisPanel } from '@/features/analysis'
@@ -54,6 +54,10 @@ const handleImprove = (options: GameLaunchOptions) => {
 onMounted(() => {
   const id = route.params.id as string
   practicalStore.loadNewPuzzle(id)
+})
+
+onBeforeRouteLeave(() => {
+  analysisStore.hidePanel()
 })
 
 watch(

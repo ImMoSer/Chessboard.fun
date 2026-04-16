@@ -11,7 +11,7 @@ import {
 import { ArrowBack, DiamondOutline, FlashOutline, TelescopeOutline } from '@vicons/ionicons5'
 import { NButton, NIcon, NModal, NNumberAnimation, NSpace, NStatistic } from 'naive-ui'
 import { onMounted, onUnmounted, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 import { GameLayout, TopInfoPanel } from '@/widgets/game-layout'
 
 const diamondHunterStore = useDiamondHunterStore()
@@ -58,8 +58,13 @@ async function handleRouteParams() {
 
 onUnmounted(() => {
   diamondHunterStore.stopHunt()
+  analysisStore.hidePanel()
   analysisStore.setPlayerColor(null)
   gameStore.resetGame()
+})
+
+onBeforeRouteLeave(() => {
+  analysisStore.hidePanel()
 })
 
 async function startSession(color: 'white' | 'black') {

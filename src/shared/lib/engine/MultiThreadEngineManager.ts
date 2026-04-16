@@ -4,6 +4,7 @@ import logger from '@/shared/lib/logger'
 import {
   type AnalysisUpdateCallback,
   type EvaluatedLine,
+  MAX_ANALYSIS_DEPTH,
   type WdlStats,
 } from './types'
 
@@ -270,7 +271,7 @@ export class MultiThreadEngineManager {
     this.infiniteAnalysisCallback = callback
     this.isSearching = true
     this.sendCommand(`position fen ${fen}`)
-    this.sendCommand('go infinite')
+    this.sendCommand(`go depth ${MAX_ANALYSIS_DEPTH}`)
   }
 
   public async getBestMoveOnly(

@@ -95,6 +95,7 @@ onMounted(() => {
 })
 
 onBeforeRouteLeave(async (to, from, next) => {
+  analysisStore.hidePanel()
   const userResponse = await uiStore.showConfirmation(
     t('features.tornado.mistakes.exit.title'),
     t('features.tornado.mistakes.exit.message'),

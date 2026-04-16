@@ -10,7 +10,7 @@ import { pgnService } from '@/shared/lib/pgn/PgnService'
 import { GameLayout } from '@/widgets/game-layout'
 import { useDialog, useMessage } from 'naive-ui'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 
 import { useI18n } from 'vue-i18n'
 
@@ -144,6 +144,10 @@ onMounted(async () => {
   } else if (studyStore.activeChapterId) {
     updateUrl(studyStore.activeChapterId)
   }
+})
+
+onBeforeRouteLeave(() => {
+  analysisStore.hidePanel()
 })
 
 const handleCancelAuth = () => {
