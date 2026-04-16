@@ -287,9 +287,8 @@
         "cooldownTooltip": "Ожидание: {seconds} сек."
         },
         "replyTraining": {
-        "title": "REPLY TRAINING",
-        "updateButton": "Обновить",
-        "startedMessage": "Тренировка начата (-25 PawnCoins)",
+        "title": "Тренировка ответов",
+        "startedMessage": "Тренировка началась! Следуйте линии движка.",
         "errorStarting": "Ошибка при запуске тренировки",
         "session": {
           "gardenCleanliness": "Чистота сада",

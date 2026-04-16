@@ -81,16 +81,9 @@ const isSpeedrunReady = computed(() => {
   )
 })
 
-const progressTrigger = ref(0)
 
-const forceProgressUpdate = () => {
-  progressTrigger.value++
-}
 
 const getChapterProgress = (chapter: StudyChapter): number => {
-  // Access progressTrigger to establish reactivity dependency
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const _trigger = progressTrigger.value
   return srsService.getChapterCleanliness(chapter.root)
 }
 
@@ -300,12 +293,7 @@ async function handlePush(chapter: StudyChapter, e: Event) {
 
       <!-- Reply Training Action Header -->
       <div v-if="trainingStore.isReadyToReply" class="reply-training-toggle">
-        <NSpace align="center" justify="space-between" style="width: 100%">
-          <NText :depth="2" style="font-size: 0.8rem; font-weight: bold;">{{ t('features.study.replyTraining.title') }}</NText>
-          <NButton size="tiny" quaternary type="primary" @click="forceProgressUpdate">
-            {{ t('features.study.replyTraining.updateButton') }}
-          </NButton>
-        </NSpace>
+        <NText :depth="2" style="font-size: 0.8rem; font-weight: bold;">{{ t('features.study.replyTraining.title') }}</NText>
       </div>
     </div>
 

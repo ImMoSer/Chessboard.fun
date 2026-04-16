@@ -289,9 +289,8 @@
         "cooldownTooltip": "Wartezeit: {seconds}s"
         },
         "replyTraining": {
-        "title": "REPLY TRAINING",
-        "updateButton": "Update",
-        "startedMessage": "Reply Training gestartet (-25 PawnCoins)",
+        "title": "Antwort-Training",
+        "startedMessage": "Training gestartet! Folge der Engine-Linie.",
         "errorStarting": "Fehler beim Starten des Trainings",
         "session": {
           "gardenCleanliness": "Garten Sauberkeit",

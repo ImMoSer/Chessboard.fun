@@ -290,7 +290,6 @@
         },
         "replyTraining": {
         "title": "REPLY TRAINING",
-        "updateButton": "Update",
         "startedMessage": "Reply Training Started (-25 PawnCoins)",
         "errorStarting": "Error starting training",
         "session": {
