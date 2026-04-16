@@ -142,6 +142,11 @@ export class TrainingController {
 
     pgnService.updateNode(currentNode, { metadata: { ...currentNode.metadata } })
 
+    // SURGICAL UPDATE: Only save the training progress (metadata) to DB
+    // This prevents overwriting structural PGN data (comments, arrows) during training
+    const nodePath = pgnService.getCurrentPath()
+    this.studyStore.persistNodeMetadata(nodePath, currentNode.metadata || null)
+
     // Reset session errors for the next run
     this.sessionMistakes = 0
 
@@ -150,7 +155,9 @@ export class TrainingController {
 
     // Wait briefly then reset to start
     setTimeout(() => {
-      if (!this.trainingStore.isReplyTrainingActive) return
+      if (!this.trainingStore.isReplyTrainingActive) {
+        return
+      }
 
       this.trainingStore.resetVariant()
       this.boardStore.navigatePgn('start')

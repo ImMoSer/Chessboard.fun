@@ -3,6 +3,7 @@
 import { useBoardStore, useGameStore, WebChessBoard } from '@/entities/game'
 import { EvalBar, useAnalysisStore } from '@/features/analysis'
 import { useReplyTrainingStore, trainingController } from '@/features/study-reply-training'
+import { useStudyStore } from '@/entities/study'
 import { useThemeStore } from '@/features/settings'
 import type { Key } from '@lichess-org/chessground/types'
 import { storeToRefs } from 'pinia'
@@ -12,6 +13,7 @@ import { useRoute } from 'vue-router'
 const themeStore = useThemeStore()
 const boardStore = useBoardStore()
 const gameStore = useGameStore()
+const studyStore = useStudyStore()
 const trainingStore = useReplyTrainingStore()
 const analysisStore = useAnalysisStore()
 const { analysisLines } = storeToRefs(analysisStore)
@@ -22,6 +24,12 @@ const isAnimationEnabled = computed(() => themeStore.currentTheme.animationDurat
 // Force analysis mode if we are in study views, to prevent race conditions or store resets
 const effectiveAnalysisMode = computed(() => {
   return boardStore.isAnalysisModeActive || (route.path.startsWith('/study') && !route.path.startsWith('/study-speedrun'))
+})
+
+const canUserEdit = computed(() => {
+  // If training is active, structural edits (arrows, moves) are strictly forbidden to prevent data corruption.
+  if (trainingStore.isReplyTrainingActive) return false
+  return studyStore.canEditActiveChapter
 })
 
 const handleUserMove = async ({ orig, dest }: { orig: Key; dest: Key }) => {
@@ -46,7 +54,7 @@ const handleUserMove = async ({ orig, dest }: { orig: Key; dest: Key }) => {
 
 const handleBoardWheel = (direction: 'up' | 'down') => {
   if (analysisStore.isAnalysisActive || effectiveAnalysisMode.value) {
-    // Разрешаем скролл и в режиме анализа
+    // Разрешаем скролл и v режиме анализа
     if (direction === 'up') {
       boardStore.navigatePgn('backward')
     } else {
@@ -120,6 +128,7 @@ onUnmounted(() => {
               :animation-enabled="isAnimationEnabled"
               :animation-duration="themeStore.currentTheme.animationDuration"
               :board-sync-counter="boardStore.boardSyncCounter"
+              :can-edit="canUserEdit"
               @user-move="handleUserMove"
               @set-premove="({ orig, dest }) => boardStore.setPremove(orig, dest)"
               @unset-premove="() => boardStore.clearPremove()"

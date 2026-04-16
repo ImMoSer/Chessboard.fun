@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, onUnmounted } from 'vue'
 import { NButton, NProgress, NText, useDialog } from 'naive-ui'
 import { onBeforeRouteLeave } from 'vue-router'
 import { useI18n } from 'vue-i18n'
@@ -16,6 +16,10 @@ const dialog = useDialog()
 onMounted(() => {
   trainingStore.resetSession()
   trainingController.checkOpponentReply()
+})
+
+onUnmounted(() => {
+  // Logic moved to store-level permissions
 })
 
 const activeChapter = computed(() => studyStore.activeChapter)

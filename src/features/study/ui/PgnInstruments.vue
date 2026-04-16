@@ -11,16 +11,19 @@ import {
   CopyOutline as CopyIcon,
   DownloadOutline as DownloadIcon,
   CloseOutline as CloseIcon,
+  RefreshOutline as RevertIcon,
 } from '@vicons/ionicons5'
 import { Chess } from 'chessops/chess'
 import { makeFen, parseFen } from 'chessops/fen'
 import { makeSan } from 'chessops/san'
 import { parseUci as parseUciMove } from 'chessops/util'
-import { NButton, NButtonGroup, NIcon, NInput } from 'naive-ui'
+import { NButton, NButtonGroup, NIcon, NInput, useMessage, useDialog } from 'naive-ui'
 import { computed, ref, watch } from 'vue'
 
 const boardStore = useBoardStore()
 const studyStore = useStudyStore()
+const message = useMessage()
+const dialog = useDialog()
 
 const currentNode = computed(() => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -28,9 +31,43 @@ const currentNode = computed(() => {
   return pgnService.getCurrentNode()
 })
 
+const canEdit = computed(() => studyStore.canEditActiveChapter)
+const isDirty = computed(() => studyStore.isDirty)
+
+const handleSaveStudy = async () => {
+  if (!canEdit.value) return
+  try {
+    await studyStore.persistActiveChapter()
+    message.success('Studie erfolgreich gespeichert.')
+  } catch (error) {
+    console.error(error)
+    message.error('Fehler beim Speichern der Studie.')
+  }
+}
+
+const handleRevertStudy = () => {
+  dialog.warning({
+    title: 'Änderungen verwerfen',
+    content: 'Möchtest du wirklich alle ungespeicherten Änderungen verwerfen und zum letzten Speicherstand zurückkehren?',
+    positiveText: 'Ja, verwerfen',
+    negativeText: 'Abbrechen',
+    onPositiveClick: () => {
+      studyStore.revertActiveChapter()
+      boardStore.syncBoardWithPgn()
+      message.info('Änderungen verworfen.')
+    }
+  })
+}
+
 const activeTab = ref<'nag' | 'comment' | 'pgn' | null>(null)
 const commentText = ref('')
-const pgnText = ref('')
+
+const pgnText = computed(() => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const v = pgnTreeVersion.value
+  const tags = studyStore.activeChapter?.tags || {}
+  return pgnService.getFullPgn(tags)
+})
 
 watch(() => currentNode.value, (node) => {
   if (node && node.comment) {
@@ -47,26 +84,21 @@ const toggleTab = (tab: 'nag' | 'comment' | 'pgn') => {
     activeTab.value = tab
     if (tab === 'comment') {
       commentText.value = currentNode.value?.comment || ''
-    } else if (tab === 'pgn') {
-      const tags = studyStore.activeChapter?.tags || {}
-      pgnText.value = pgnService.getFullPgn(tags)
     }
   }
 }
 
 const copyPgn = () => {
-  const tags = studyStore.activeChapter?.tags || {}
-  navigator.clipboard.writeText(pgnService.getFullPgn(tags))
+  navigator.clipboard.writeText(pgnText.value)
+  message.success('PGN in Zwischenablage kopiert.')
 }
 
 const downloadPgn = () => {
-  const tags = studyStore.activeChapter?.tags || {}
-  const pgn = pgnService.getFullPgn(tags)
-  const blob = new Blob([pgn], { type: 'text/plain;charset=utf-8' })
+  const blob = new Blob([pgnText.value], { type: 'text/plain;charset=utf-8' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
-  a.download = 'chapter.pgn'
+  a.download = `${studyStore.activeChapter?.name || 'chapter'}.pgn`
   a.click()
   URL.revokeObjectURL(url)
 }
@@ -201,19 +233,31 @@ const handleCutBefore = () => {
 </script>
 
 <template>
-  <div class="pgn-instruments-container" v-if="currentNode && currentNode.id !== '__ROOT__'">
+  <div class="pgn-instruments-container" v-if="currentNode">
     
     <!-- MAIN ROW -->
     <div class="instruments-main-row">
       <!-- Cut Before -->
-      <n-button size="small" @click="handleCutBefore" class="cut-before-btn" :disabled="!isMainline" title="Davor abschneiden">
+      <n-button 
+        size="small" 
+        @click="handleCutBefore" 
+        class="cut-before-btn" 
+        :disabled="!canEdit || !isMainline || currentNode.id === '__ROOT__'" 
+        title="Davor abschneiden"
+      >
         <template #icon>
           <n-icon style="transform: rotate(180deg);"><CutIcon /></n-icon>
         </template>
       </n-button>
       
       <!-- Cut After -->
-      <n-button size="small" @click="handleCutAfter" class="cut-after-btn" title="Ab hier schneiden">
+      <n-button 
+        size="small" 
+        @click="handleCutAfter" 
+        class="cut-after-btn" 
+        :disabled="!canEdit || currentNode.id === '__ROOT__'" 
+        title="Ab hier schneiden"
+      >
         <template #icon>
           <n-icon><CutIcon /></n-icon>
         </template>
@@ -226,6 +270,7 @@ const handleCutBefore = () => {
         size="small"
         :type="activeTab === 'nag' ? 'primary' : (currentNag ? 'info' : 'default')"
         @click="toggleTab('nag')"
+        :disabled="currentNode.id === '__ROOT__'"
         title="NAGs anzeigen"
         class="tab-btn nag-tab-btn"
       >
@@ -253,18 +298,45 @@ const handleCutBefore = () => {
       >
         PGN
       </n-button>
+
+      <div class="divider"></div>
+
+      <!-- SAVE ACTION -->
+      <n-button
+        size="small"
+        :type="isDirty && canEdit ? 'primary' : 'default'"
+        @click="handleSaveStudy"
+        :disabled="!canEdit || !isDirty"
+        title="Alle Änderungen speichern"
+        :class="{ 'save-btn': isDirty && canEdit }"
+      >
+        <template #icon><n-icon><SaveIcon /></n-icon></template>
+        SAVE
+      </n-button>
+      
+      <!-- REVERT ACTION -->
+      <n-button
+        size="small"
+        @click="handleRevertStudy"
+        :disabled="!isDirty"
+        title="Änderungen verwerfen (Reset)"
+        class="revert-btn"
+      >
+        <template #icon><n-icon><RevertIcon /></n-icon></template>
+      </n-button>
     </div>
 
     <!-- SECONDARY ROW -->
     <div v-if="activeTab" class="instruments-sub-row" :class="{ 'flex-col': activeTab === 'comment' || activeTab === 'pgn' }">
       <!-- NAG Content -->
       <n-button-group v-if="activeTab === 'nag'" size="small">
-        <n-button size="small" @click="toggleNag(null)" ghost class="nag-btn" title="NAG entfernen">X</n-button>
+        <n-button size="small" @click="toggleNag(null)" ghost class="nag-btn" :disabled="!canEdit" title="NAG entfernen">X</n-button>
         <n-button
           v-for="nag in nagOptions"
           :key="nag.value"
           :type="currentNag === nag.value ? 'primary' : 'default'"
           @click="toggleNag(nag.value)"
+          :disabled="!canEdit"
           ghost
           class="nag-btn"
         >
@@ -281,17 +353,20 @@ const handleCutBefore = () => {
           size="small"
           placeholder="Kommentar..."
           class="comment-input"
+          :readonly="!canEdit"
           @keydown.esc="activeTab = null"
         />
         <div class="comment-actions">
-          <n-button size="small" type="primary" @click="saveComment" title="Speichern">
-            <template #icon><n-icon><SaveIcon /></n-icon></template>
-          </n-button>
-          <n-button size="small" @click="activeTab = null" title="Zuklappen">
-            <template #icon><n-icon><CollapseIcon /></n-icon></template>
-          </n-button>
-          <n-button v-if="currentNode.comment || commentText" size="small" quaternary @click="removeComment" title="Kommentar löschen">
-            <template #icon><n-icon><TrashIcon /></n-icon></template>
+          <template v-if="canEdit">
+            <n-button size="small" type="primary" @click="saveComment" title="Speichern">
+              <template #icon><n-icon><SaveIcon /></n-icon></template>
+            </n-button>
+            <n-button v-if="currentNode.comment || commentText" size="small" quaternary @click="removeComment" title="Kommentar löschen">
+              <template #icon><n-icon><TrashIcon /></n-icon></template>
+            </n-button>
+          </template>
+          <n-button size="small" @click="activeTab = null" :title="canEdit ? 'Zuklappen' : 'Schließen'">
+            <template #icon><n-icon><CollapseIcon v-if="canEdit" /><CloseIcon v-else /></n-icon></template>
           </n-button>
         </div>
       </template>
@@ -299,7 +374,7 @@ const handleCutBefore = () => {
       <!-- PGN Content -->
       <template v-else-if="activeTab === 'pgn'">
         <n-input
-          v-model:value="pgnText"
+          :value="pgnText"
           type="textarea"
           :autosize="{ minRows: 4, maxRows: 15 }"
           size="small"
@@ -419,5 +494,24 @@ const handleCutBefore = () => {
 .cut-before-btn:hover:not(:disabled) {
   color: #f59e0b !important;
   border-color: #f59e0b !important;
+}
+
+.save-btn {
+  background-color: var(--neon-cyan, #00f3ff) !important;
+  color: #000 !important;
+  font-weight: 800 !important;
+  box-shadow: 0 0 10px var(--neon-cyan, #00f3ff);
+  animation: pulse 2s infinite;
+}
+
+.revert-btn {
+  border-color: #ef4444 !important;
+  color: #ef4444 !important;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 5px var(--neon-cyan, #00f3ff); }
+  50% { box-shadow: 0 0 15px var(--neon-cyan, #00f3ff); }
+  100% { box-shadow: 0 0 5px var(--neon-cyan, #00f3ff); }
 }
 </style>

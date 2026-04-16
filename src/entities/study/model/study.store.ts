@@ -1,7 +1,7 @@
 
 import { settingsRepository } from '@/shared/api/storage/repositories/SettingsRepository'
 import { pgnParserService } from '@/shared/lib/pgn/PgnParserService'
-import { pgnService, pgnTreeVersion, type PgnNode } from '@/shared/lib/pgn/PgnService'
+import { pgnService, type PgnNode } from '@/shared/lib/pgn/PgnService'
 import { makeFen, parseFen } from 'chessops/fen'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
@@ -49,6 +49,16 @@ export const useStudyStore = defineStore('study', () => {
     return studies.value.find((s) => s.id === activeChapter.value?.studyId) || null
   })
 
+  /**
+   * Permissions:
+   * Only the owner of the study can modify its PGN structure (moves, comments, arrows).
+   * 'community' studies are read-only for the structure, but can still track local metadata (mastery).
+   */
+  const canEditActiveChapter = computed(() => {
+    if (!activeStudy.value) return false
+    return activeStudy.value.type === 'owned'
+  })
+
   const _currentOwnerId = ref<string | null>(null)
   const _currentUsername = ref<string | null>(null)
 
@@ -71,11 +81,6 @@ export const useStudyStore = defineStore('study', () => {
     }
     return true
   }
-
-  const isOwner = computed(() => {
-    // With the new architecture, if a study is in the store, the user IS the owner.
-    return true
-  })
 
   function generateId(): string {
     return crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 15)
@@ -374,6 +379,15 @@ export const useStudyStore = defineStore('study', () => {
     }
   }
 
+  const lastSavedPgn = ref<string>('')
+
+  const isDirty = computed(() => {
+    if (!activeChapter.value) return false
+    // Use the full PGN (including comments/shapes) as a structural comparison
+    const currentPgn = pgnService.getFullPgn(activeChapter.value.tags, activeChapter.value.root)
+    return currentPgn !== lastSavedPgn.value
+  })
+
   async function setActiveChapter(id: string | null) {
     const ownerId = currentOwnerId.value
     if (!ownerId) return
@@ -383,7 +397,9 @@ export const useStudyStore = defineStore('study', () => {
       const prev = chapters.value.find((c) => c.id === activeChapterId.value)
       if (prev) {
         prev.savedPath = pgnService.getCurrentPath()
-        await studyPersistenceService.saveChapter(prev)
+        // We only auto-save the chapter record itself (meta/path) if not dirty? 
+        // No, let's keep it simple: switching chapters saves NOTHING automatically anymore.
+        // If the user wants to save their path, they click SAVE.
       }
     }
 
@@ -394,12 +410,70 @@ export const useStudyStore = defineStore('study', () => {
     }
 
     // 2. Switch
-    const next = chapters.value.find((c) => c.id === id || c.lichessChapterId === id)
-    if (next) {
-      activeChapterId.value = next.id
-      await settingsRepository.saveSetting(`lastActiveChapterId_${ownerId}`, next.id)
-      pgnService.setRoot(next.root, next.savedPath)
+    // PRODUCTION-GRADE: Always fetch fresh state from DB to discard any unsaved RAM changes
+    const freshChapter = await studyPersistenceService.getChapterById(id)
+    if (freshChapter) {
+      // Sync the RAM array with the DB version
+      const idx = chapters.value.findIndex((c) => c.id === id || c.lichessChapterId === id)
+      if (idx !== -1) {
+        chapters.value[idx] = freshChapter
+      }
 
+      activeChapterId.value = freshChapter.id
+      await settingsRepository.saveSetting(`lastActiveChapterId_${ownerId}`, freshChapter.id)
+      pgnService.setRoot(freshChapter.root, freshChapter.savedPath)
+      // Set the baseline for change detection (isDirty will be false now)
+      lastSavedPgn.value = pgnService.getFullPgn(freshChapter.tags, freshChapter.root)
+    } else {
+      // Fallback if DB fetch fails (e.g. newly created unsaved chapter)
+      const next = chapters.value.find((c) => c.id === id || c.lichessChapterId === id)
+      if (next) {
+        activeChapterId.value = next.id
+        await settingsRepository.saveSetting(`lastActiveChapterId_${ownerId}`, next.id)
+        pgnService.setRoot(next.root, next.savedPath)
+        lastSavedPgn.value = pgnService.getFullPgn(next.tags, next.root)
+      }
+    }
+  }
+
+  async function persistActiveChapter() {
+    if (!activeChapter.value || !canEditActiveChapter.value) return
+    const ownerId = currentOwnerId.value
+    if (!ownerId) return
+
+    // Update savedPath to current before saving
+    activeChapter.value.savedPath = pgnService.getCurrentPath()
+    
+    // Save to DB
+    await studyPersistenceService.saveChapter(activeChapter.value)
+    
+    // Update baseline
+    lastSavedPgn.value = pgnService.getFullPgn(activeChapter.value.tags, activeChapter.value.root)
+  }
+
+  async function persistNodeMetadata(nodePath: string, metadata: Record<string, unknown> | null) {
+    if (!activeChapterId.value) return
+    // Metadata is always allowed (local progress)
+    await studyPersistenceService.updateNodeMetadata(activeChapterId.value, nodePath, metadata)
+  }
+
+  async function revertActiveChapter() {
+    if (!activeChapterId.value) return
+    
+    // Reload all chapters from DB to get the original state
+    const allChapters = await studyPersistenceService.getAllChapters()
+    const original = allChapters.find(c => c.id === activeChapterId.value)
+    
+    if (original) {
+      // Update local state in the array
+      const idx = chapters.value.findIndex(c => c.id === original.id)
+      if (idx !== -1) {
+        chapters.value[idx] = original
+        
+        // Update PGN service to show original tree
+        pgnService.setRoot(original.root, original.savedPath)
+        lastSavedPgn.value = pgnService.getFullPgn(original.tags, original.root)
+      }
     }
   }
 
@@ -407,6 +481,7 @@ export const useStudyStore = defineStore('study', () => {
     id: string,
     metadata: Partial<Omit<StudyChapter, 'id' | 'root' | 'savedPath'>>,
   ) {
+    if (!canEditActiveChapter.value) return
     const ownerId = currentOwnerId.value
     if (!ownerId) return
 
@@ -414,6 +489,7 @@ export const useStudyStore = defineStore('study', () => {
     if (chapter) {
       if (metadata.name) chapter.name = metadata.name
       if (metadata.tags) chapter.tags = { ...chapter.tags, ...metadata.tags }
+      // Metadata updates still auto-save for now as they are "Meta", not "Content"
       studyPersistenceService.saveChapter(chapter)
     }
   }
@@ -638,29 +714,16 @@ export const useStudyStore = defineStore('study', () => {
     }
   }
 
-  // Auto-save active chapter when tree changes
-  watch(
-    pgnTreeVersion,
-    () => {
-      const ownerId = currentOwnerId.value
-      if (isActiveMode.value && activeChapter.value && ownerId) {
-        // Update savedPath to current before saving
-        activeChapter.value.savedPath = pgnService.getCurrentPath()
-        studyPersistenceService.saveChapter(activeChapter.value)
-      }
-    },
-    { deep: false },
-  )
-
   return {
     studies,
     chapters,
     activeChapterId,
     activeChapter,
     activeStudy,
+    canEditActiveChapter,
     isInitialized,
     cloudLoading,
-    isOwner,
+    isDirty,
     isAuthModalVisible,
     isActiveMode,
     requireLichessAccess,
@@ -674,6 +737,9 @@ export const useStudyStore = defineStore('study', () => {
        if (ownerId) return studyPersistenceService.saveStudy(study)
     },
     setActiveChapter,
+    persistActiveChapter,
+    persistNodeMetadata,
+    revertActiveChapter,
     updateChapterMetadata,
     importFromLichess,
     syncLichessToApp,
@@ -721,14 +787,14 @@ export const useStudyStore = defineStore('study', () => {
         pgnService.addVariation(chapter.root, moves, { isSpeedrun: true })
       }
 
-      // 3. Save
-      studyPersistenceService.saveChapter(chapter)
+      // 3. Save (only if owner)
+      if (canEditActiveChapter.value) {
+        studyPersistenceService.saveChapter(chapter)
+      }
 
       // If this is the active chapter, we need to refresh the pgnService to show the new nodes
       if (activeChapterId.value === chapterId) {
         // Trigger a fake tree update if pgnService is currently using this root
-        // (Since pgnService uses the same object reference, we just need to increment version)
-        // pgnService doesn't have a direct "triggerUpdate", but we can use navigateToNode
         pgnService.navigateToNode(pgnService.getCurrentNode())
       }
     },

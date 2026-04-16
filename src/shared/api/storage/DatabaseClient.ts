@@ -22,7 +22,7 @@ type DbId = string
 type PromiserFactoryV2 = (config?: unknown) => Promise<Worker1Promiser>
 const promiserFactoryV2 = sqlite3Worker1Promiser as unknown as PromiserFactoryV2
 
-const DB_SCHEMA_VERSION = 10 // Relational PGN nodes with variation order and transactions
+const DB_SCHEMA_VERSION = 12 // PGN-centric storage with separate metadata table
 
 class DatabaseClient {
   private promiser: Worker1Promiser | null = null
@@ -179,32 +179,21 @@ class DatabaseClient {
         name      TEXT NOT NULL,
         tags      TEXT NOT NULL DEFAULT '{}',
         savedPath TEXT NOT NULL DEFAULT '',
-        config    TEXT NOT NULL DEFAULT '{}'
+        config    TEXT NOT NULL DEFAULT '{}',
+        pgn_text  TEXT NOT NULL DEFAULT ''
       )
     `)
     await this._exec(this.userDbId, `
-      CREATE TABLE IF NOT EXISTS chapter_nodes (
-        id              TEXT,
-        chapter_id      TEXT,
-        parent_id       TEXT,
-        ply             INTEGER,
-        variation_order INTEGER,
-        san             TEXT,
-        uci             TEXT,
-        fen_before      TEXT,
-        fen_after       TEXT,
-        comment         TEXT,
-        eval            REAL,
-        nag             INTEGER,
-        is_collapsed    INTEGER,
-        shapes          TEXT,
-        metadata        TEXT,
-        PRIMARY KEY (chapter_id, id),
+      CREATE TABLE IF NOT EXISTS node_metadata (
+        chapter_id TEXT,
+        node_path  TEXT,
+        metadata   TEXT,
+        PRIMARY KEY (chapter_id, node_path),
         FOREIGN KEY (chapter_id) REFERENCES chapters(id) ON DELETE CASCADE
       )
     `)
     await this._exec(this.userDbId, `
-      CREATE INDEX IF NOT EXISTS idx_chapter_nodes_chapter_id ON chapter_nodes(chapter_id)
+      CREATE INDEX IF NOT EXISTS idx_node_metadata_chapter_id ON node_metadata(chapter_id)
     `)
     await this._exec(this.userDbId, `
       CREATE TABLE IF NOT EXISTS diamonds (
@@ -248,105 +237,83 @@ class DatabaseClient {
   /**
    * Run a SELECT and return typed rows.
    */
-  async query<T = Record<string, unknown>>(
+  async query<T>(
     target: 'global' | 'user',
     sql: string,
     params: (string | number | null)[] = [],
   ): Promise<T[]> {
-    await this.init() // Ensure base initialization is done
+    await this.init()
     const dbId = await this._getDbId(target)
-
-    if (!this.promiser) throw new Error('[DatabaseClient] Not initialized.')
-
     try {
-      const response = await this.promiser({
+      const response = await this.promiser!({
         type: 'exec',
         dbId,
-        args: {
-          sql,
+        args: { 
+          sql, 
           bind: params,
-          rowMode: 'object',
-          returnValue: 'resultRows',
+          columnNames: [], // Request column names
+          returnValue: 'resultRows' // Request data rows
         },
       })
-
-      return (response.result.resultRows ?? []) as T[]
+      
+      const result: T[] = []
+      const res = response.result as any
+      
+      if (res.columnNames && res.resultRows) {
+        const cols = res.columnNames as string[]
+        for (const rowVals of res.resultRows as any[][]) {
+          const obj: any = {}
+          cols.forEach((name, i) => {
+            obj[name] = rowVals[i]
+          })
+          result.push(obj as T)
+        }
+      }
+      return result
     } catch (err) {
-      console.error(`[DatabaseClient] SQL Query Error: ${sql}`, err)
-      throw err
+      console.error(`[DatabaseClient] Query Error: ${sql}`, err)
+      return []
     }
   }
 
   /**
-   * Wrap multiple operations in a transaction for performance and atomicity.
-   * Includes a Mutex lock to prevent async race conditions during bulk saves.
+   * Run multiple statements in a serial transaction.
+   * Note: This is a poor-man's transaction using a promise lock,
+   * as the Worker1 API doesn't support interactive transactions over the bridge.
    */
-  async transaction(
-    target: 'global' | 'user',
-    callback: () => Promise<void>,
-  ): Promise<void> {
-    // 1. Acquire Mutex
-    const previousLock = this._transactionLock
-    let releaseLock!: () => void
+  async transaction(target: 'global' | 'user', cb: () => Promise<void>): Promise<void> {
+    await this.init()
+    const dbId = await this._getDbId(target)
+
+    // Wait for previous transaction to finish
+    await this._transactionLock
+    
+    // Create a new lock
+    let resolveLock: () => void
     this._transactionLock = new Promise((resolve) => {
-      releaseLock = resolve
+      resolveLock = resolve
     })
 
-    // 2. Wait for previous transactions to finish
-    await previousLock
-
     try {
-      await this.init()
-      const dbId = await this._getDbId(target)
-      
-      await this._exec(dbId, 'BEGIN TRANSACTION;')
-      await callback()
-      await this._exec(dbId, 'COMMIT;')
+      await this._exec(dbId, 'BEGIN TRANSACTION')
+      await cb()
+      await this._exec(dbId, 'COMMIT')
     } catch (err) {
-      console.error('[DatabaseClient] Transaction failed, rolling back:', err)
-      const dbId = await this._getDbId(target).catch(() => null)
-      if (dbId) {
-        await this._exec(dbId, 'ROLLBACK;').catch(() => {})
-      }
+      await this._exec(dbId, 'ROLLBACK')
+      console.error('[DatabaseClient] Transaction failed and rolled back:', err)
       throw err
     } finally {
-      // 3. Release Mutex for the next caller
-      releaseLock()
+      resolveLock!()
     }
   }
 
-  // ── Private helpers ────────────────────────────────────────────────────────
-
-  private async _getDbId(target: 'global' | 'user'): Promise<string> {
-    // If user DB is requested but not open, we might need to wait for GlobalAssetLoader
-    // to call openUserDb. We poll briefly or we can implement a more elegant signal.
-    if (target === 'global') {
-      if (!this.globalDbId) {
-        // Wait a bit if it's currently initializing
-        await this.init()
-        if (!this.globalDbId) throw new Error('[DatabaseClient] Global DB not open.')
-      }
-      return this.globalDbId
-    }
-
-    if (!this.userDbId) {
-      // If userDbId is missing, it's either because openUserDb wasn't called
-      // or we are in a race.
-      let attempts = 0
-      while (!this.userDbId && attempts < 10) {
-        await new Promise(r => setTimeout(r, 100))
-        attempts++
-      }
-      if (!this.userDbId) throw new Error('[DatabaseClient] User DB not open. Ensure openUserDb() was called.')
-    }
-    return this.userDbId
+  private async _getDbId(target: 'global' | 'user'): Promise<DbId> {
+    const id = target === 'global' ? this.globalDbId : this.userDbId
+    if (!id) throw new Error(`[DatabaseClient] Database "${target}" not open.`)
+    return id
   }
 
-  private async _exec(
-    dbId: string | null,
-    sql: string,
-    params: (string | number | null)[] = [],
-  ): Promise<void> {
+  private async _exec(dbId: DbId | null, sql: string, params: (string | number | null)[] = []): Promise<void> {
     if (!this.promiser) throw new Error('[DatabaseClient] Not initialized.')
     try {
       await this.promiser({

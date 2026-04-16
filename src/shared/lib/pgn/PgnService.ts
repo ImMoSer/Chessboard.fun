@@ -347,6 +347,9 @@ class PgnServiceController {
   public getRootNode(): PgnNode {
     return this.rootNode
   }
+  public currentPathExists(): boolean {
+    return !!this.currentPath
+  }
   public getCurrentPath(): string {
     return this.currentPath
   }

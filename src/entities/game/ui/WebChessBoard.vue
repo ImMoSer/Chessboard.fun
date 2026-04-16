@@ -28,6 +28,7 @@ const props = defineProps({
   animationEnabled: { type: Boolean, default: true },
   animationDuration: { type: Number, default: 200 },
   boardSyncCounter: { type: Number, default: 0 },
+  canEdit: { type: Boolean, default: true },
 })
 
 const emit = defineEmits<{
@@ -199,14 +200,17 @@ watch(
 
 // 3. Move Configuration
 watch(
-  [() => props.dests, () => props.turnColor, () => props.isAnalysisMode],
-  ([dests, turnColor, isAnalysis]) => {
+  [() => props.dests, () => props.turnColor, () => props.isAnalysisMode, () => props.canEdit],
+  ([dests, turnColor, isAnalysis, canEdit]) => {
     ground.value?.set({
       turnColor,
       movable: {
         color: isAnalysis ? 'both' : props.orientation,
         dests: dests,
         free: false,
+      },
+      drawable: {
+        enabled: canEdit as boolean,
       },
     })
   },

@@ -26,6 +26,12 @@ class StudyPersistenceService {
     this.saveTimeouts.set(chapter.id, timeout)
   }
 
+  async updateNodeMetadata(chapterId: string, nodePath: string, metadata: Record<string, unknown> | null): Promise<void> {
+    await studyRepository.updateNodeMetadata(chapterId, nodePath, metadata).catch((err) => {
+      console.error('[StudyPersistenceService] Error updating node metadata:', err)
+    })
+  }
+
   async saveChaptersBulk(chapters: StudyChapter[]): Promise<void> {
     for (const chapter of chapters) {
       await studyRepository.saveChapter(chapter as RepoChapter).catch((err) => {
@@ -46,6 +52,15 @@ class StudyPersistenceService {
     } catch (err) {
       console.error('[StudyPersistenceService] Error loading chapters:', err)
       return []
+    }
+  }
+
+  async getChapterById(id: string): Promise<StudyChapter | null> {
+    try {
+      return await studyRepository.getChapterById(id) as unknown as StudyChapter | null
+    } catch (err) {
+      console.error('[StudyPersistenceService] Error loading single chapter:', err)
+      return null
     }
   }
 
