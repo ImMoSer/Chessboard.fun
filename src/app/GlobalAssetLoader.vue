@@ -29,7 +29,7 @@ const loadedMb = computed(() => (loadedBytes.value / 1024 / 1024).toFixed(1))
 const totalMb = computed(() => (totalBytes.value / 1024 / 1024).toFixed(1))
 
 // The assets we want to explicitly preload and cache
-const CACHE_NAME = 'stockfish-assets'
+const CACHE_NAME = 'stockfish-assets-v1'
 const assetsToLoad = [
   '/npm_stockfish/sf_1807_multi_lite/stockfish-18-lite.js',
   '/npm_stockfish/sf_1807_multi_lite/stockfish-18-lite.wasm',
@@ -59,6 +59,15 @@ async function preloadAssets() {
     }
     const tEnvEnd = performance.now()
     logger.debug(`[LoaderProfiler] Secondary Environment check passed in ${(tEnvEnd - tEnvStart).toFixed(2)}ms`)
+
+    // Clear old caches if they exist
+    const cacheNames = await caches.keys()
+    for (const name of cacheNames) {
+      if (name.startsWith('stockfish-assets') && name !== CACHE_NAME) {
+        logger.info(`[LoaderProfiler] Deleting old cache: ${name}`)
+        await caches.delete(name)
+      }
+    }
 
     const cache = await caches.open(CACHE_NAME)
 

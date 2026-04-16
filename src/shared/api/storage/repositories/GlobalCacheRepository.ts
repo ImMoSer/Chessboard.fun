@@ -59,6 +59,14 @@ export class GlobalCacheRepository {
     )
   }
 
+  async cleanupExpiredStats(): Promise<number> {
+    const now = Date.now()
+    // We can't easily get the number of deleted rows from this abstraction without changing it,
+    // but we can at least run the delete.
+    await databaseClient.exec('global', 'DELETE FROM theory_stats WHERE expires < ?', [now])
+    return 0 // Placeholder or we could query before/after if needed
+  }
+
   async getWikiContent(slug: string): Promise<WikiContent | null> {
     const rows = await databaseClient.query<WikiContent>('global',
       'SELECT * FROM wiki_content WHERE slug = ?',

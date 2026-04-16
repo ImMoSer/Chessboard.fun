@@ -22,13 +22,14 @@ type DbId = string
 type PromiserFactoryV2 = (config?: unknown) => Promise<Worker1Promiser>
 const promiserFactoryV2 = sqlite3Worker1Promiser as unknown as PromiserFactoryV2
 
-const DB_SCHEMA_VERSION = 7 // Incremented to trigger reset for lichessId update
+const DB_SCHEMA_VERSION = 10 // Relational PGN nodes with variation order and transactions
 
 class DatabaseClient {
   private promiser: Worker1Promiser | null = null
   private globalDbId: DbId | null = null
   private userDbId: DbId | null = null
   private initPromise: Promise<void> | null = null
+  private _transactionLock: Promise<void> = Promise.resolve()
 
   /**
    * Initialize the SQLite worker and open the global cache DB.
@@ -72,17 +73,18 @@ class DatabaseClient {
     this.globalDbId = response.result.dbId
 
     // Set auto_vacuum to prevent future bloat
-    await this._exec(this.globalDbId, 'PRAGMA auto_vacuum = FULL;')
+    await this._exec(this.globalDbId, 'PRAGMA auto_vacuum = INCREMENTAL;')
 
     // Initialize global schema
     await this._initGlobalSchema()
 
-    // Background VACUUM to reclaim space leaked by previous bugs
-    setTimeout(() => {
-      if (this.globalDbId) {
-        this._exec(this.globalDbId, 'VACUUM;').catch(err => console.warn('[DatabaseClient] Global DB VACUUM failed:', err))
-      }
-    }, 5000)
+    // Active Cleanup: Remove expired entries from theory_stats
+    try {
+      await this._exec(this.globalDbId, 'DELETE FROM theory_stats WHERE expires < ?', [Date.now()])
+      await this._exec(this.globalDbId, 'PRAGMA incremental_vacuum(100);') // Reclaim some space if needed
+    } catch (err) {
+      console.warn('[DatabaseClient] Global DB cleanup failed:', err)
+    }
   }
 
   private async _initGlobalSchema(): Promise<void> {
@@ -136,17 +138,17 @@ class DatabaseClient {
     this.userDbId = response.result.dbId
 
     // Set auto_vacuum to prevent future bloat
-    await this._exec(this.userDbId, 'PRAGMA auto_vacuum = FULL;')
+    await this._exec(this.userDbId, 'PRAGMA auto_vacuum = INCREMENTAL;')
 
     // Initialize user schema
     await this._initUserSchema()
 
-    // Background VACUUM to reclaim space leaked by previous bugs
-    setTimeout(() => {
-      if (this.userDbId) {
-        this._exec(this.userDbId, 'VACUUM;').catch(err => console.warn('[DatabaseClient] User DB VACUUM failed:', err))
-      }
-    }, 10000)
+    // Active Cleanup: Reclaim space from user DB
+    try {
+      await this._exec(this.userDbId, 'PRAGMA incremental_vacuum(100);')
+    } catch (err) {
+      console.warn('[DatabaseClient] User DB cleanup failed:', err)
+    }
   }
 
   private async _initUserSchema(): Promise<void> {
@@ -175,11 +177,34 @@ class DatabaseClient {
         id        TEXT PRIMARY KEY,
         studyId   TEXT,
         name      TEXT NOT NULL,
-        root      TEXT NOT NULL,
         tags      TEXT NOT NULL DEFAULT '{}',
         savedPath TEXT NOT NULL DEFAULT '',
         config    TEXT NOT NULL DEFAULT '{}'
       )
+    `)
+    await this._exec(this.userDbId, `
+      CREATE TABLE IF NOT EXISTS chapter_nodes (
+        id              TEXT,
+        chapter_id      TEXT,
+        parent_id       TEXT,
+        ply             INTEGER,
+        variation_order INTEGER,
+        san             TEXT,
+        uci             TEXT,
+        fen_before      TEXT,
+        fen_after       TEXT,
+        comment         TEXT,
+        eval            REAL,
+        nag             INTEGER,
+        is_collapsed    INTEGER,
+        shapes          TEXT,
+        metadata        TEXT,
+        PRIMARY KEY (chapter_id, id),
+        FOREIGN KEY (chapter_id) REFERENCES chapters(id) ON DELETE CASCADE
+      )
+    `)
+    await this._exec(this.userDbId, `
+      CREATE INDEX IF NOT EXISTS idx_chapter_nodes_chapter_id ON chapter_nodes(chapter_id)
     `)
     await this._exec(this.userDbId, `
       CREATE TABLE IF NOT EXISTS diamonds (
@@ -249,6 +274,44 @@ class DatabaseClient {
     } catch (err) {
       console.error(`[DatabaseClient] SQL Query Error: ${sql}`, err)
       throw err
+    }
+  }
+
+  /**
+   * Wrap multiple operations in a transaction for performance and atomicity.
+   * Includes a Mutex lock to prevent async race conditions during bulk saves.
+   */
+  async transaction(
+    target: 'global' | 'user',
+    callback: () => Promise<void>,
+  ): Promise<void> {
+    // 1. Acquire Mutex
+    const previousLock = this._transactionLock
+    let releaseLock!: () => void
+    this._transactionLock = new Promise((resolve) => {
+      releaseLock = resolve
+    })
+
+    // 2. Wait for previous transactions to finish
+    await previousLock
+
+    try {
+      await this.init()
+      const dbId = await this._getDbId(target)
+      
+      await this._exec(dbId, 'BEGIN TRANSACTION;')
+      await callback()
+      await this._exec(dbId, 'COMMIT;')
+    } catch (err) {
+      console.error('[DatabaseClient] Transaction failed, rolling back:', err)
+      const dbId = await this._getDbId(target).catch(() => null)
+      if (dbId) {
+        await this._exec(dbId, 'ROLLBACK;').catch(() => {})
+      }
+      throw err
+    } finally {
+      // 3. Release Mutex for the next caller
+      releaseLock()
     }
   }
 
