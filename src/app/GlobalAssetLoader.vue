@@ -33,6 +33,8 @@ const CACHE_NAME = 'stockfish-assets-v1'
 const assetsToLoad = [
   '/npm_stockfish/sf_1807_multi_lite/stockfish-18-lite.js',
   '/npm_stockfish/sf_1807_multi_lite/stockfish-18-lite.wasm',
+  '/npm_stockfish/sf_1807_single_lite/stockfish-18-lite-single.js',
+  '/npm_stockfish/sf_1807_single_lite/stockfish-18-lite-single.wasm',
 ]
 
 async function preloadAssets() {
@@ -71,85 +73,54 @@ async function preloadAssets() {
 
     const cache = await caches.open(CACHE_NAME)
 
-    // 1. Parallelize size checks (Check Cache API first, then HEAD)
-    const tSizeCheckStart = performance.now()
-    const sizePromises = assetsToLoad.map(async (url) => {
-      const tCheckStart = performance.now()
-      const cachedResponse = await cache.match(url)
-      if (cachedResponse) {
-        const size = parseInt(cachedResponse.headers.get('content-length') || '0', 10)
-        const tCheckEnd = performance.now()
-        logger.debug(`[LoaderProfiler] File [${url}] found in CACHE. Size: ${(size / 1024 / 1024).toFixed(2)}MB. Check took ${(tCheckEnd - tCheckStart).toFixed(2)}ms.`)
-        return { url, size, cached: true }
-      }
-      
-      const res = await fetch(url, { method: 'HEAD' })
-      if (!res.ok) {
-        throw new Error(`Asset not found: ${url} (${res.status} ${res.statusText})`)
-      }
-      const size = parseInt(res.headers.get('content-length') || '0', 10)
-      const tCheckEnd = performance.now()
-      logger.debug(`[LoaderProfiler] File [${url}] requires NETWORK FETCH. Size: ${(size / 1024 / 1024).toFixed(2)}MB. Check took ${(tCheckEnd - tCheckStart).toFixed(2)}ms.`)
-      return { url, size, cached: false }
-    })
-
-    const assetInfos = await Promise.all(sizePromises)
-    const tSizeCheckEnd = performance.now()
-    const totalSize = assetInfos.reduce((acc, info) => acc + info.size, 0)
-
-    totalBytes.value = totalSize
-    logger.info(`[LoaderProfiler] Size checks completed in ${(tSizeCheckEnd - tSizeCheckStart).toFixed(2)}ms. Total size to process: ${(totalSize / 1024 / 1024).toFixed(2)}MB.`)
-
+    // Hardcoded expected total size for approximately 15.5 MB
+    totalBytes.value = 15.5 * 1024 * 1024
     let currentLoaded = 0
 
-    // 2. Fetch files with progress
+    // Fetch files directly without HEAD request
     const tFetchTotalStart = performance.now()
-    for (const info of assetInfos) {
-      if (info.size === 0 && !info.cached) {
-        throw new Error(`Asset has size 0 or is missing: ${info.url}`)
-      }
-
+    for (const url of assetsToLoad) {
       const tFileStart = performance.now()
-      let response: Response
       
-      if (info.cached) {
-        response = (await cache.match(info.url))!
-      } else {
-        const fetchResponse = await fetch(info.url)
-        if (!fetchResponse.ok) {
-          throw new Error(`Failed to fetch ${info.url}: ${fetchResponse.statusText}`)
-        }
+      const cachedResponse = await cache.match(url)
+      
+      if (cachedResponse) {
+        // Approximate the cached file size linearly for the bar
+        const approxSize = url.endsWith('.wasm') ? 7 * 1024 * 1024 : 0.5 * 1024 * 1024
+        currentLoaded += approxSize
+        loadedBytes.value = Math.min(currentLoaded, totalBytes.value)
+        progress.value = Math.min(Math.round((loadedBytes.value / totalBytes.value) * 100), 99)
         
-        // Explicitly put in Cache API
-        await cache.put(info.url, fetchResponse.clone())
-        response = fetchResponse
-      }
-
-      if (!response.body) continue
-
-      // CRITICAL FIX: If the file is already cached, DO NOT read it chunk-by-chunk.
-      if (info.cached) {
-        currentLoaded += info.size
-        loadedBytes.value = currentLoaded
-        progress.value = Math.min(Math.round((currentLoaded / totalBytes.value) * 100), 99)
         const tFileEnd = performance.now()
-        logger.info(`[LoaderProfiler] LOADED FROM CACHE: [${info.url}] in ${(tFileEnd - tFileStart).toFixed(2)}ms.`)
+        logger.info(`[LoaderProfiler] LOADED FROM CACHE: [${url}] in ${(tFileEnd - tFileStart).toFixed(2)}ms.`)
         continue
       }
 
-      const reader = response.body.getReader()
+      // Not cached, so download from network
+      const fetchResponse = await fetch(url)
+      if (!fetchResponse.ok) {
+        throw new Error(`Asset failed to load: ${url} (${fetchResponse.status} ${fetchResponse.statusText})`)
+      }
+      
+      // Explicitly put in Cache API
+      await cache.put(url, fetchResponse.clone())
+
+      if (!fetchResponse.body) continue
+
+      const reader = fetchResponse.body.getReader()
       
       while (true) {
         const { done, value } = await reader.read()
         if (done) break
         if (value) {
           currentLoaded += value.length
-          loadedBytes.value = currentLoaded
-          progress.value = Math.min(Math.round((currentLoaded / totalBytes.value) * 100), 99)
+          loadedBytes.value = Math.min(currentLoaded, totalBytes.value)
+          progress.value = Math.min(Math.round((loadedBytes.value / totalBytes.value) * 100), 99)
         }
       }
+      
       const tFileEnd = performance.now()
-      logger.info(`[LoaderProfiler] DOWNLOADED FROM NETWORK: [${info.url}] in ${(tFileEnd - tFileStart).toFixed(2)}ms.`)
+      logger.info(`[LoaderProfiler] DOWNLOADED FROM NETWORK: [${url}] in ${(tFileEnd - tFileStart).toFixed(2)}ms.`)
     }
     const tFetchTotalEnd = performance.now()
     logger.info(`[LoaderProfiler] All assets fetched/loaded in ${(tFetchTotalEnd - tFetchTotalStart).toFixed(2)}ms.`)
