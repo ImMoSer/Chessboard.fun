@@ -346,6 +346,7 @@ export const useTornadoStore = defineStore('tornado', () => {
     const strategy: IGameplayStrategy = {
       config: {
         initialBotDelayMs: 300,
+        playGameStatusSounds: false,
       },
 
       validateUserMove() {
@@ -389,7 +390,7 @@ export const useTornadoStore = defineStore('tornado', () => {
       },
 
       onGameOver: (status) => {
-        if (status.isGameOver) {
+        if (status.isGameOver && status.outcome?.reason === 'resign') {
           _handleSessionEnd()
         }
       },
