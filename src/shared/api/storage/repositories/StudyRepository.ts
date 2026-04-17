@@ -78,7 +78,7 @@ export class StudyRepository {
   /**
    * Recursively injects metadata into a reconstructed tree.
    */
-  private injectMetadata(node: PgnNode, metaMap: Map<string, any>, currentPath: string = ''): void {
+  private injectMetadata(node: PgnNode, metaMap: Map<string, Record<string, unknown>>, currentPath: string = ''): void {
     // Root node path is empty string
     const nodePath = node.id === '__ROOT__' ? '' : currentPath + node.id
     const meta = metaMap.get(nodePath)
@@ -143,9 +143,9 @@ export class StudyRepository {
         [r.id]
       )
       
-      const metaMap = new Map<string, any>()
+      const metaMap = new Map<string, Record<string, unknown>>()
       metaRows.forEach(row => {
-        try { metaMap.set(row.node_path, JSON.parse(row.metadata)) } catch { /* ignore corrupted meta */ }
+        try { metaMap.set(row.node_path, JSON.parse(row.metadata) as Record<string, unknown>) } catch { /* ignore corrupted meta */ }
       })
 
       this.injectMetadata(importResult.root, metaMap)
@@ -187,9 +187,9 @@ export class StudyRepository {
       [r.id]
     )
     
-    const metaMap = new Map<string, any>()
+    const metaMap = new Map<string, Record<string, unknown>>()
     metaRows.forEach(row => {
-      try { metaMap.set(row.node_path, JSON.parse(row.metadata)) } catch { /* ignore */ }
+      try { metaMap.set(row.node_path, JSON.parse(row.metadata) as Record<string, unknown>) } catch { /* ignore */ }
     })
 
     this.injectMetadata(importResult.root, metaMap)

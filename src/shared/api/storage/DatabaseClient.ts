@@ -9,6 +9,7 @@
  * - We communicate via the type-safe sqlite3Worker1Promiser.v2() Promise API.
  * - Two databases: `global` (theory cache, shared) and `user` (per lichess_id).
  */
+import logger from '@/shared/lib/logger'
 import type { Worker1Promiser } from '@sqlite.org/sqlite-wasm'
 import { sqlite3Worker1Promiser } from '@sqlite.org/sqlite-wasm'
 
@@ -22,7 +23,12 @@ type DbId = string
 type PromiserFactoryV2 = (config?: unknown) => Promise<Worker1Promiser>
 const promiserFactoryV2 = sqlite3Worker1Promiser as unknown as PromiserFactoryV2
 
-const DB_SCHEMA_VERSION = 12 // PGN-centric storage with separate metadata table
+const DB_SCHEMA_VERSION = 16 // Force wipe for VFS and journal_mode change to fix 4GB issue
+
+interface SQLiteQueryResult {
+  columnNames: string[]
+  resultRows: (string | number | null)[][]
+}
 
 class DatabaseClient {
   private promiser: Worker1Promiser | null = null
@@ -45,7 +51,7 @@ class DatabaseClient {
     // 1. Check for schema reset
     const savedVersion = localStorage.getItem('app_db_schema_version')
     if (!savedVersion || parseInt(savedVersion, 10) < DB_SCHEMA_VERSION) {
-      console.warn(`[DatabaseClient] Schema version mismatch (saved: ${savedVersion}, current: ${DB_SCHEMA_VERSION}). Resetting OPFS...`)
+      logger.warn(`[DatabaseClient] Schema version mismatch (saved: ${savedVersion}, current: ${DB_SCHEMA_VERSION}). Resetting OPFS...`)
       try {
         const root = await navigator.storage.getDirectory()
         // We use a for-await-of loop to clear all entries in OPFS
@@ -53,13 +59,13 @@ class DatabaseClient {
           await root.removeEntry(name, { recursive: true })
         }
         localStorage.setItem('app_db_schema_version', DB_SCHEMA_VERSION.toString())
-        console.info('[DatabaseClient] OPFS reset complete.')
+        logger.info('[DatabaseClient] OPFS reset complete.')
       } catch (err) {
-        console.error('[DatabaseClient] Failed to reset OPFS storage:', err)
+        logger.error('[DatabaseClient] Failed to reset OPFS storage:', err)
       }
     }
 
-    // 2. Initialize the worker using a fixed path. 
+    // 2. Initialize the worker using a fixed path.
     // This path is served from node_modules in dev and copied to dist in production.
     const promiser = await promiserFactoryV2({
       worker: () => new Worker('/sqlite3-worker1.mjs', { type: 'module' }),
@@ -74,7 +80,9 @@ class DatabaseClient {
     })
     this.globalDbId = response.result.dbId
 
-    // Set auto_vacuum to prevent future bloat
+    // CRITICAL: Disable WAL mode and pre-allocation bloat
+    await this._exec(this.globalDbId, 'PRAGMA journal_mode = DELETE;')
+    await this._exec(this.globalDbId, 'PRAGMA synchronous = NORMAL;')
     await this._exec(this.globalDbId, 'PRAGMA auto_vacuum = INCREMENTAL;')
 
     // Initialize global schema
@@ -85,8 +93,10 @@ class DatabaseClient {
       await this._exec(this.globalDbId, 'DELETE FROM theory_stats WHERE expires < ?', [Date.now()])
       await this._exec(this.globalDbId, 'PRAGMA incremental_vacuum(100);') // Reclaim some space if needed
     } catch (err) {
-      console.warn('[DatabaseClient] Global DB cleanup failed:', err)
+      logger.warn('[DatabaseClient] Global DB cleanup failed:', err)
     }
+
+    logger.info('[DatabaseClient] Initialization successful with VFS: opfs and journal_mode: DELETE')
   }
 
   private async _initGlobalSchema(): Promise<void> {
@@ -140,7 +150,9 @@ class DatabaseClient {
     })
     this.userDbId = response.result.dbId
 
-    // Set auto_vacuum to prevent future bloat
+    // CRITICAL: Disable WAL mode and pre-allocation bloat for user DB
+    await this._exec(this.userDbId, 'PRAGMA journal_mode = DELETE;')
+    await this._exec(this.userDbId, 'PRAGMA synchronous = NORMAL;')
     await this._exec(this.userDbId, 'PRAGMA auto_vacuum = INCREMENTAL;')
 
     // Initialize user schema
@@ -150,8 +162,10 @@ class DatabaseClient {
     try {
       await this._exec(this.userDbId, 'PRAGMA incremental_vacuum(100);')
     } catch (err) {
-      console.warn('[DatabaseClient] User DB cleanup failed:', err)
+      logger.warn('[DatabaseClient] User DB cleanup failed:', err)
     }
+
+    logger.info(`[DatabaseClient] User database opened for: ${lichessId}`)
   }
 
   private async _initUserSchema(): Promise<void> {
@@ -251,25 +265,25 @@ class DatabaseClient {
       const response = await this.promiser!({
         type: 'exec',
         dbId,
-        args: { 
-          sql, 
+        args: {
+          sql,
           bind: params,
           columnNames: [], // Request column names
           returnValue: 'resultRows' // Request data rows
         },
       })
-      
+
       const result: T[] = []
-      const res = response.result as any
-      
+      const res = response.result as unknown as SQLiteQueryResult
+
       if (res.columnNames && res.resultRows) {
-        const cols = res.columnNames as string[]
-        for (const rowVals of res.resultRows as any[][]) {
-          const obj: any = {}
+        const cols = res.columnNames
+        for (const rowVals of res.resultRows) {
+          const obj = {} as T
           cols.forEach((name, i) => {
-            obj[name] = rowVals[i]
+            ;(obj as Record<string, unknown>)[name] = rowVals[i]
           })
-          result.push(obj as T)
+          result.push(obj)
         }
       }
       return result
@@ -290,7 +304,7 @@ class DatabaseClient {
 
     // Wait for previous transaction to finish
     await this._transactionLock
-    
+
     // Create a new lock
     let resolveLock: () => void
     this._transactionLock = new Promise((resolve) => {
@@ -325,7 +339,7 @@ class DatabaseClient {
         args: { sql, bind: params },
       })
     } catch (err) {
-      console.error(`[DatabaseClient] SQL Execution Error: ${sql}`, err)
+      logger.error(`[DatabaseClient] SQL Execution Error: ${sql}`, err)
       throw err
     }
   }
