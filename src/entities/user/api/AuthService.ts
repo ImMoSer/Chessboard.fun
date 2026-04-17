@@ -1,5 +1,3 @@
-// src/services/AuthService.ts
-import i18n from '@/shared/config/i18n'
 import logger from '@/shared/lib/logger'
 import type { AuthState, UserSessionProfile, UserStatsUpdate } from '@/shared/types/api.types'
 
@@ -11,7 +9,7 @@ if (!BACKEND_API_URL) {
   )
 }
 
-const t = i18n.global.t
+// AuthService logic continues...
 
 class AuthServiceController {
   private state: AuthState = {
@@ -135,7 +133,7 @@ class AuthServiceController {
     } catch (error) {
       logger.error('[AuthService] Error checking web session:', error)
       this._setState({
-        error: t('features.errors.backendConnectionFailed'),
+        error: 'features.errors.backendConnectionFailed',
         isProcessing: false,
         isAuthenticated: false,
         userProfile: null,

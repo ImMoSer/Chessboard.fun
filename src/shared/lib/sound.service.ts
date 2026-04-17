@@ -131,20 +131,29 @@ class SoundServiceController {
       this.resolveInitPromise = resolve
     })
     this.loadVolumeSettings()
-    this.initializeAudio()
+    // HEAVY AUDIO PRELOADING REMOVED FROM CONSTRUCTOR
+    // It will be triggered manually in the background by GlobalAssetLoader
   }
 
-  private async initializeAudio(): Promise<void> {
-    logger.info('[SoundService] Initializing and preloading all audio assets...')
+  /**
+   * Triggers the full audio asset download in the background.
+   */
+  public async preloadAll(): Promise<void> {
+    if (this.isInitialized) return
+
+    logger.info('[SoundService] Background preloading of all audio assets started...')
     const allLoadPromises = allSoundPaths.map((path) => this.createLoadPromise(path))
 
     try {
       await Promise.all(allLoadPromises)
       this.isInitialized = true
-      logger.info('[SoundService] All audio assets initialized successfully.')
+      logger.info('[SoundService] All audio assets preloaded successfully.')
       this.resolveInitPromise()
     } catch (error) {
-      logger.error('[SoundService] Failed to initialize one or more audio assets.', error)
+      logger.error('[SoundService] Background preloading failed:', error)
+      // We don't want to break the app if a sound fails to load
+      this.isInitialized = true
+      this.resolveInitPromise()
     }
   }
 

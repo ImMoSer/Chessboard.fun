@@ -9,7 +9,57 @@
 </head>
 
 <body>
-  <div id="app"></div>
+  <div id="app">
+    <!-- Initial Loading Shell (Dunkler Hintergrund gegen weißen Bildschirm) -->
+    <div class="initial-shell">
+      <div class="shell-content">
+        <img src="/png/extra_pawn_black.png" alt="Logo" class="shell-logo" />
+        <div class="shell-spinner"></div>
+        <div class="shell-text">extrapawn.com</div>
+      </div>
+      <style>
+        .initial-shell {
+          position: fixed;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background-color: #0b0d17;
+          z-index: 99999;
+          font-family: 'Ubuntu', sans-serif;
+        }
+        .shell-content {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+        .shell-logo {
+          width: 200px; /* Wie in LoginApp */
+          height: auto;
+          margin-bottom: 30px;
+          filter: drop-shadow(0 0 15px rgba(0, 242, 255, 0.2));
+        }
+        .shell-spinner {
+          width: 32px;
+          height: 32px;
+          border: 2px solid rgba(0, 242, 255, 0.1);
+          border-top: 2px solid #00f2ff;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+          margin-bottom: 16px;
+        }
+        .shell-text {
+          font-size: 2rem;
+          font-weight: 700;
+          letter-spacing: 0.15em;
+          margin: 0;
+          color: #00f2ff;
+          text-shadow: 0 0 10px rgba(0, 242, 255, 0.4);
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+      </style>
+    </div>
+  </div>
   <script type="module" src="/src/app/main.ts"></script>
 </body>
 

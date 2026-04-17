@@ -1090,6 +1090,10 @@
       "webviewAction": "Bitte kopiere den Link und öffne ihn in deinem Standard-Browser (Chrome oder Safari).",
       "warmingMessage": "Engine wird initialisiert...",
       "warmingHint": "Das Kompilieren der Engine kann auf Mobilgeräten einige Sekunden dauern."
+    },
+    "login": {
+      "welcomeTitle": "Willkommen bei EXTRAPAWN",
+      "welcomeText": "Dein ultimatives Labor für Schachtraining und Tiefenanalyse. Melde dich über Lichess an, um alle Profi-Funktionen zu nutzen."
     }
   },
   "about": {

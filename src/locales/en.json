@@ -1090,6 +1090,10 @@
       "webviewAction": "Please copy the link and open it in your default browser (Chrome or Safari).",
       "warmingMessage": "Initializing engine...",
       "warmingHint": "Compiling the engine can take a few seconds on mobile devices."
+    },
+    "login": {
+      "welcomeTitle": "Welcome to EXTRAPAWN",
+      "welcomeText": "Your ultimate laboratory for chess training and deep analysis. Log in via Lichess to access all professional features."
     }
   },
   "about": {

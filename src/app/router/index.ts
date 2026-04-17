@@ -9,19 +9,19 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/entities/user'
 import { useOpeningSparringStore } from '@/features/opening-sparring'
 import { usePracticalChessStore } from '@/features/practical-chess'
+import { useStudyStore } from '@/features/study'
 import { useTheoryEndingsStore } from '@/features/theory-endings'
 import { useTornadoStore } from '@/features/tornado'
-import { useStudyStore } from '@/features/study'
 
 import { AboutPage } from '@/pages/about'
-import { LegalPage } from '@/pages/legal'
 import { FinishHimPage } from '@/pages/finish-him'
+import { LegalPage } from '@/pages/legal'
 import { PricingPage } from '@/pages/pricing'
 import { RecordsPagePage as RecordsPage } from '@/pages/records-page'
 import { WelcomePage } from '@/pages/welcome'
 
-import { TornadoMistakesPage } from '@/pages/tornado-mistakes'
 import { TornadoPage } from '@/pages/tornado'
+import { TornadoMistakesPage } from '@/pages/tornado-mistakes'
 import { UserCabinetPage } from '@/pages/user-cabinet'
 
 const router = createRouter({

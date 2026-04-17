@@ -19,45 +19,47 @@ const checkEnvironment = () => {
 }
 
 async function boot() {
-  // Phase 1: Environment Validation
+  // Phase 0: Environment Validation (Fastest Check)
   if (!checkEnvironment()) {
-    console.error('Environment check failed. Minimal requirements (SharedArrayBuffer, Cache, OPFS) not met.')
-    // Mount the minimal fallback app (OOPS! screen)
-    const fallbackApp = createApp(FallbackApp)
-    fallbackApp.use(i18n)
-    fallbackApp.mount('#app')
-    return // Stop execution of the main app
-  }
-
-  // Phase 2: Core Infrastructure Initialization
-  try {
-    const { databaseClient } = await import('@/shared/api/storage/DatabaseClient')
-    await databaseClient.init()
-  } catch (error) {
-    console.error('Failed to initialize database client during boot:', error)
-    // If DB fails, we can't run the app. Show fallback.
-    const fallbackApp = createApp(FallbackApp)
-    fallbackApp.use(i18n)
-    fallbackApp.mount('#app')
+    console.error('Environment check failed.')
+    const app = createApp(FallbackApp)
+    app.use(i18n)
+    app.mount('#app')
     return
   }
 
-  // Phase 3: Application Assembly
+  // Phase 1: Identity/Session Check (Prioritized)
+  // We check Auth status BEFORE loading the rest of the app.
+  const { useAuthStore } = await import('@/entities/user')
+  const pinia = createPinia()
+  const tempApp = createApp({}) // Temporary app for Pinia context
+  tempApp.use(pinia)
+  const authStore = useAuthStore()
+  await authStore.initialize()
+
+  // Branch A: User not logged in -> Show minimal Login Screen
+  if (!authStore.isAuthenticated) {
+    const LoginApp = (await import('./LoginApp.vue')).default
+    const loginApp = createApp(LoginApp)
+    loginApp.use(pinia)
+    loginApp.use(i18n)
+    loginApp.mount('#app')
+    return
+  }
+
+  // Branch B: User is logged in -> Load the full application
+  // Phase 2: Application Assembly (Heavy Imports)
   const App = (await import('./App.vue')).default
   const router = (await import('./router')).default
   const { setupErrorHandler } = await import('./lib/error-handler')
   
   const app = createApp(App)
-  const pinia = createPinia()
-
-  setupErrorHandler(app)
-
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
         refetchOnWindowFocus: false,
         retry: 1,
-        staleTime: 1000 * 60 * 5, // 5 minutes by default
+        staleTime: 1000 * 60 * 5, 
       },
     },
   })
@@ -66,21 +68,16 @@ async function boot() {
   app.use(router)
   app.use(i18n)
   app.use(VueQueryPlugin, { queryClient })
+  setupErrorHandler(app)
 
-  // Phase 4: State Initialization
-  const { useAuthStore } = await import('@/entities/user')
-  const authStore = useAuthStore()
-  await authStore.initialize()
-
-  if (authStore.isAuthenticated) {
-    const redirectPath = localStorage.getItem('redirect_after_login')
-    if (redirectPath) {
-      localStorage.removeItem('redirect_after_login')
-      router.push(redirectPath)
-    }
+  // Handle post-login redirects
+  const redirectPath = localStorage.getItem('redirect_after_login')
+  if (redirectPath) {
+    localStorage.removeItem('redirect_after_login')
+    router.push(redirectPath)
   }
 
-  // Phase 5: Mount Main App
+  // Phase 3: Mount Main App (Cabinet)
   app.mount('#app')
 }
 
