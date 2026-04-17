@@ -59,16 +59,18 @@ class DatabaseClient {
       }
     }
 
-    // 2. Explicitly set the worker URL to /sqlite3-worker1.mjs which is
-    // where we copy it via vite-plugin-static-copy.
+    // 2. Initialize the worker using a fixed path. 
+    // This path is served from node_modules in dev and copied to dist in production.
     const promiser = await promiserFactoryV2({
       worker: () => new Worker('/sqlite3-worker1.mjs', { type: 'module' }),
     })
     this.promiser = promiser
 
-    // Open the global cache DB in OPFS
+    // Open the global cache DB in OPFS.
+    // CRITICAL: Specifying vfs: 'opfs' explicitly prevents the 4GB bloom (SAH-pool).
     const response = await promiser('open', {
-      filename: 'file:global_openings_cache?vfs=opfs',
+      filename: 'global_openings_cache',
+      vfs: 'opfs',
     })
     this.globalDbId = response.result.dbId
 
@@ -133,7 +135,8 @@ class DatabaseClient {
 
     const safeId = lichessId.toLowerCase().replace(/[^a-z0-9_-]/g, '_')
     const response = await this.promiser('open', {
-      filename: `file:user_${safeId}?vfs=opfs`,
+      filename: `user_${safeId}`,
+      vfs: 'opfs',
     })
     this.userDbId = response.result.dbId
 

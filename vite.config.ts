@@ -1,6 +1,5 @@
-// vite.config.ts
 import vue from '@vitejs/plugin-vue'
-import { writeFileSync } from 'node:fs'
+import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { fileURLToPath, URL } from 'node:url'
 import { visualizer } from 'rollup-plugin-visualizer'
@@ -26,6 +25,33 @@ export default defineConfig(({ mode }) => {
           },
         },
       }),
+
+      // Custom Plugin to serve SQLite WASM assets from node_modules in DEV mode
+      {
+        name: 'sqlite-wasm-dev-server',
+        apply: 'serve', // Only apply during development
+        configureServer(server) {
+          server.middlewares.use((req, res, next) => {
+            const url = req.url?.split('?')[0]
+            if (url === '/sqlite3-worker1.mjs' || url === '/sqlite3.wasm' || url === '/sqlite3-opfs-async-proxy.js') {
+              const fileName = url.slice(1)
+              const filePath = resolve(__dirname, `node_modules/@sqlite.org/sqlite-wasm/dist/${fileName}`)
+              try {
+                const content = readFileSync(filePath)
+                const contentType = url.endsWith('.wasm') ? 'application/wasm' : 'application/javascript'
+                res.setHeader('Content-Type', contentType)
+                res.setHeader('Cache-Control', 'no-cache')
+                res.setHeader('Cross-Origin-Opener-Policy', 'same-origin')
+                res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp')
+                return res.end(content)
+              } catch (e) {
+                console.error(`[sqlite-wasm-dev-server] Failed to serve ${fileName}:`, e)
+              }
+            }
+            next()
+          })
+        }
+      },
 
       AutoImport({
         imports: [
