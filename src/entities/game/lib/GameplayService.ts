@@ -21,7 +21,7 @@ export const engineConfigs: Record<EngineId, EngineConfig> = {
   'SF_2200': { type: 'local', depth: 10 },
   'maia-1900': { type: 'server', model: 'maia-1900', fallback: true },
   'maia-2200': { type: 'server', model: 'maia-2200', fallback: true },
-  'Maia_2400': { type: 'server', model: 'Maia_2400', fallback: true },
+  'maia-2400': { type: 'server', model: 'maia-2400', fallback: true },
 }
 
 
@@ -85,14 +85,14 @@ class GameplayServiceController {
         logger.info(`[GameplayService] Server engine responded in time with move: ${result}`)
         return result
       }
-      
+
       // If we are here, the timeoutPromise won. Cancel the server request.
       controller.abort()
       logger.warn(`[GameplayService] Server engine timed out after ${FALLBACK_TIMEOUT_MS}ms. Aborting request.`)
 
     } catch (error: unknown) {
       if (fallbackTimer) clearTimeout(fallbackTimer)
-      
+
       if (error instanceof Error && error.name === 'AbortError') {
         // This was our own abort, we already logged the warning above.
       } else {

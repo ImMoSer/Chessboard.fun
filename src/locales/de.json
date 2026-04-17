@@ -287,8 +287,8 @@
         "addChapter": "Kapitel hinzufügen",
         "cooldownWait": "Bitte warte {seconds}s bevor du es erneut versuchst.",
         "cooldownTooltip": "Wartezeit: {seconds}s"
-        },
-        "replyTraining": {
+      },
+      "replyTraining": {
         "title": "Antwort-Training",
         "startedMessage": "Training gestartet! Folge der Engine-Linie.",
         "errorStarting": "Fehler beim Starten des Trainings",
@@ -309,8 +309,9 @@
           }
         },
         "variationFinished": "Variante abgeschlossen! Ausgezeichnete Arbeit."
-        },
-        "chapterSettings": {        "addChapter": "Neues Kapitel hinzufügen",
+      },
+      "chapterSettings": {
+        "addChapter": "Neues Kapitel hinzufügen",
         "settings": "Kapiteleinstellungen",
         "tabs": {
           "basicInfo": "Basis-Info",
@@ -1112,7 +1113,7 @@
         "stockfish_2500": " (Stockfish 18 - Absolute Wahrheit, mathematisch perfekte Verteidigung)",
         "maia-2200": " (Maia-2200 - Menschliches Spiel auf Meisterniveau und realistische Fehlermuster)",
         "maia-1900": " (Maia-1900 - Menschliches Spiel auf Vereinsniveau mit typischen Amateur-Fallen)",
-        "Maia_2400": " (Maia-2400 - Menschliches Spiel auf Top-Niveau mit extrem verfeinerter Technik)"
+        "maia-2400": " (Maia-2400 - Menschliches Spiel auf Top-Niveau mit extrem verfeinerter Technik)"
       },
       "userCabinetTitle": "Taktischer Fingerabdruck: ",
       "userCabinet": "Dein persönliches Kommandozentrum. Visualisiere deine technische DNA mit Nightingale-Rose-Diagrammen über 25+ taktische Themen.",

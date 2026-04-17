@@ -287,8 +287,8 @@
         "addChapter": "Add Chapter",
         "cooldownWait": "Please wait {seconds}s before trying again.",
         "cooldownTooltip": "Cooldown: {seconds}s"
-        },
-        "replyTraining": {
+      },
+      "replyTraining": {
         "title": "REPLY TRAINING",
         "startedMessage": "Reply Training Started (-25 PawnCoins)",
         "errorStarting": "Error starting training",
@@ -309,8 +309,9 @@
           }
         },
         "variationFinished": "Variation finished! Excellent work."
-        },
-        "chapterSettings": {        "addChapter": "Add New Chapter",
+      },
+      "chapterSettings": {
+        "addChapter": "Add New Chapter",
         "settings": "Chapter Settings",
         "tabs": {
           "basicInfo": "Basic Info",
@@ -1112,7 +1113,7 @@
         "stockfish_2500": " (Stockfish 18 - Absolute truth, mathematically perfect defense)",
         "maia-2200": " (Maia-2200 - Master-level human-like play and realistic error patterns)",
         "maia-1900": " (Maia-1900 - Club-level human-like play with typical amateur traps)",
-        "Maia_2400": " (Maia-2400 - Top-tier human-like play with extremely refined technique)"
+        "maia-2400": " (Maia-2400 - Top-tier human-like play with extremely refined technique)"
       },
       "userCabinetTitle": "Tactical Fingerprint: ",
       "userCabinet": "Your personal command center. Visualize your technical DNA with Nightingale Rose charts across 25+ tactical themes.",

@@ -65,7 +65,7 @@ const appVersion = import.meta.env.VITE_APP_VERSION || '2.0.0'
         >{{ t('about.modes.botSelectionIntro') }}
         <ul class="bot-list">
           <li><strong>SF-18</strong>{{ t('about.modes.bots.stockfish_2500') }}</li>
-          <li><strong>U-2400</strong>{{ t('about.modes.bots["Maia_2400"]') }}</li>
+          <li><strong>U-2400</strong>{{ t('about.modes.bots["maia-2400"]') }}</li>
           <li><strong>M-2200</strong>{{ t('about.modes.bots["maia-2200"]') }}</li>
           <li><strong>M-1900</strong>{{ t('about.modes.bots["maia-1900"]') }}</li>
         </ul>
