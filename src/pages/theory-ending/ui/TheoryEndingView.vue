@@ -138,7 +138,6 @@ watch(
         }
       },
       onRestart: theoryStore.handleRestart,
-      onResign: theoryStore.handleResign,
       onShare: async () => {
         if (theoryStore.activePuzzle && theoryStore.activeType) {
           await shareService.share('theory-endings', theoryStore.activePuzzle.puzzle_id, {

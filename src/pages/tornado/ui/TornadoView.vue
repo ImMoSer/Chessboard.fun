@@ -100,9 +100,9 @@ watch(
       canResign: tornadoStore.isSessionActive && isPlaying,
       canShare: !!tornadoStore.activePuzzle,
       canRequestHint: tornadoStore.isSessionActive && isPlaying,
+      showEngineSelection: false,
       onRequestNew: tornadoStore.handleNew,
       onRestart: tornadoStore.handleRestart,
-      onResign: tornadoStore.handleResign,
     })
   },
   { immediate: true },

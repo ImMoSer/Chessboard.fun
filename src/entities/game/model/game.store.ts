@@ -6,8 +6,9 @@ import type { Color as ChessgroundColor, Key } from '@lichess-org/chessground/ty
 import { parseFen } from 'chessops/fen'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { soundService } from '@/shared/lib/sound.service'
 
-import type { IGameCoreApi, IGameplayStrategy } from './strategy.types'
+import type { IGameCoreApi, IGameplayStrategy, GameStatusInfo } from './strategy.types'
 
 export type GamePhase = 'IDLE' | 'LOADING' | 'PLAYING' | 'GAMEOVER'
 export const useGameStore = defineStore('game', () => {
@@ -17,8 +18,27 @@ export const useGameStore = defineStore('game', () => {
   const isGameActive = ref(false)
   const botEngineId = ref<EngineId>('maia-2200')
   const currentStrategy = ref<IGameplayStrategy | null>(null)
+  const playerColor = ref<ChessgroundColor>('white')
 
   const boardStore = useBoardStore()
+
+  function _playOutcomeSound(status: GameStatusInfo) {
+    // Only play if sounds are enabled in strategy config
+    if (currentStrategy.value?.config?.playGameStatusSounds === false) return
+
+    const isWin = currentStrategy.value?.checkWinCondition
+      ? currentStrategy.value.checkWinCondition(status)
+      : status.outcome?.winner === playerColor.value
+
+    if (isWin) {
+      soundService.playSound('game_user_won')
+    } else {
+      // For now, any non-win outcome in a puzzle/training context is treated as 'lost' sound-wise
+      // unless it's a draw and the mode doesn't consider it a loss.
+      // But usually, if checkWinCondition is false, it's a failure.
+      soundService.playSound('game_user_lost')
+    }
+  }
 
   function _checkAndHandleGameOver(): boolean {
     if (gamePhase.value !== 'PLAYING') {
@@ -28,6 +48,10 @@ export const useGameStore = defineStore('game', () => {
     const gameStatus = boardStore.getGameStatus()
     if (gameStatus.isGameOver) {
       isGameActive.value = false
+      
+      // Centralized Sound Handling
+      _playOutcomeSound(gameStatus)
+
       if (currentStrategy.value?.onGameOver) {
         currentStrategy.value.onGameOver(gameStatus)
       }
@@ -40,12 +64,17 @@ export const useGameStore = defineStore('game', () => {
     if (gamePhase.value !== 'PLAYING') return
     logger.warn('[GameStore] Game resigned by user action.')
 
+    const status = {
+      ...boardStore.getGameStatus(),
+      isGameOver: true,
+      outcome: { winner: undefined, reason: 'resign' },
+    }
+
+    // Sound logic for resignation (always a loss unless strategy says otherwise)
+    _playOutcomeSound(status)
+
     if (currentStrategy.value) {
-      currentStrategy.value.onGameOver?.({
-        ...boardStore.getGameStatus(),
-        isGameOver: true,
-        outcome: { winner: undefined, reason: 'resign' },
-      })
+      currentStrategy.value.onGameOver?.(status)
     }
   }
 
@@ -106,6 +135,7 @@ export const useGameStore = defineStore('game', () => {
         throw new Error('[GameStore] userColor is required for startWithStrategy. The director (feature) must explicitly define the side.')
       }
 
+      playerColor.value = userColor
       currentStrategy.value = strategy
 
       const humanPlayerColor = userColor
@@ -214,6 +244,7 @@ export const useGameStore = defineStore('game', () => {
   return {
     gamePhase,
     isGameActive,
+    playerColor,
     currentStrategy,
     startWithStrategy,
     handleUserMove,
@@ -225,3 +256,4 @@ export const useGameStore = defineStore('game', () => {
     setBotEngineId,
   }
 })
+

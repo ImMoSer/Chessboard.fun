@@ -65,7 +65,10 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
         }
       },
       checkWinCondition(currentState: GameStatusInfo): boolean {
-        return currentState.outcome?.winner === currentUserColor.value
+        const outcome = currentState.outcome
+        if (!outcome || outcome.reason === 'resign') return false
+
+        return outcome.winner === currentUserColor.value
       },
       requestBotMove: async (fen: string) => {
         try {
@@ -244,16 +247,6 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
     gameStore.startWithStrategy(fen, _createStrategy(), color)
   }
 
-  async function handleResign() {
-    const confirmed = await uiStore.showConfirmation(
-      t('features.gameplay.confirmExit.title'),
-      t('features.gameplay.confirmExit.message'),
-    )
-    if (confirmed === 'confirm') {
-      _handleGameOver(false)
-    }
-  }
-
   function reset() {
     activePuzzle.value = null
     isProcessingGameOver.value = false
@@ -282,7 +275,6 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
     selectDifficulty,
     loadNewPuzzle,
     restartPuzzle,
-    handleResign,
     startYouMoveGame,
     isWaitingForColorSelection,
     reset,

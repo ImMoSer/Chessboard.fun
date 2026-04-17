@@ -79,7 +79,7 @@ const toggleAnalysis = () => {
             quaternary
             size="large"
             :disabled="!controlsStore.canRequestNew"
-            @click="controlsStore.onRequestNew"
+            @click="controlsStore.performRequestNew"
           >
             <template #icon>
               <n-icon class="icon-new" :class="{ 'pulse-active': controlsStore.canRequestNew }">
@@ -99,7 +99,7 @@ const toggleAnalysis = () => {
             quaternary
             size="large"
             :disabled="!controlsStore.canRestart"
-            @click="controlsStore.onRestart"
+            @click="controlsStore.performRestart"
           >
             <template #icon>
               <n-icon class="icon-restart"><RestartIcon /></n-icon>
@@ -111,6 +111,7 @@ const toggleAnalysis = () => {
 
       <!-- Bot / Sparring Partner Selector -->
       <n-dropdown
+        v-if="controlsStore.showEngineSelection"
         placement="top"
         trigger="manual"
         :show="showEngineDropdown"
@@ -151,7 +152,7 @@ const toggleAnalysis = () => {
             circle
             quaternary
             size="large"
-            @click="controlsStore.onResign"
+            @click="controlsStore.performResign"
           >
             <template #icon>
               <n-icon><ResignIcon /></n-icon>

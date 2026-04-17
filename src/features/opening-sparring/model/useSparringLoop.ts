@@ -314,7 +314,12 @@ export function useSparringLoop() {
   ) {
     const gameStore = useGameStore()
     gameStore.setGamePhase('GAMEOVER')
-    console.log(`[OpeningSparring] Playout Game Over. Win: ${isWin}, Reason: ${outcome?.reason}`)
+
+    if (!store.isPlayoutMode) {
+      store.isTheoryOver = true
+    }
+
+    console.log(`[OpeningSparring] Game Over. Win: ${isWin}, Reason: ${outcome?.reason}`)
   }
 
   async function startPlayout() {

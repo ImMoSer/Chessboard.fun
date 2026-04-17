@@ -111,7 +111,6 @@ watch(
         }
       },
       onRestart: practicalStore.restartPuzzle,
-      onResign: practicalStore.handleResign,
       onShare: async () => {
         if (practicalStore.activePuzzle) {
           await shareService.share('practical-chess', practicalStore.activePuzzle.puzzle_id)

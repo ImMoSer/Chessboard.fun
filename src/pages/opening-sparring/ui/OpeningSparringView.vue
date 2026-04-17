@@ -206,21 +206,6 @@ async function handleSummaryRestart() {
   }
 }
 
-async function handleResign() {
-  const confirmed = await uiStore.showConfirmation(
-    t('features.gameplay.confirmExit.title'),
-    t('features.gameplay.confirmExit.message'),
-  )
-  if (confirmed === 'confirm') {
-    if (openingStore.isPlayoutMode) {
-      gameStore.handleGameResignation()
-    } else {
-      openingStore.isTheoryOver = true
-      gameStore.setGamePhase('GAMEOVER')
-    }
-  }
-}
-
 watch(
   () => [gameStore.gamePhase, openingStore.isPlayoutMode, isExamEnding.value],
   () => {
@@ -236,7 +221,6 @@ watch(
       canRequestHint: isPlaying && isSparringActive && !openingStore.isReviewMode,
       onRequestNew: handleNewGame,
       onRestart: handleRestart,
-      onResign: handleResign,
     })
   },
   { immediate: true },

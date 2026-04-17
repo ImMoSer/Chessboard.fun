@@ -11,7 +11,6 @@ import { useAuthStore } from '@/entities/user'
 import { InsufficientPawnCoinsError } from '@/shared/api/client'
 import i18n from '@/shared/config/i18n'
 import logger from '@/shared/lib/logger'
-import { soundService } from '@/shared/lib/sound.service'
 import type {
   TheoryEndingCategory,
   TheoryEndingDifficulty,
@@ -79,13 +78,11 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
     gameStore.setGamePhase('GAMEOVER')
 
     if (isWin) {
-      soundService.playSound('game_user_won')
       feedbackMessage.value =
         activeType.value === 'win'
           ? t('features.theoryEndgames.feedback.win')
           : t('features.theoryEndgames.feedback.drawSuccess')
     } else {
-      soundService.playSound('game_user_lost')
       const reason = outcome?.reason
       if (reason === 'resign') {
         feedbackMessage.value = t('features.finishHim.feedback.resigned')
@@ -204,6 +201,9 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
           const outcome = currentState.outcome
           if (!outcome) return false
 
+          // Resignation is always a loss
+          if (outcome.reason === 'resign') return false
+
           if (activeType.value === 'win') {
             return outcome.winner === humanColor && outcome.reason === 'checkmate'
           } else {
@@ -274,18 +274,6 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
     // any cleanup
   }
 
-  async function handleResign() {
-    if (gameStore.gamePhase === 'PLAYING') {
-      const confirmed = await uiStore.showConfirmation(
-        t('features.gameplay.confirmExit.title'),
-        t('features.gameplay.confirmExit.message'),
-      )
-      if (confirmed === 'confirm') {
-        gameStore.handleGameResignation()
-      }
-    }
-  }
-
   async function handleRestart() {
     if (activePuzzle.value) {
       if (gameStore.isGameActive) {
@@ -346,7 +334,6 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
     activeCategory,
     feedbackMessage,
     loadNewPuzzle,
-    handleResign,
     handleRestart,
     handleExit,
     reset,

@@ -121,7 +121,6 @@ watch(
       canRequestHint: isPlaying,
       onRequestNew: () => finishHimStore.loadNewPuzzle(),
       onRestart: finishHimStore.handleRestart,
-      onResign: finishHimStore.handleResign,
       onShare: () => {
         if (finishHimStore.activePuzzle?.puzzle_id) {
           shareService.share('finish-him', finishHimStore.activePuzzle.puzzle_id)

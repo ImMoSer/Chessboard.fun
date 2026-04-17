@@ -368,7 +368,13 @@ export const useTornadoStore = defineStore('tornado', () => {
             handlePuzzleResult(true) // Пазл решен успешно
           }
         } else {
-          handlePuzzleResult(false) // Ошибка - провал пазла
+          // Joker: Check if the user delivered checkmate anyway
+          const status = boardStore.getGameStatus()
+          if (status.outcome?.reason === 'checkmate') {
+            handlePuzzleResult(true)
+          } else {
+            handlePuzzleResult(false) // Ошибка - провал пазла
+          }
         }
       },
 
@@ -382,6 +388,11 @@ export const useTornadoStore = defineStore('tornado', () => {
         return null
       },
 
+      onGameOver: (status) => {
+        if (status.isGameOver) {
+          _handleSessionEnd()
+        }
+      },
       checkWinCondition: () => false, // Не используется напрямую, Торнадо рулит через handlePuzzleResult
     }
 
@@ -441,18 +452,6 @@ export const useTornadoStore = defineStore('tornado', () => {
     // Подпитка больше не нужна, Rainbow Basket покрывает все
   }
 
-  async function handleResign() {
-    if (isSessionActive.value) {
-      const confirmed = await uiStore.showConfirmation(
-        t('features.gameplay.confirmExit.title'),
-        t('features.gameplay.confirmExit.message'),
-      )
-      if (confirmed === 'confirm') {
-        await _handleSessionEnd()
-      }
-    }
-  }
-
   function handleRestart() {
     if (mode.value) {
       logger.info(`[TornadoStore] Restarting session with mode: ${mode.value}`)
@@ -495,7 +494,6 @@ export const useTornadoStore = defineStore('tornado', () => {
     startSession,
     reset,
     handleRestart,
-    handleResign,
     handleNew,
     fenFinal,
   }

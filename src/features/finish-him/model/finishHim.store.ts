@@ -92,9 +92,12 @@ export const useFinishHimStore = defineStore('finishHim', () => {
         initialBotDelayMs: 300,
       },
       checkWinCondition(currentState: GameStatusInfo): boolean {
+        const outcome = currentState.outcome
+        if (!outcome || outcome.reason === 'resign') return false
+
         return (
-          currentState.outcome?.reason === 'checkmate' &&
-          currentState.outcome?.winner === humanColor
+          outcome.reason === 'checkmate' &&
+          outcome.winner === humanColor
         )
       },
       onUserMoveExecuted(uciMove: string) {
@@ -141,10 +144,8 @@ export const useFinishHimStore = defineStore('finishHim', () => {
     gameStore.setGamePhase('GAMEOVER')
 
     if (isWin) {
-      soundService.playSound('game_user_won')
       feedbackMessage.value = t('features.finishHim.feedback.win')
     } else {
-      soundService.playSound('game_user_lost')
       const reason = outcome?.reason
       if (reason === 'stalemate') {
         feedbackMessage.value = t('features.gameplay.gameOver.stalemate')
@@ -303,18 +304,6 @@ export const useFinishHimStore = defineStore('finishHim', () => {
     await loadNewPuzzle()
   }
 
-  async function handleResign() {
-    if (gameStore.gamePhase === 'PLAYING') {
-      const confirmed = await uiStore.showConfirmation(
-        t('features.gameplay.confirmExit.title'),
-        t('features.gameplay.confirmExit.message'),
-      )
-      if (confirmed === 'confirm') {
-        gameStore.handleGameResignation()
-      }
-    }
-  }
-
   async function handleRestart() {
     if (gameStore.isGameActive) {
       const confirmed = await uiStore.showConfirmation(
@@ -376,7 +365,6 @@ export const useFinishHimStore = defineStore('finishHim', () => {
     initialize,
     loadNewPuzzle,
     startPlayoutFromFen,
-    handleResign,
     handleRestart,
     handleExit,
     reset,
