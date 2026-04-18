@@ -72,12 +72,14 @@ const periodOptions = [
 
 // Responsive logic
 const isMobile = ref(false)
+const canHover = ref(true)
 const updateMobile = () => {
   isMobile.value = window.innerWidth <= 768
 }
 
 onMounted(() => {
   updateMobile()
+  canHover.value = window.matchMedia('(hover: hover)').matches
   window.addEventListener('resize', updateMobile)
 })
 
@@ -91,6 +93,7 @@ const chartOption = computed(() => {
   return {
     backgroundColor: 'transparent',
     tooltip: {
+      show: canHover.value,
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
       appendTo: 'body',

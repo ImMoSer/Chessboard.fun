@@ -6,7 +6,7 @@ import { BarChart } from 'echarts/charts'
 import { GridComponent, LegendComponent, TooltipComponent } from 'echarts/components'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import VChart from 'vue-echarts'
 import { useI18n } from 'vue-i18n'
 
@@ -40,6 +40,12 @@ const handlePeriodChange = (period: string) => {
   selectedActivityPeriod.value = period as ActivityPeriod
 }
 
+const canHover = ref(true)
+
+onMounted(() => {
+  canHover.value = window.matchMedia('(hover: hover)').matches
+})
+
 const chartOption = computed(() => {
   if (!props.stats) return {}
 
@@ -60,6 +66,7 @@ const chartOption = computed(() => {
   return {
     backgroundColor: 'transparent',
     tooltip: {
+      show: canHover.value,
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
       confine: true,
