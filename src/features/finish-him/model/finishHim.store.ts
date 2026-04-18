@@ -174,6 +174,7 @@ export const useFinishHimStore = defineStore('finishHim', () => {
       wasCorrect: isWin,
       pgn_moves: pgnService.getCurrentPgnString(),
       initial_fen: puzzle.initial_fen,
+      user_color: gameStore.playerColor,
     }
 
     try {

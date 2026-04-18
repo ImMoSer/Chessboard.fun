@@ -89,6 +89,7 @@ export interface FinishHimResultDto {
   wasCorrect: boolean
   pgn_moves?: string
   initial_fen?: string
+  user_color?: string
 }
 
 // --- END FINISH HIM MODE ---
@@ -135,6 +136,9 @@ export type PracticalChessDifficulty = 'Novice' | 'Pro' | 'Master'
 export interface PracticalChessResultDto {
   puzzleId: string
   wasCorrect: boolean
+  pgn_moves?: string
+  initial_fen?: string
+  user_color?: string
 }
 
 

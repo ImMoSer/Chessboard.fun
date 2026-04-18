@@ -11,6 +11,7 @@ import { useAuthStore } from '@/entities/user'
 import { InsufficientPawnCoinsError } from '@/shared/api/client'
 import i18n from '@/shared/config/i18n'
 import logger from '@/shared/lib/logger'
+import { pgnService } from '@/shared/lib/pgn/PgnService'
 import { soundService } from '@/shared/lib/sound.service'
 import type {
   PracticalChessCategory,
@@ -168,6 +169,9 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
         dto: {
           puzzleId: puzzle.puzzle_id,
           wasCorrect: isWin,
+          pgn_moves: pgnService.getCurrentPgnString(),
+          initial_fen: puzzle.initial_fen,
+          user_color: currentUserColor.value,
         },
       })
       if (response) {
