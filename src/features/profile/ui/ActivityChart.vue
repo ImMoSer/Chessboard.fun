@@ -62,6 +62,10 @@ const chartOption = computed(() => {
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
+      confine: true,
+      triggerOn: 'mousemove',
+      hideDelay: 0,
+      enterable: false,
       backgroundColor: '#2a2a2e',
       borderColor: '#5A5A5A',
       textStyle: { color: '#CCCCCC' },

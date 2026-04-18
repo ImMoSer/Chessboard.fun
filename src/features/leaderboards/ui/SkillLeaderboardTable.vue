@@ -95,7 +95,9 @@ const chartOption = computed(() => {
       axisPointer: { type: 'shadow' },
       appendTo: 'body',
       confine: true,
-      triggerOn: 'mousemove|click', // Better for touch devices
+      triggerOn: 'mousemove',
+      hideDelay: 0,
+      enterable: false,
       backgroundColor: '#2a2a2e',
       borderColor: '#5A5A5A',
       textStyle: { color: '#CCCCCC' },
