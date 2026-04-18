@@ -163,6 +163,13 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
     const puzzle = activePuzzle.value
     if (!puzzle) return
 
+    let finalFenToSend = puzzle.initial_fen
+    if (puzzle.category === 'materialEquality') {
+      const parts = finalFenToSend.split(' ')
+      parts[1] = currentUserColor.value === 'black' ? 'b' : 'w'
+      finalFenToSend = parts.join(' ')
+    }
+
     try {
       const response = await resultMutation.mutateAsync({
         category: puzzle.category,
@@ -170,7 +177,7 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
           puzzleId: puzzle.puzzle_id,
           wasCorrect: isWin,
           pgn_moves: pgnService.getCurrentPgnString(),
-          initial_fen: puzzle.initial_fen,
+          initial_fen: finalFenToSend,
           user_color: currentUserColor.value,
         },
       })
