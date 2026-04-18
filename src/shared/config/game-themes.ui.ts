@@ -9,16 +9,16 @@ export const CHESS_CATEGORY_UI: Record<string, ChessCategoryUi> = {
   bishop: { icon: '♗♙' },
   knight: { icon: '♘♙' },
   queen: { icon: '♕♙' },
-  rook: { icon: '♖' },
+  rook: { icon: '♖♙' },
   rookPawn: { icon: '♖♙' },
-  knightBishop: { icon: '♘♗' },
+  knightBishop: { icon: '♘↔♗' },
   rookPieces: { icon: '♖♘♗' },
   queenPieces: { icon: '♕♘♗' },
 
   // Practical Chess Specific
-  extraPawn: { icon: '♟️' },
-  materialEquality: { icon: '⚖️' },
-  exchange: { icon: '🔄' },
+  extraPawn: { icon: '+♙' },
+  materialEquality: { icon: '⬛⬜' },
+  exchange: { icon: '♗-♖-♘' },
 
   // Finish Him Specific
   auto: { icon: '✨' },

@@ -132,7 +132,7 @@ watch(
 </script>
 
 <template>
-  <GameLayout>
+  <GameLayout :boardLocked="practicalStore.isWaitingForColorSelection">
     <template #left-panel>
       <UserProfileWidget />
     </template>

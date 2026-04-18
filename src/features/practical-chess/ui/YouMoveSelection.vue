@@ -38,7 +38,13 @@ const handleSelection = (color: 'white' | 'black') => {
   color: var(--color-accent-primary);
   text-transform: uppercase;
   white-space: nowrap;
-  text-shadow: 0 0 10px rgba(0, 242, 255, 0.4);
+  animation: pulse-text 2s infinite ease-in-out;
+}
+
+@keyframes pulse-text {
+  0% { transform: scale(1); text-shadow: 0 0 10px rgba(0, 242, 255, 0.4); }
+  50% { transform: scale(1.05); text-shadow: 0 0 20px rgba(0, 242, 255, 0.8), 0 0 30px rgba(0, 242, 255, 0.4); }
+  100% { transform: scale(1); text-shadow: 0 0 10px rgba(0, 242, 255, 0.4); }
 }
 
 .side-btn {
@@ -53,30 +59,46 @@ const handleSelection = (color: 'white' | 'black') => {
   transition: all 0.3s ease;
   font-size: 0.9rem;
   letter-spacing: 1px;
+  animation: pulse-shadow 2s infinite ease-in-out;
 }
 
 .side-btn.black {
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.8);
   color: #fbbf24;
-  border-color: rgba(251, 191, 36, 0.3);
+  border-color: rgba(251, 191, 36, 0.5);
+  animation-name: pulse-shadow-black;
 }
 
 .side-btn.black:hover {
   background: rgba(251, 191, 36, 0.2);
   border-color: #fbbf24;
-  box-shadow: 0 0 15px rgba(251, 191, 36, 0.4);
+  box-shadow: 0 0 25px rgba(251, 191, 36, 0.8);
+  transform: translateY(-2px);
 }
 
 .side-btn.white {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   color: #000;
   border-color: #fff;
+  animation-name: pulse-shadow-white;
 }
 
 .side-btn.white:hover {
   background: #fff;
-  box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
-  transform: translateY(-1px);
+  box-shadow: 0 0 25px rgba(255, 255, 255, 0.8);
+  transform: translateY(-2px);
+}
+
+@keyframes pulse-shadow-black {
+  0% { box-shadow: 0 0 10px rgba(251, 191, 36, 0.2); }
+  50% { box-shadow: 0 0 20px rgba(251, 191, 36, 0.6); }
+  100% { box-shadow: 0 0 10px rgba(251, 191, 36, 0.2); }
+}
+
+@keyframes pulse-shadow-white {
+  0% { box-shadow: 0 0 10px rgba(255, 255, 255, 0.3); }
+  50% { box-shadow: 0 0 20px rgba(255, 255, 255, 0.8); }
+  100% { box-shadow: 0 0 10px rgba(255, 255, 255, 0.3); }
 }
 
 @media (max-width: 600px) {

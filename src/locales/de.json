@@ -108,7 +108,7 @@
       "knightBishop": "Springer gegen Läufer",
       "pawn": "Bauernendspiel",
       "extraPawn": "Mehrbauer",
-      "materialEquality": "Materialgleichheit",
+      "materialEquality": "Schwarz oder Weiß?",
       "exchange": "Qualität",
       "rook": "Turmendspiel"
     },
@@ -1216,7 +1216,7 @@
   },
   "welcome": {
     "titleV2": "Wähle einen Modus",
-    "slogan": "Konstanz ist der Schlüssel zum Erfolg.",
+    "slogan": "Übung macht den Meister!",
     "buttons": {
       "finishHim": "Finish Him",
       "theoryEndgames": "Endspiele",

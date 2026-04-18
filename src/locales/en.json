@@ -108,7 +108,7 @@
       "knightBishop": "Knight vs Bishop",
       "pawn": "Pawn Endgame",
       "extraPawn": "Extra Pawn",
-      "materialEquality": "Material Equality",
+      "materialEquality": "Black or White?",
       "exchange": "Exchange",
       "rook": "Rook Endgame"
     },

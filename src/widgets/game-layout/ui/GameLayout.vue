@@ -1,5 +1,6 @@
 <!-- src/widgets/game-layout/GameLayout.vue -->
 <script setup lang="ts">
+import { computed, onMounted, onUnmounted } from 'vue'
 import { useBoardStore, useGameStore, WebChessBoard } from '@/entities/game'
 import { EvalBar, useAnalysisStore } from '@/features/analysis'
 import { useReplyTrainingStore, trainingController } from '@/features/study-reply-training'
@@ -7,8 +8,11 @@ import { useStudyStore } from '@/entities/study'
 import { useThemeStore } from '@/features/settings'
 import type { Key } from '@lichess-org/chessground/types'
 import { storeToRefs } from 'pinia'
-import { computed, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
+
+const props = defineProps<{
+  boardLocked?: boolean
+}>()
 
 const themeStore = useThemeStore()
 const boardStore = useBoardStore()
@@ -20,6 +24,8 @@ const { analysisLines } = storeToRefs(analysisStore)
 const route = useRoute()
 
 const isAnimationEnabled = computed(() => themeStore.currentTheme.animationDuration > 0)
+
+const activeDests = computed(() => props.boardLocked ? new Map() : boardStore.dests)
 
 // Force analysis mode if we are in study views, to prevent race conditions or store resets
 const effectiveAnalysisMode = computed(() => {
@@ -119,7 +125,7 @@ onUnmounted(() => {
               :fen="boardStore.fen"
               :orientation="boardStore.orientation"
               :turn-color="boardStore.turn"
-              :dests="boardStore.dests"
+              :dests="activeDests"
               :last-move="boardStore.lastMove"
               :check="boardStore.isCheck"
               :promotion-state="boardStore.promotionState"

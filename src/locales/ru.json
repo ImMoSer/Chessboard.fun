@@ -106,7 +106,7 @@
       "knightBishop": "Конь против слона",
       "pawn": "Пешечник",
       "extraPawn": "Лишняя пешка",
-      "materialEquality": "Равенство материала",
+      "materialEquality": "Черные или Белые?",
       "exchange": "Качество",
       "rook": "Ладейник"
     },
