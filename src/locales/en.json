@@ -189,8 +189,8 @@
       "manager": {
         "title": "Study Manager",
         "tabs": {
-          "imported": "Imported Studies",
-          "myStudies": "My Studies",
+          "imported": "Imported",
+          "myStudies": "My",
           "community": "Community"
         },
         "stats": {

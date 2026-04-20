@@ -1,4 +1,5 @@
-import { databaseClient } from '../DatabaseClient'
+import logger from '@/shared/lib/logger'
+import { databaseClient, DbNotOpenError } from '../DatabaseClient'
 
 export interface Diamond {
   id?: number
@@ -21,61 +22,132 @@ interface CountRow {
 }
 
 export class DiamondRepository {
-  async addDiamond(diamond: Diamond): Promise<void> {
-    await databaseClient.exec('user', `
-      INSERT INTO diamonds (hash, fen, pgn, collected_at)
-      VALUES (?, ?, ?, ?)
-    `, [diamond.hash, diamond.fen, diamond.pgn, diamond.collected_at])
+  async addDiamond(diamond: Diamond): Promise<boolean> {
+    try {
+      await databaseClient.batch('user', [{
+        sql: `
+          INSERT INTO diamonds (hash, fen, pgn, collected_at)
+          VALUES (?, ?, ?, ?)
+        `,
+        params: [diamond.hash, diamond.fen, diamond.pgn, diamond.collected_at]
+      }])
+      return true
+    } catch (err) {
+      if (!(err instanceof DbNotOpenError)) {
+        logger.error('[DiamondRepository] Failed to add diamond', err)
+      }
+      return false
+    }
   }
 
   async getDiamondCountForHashToday(hash: string): Promise<number> {
-    const startOfDay = new Date()
-    startOfDay.setHours(0, 0, 0, 0)
+    try {
+      const startOfDay = new Date()
+      startOfDay.setHours(0, 0, 0, 0)
 
-    const rows = await databaseClient.query<CountRow>('user', `
-      SELECT COUNT(*) as count FROM diamonds
-      WHERE hash = ? AND collected_at > ?
-    `, [hash, startOfDay.getTime()])
+      const rows = await databaseClient.query<CountRow>('user', `
+        SELECT COUNT(*) as count FROM diamonds
+        WHERE hash = ? AND collected_at > ?
+      `, [hash, startOfDay.getTime()])
 
-    return rows[0]?.count ?? 0
+      return rows[0]?.count ?? 0
+    } catch (err) {
+      if (!(err instanceof DbNotOpenError)) {
+        logger.error(`[DiamondRepository] Failed to get diamond count for hash ${hash}`, err)
+      }
+      return 0
+    }
   }
 
   async getAllDiamonds(): Promise<Diamond[]> {
-    return databaseClient.query<Diamond>('user',
-      'SELECT * FROM diamonds ORDER BY collected_at DESC',
-    )
+    try {
+      return await databaseClient.query<Diamond>('user',
+        'SELECT * FROM diamonds ORDER BY collected_at DESC',
+      )
+    } catch (err) {
+      if (!(err instanceof DbNotOpenError)) {
+        logger.error('[DiamondRepository] Failed to get all diamonds', err)
+      }
+      return []
+    }
   }
 
   async getDiamondCount(): Promise<number> {
-    const rows = await databaseClient.query<CountRow>('user',
-      'SELECT COUNT(*) as count FROM diamonds',
-    )
-    return rows[0]?.count ?? 0
+    try {
+      const rows = await databaseClient.query<CountRow>('user',
+        'SELECT COUNT(*) as count FROM diamonds',
+      )
+      return rows[0]?.count ?? 0
+    } catch (err) {
+      if (!(err instanceof DbNotOpenError)) {
+        logger.error('[DiamondRepository] Failed to get diamond count', err)
+      }
+      return 0
+    }
   }
 
   async getBrilliantCount(): Promise<number> {
-    const rows = await databaseClient.query<CountRow>('user',
-      'SELECT COUNT(*) as count FROM brilliants',
-    )
-    return rows[0]?.count ?? 0
+    try {
+      const rows = await databaseClient.query<CountRow>('user',
+        'SELECT COUNT(*) as count FROM brilliants',
+      )
+      return rows[0]?.count ?? 0
+    } catch (err) {
+      if (!(err instanceof DbNotOpenError)) {
+        logger.error('[DiamondRepository] Failed to get brilliant count', err)
+      }
+      return 0
+    }
   }
 
-  async deleteDiamond(id: number): Promise<void> {
-    await databaseClient.exec('user', 'DELETE FROM diamonds WHERE id = ?', [id])
+  async deleteDiamond(id: number): Promise<boolean> {
+    try {
+      await databaseClient.batch('user', [{
+        sql: 'DELETE FROM diamonds WHERE id = ?',
+        params: [id]
+      }])
+      return true
+    } catch (err) {
+      if (!(err instanceof DbNotOpenError)) {
+        logger.error(`[DiamondRepository] Failed to delete diamond ${id}`, err)
+      }
+      return false
+    }
   }
 
-  async addBrilliant(brilliant: Brilliant): Promise<void> {
-    await databaseClient.exec('user', `
-      INSERT INTO brilliants (hash, fen, pgn, collected_at)
-      VALUES (?, ?, ?, ?)
-    `, [brilliant.hash, brilliant.fen, brilliant.pgn, brilliant.collected_at])
+  async addBrilliant(brilliant: Brilliant): Promise<boolean> {
+    try {
+      await databaseClient.batch('user', [{
+        sql: `
+          INSERT INTO brilliants (hash, fen, pgn, collected_at)
+          VALUES (?, ?, ?, ?)
+        `,
+        params: [brilliant.hash, brilliant.fen, brilliant.pgn, brilliant.collected_at]
+      }])
+      return true
+    } catch (err) {
+      if (!(err instanceof DbNotOpenError)) {
+        logger.error('[DiamondRepository] Failed to add brilliant', err)
+      }
+      return false
+    }
   }
 
-  async removeLastBrilliant(): Promise<void> {
-    await databaseClient.exec('user', `
-      DELETE FROM brilliants
-      WHERE id = (SELECT id FROM brilliants ORDER BY collected_at DESC LIMIT 1)
-    `)
+  async removeLastBrilliant(): Promise<boolean> {
+    try {
+      await databaseClient.batch('user', [{
+        sql: `
+          DELETE FROM brilliants
+          WHERE id = (SELECT id FROM brilliants ORDER BY collected_at DESC LIMIT 1)
+        `
+      }])
+      return true
+    } catch (err) {
+      if (!(err instanceof DbNotOpenError)) {
+        logger.error('[DiamondRepository] Failed to remove last brilliant', err)
+      }
+      return false
+    }
   }
 }
 
