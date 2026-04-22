@@ -43,7 +43,7 @@
 ### [UI] useDiamondHunterUi (`src/features/diamond-hunter/ui/useDiamondHunterUi.ts`)
 - Реактивно отслеживает `hints` и отрисовывает стрелки на доске через `boardStore.setDrawableShapes`.
 
-### [Database] DiamondDatabase (`src/features/diamond-hunter/api/DiamondDatabase.ts`)
+### [Database] DiamondService (`src/features/diamond-hunter/api/DiamondService.ts`)
 - Инкапсулирует работу с IndexedDB для хранения локальной коллекции бриллиантов игрока.
 
 ## 4. Особенности взаимодействия

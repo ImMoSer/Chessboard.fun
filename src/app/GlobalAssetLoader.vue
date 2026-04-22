@@ -67,10 +67,10 @@ async function preloadAssets() {
     progress.value = 75
 
     // 4. Background Audio Assets (Final Step)
-    logger.info('[LoaderProfiler] Step 4/4: Preloading All Audio Assets in background...')
-    await loadAssetGroup(SOUND_ASSETS)
-    const { soundService } = await import('@/shared/lib/sound.service')
-    await soundService.preloadAll()
+    logger.info('[LoaderProfiler] Step 4/4: Triggering background Audio Cache...')
+    // We only put them in the Cache API. We do NOT preload all HTMLAudioElements in memory anymore.
+    loadAssetGroup(SOUND_ASSETS).catch(e => logger.warn('Audio cache failed:', e))
+    
     progress.value = 100
 
     // Background warming

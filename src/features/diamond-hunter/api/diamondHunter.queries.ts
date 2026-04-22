@@ -7,7 +7,7 @@ import {
   recordBrilliant,
   recordDiamond,
   removeLastBrilliant,
-} from './DiamondDatabase'
+} from './DiamondService'
 
 const DIAMOND_HUNTER_KEYS = {
   all: ['diamond-hunter'] as const,

@@ -115,9 +115,6 @@ const soundDefinitions: Record<SoundEvent, { track: SoundTrack; path: string | s
 
 class SoundServiceController {
   private audioCache: Map<string, HTMLAudioElement> = new Map()
-  private isInitialized = false
-  private initPromise: Promise<void>
-  private resolveInitPromise!: () => void
 
   private voiceVolume = 1.0
   private boardVolume = 1.0
@@ -127,60 +124,10 @@ class SoundServiceController {
   private activeBackgroundSounds: Set<HTMLAudioElement> = new Set()
 
   constructor() {
-    this.initPromise = new Promise((resolve) => {
-      this.resolveInitPromise = resolve
-    })
     this.loadVolumeSettings()
-    // HEAVY AUDIO PRELOADING REMOVED FROM CONSTRUCTOR
-    // It will be triggered manually in the background by GlobalAssetLoader
-  }
-
-  /**
-   * Triggers the full audio asset download in the background.
-   */
-  public async preloadAll(): Promise<void> {
-    if (this.isInitialized) return
-
-    logger.info('[SoundService] Background preloading of all audio assets started...')
-    const allLoadPromises = allSoundPaths.map((path) => this.createLoadPromise(path))
-
-    try {
-      await Promise.all(allLoadPromises)
-      this.isInitialized = true
-      logger.info('[SoundService] All audio assets preloaded successfully.')
-      this.resolveInitPromise()
-    } catch (error) {
-      logger.error('[SoundService] Background preloading failed:', error)
-      // We don't want to break the app if a sound fails to load
-      this.isInitialized = true
-      this.resolveInitPromise()
-    }
-  }
-
-  private createLoadPromise(path: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      if (this.audioCache.has(path)) {
-        resolve()
-        return
-      }
-      const audio = new Audio(path)
-      audio.oncanplaythrough = () => {
-        this.audioCache.set(path, audio)
-        resolve()
-      }
-      audio.onerror = () => {
-        reject(new Error(`Failed to load audio from '${path}'.`))
-      }
-      audio.preload = 'auto'
-      audio.load()
-    })
   }
 
   public async playSound(event: SoundEvent): Promise<void> {
-    if (!this.isInitialized) {
-      await this.initPromise
-    }
-
     const definition = soundDefinitions[event]
     if (!definition) {
       logger.warn(`[SoundService] Sound definition not found for event: ${event}`)
@@ -208,6 +155,17 @@ class SoundServiceController {
     this._processVoiceQueue()
   }
 
+  private _getOrCreateAudio(path: string): HTMLAudioElement {
+    if (this.audioCache.has(path)) {
+      return this.audioCache.get(path)!
+    }
+    
+    const audio = new Audio(path)
+    audio.preload = 'auto' // Instructs browser to load data if possible
+    this.audioCache.set(path, audio)
+    return audio
+  }
+
   private _playAndTrack(event: SoundEvent): Promise<void> {
     return new Promise((resolve) => {
       const definition = soundDefinitions[event]!
@@ -222,13 +180,8 @@ class SoundServiceController {
         return
       }
 
-      const audio = this.audioCache.get(path)
-      if (!audio) {
-        logger.warn(`[SoundService] Audio not found in cache: ${path}.`)
-        resolve()
-        return
-      }
-
+      // Lazy-load the HTMLAudioElement
+      const audio = this._getOrCreateAudio(path)
       const isBackground = definition.track === 'background'
 
       audio.volume = isBackground ? this.boardVolume : this.voiceVolume
@@ -297,8 +250,8 @@ class SoundServiceController {
   }
 
   public async ensureInitialized(): Promise<void> {
-    if (this.isInitialized) return
-    return this.initPromise
+    // No-op for backwards compatibility if called from elsewhere
+    return Promise.resolve()
   }
 }
 
