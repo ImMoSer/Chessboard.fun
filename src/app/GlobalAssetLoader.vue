@@ -26,6 +26,10 @@ const SECONDARY_ASSETS = [
   '/npm_stockfish/sf_1807_multi_lite/stockfish-18-lite.wasm',
 ]
 
+// Dynamically discover all sound files to include them in the permanent Cache API
+const soundModules = import.meta.glob('/public/sounds/**/*.mp3')
+const SOUND_ASSETS = Object.keys(soundModules).map((path) => path.replace('/public', ''))
+
 const CACHE_NAME = 'stockfish-assets-v1'
 
 async function preloadAssets() {
@@ -64,6 +68,7 @@ async function preloadAssets() {
 
     // 4. Background Audio Assets (Final Step)
     logger.info('[LoaderProfiler] Step 4/4: Preloading All Audio Assets in background...')
+    await loadAssetGroup(SOUND_ASSETS)
     const { soundService } = await import('@/shared/lib/sound.service')
     await soundService.preloadAll()
     progress.value = 100
