@@ -59,6 +59,14 @@
       "label": "Status-Code",
       "unknown": "Unbekannt"
     },
+    "navigation": {
+      "prev": "Vorheriger Zug",
+      "next": "Nächster Zug"
+    },
+    "notifications": {
+      "fenCopied": "FEN in Zwischenablage kopiert!",
+      "pgnCopied": "PGN in Zwischenablage kopiert!"
+    },
     "updateNotification": {
       "title": "Neue Version verfügbar!",
       "content": "Eine neue Version (v{version}) ist online. Bitte aktualisiere die App, um alle Neuerungen und Fixes zu erhalten.",
@@ -139,6 +147,11 @@
     }
   },
   "features": {
+    "board": {
+      "flip": "Brett drehen",
+      "copyFen": "FEN kopieren",
+      "copyPgn": "PGN kopieren"
+    },
     "finishHim": {
       "feedback": {
         "getReady": "Mach dich bereit für die nächste Herausforderung!",
@@ -407,6 +420,31 @@
     "userCabinet": {
       "title": "Kabinett",
       "loginPrompt": "Melde dich an, um Statistiken und Aktivitäten zu sehen.",
+      "trainingPlan": {
+        "title": "Täglicher Trainingsplan",
+        "noPlan": "Du hast heute keinen aktiven Plan. Fordere einen an, um dein Training zu starten und deinen Streak zu verdienen!",
+        "requestButton": "Heutigen Plan anfordern ({level})",
+        "loading": "Plan wird geladen...",
+        "error": "Fehler beim Laden des Plans",
+        "streak": "Streak",
+        "overallProgress": "Gesamtfortschritt",
+        "planFulfilled": "🎉 Plan erfüllt! Hol dir deine Belohnung und sichere deinen Streak!",
+        "claimReward": "Belohnung abholen & Streak sichern",
+        "planCompleted": "✅ Du hast den heutigen Plan abgeschlossen. Komm morgen wieder!",
+        "columns": {
+          "mode": "Modus",
+          "subMode": "Sub-Modus",
+          "theme": "Thema",
+          "progress": "Fortschritt",
+          "action": "Aktion"
+        },
+        "actions": {
+          "play": "Spielen",
+          "done": "Fertig"
+        },
+        "upgradeTitle": "🏆 Status-Upgrade!",
+        "awesome": "Fantastisch!"
+      },
       "info": {
         "lichessId": "Lichess ID",
         "subscriptionTier": "Abo",

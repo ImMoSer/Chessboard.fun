@@ -1,11 +1,12 @@
-import type { PersonalActivityStatsResponse, UserProfileStatsDto } from '@/shared/types/api.types'
-import { useQuery } from '@tanstack/vue-query'
+import type { PersonalActivityStatsResponse, UserProfileStatsDto, TrainingPlanCurrentResponse, TrainingPlanCompleteResponse, TrainingPlanNextResponse } from '@/shared/types/api.types'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 import { apiClient } from '../client'
 
 const USER_CABINET_KEYS = {
   all: ['user-cabinet'] as const,
   personalActivity: () => [...USER_CABINET_KEYS.all, 'personal-activity'] as const,
   detailedStats: () => [...USER_CABINET_KEYS.all, 'detailed-stats'] as const,
+  trainingPlan: () => [...USER_CABINET_KEYS.all, 'training-plan'] as const,
 }
 
 export const usePersonalActivityStatsQuery = (enabled: boolean = true) => {
@@ -23,5 +24,36 @@ export const useDetailedStatsQuery = (enabled: boolean = true) => {
     queryFn: () => apiClient<UserProfileStatsDto>('/users/me/profile-stats'),
     enabled,
     staleTime: 5 * 60 * 1000,
+  })
+}
+
+export const useCurrentTrainingPlanQuery = (enabled: boolean = true) => {
+  return useQuery<TrainingPlanCurrentResponse, Error>({
+    queryKey: USER_CABINET_KEYS.trainingPlan(),
+    queryFn: () => apiClient<TrainingPlanCurrentResponse>('/training-plan/current'),
+    enabled,
+    staleTime: 60 * 1000,
+  })
+}
+
+export const useNextTrainingPlanMutation = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (level: string) => apiClient<TrainingPlanNextResponse>(`/training-plan/next?level=${level}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: USER_CABINET_KEYS.trainingPlan() })
+    },
+  })
+}
+
+export const useCompleteTrainingPlanMutation = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: () => apiClient<TrainingPlanCompleteResponse>('/training-plan/complete', { method: 'POST' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: USER_CABINET_KEYS.trainingPlan() })
+      // Optionally invalidate user profile to update streak
+      queryClient.invalidateQueries({ queryKey: ['user-profile'] })
+    },
   })
 }

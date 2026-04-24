@@ -27,10 +27,11 @@ export class PgnParserService {
 
     const startFen = tags['FEN'] || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
     
-    // Strict Variant Standard check
+    // Strict Variant check: allow Standard and From Position
     const variantTag = tags['Variant'] || tags['variant']
-    if (variantTag && variantTag.toLowerCase() !== 'standard') {
-      console.warn(`[PgnParserService] Skipping chapter due to non-Standard Variant: ${variantTag}`)
+    const allowedVariants = ['standard', 'from position']
+    if (variantTag && !allowedVariants.includes(variantTag.toLowerCase())) {
+      console.warn(`[PgnParserService] Skipping chapter due to unsupported Variant: ${variantTag}`)
       return null
     }
     

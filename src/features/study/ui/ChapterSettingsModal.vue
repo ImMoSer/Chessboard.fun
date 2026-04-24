@@ -308,13 +308,15 @@ async function handleDelete() {
   }
 
   const deleteAction = async () => {
+    const loadingMsg = message.loading(t('features.study.sidebar.deletingChapter'), { duration: 0 })
     try {
-      message.loading(t('features.study.sidebar.deletingChapter'))
       await studyStore.deleteChapter(props.chapter!.id, !!props.chapter?.lichessChapterId)
       localStorage.setItem(`del_${props.chapter!.id}`, Date.now().toString())
+      loadingMsg.destroy()
       message.success(t('features.study.sidebar.deleteSuccess'))
       emit('update:show', false)
     } catch {
+      loadingMsg.destroy()
       message.error(t('features.study.sidebar.deleteError'))
     }
   }

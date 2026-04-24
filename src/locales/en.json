@@ -59,6 +59,14 @@
       "label": "Status Code",
       "unknown": "Unknown"
     },
+    "navigation": {
+      "prev": "Previous Move",
+      "next": "Next Move"
+    },
+    "notifications": {
+      "fenCopied": "FEN copied to clipboard!",
+      "pgnCopied": "PGN copied to clipboard!"
+    },
     "updateNotification": {
       "title": "New Version Available!",
       "content": "A new version (v{version}) is online. Please update the app to receive all the latest features and fixes.",
@@ -139,6 +147,11 @@
     }
   },
   "features": {
+    "board": {
+      "flip": "Flip Board",
+      "copyFen": "Copy FEN",
+      "copyPgn": "Copy PGN"
+    },
     "finishHim": {
       "feedback": {
         "getReady": "Get ready for the next challenge!",
@@ -407,6 +420,31 @@
     "userCabinet": {
       "title": "User Cabinet",
       "loginPrompt": "Log in to view your statistics and activity.",
+      "trainingPlan": {
+        "title": "Daily Training Plan",
+        "noPlan": "You have no active plan for today. Request one to start your daily training and earn your streak!",
+        "requestButton": "Request Today's Plan ({level})",
+        "loading": "Loading your plan...",
+        "error": "Failed to load plan",
+        "streak": "Streak",
+        "overallProgress": "Overall Progress",
+        "planFulfilled": "🎉 Plan fulfilled! Claim your reward to secure your streak!",
+        "claimReward": "Claim Reward & Secure Streak",
+        "planCompleted": "✅ You have completed today's plan. Come back tomorrow!",
+        "columns": {
+          "mode": "Mode",
+          "subMode": "Sub-Mode",
+          "theme": "Theme",
+          "progress": "Progress",
+          "action": "Action"
+        },
+        "actions": {
+          "play": "Play",
+          "done": "Done"
+        },
+        "upgradeTitle": "🏆 Status Upgrade!",
+        "awesome": "Awesome!"
+      },
       "info": {
         "lichessId": "Lichess ID",
         "subscriptionTier": "Subscription",

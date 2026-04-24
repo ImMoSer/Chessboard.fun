@@ -35,6 +35,7 @@ import { ThemeRoseChart } from '@/features/profile'
 import { UserProfileHeader } from '@/features/profile'
 import { useGameLauncher } from '../lib/composables/useGameLauncher'
 import { normalizeProfileStats } from '@/shared/lib/statsNormalizer'
+import TrainingPlanWidget from './TrainingPlanWidget.vue'
 
 const { t } = useI18n()
 const { launchGame } = useGameLauncher()
@@ -278,6 +279,12 @@ const handleManageSubscription = async () => {
             :is-loading="isExample ? false : isActivityPending"
           />
         </div>
+
+        <TrainingPlanWidget
+          v-if="displayProfile"
+          :user-status="displayProfile.training_status || 'N'"
+          :is-example="isExample"
+        />
 
         <!-- Gift Code Redeem Area -->
         <n-card :bordered="false" class="gift-redeem-card" embedded>

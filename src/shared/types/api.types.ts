@@ -430,6 +430,9 @@ export interface UserSessionProfile extends LichessUserProfile {
   endgame_skill: number
   today_activity?: TodayActivity
   finishHimRating?: { rating: number }
+  training_status?: 'N' | 'P' | 'M'
+  current_streak?: number
+  total_plans_mastered?: number
   tornadoHighScores?: {
     blitz?: number
     rapid?: number
@@ -512,3 +515,49 @@ export interface GameLaunchOptions {
   type?: 'win' | 'draw'
   subMode?: string // For tornado (bullet, blitz...) or finish_him (novice, pro...)
 }
+
+// --- TRAINING PLAN ---
+export interface TrainingPlanThemeGoal {
+  name: string
+  count: number
+  current_solved?: number
+  is_done?: boolean
+}
+
+export interface TrainingPlanTask {
+  mode: string
+  sub_mode: string
+  themes: TrainingPlanThemeGoal[]
+}
+
+export interface TrainingPlanData {
+  level: string
+  total_puzzles: number
+  tasks: TrainingPlanTask[]
+}
+
+export interface TrainingPlanNextResponse {
+  message?: string
+  plan?: TrainingPlanData
+  isNew?: boolean
+  type?: string
+  newStatus?: string
+}
+
+export interface TrainingPlanCurrentResponse {
+  active: boolean
+  message?: string
+  training_status?: string
+  current_streak?: number
+  is_completed?: boolean
+  date?: string
+  plan?: TrainingPlanData
+  overall_progress_percent?: number
+}
+
+export interface TrainingPlanCompleteResponse {
+  success?: boolean
+  message?: string
+  streak?: number
+}
+

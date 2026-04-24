@@ -143,12 +143,14 @@ function selectStudy(study: Study) {
 
 // Lichess Import
 async function handleLichessImport(id: string) {
+  const loadingMsg = message.loading(t('features.study.manager.messages.importing'), { duration: 0 })
   try {
-    message.loading(t('features.study.manager.messages.importing'))
     await studyStore.importFromLichess(id, 'owned')
+    loadingMsg.destroy()
     message.success(t('features.study.manager.messages.importSuccess'))
     activeTab.value = 'my'
   } catch (e: unknown) {
+    loadingMsg.destroy()
     if (e instanceof LichessApiError) {
       errorStatus.value = e.status
       errorMessage.value = e.message
@@ -162,12 +164,14 @@ async function handleLichessImport(id: string) {
 
 async function handleCommunityImport(id: string) {
   isImportingCommunity.value = true
+  const loadingMsg = message.loading(t('features.study.manager.messages.importingCommunity'), { duration: 0 })
   try {
-    message.loading(t('features.study.manager.messages.importingCommunity'))
     await studyStore.importFromLichess(id, 'community', communityToken.value)
+    loadingMsg.destroy()
     message.success(t('features.study.manager.messages.communitySuccess'))
     activeTab.value = 'my'
   } catch (e: unknown) {
+    loadingMsg.destroy()
     if (e instanceof LichessApiError) {
       errorStatus.value = e.status
       errorMessage.value = e.message

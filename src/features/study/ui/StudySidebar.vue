@@ -200,8 +200,8 @@ async function handleSyncFromLichess() {
     positiveText: t('features.study.sidebar.syncConfirmPositive'),
     negativeText: t('features.study.sidebar.syncConfirmNegative'),
     onPositiveClick: async () => {
+      const loadingMsg = message.loading(t('features.study.sidebar.syncing'), { duration: 0 })
       try {
-        message.loading(t('features.study.sidebar.syncing'))
         await studyStore.syncLichessToApp(studyStore.activeStudy!.lichessId!)
 
         // Set cooldown
@@ -209,8 +209,10 @@ async function handleSyncFromLichess() {
         localStorage.setItem(`lastSync_${studyStore.activeStudy?.id}`, lastSyncTime.value.toString())
         startTimerIfNeeded()
 
+        loadingMsg.destroy()
         message.success(t('features.study.sidebar.syncSuccess'))
       } catch (e: unknown) {
+        loadingMsg.destroy()
         if (e instanceof LichessApiError) {
           errorStatus.value = e.status
           errorMessage.value = e.message
@@ -232,13 +234,15 @@ async function handlePublish(chapter: StudyChapter, e: Event) {
     return
   }
 
+  const loadingMsg = message.loading(t('features.study.sidebar.publishingChapter'), { duration: 0 })
   try {
-    message.loading(t('features.study.sidebar.publishingChapter'))
     await studyStore.publishChapterToLichess(chapter.id)
     localStorage.setItem(`pub_${chapter.id}`, Date.now().toString())
     startTimerIfNeeded()
+    loadingMsg.destroy()
     message.success(t('features.study.sidebar.publishSuccess'))
   } catch (e: unknown) {
+    loadingMsg.destroy()
     const error = e instanceof Error ? e.message : t('features.study.sidebar.publishError')
     message.error(error)
   }
@@ -252,13 +256,15 @@ async function handlePush(chapter: StudyChapter, e: Event) {
     return
   }
 
+  const loadingMsg = message.loading(t('features.study.sidebar.pushing'), { duration: 0 })
   try {
-    message.loading(t('features.study.sidebar.pushing'))
     await studyStore.pushChapterToLichess(chapter.id)
     localStorage.setItem(`push_${chapter.id}`, Date.now().toString())
     startTimerIfNeeded()
+    loadingMsg.destroy()
     message.success(t('features.study.sidebar.pushSuccess'))
   } catch (e: unknown) {
+    loadingMsg.destroy()
     const error = e instanceof Error ? e.message : t('features.study.sidebar.pushError')
     message.error(error)
   }
