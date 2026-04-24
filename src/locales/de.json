@@ -117,8 +117,7 @@
       "pawn": "Bauernendspiel",
       "extraPawn": "Mehrbauer",
       "materialEquality": "Schwarz oder Weiß?",
-      "exchange": "Qualität",
-      "rook": "Turmendspiel"
+      "exchange": "Qualität"
     },
     "tactics": {
       "fork": "Gabel",

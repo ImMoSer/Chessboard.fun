@@ -9,7 +9,6 @@ export const CHESS_CATEGORY_UI: Record<string, ChessCategoryUi> = {
   bishop: { icon: '♗♙' },
   knight: { icon: '♘♙' },
   queen: { icon: '♕♙' },
-  rook: { icon: '♖♙' },
   rookPawn: { icon: '♖♙' },
   knightBishop: { icon: '♘↔♗' },
   rookPieces: { icon: '♖♘♗' },

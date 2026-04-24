@@ -115,8 +115,7 @@
       "pawn": "Пешечник",
       "extraPawn": "Лишняя пешка",
       "materialEquality": "Черные или Белые?",
-      "exchange": "Качество",
-      "rook": "Ладейник"
+      "exchange": "Качество"
     },
     "tactics": {
       "fork": "Вилка",

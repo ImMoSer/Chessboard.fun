@@ -80,21 +80,19 @@ const getSubscriptionIcon = (tier?: string) => {
 }
 
 const getThemeLabel = (theme: string) => {
-  if ((FINISH_HIM_THEMES as readonly string[]).includes(theme)) {
-    return t(`chess.themes.${theme}`, { defaultValue: theme })
-  }
-  return t(`chess.themes.${theme}`, { defaultValue: theme })
+  const normalizedTheme = theme === 'rook' ? 'rookPawn' : theme
+  return t(`chess.themes.${normalizedTheme}`, { defaultValue: normalizedTheme })
 }
 
 const getThemeIcon = (theme: string) => {
-  if (theme === 'expert') return '🎓'
-  if (theme === 'auto') return '✨'
+  const normalizedTheme = theme === 'rook' ? 'rookPawn' : theme
+  if (normalizedTheme === 'expert') return '🎓'
+  if (normalizedTheme === 'auto') return '✨'
   const icons: Record<string, string> = {
     pawn: '♔♟',
     bishop: '♗♙',
     knight: '♘♙',
     queen: '♕♙',
-    rook: '♖',
     rookPawn: '♖♙',
     rookPieces: '♖♘♗',
     knightBishop: '♘♗',
@@ -103,7 +101,7 @@ const getThemeIcon = (theme: string) => {
     materialEquality: '⬛⬜',
     exchange: '♗-♖-♘',
   }
-  return icons[theme] || ''
+  return icons[normalizedTheme] || ''
 }
 
 const columns = computed<DataTableColumns<FinishHimLeaderboardEntry | ThematicLeaderboardEntry>>(

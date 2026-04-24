@@ -117,8 +117,7 @@
       "pawn": "Pawn Endgame",
       "extraPawn": "Extra Pawn",
       "materialEquality": "Black or White?",
-      "exchange": "Exchange",
-      "rook": "Rook Endgame"
+      "exchange": "Exchange"
     },
     "tactics": {
       "fork": "Fork",

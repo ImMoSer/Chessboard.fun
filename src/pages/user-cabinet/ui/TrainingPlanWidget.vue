@@ -98,9 +98,9 @@ const columns = computed(() => [
     key: 'theme',
     render: (row: TrainingPlanRow) => {
       const isTornado = row.mode === 'TORNADO'
-      const i18nKey = isTornado ? `chess.tactics.${row.theme}` : `chess.themes.${row.theme}`
-      // Optional fallback: if translation is missing, it will display the key, 
-      // but in our case, the user provided exact coverage.
+      // Normalisierung von 'rook' zu 'rookPawn' für alte Trainingspläne (Kompatibilität)
+      const theme = row.theme === 'rook' ? 'rookPawn' : row.theme
+      const i18nKey = isTornado ? `chess.tactics.${theme}` : `chess.themes.${theme}`
       return t(i18nKey)
     }
   },
@@ -124,7 +124,7 @@ const columns = computed(() => [
       onClick: () => launchGame({ 
         mode: mapModeForLauncher(row.mode, row.sub_mode) as 'theory_draw' | 'theory_win' | 'practical' | 'finish_him' | 'tornado', 
         subMode: row.sub_mode, 
-        theme: row.theme, 
+        theme: row.theme === 'rook' ? 'rookPawn' : row.theme, 
         difficulty: requestedLevel.value 
       })
     }, { default: () => row.is_done ? t('features.userCabinet.trainingPlan.actions.done') : t('features.userCabinet.trainingPlan.actions.play') })

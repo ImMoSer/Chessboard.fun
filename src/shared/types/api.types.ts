@@ -122,7 +122,7 @@ export const PRACTICAL_CHESS_CATEGORIES = [
   'extraPawn',
   'materialEquality',
   'exchange',
-  'rook',
+  'rookPawn',
   'pawn',
   'knightBishop',
   'bishop',
