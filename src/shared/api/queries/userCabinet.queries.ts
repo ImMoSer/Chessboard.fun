@@ -1,4 +1,4 @@
-import type { PersonalActivityStatsResponse, UserProfileStatsDto, TrainingPlanCurrentResponse, TrainingPlanCompleteResponse, TrainingPlanNextResponse } from '@/shared/types/api.types'
+import type { PersonalActivityStatsResponse, UserProfileStatsDto, TrainingPlanCurrentResponse, TrainingPlanNextResponse } from '@/shared/types/api.types'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 import { apiClient } from '../client'
 
@@ -42,18 +42,6 @@ export const useNextTrainingPlanMutation = () => {
     mutationFn: (level: string) => apiClient<TrainingPlanNextResponse>(`/training-plan/next?level=${level}`),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: USER_CABINET_KEYS.trainingPlan() })
-    },
-  })
-}
-
-export const useCompleteTrainingPlanMutation = () => {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: () => apiClient<TrainingPlanCompleteResponse>('/training-plan/complete', { method: 'POST' }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: USER_CABINET_KEYS.trainingPlan() })
-      // Optionally invalidate user profile to update streak
-      queryClient.invalidateQueries({ queryKey: ['user-profile'] })
     },
   })
 }

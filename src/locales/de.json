@@ -425,7 +425,7 @@
         "requestButton": "Heutigen Plan anfordern ({level})",
         "loading": "Plan wird geladen...",
         "error": "Fehler beim Laden des Plans",
-        "streak": "Streak",
+        "streak": "Tag",
         "overallProgress": "Gesamtfortschritt",
         "planFulfilled": "🎉 Plan erfüllt! Hol dir deine Belohnung und sichere deinen Streak!",
         "claimReward": "Belohnung abholen & Streak sichern",

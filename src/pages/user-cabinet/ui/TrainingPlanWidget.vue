@@ -14,7 +14,6 @@ import {
 import {
   useCurrentTrainingPlanQuery,
   useNextTrainingPlanMutation,
-  useCompleteTrainingPlanMutation,
 } from '@/shared/api/queries/userCabinet.queries'
 import { useGameLauncher } from '../lib/composables/useGameLauncher'
 import { useI18n } from 'vue-i18n'
@@ -38,7 +37,6 @@ const requestedLevel = computed(() => statusMap[props.userStatus] || 'Novice')
 
 const { data: planData, isPending, error } = useCurrentTrainingPlanQuery(!props.isExample)
 const { mutate: requestNextPlan, isPending: isRequesting } = useNextTrainingPlanMutation()
-const { mutate: completePlan, isPending: isCompleting } = useCompleteTrainingPlanMutation()
 
 const showUpgradeModal = ref(false)
 const upgradeMessage = ref('')
@@ -60,17 +58,6 @@ const handleRequestPlan = () => {
   })
 }
 
-const handleCompletePlan = () => {
-  completePlan(undefined, {
-    onSuccess: (res) => {
-      message.success(res.message || 'Plan completed!')
-    },
-    onError: (err: Error) => {
-      const error = err as Error & { response?: { data?: { message?: string } } }
-      message.error(error.response?.data?.message || 'Error completing plan')
-    },
-  })
-}
 
 const mapModeForLauncher = (mode: string, subMode: string) => {
   if (mode === 'THEORY_ENDING') return subMode === 'draw' ? 'theory_draw' : 'theory_win'
@@ -91,7 +78,20 @@ interface TrainingPlanRow {
 }
 
 const columns = computed(() => [
-  { title: t('features.userCabinet.trainingPlan.columns.mode'), key: 'mode' },
+  { 
+    title: t('features.userCabinet.trainingPlan.columns.mode'), 
+    key: 'mode',
+    render: (row: TrainingPlanRow) => {
+      const modeMap: Record<string, string> = {
+        'THEORY_ENDING': 'gameModes.theoryEndgames',
+        'PRACTICAL_CHESS': 'gameModes.practicalChess',
+        'FINISH_HIM': 'gameModes.finishHim',
+        'TORNADO': 'gameModes.tornado'
+      }
+      const key = modeMap[row.mode] || row.mode
+      return t(key)
+    }
+  },
   { title: t('features.userCabinet.trainingPlan.columns.subMode'), key: 'sub_mode' },
   { 
     title: t('features.userCabinet.trainingPlan.columns.theme'), 
@@ -111,8 +111,8 @@ const columns = computed(() => [
       type: 'line',
       status: row.is_done ? 'success' : 'default',
       percentage: row.count > 0 ? Math.min(100, Math.round((row.current_solved / row.count) * 100)) : 0,
-      indicatorPlacement: 'inside'
-    }, { default: () => `${row.current_solved} / ${row.count}` }) 
+      indicatorPlacement: 'inside',
+    }, { default: () => h('span', { style: 'color: #fff; font-weight: 500; text-shadow: 0 0 2px #000;' }, `${row.current_solved} / ${row.count}`) }) 
   },
   {
     title: t('features.userCabinet.trainingPlan.columns.action'),
@@ -155,7 +155,7 @@ const tableData = computed(() => {
 
 <template>
   <div class="training-plan-widget">
-    <n-card :bordered="false" class="plan-card" embedded>
+    <n-card :bordered="false" class="plan-card">
       <n-space vertical size="large">
         <n-h3 style="margin-bottom: 0;">📅 {{ t('features.userCabinet.trainingPlan.title') }}</n-h3>
 
@@ -174,7 +174,14 @@ const tableData = computed(() => {
         <!-- Active Plan -->
         <template v-else-if="planData?.plan">
           <div class="plan-header">
-            <n-text v-if="planData.current_streak !== undefined" strong>{{ t('features.userCabinet.trainingPlan.streak') }}: {{ planData.current_streak }}</n-text>
+            <n-space align="center">
+              <n-text v-if="planData.current_streak !== undefined" strong>
+                {{ t('features.userCabinet.trainingPlan.streak') }}: {{ planData.current_streak }}
+              </n-text>
+              <n-text v-if="planData.plan?.level" depth="3">
+                | {{ t(`common.difficulties.level_${planData.plan.level.toLowerCase()}`) }}
+              </n-text>
+            </n-space>
             <n-text v-if="planData.overall_progress_percent !== undefined" style="margin-left: auto;">
               {{ t('features.userCabinet.trainingPlan.overallProgress') }}: {{ planData.overall_progress_percent }}%
             </n-text>
@@ -196,17 +203,7 @@ const tableData = computed(() => {
             size="small"
           />
 
-          <!-- Complete Banner -->
-          <div v-if="planData.overall_progress_percent === 100 && !planData.is_completed" class="complete-banner">
-            <n-text strong style="font-size: 1.1em; color: #18a058;">
-              {{ t('features.userCabinet.trainingPlan.planFulfilled') }}
-            </n-text>
-            <n-button type="success" size="large" :loading="isCompleting" @click="handleCompletePlan">
-              {{ t('features.userCabinet.trainingPlan.claimReward') }}
-            </n-button>
-          </div>
-
-          <div v-else-if="planData.is_completed" class="complete-banner">
+          <div v-if="planData.is_completed" class="complete-banner">
             <n-text strong style="font-size: 1.1em; color: #18a058;">
               {{ t('features.userCabinet.trainingPlan.planCompleted') }}
             </n-text>
@@ -238,7 +235,8 @@ const tableData = computed(() => {
 .plan-card {
   margin-top: 24px;
   border-radius: var(--panel-border-radius);
-  background-color: var(--color-bg-panel);
+  background-color: #1a1b26; /* Solider dunkler Hintergrund */
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .plan-header {
@@ -246,6 +244,12 @@ const tableData = computed(() => {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 8px;
+}
+
+:deep(.n-data-table-th) {
+  font-size: 1.05rem !important;
+  font-weight: 700 !important;
+  color: var(--color-text-primary) !important;
 }
 
 .complete-banner {

@@ -425,7 +425,7 @@
         "requestButton": "Request Today's Plan ({level})",
         "loading": "Loading your plan...",
         "error": "Failed to load plan",
-        "streak": "Streak",
+        "streak": "Day",
         "overallProgress": "Overall Progress",
         "planFulfilled": "🎉 Plan fulfilled! Claim your reward to secure your streak!",
         "claimReward": "Claim Reward & Secure Streak",
