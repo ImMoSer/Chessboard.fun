@@ -127,11 +127,11 @@ const showReactivateButton = computed(() => userProfile.value?.polarStatus === '
             <n-text depth="3" class="expire-date">
               {{ formatTierExpireDate(userProfile.TierExpire) }}
             </n-text>
-            <n-button 
-              v-if="showReactivateButton" 
-              size="tiny" 
-              type="warning" 
-              secondary 
+            <n-button
+              v-if="showReactivateButton"
+              size="tiny"
+              type="warning"
+              secondary
               round
               @click="$emit('reactivate')"
             >
@@ -279,6 +279,12 @@ const showReactivateButton = computed(() => userProfile.value?.polarStatus === '
 }
 
 @media (max-width: 768px) {
+
+  .header-card :deep(.n-card-content) {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
   .header-main-grid {
     gap: 17px;
   }

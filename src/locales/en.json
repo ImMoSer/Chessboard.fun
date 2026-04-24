@@ -421,6 +421,7 @@
       "loginPrompt": "Log in to view your statistics and activity.",
       "trainingPlan": {
         "title": "Daily Training Plan",
+        "refreshed": "Plan refreshed",
         "noPlan": "You have no active plan for today. Request one to start your daily training and earn your streak!",
         "requestButton": "Request Today's Plan ({level})",
         "loading": "Loading your plan...",
@@ -432,7 +433,7 @@
         "planCompleted": "✅ You have completed today's plan. Come back tomorrow!",
         "columns": {
           "mode": "Mode",
-          "subMode": "Sub-Mode",
+          "subMode": "Type",
           "theme": "Theme",
           "progress": "Progress",
           "action": "Action"

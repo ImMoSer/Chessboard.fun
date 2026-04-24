@@ -421,6 +421,7 @@
       "loginPrompt": "Melde dich an, um Statistiken und Aktivitäten zu sehen.",
       "trainingPlan": {
         "title": "Täglicher Trainingsplan",
+        "refreshed": "Plan aktualisiert",
         "noPlan": "Du hast heute keinen aktiven Plan. Fordere einen an, um dein Training zu starten und deinen Streak zu verdienen!",
         "requestButton": "Heutigen Plan anfordern ({level})",
         "loading": "Plan wird geladen...",
@@ -432,7 +433,7 @@
         "planCompleted": "✅ Du hast den heutigen Plan abgeschlossen. Komm morgen wieder!",
         "columns": {
           "mode": "Modus",
-          "subMode": "Sub-Modus",
+          "subMode": "Typ",
           "theme": "Thema",
           "progress": "Fortschritt",
           "action": "Aktion"

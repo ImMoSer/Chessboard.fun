@@ -1,6 +1,7 @@
 <!-- src/pages/UserCabinetView.vue -->
 <script setup lang="ts">
 import { useAuthStore } from '@/entities/user'
+import { apiClient } from '@/shared/api/client'
 import {
   useDetailedStatsQuery,
   usePersonalActivityStatsQuery,
@@ -10,31 +11,28 @@ import {
   generateRandomDetailedStats,
   generateRandomUserProfile,
 } from '@/shared/lib/statsRandomizer'
-import { apiClient } from '@/shared/api/client'
 import type { FinishHimDifficulty, TornadoMode } from '@/shared/types/api.types'
 import {
   NAlert,
   NButton,
   NCard,
+  NH3,
   NInput,
   NInputGroup,
   NModal,
   NResult,
   NSpace,
   NText,
-  NH3,
   useMessage,
 } from 'naive-ui'
 import { storeToRefs } from 'pinia'
-import { computed, ref, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
-import { ActivityChart } from '@/features/profile'
-import { ThemeRoseChart } from '@/features/profile'
-import { UserProfileHeader } from '@/features/profile'
-import { useGameLauncher } from '../lib/composables/useGameLauncher'
+import { ActivityChart, ThemeRoseChart, UserProfileHeader } from '@/features/profile'
 import { normalizeProfileStats } from '@/shared/lib/statsNormalizer'
+import { useGameLauncher } from '../lib/composables/useGameLauncher'
 import TrainingPlanWidget from './TrainingPlanWidget.vue'
 
 const { t } = useI18n()
@@ -63,7 +61,7 @@ const showPolarSuccessModal = ref(false)
 onMounted(() => {
   if (route.query.status === 'success') {
     showPolarSuccessModal.value = true
-    
+
     // Remove query param from URL without reloading
     const query = { ...route.query }
     delete query.status
@@ -145,7 +143,7 @@ const currentPracticalThemes = computed(() => {
 
 const handleRedeem = async () => {
   if (!giftCode.value || giftCode.value.length !== 8) return;
-  
+
   isRedeeming.value = true
   try {
     const res = await apiClient<{ success: boolean; tier: string; expiresAt: string }>(
@@ -213,8 +211,8 @@ const handleManageSubscription = async () => {
 
     <div class="user-cabinet-content">
       <n-space vertical size="large">
-        <UserProfileHeader 
-          :profile-override="displayProfile" 
+        <UserProfileHeader
+          :profile-override="displayProfile"
           @reactivate="handleManageSubscription"
         />
 
@@ -300,11 +298,11 @@ const handleManageSubscription = async () => {
                 style="max-width: 250px;"
                 @keyup.enter="handleRedeem"
               />
-              <n-button 
-                type="primary" 
-                size="large" 
-                :loading="isRedeeming" 
-                :disabled="giftCode.length !== 8" 
+              <n-button
+                type="primary"
+                size="large"
+                :loading="isRedeeming"
+                :disabled="giftCode.length !== 8"
                 @click="handleRedeem"
               >
                 {{ t('features.userCabinet.gift.activate') }}
@@ -408,7 +406,7 @@ const handleManageSubscription = async () => {
 
 @media (max-width: 768px) {
   .user-cabinet-container {
-    padding: 12px;
+    padding: 4px;
     margin: 10px auto;
   }
 
