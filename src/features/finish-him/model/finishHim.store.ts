@@ -314,11 +314,11 @@ export const useFinishHimStore = defineStore('finishHim', () => {
       if (confirmed === 'confirm') {
         gameStore.handleGameResignation()
         if (activePuzzle.value) {
-          loadNewPuzzle(activePuzzle.value.puzzle_id)
+          await loadNewPuzzle(activePuzzle.value.puzzle_id)
         }
       }
     } else if (activePuzzle.value) {
-      loadNewPuzzle(activePuzzle.value.puzzle_id)
+      await loadNewPuzzle(activePuzzle.value.puzzle_id)
     }
   }
 

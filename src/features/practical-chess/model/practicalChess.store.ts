@@ -218,19 +218,20 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
     }
   }
 
-  async function restartPuzzle() {
-    if (activePuzzle.value) {
-      if (activePuzzle.value.category === 'materialEquality') {
-        isWaitingForColorSelection.value = true
-        gameStore.startWithStrategy(activePuzzle.value.initial_fen, _createStrategy(), 'white')
-        return
-      }
-
-      gameStore.startWithStrategy(
-        activePuzzle.value.initial_fen,
-        _createStrategy(),
-        activePuzzle.value.winner as ChessgroundColor,
+  async function handleRestart() {
+    if (gameStore.isGameActive) {
+      const confirmed = await uiStore.showConfirmation(
+        t('features.gameplay.confirmExit.title'),
+        t('features.gameplay.confirmExit.message'),
       )
+      if (confirmed === 'confirm') {
+        gameStore.handleGameResignation()
+        if (activePuzzle.value) {
+          await loadNewPuzzle(activePuzzle.value.puzzle_id)
+        }
+      }
+    } else if (activePuzzle.value) {
+      await loadNewPuzzle(activePuzzle.value.puzzle_id)
     }
   }
 
@@ -285,7 +286,7 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
     selectCategory,
     selectDifficulty,
     loadNewPuzzle,
-    restartPuzzle,
+    handleRestart,
     startYouMoveGame,
     isWaitingForColorSelection,
     reset,

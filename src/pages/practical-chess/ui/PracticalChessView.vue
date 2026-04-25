@@ -110,7 +110,7 @@ watch(
           practicalStore.loadNewPuzzle()
         }
       },
-      onRestart: practicalStore.restartPuzzle,
+      onRestart: practicalStore.handleRestart,
       onShare: async () => {
         if (practicalStore.activePuzzle) {
           await shareService.share('practical-chess', practicalStore.activePuzzle.puzzle_id)
