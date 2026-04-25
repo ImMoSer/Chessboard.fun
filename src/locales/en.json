@@ -431,6 +431,10 @@
         "planFulfilled": "🎉 Plan fulfilled! Claim your reward to secure your streak!",
         "claimReward": "Claim Reward & Secure Streak",
         "planCompleted": "✅ You have completed today's plan. Come back tomorrow!",
+        "yesterdayTitle": "Daily Training Plan for yesterday",
+        "completeYesterdayFirst": "You have to complete your plan for yesterday, before you can start today's plan.",
+        "yesterdayCompleted": "You have completed yesterday's plan.",
+        "getTodayPlan": "Get plan for today",
         "columns": {
           "mode": "Mode",
           "subMode": "Type",

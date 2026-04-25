@@ -431,6 +431,10 @@
         "planFulfilled": "🎉 Plan erfüllt! Hol dir deine Belohnung und sichere deinen Streak!",
         "claimReward": "Belohnung abholen & Streak sichern",
         "planCompleted": "✅ Du hast den heutigen Plan abgeschlossen. Komm morgen wieder!",
+        "yesterdayTitle": "Trainingsplan von gestern",
+        "completeYesterdayFirst": "Du musst zuerst den Plan von gestern abschließen, bevor du den heutigen Plan starten kannst.",
+        "yesterdayCompleted": "Du hast den Plan von gestern abgeschlossen.",
+        "getTodayPlan": "Heutigen Plan anfordern",
         "columns": {
           "mode": "Modus",
           "subMode": "Typ",

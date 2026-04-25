@@ -41,6 +41,19 @@ const requestedLevel = computed(() => statusMap[props.userStatus] || 'Novice')
 const { data: planData, isPending, error, refetch } = useCurrentTrainingPlanQuery(!props.isExample)
 const { mutate: requestNextPlan, isPending: isRequesting } = useNextTrainingPlanMutation()
 
+const planDateStr = computed(() => planData.value?.date || '')
+const todayDateStr = computed(() => new Date().toISOString().split('T')[0])
+
+const isYesterday = computed(() => {
+  if (!planDateStr.value) return false
+  return planDateStr.value < todayDateStr.value
+})
+
+const isToday = computed(() => planDateStr.value === todayDateStr.value)
+const isCompleted = computed(() => (planData.value?.overall_progress_percent || 0) >= 100)
+
+const currentPlanLevel = computed(() => planData.value?.plan?.level || 'Novice')
+
 const isRefreshing = ref(false)
 const handleRefresh = async () => {
   isRefreshing.value = true
@@ -139,12 +152,12 @@ const columns = computed<DataTableColumns<TrainingPlanRow>>(() => [
 
       size: 'small',
       type: row.is_done ? 'default' : 'primary',
-      disabled: row.is_done || planData.value?.is_completed,
+      disabled: row.is_done || isCompleted.value,
       onClick: () => launchGame({
         mode: mapModeForLauncher(row.mode, row.sub_mode) as 'theory_draw' | 'theory_win' | 'practical' | 'finish_him' | 'tornado',
         subMode: row.sub_mode,
         theme: row.theme === 'rook' ? 'rookPawn' : row.theme,
-        difficulty: requestedLevel.value
+        difficulty: currentPlanLevel.value
       })
     }, { default: () => row.is_done ? t('features.userCabinet.trainingPlan.actions.done') : t('features.userCabinet.trainingPlan.actions.play') })
   }
@@ -177,7 +190,9 @@ const tableData = computed(() => {
     <n-card :bordered="false" class="plan-card">
       <n-space vertical size="large">
         <n-space align="center" justify="space-between">
-          <n-h3 style="margin-bottom: 0;">📅 {{ t('features.userCabinet.trainingPlan.title') }}</n-h3>
+          <n-h3 style="margin-bottom: 0;">
+            📅 {{ isYesterday ? t('features.userCabinet.trainingPlan.yesterdayTitle') : t('features.userCabinet.trainingPlan.title') }}
+          </n-h3>
           <n-button
             v-if="planData?.active"
             circle
@@ -205,6 +220,28 @@ const tableData = computed(() => {
 
         <!-- Active Plan -->
         <template v-else-if="planData?.plan">
+          <!-- Status Banners -->
+          <div v-if="isYesterday && !isCompleted" class="status-banner warning">
+            <n-text strong>
+              {{ t('features.userCabinet.trainingPlan.completeYesterdayFirst') }}
+            </n-text>
+          </div>
+
+          <div v-if="isYesterday && isCompleted" class="status-banner success">
+            <n-text strong>
+              {{ t('features.userCabinet.trainingPlan.yesterdayCompleted') }}
+            </n-text>
+            <n-button type="primary" :loading="isRequesting" @click="handleRequestPlan">
+              {{ t('features.userCabinet.trainingPlan.getTodayPlan') }}
+            </n-button>
+          </div>
+
+          <div v-if="isToday && isCompleted" class="status-banner info">
+            <n-text strong>
+              {{ t('features.userCabinet.trainingPlan.planCompleted') }}
+            </n-text>
+          </div>
+
           <div class="plan-header">
             <n-space align="center">
               <n-text v-if="planData.current_streak !== undefined" strong>
@@ -234,12 +271,6 @@ const tableData = computed(() => {
             :bordered="false"
             size="small"
           />
-
-          <div v-if="planData.is_completed" class="complete-banner">
-            <n-text strong style="font-size: 1.1em; color: #b000ff;">
-              {{ t('features.userCabinet.trainingPlan.planCompleted') }}
-            </n-text>
-          </div>
 
         </template>
       </n-space>
@@ -328,5 +359,30 @@ const tableData = computed(() => {
   border-radius: 8px;
   background-color: rgba(176, 0, 255, 0.1);
   border: 1px solid rgba(176, 0, 255, 0.3);
+}
+
+.status-banner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 16px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.status-banner.warning,
+.status-banner.success,
+.status-banner.info {
+  background-color: rgba(176, 0, 255, 0.1);
+  border: 1px solid rgba(176, 0, 255, 0.3);
+}
+
+.status-banner.warning :deep(.n-text),
+.status-banner.success :deep(.n-text),
+.status-banner.info :deep(.n-text) {
+  color: #fff;
+  text-shadow: 0 0 2px #000;
 }
 </style>
