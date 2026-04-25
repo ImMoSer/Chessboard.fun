@@ -134,16 +134,8 @@ export const useTheoryEndingsStore = defineStore('theoryEndings', () => {
             if (!oldData) return oldData;
             const updated = { ...oldData };
             
-            if (response.userStatsUpdate!.theory_win) {
-              updated.theory_win = response.userStatsUpdate!.theory_win;
-            }
-            if (response.userStatsUpdate!.theory_draw) {
-              updated.theory_draw = response.userStatsUpdate!.theory_draw;
-            }
-            // Fallback if the backend still sends consolidated theory
             if (response.userStatsUpdate!.theory) {
-              if (activeType.value === 'win') updated.theory_win = response.userStatsUpdate!.theory;
-              else updated.theory_draw = response.userStatsUpdate!.theory;
+              updated.theory = response.userStatsUpdate!.theory;
             }
             
             return updated;

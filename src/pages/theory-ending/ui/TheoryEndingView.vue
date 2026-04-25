@@ -38,16 +38,20 @@ const normalizedStats = computed(() => {
 const currentTheoryThemes = computed(() => {
   const diff = theoryStore.activeDifficulty || 'Novice'
   if (theoryStore.activeType === 'win') {
-    if (!normalizedStats.value?.theory_win?.modes) return []
-    return normalizedStats.value.theory_win.modes[diff] || []
+    if (!normalizedStats.value?.theory?.modes?.win) return []
+    return normalizedStats.value.theory.modes.win[diff] || []
   } else {
-    if (!normalizedStats.value?.theory_draw?.modes) return []
-    return normalizedStats.value.theory_draw.modes[diff] || []
+    if (!normalizedStats.value?.theory?.modes?.draw) return []
+    return normalizedStats.value.theory.modes.draw[diff] || []
   }
 })
 
 const currentTheoryMode = computed(() => {
-  return theoryStore.activeType === 'win' ? 'theory_win' : 'theory_draw'
+  return 'theory' as const
+})
+
+const currentTheorySubMode = computed(() => {
+  return theoryStore.activeType === 'win' ? 'win' : 'draw'
 })
 
 const currentTheoryTitle = computed(() => {
@@ -55,14 +59,14 @@ const currentTheoryTitle = computed(() => {
 })
 
 const handleImprove = (options: GameLaunchOptions) => {
-  if (options.mode === 'theory_win' || options.mode === 'theory_draw') {
-    if (!options.theme || !options.subMode) {
+  if (options.mode === 'theory') {
+    if (!options.theme || !options.difficulty) {
       throw new Error('[TheoryEndingView] handleImprove was called with missing options!')
     }
-    const targetType = options.mode === 'theory_win' ? 'win' : 'draw'
+    const targetType = options.subMode === 'win' ? 'win' : 'draw'
     theoryStore.setParams(
       targetType as TheoryEndingType,
-      options.subMode as TheoryEndingDifficulty,
+      options.difficulty as TheoryEndingDifficulty,
       options.theme as TheoryEndingCategory,
     )
     theoryStore.loadNewPuzzle(targetType as TheoryEndingType)
@@ -182,9 +186,10 @@ watch(
       <div class="right-panel-content-wrapper">
         <AnalysisPanel v-if="analysisStore.isPanelVisible" />
         <ThemeRoseChart
-          v-if="normalizedStats && (normalizedStats.theory_win || normalizedStats.theory_draw)"
+          v-if="normalizedStats && normalizedStats.theory"
           :activeMode="theoryStore.activeDifficulty || 'Novice'"
           :mode="currentTheoryMode"
+          :subMode="currentTheorySubMode"
           :themes="currentTheoryThemes"
           :title="currentTheoryTitle"
           @improve="handleImprove"

@@ -45,7 +45,7 @@ const activeModeStr = computed({
 const currentTornadoThemes = computed(() => {
   const mode = route.params.mode as TornadoMode
   if (!normalizedStats.value?.tornado?.modes) return []
-  return normalizedStats.value.tornado.modes[mode] || []
+  return normalizedStats.value.tornado.modes[mode]?.mix || []
 })
 
 const handleImprove = (options: GameLaunchOptions) => {

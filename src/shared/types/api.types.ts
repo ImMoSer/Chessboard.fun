@@ -390,12 +390,10 @@ export interface UserStatsUpdate {
   dailyLimit?: number
   spentToday?: number
   today_activity?: TodayActivity
-  finish_him?: FinishHimProfileDto
-  tornado?: TornadoProfileDto
-  theory?: TheoryEndingProfileDto
-  theory_win?: TheoryEndingProfileDto
-  theory_draw?: TheoryEndingProfileDto
-  practical?: PracticalChessProfileDto
+  finish_him?: GameModeProfileDto
+  tornado?: GameModeProfileDto
+  theory?: GameModeProfileDto
+  practical?: GameModeProfileDto
   tornadoHighScores?: {
     blitz?: number
     rapid?: number
@@ -450,70 +448,30 @@ export interface AuthState {
 
 // --- Типы для детальной статистики в кабинете пользователя ---
 
-interface TornadoThemeStatDto {
+export interface ThemeStatDto {
   theme: string
   success: number
   requested: number
   rating: number
 }
 
-export interface TornadoProfileDto {
-  highScores: {
-    bullet: number
-    blitz: number
-    rapid: number
-    classic: number
-  }
-  modes: {
-    bullet: TornadoThemeStatDto[]
-    blitz: TornadoThemeStatDto[]
-    rapid: TornadoThemeStatDto[]
-    classic: TornadoThemeStatDto[]
-  }
-}
-
-interface FinishHimThemeStatDto {
-  theme: string
-  rating: number
-  success: number
-  requested: number
-}
-
-export interface FinishHimProfileDto {
-  modes: {
-    Novice: FinishHimThemeStatDto[]
-    Pro: FinishHimThemeStatDto[]
-    Master: FinishHimThemeStatDto[]
-  }
-}
-
-// Old AdvantageProfileDto for reference warning or removal?
-// User said "example new structure", implying replacement.
-// Let's comment out or remove the old one to force errors where it's used so we fix them.
-// export interface AdvantageProfileDto { ... }
-
-export interface TheoryEndingProfileDto {
-  modes: Record<string, FinishHimThemeStatDto[]>
-}
-
-export interface PracticalChessProfileDto {
-  modes: Record<string, FinishHimThemeStatDto[]>
+export interface GameModeProfileDto {
+  modes: Record<string, Record<string, ThemeStatDto[]>>
+  highScores?: Record<string, number>
 }
 
 export interface UserProfileStatsDto {
-  tornado: TornadoProfileDto
-  finish_him: FinishHimProfileDto
-  theory_win: TheoryEndingProfileDto
-  theory_draw: TheoryEndingProfileDto
-  practical: PracticalChessProfileDto
+  tornado: GameModeProfileDto
+  finish_him: GameModeProfileDto
+  theory: GameModeProfileDto
+  practical: GameModeProfileDto
 }
 
 export interface GameLaunchOptions {
-  mode: 'theory' | 'theory_win' | 'theory_draw' | 'finish_him' | 'practical' | 'tornado'
+  mode: 'theory' | 'finish_him' | 'practical' | 'tornado'
   theme: string
-  difficulty?: string
-  type?: 'win' | 'draw'
-  subMode?: string // For tornado (bullet, blitz...) or finish_him (novice, pro...)
+  difficulty: string
+  subMode: string
 }
 
 // --- TRAINING PLAN ---

@@ -47,7 +47,7 @@ export function useTheoryEndingsQueries(params?: {
 
             if (type && diff && cat) {
                 return await apiClient<TheoryPuzzle>(
-                    `/theory-endings/puzzle?type=${type}&difficulty=${diff}&category=${cat}`
+                    `/theory-endings/puzzle?mode=${type}&difficulty=${diff}&category=${cat}`
                 )
             }
 

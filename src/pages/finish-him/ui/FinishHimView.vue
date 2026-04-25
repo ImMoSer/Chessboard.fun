@@ -37,8 +37,8 @@ const normalizedStats = computed(() => {
 })
 
 const currentFinishHimThemes = computed(() => {
-  if (!normalizedStats.value?.finish_him?.modes) return []
-  return normalizedStats.value.finish_him.modes[finishHimStore.selectedDifficulty] || []
+  if (!normalizedStats.value?.finish_him?.modes?.win) return []
+  return normalizedStats.value.finish_him.modes.win[finishHimStore.selectedDifficulty] || []
 })
 
 const handleImprove = (options: GameLaunchOptions) => {
@@ -163,6 +163,7 @@ watch(
           v-if="normalizedStats && normalizedStats.finish_him"
           v-model:activeMode="finishHimStore.selectedDifficulty"
           mode="finish_him"
+          subMode="win"
           :modes="['Novice', 'Pro', 'Master']"
           :themes="currentFinishHimThemes"
           :title="t('features.userCabinet.stats.modes.finishHim')"

@@ -36,16 +36,16 @@ const normalizedStats = computed(() => {
 })
 
 const currentPracticalThemes = computed(() => {
-  if (!normalizedStats.value?.practical?.modes) return []
-  return normalizedStats.value.practical.modes[practicalStore.activeDifficulty || 'Novice'] || []
+  if (!normalizedStats.value?.practical?.modes?.win) return []
+  return normalizedStats.value.practical.modes.win[practicalStore.activeDifficulty || 'Novice'] || []
 })
 
 const handleImprove = (options: GameLaunchOptions) => {
   if (options.mode === 'practical') {
-    if (!options.theme || !options.subMode) {
+    if (!options.theme || !options.difficulty) {
       throw new Error('[PracticalChessView] handleImprove was called with missing options!')
     }
-    practicalStore.selectDifficulty(options.subMode as PracticalChessDifficulty)
+    practicalStore.selectDifficulty(options.difficulty as PracticalChessDifficulty)
     practicalStore.selectCategory(options.theme as PracticalChessCategory)
     practicalStore.loadNewPuzzle()
   }
@@ -155,6 +155,7 @@ watch(
           v-if="normalizedStats && normalizedStats.practical"
           :activeMode="practicalStore.activeDifficulty || 'Novice'"
           mode="practical"
+          subMode="win"
           :themes="currentPracticalThemes"
           :title="t('features.userCabinet.stats.modes.practical')"
           @improve="handleImprove"

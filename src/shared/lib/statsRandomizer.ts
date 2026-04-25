@@ -146,14 +146,6 @@ export function generateRandomDetailedStats(baseRating: number = 1500): UserProf
     })
   }
 
-  const tornadoModes = {
-    bullet: applyVariety(TORNADO_THEMES),
-    blitz: applyVariety(TORNADO_THEMES),
-    rapid: applyVariety(TORNADO_THEMES),
-    classic: applyVariety(TORNADO_THEMES),
-  }
-
-
   const theoryModes = (categories: readonly string[]) => ({
     Novice: applyVariety(categories),
     Pro: applyVariety(categories),
@@ -168,18 +160,29 @@ export function generateRandomDetailedStats(baseRating: number = 1500): UserProf
         rapid: getRandomInt(20, 70),
         classic: getRandomInt(20, 70),
       },
-      modes: tornadoModes,
+      modes: {
+        bullet: { mix: applyVariety(TORNADO_THEMES) },
+        blitz: { mix: applyVariety(TORNADO_THEMES) },
+        rapid: { mix: applyVariety(TORNADO_THEMES) },
+        classic: { mix: applyVariety(TORNADO_THEMES) },
+      },
     },
     finish_him: {
       modes: {
-        Novice: applyVariety(FINISH_HIM_THEMES),
-        Pro: applyVariety(FINISH_HIM_THEMES),
-        Master: applyVariety(FINISH_HIM_THEMES),
+        win: theoryModes(FINISH_HIM_THEMES)
       },
     },
-    theory_win: { modes: theoryModes(THEORY_ENDING_CATEGORIES) },
-    theory_draw: { modes: theoryModes(THEORY_ENDING_CATEGORIES) },
-    practical: { modes: theoryModes(PRACTICAL_CHESS_CATEGORIES) },
+    theory: {
+      modes: {
+        win: theoryModes(THEORY_ENDING_CATEGORIES),
+        draw: theoryModes(THEORY_ENDING_CATEGORIES)
+      }
+    },
+    practical: { 
+      modes: {
+        win: theoryModes(PRACTICAL_CHESS_CATEGORIES)
+      } 
+    },
   }
 }
 

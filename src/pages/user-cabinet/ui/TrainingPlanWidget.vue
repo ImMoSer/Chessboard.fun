@@ -42,7 +42,7 @@ const { data: planData, isPending, error, refetch } = useCurrentTrainingPlanQuer
 const { mutate: requestNextPlan, isPending: isRequesting } = useNextTrainingPlanMutation()
 
 const planDateStr = computed(() => planData.value?.date || '')
-const todayDateStr = computed(() => new Date().toISOString().split('T')[0])
+const todayDateStr = computed(() => new Date().toISOString().split('T')[0]!)
 
 const isYesterday = computed(() => {
   if (!planDateStr.value) return false
@@ -86,8 +86,8 @@ const handleRequestPlan = () => {
 }
 
 
-const mapModeForLauncher = (mode: string, subMode: string) => {
-  if (mode === 'THEORY_ENDING') return subMode === 'draw' ? 'theory_draw' : 'theory_win'
+const mapModeForLauncher = (mode: string) => {
+  if (mode === 'THEORY_ENDING') return 'theory'
   if (mode === 'PRACTICAL_CHESS') return 'practical'
   if (mode === 'FINISH_HIM') return 'finish_him'
   if (mode === 'TORNADO') return 'tornado'
@@ -154,7 +154,7 @@ const columns = computed<DataTableColumns<TrainingPlanRow>>(() => [
       type: row.is_done ? 'default' : 'primary',
       disabled: row.is_done || isCompleted.value,
       onClick: () => launchGame({
-        mode: mapModeForLauncher(row.mode, row.sub_mode) as 'theory_draw' | 'theory_win' | 'practical' | 'finish_him' | 'tornado',
+        mode: mapModeForLauncher(row.mode) as 'theory' | 'practical' | 'finish_him' | 'tornado',
         subMode: row.sub_mode,
         theme: row.theme === 'rook' ? 'rookPawn' : row.theme,
         difficulty: currentPlanLevel.value

@@ -118,27 +118,27 @@ const selectedPracticalMode = ref<FinishHimDifficulty>('Novice')
 
 const currentTornadoThemes = computed(() => {
   if (!detailedStats.value?.tornado?.modes) return []
-  return detailedStats.value.tornado.modes[selectedTornadoMode.value] || []
+  return detailedStats.value.tornado.modes[selectedTornadoMode.value]?.mix || []
 })
 
 const currentFinishHimThemes = computed(() => {
-  if (!detailedStats.value?.finish_him?.modes) return []
-  return detailedStats.value.finish_him.modes[selectedFinishHimMode.value] || []
+  if (!detailedStats.value?.finish_him?.modes?.win) return []
+  return detailedStats.value.finish_him.modes.win[selectedFinishHimMode.value] || []
 })
 
 const currentTheoryWinThemes = computed(() => {
-  if (!detailedStats.value?.theory_win?.modes) return []
-  return detailedStats.value.theory_win.modes[selectedTheoryWinMode.value] || []
+  if (!detailedStats.value?.theory?.modes?.win) return []
+  return detailedStats.value.theory.modes.win[selectedTheoryWinMode.value] || []
 })
 
 const currentTheoryDrawThemes = computed(() => {
-  if (!detailedStats.value?.theory_draw?.modes) return []
-  return detailedStats.value.theory_draw.modes[selectedTheoryDrawMode.value] || []
+  if (!detailedStats.value?.theory?.modes?.draw) return []
+  return detailedStats.value.theory.modes.draw[selectedTheoryDrawMode.value] || []
 })
 
 const currentPracticalThemes = computed(() => {
-  if (!detailedStats.value?.practical?.modes) return []
-  return detailedStats.value.practical.modes[selectedPracticalMode.value] || []
+  if (!detailedStats.value?.practical?.modes?.win) return []
+  return detailedStats.value.practical.modes.win[selectedPracticalMode.value] || []
 })
 
 const handleRedeem = async () => {
@@ -232,6 +232,7 @@ const handleManageSubscription = async () => {
             v-if="detailedStats && detailedStats.finish_him"
             v-model:activeMode="selectedFinishHimMode"
             mode="finish_him"
+            subMode="win"
             :modes="['Novice', 'Pro', 'Master']"
             :themes="currentFinishHimThemes"
             :title="t('features.userCabinet.stats.modes.finishHim')"
@@ -241,9 +242,10 @@ const handleManageSubscription = async () => {
 
         <div class="charts-grid">
           <ThemeRoseChart
-            v-if="detailedStats && detailedStats.theory_win"
+            v-if="detailedStats && detailedStats.theory"
             v-model:activeMode="selectedTheoryWinMode"
-            mode="theory_win"
+            mode="theory"
+            subMode="win"
             :modes="['Novice', 'Pro', 'Master']"
             :themes="currentTheoryWinThemes"
             :title="t('features.userCabinet.stats.modes.theoryWin')"
@@ -251,9 +253,10 @@ const handleManageSubscription = async () => {
           />
 
           <ThemeRoseChart
-            v-if="detailedStats && detailedStats.theory_draw"
+            v-if="detailedStats && detailedStats.theory"
             v-model:activeMode="selectedTheoryDrawMode"
-            mode="theory_draw"
+            mode="theory"
+            subMode="draw"
             :modes="['Novice', 'Pro', 'Master']"
             :themes="currentTheoryDrawThemes"
             :title="t('features.userCabinet.stats.modes.theoryDraw')"
@@ -266,6 +269,7 @@ const handleManageSubscription = async () => {
             v-if="detailedStats && detailedStats.practical"
             v-model:activeMode="selectedPracticalMode"
             mode="practical"
+            subMode="win"
             :modes="['Novice', 'Pro', 'Master']"
             :themes="currentPracticalThemes"
             :title="t('features.userCabinet.stats.modes.practical')"

@@ -60,8 +60,12 @@ const props = defineProps({
     default: '',
   },
   mode: {
-    type: String as PropType<'tornado' | 'finish_him' | 'theory_win' | 'theory_draw' | 'practical'>,
+    type: String as PropType<'tornado' | 'finish_him' | 'theory' | 'practical'>,
     default: 'tornado',
+  },
+  subMode: {
+    type: String,
+    default: '',
   },
 })
 
@@ -268,10 +272,14 @@ const onImproveClick = () => {
 
   const { themeId, screenMode } = activePopup.value.data
 
+  const finalDifficulty = props.mode === 'tornado' ? 'mix' : screenMode
+  const finalSubMode = props.mode === 'tornado' ? screenMode : props.subMode
+
   emit('improve', {
-    mode: props.mode, // 'tornado' | 'finish_him'
+    mode: props.mode as GameLaunchOptions['mode'],
     theme: themeId,
-    subMode: screenMode, // 'bullet', 'blitz' etc. OR 'novice', 'pro' ...
+    subMode: finalSubMode,
+    difficulty: finalDifficulty,
   })
 }
 </script>
