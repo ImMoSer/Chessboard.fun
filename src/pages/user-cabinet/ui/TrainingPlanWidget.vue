@@ -3,7 +3,7 @@ import {
   useCurrentTrainingPlanQuery,
   useNextTrainingPlanMutation,
 } from '@/shared/api/queries/userCabinet.queries'
-import { RefreshOutline } from '@vicons/ionicons5'
+import { ChevronDownOutline, ChevronUpOutline, PlayOutline, RefreshOutline } from '@vicons/ionicons5'
 import {
   NButton,
   NCard,
@@ -25,10 +25,17 @@ const message = useMessage()
 const { t } = useI18n()
 const { launchGame } = useGameLauncher()
 
-const props = defineProps<{
-  userStatus: 'N' | 'P' | 'M'
+const props = withDefaults(defineProps<{
+  userStatus?: 'N' | 'P' | 'M'
   isExample?: boolean
-}>()
+  compact?: boolean
+  activeTaskKey?: string | null
+}>(), {
+  userStatus: 'N',
+  isExample: false,
+  compact: false,
+  activeTaskKey: null
+})
 
 const statusMap: Record<string, string> = {
   N: 'Novice',
@@ -104,32 +111,35 @@ interface TrainingPlanRow {
   is_done: boolean
 }
 
+const getModeLabel = (mode: string) => {
+  const modeMap: Record<string, string> = {
+    'THEORY_ENDING': 'gameModes.theoryEndgames',
+    'PRACTICAL_CHESS': 'gameModes.practicalChess',
+    'FINISH_HIM': 'gameModes.finishHim',
+    'TORNADO': 'gameModes.tornado'
+  }
+  const key = modeMap[mode] || mode
+  return t(key)
+}
+
+const getThemeLabel = (mode: string, theme: string) => {
+  const isTornado = mode === 'TORNADO'
+  const finalTheme = theme === 'rook' ? 'rookPawn' : theme
+  const i18nKey = isTornado ? `chess.tactics.${finalTheme}` : `chess.themes.${finalTheme}`
+  return t(i18nKey)
+}
+
 const columns = computed<DataTableColumns<TrainingPlanRow>>(() => [
   {
     title: t('features.userCabinet.trainingPlan.columns.mode'),
     key: 'mode',
-    render: (row: TrainingPlanRow) => {
-      const modeMap: Record<string, string> = {
-        'THEORY_ENDING': 'gameModes.theoryEndgames',
-        'PRACTICAL_CHESS': 'gameModes.practicalChess',
-        'FINISH_HIM': 'gameModes.finishHim',
-        'TORNADO': 'gameModes.tornado'
-      }
-      const key = modeMap[row.mode] || row.mode
-      return t(key)
-    }
+    render: (row: TrainingPlanRow) => getModeLabel(row.mode)
   },
   { title: t('features.userCabinet.trainingPlan.columns.subMode'), key: 'sub_mode' },
   {
     title: t('features.userCabinet.trainingPlan.columns.theme'),
     key: 'theme',
-    render: (row: TrainingPlanRow) => {
-      const isTornado = row.mode === 'TORNADO'
-      // Normalisierung von 'rook' zu 'rookPawn' für alte Trainingspläne (Kompatibilität)
-      const theme = row.theme === 'rook' ? 'rookPawn' : row.theme
-      const i18nKey = isTornado ? `chess.tactics.${theme}` : `chess.themes.${theme}`
-      return t(i18nKey)
-    }
+    render: (row: TrainingPlanRow) => getThemeLabel(row.mode, row.theme)
   },
   { 
     title: t('features.userCabinet.trainingPlan.columns.progress'), 
@@ -181,6 +191,26 @@ const tableData = computed(() => {
     })
   })
   return data
+})
+
+const isExpanded = ref(false)
+
+const visibleTableData = computed(() => {
+  if (!props.compact) return tableData.value
+  
+  if (isExpanded.value) {
+    if (!props.activeTaskKey) return tableData.value
+    const activeRow = tableData.value.find(r => r.key === props.activeTaskKey)
+    const otherRows = tableData.value.filter(r => r.key !== props.activeTaskKey)
+    return activeRow ? [activeRow, ...otherRows] : tableData.value
+  }
+  
+  if (props.activeTaskKey) {
+    const activeRow = tableData.value.find(r => r.key === props.activeTaskKey)
+    if (activeRow) return [activeRow]
+  }
+  
+  return tableData.value
 })
 
 </script>
@@ -265,12 +295,67 @@ const tableData = computed(() => {
             style="margin-bottom: 12px;"
           />
 
-          <n-data-table
-            :columns="columns"
-            :data="tableData"
-            :bordered="false"
-            size="small"
-          />
+          <template v-if="!compact">
+            <n-data-table
+              :columns="columns"
+              :data="tableData"
+              :bordered="false"
+              size="small"
+            />
+          </template>
+          <template v-else>
+            <div class="compact-task-list">
+              <div v-for="row in visibleTableData" :key="row.key" class="compact-task-item" :class="{ 'is-done': row.is_done, 'is-active': row.key === activeTaskKey }">
+                <div class="compact-task-header">
+                  <n-text strong>{{ getModeLabel(row.mode) }}</n-text>
+                  <n-text depth="3" style="font-size: 0.85em;">{{ getThemeLabel(row.mode, row.theme) }} ({{ row.sub_mode }})</n-text>
+                </div>
+                <div class="compact-action-row">
+                  <n-progress
+                    type="line"
+                    :color="row.is_done ? '#18a058' : '#b000ff'"
+                    :percentage="row.count > 0 ? Math.min(100, Math.round((row.current_solved / row.count) * 100)) : 0"
+                    indicator-placement="inside"
+                    style="flex-grow: 1;"
+                  >
+                    <span style="color: #fff; font-weight: 500; text-shadow: 0 0 2px #000;">{{ row.current_solved }} / {{ row.count }}</span>
+                  </n-progress>
+                  <n-button
+                    v-if="row.key !== activeTaskKey"
+                    size="tiny"
+                    :type="row.is_done ? 'default' : 'primary'"
+                    :disabled="row.is_done || isCompleted"
+                    @click="launchGame({
+                      mode: mapModeForLauncher(row.mode) as 'theory' | 'practical' | 'finish_him' | 'tornado',
+                      subMode: row.sub_mode,
+                      theme: row.theme === 'rook' ? 'rookPawn' : row.theme,
+                      difficulty: currentPlanLevel
+                    })"
+                  >
+                    <template #icon v-if="!row.is_done">
+                      <n-icon><PlayOutline /></n-icon>
+                    </template>
+                    {{ row.is_done ? t('features.userCabinet.trainingPlan.actions.done') : '' }}
+                  </n-button>
+                </div>
+              </div>
+              
+              <n-button
+                v-if="compact && tableData.length > 1"
+                quaternary
+                block
+                size="small"
+                @click="isExpanded = !isExpanded"
+              >
+                <template #icon>
+                  <n-icon>
+                    <ChevronUpOutline v-if="isExpanded" />
+                    <ChevronDownOutline v-else />
+                  </n-icon>
+                </template>
+              </n-button>
+            </div>
+          </template>
 
         </template>
       </n-space>
@@ -384,5 +469,40 @@ const tableData = computed(() => {
 .status-banner.info :deep(.n-text) {
   color: #fff;
   text-shadow: 0 0 2px #000;
+}
+
+.compact-task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.compact-task-item {
+  background-color: var(--color-bg-tertiary);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 12px;
+  transition: all 0.2s ease;
+}
+
+.compact-task-item.is-done {
+  opacity: 0.7;
+}
+
+.compact-task-item.is-active {
+  border-color: #b000ff;
+}
+
+.compact-task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.compact-action-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 </style>

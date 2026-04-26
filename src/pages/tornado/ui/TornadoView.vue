@@ -2,9 +2,11 @@
 <script setup lang="ts">
 import { useBoardStore, useGameStore } from '@/entities/game'
 import { AnalysisPanel, useAnalysisStore } from '@/features/analysis'
-import { UserProfileWidget, ThemeRoseChart } from '@/features/profile'
-import { useTornadoStore, type TornadoMode } from '@/features/tornado'
+import { ThemeRoseChart, UserProfileWidget } from '@/features/profile'
 import { useSmartHintStore } from '@/features/smart-hint'
+import { type TornadoMode, useTornadoStore } from '@/features/tornado'
+import { useActivePlanMatch } from '@/pages/user-cabinet/lib/composables/useActivePlanMatch'
+import TrainingPlanWidget from '@/pages/user-cabinet/ui/TrainingPlanWidget.vue'
 import ChessboardPreview from '@/shared/ui/board-preview/ChessboardPreview.vue'
 import { computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
@@ -25,6 +27,12 @@ const authStore = useAuthStore()
 const route = useRoute()
 const router = useRouter()
 const { t } = useI18n()
+
+const { isTaskInActivePlan, activeTaskKey } = useActivePlanMatch(() => ({
+  mode: 'TORNADO',
+  subMode: route.params.mode as string,
+  theme: (route.query.theme as string) || ''
+}))
 
 const { data: detailedStatsData } = useDetailedStatsQuery()
 
@@ -134,15 +142,20 @@ watch(
     <template #right-panel>
       <div class="panel-content-wrapper">
         <AnalysisPanel v-if="gameStore.gamePhase === 'GAMEOVER' || gameStore.gamePhase === 'IDLE'" />
-        <ThemeRoseChart
-          v-if="normalizedStats && normalizedStats.tornado"
-          v-model:activeMode="activeModeStr"
-          mode="tornado"
-          :modes="['bullet', 'blitz', 'rapid', 'classic']"
-          :themes="currentTornadoThemes"
-          :title="t('features.userCabinet.stats.modes.tornado')"
-          @improve="handleImprove"
-        />
+        <template v-if="isTaskInActivePlan">
+          <TrainingPlanWidget compact :active-task-key="activeTaskKey" />
+        </template>
+        <template v-else>
+          <ThemeRoseChart
+            v-if="normalizedStats && normalizedStats.tornado"
+            v-model:activeMode="activeModeStr"
+            mode="tornado"
+            :modes="['bullet', 'blitz', 'rapid', 'classic']"
+            :themes="currentTornadoThemes"
+            :title="t('features.userCabinet.stats.modes.tornado')"
+            @improve="handleImprove"
+          />
+        </template>
       </div>
     </template>
   </GameLayout>

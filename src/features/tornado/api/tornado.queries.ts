@@ -5,7 +5,7 @@ import type {
   TornadoMode,
   TornadoStartResponse
 } from '@/shared/types/api.types';
-import { useMutation } from '@tanstack/vue-query';
+import { useMutation, useQueryClient } from '@tanstack/vue-query';
 
 
 export function useTornadoQueries() {
@@ -16,12 +16,16 @@ export function useTornadoQueries() {
       }),
   })
 
+  const queryClient = useQueryClient()
   const endSessionMutation = useMutation({
     mutationFn: (args: { mode: TornadoMode; dto: TornadoEndSessionDto }) =>
       apiClient<TornadoEndResponse>(`/tornado/end-session/${args.mode}`, {
         method: 'POST',
         body: JSON.stringify(args.dto)
       }),
+    onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['user-cabinet', 'training-plan'] })
+    }
   })
 
   return {

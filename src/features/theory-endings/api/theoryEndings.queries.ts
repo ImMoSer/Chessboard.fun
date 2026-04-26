@@ -7,7 +7,7 @@ import type {
     TheoryEndingType,
     TheoryPuzzle
 } from '@/shared/types/api.types'
-import { useMutation, useQuery } from '@tanstack/vue-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { computed, type Ref } from 'vue'
 
 const THEORY_ENDINGS_KEYS = {
@@ -57,12 +57,16 @@ export function useTheoryEndingsQueries(params?: {
         staleTime: 0,
     })
 
+    const queryClient = useQueryClient()
     const resultMutation = useMutation({
         mutationFn: (dto: TheoryEndingResultDto) =>
             apiClient<GameResultResponse>('/theory-endings/result', {
                 method: 'POST',
                 body: JSON.stringify(dto)
             }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['user-cabinet', 'training-plan'] })
+        }
     })
 
     return {

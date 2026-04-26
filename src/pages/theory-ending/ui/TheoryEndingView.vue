@@ -12,7 +12,9 @@ import { useI18n } from 'vue-i18n'
 import type { TheoryEndingType, GameLaunchOptions, TheoryEndingDifficulty, TheoryEndingCategory } from '@/shared/types/api.types'
 
 import { AnalysisPanel } from '@/features/analysis'
-import { UserProfileWidget, ThemeRoseChart } from '@/features/profile'
+import { ThemeRoseChart, UserProfileWidget } from '@/features/profile'
+import { useActivePlanMatch } from '@/pages/user-cabinet/lib/composables/useActivePlanMatch'
+import TrainingPlanWidget from '@/pages/user-cabinet/ui/TrainingPlanWidget.vue'
 import { ControlPanel, GameLayout, TopInfoPanel, useControlsStore } from '@/widgets/game-layout'
 import { useDetailedStatsQuery } from '@/shared/api/queries/userCabinet.queries'
 import { normalizeProfileStats } from '@/shared/lib/statsNormalizer'
@@ -27,6 +29,12 @@ const smartHintStore = useSmartHintStore()
 const authStore = useAuthStore()
 const router = useRouter()
 const route = useRoute()
+
+const { isTaskInActivePlan, activeTaskKey } = useActivePlanMatch(() => ({
+  mode: 'THEORY_ENDING',
+  subMode: theoryStore.activeType || 'win',
+  theme: theoryStore.activeCategory || ''
+}))
 
 const { data: detailedStatsData } = useDetailedStatsQuery()
 
@@ -185,15 +193,20 @@ watch(
     <template #right-panel>
       <div class="right-panel-content-wrapper">
         <AnalysisPanel v-if="analysisStore.isPanelVisible" />
-        <ThemeRoseChart
-          v-if="normalizedStats && normalizedStats.theory"
-          :activeMode="theoryStore.activeDifficulty || 'Novice'"
-          :mode="currentTheoryMode"
-          :subMode="currentTheorySubMode"
-          :themes="currentTheoryThemes"
-          :title="currentTheoryTitle"
-          @improve="handleImprove"
-        />
+        <template v-if="isTaskInActivePlan">
+          <TrainingPlanWidget compact :active-task-key="activeTaskKey" />
+        </template>
+        <template v-else>
+          <ThemeRoseChart
+            v-if="normalizedStats && normalizedStats.theory"
+            :activeMode="theoryStore.activeDifficulty || 'Novice'"
+            :mode="currentTheoryMode"
+            :subMode="currentTheorySubMode"
+            :themes="currentTheoryThemes"
+            :title="currentTheoryTitle"
+            @improve="handleImprove"
+          />
+        </template>
       </div>
     </template>
   </GameLayout>

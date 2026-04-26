@@ -6,7 +6,7 @@ import type {
     PracticalChessResultDto,
     PracticalPuzzle
 } from '@/shared/types/api.types'
-import { useMutation, useQuery } from '@tanstack/vue-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { computed, type Ref } from 'vue'
 
 const PRACTICAL_CHESS_KEYS = {
@@ -43,12 +43,16 @@ export function usePracticalChessQueries(params?: {
         staleTime: 0,
     })
 
+    const queryClient = useQueryClient()
     const resultMutation = useMutation({
         mutationFn: (args: { category: string; dto: PracticalChessResultDto }) =>
             apiClient<GameResultResponse>(`/practical-chess/${args.category}/process-result`, {
                 method: 'POST',
                 body: JSON.stringify(args.dto)
             }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['user-cabinet', 'training-plan'] })
+        }
     })
 
     return {

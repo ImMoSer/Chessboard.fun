@@ -10,8 +10,10 @@ import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
 import { AnalysisPanel } from '@/features/analysis'
-import { UserProfileWidget, ThemeRoseChart } from '@/features/profile'
 import { YouMoveSelection } from '@/features/practical-chess'
+import { ThemeRoseChart, UserProfileWidget } from '@/features/profile'
+import { useActivePlanMatch } from '@/pages/user-cabinet/lib/composables/useActivePlanMatch'
+import TrainingPlanWidget from '@/pages/user-cabinet/ui/TrainingPlanWidget.vue'
 import { ControlPanel, GameLayout, TopInfoPanel, useControlsStore } from '@/widgets/game-layout'
 import { useDetailedStatsQuery } from '@/shared/api/queries/userCabinet.queries'
 import { normalizeProfileStats } from '@/shared/lib/statsNormalizer'
@@ -27,6 +29,12 @@ const smartHintStore = useSmartHintStore()
 const authStore = useAuthStore()
 const router = useRouter()
 const route = useRoute()
+
+const { isTaskInActivePlan, activeTaskKey } = useActivePlanMatch(() => ({
+  mode: 'PRACTICAL_CHESS',
+  subMode: 'win',
+  theme: practicalStore.activeCategory || ''
+}))
 
 const { data: detailedStatsData } = useDetailedStatsQuery()
 
@@ -151,15 +159,20 @@ watch(
     <template #right-panel>
       <div class="right-panel-content-wrapper">
         <AnalysisPanel v-if="analysisStore.isPanelVisible" />
-        <ThemeRoseChart
-          v-if="normalizedStats && normalizedStats.practical"
-          :activeMode="practicalStore.activeDifficulty || 'Novice'"
-          mode="practical"
-          subMode="win"
-          :themes="currentPracticalThemes"
-          :title="t('features.userCabinet.stats.modes.practical')"
-          @improve="handleImprove"
-        />
+        <template v-if="isTaskInActivePlan">
+          <TrainingPlanWidget compact :active-task-key="activeTaskKey" />
+        </template>
+        <template v-else>
+          <ThemeRoseChart
+            v-if="normalizedStats && normalizedStats.practical"
+            :activeMode="practicalStore.activeDifficulty || 'Novice'"
+            mode="practical"
+            subMode="win"
+            :themes="currentPracticalThemes"
+            :title="t('features.userCabinet.stats.modes.practical')"
+            @improve="handleImprove"
+          />
+        </template>
       </div>
     </template>
   </GameLayout>

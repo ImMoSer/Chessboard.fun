@@ -13,6 +13,8 @@ import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useAuthStore } from '@/entities/user'
 import { AnalysisPanel } from '@/features/analysis'
 import { ThemeRoseChart, UserProfileWidget } from '@/features/profile'
+import { useActivePlanMatch } from '@/pages/user-cabinet/lib/composables/useActivePlanMatch'
+import TrainingPlanWidget from '@/pages/user-cabinet/ui/TrainingPlanWidget.vue'
 import { useDetailedStatsQuery } from '@/shared/api/queries/userCabinet.queries'
 import { normalizeProfileStats } from '@/shared/lib/statsNormalizer'
 import type { FinishHimDifficulty, GameLaunchOptions } from '@/shared/types/api.types'
@@ -28,6 +30,12 @@ const authStore = useAuthStore()
 const route = useRoute()
 const router = useRouter()
 const { t } = useI18n()
+
+const { isTaskInActivePlan, activeTaskKey } = useActivePlanMatch(() => ({
+  mode: 'FINISH_HIM',
+  subMode: 'win',
+  theme: finishHimStore.selectedTheme || ''
+}))
 
 const { data: detailedStatsData } = useDetailedStatsQuery()
 
@@ -159,16 +167,21 @@ watch(
     <template #right-panel>
       <div class="right-panel-content-wrapper">
         <AnalysisPanel v-if="analysisStore.isPanelVisible" />
-        <ThemeRoseChart
-          v-if="normalizedStats && normalizedStats.finish_him"
-          v-model:activeMode="finishHimStore.selectedDifficulty"
-          mode="finish_him"
-          subMode="win"
-          :modes="['Novice', 'Pro', 'Master']"
-          :themes="currentFinishHimThemes"
-          :title="t('features.userCabinet.stats.modes.finishHim')"
-          @improve="handleImprove"
-        />
+        <template v-if="isTaskInActivePlan">
+          <TrainingPlanWidget compact :active-task-key="activeTaskKey" />
+        </template>
+        <template v-else>
+          <ThemeRoseChart
+            v-if="normalizedStats && normalizedStats.finish_him"
+            v-model:activeMode="finishHimStore.selectedDifficulty"
+            mode="finish_him"
+            subMode="win"
+            :modes="['Novice', 'Pro', 'Master']"
+            :themes="currentFinishHimThemes"
+            :title="t('features.userCabinet.stats.modes.finishHim')"
+            @improve="handleImprove"
+          />
+        </template>
       </div>
     </template>
   </GameLayout>

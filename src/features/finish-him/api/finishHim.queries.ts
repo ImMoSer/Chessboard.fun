@@ -5,7 +5,7 @@ import type {
     FinishHimResultDto,
     GameResultResponse
 } from '@/shared/types/api.types'
-import { useMutation, useQuery } from '@tanstack/vue-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { computed, type Ref } from 'vue'
 
 const FINISH_HIM_KEYS = {
@@ -38,12 +38,16 @@ export function useFinishHimQueries(params?: {
         staleTime: 0,
     })
 
+    const queryClient = useQueryClient()
     const resultMutation = useMutation({
         mutationFn: (dto: FinishHimResultDto) =>
             apiClient<GameResultResponse>('/finish-him/result', {
                 method: 'POST',
                 body: JSON.stringify(dto)
             }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['user-cabinet', 'training-plan'] })
+        }
     })
 
     return {
