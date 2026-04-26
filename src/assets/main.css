@@ -88,6 +88,10 @@
   --font-family-brand: 'Ubuntu', sans-serif;
 
   --panel-border-radius: 12px;
+
+  /* --- Tier Icon Sizes --- */
+  --tier-icon-size-desktop: 28px;
+  --tier-icon-size-mobile: 20px;
 }
 
 /* === BRAND TYPOGRAPHY === */
@@ -339,5 +343,20 @@ html, body {
   .n-radio-group, .n-radio-button {
     --n-height: 34px !important;
     font-size: 0.85rem !important;
+  }
+}
+
+/* === TIER ICONS === */
+.tier-icon {
+  width: var(--tier-icon-size-desktop) !important;
+  height: var(--tier-icon-size-desktop) !important;
+  object-fit: contain !important;
+  display: inline-block !important;
+}
+
+@media (max-width: 768px) {
+  .tier-icon {
+    width: var(--tier-icon-size-mobile) !important;
+    height: var(--tier-icon-size-mobile) !important;
   }
 }

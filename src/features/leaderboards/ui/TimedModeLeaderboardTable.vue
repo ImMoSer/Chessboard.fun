@@ -33,8 +33,8 @@ const tierToPieceMap: Record<string, string> = {
 }
 
 const getSubscriptionIcon = (tier?: string) => {
-  if (!tier || !tierToPieceMap[tier]) return null
-  return `/piece/alpha/${tierToPieceMap[tier]}`
+  const actualTier = tier && tierToPieceMap[tier] ? tier : 'Pawn'
+  return `/piece/alpha/${tierToPieceMap[actualTier]}`
 }
 
 const columns = computed<DataTableColumns<UnifiedLeaderboardEntry>>(
@@ -56,7 +56,7 @@ const columns = computed<DataTableColumns<UnifiedLeaderboardEntry>>(
         const id = row.id
         const icon = getSubscriptionIcon(tier)
         return h('div', { style: { display: 'flex', alignItems: 'center' } }, [
-          icon ? h('img', { src: icon, style: { height: '20px', marginRight: '6px' } }) : null,
+          icon ? h('img', { src: icon, class: 'tier-icon', style: { marginRight: '6px' } }) : null,
           h(
             'n-a',
             {

@@ -48,7 +48,7 @@ const columns: DataTableColumns<FinishHimLeaderboardEntry> = [
     render(row) {
       const icon = getSubscriptionIcon(row.subscriptionTier)
       return h('div', { style: { display: 'flex', alignItems: 'center' } }, [
-        icon ? h('img', { src: icon, style: { height: '24px', marginRight: '8px' } }) : null,
+        icon ? h('img', { src: icon, class: 'tier-icon', style: { marginRight: '8px' } }) : null,
         h(
           'n-a',
           {

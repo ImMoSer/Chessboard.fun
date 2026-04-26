@@ -56,6 +56,27 @@ const skillModes = [
   { key: 'practical', nameKey: 'features.userCabinet.stats.modes.practical', color: '#3498db' }, // Blue
 ] as const
 
+const tierToPieceMap: Record<string, string> = {
+  Pawn: 'wP.svg',
+  Knight: 'wN.svg',
+  Bishop: 'wB.svg',
+  Rook: 'wR.svg',
+  Queen: 'wQ.svg',
+  King: 'wK.svg',
+  Administrator: 'wK.svg',
+}
+
+const getTierIcon = (tierStr: string) => {
+  const actualTier = tierStr && tierToPieceMap[tierStr] ? tierStr : 'Pawn'
+  return `/piece/alpha/${tierToPieceMap[actualTier]}`
+}
+
+const getTierIconSize = () => {
+  const varName = isMobile.value ? '--tier-icon-size-mobile' : '--tier-icon-size-desktop'
+  const val = getComputedStyle(document.documentElement).getPropertyValue(varName).trim()
+  return parseInt(val, 10) || (isMobile.value ? 20 : 32)
+}
+
 // Helper to get total from different entry types
 const getTotal = (entry: LeaderboardEntry | SolveStreakLeaderboardEntry) => {
   if ('score' in entry && entry.score && typeof entry.score === 'object') {
@@ -118,8 +139,14 @@ const chartOption = computed(() => {
         const entry = displayEntries[p[0].dataIndex]
         if (!entry) return ''
 
+        const tierStr = 'tier' in entry ? entry.tier : ('subscriptionTier' in entry ? entry.subscriptionTier : 'Pawn')
+        const iconPath = getTierIcon(tierStr)
+
         let html = `<div style="padding: 8px; min-width: 150px; background: rgba(10, 11, 20, 0.95); border: 1px solid var(--glass-border); border-radius: 8px;">
-                      <b style="color: #FFFFFF; display: block; margin-bottom: 8px; border-bottom: 1px solid var(--glass-border); padding-bottom: 4px;">${entry.username}</b>`
+                      <b style="color: #FFFFFF; display: flex; align-items: center; gap: 6px; margin-bottom: 8px; border-bottom: 1px solid var(--glass-border); padding-bottom: 4px;">
+                        <img src="${iconPath}" alt="tier" class="tier-icon" /> 
+                        ${entry.username}
+                      </b>`
 
         p.forEach((item) => {
           if (item.value > 0) {
@@ -156,12 +183,25 @@ const chartOption = computed(() => {
       data: displayEntries.map((e, idx) => {
         const rank = idx + 1
         const streak = props.showStreak && 'current_streak' in e ? ` (${e.current_streak}🔥)` : ''
-        return `${rank}. ${e.username}${streak}`
+        return `${rank}. {icon${idx}| } ${e.username}${streak}`
       }),
       axisLabel: {
         color: '#CCC',
         fontSize: isMobile.value ? 9 : 12,
         fontWeight: 'bold',
+        formatter: (value: string) => value,
+        rich: displayEntries.reduce((acc, entry, index) => {
+          const tierStr = 'tier' in entry ? entry.tier : ('subscriptionTier' in entry ? entry.subscriptionTier : 'Pawn')
+          const iconUrl = getTierIcon(tierStr)
+          const iconSize = getTierIconSize()
+          acc[`icon${index}`] = {
+            backgroundColor: { image: iconUrl },
+            height: iconSize,
+            width: iconSize,
+            align: 'center',
+          }
+          return acc
+        }, {} as Record<string, { backgroundColor: { image: string }; height: number; width: number; align: string }>)
       },
       axisLine: { show: false },
       axisTick: { show: false },
