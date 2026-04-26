@@ -121,6 +121,13 @@ const isLoading = computed(() => {
       <!-- SECTION: HALL OF FAME (Overall) -->
       <section class="records-section">
         <SkillLeaderboardTable
+          :title="t('features.leaderboards.titles.topToday')"
+          :entries="(isExample ? exampleData?.topTodayLeaderboard.entries : topTodayResponse?.entries) || []"
+          color-class="topToday"
+          :is-loading="isTopTodayLoading"
+        />
+
+        <SkillLeaderboardTable
           :title="t('features.leaderboards.titles.overallSkill')"
           :entries="hallOfFameData"
           color-class="overallSkill"
