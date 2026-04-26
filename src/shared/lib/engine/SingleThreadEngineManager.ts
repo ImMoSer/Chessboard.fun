@@ -65,7 +65,7 @@ export class SingleThreadEngineManager {
           logger.error(`[SingleThreadEngineManager] ${errorMsg}`)
           this.rejectInitPromise(new Error(errorMsg))
         }
-      }, 15000)
+      }, 60000)
 
       this.initPromise?.finally(() => clearTimeout(timeoutId))
       this.sendCommand('uci')

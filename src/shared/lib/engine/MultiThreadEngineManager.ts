@@ -90,7 +90,7 @@ export class MultiThreadEngineManager {
           logger.error(`[MultiThreadEngineManager] ${errorMsg}`)
           this.rejectInitPromise(new Error(errorMsg))
         }
-      }, 15000)
+      }, 60000)
 
       this.initPromise?.finally(() => clearTimeout(timeoutId))
       this.sendCommand('uci')
