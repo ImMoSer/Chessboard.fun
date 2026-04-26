@@ -1,8 +1,7 @@
 import type {
   LeaderboardApiResponse,
   LeaderboardResponse,
-  TornadoLeaderboardEntry,
-  TornadoMode,
+  UnifiedLeaderboardResponse,
 } from '@/shared/types/api.types'
 import { useQuery } from '@tanstack/vue-query'
 import { apiClient } from '../client'
@@ -14,6 +13,9 @@ const LEADERBOARD_KEYS = {
   overallSkill: () => [...LEADERBOARD_KEYS.all, 'overall-skill'] as const,
   topToday: () => [...LEADERBOARD_KEYS.all, 'top-today'] as const,
   tornado: () => [...LEADERBOARD_KEYS.all, 'tornado'] as const,
+  finishHim: () => [...LEADERBOARD_KEYS.all, 'finish-him'] as const,
+  practical: () => [...LEADERBOARD_KEYS.all, 'practical-chess'] as const,
+  theory: () => [...LEADERBOARD_KEYS.all, 'theory'] as const,
 }
 
 /**
@@ -56,10 +58,46 @@ export const useTopTodayLeaderboardQuery = (enabled: boolean = true) => {
  * Fetch Tornado Leaderboards (4 modes)
  */
 export const useTornadoLeaderboardsQuery = (enabled: boolean = true) => {
-  return useQuery<Record<TornadoMode, TornadoLeaderboardEntry[]>, Error>({
+  return useQuery<UnifiedLeaderboardResponse, Error>({
     queryKey: LEADERBOARD_KEYS.tornado(),
-    queryFn: () => apiClient<Record<TornadoMode, TornadoLeaderboardEntry[]>>('/leaderboards/tornado'),
+    queryFn: () => apiClient<UnifiedLeaderboardResponse>('/leaderboards/tornado'),
     enabled,
     staleTime: 60 * 1000,
+  })
+}
+
+/**
+ * Fetch Finish Him Leaderboards
+ */
+export const useFinishHimLeaderboardQuery = (enabled: boolean = true) => {
+  return useQuery<UnifiedLeaderboardResponse, Error>({
+    queryKey: LEADERBOARD_KEYS.finishHim(),
+    queryFn: () => apiClient<UnifiedLeaderboardResponse>('/leaderboards/finish-him'),
+    enabled,
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+/**
+ * Fetch Practical Chess Leaderboards
+ */
+export const usePracticalLeaderboardQuery = (enabled: boolean = true) => {
+  return useQuery<UnifiedLeaderboardResponse, Error>({
+    queryKey: LEADERBOARD_KEYS.practical(),
+    queryFn: () => apiClient<UnifiedLeaderboardResponse>('/leaderboards/practical-chess'),
+    enabled,
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+/**
+ * Fetch Theory Leaderboards
+ */
+export const useTheoryLeaderboardQuery = (enabled: boolean = true) => {
+  return useQuery<UnifiedLeaderboardResponse, Error>({
+    queryKey: LEADERBOARD_KEYS.theory(),
+    queryFn: () => apiClient<UnifiedLeaderboardResponse>('/leaderboards/theory'),
+    enabled,
+    staleTime: 5 * 60 * 1000,
   })
 }

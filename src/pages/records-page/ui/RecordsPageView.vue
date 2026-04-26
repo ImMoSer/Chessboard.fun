@@ -1,9 +1,11 @@
-<!-- src/pages/RecordsPageView.vue -->
 <script setup lang="ts">
 import {
-  useCombinedLeaderboardsQuery,
   useOverallSkillLeaderboardQuery,
   useTopTodayLeaderboardQuery,
+  useTornadoLeaderboardsQuery,
+  useFinishHimLeaderboardQuery,
+  usePracticalLeaderboardQuery,
+  useTheoryLeaderboardQuery,
 } from '@/shared/api/queries/leaderboard.queries'
 import { generateRandomHallOfFame } from '@/shared/lib/statsRandomizer'
 import type { LeaderboardEntry } from '@/shared/types/api.types'
@@ -11,8 +13,8 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
-// Импорт дочерних компонентов
-import { SkillLeaderboardTable, ThematicLeaderboardTable, TimedModeLeaderboardTable } from '@/features/leaderboards'
+// Import child components
+import { SkillLeaderboardTable, TimedModeLeaderboardTable } from '@/features/leaderboards'
 
 const { t } = useI18n()
 
@@ -20,12 +22,10 @@ const route = useRoute()
 const isExample = computed(() => route.params.id === 'example')
 
 // Vue Query fetching
-const {
-  data: combinedData,
-  isPending: isCombinedPending,
-  isError: isCombinedError,
-  error: combinedError,
-} = useCombinedLeaderboardsQuery(!isExample.value)
+const { data: tornadoData, isFetching: isTornadoLoading } = useTornadoLeaderboardsQuery(!isExample.value)
+const { data: finishHimData, isFetching: isFinishHimLoading } = useFinishHimLeaderboardQuery(!isExample.value)
+const { data: practicalData, isFetching: isPracticalLoading } = usePracticalLeaderboardQuery(!isExample.value)
+const { data: theoryData, isFetching: isTheoryLoading } = useTheoryLeaderboardQuery(!isExample.value)
 
 // Overall Skill Query
 const {
@@ -39,82 +39,73 @@ const {
   isFetching: isTopTodayLoading,
 } = useTopTodayLeaderboardQuery(!isExample.value)
 
-// Merged Data logic
-const leaderboards = computed(() => {
-  if (isExample.value) {
-    return generateRandomHallOfFame()
-  }
-  if (!combinedData.value) return null
+// Tab Definitions
+const difficultyTabs = [
+  { id: 'Novice', name: 'Novice', icon: '👶' },
+  { id: 'Pro', name: 'Pro', icon: '🔥' },
+  { id: 'Master', name: 'Master', icon: '👑' },
+]
 
-  // 1. Get raw entries from both sources
+const tornadoTabs = [
+  { id: 'bullet', name: 'Bullet', icon: '⚡' },
+  { id: 'blitz', name: 'Blitz', icon: '🔥' },
+  { id: 'rapid', name: 'Rapid', icon: '🕒' },
+  { id: 'classic', name: 'Classic', icon: '🐢' },
+]
+
+// Merged Data logic for Hall of Fame (stays as is, but we'll use example data if needed)
+const exampleData = computed(() => isExample.value ? generateRandomHallOfFame() : null)
+
+const hallOfFameData = computed(() => {
+  if (isExample.value) return exampleData.value?.overallSkillLeaderboard.entries || []
+  
   const overallEntries = overallSkillResponse.value?.entries || []
   const todayEntries = topTodayResponse.value?.entries || []
 
-  // 2. Create a map for merging by user ID
   const mergedMap = new Map<string, LeaderboardEntry>()
+  overallEntries.forEach((entry) => mergedMap.set(entry.id, JSON.parse(JSON.stringify(entry))))
 
-  // 3. Process overall skill (30 days baseline)
-  overallEntries.forEach((entry) => {
-    mergedMap.set(entry.id, JSON.parse(JSON.stringify(entry))) // Deep copy to avoid mutating cache
-  })
-
-  // 4. Merge today's stats
   todayEntries.forEach((today) => {
     const existing = mergedMap.get(today.id)
     if (existing) {
-      // Add up scores
       if (today.score) {
         Object.keys(today.score).forEach((mode) => {
           existing.score[mode] = Number(existing.score[mode] || 0) + Number(today.score[mode] || 0)
         })
       }
-      // Add up solved
       if (today.solved) {
         Object.keys(today.solved).forEach((mode) => {
           existing.solved[mode] = Number(existing.solved[mode] || 0) + Number(today.solved[mode] || 0)
         })
       }
-      // Add up failed
       if (today.failed) {
         Object.keys(today.failed).forEach((mode) => {
           existing.failed[mode] = Number(existing.failed[mode] || 0) + Number(today.failed[mode] || 0)
         })
       }
-      // Update metadata if needed (streak, etc.)
       existing.current_streak = Math.max(existing.current_streak || 0, today.current_streak || 0)
     } else {
-      // User not in top 20 of overall skill, but active today
       mergedMap.set(today.id, JSON.parse(JSON.stringify(today)))
     }
   })
 
-  // 5. Convert back to array and re-sort by total score
-  const mergedList = Array.from(mergedMap.values()).sort((a, b) => {
+  return Array.from(mergedMap.values()).sort((a, b) => {
     const scoreA = Object.values(a.score || {}).reduce((sum, val) => sum + val, 0)
     const scoreB = Object.values(b.score || {}).reduce((sum, val) => sum + val, 0)
-    if (scoreB !== scoreA) return scoreB - scoreA
-    return a.id.localeCompare(b.id)
-  })
-
-  return {
-    ...combinedData.value,
-    overallSkillLeaderboard: {
-      period: 30,
-      entries: mergedList.slice(0, 20)
-    },
-    topTodayLeaderboard: {
-      period: 'heute',
-      entries: todayEntries
-    }
-  }
+    return scoreB - scoreA
+  }).slice(0, 20)
 })
 
 const isLoading = computed(() => {
-  return isExample.value ? false : isCombinedPending.value
-})
-
-const error = computed(() => {
-  return isExample.value ? null : isCombinedError.value ? combinedError.value?.message : null
+  if (isExample.value) return false
+  return (
+    isOverallSkillLoading.value ||
+    isTopTodayLoading.value ||
+    isTornadoLoading.value ||
+    isFinishHimLoading.value ||
+    isPracticalLoading.value ||
+    isTheoryLoading.value
+  )
 })
 </script>
 
@@ -126,97 +117,58 @@ const error = computed(() => {
       <n-spin size="small" /> {{ t('common.actions.loading') }}
     </div>
 
-    <div v-else-if="error" class="records-page__error-message">
-      {{ t('common.actions.error') }}: {{ error }}
-    </div>
-
-    <div v-else-if="leaderboards" class="records-page__grid">
-      <!-- СЕКЦИЯ: HALL OF FAME (Overall) -->
+    <div v-else class="records-page__grid">
+      <!-- SECTION: HALL OF FAME (Overall) -->
       <section class="records-section">
-        <!-- Overall Skill Leaderboard -->
         <SkillLeaderboardTable
-          v-if="leaderboards.overallSkillLeaderboard"
           :title="t('features.leaderboards.titles.overallSkill')"
-          :entries="leaderboards.overallSkillLeaderboard.entries"
+          :entries="hallOfFameData"
           color-class="overallSkill"
           :is-loading="isOverallSkillLoading"
         />
       </section>
 
-      <!-- СЕКЦИЯ: HOT (Activity & Streaks) -->
-      <section class="records-section">
-        <div class="section-grid">
-          <!-- Skill Streak Mega Leaderboard -->
-          <SkillLeaderboardTable
-            v-if="
-              leaderboards.skillStreakMegaLeaderboard &&
-              leaderboards.skillStreakMegaLeaderboard.length > 0
-            "
-            :title="t('features.leaderboards.titles.skillStreakMega')"
-            :entries="leaderboards.skillStreakMegaLeaderboard"
-            color-class="skillStreakMega"
-            :show-streak="true"
-          />
-
-          <!-- Top Today Leaderboard -->
-          <SkillLeaderboardTable
-            v-if="leaderboards.topTodayLeaderboard && leaderboards.topTodayLeaderboard.entries.length > 0"
-            :title="t('features.leaderboards.titles.topToday')"
-            :entries="leaderboards.topTodayLeaderboard.entries"
-            color-class="topToday"
-            :is-loading="isTopTodayLoading"
-          />
-
-          <!-- Skill Streak Leaderboard -->
-          <SkillLeaderboardTable
-            v-if="
-              leaderboards.skillStreakLeaderboard && leaderboards.skillStreakLeaderboard.length > 0
-            "
-            :title="t('features.leaderboards.titles.skillStreak')"
-            :entries="leaderboards.skillStreakLeaderboard"
-            color-class="skillStreak"
-            :show-streak="true"
-          />
-        </div>
-      </section>
-
-      <!-- СЕКЦИЯ: COMPETITIVE (Modes) -->
+      <!-- SECTION: COMPETITIVE (Modes) -->
       <section class="records-section">
         <h2 class="section-divider">{{ t('features.leaderboards.sections.competitive') }}</h2>
         <div class="section-grid">
           <!-- Tornado Leaderboard -->
           <TimedModeLeaderboardTable
             :title="t('nav.tornado')"
-            mode="tornado"
+            :data="isExample ? exampleData?.tornadoLeaderboard : tornadoData"
+            :tabs="tornadoTabs"
+            :is-loading="isTornadoLoading"
             color-class="tornadoLeaderboard"
           />
 
           <!-- Finish Him Leaderboard -->
-          <ThematicLeaderboardTable
-            v-if="leaderboards.finishHimLeaderboard"
+          <TimedModeLeaderboardTable
             :title="t('features.leaderboards.titles.topFinishHim')"
-            :data="leaderboards.finishHimLeaderboard"
+            :data="isExample ? exampleData?.finishHimLeaderboard : finishHimData"
+            :tabs="difficultyTabs"
+            :is-loading="isFinishHimLoading"
             color-class="finishHimLeaderboard"
           />
 
           <!-- Theory Leaderboard -->
-          <ThematicLeaderboardTable
-            v-if="leaderboards.theoryLeaderboard"
+          <TimedModeLeaderboardTable
             :title="t('features.leaderboards.titles.theoryLeaderboard')"
-            :data="leaderboards.theoryLeaderboard"
+            :data="isExample ? exampleData?.theoryLeaderboard : theoryData"
+            :tabs="difficultyTabs"
+            :is-loading="isTheoryLoading"
             color-class="theoryLeaderboard"
           />
 
           <!-- Practical Leaderboard -->
-          <ThematicLeaderboardTable
-            v-if="leaderboards.practicalLeaderboard"
+          <TimedModeLeaderboardTable
             :title="t('features.leaderboards.titles.practicalLeaderboard')"
-            :data="leaderboards.practicalLeaderboard"
+            :data="isExample ? exampleData?.practicalLeaderboard : practicalData"
+            :tabs="difficultyTabs"
+            :is-loading="isPracticalLoading"
             color-class="practicalLeaderboard"
           />
         </div>
       </section>
-
     </div>
   </div>
 </template>

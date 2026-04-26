@@ -7,10 +7,8 @@ import {
   type PersonalActivityStatsResponse,
   type UserProfileStatsDto,
   type UserSessionProfile,
-  type ThematicLeaderboardEntry,
-  type FinishHimLeaderboardEntry,
-  type TornadoLeaderboardEntry,
-  type TornadoMode
+  type UnifiedLeaderboardResponse,
+  type UnifiedLeaderboardEntry
 } from '@/shared/types/api.types'
 
 /**
@@ -193,70 +191,30 @@ export function generateRandomHallOfFame(): LeaderboardApiResponse {
   const usernames = ['ChessMaster', 'KnightRider', 'GambitPlayer', 'CheckmateKing', 'EnPassantExpert']
   const tiers: UserSessionProfile['subscriptionTier'][] = ['King', 'Queen', 'Rook', 'Bishop', 'Knight', 'Pawn']
 
-  const genThematic = (): Record<string, ThematicLeaderboardEntry[]> => {
-    const res: Record<string, ThematicLeaderboardEntry[]> = {}
-    const categories = ['pawn', 'knight', 'bishop', 'rookPawn', 'queen', 'knightBishop', 'rookPieces', 'queenPieces', 'expert']
+  const genThematic = (isTornado = false): UnifiedLeaderboardResponse => {
+    const res: UnifiedLeaderboardResponse = {}
+    const categories = isTornado 
+      ? ['bullet', 'blitz', 'rapid', 'classic'] 
+      : ['Novice', 'Pro', 'Master']
+    
     categories.forEach(cat => {
-      const items: ThematicLeaderboardEntry[] = Array.from({ length: 5 }, (_, i) => ({
-        rank: 0,
-        username: usernames[getRandomInt(0, usernames.length - 1)]!,
-        lichess_id: `user_${i}`,
-        score: getRandomInt(50, 400),
-        days_old: getRandomInt(0, 10),
-        subscriptionTier: tiers[getRandomInt(0, tiers.length - 1)]!
-      }))
-      
-      // Sort by score descending
-      items.sort((a, b) => b.score - a.score)
-      // Update ranks
-      items.forEach((item, index) => { item.rank = index + 1 })
-      
-      res[cat] = items
-    })
-    return res
-  }
-
-  const genFinishHim = (): Record<string, FinishHimLeaderboardEntry[]> => {
-    const res: Record<string, FinishHimLeaderboardEntry[]> = {}
-    const categories = ['pawn', 'knight', 'bishop', 'rookPawn', 'queen', 'knightBishop', 'rookPieces', 'queenPieces', 'expert']
-    categories.forEach(cat => {
-      const items: FinishHimLeaderboardEntry[] = Array.from({ length: 5 }, (_, i) => ({
-        rank: 0,
-        username: usernames[getRandomInt(0, usernames.length - 1)]!,
-        lichess_id: `user_${i}`,
-        best_time: getRandomInt(10, 300),
-        puzzle_id: `puzzle_${i}`,
-        days_old: getRandomInt(0, 10),
-        subscriptionTier: tiers[getRandomInt(0, tiers.length - 1)]!
-      }))
-      
-      // Sort by best_time ascending (lower is better for time)
-      items.sort((a, b) => a.best_time - b.best_time)
-      // Update ranks
-      items.forEach((item, index) => { item.rank = index + 1 })
-      
-      res[cat] = items
-    })
-    return res
-  }
-
-  const genTornado = (): Record<string, TornadoLeaderboardEntry[]> => {
-    const res: Record<string, TornadoLeaderboardEntry[]> = {}
-    ;(['bullet', 'blitz', 'rapid', 'classic'] as const).forEach(mode => {
-      const items: TornadoLeaderboardEntry[] = Array.from({ length: 5 }, (_, i) => ({
+      const items: UnifiedLeaderboardEntry[] = Array.from({ length: 5 }, (_, i) => ({
         id: `user_${i}`,
         username: usernames[getRandomInt(0, usernames.length - 1)]!,
         training_status: 'N',
         current_streak: getRandomInt(0, 5),
         tier: tiers[getRandomInt(0, tiers.length - 1)]!,
+        sub_mode: cat,
         highScore: getRandomInt(800, 2200),
         solved: getRandomInt(10, 100),
-        failed: getRandomInt(2, 20)
+        failed: getRandomInt(2, 20),
+        rank: (i + 1).toString()
       }))
-
+      
       items.sort((a, b) => b.highScore - a.highScore)
-
-      res[mode] = items
+      items.forEach((item, index) => { item.rank = (index + 1).toString() })
+      
+      res[cat] = items
     })
     return res
   }
@@ -328,10 +286,10 @@ export function generateRandomHallOfFame(): LeaderboardApiResponse {
   }
 
   return {
-    tornadoLeaderboard: (genTornado() as { [key in TornadoMode]?: TornadoLeaderboardEntry[] }),
-    finishHimLeaderboard: genFinishHim(),
-    theoryLeaderboard: genThematic(),
-    practicalLeaderboard: genThematic(),
+    tornadoLeaderboard: genThematic(true),
+    finishHimLeaderboard: genThematic(false),
+    theoryLeaderboard: genThematic(false),
+    practicalLeaderboard: genThematic(false),
     overallSkillLeaderboard: {
       period: 30,
       entries: genOverall()

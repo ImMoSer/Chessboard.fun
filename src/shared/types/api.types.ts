@@ -251,40 +251,27 @@ export interface GamePuzzle {
 
 
 
-export interface FinishHimLeaderboardEntry {
-  rank: number
-  username: string
-  lichess_id: string
-  best_time: number
-  days_old: number
-  puzzle_id: string
-  subscriptionTier?: string
-}
-
-export interface ThematicLeaderboardEntry {
-  rank: number
-  username: string
-  lichess_id: string
-  score: number
-  days_old: number
-  subscriptionTier?: string
-}
-
-export interface TornadoLeaderboardEntry {
+export interface UnifiedLeaderboardEntry {
   id: string
   username: string
   training_status: string
   current_streak: number
   tier: string
+  sub_mode: string
   highScore: number
   solved: number
   failed: number
+  rank: string
 }
 
+export type LeaderboardDifficulty = 'Novice' | 'Pro' | 'Master'
+export type UnifiedLeaderboardResponse = Record<string, UnifiedLeaderboardEntry[]>
+
 interface WorktableLeaderboards {
-  finishHimLeaderboard?: Record<string, FinishHimLeaderboardEntry[]>
-  theoryLeaderboard?: Record<string, ThematicLeaderboardEntry[]>
-  practicalLeaderboard?: Record<string, ThematicLeaderboardEntry[]>
+  finishHimLeaderboard?: UnifiedLeaderboardResponse
+  theoryLeaderboard?: UnifiedLeaderboardResponse
+  practicalLeaderboard?: UnifiedLeaderboardResponse
+  tornadoLeaderboard?: UnifiedLeaderboardResponse
 }
 
 export type SkillPeriod = '7' | '14' | '21' | '30'
@@ -310,7 +297,6 @@ export interface LeaderboardApiResponse extends WorktableLeaderboards {
   skillStreakLeaderboard: SolveStreakLeaderboardEntry[]
   skillStreakMegaLeaderboard: SolveStreakLeaderboardEntry[]
   topTodayLeaderboard: LeaderboardResponse
-  tornadoLeaderboard?: { [key in TornadoMode]?: TornadoLeaderboardEntry[] }
 }
 
 export interface SolveStreakLeaderboardEntry {

@@ -1,44 +1,27 @@
-<!-- src/components/recordsPage/TimedModeLeaderboardTable.vue -->
 <script setup lang="ts">
 import type {
-    FinishHimLeaderboardEntry,
-    TornadoLeaderboardEntry,
-    TornadoMode,
+  UnifiedLeaderboardEntry,
+  UnifiedLeaderboardResponse,
 } from '@/shared/types/api.types'
 import type { DataTableColumns } from 'naive-ui'
 import { computed, h, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useTornadoLeaderboardsQuery } from '@/shared/api/queries/leaderboard.queries'
 
-type TimedLeaderboards = {
-  [key in TornadoMode]?: (TornadoLeaderboardEntry | FinishHimLeaderboardEntry)[]
+export interface LeaderboardTab {
+  id: string
+  name: string
+  icon: string
 }
 
-const props = defineProps({
+defineProps({
   title: { type: String, required: true },
-  data: { type: Object as PropType<TimedLeaderboards>, required: false },
+  data: { type: Object as PropType<UnifiedLeaderboardResponse>, required: false, default: () => ({}) },
+  tabs: { type: Array as PropType<LeaderboardTab[]>, required: true },
   colorClass: { type: String, required: true },
-  mode: { type: String as PropType<'tornado' | 'finish_him'>, required: true },
+  isLoading: { type: Boolean, default: false },
 })
 
 const { t } = useI18n()
-
-// Fetch independently if mode is tornado
-const { data: tornadoApiData, isLoading: isTornadoLoading } = useTornadoLeaderboardsQuery(props.mode === 'tornado')
-
-const effectiveData = computed(() => {
-  if (props.mode === 'tornado' && tornadoApiData.value) {
-    return tornadoApiData.value
-  }
-  return props.data || {}
-})
-
-const MODE_DEFINITIONS: { id: TornadoMode; name: string; color: string; icon: string }[] = [
-  { id: 'bullet', name: 'Bullet', color: 'var(--color-accent-primary)', icon: '⚡' },
-  { id: 'blitz', name: 'Blitz', color: 'var(--color-accent-success)', icon: '🔥' },
-  { id: 'rapid', name: 'Rapid', color: 'var(--color-accent-warning)', icon: '🕒' },
-  { id: 'classic', name: 'Classic', color: 'var(--color-accent-error)', icon: '🐢' },
-]
 
 const tierToPieceMap: Record<string, string> = {
   Pawn: 'wP.svg',
@@ -54,88 +37,76 @@ const getSubscriptionIcon = (tier?: string) => {
   return `/piece/alpha/${tierToPieceMap[tier]}`
 }
 
-const columns = computed<DataTableColumns<TornadoLeaderboardEntry | FinishHimLeaderboardEntry>>(
-  () => {
-    const baseCols: DataTableColumns<TornadoLeaderboardEntry | FinishHimLeaderboardEntry> = [
-      { 
-        title: '#', 
-        key: 'rank', 
-        align: 'center', 
-        width: 45,
-        render: (_, index) => index + 1
+const columns = computed<DataTableColumns<UnifiedLeaderboardEntry>>(
+  () => [
+    {
+      title: '#',
+      key: 'rank',
+      align: 'center',
+      width: 50,
+      render: (row) => row.rank || '-'
+    },
+    {
+      title: t('features.leaderboards.table.player'),
+      key: 'username',
+      minWidth: 140,
+      ellipsis: { tooltip: true },
+      render(row) {
+        const tier = row.tier || 'Pawn'
+        const id = row.id
+        const icon = getSubscriptionIcon(tier)
+        return h('div', { style: { display: 'flex', alignItems: 'center' } }, [
+          icon ? h('img', { src: icon, style: { height: '20px', marginRight: '6px' } }) : null,
+          h(
+            'n-a',
+            {
+              href: `https://lichess.org/@/${id}`,
+              target: '_blank',
+              style: { fontWeight: 'bold' },
+            },
+            row.username,
+          ),
+        ])
       },
-      {
-        title: t('features.leaderboards.table.player'),
-        key: 'username',
-        minWidth: 140,
-        ellipsis: { tooltip: true },
-        render(row) {
-          const tier = ('tier' in row ? row.tier : row.subscriptionTier) || 'Pawn'
-          const id = 'id' in row ? row.id : row.lichess_id
-          const icon = getSubscriptionIcon(tier)
-          return h('div', { style: { display: 'flex', alignItems: 'center' } }, [
-            icon ? h('img', { src: icon, style: { height: '20px', marginRight: '6px' } }) : null,
-            h(
-              'n-a',
-              {
-                href: `https://lichess.org/@/${id}`,
-                target: '_blank',
-                style: { fontWeight: 'bold' },
-              },
-              row.username,
-            ),
-          ])
-        },
-      },
-      {
-        title: props.mode === 'tornado' ? t('features.tornado.leaderboard.highScore') : t('features.leaderboards.table.score'),
-        key: props.mode === 'tornado' ? 'highScore' : 'best_time',
-        align: 'right',
-        render(row) {
-          const val = props.mode === 'tornado'
-            ? (row as TornadoLeaderboardEntry).highScore
-            : (row as FinishHimLeaderboardEntry).best_time
-          return h('span', { class: 'mode-score-value' }, val)
-        },
-      }
-    ]
-
-    if (props.mode === 'tornado') {
-      baseCols.push(
-        {
-          title: t('features.leaderboards.table.solved'),
-          key: 'solved',
-          align: 'right',
-          width: 70,
-          render: (row) => (row as TornadoLeaderboardEntry).solved
-        },
-        {
-          title: t('features.leaderboards.table.failed'),
-          key: 'failed',
-          align: 'right',
-          width: 70,
-          render: (row) => (row as TornadoLeaderboardEntry).failed
-        },
-        {
-          title: '%',
-          key: 'accuracy',
-          align: 'right',
-          width: 70,
-          render(row) {
-            const r = row as TornadoLeaderboardEntry
-            const total = r.solved + r.failed
-            if (total === 0) return '-'
-            const acc = (r.solved / total) * 100
-            return h('span', { style: { color: acc > 70 ? 'var(--color-accent-success)' : 'var(--color-accent-error)' } }, 
-              `${acc.toFixed(1)}%`
-            )
+    },
+    {
+      title: t('features.leaderboards.table.score'),
+      key: 'highScore',
+      align: 'right',
+      render: (row) => h('span', { class: 'mode-score-value' }, row.highScore)
+    },
+    {
+      title: t('features.leaderboards.table.solved'),
+      key: 'solved',
+      align: 'right',
+      width: 70,
+    },
+    {
+      title: t('features.leaderboards.table.failed'),
+      key: 'failed',
+      align: 'right',
+      width: 70,
+    },
+    {
+      title: '%',
+      key: 'accuracy',
+      align: 'right',
+      width: 75,
+      render(row) {
+        const total = row.solved + row.failed
+        if (total === 0) return '-'
+        const acc = (row.solved / total) * 100
+        return h('span', {
+          style: {
+            color: acc > 70 ? 'var(--color-accent-success)' : acc > 40 ? 'var(--color-accent-warning)' : 'var(--color-accent-error)',
+            fontWeight: 'bold'
           }
-        }
-      )
+        },
+          `${acc.toFixed(0)}%`
+        )
+      }
     }
-
-    return baseCols
-  }
+  ]
 )
 </script>
 
@@ -148,26 +119,27 @@ const columns = computed<DataTableColumns<TornadoLeaderboardEntry | FinishHimLea
     </div>
 
     <div class="modes-container">
-      <div v-if="isTornadoLoading && mode === 'tornado'" class="loading-wrapper">
+      <div v-if="isLoading" class="loading-wrapper">
         <n-spin size="large" />
       </div>
       <n-tabs v-else type="segment" animated>
-        <n-tab-pane v-for="modeDef in MODE_DEFINITIONS" :key="modeDef.id" :name="modeDef.id">
+        <n-tab-pane v-for="tab in tabs" :key="tab.id" :name="tab.id">
           <template #tab>
             <div class="tab-label">
-              <span class="tab-icon">{{ modeDef.icon }}</span>
-              <span class="tab-name">{{ modeDef.name }}</span>
+              <span class="tab-icon">{{ tab.icon }}</span>
+              <span class="tab-name">{{ tab.name }}</span>
             </div>
           </template>
           <div class="mode-table-wrapper">
             <n-data-table
               :columns="columns"
-              :data="effectiveData[modeDef.id] || []"
-              :row-key="(row: TornadoLeaderboardEntry | FinishHimLeaderboardEntry) => ('id' in row ? row.id : row.lichess_id)"
+              :data="data[tab.id] || []"
+              :row-key="(row: UnifiedLeaderboardEntry) => row.id"
               size="small"
               striped
               class="records-table"
               :max-height="400"
+              :scroll-x="400"
             />
           </div>
         </n-tab-pane>
@@ -186,6 +158,7 @@ const columns = computed<DataTableColumns<TornadoLeaderboardEntry | FinishHimLea
   margin-bottom: 20px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
+  height: 100%;
 }
 
 .main-header {
@@ -194,12 +167,13 @@ const columns = computed<DataTableColumns<TornadoLeaderboardEntry | FinishHimLea
   background: rgba(255, 255, 255, 0.03);
 }
 
-.tornadoLeaderboard .card-title {
-  color: var(--neon-orange);
-}
+.tornadoLeaderboard .card-title { color: var(--neon-orange); }
+.finishHimLeaderboard .card-title { color: var(--neon-purple); }
+.theoryLeaderboard .card-title { color: var(--color-accent-warning); }
+.practicalLeaderboard .card-title { color: var(--neon-lime); }
 
 .card-title {
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   margin: 0;
   text-align: center;
   font-weight: 800;
@@ -239,7 +213,7 @@ const columns = computed<DataTableColumns<TornadoLeaderboardEntry | FinishHimLea
 .mode-score-value {
   font-weight: bold;
   color: var(--color-accent-warning);
-  font-family: monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 1.1em;
 }
 
@@ -251,60 +225,28 @@ const columns = computed<DataTableColumns<TornadoLeaderboardEntry | FinishHimLea
   background-color: rgba(255, 255, 255, 0.05) !important;
   color: var(--color-text-muted) !important;
   font-family: var(--font-family-primary);
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 :deep(.n-data-table-td) {
   font-family: var(--font-family-primary);
-  font-size: 1rem;
+  font-size: 0.95rem;
   padding: 10px 8px !important;
 }
 
 :deep(.n-tabs-tab) {
   font-family: var(--font-family-primary);
 }
+
 @media (max-width: 768px) {
-  .main-header {
-    padding: 11px 14px;
-  }
-
-  .card-title {
-    font-size: 1rem;
-    letter-spacing: 1px;
-    gap: 8px;
-  }
-
-  .modes-container {
-    padding: 8px;
-  }
-
-  .mode-table-wrapper {
-    margin-top: 11px;
-    border-radius: 6px;
-  }
-
-  .mode-score-value {
-    font-size: 0.8em;
-  }
-
-  :deep(.n-data-table-th) {
-    font-size: 0.65rem;
-    padding: 7px 5px !important;
-  }
-
-  :deep(.n-data-table-td) {
-    font-size: 0.7rem;
-    padding: 7px 5px !important;
-  }
-
-  :deep(.n-tabs-tab) {
-    font-size: 0.8rem;
-    padding: 8px 10px !important;
-  }
-
-  .tab-icon {
-    font-size: 0.9rem;
-  }
+  .card-title { font-size: 0.9rem; }
+  .tab-name { display: none; }
+  .tab-icon { font-size: 1.2rem; }
+  :deep(.n-data-table-th) { font-size: 0.7rem; }
+  :deep(.n-data-table-td) { font-size: 0.8rem; }
 }
 </style>
+
