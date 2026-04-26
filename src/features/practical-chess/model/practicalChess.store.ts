@@ -25,7 +25,7 @@ import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { usePracticalChessQueries } from '../api/practicalChess.queries'
 import { useQueryClient } from '@tanstack/vue-query'
-import type { UserProfileStatsDto } from '@/shared/types/api.types'
+
 const t = i18n.global.t
 
 export const usePracticalChessStore = defineStore('practicalChess', () => {
@@ -201,13 +201,7 @@ export const usePracticalChessStore = defineStore('practicalChess', () => {
           authStore.updateUserStats(response.userStatsUpdate)
           
           if (response.userStatsUpdate.practical) {
-            queryClient.setQueryData(['user-cabinet', 'detailed-stats'], (oldData: UserProfileStatsDto | undefined) => {
-              if (!oldData) return oldData;
-              return {
-                ...oldData,
-                practical: response.userStatsUpdate!.practical
-              }
-            })
+            queryClient.invalidateQueries({ queryKey: ['user-cabinet', 'detailed-stats'] })
           }
         } else {
           await authStore.checkSession()

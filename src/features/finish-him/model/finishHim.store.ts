@@ -16,7 +16,6 @@ import type {
     FinishHimDifficulty,
     FinishHimPuzzle,
     FinishHimResultDto,
-    UserProfileStatsDto,
 } from '@/shared/types/api.types'
 import { useUiStore } from '@/shared/ui/model/ui.store'
 import { makeFen, parseFen } from 'chessops/fen'
@@ -200,13 +199,7 @@ export const useFinishHimStore = defineStore('finishHim', () => {
           authStore.updateUserStats(response.userStatsUpdate)
           
           if (response.userStatsUpdate?.finish_him) {
-            queryClient.setQueryData(['user-cabinet', 'detailed-stats'], (oldData: UserProfileStatsDto | undefined) => {
-                if (!oldData) return oldData;
-                return {
-                  ...oldData,
-                  finish_him: response.userStatsUpdate!.finish_him
-                }
-            })
+            queryClient.invalidateQueries({ queryKey: ['user-cabinet', 'detailed-stats'] })
           }
         } else {
           logger.warn(

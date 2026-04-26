@@ -24,7 +24,7 @@ interface TooltipParam {
   }
 }
 
-import type { ActivityPeriodStats, PersonalActivityStatsResponse } from '@/shared/types/api.types'
+import type { ActivityPeriodStats, PersonalActivityStatsResponse, ActivityHistoryEntry } from '@/shared/types/api.types'
 
 const props = defineProps<{
   stats: PersonalActivityStatsResponse | null | undefined
@@ -46,10 +46,51 @@ onMounted(() => {
   canHover.value = window.matchMedia('(hover: hover)').matches
 })
 
+const aggregateActivity = (activities: ActivityHistoryEntry[], days: number): ActivityPeriodStats => {
+  const result: ActivityPeriodStats = {
+    finish_him: { puzzles_requested: 0, puzzles_solved: 0 },
+    tornado: { puzzles_requested: 0, puzzles_solved: 0 },
+    theory: { puzzles_requested: 0, puzzles_solved: 0 },
+    'practical-chess': { puzzles_requested: 0, puzzles_solved: 0 },
+    rep_generator: { puzzles_requested: 0, puzzles_solved: 0 },
+    'diamond-hunter': { puzzles_requested: 0, puzzles_solved: 0 },
+    'opening-sparring': { puzzles_requested: 0, puzzles_solved: 0 },
+    'study-reply': { puzzles_requested: 0, puzzles_solved: 0 },
+    speedrun: { puzzles_requested: 0, puzzles_solved: 0 },
+  }
+
+  if (!activities) return result
+
+  const now = new Date()
+  const cutoff = new Date(now.getTime() - days * 24 * 60 * 60 * 1000)
+
+  for (const activity of activities) {
+    const activityDate = new Date(activity.date)
+    if (activityDate >= cutoff) {
+      const mode = activity.game_mode as keyof ActivityPeriodStats
+      if (result[mode]) {
+        result[mode]!.puzzles_requested += (activity.costs_trigger || 0)
+        result[mode]!.puzzles_solved += (activity.puzzles_solved || 0)
+      }
+    }
+  }
+
+  return result
+}
+
+const aggregatedStats = computed(() => {
+  const activities = props.stats?.activities || []
+  return {
+    daily: aggregateActivity(activities, 1),
+    weekly: aggregateActivity(activities, 7),
+    monthly: aggregateActivity(activities, 30),
+  }
+})
+
 const chartOption = computed(() => {
   if (!props.stats) return {}
 
-  const periodData = props.stats[selectedActivityPeriod.value] as ActivityPeriodStats
+  const periodData = aggregatedStats.value[selectedActivityPeriod.value]
 
   const modes = [
     { key: 'theory', name: t('nav.theoryEndgames'), cost: 5, color: '#9b59b6' },

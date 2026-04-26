@@ -3,12 +3,13 @@ import {
   PRACTICAL_CHESS_CATEGORIES,
   THEORY_ENDING_CATEGORIES,
   TORNADO_THEMES,
+  type FrontendProfileStats,
   type LeaderboardApiResponse,
   type PersonalActivityStatsResponse,
-  type UserProfileStatsDto,
   type UserSessionProfile,
   type UnifiedLeaderboardResponse,
-  type UnifiedLeaderboardEntry
+  type UnifiedLeaderboardEntry,
+  type ActivityHistoryEntry
 } from '@/shared/types/api.types'
 
 /**
@@ -79,60 +80,50 @@ export function generateRandomUserProfile(): UserSessionProfile {
   }
 }
 
-/**
- * Generiert zufällige Aktivitätsstatistiken.
- */
 export function generateRandomActivityStats(): PersonalActivityStatsResponse {
-  const generatePeriod = (multiplier: number) => ({
-    tornado: {
-      puzzles_requested: getRandomInt(20, 100) * multiplier,
-      puzzles_solved: getRandomInt(15, 95) * multiplier,
-    },
-    finish_him: {
-      puzzles_requested: getRandomInt(10, 30) * multiplier,
-      puzzles_solved: getRandomInt(8, 28) * multiplier,
-    },
-    theory: {
-      puzzles_requested: getRandomInt(5, 20) * multiplier,
-      puzzles_solved: getRandomInt(4, 18) * multiplier,
-    },
-    'practical-chess': {
-      puzzles_requested: getRandomInt(5, 15) * multiplier,
-      puzzles_solved: getRandomInt(4, 14) * multiplier,
-    },
-    rep_generator: {
-      puzzles_requested: getRandomInt(2, 5) * multiplier,
-      puzzles_solved: getRandomInt(1, 4) * multiplier,
-    },
-    'diamond-hunter': {
-      puzzles_requested: getRandomInt(3, 8) * multiplier,
-      puzzles_solved: getRandomInt(2, 7) * multiplier,
-    },
-    'opening-sparring': {
-      puzzles_requested: getRandomInt(4, 10) * multiplier,
-      puzzles_solved: getRandomInt(3, 9) * multiplier,
-    },
-    'study-reply': {
-      puzzles_requested: getRandomInt(4, 12) * multiplier,
-      puzzles_solved: getRandomInt(3, 11) * multiplier,
-    },
-    speedrun: {
-      puzzles_requested: getRandomInt(5, 15) * multiplier,
-      puzzles_solved: getRandomInt(4, 14) * multiplier,
-    },
-  })
+  const activities: ActivityHistoryEntry[] = []
+
+  const generatePeriod = (daysBack: number, count: number) => {
+    const modes = ['tornado', 'finish_him', 'theory', 'practical-chess']
+    const subModes = ['win', 'draw', 'bullet', 'blitz']
+    const themes = ['pawn', 'fork', 'pin', 'endgame']
+    
+    for (let i = 0; i < count; i++) {
+      const date = new Date(Date.now() - getRandomInt(0, daysBack) * 24 * 60 * 60 * 1000)
+      const dateStr = date.toISOString().split('T')[0]!
+      
+      activities.push({
+        date: dateStr,
+        game_mode: modes[getRandomInt(0, modes.length - 1)]!,
+        sub_mode: subModes[getRandomInt(0, subModes.length - 1)]!,
+        theme: themes[getRandomInt(0, themes.length - 1)]!,
+        difficulty: 'Novice',
+        puzzles_solved: getRandomInt(0, 10),
+        puzzles_failed: getRandomInt(0, 5),
+        costs_trigger: getRandomInt(1, 15),
+        rating: getRandomInt(1200, 2000),
+      })
+    }
+  }
+
+  generatePeriod(0, 5) // Today
+  generatePeriod(7, 15) // This week
+  generatePeriod(30, 30) // This month
 
   return {
-    daily: generatePeriod(1),
-    weekly: generatePeriod(7),
-    monthly: generatePeriod(30),
+    user: {
+      id: 'example_user',
+      username: 'ExtraPawnCOM',
+      tier: 'King'
+    },
+    activities: activities,
   }
 }
 
 /**
  * Generiert detaillierte Statistiken mit hoher Streuung für die RoseCharts.
  */
-export function generateRandomDetailedStats(baseRating: number = 1500): UserProfileStatsDto {
+export function generateRandomDetailedStats(baseRating: number = 1500): FrontendProfileStats {
   const applyVariety = (themes: readonly string[]) => {
     return themes.map((theme) => {
       // Big spread: -400 to +600 from base

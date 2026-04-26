@@ -18,7 +18,7 @@ import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useTornadoQueries } from '../api/tornado.queries'
 import { useQueryClient } from '@tanstack/vue-query'
-import type { UserProfileStatsDto } from '@/shared/types/api.types'
+
 
 export type { TornadoMode } from '@/shared/types/api.types'
 
@@ -217,13 +217,7 @@ export const useTornadoStore = defineStore('tornado', () => {
         authStore.updateUserStats(response.userStatsUpdate)
         
         if (response.userStatsUpdate.tornado) {
-          queryClient.setQueryData(['user-cabinet', 'detailed-stats'], (oldData: UserProfileStatsDto | undefined) => {
-            if (!oldData) return oldData;
-            return {
-              ...oldData,
-              tornado: response.userStatsUpdate!.tornado
-            }
-          })
+          queryClient.invalidateQueries({ queryKey: ['user-cabinet', 'detailed-stats'] })
         }
       }
     } catch (error) {

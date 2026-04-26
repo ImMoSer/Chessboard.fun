@@ -3,19 +3,23 @@ import {
   PRACTICAL_CHESS_CATEGORIES,
   THEORY_ENDING_CATEGORIES,
   TORNADO_THEMES,
+  type FrontendProfileStats,
   type GameModeProfileDto,
   type UserProfileStatsDto,
+  type UserProfileStatEntry
 } from '@/shared/types/api.types'
 
 const BASE_SUCCESS = 1
 const BASE_REQUESTED = 2
 
 function normalizeGameMode(
-  profile: GameModeProfileDto | undefined,
+  statsArray: UserProfileStatEntry[],
+  gameMode: string,
   subModes: readonly string[],
   difficulties: readonly string[],
   themes: readonly string[],
-  baseRating: number
+  baseRating: number,
+  highScores?: Record<string, number>
 ): GameModeProfileDto {
   const modes: GameModeProfileDto['modes'] = {}
 
@@ -25,13 +29,13 @@ function normalizeGameMode(
       modes[subMode][diff] = []
       
       for (const theme of themes) {
-        const existing = profile?.modes?.[subMode]?.[diff]?.find(t => t.theme === theme)
+        const existing = statsArray.find(s => s.game_mode === gameMode && s.sub_mode === subMode && s.difficulty === diff && s.theme === theme)
         if (existing) {
           modes[subMode][diff].push({
             theme,
             rating: existing.rating || baseRating,
-            success: existing.success + BASE_SUCCESS,
-            requested: existing.requested + BASE_REQUESTED
+            success: existing.puzzles_solved + BASE_SUCCESS,
+            requested: existing.puzzles_solved + existing.puzzles_failed + BASE_REQUESTED
           })
         } else {
           modes[subMode][diff].push({
@@ -48,40 +52,45 @@ function normalizeGameMode(
 
   return {
     modes,
-    highScores: profile?.highScores || {}
+    highScores: highScores || {}
   }
 }
 
 export function normalizeProfileStats(
     apiStats: UserProfileStatsDto | undefined | null,
     baseRating: number = 1000,
-): UserProfileStatsDto {
-    const safeStats = apiStats || {} as UserProfileStatsDto
+): FrontendProfileStats {
+    const statsArray = apiStats?.stats || []
 
     return {
         tornado: normalizeGameMode(
-          safeStats.tornado,
+          statsArray,
+          'tornado',
           ['bullet', 'blitz', 'rapid', 'classic'],
           ['mix'],
           TORNADO_THEMES,
-          baseRating
+          baseRating,
+          apiStats?.tornadoHighScores as Record<string, number> | undefined
         ),
         finish_him: normalizeGameMode(
-          safeStats.finish_him,
+          statsArray,
+          'finish_him',
           ['win'],
           ['Novice', 'Pro', 'Master'],
           FINISH_HIM_THEMES,
           baseRating
         ),
         theory: normalizeGameMode(
-          safeStats.theory,
+          statsArray,
+          'theory',
           ['win', 'draw'],
           ['Novice', 'Pro', 'Master'],
           THEORY_ENDING_CATEGORIES,
           baseRating
         ),
         practical: normalizeGameMode(
-          safeStats.practical,
+          statsArray,
+          'practical-chess',
           ['win'],
           ['Novice', 'Pro', 'Master'],
           PRACTICAL_CHESS_CATEGORIES,
@@ -90,7 +99,7 @@ export function normalizeProfileStats(
     }
 }
 
-export function generateExampleStats(baseRating: number = 1500): UserProfileStatsDto {
+export function generateExampleStats(baseRating: number = 1500): FrontendProfileStats {
     const stats = normalizeProfileStats(null, baseRating)
 
     const applyVariety = (

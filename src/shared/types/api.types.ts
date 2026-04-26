@@ -309,7 +309,7 @@ export interface SolveStreakLeaderboardEntry {
   solved_by_mode: Record<string, number>
 }
 
-interface ActivityModeStats {
+export interface ActivityModeStats {
   puzzles_requested: number
   puzzles_solved: number
 }
@@ -326,10 +326,27 @@ export interface ActivityPeriodStats {
   speedrun?: ActivityModeStats
 }
 
+export interface ActivityHistoryEntry {
+  date: string
+  game_mode: string
+  sub_mode: string
+  theme: string
+  difficulty: string
+  puzzles_solved: number
+  puzzles_failed: number
+  costs_trigger: number
+  rating: number
+}
+
+export interface UserMeta {
+  id: string
+  username: string
+  tier: string
+}
+
 export interface PersonalActivityStatsResponse {
-  daily: ActivityPeriodStats
-  weekly: ActivityPeriodStats
-  monthly: ActivityPeriodStats
+  user: UserMeta
+  activities: ActivityHistoryEntry[]
 }
 
 export type SubscriptionTier =
@@ -446,7 +463,28 @@ export interface GameModeProfileDto {
   highScores?: Record<string, number>
 }
 
+export interface UserProfileStatEntry {
+  game_mode: string
+  sub_mode: string
+  theme: string
+  difficulty: string
+  puzzles_solved: number
+  puzzles_failed: number
+  rating: number
+}
+
 export interface UserProfileStatsDto {
+  user: UserMeta
+  stats: UserProfileStatEntry[]
+  tornadoHighScores: {
+    bullet: number
+    blitz: number
+    rapid: number
+    classic: number
+  }
+}
+
+export interface FrontendProfileStats {
   tornado: GameModeProfileDto
   finish_him: GameModeProfileDto
   theory: GameModeProfileDto
