@@ -1,6 +1,8 @@
 import type {
   LeaderboardApiResponse,
   LeaderboardResponse,
+  TornadoLeaderboardEntry,
+  TornadoMode,
 } from '@/shared/types/api.types'
 import { useQuery } from '@tanstack/vue-query'
 import { apiClient } from '../client'
@@ -11,6 +13,7 @@ const LEADERBOARD_KEYS = {
   combined: () => [...LEADERBOARD_KEYS.all, 'combined'] as const,
   overallSkill: () => [...LEADERBOARD_KEYS.all, 'overall-skill'] as const,
   topToday: () => [...LEADERBOARD_KEYS.all, 'top-today'] as const,
+  tornado: () => [...LEADERBOARD_KEYS.all, 'tornado'] as const,
 }
 
 /**
@@ -46,5 +49,17 @@ export const useTopTodayLeaderboardQuery = (enabled: boolean = true) => {
     queryFn: () => apiClient<LeaderboardResponse>('/leaderboards/top-today'),
     enabled,
     staleTime: 60 * 1000, // Top Today updates more frequently
+  })
+}
+
+/**
+ * Fetch Tornado Leaderboards (4 modes)
+ */
+export const useTornadoLeaderboardsQuery = (enabled: boolean = true) => {
+  return useQuery<Record<TornadoMode, TornadoLeaderboardEntry[]>, Error>({
+    queryKey: LEADERBOARD_KEYS.tornado(),
+    queryFn: () => apiClient<Record<TornadoMode, TornadoLeaderboardEntry[]>>('/leaderboards/tornado'),
+    enabled,
+    staleTime: 60 * 1000,
   })
 }

@@ -798,7 +798,8 @@
         "streakDays": "1 Day | {count} Days",
         "action": "Action",
         "requested": "Requested",
-        "solved": "Solved"
+        "solved": "Solved",
+        "failed": "Failed"
       },
       "errors": {
         "dataLoadFailed": "Failed to load leaderboard data.",

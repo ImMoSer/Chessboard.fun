@@ -8,6 +8,7 @@ import type {
 import type { DataTableColumns } from 'naive-ui'
 import { computed, h, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useTornadoLeaderboardsQuery } from '@/shared/api/queries/leaderboard.queries'
 
 type TimedLeaderboards = {
   [key in TornadoMode]?: (TornadoLeaderboardEntry | FinishHimLeaderboardEntry)[]
@@ -15,12 +16,22 @@ type TimedLeaderboards = {
 
 const props = defineProps({
   title: { type: String, required: true },
-  data: { type: Object as PropType<TimedLeaderboards>, required: true },
+  data: { type: Object as PropType<TimedLeaderboards>, required: false },
   colorClass: { type: String, required: true },
   mode: { type: String as PropType<'tornado' | 'finish_him'>, required: true },
 })
 
 const { t } = useI18n()
+
+// Fetch independently if mode is tornado
+const { data: tornadoApiData, isLoading: isTornadoLoading } = useTornadoLeaderboardsQuery(props.mode === 'tornado')
+
+const effectiveData = computed(() => {
+  if (props.mode === 'tornado' && tornadoApiData.value) {
+    return tornadoApiData.value
+  }
+  return props.data || {}
+})
 
 const MODE_DEFINITIONS: { id: TornadoMode; name: string; color: string; icon: string }[] = [
   { id: 'bullet', name: 'Bullet', color: 'var(--color-accent-primary)', icon: '⚡' },
@@ -44,49 +55,87 @@ const getSubscriptionIcon = (tier?: string) => {
 }
 
 const columns = computed<DataTableColumns<TornadoLeaderboardEntry | FinishHimLeaderboardEntry>>(
-  () => [
-    { title: t('features.leaderboards.table.rank'), key: 'rank', align: 'center', width: 45 },
-    {
-      title: t('features.leaderboards.table.player'),
-      key: 'username',
-      minWidth: 160,
-      ellipsis: { tooltip: true },
-      render(row) {
-        const icon = getSubscriptionIcon(row.subscriptionTier)
-        return h('div', { style: { display: 'flex', alignItems: 'center' } }, [
-          icon ? h('img', { src: icon, style: { height: '22px', marginRight: '6px' } }) : null,
-          h(
-            'n-a',
-            {
-              href: `https://lichess.org/@/${row.lichess_id}`,
-              target: '_blank',
-              style: { fontWeight: 'bold' },
-            },
-            row.username,
-          ),
-        ])
+  () => {
+    const baseCols: DataTableColumns<TornadoLeaderboardEntry | FinishHimLeaderboardEntry> = [
+      { 
+        title: '#', 
+        key: 'rank', 
+        align: 'center', 
+        width: 45,
+        render: (_, index) => index + 1
       },
-    },
-    {
-      title:
-        props.mode === 'tornado' ? t('features.tornado.leaderboard.highScore') : t('features.leaderboards.table.score'),
-      key: props.mode === 'tornado' ? 'highScore' : 'score',
-      align: 'right',
-      render(row) {
-        const val =
-          props.mode === 'tornado'
+      {
+        title: t('features.leaderboards.table.player'),
+        key: 'username',
+        minWidth: 140,
+        ellipsis: { tooltip: true },
+        render(row) {
+          const tier = ('tier' in row ? row.tier : row.subscriptionTier) || 'Pawn'
+          const id = 'id' in row ? row.id : row.lichess_id
+          const icon = getSubscriptionIcon(tier)
+          return h('div', { style: { display: 'flex', alignItems: 'center' } }, [
+            icon ? h('img', { src: icon, style: { height: '20px', marginRight: '6px' } }) : null,
+            h(
+              'n-a',
+              {
+                href: `https://lichess.org/@/${id}`,
+                target: '_blank',
+                style: { fontWeight: 'bold' },
+              },
+              row.username,
+            ),
+          ])
+        },
+      },
+      {
+        title: props.mode === 'tornado' ? t('features.tornado.leaderboard.highScore') : t('features.leaderboards.table.score'),
+        key: props.mode === 'tornado' ? 'highScore' : 'best_time',
+        align: 'right',
+        render(row) {
+          const val = props.mode === 'tornado'
             ? (row as TornadoLeaderboardEntry).highScore
             : (row as FinishHimLeaderboardEntry).best_time
-        return h('span', { class: 'mode-score-value' }, val)
-      },
-    },
-    {
-      title: t('features.leaderboards.table.daysOld', { count: 1 }),
-      key: 'days_old',
-      align: 'right',
-      render: (row) => t('features.leaderboards.table.daysOld', { count: row.days_old }),
-    },
-  ],
+          return h('span', { class: 'mode-score-value' }, val)
+        },
+      }
+    ]
+
+    if (props.mode === 'tornado') {
+      baseCols.push(
+        {
+          title: t('features.leaderboards.table.solved'),
+          key: 'solved',
+          align: 'right',
+          width: 70,
+          render: (row) => (row as TornadoLeaderboardEntry).solved
+        },
+        {
+          title: t('features.leaderboards.table.failed'),
+          key: 'failed',
+          align: 'right',
+          width: 70,
+          render: (row) => (row as TornadoLeaderboardEntry).failed
+        },
+        {
+          title: '%',
+          key: 'accuracy',
+          align: 'right',
+          width: 70,
+          render(row) {
+            const r = row as TornadoLeaderboardEntry
+            const total = r.solved + r.failed
+            if (total === 0) return '-'
+            const acc = (r.solved / total) * 100
+            return h('span', { style: { color: acc > 70 ? 'var(--color-accent-success)' : 'var(--color-accent-error)' } }, 
+              `${acc.toFixed(1)}%`
+            )
+          }
+        }
+      )
+    }
+
+    return baseCols
+  }
 )
 </script>
 
@@ -99,7 +148,10 @@ const columns = computed<DataTableColumns<TornadoLeaderboardEntry | FinishHimLea
     </div>
 
     <div class="modes-container">
-      <n-tabs type="segment" animated>
+      <div v-if="isTornadoLoading && mode === 'tornado'" class="loading-wrapper">
+        <n-spin size="large" />
+      </div>
+      <n-tabs v-else type="segment" animated>
         <n-tab-pane v-for="modeDef in MODE_DEFINITIONS" :key="modeDef.id" :name="modeDef.id">
           <template #tab>
             <div class="tab-label">
@@ -110,8 +162,8 @@ const columns = computed<DataTableColumns<TornadoLeaderboardEntry | FinishHimLea
           <div class="mode-table-wrapper">
             <n-data-table
               :columns="columns"
-              :data="data[modeDef.id] || []"
-              :row-key="(row: any) => row.lichess_id"
+              :data="effectiveData[modeDef.id] || []"
+              :row-key="(row: TornadoLeaderboardEntry | FinishHimLeaderboardEntry) => ('id' in row ? row.id : row.lichess_id)"
               size="small"
               striped
               class="records-table"
@@ -161,6 +213,13 @@ const columns = computed<DataTableColumns<TornadoLeaderboardEntry | FinishHimLea
 
 .modes-container {
   padding: 12px;
+}
+
+.loading-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
 }
 
 .mode-table-wrapper {

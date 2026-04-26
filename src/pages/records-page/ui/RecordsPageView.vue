@@ -65,19 +65,19 @@ const leaderboards = computed(() => {
       // Add up scores
       if (today.score) {
         Object.keys(today.score).forEach((mode) => {
-          existing.score[mode] = (existing.score[mode] || 0) + (today.score[mode] || 0)
+          existing.score[mode] = Number(existing.score[mode] || 0) + Number(today.score[mode] || 0)
         })
       }
       // Add up solved
       if (today.solved) {
         Object.keys(today.solved).forEach((mode) => {
-          existing.solved[mode] = (existing.solved[mode] || 0) + (today.solved[mode] || 0)
+          existing.solved[mode] = Number(existing.solved[mode] || 0) + Number(today.solved[mode] || 0)
         })
       }
       // Add up failed
       if (today.failed) {
         Object.keys(today.failed).forEach((mode) => {
-          existing.failed[mode] = (existing.failed[mode] || 0) + (today.failed[mode] || 0)
+          existing.failed[mode] = Number(existing.failed[mode] || 0) + Number(today.failed[mode] || 0)
         })
       }
       // Update metadata if needed (streak, etc.)
@@ -186,9 +186,7 @@ const error = computed(() => {
         <div class="section-grid">
           <!-- Tornado Leaderboard -->
           <TimedModeLeaderboardTable
-            v-if="leaderboards.tornadoLeaderboard"
             :title="t('nav.tornado')"
-            :data="leaderboards.tornadoLeaderboard"
             mode="tornado"
             color-class="tornadoLeaderboard"
           />

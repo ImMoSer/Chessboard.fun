@@ -798,7 +798,8 @@
         "streakDays": "1 Tag | {count} Tage",
         "action": "Aktion",
         "requested": "Angefragt",
-        "solved": "Gelöst"
+        "solved": "Erfolg",
+        "failed": "Misst"
       },
       "errors": {
         "dataLoadFailed": "Laden der Bestenliste fehlgeschlagen.",

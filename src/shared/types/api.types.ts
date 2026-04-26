@@ -271,12 +271,14 @@ export interface ThematicLeaderboardEntry {
 }
 
 export interface TornadoLeaderboardEntry {
-  rank: number
+  id: string
   username: string
-  lichess_id: string
+  training_status: string
+  current_streak: number
+  tier: string
   highScore: number
-  days_old: number
-  subscriptionTier?: string
+  solved: number
+  failed: number
 }
 
 interface WorktableLeaderboards {

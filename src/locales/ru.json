@@ -796,7 +796,8 @@
         "streakDays": "{count} день | {count} дня | {count} дней",
         "action": "Действие",
         "requested": "Запрошено",
-        "solved": "Решено"
+        "solved": "Успех",
+        "failed": "Провал"
       },
       "errors": {
         "dataLoadFailed": "Ошибка загрузки данных таблицы лидеров.",

@@ -113,13 +113,16 @@ const columns = computed<DataTableColumns<FinishHimLeaderboardEntry | ThematicLe
       minWidth: 160,
       ellipsis: { tooltip: true },
       render(row) {
-        const icon = getSubscriptionIcon(row.subscriptionTier)
+        // Use type guards for unified field support
+        const tier = row.subscriptionTier || 'Pawn'
+        const id = row.lichess_id
+        const icon = getSubscriptionIcon(tier)
         return h('div', { style: { display: 'flex', alignItems: 'center' } }, [
           icon ? h('img', { src: icon, style: { height: '25px', marginRight: '5px' } }) : null,
           h(
             'n-a',
             {
-              href: `https://lichess.org/@/${row.lichess_id}`,
+              href: `https://lichess.org/@/${id}`,
               target: '_blank',
               style: { fontWeight: 'bold' },
             },

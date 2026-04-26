@@ -244,16 +244,17 @@ export function generateRandomHallOfFame(): LeaderboardApiResponse {
     const res: Record<string, TornadoLeaderboardEntry[]> = {}
     ;(['bullet', 'blitz', 'rapid', 'classic'] as const).forEach(mode => {
       const items: TornadoLeaderboardEntry[] = Array.from({ length: 5 }, (_, i) => ({
-        rank: 0,
+        id: `user_${i}`,
         username: usernames[getRandomInt(0, usernames.length - 1)]!,
-        lichess_id: `user_${i}`,
-        highScore: getRandomInt(30, 80),
-        days_old: getRandomInt(0, 10),
-        subscriptionTier: tiers[getRandomInt(0, tiers.length - 1)]!
+        training_status: 'N',
+        current_streak: getRandomInt(0, 5),
+        tier: tiers[getRandomInt(0, tiers.length - 1)]!,
+        highScore: getRandomInt(800, 2200),
+        solved: getRandomInt(10, 100),
+        failed: getRandomInt(2, 20)
       }))
 
       items.sort((a, b) => b.highScore - a.highScore)
-      items.forEach((item, index) => { item.rank = index + 1 })
 
       res[mode] = items
     })
