@@ -287,30 +287,28 @@ interface WorktableLeaderboards {
 
 export type SkillPeriod = '7' | '14' | '21' | '30'
 
+export interface LeaderboardEntry {
+  id: string // lichess_id
+  username: string
+  training_status: 'N' | 'P' | 'M'
+  current_streak: number
+  tier: string // subscriptionTier
+  score: Record<string, number>
+  solved: Record<string, number>
+  failed: Record<string, number>
+}
+
+export interface LeaderboardResponse {
+  period: number | string
+  entries: LeaderboardEntry[]
+}
+
 export interface LeaderboardApiResponse extends WorktableLeaderboards {
-  overallSkillLeaderboard: OverallSolvedLeaderboardEntry[]
+  overallSkillLeaderboard: LeaderboardResponse
   skillStreakLeaderboard: SolveStreakLeaderboardEntry[]
   skillStreakMegaLeaderboard: SolveStreakLeaderboardEntry[]
-  topTodayLeaderboard: OverallSolvedLeaderboardEntry[]
+  topTodayLeaderboard: LeaderboardResponse
   tornadoLeaderboard?: { [key in TornadoMode]?: TornadoLeaderboardEntry[] }
-}
-
-export interface SolvedByMode {
-  finish_him: number
-  tornado: number
-  theory: number
-  'practical-chess': number
-  tacticalTrainer?: number
-  speedrun?: number
-}
-
-export interface OverallSolvedLeaderboardEntry {
-  lichess_id: string
-  username: string
-  subscriptionTier: string
-  total_solved: number
-  total_score?: number
-  solved_by_mode: SolvedByMode
 }
 
 export interface SolveStreakLeaderboardEntry {
@@ -320,7 +318,7 @@ export interface SolveStreakLeaderboardEntry {
   subscriptionTier: string
   total_solved: number
   total_score?: number
-  solved_by_mode: SolvedByMode
+  solved_by_mode: Record<string, number>
 }
 
 interface ActivityModeStats {

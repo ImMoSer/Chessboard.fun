@@ -262,31 +262,47 @@ export function generateRandomHallOfFame(): LeaderboardApiResponse {
 
   const genOverall = () => {
     const items = Array.from({ length: 15 }, (_, i) => {
-      const modes = {
+      const score = {
         finish_him: getRandomInt(100, 2000),
         tornado: getRandomInt(100, 2000),
         theory: getRandomInt(100, 2000),
-        'practical-chess': getRandomInt(100, 2000),
+        practical: getRandomInt(100, 2000),
       }
-      const total_solved = Object.values(modes).reduce((a, b) => a + b, 0)
+      const solved = {
+        finish_him: Math.floor(score.finish_him / 5),
+        tornado: score.tornado,
+        theory: Math.floor(score.theory / 3),
+        practical: Math.floor(score.practical / 5),
+      }
+      const failed = {
+        finish_him: getRandomInt(0, 10),
+        tornado: getRandomInt(0, 10),
+        theory: getRandomInt(0, 10),
+        practical: getRandomInt(0, 10),
+      }
+
       return {
-        lichess_id: `user_${i}`,
+        id: `user_${i}`,
         username: usernames[getRandomInt(0, usernames.length - 1)]! + '_' + i,
-        subscriptionTier: (tiers[getRandomInt(0, tiers.length - 1)]! as string),
-        total_solved,
-        total_score: total_solved * 5 + getRandomInt(0, 1000),
-        solved_by_mode: modes
+        training_status: 'N' as const,
+        current_streak: getRandomInt(0, 20),
+        tier: (tiers[getRandomInt(0, tiers.length - 1)]! as string),
+        score,
+        solved,
+        failed
       }
     })
     
-    // Sort by total_score descending
-    return items.sort((a, b) => (b.total_score || 0) - (a.total_score || 0))
+    return items.sort((a, b) => {
+      const scoreA = Object.values(a.score).reduce((sum, val) => sum + val, 0)
+      const scoreB = Object.values(b.score).reduce((sum, val) => sum + val, 0)
+      return scoreB - scoreA
+    })
   }
 
   const genStreaks = () => {
     const items = Array.from({ length: 10 }, (_, i) => {
       const streak = getRandomInt(5, 50)
-      // Correlate puzzles solved with streak for visual "WOW" effect
       const baseSolved = streak * 50 + getRandomInt(100, 500)
       
       const modes = {
@@ -315,9 +331,15 @@ export function generateRandomHallOfFame(): LeaderboardApiResponse {
     finishHimLeaderboard: genFinishHim(),
     theoryLeaderboard: genThematic(),
     practicalLeaderboard: genThematic(),
-    overallSkillLeaderboard: genOverall(),
+    overallSkillLeaderboard: {
+      period: 30,
+      entries: genOverall()
+    },
     skillStreakLeaderboard: genStreaks(),
     skillStreakMegaLeaderboard: genStreaks(),
-    topTodayLeaderboard: genOverall(),
+    topTodayLeaderboard: {
+      period: 'heute',
+      entries: genOverall()
+    },
   }
 }

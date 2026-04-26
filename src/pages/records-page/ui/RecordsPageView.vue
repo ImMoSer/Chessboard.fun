@@ -3,10 +3,11 @@
 import {
   useCombinedLeaderboardsQuery,
   useOverallSkillLeaderboardQuery,
+  useTopTodayLeaderboardQuery,
 } from '@/shared/api/queries/leaderboard.queries'
 import { generateRandomHallOfFame } from '@/shared/lib/statsRandomizer'
-import type { SkillPeriod } from '@/shared/types/api.types'
-import { computed, ref } from 'vue'
+import type { LeaderboardEntry } from '@/shared/types/api.types'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
@@ -17,7 +18,6 @@ const { t } = useI18n()
 
 const route = useRoute()
 const isExample = computed(() => route.params.id === 'example')
-const selectedSkillPeriod = ref<SkillPeriod>('7')
 
 // Vue Query fetching
 const {
@@ -29,9 +29,15 @@ const {
 
 // Overall Skill Query
 const {
-  data: overallSkillData,
-  isFetching: isSkillLeaderboardLoading, // use isFetching so it highlights during refetches
-} = useOverallSkillLeaderboardQuery(selectedSkillPeriod.value, !isExample.value)
+  data: overallSkillResponse,
+  isFetching: isOverallSkillLoading,
+} = useOverallSkillLeaderboardQuery(!isExample.value)
+
+// Top Today Query
+const {
+  data: topTodayResponse,
+  isFetching: isTopTodayLoading,
+} = useTopTodayLeaderboardQuery(!isExample.value)
 
 // Merged Data logic
 const leaderboards = computed(() => {
@@ -40,9 +46,66 @@ const leaderboards = computed(() => {
   }
   if (!combinedData.value) return null
 
+  // 1. Get raw entries from both sources
+  const overallEntries = overallSkillResponse.value?.entries || []
+  const todayEntries = topTodayResponse.value?.entries || []
+
+  // 2. Create a map for merging by user ID
+  const mergedMap = new Map<string, LeaderboardEntry>()
+
+  // 3. Process overall skill (30 days baseline)
+  overallEntries.forEach((entry) => {
+    mergedMap.set(entry.id, JSON.parse(JSON.stringify(entry))) // Deep copy to avoid mutating cache
+  })
+
+  // 4. Merge today's stats
+  todayEntries.forEach((today) => {
+    const existing = mergedMap.get(today.id)
+    if (existing) {
+      // Add up scores
+      if (today.score) {
+        Object.keys(today.score).forEach((mode) => {
+          existing.score[mode] = (existing.score[mode] || 0) + (today.score[mode] || 0)
+        })
+      }
+      // Add up solved
+      if (today.solved) {
+        Object.keys(today.solved).forEach((mode) => {
+          existing.solved[mode] = (existing.solved[mode] || 0) + (today.solved[mode] || 0)
+        })
+      }
+      // Add up failed
+      if (today.failed) {
+        Object.keys(today.failed).forEach((mode) => {
+          existing.failed[mode] = (existing.failed[mode] || 0) + (today.failed[mode] || 0)
+        })
+      }
+      // Update metadata if needed (streak, etc.)
+      existing.current_streak = Math.max(existing.current_streak || 0, today.current_streak || 0)
+    } else {
+      // User not in top 20 of overall skill, but active today
+      mergedMap.set(today.id, JSON.parse(JSON.stringify(today)))
+    }
+  })
+
+  // 5. Convert back to array and re-sort by total score
+  const mergedList = Array.from(mergedMap.values()).sort((a, b) => {
+    const scoreA = Object.values(a.score || {}).reduce((sum, val) => sum + val, 0)
+    const scoreB = Object.values(b.score || {}).reduce((sum, val) => sum + val, 0)
+    if (scoreB !== scoreA) return scoreB - scoreA
+    return a.id.localeCompare(b.id)
+  })
+
   return {
     ...combinedData.value,
-    overallSkillLeaderboard: overallSkillData.value || combinedData.value.overallSkillLeaderboard,
+    overallSkillLeaderboard: {
+      period: 30,
+      entries: mergedList.slice(0, 20)
+    },
+    topTodayLeaderboard: {
+      period: 'heute',
+      entries: todayEntries
+    }
   }
 })
 
@@ -53,10 +116,6 @@ const isLoading = computed(() => {
 const error = computed(() => {
   return isExample.value ? null : isCombinedError.value ? combinedError.value?.message : null
 })
-
-const handleSkillPeriodChange = (period: SkillPeriod) => {
-  selectedSkillPeriod.value = period
-}
 </script>
 
 <template>
@@ -78,12 +137,9 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
         <SkillLeaderboardTable
           v-if="leaderboards.overallSkillLeaderboard"
           :title="t('features.leaderboards.titles.overallSkill')"
-          :entries="leaderboards.overallSkillLeaderboard"
+          :entries="leaderboards.overallSkillLeaderboard.entries"
           color-class="overallSkill"
-          :show-filter="true"
-          :is-loading="isSkillLeaderboardLoading"
-          :selected-period="selectedSkillPeriod"
-          @period-change="handleSkillPeriodChange"
+          :is-loading="isOverallSkillLoading"
         />
       </section>
 
@@ -104,11 +160,11 @@ const handleSkillPeriodChange = (period: SkillPeriod) => {
 
           <!-- Top Today Leaderboard -->
           <SkillLeaderboardTable
-            v-if="leaderboards.topTodayLeaderboard && leaderboards.topTodayLeaderboard.length > 0"
+            v-if="leaderboards.topTodayLeaderboard && leaderboards.topTodayLeaderboard.entries.length > 0"
             :title="t('features.leaderboards.titles.topToday')"
-            :entries="leaderboards.topTodayLeaderboard"
+            :entries="leaderboards.topTodayLeaderboard.entries"
             color-class="topToday"
-            :show-timer="true"
+            :is-loading="isTopTodayLoading"
           />
 
           <!-- Skill Streak Leaderboard -->

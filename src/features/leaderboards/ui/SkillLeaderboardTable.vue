@@ -1,16 +1,15 @@
 <!-- src/components/recordsPage/SkillLeaderboardTable.vue -->
 <script setup lang="ts">
 import type {
-    OverallSolvedLeaderboardEntry,
-    SkillPeriod,
-    SolveStreakLeaderboardEntry,
+  LeaderboardEntry,
+  SolveStreakLeaderboardEntry,
 } from '@/shared/types/api.types'
 import { BarChart } from 'echarts/charts'
 import {
-    GridComponent,
-    LegendComponent,
-    TitleComponent,
-    TooltipComponent,
+  GridComponent,
+  LegendComponent,
+  TitleComponent,
+  TooltipComponent,
 } from 'echarts/components'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
@@ -39,20 +38,14 @@ interface ClickParam {
 const props = defineProps({
   title: { type: String, required: true },
   entries: {
-    type: Array as PropType<(OverallSolvedLeaderboardEntry | SolveStreakLeaderboardEntry)[]>,
+    type: Array as PropType<(LeaderboardEntry | SolveStreakLeaderboardEntry)[]>,
     required: true,
   },
   colorClass: { type: String, required: true },
   showStreak: { type: Boolean, default: false },
-  showFilter: { type: Boolean, default: false },
   showTimer: { type: Boolean, default: false },
   isLoading: { type: Boolean, default: false },
-  selectedPeriod: { type: String as PropType<SkillPeriod>, default: '7' },
 })
-
-const emit = defineEmits<{
-  (e: 'period-change', period: SkillPeriod): void
-}>()
 
 const { t } = useI18n()
 
@@ -60,15 +53,30 @@ const skillModes = [
   { key: 'finish_him', nameKey: 'gameModes.finishHim', color: '#42b883' }, // Green
   { key: 'tornado', nameKey: 'features.userCabinet.stats.modes.tornado', color: '#f39c12' }, // Orange
   { key: 'theory', nameKey: 'features.userCabinet.stats.modes.theory', color: '#9b59b6' }, // Purple
-  { key: 'practical-chess', nameKey: 'features.userCabinet.stats.modes.practical', color: '#3498db' }, // Blue
+  { key: 'practical', nameKey: 'features.userCabinet.stats.modes.practical', color: '#3498db' }, // Blue
 ] as const
 
-const periodOptions = [
-  { label: t('features.userCabinet.stats.periods.week'), value: '7' },
-  { label: t('features.leaderboards.periods.days14'), value: '14' },
-  { label: t('features.leaderboards.periods.days21'), value: '21' },
-  { label: t('features.userCabinet.stats.periods.month'), value: '30' },
-]
+// Helper to get total from different entry types
+const getTotal = (entry: LeaderboardEntry | SolveStreakLeaderboardEntry) => {
+  if ('score' in entry && entry.score && typeof entry.score === 'object') {
+    return Object.values(entry.score).reduce((a, b) => a + b, 0)
+  }
+  if ('total_score' in entry && entry.total_score !== undefined) return entry.total_score
+  return (entry as SolveStreakLeaderboardEntry).total_solved || 0
+}
+
+// Helper to get mode score
+const getModeScore = (entry: LeaderboardEntry | SolveStreakLeaderboardEntry, modeKey: string) => {
+  if ('score' in entry && entry.score && typeof entry.score === 'object') {
+    return entry.score[modeKey] || 0
+  }
+  if ('solved_by_mode' in entry && entry.solved_by_mode) {
+    // Adapter for old practical-chess key
+    const key = modeKey === 'practical' ? 'practical-chess' : modeKey
+    return entry.solved_by_mode[key] || 0
+  }
+  return 0
+}
 
 // Responsive logic
 const isMobile = ref(false)
@@ -122,29 +130,29 @@ const chartOption = computed(() => {
               </div>`
           }
         })
-        const total = 'total_score' in entry ? entry.total_score : entry.total_solved
+        
         html += `<div style="margin-top: 8px; border-top: 1px solid #5A5A5A; padding-top: 4px; text-align: right;">
-                   <b>Total: ${total}</b>
+                   <b>Total: ${getTotal(entry)}</b>
                  </div></div>`
         return html
       },
     },
     grid: {
       left: '3%',
-      right: '12%', // Extra space for labels at the end
+      right: '12%',
       bottom: '3%',
       top: '5%',
       containLabel: true,
     },
     xAxis: {
       type: 'value',
-      show: false, // Hide X axis for a cleaner look
+      show: false,
       splitLine: { show: false },
     },
     yAxis: {
       type: 'category',
-      inverse: true, // Rank 1 at the top
-      triggerEvent: true, // Enables click events on axis labels
+      inverse: true,
+      triggerEvent: true,
       data: displayEntries.map((e, idx) => {
         const rank = idx + 1
         const streak = props.showStreak && 'current_streak' in e ? ` (${e.current_streak}🔥)` : ''
@@ -162,12 +170,12 @@ const chartOption = computed(() => {
       name: t(mode.nameKey),
       type: 'bar',
       stack: 'total',
-      barWidth: isMobile.value ? 17 : 24, // Fixed bar thickness
+      barWidth: isMobile.value ? 17 : 24,
       itemStyle: {
         color: mode.color,
       },
       label: {
-        show: modeIdx === skillModes.length - 1, // Show only on the last segment (the end of the bar)
+        show: modeIdx === skillModes.length - 1,
         position: 'right',
         distance: 10,
         color: '#f39c12',
@@ -177,15 +185,14 @@ const chartOption = computed(() => {
           const p = params as LabelParam
           const entry = displayEntries[p.dataIndex]
           if (!entry) return ''
-          return 'total_score' in entry ? entry.total_score : entry.total_solved
+          return getTotal(entry)
         },
       },
-      data: displayEntries.map((e) => (e.solved_by_mode ? e.solved_by_mode[mode.key] || 0 : 0)),
+      data: displayEntries.map((e) => getModeScore(e, mode.key)),
     })),
   }
 })
 
-// Dynamic height calculation: 45px per entry + 40px padding
 const dynamicHeight = computed(() => {
   const count = Math.max(props.entries.length, 1)
   const displayCount = Math.min(count, 20)
@@ -196,15 +203,15 @@ const dynamicHeight = computed(() => {
 
 const onChartClick = (params: unknown) => {
   const p = params as ClickParam
-  // Only redirect if clicking on the Y-axis labels (username)
-  // or if explicitly clicking on the name part of the data
   if (p.componentType === 'yAxis' || p.componentType === 'series') {
-    const entry = [...props.entries].slice(0, 20)[p.dataIndex]
+    const entries = [...props.entries].slice(0, 20)
+    const entry = entries[p.dataIndex]
+    if (!entry) return
 
-    // On mobile, first touch shows tooltip.
-    // We can decide to only redirect if clicking the Y-axis (the name)
-    if (p.componentType === 'yAxis' && entry && entry.lichess_id) {
-      window.open(`https://lichess.org/@/${entry.lichess_id}`, '_blank')
+    const id = 'id' in entry ? entry.id : (entry as SolveStreakLeaderboardEntry).lichess_id
+
+    if (p.componentType === 'yAxis' && id) {
+      window.open(`https://lichess.org/@/${id}`, '_blank')
     }
   }
 }
@@ -219,15 +226,6 @@ const onChartClick = (params: unknown) => {
     </div>
 
     <n-space vertical class="controls-area" :size="12">
-      <div v-if="showFilter" class="filter-row">
-        <n-select
-          :value="selectedPeriod"
-          :options="periodOptions"
-          @update:value="(val: string) => emit('period-change', val as any)"
-          style="width: 200px"
-        />
-      </div>
-
       <div class="legend-row">
         <n-space justify="center">
           <div v-for="mode in skillModes" :key="mode.key" class="legend-item">
