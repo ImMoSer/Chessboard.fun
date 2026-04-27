@@ -6,7 +6,7 @@ import { ChevronBackOutline, ChevronForwardOutline, PlaySkipBackOutline, PlaySki
 import { NButton, NButtonGroup, NIcon, NScrollbar, NSelect, NText, NTooltip } from 'naive-ui'
 import { storeToRefs } from 'pinia'
 import { computed, h, onUnmounted, type FunctionalComponent } from 'vue'
-import { EngineLines, useAnalysisStore } from '../index'
+import { EngineLines, TablebaseInfo, useAnalysisStore } from '../index'
 
 const props = withDefaults(defineProps<{
   showPgn?: boolean
@@ -169,6 +169,7 @@ const PgnRenderer: FunctionalComponent<{ nodes: PgnNode[]; pathPrefix?: string }
     </transition>
 
     <EngineLines />
+    <TablebaseInfo />
 
     <transition name="fade-slide">
       <div v-if="isAnalysisActive && props.showPgn" class="analysis-body">

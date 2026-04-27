@@ -61,6 +61,10 @@ export const useBoardStore = defineStore('board', () => {
   const queuedPremove = ref<{ orig: Key; dest: Key } | null>(null)
   const lastNag = ref<NagMarker | null>(null)
 
+  const isGameOver = computed(() => {
+    return !!chessPosition.value.outcome()
+  })
+
   // Configuration for sounds (decoupled from GameStore)
   const playGameStatusSounds = ref(true)
 
@@ -524,6 +528,7 @@ export const useBoardStore = defineStore('board', () => {
     dests,
     lastMove,
     isCheck,
+    isGameOver,
     orientation,
     promotionState,
     drawableShapes,

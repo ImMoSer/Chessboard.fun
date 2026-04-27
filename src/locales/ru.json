@@ -674,7 +674,18 @@
       "viewOnWikibooks": "Смотреть на Wikibooks",
       "loadingTheory": "Загрузка теории...",
       "noTheoryFound": "Для этой позиции не найдено специальной теории.",
-      "noTheorySubtext": "Попробуйте другой порядок ходов."
+      "noTheorySubtext": "Попробуйте другой порядок ходов.",
+      "tablebase": {
+        "whiteWins": "Белые побеждают",
+        "whiteMatesIn": "Белые ставят мат за {moves} ход(ов)",
+        "blackWins": "Черные побеждают",
+        "blackMatesIn": "Черные ставят мат за {moves} ход(ов)",
+        "draw": "Ничья",
+        "mateIn": "Мат за {moves} ход(ов)",
+        "bestMove": "Лучший ход",
+        "checkmate": "Мат",
+        "stalemate": "Пат"
+      }
     },
     "theoryEndgames": {
       "selection": {

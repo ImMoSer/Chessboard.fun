@@ -677,7 +677,18 @@
       "viewOnWikibooks": "Auf Wikibooks ansehen",
       "loadingTheory": "Theorie wird geladen...",
       "noTheoryFound": "Keine spezielle Theorie für diese Stellung gefunden.",
-      "noTheorySubtext": "Versuche eine andere Zugfolge."
+      "noTheorySubtext": "Versuche eine andere Zugfolge.",
+      "tablebase": {
+        "whiteWins": "Weiß gewinnt",
+        "whiteMatesIn": "Weiß setzt matt in {moves}",
+        "blackWins": "Schwarz gewinnt",
+        "blackMatesIn": "Schwarz setzt matt in {moves}",
+        "draw": "Remis",
+        "mateIn": "Matt in {moves}",
+        "bestMove": "Bester Zug",
+        "checkmate": "Schachmatt",
+        "stalemate": "Patt"
+      }
     },
     "theoryEndgames": {
       "selection": {
