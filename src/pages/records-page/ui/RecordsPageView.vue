@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import {
-  useOverallSkillLeaderboardQuery,
-  useTopTodayLeaderboardQuery,
-  useTornadoLeaderboardsQuery,
   useFinishHimLeaderboardQuery,
+  useOverallSkillLeaderboardQuery,
   usePracticalLeaderboardQuery,
   useTheoryLeaderboardQuery,
+  useTopTodayLeaderboardQuery,
+  useTornadoLeaderboardsQuery,
 } from '@/shared/api/queries/leaderboard.queries'
 import { generateRandomHallOfFame } from '@/shared/lib/statsRandomizer'
 import type { LeaderboardEntry } from '@/shared/types/api.types'
@@ -40,25 +40,25 @@ const {
 } = useTopTodayLeaderboardQuery(!isExample.value)
 
 // Tab Definitions
-const difficultyTabs = [
-  { id: 'Novice', name: 'Novice', icon: '👶' },
-  { id: 'Pro', name: 'Pro', icon: '🔥' },
-  { id: 'Master', name: 'Master', icon: '👑' },
-]
+const difficultyTabs = computed(() => [
+  { id: 'Novice', name: t('common.difficulties.level_novice'), icon: '' },
+  { id: 'Pro', name: t('common.difficulties.level_pro'), icon: '' },
+  { id: 'Master', name: t('common.difficulties.level_master'), icon: '' },
+])
 
-const tornadoTabs = [
-  { id: 'bullet', name: 'Bullet', icon: '⚡' },
-  { id: 'blitz', name: 'Blitz', icon: '🔥' },
-  { id: 'rapid', name: 'Rapid', icon: '🕒' },
-  { id: 'classic', name: 'Classic', icon: '🐢' },
-]
+const tornadoTabs = computed(() => [
+  { id: 'bullet', name: t('features.leaderboards.table.bullet'), icon: '' },
+  { id: 'blitz', name: t('features.leaderboards.table.blitz'), icon: '' },
+  { id: 'rapid', name: t('features.leaderboards.table.rapid'), icon: '' },
+  { id: 'classic', name: t('features.leaderboards.table.classic'), icon: '' },
+])
 
 // Merged Data logic for Hall of Fame (stays as is, but we'll use example data if needed)
 const exampleData = computed(() => isExample.value ? generateRandomHallOfFame() : null)
 
 const hallOfFameData = computed(() => {
   if (isExample.value) return exampleData.value?.overallSkillLeaderboard.entries || []
-  
+
   const overallEntries = overallSkillResponse.value?.entries || []
   const todayEntries = topTodayResponse.value?.entries || []
 
@@ -90,9 +90,11 @@ const hallOfFameData = computed(() => {
   })
 
   return Array.from(mergedMap.values()).sort((a, b) => {
-    const scoreA = Object.values(a.score || {}).reduce((sum, val) => sum + val, 0)
-    const scoreB = Object.values(b.score || {}).reduce((sum, val) => sum + val, 0)
-    return scoreB - scoreA
+    const playedA = Object.values(a.solved || {}).reduce((sum, val) => sum + val, 0) + 
+                   Object.values(a.failed || {}).reduce((sum, val) => sum + val, 0)
+    const playedB = Object.values(b.solved || {}).reduce((sum, val) => sum + val, 0) + 
+                   Object.values(b.failed || {}).reduce((sum, val) => sum + val, 0)
+    return playedB - playedA
   }).slice(0, 20)
 })
 
@@ -183,16 +185,16 @@ const isLoading = computed(() => {
 <style scoped>
 /* Стили, относящиеся к макету страницы */
 .records-page {
-  padding: 20px;
+  padding: 5px;
   box-sizing: border-box;
   background-color: transparent !important;
   color: var(--color-text-default);
   display: flex;
   flex-direction: column;
   gap: 25px;
-  width: 95vw;
+  width: 100%;
   max-width: 1000px;
-  margin: 20px auto;
+  margin: 25px auto;
 }
 
 .hall-of-fame-title {
@@ -281,7 +283,7 @@ const isLoading = computed(() => {
 @media (max-width: 768px) {
   .records-page {
     width: 100%;
-    padding: 14px;
+    padding: 5px;
     gap: 17px;
     margin: 10px auto;
   }

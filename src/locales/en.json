@@ -809,12 +809,17 @@
         "challenge": "Challenge",
         "daysOld": "1 Day | {count} Days",
         "totalSkill": "Skill",
-        "score": "Score",
+        "score": "Rating",
         "streakDays": "1 Day | {count} Days",
         "action": "Action",
         "requested": "Requested",
+        "played": "Played",
         "solved": "Solved",
-        "failed": "Failed"
+        "failed": "Failed",
+        "bullet": "Bullet",
+        "blitz": "Blitz",
+        "rapid": "Rapid",
+        "classic": "Classic"
       },
       "errors": {
         "dataLoadFailed": "Failed to load leaderboard data.",

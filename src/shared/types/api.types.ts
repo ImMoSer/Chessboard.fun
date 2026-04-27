@@ -258,7 +258,10 @@ export interface UnifiedLeaderboardEntry {
   current_streak: number
   tier: string
   sub_mode: string
+  maxRating: number
+  avgRating: number
   highScore: number
+  activeDays: number
   solved: number
   failed: number
   rank: string
@@ -273,7 +276,10 @@ export interface SidebarLeaderboardEntry {
   tier: string
   solved: number
   failed: number
+  maxRating: number
+  avgRating: number
   highScore: number
+  activeDays: number
 }
 
 export interface SidebarLeaderboardResponse {

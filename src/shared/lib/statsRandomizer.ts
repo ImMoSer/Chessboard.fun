@@ -189,22 +189,27 @@ export function generateRandomHallOfFame(): LeaderboardApiResponse {
       : ['Novice', 'Pro', 'Master']
     
     categories.forEach(cat => {
-      const items: UnifiedLeaderboardEntry[] = Array.from({ length: 5 }, (_, i) => ({
-        id: `user_${i}`,
-        username: usernames[getRandomInt(0, usernames.length - 1)]!,
-        training_status: 'N',
-        current_streak: getRandomInt(0, 5),
-        tier: tiers[getRandomInt(0, tiers.length - 1)]!,
-        sub_mode: cat,
-        highScore: getRandomInt(800, 2200),
-        solved: getRandomInt(10, 100),
-        failed: getRandomInt(2, 20),
-        rank: (i + 1).toString()
-      }))
-      
-      items.sort((a, b) => b.highScore - a.highScore)
-      items.forEach((item, index) => { item.rank = (index + 1).toString() })
-      
+      const items: UnifiedLeaderboardEntry[] = Array.from({ length: 5 }, (_, i) => {
+        const rating = getRandomInt(800, 2200)
+        return {
+          id: `user_${i}`,
+          username: usernames[getRandomInt(0, usernames.length - 1)]!,
+          training_status: 'N',
+          current_streak: getRandomInt(0, 5),
+          tier: tiers[getRandomInt(0, tiers.length - 1)]!,
+          sub_mode: cat,
+          maxRating: rating,
+          avgRating: rating - getRandomInt(0, 100),
+          highScore: getRandomInt(10, 100),
+          activeDays: getRandomInt(1, 30),
+          solved: getRandomInt(10, 100),
+          failed: getRandomInt(2, 20),
+          rank: (i + 1).toString()
+        }
+      })
+
+      items.sort((a, b) => b.maxRating - a.maxRating)
+      items.forEach((item, index) => { item.rank = (index + 1).toString() })      
       res[cat] = items
     })
     return res

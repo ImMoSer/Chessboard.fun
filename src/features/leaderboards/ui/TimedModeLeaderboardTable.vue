@@ -43,13 +43,13 @@ const columns = computed<DataTableColumns<UnifiedLeaderboardEntry>>(
       title: '#',
       key: 'rank',
       align: 'center',
-      width: 50,
+      width: 30,
       render: (row) => row.rank || '-'
     },
     {
       title: t('features.leaderboards.table.player'),
       key: 'username',
-      minWidth: 140,
+      minWidth: 120,
       ellipsis: { tooltip: true },
       render(row) {
         const tier = row.tier || 'Pawn'
@@ -70,28 +70,45 @@ const columns = computed<DataTableColumns<UnifiedLeaderboardEntry>>(
       },
     },
     {
-      title: t('features.leaderboards.table.score'),
+      title: t('features.leaderboards.table.score', 'Rating'),
+      key: 'maxRating',
+      align: 'right',
+      width: 60,
+      render: (row) => h('span', { class: 'mode-score-value' }, row.maxRating)
+    },
+    {
+      title: t('features.leaderboards.table.avgRating', 'Avg'),
+      key: 'avgRating',
+      align: 'right',
+      width: 50,
+      render: (row) => h('span', { style: { color: 'var(--color-text-muted)' } }, row.avgRating)
+    },
+    {
+      title: t('features.leaderboards.table.highScore', 'Best'),
       key: 'highScore',
       align: 'right',
-      render: (row) => h('span', { class: 'mode-score-value' }, row.highScore)
+      width: 50,
+      render: (row) => h('span', { style: { fontWeight: 'bold' } }, row.highScore)
     },
     {
-      title: t('features.leaderboards.table.solved'),
-      key: 'solved',
+      title: t('features.leaderboards.table.activeDays', 'Days'),
+      key: 'activeDays',
       align: 'right',
-      width: 70,
+      width: 50,
+      render: (row) => row.activeDays
     },
     {
-      title: t('features.leaderboards.table.failed'),
-      key: 'failed',
+      title: t('features.leaderboards.table.played'),
+      key: 'played',
       align: 'right',
-      width: 70,
+      width: 65,
+      render: (row) => row.solved + row.failed
     },
     {
       title: '%',
       key: 'accuracy',
       align: 'right',
-      width: 75,
+      width: 60,
       render(row) {
         const total = row.solved + row.failed
         if (total === 0) return '-'
@@ -126,14 +143,13 @@ const columns = computed<DataTableColumns<UnifiedLeaderboardEntry>>(
         <n-tab-pane v-for="tab in tabs" :key="tab.id" :name="tab.id">
           <template #tab>
             <div class="tab-label">
-              <span class="tab-icon">{{ tab.icon }}</span>
               <span class="tab-name">{{ tab.name }}</span>
             </div>
           </template>
           <div class="mode-table-wrapper">
             <n-data-table
               :columns="columns"
-              :data="data[tab.id] || []"
+              :data="([...(data[tab.id] || [])].sort((a, b) => (b.solved + b.failed) - (a.solved + a.failed))).map((row, idx) => ({...row, rank: (idx + 1).toString()}))"
               :row-key="(row: UnifiedLeaderboardEntry) => row.id"
               size="small"
               striped
@@ -234,7 +250,7 @@ const columns = computed<DataTableColumns<UnifiedLeaderboardEntry>>(
 :deep(.n-data-table-td) {
   font-family: var(--font-family-primary);
   font-size: 0.95rem;
-  padding: 10px 8px !important;
+  padding: 10px 4px !important;
 }
 
 :deep(.n-tabs-tab) {
@@ -243,10 +259,9 @@ const columns = computed<DataTableColumns<UnifiedLeaderboardEntry>>(
 
 @media (max-width: 768px) {
   .card-title { font-size: 0.9rem; }
-  .tab-name { display: none; }
-  .tab-icon { font-size: 1.2rem; }
-  :deep(.n-data-table-th) { font-size: 0.7rem; }
-  :deep(.n-data-table-td) { font-size: 0.8rem; }
+  .tab-name { display: inline-block; font-size: 0.75rem; }
+  :deep(.n-data-table-th) { font-size: 0.65rem; }
+  :deep(.n-data-table-td) { font-size: 0.75rem; padding: 4px 2px !important; }
+  .modes-container { padding: 2px; }
 }
 </style>
-

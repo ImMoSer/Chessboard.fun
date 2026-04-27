@@ -70,7 +70,7 @@ const calculateWinRate = (solved: number, failed: number) => {
             </td>
             <td class="col-solved">{{ entry.solved }}</td>
             <td class="col-rate">{{ calculateWinRate(entry.solved, entry.failed) }}%</td>
-            <td class="col-score">{{ entry.highScore }}</td>
+            <td class="col-score">{{ entry.maxRating }}</td>
           </tr>
           <tr v-if="!isLoading && (!data?.top10 || data.top10.length === 0)" class="empty-row">
             <td colspan="5">{{ t('features.userCabinet.stats.noData') }}</td>
@@ -93,7 +93,7 @@ const calculateWinRate = (solved: number, failed: number) => {
             </td>
             <td class="col-solved">{{ data.currentUser.solved }}</td>
             <td class="col-rate">{{ calculateWinRate(data.currentUser.solved, data.currentUser.failed) }}%</td>
-            <td class="col-score">{{ data.currentUser.highScore }}</td>
+            <td class="col-score">{{ data.currentUser.maxRating }}</td>
           </tr>
         </tbody>
       </table>

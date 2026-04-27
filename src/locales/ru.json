@@ -807,12 +807,17 @@
         "challenge": "Испытание",
         "daysOld": "{count} день назад | {count} дня назад | {count} дней назад",
         "totalSkill": "Skill",
-        "score": "Счет",
+        "score": "Рейт",
         "streakDays": "{count} день | {count} дня | {count} дней",
         "action": "Действие",
         "requested": "Запрошено",
+        "played": "Игры",
         "solved": "Успех",
-        "failed": "Провал"
+        "failed": "Провал",
+        "bullet": "Пуля",
+        "blitz": "Блиц",
+        "rapid": "Рапид",
+        "classic": "Классика"
       },
       "errors": {
         "dataLoadFailed": "Ошибка загрузки данных таблицы лидеров.",

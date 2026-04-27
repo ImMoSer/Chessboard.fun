@@ -809,12 +809,17 @@
         "challenge": "Herausforderung",
         "daysOld": "1 Tag | {count} Tage",
         "totalSkill": "Skill",
-        "score": "Score",
+        "score": "Rating",
         "streakDays": "1 Tag | {count} Tage",
-        "action": "Aktion",
-        "requested": "Angefragt",
+        "action": "Action",
+        "requested": "Requested",
+        "played": "Spiele",
         "solved": "Erfolg",
-        "failed": "Misst"
+        "failed": "Misst",
+        "bullet": "Bullet",
+        "blitz": "Blitz",
+        "rapid": "Rapid",
+        "classic": "Classic"
       },
       "errors": {
         "dataLoadFailed": "Laden der Bestenliste fehlgeschlagen.",
