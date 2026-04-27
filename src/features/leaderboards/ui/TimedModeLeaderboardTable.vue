@@ -149,7 +149,7 @@ const columns = computed<DataTableColumns<UnifiedLeaderboardEntry>>(
           <div class="mode-table-wrapper">
             <n-data-table
               :columns="columns"
-              :data="(data[tab.id] || []).map((row, idx) => ({...row, rank: row.rank || (idx + 1).toString()}))"
+              :data="([...(data[tab.id] || [])].sort((a, b) => b.solved - a.solved)).map((row, idx) => ({...row, rank: row.rank || (idx + 1).toString()}))"
               :row-key="(row: UnifiedLeaderboardEntry) => row.id"
               size="small"
               striped
