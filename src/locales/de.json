@@ -19,11 +19,13 @@
       "limitless": "unbegrenzt"
     },
     "difficulties": {
-      "level_novice": "Anfänger",
-      "level_pro": "Profi",
-      "level_master": "Meister"
+      "level_novice": "Novice",
+      "level_pro": "Pro",
+      "level_master": "Master"
     },
+    "global": "Gesamt",
     "periods": {
+
       "day": "Tag",
       "week": "Woche",
       "month": "Monat",
@@ -785,17 +787,18 @@
       "sections": {
         "hot": "HEISS 🔥",
         "competitive": "KOMPETITIV 🏆",
+        "strategic": "STRATEGISCHE MEISTER 🏰",
         "hallOfFame": "HALL OF FAME 🏛️"
       },
       "titles": {
-        "topFinishHim": "Finish Him Meister",
+        "topFinishHim": "Finish Him",
         "overallSkill": "Gesamt-Skill",
         "skillStreak": "+100 jeden Tag",
         "skillStreakMega": "Tornado +300 täglich",
         "topToday": "Top heute",
-        "finishHimLeaderboard": "Finish Him Rekorde",
-        "theoryLeaderboard": "Theoretische Endspiele",
-        "practicalLeaderboard": "Praktisches Schach"
+        "finishHimLeaderboard": "Finish Him",
+        "theoryLeaderboard": "Theoretisch",
+        "practicalLeaderboard": "Praktisch"
       },
       "sidebar": {
         "title": "Top 10 (30 Tage)",
@@ -810,6 +813,11 @@
         "daysOld": "1 Tag | {count} Tage",
         "totalSkill": "Skill",
         "score": "Rating",
+        "avgRating": "Schnitt",
+        "maxRating": "Max",
+        "highScore": "Bestwert",
+        "bestDay": "Best Day",
+        "activeDays": "Tage",
         "streakDays": "1 Tag | {count} Tage",
         "action": "Action",
         "requested": "Requested",

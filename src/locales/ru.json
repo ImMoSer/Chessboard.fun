@@ -23,6 +23,7 @@
       "level_pro": "Профи",
       "level_master": "Мастер"
     },
+    "global": "Общий",
     "periods": {
       "day": "День",
       "week": "Неделя",
@@ -783,17 +784,19 @@
       "sections": {
         "hot": "ГОРЯЧО 🔥",
         "competitive": "СОРЕВНОВАТЕЛЬНЫЕ РЕЖИМЫ 🏆",
+        "strategic": "СТРАТЕГИЧЕСКОЕ МАСТЕРСТВО 🏰",
         "hallOfFame": "ЗАЛ СЛАВЫ 🏛️"
+
       },
       "titles": {
-        "topFinishHim": "Мастера Finish Him",
+        "topFinishHim": "Finish-Him",
         "overallSkill": "Общий Skill",
         "skillStreak": "+100 каждый день",
         "skillStreakMega": "Торнадо +300 каждый день",
         "topToday": "Лучшие сегодня",
-        "finishHimLeaderboard": "Рекорды Finish Him",
-        "theoryLeaderboard": "Теоретические эндшпили",
-        "practicalLeaderboard": "Практические шахматы"
+        "finishHimLeaderboard": "Finish-Him",
+        "theoryLeaderboard": "Теоретические",
+        "practicalLeaderboard": "Практические"
       },
       "sidebar": {
         "title": "Топ-10 (30 дней)",
@@ -808,6 +811,11 @@
         "daysOld": "{count} день назад | {count} дня назад | {count} дней назад",
         "totalSkill": "Skill",
         "score": "Рейт",
+        "avgRating": "Средний",
+        "maxRating": "Рекорд",
+        "highScore": "BestScore",
+        "bestDay": "Best Day",
+        "activeDays": "Активность",
         "streakDays": "{count} день | {count} дня | {count} дней",
         "action": "Действие",
         "requested": "Запрошено",

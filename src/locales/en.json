@@ -23,6 +23,7 @@
       "level_pro": "Pro",
       "level_master": "Master"
     },
+    "global": "Global",
     "periods": {
       "day": "Day",
       "week": "Week",
@@ -785,17 +786,18 @@
       "sections": {
         "hot": "HOT \ud83d\udd25",
         "competitive": "COMPETITIVE MODES \ud83c\udfc6",
+        "strategic": "STRATEGIC MASTERY \ud83c\udff0",
         "hallOfFame": "HALL OF FAME \ud83c\udfdb\ufe0f"
       },
       "titles": {
-        "topFinishHim": "Finish Him Masters",
+        "topFinishHim": "Finish Him",
         "overallSkill": "Overall Skill",
         "skillStreak": "+100 everyday",
         "skillStreakMega": "Tornado +300 Every Day",
         "topToday": "Top Today",
-        "finishHimLeaderboard": "Finish Him Records",
-        "theoryLeaderboard": "Theoretical Endgames",
-        "practicalLeaderboard": "Practical Chess"
+        "finishHimLeaderboard": "Finish Him",
+        "theoryLeaderboard": "Theoretical",
+        "practicalLeaderboard": "Practical"
       },
       "sidebar": {
         "title": "Top 10 (30 Days)",
@@ -809,7 +811,12 @@
         "challenge": "Challenge",
         "daysOld": "1 Day | {count} Days",
         "totalSkill": "Skill",
-        "score": "Rating",
+        "score": "Score",
+        "avgRating": "Avg",
+        "maxRating": "Max",
+        "highScore": "BestScore",
+        "bestDay": "Best Day",
+        "activeDays": "Activity",
         "streakDays": "1 Day | {count} Days",
         "action": "Action",
         "requested": "Requested",

@@ -70,45 +70,45 @@ const columns = computed<DataTableColumns<UnifiedLeaderboardEntry>>(
       },
     },
     {
-      title: t('features.leaderboards.table.score', 'Rating'),
+      title: t('features.leaderboards.table.maxRating', 'maxRating'),
       key: 'maxRating',
-      align: 'right',
-      width: 60,
+      align: 'center',
+      width: 85,
       render: (row) => h('span', { class: 'mode-score-value' }, row.maxRating)
     },
     {
       title: t('features.leaderboards.table.avgRating', 'Avg'),
       key: 'avgRating',
-      align: 'right',
-      width: 50,
+      align: 'center',
+      width: 85,
       render: (row) => h('span', { style: { color: 'var(--color-text-muted)' } }, row.avgRating)
     },
     {
-      title: t('features.leaderboards.table.highScore', 'Best'),
+      title: t('features.leaderboards.table.bestDay', 'error'),
       key: 'highScore',
-      align: 'right',
-      width: 50,
+      align: 'center',
+      width: 100,
       render: (row) => h('span', { style: { fontWeight: 'bold' } }, row.highScore)
     },
     {
       title: t('features.leaderboards.table.activeDays', 'Days'),
       key: 'activeDays',
-      align: 'right',
-      width: 50,
+      align: 'center',
+      width: 100,
       render: (row) => row.activeDays
     },
     {
       title: t('features.leaderboards.table.played'),
       key: 'played',
-      align: 'right',
-      width: 65,
+      align: 'center',
+      width: 100,
       render: (row) => row.solved + row.failed
     },
     {
       title: '%',
       key: 'accuracy',
       align: 'right',
-      width: 60,
+      width: 45,
       render(row) {
         const total = row.solved + row.failed
         if (total === 0) return '-'
@@ -119,7 +119,7 @@ const columns = computed<DataTableColumns<UnifiedLeaderboardEntry>>(
             fontWeight: 'bold'
           }
         },
-          `${acc.toFixed(0)}%`
+          `${acc.toFixed(0)}`
         )
       }
     }
@@ -149,7 +149,7 @@ const columns = computed<DataTableColumns<UnifiedLeaderboardEntry>>(
           <div class="mode-table-wrapper">
             <n-data-table
               :columns="columns"
-              :data="([...(data[tab.id] || [])].sort((a, b) => (b.solved + b.failed) - (a.solved + a.failed))).map((row, idx) => ({...row, rank: (idx + 1).toString()}))"
+              :data="(data[tab.id] || []).map((row, idx) => ({...row, rank: row.rank || (idx + 1).toString()}))"
               :row-key="(row: UnifiedLeaderboardEntry) => row.id"
               size="small"
               striped

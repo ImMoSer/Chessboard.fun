@@ -18,7 +18,20 @@ const LEADERBOARD_KEYS = {
   finishHim: () => [...LEADERBOARD_KEYS.all, 'finish-him'] as const,
   practical: () => [...LEADERBOARD_KEYS.all, 'practical-chess'] as const,
   theory: () => [...LEADERBOARD_KEYS.all, 'theory'] as const,
+  dashboard: () => [...LEADERBOARD_KEYS.all, 'dashboard'] as const,
   sidebar: (params: Record<string, string>) => [...LEADERBOARD_KEYS.all, 'sidebar', params] as const,
+}
+
+/**
+ * Fetch Unified Leaderboard Dashboard (Top 20 for all modes)
+ */
+export const useUnifiedDashboardQuery = (enabled: boolean = true) => {
+  return useQuery<UnifiedLeaderboardResponse, Error>({
+    queryKey: LEADERBOARD_KEYS.dashboard(),
+    queryFn: () => apiClient<UnifiedLeaderboardResponse>('/leaderboards/dashboard'),
+    enabled,
+    staleTime: 60 * 1000,
+  })
 }
 
 /**

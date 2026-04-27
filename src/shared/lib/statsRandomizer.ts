@@ -182,15 +182,14 @@ export function generateRandomHallOfFame(): LeaderboardApiResponse {
   const usernames = ['ChessMaster', 'KnightRider', 'GambitPlayer', 'CheckmateKing', 'EnPassantExpert']
   const tiers: UserSessionProfile['subscriptionTier'][] = ['King', 'Queen', 'Rook', 'Bishop', 'Knight', 'Pawn']
 
-  const genThematic = (isTornado = false): UnifiedLeaderboardResponse => {
+  const genThematic = (modes: string[]): UnifiedLeaderboardResponse => {
     const res: UnifiedLeaderboardResponse = {}
-    const categories = isTornado 
-      ? ['bullet', 'blitz', 'rapid', 'classic'] 
-      : ['Novice', 'Pro', 'Master']
     
-    categories.forEach(cat => {
+    modes.forEach(cat => {
       const items: UnifiedLeaderboardEntry[] = Array.from({ length: 5 }, (_, i) => {
         const rating = getRandomInt(800, 2200)
+        const solved = getRandomInt(10, 100)
+        const failed = getRandomInt(2, 20)
         return {
           id: `user_${i}`,
           username: usernames[getRandomInt(0, usernames.length - 1)]!,
@@ -202,20 +201,22 @@ export function generateRandomHallOfFame(): LeaderboardApiResponse {
           avgRating: rating - getRandomInt(0, 100),
           highScore: getRandomInt(10, 100),
           activeDays: getRandomInt(1, 30),
-          solved: getRandomInt(10, 100),
-          failed: getRandomInt(2, 20),
+          solved,
+          failed,
+          accuracy: Number(((solved / (solved + failed)) * 100).toFixed(2)),
+          totalAttempts: solved + failed + getRandomInt(0, 10),
           rank: (i + 1).toString()
         }
       })
 
-      items.sort((a, b) => b.maxRating - a.maxRating)
+      items.sort((a, b) => b.solved - a.solved)
       items.forEach((item, index) => { item.rank = (index + 1).toString() })      
       res[cat] = items
     })
     return res
   }
 
-  const genOverall = () => {
+  const genOverallOld = () => {
     const items = Array.from({ length: 15 }, (_, i) => {
       const score = {
         finish_him: getRandomInt(100, 2000),
@@ -282,19 +283,21 @@ export function generateRandomHallOfFame(): LeaderboardApiResponse {
   }
 
   return {
-    tornadoLeaderboard: genThematic(true),
-    finishHimLeaderboard: genThematic(false),
-    theoryLeaderboard: genThematic(false),
-    practicalLeaderboard: genThematic(false),
+    tornadoLeaderboard: genThematic(['tornado_bullet', 'tornado_blitz', 'tornado_rapid', 'tornado_classic']),
+    strategicLeaderboard: genThematic(['theory', 'practical-chess', 'finish_him']),
+    overallLeaderboard: genThematic(['overall']),
+    finishHimLeaderboard: genThematic(['Novice', 'Pro', 'Master']),
+    theoryLeaderboard: genThematic(['Novice', 'Pro', 'Master']),
+    practicalLeaderboard: genThematic(['Novice', 'Pro', 'Master']),
     overallSkillLeaderboard: {
       period: 30,
-      entries: genOverall()
+      entries: genOverallOld()
     },
     skillStreakLeaderboard: genStreaks(),
     skillStreakMegaLeaderboard: genStreaks(),
     topTodayLeaderboard: {
       period: 'heute',
-      entries: genOverall()
+      entries: genOverallOld()
     },
   }
 }

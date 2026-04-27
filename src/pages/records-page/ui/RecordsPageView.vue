@@ -1,14 +1,9 @@
 <script setup lang="ts">
 import {
-  useFinishHimLeaderboardQuery,
-  useOverallSkillLeaderboardQuery,
-  usePracticalLeaderboardQuery,
-  useTheoryLeaderboardQuery,
   useTopTodayLeaderboardQuery,
-  useTornadoLeaderboardsQuery,
+  useUnifiedDashboardQuery,
 } from '@/shared/api/queries/leaderboard.queries'
 import { generateRandomHallOfFame } from '@/shared/lib/statsRandomizer'
-import type { LeaderboardEntry } from '@/shared/types/api.types'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
@@ -22,16 +17,7 @@ const route = useRoute()
 const isExample = computed(() => route.params.id === 'example')
 
 // Vue Query fetching
-const { data: tornadoData, isFetching: isTornadoLoading } = useTornadoLeaderboardsQuery(!isExample.value)
-const { data: finishHimData, isFetching: isFinishHimLoading } = useFinishHimLeaderboardQuery(!isExample.value)
-const { data: practicalData, isFetching: isPracticalLoading } = usePracticalLeaderboardQuery(!isExample.value)
-const { data: theoryData, isFetching: isTheoryLoading } = useTheoryLeaderboardQuery(!isExample.value)
-
-// Overall Skill Query
-const {
-  data: overallSkillResponse,
-  isFetching: isOverallSkillLoading,
-} = useOverallSkillLeaderboardQuery(!isExample.value)
+const { data: dashboardData, isFetching: isDashboardLoading } = useUnifiedDashboardQuery(!isExample.value)
 
 // Top Today Query
 const {
@@ -39,74 +25,27 @@ const {
   isFetching: isTopTodayLoading,
 } = useTopTodayLeaderboardQuery(!isExample.value)
 
-// Tab Definitions
-const difficultyTabs = computed(() => [
-  { id: 'Novice', name: t('common.difficulties.level_novice'), icon: '' },
-  { id: 'Pro', name: t('common.difficulties.level_pro'), icon: '' },
-  { id: 'Master', name: t('common.difficulties.level_master'), icon: '' },
+const strategicTabs = computed(() => [
+  { id: 'theory', name: t('features.leaderboards.titles.theoryLeaderboard'), icon: '' },
+  { id: 'practical-chess', name: t('features.leaderboards.titles.practicalLeaderboard'), icon: '' },
+  { id: 'finish_him', name: t('features.leaderboards.titles.topFinishHim'), icon: '' },
 ])
 
 const tornadoTabs = computed(() => [
-  { id: 'bullet', name: t('features.leaderboards.table.bullet'), icon: '' },
-  { id: 'blitz', name: t('features.leaderboards.table.blitz'), icon: '' },
-  { id: 'rapid', name: t('features.leaderboards.table.rapid'), icon: '' },
-  { id: 'classic', name: t('features.leaderboards.table.classic'), icon: '' },
+  { id: 'tornado_bullet', name: t('features.leaderboards.table.bullet'), icon: '' },
+  { id: 'tornado_blitz', name: t('features.leaderboards.table.blitz'), icon: '' },
+  { id: 'tornado_rapid', name: t('features.leaderboards.table.rapid'), icon: '' },
+  { id: 'tornado_classic', name: t('features.leaderboards.table.classic'), icon: '' },
 ])
 
 // Merged Data logic for Hall of Fame (stays as is, but we'll use example data if needed)
 const exampleData = computed(() => isExample.value ? generateRandomHallOfFame() : null)
 
-const hallOfFameData = computed(() => {
-  if (isExample.value) return exampleData.value?.overallSkillLeaderboard.entries || []
-
-  const overallEntries = overallSkillResponse.value?.entries || []
-  const todayEntries = topTodayResponse.value?.entries || []
-
-  const mergedMap = new Map<string, LeaderboardEntry>()
-  overallEntries.forEach((entry) => mergedMap.set(entry.id, JSON.parse(JSON.stringify(entry))))
-
-  todayEntries.forEach((today) => {
-    const existing = mergedMap.get(today.id)
-    if (existing) {
-      if (today.score) {
-        Object.keys(today.score).forEach((mode) => {
-          existing.score[mode] = Number(existing.score[mode] || 0) + Number(today.score[mode] || 0)
-        })
-      }
-      if (today.solved) {
-        Object.keys(today.solved).forEach((mode) => {
-          existing.solved[mode] = Number(existing.solved[mode] || 0) + Number(today.solved[mode] || 0)
-        })
-      }
-      if (today.failed) {
-        Object.keys(today.failed).forEach((mode) => {
-          existing.failed[mode] = Number(existing.failed[mode] || 0) + Number(today.failed[mode] || 0)
-        })
-      }
-      existing.current_streak = Math.max(existing.current_streak || 0, today.current_streak || 0)
-    } else {
-      mergedMap.set(today.id, JSON.parse(JSON.stringify(today)))
-    }
-  })
-
-  return Array.from(mergedMap.values()).sort((a, b) => {
-    const playedA = Object.values(a.solved || {}).reduce((sum, val) => sum + val, 0) + 
-                   Object.values(a.failed || {}).reduce((sum, val) => sum + val, 0)
-    const playedB = Object.values(b.solved || {}).reduce((sum, val) => sum + val, 0) + 
-                   Object.values(b.failed || {}).reduce((sum, val) => sum + val, 0)
-    return playedB - playedA
-  }).slice(0, 20)
-})
-
 const isLoading = computed(() => {
   if (isExample.value) return false
   return (
-    isOverallSkillLoading.value ||
     isTopTodayLoading.value ||
-    isTornadoLoading.value ||
-    isFinishHimLoading.value ||
-    isPracticalLoading.value ||
-    isTheoryLoading.value
+    isDashboardLoading.value
   )
 })
 </script>
@@ -129,11 +68,12 @@ const isLoading = computed(() => {
           :is-loading="isTopTodayLoading"
         />
 
-        <SkillLeaderboardTable
+        <TimedModeLeaderboardTable
           :title="t('features.leaderboards.titles.overallSkill')"
-          :entries="hallOfFameData"
-          color-class="overallSkill"
-          :is-loading="isOverallSkillLoading"
+          :data="isExample ? exampleData?.overallLeaderboard : dashboardData"
+          :tabs="[{ id: 'overall', name: t('common.global', 'Global'), icon: '' }]"
+          :is-loading="isDashboardLoading"
+          color-class="tornadoLeaderboard"
         />
       </section>
 
@@ -144,37 +84,19 @@ const isLoading = computed(() => {
           <!-- Tornado Leaderboard -->
           <TimedModeLeaderboardTable
             :title="t('nav.tornado')"
-            :data="isExample ? exampleData?.tornadoLeaderboard : tornadoData"
+            :data="isExample ? exampleData?.tornadoLeaderboard : dashboardData"
             :tabs="tornadoTabs"
-            :is-loading="isTornadoLoading"
+            :is-loading="isDashboardLoading"
             color-class="tornadoLeaderboard"
           />
 
-          <!-- Finish Him Leaderboard -->
+          <!-- Strategic Mastery -->
           <TimedModeLeaderboardTable
-            :title="t('features.leaderboards.titles.topFinishHim')"
-            :data="isExample ? exampleData?.finishHimLeaderboard : finishHimData"
-            :tabs="difficultyTabs"
-            :is-loading="isFinishHimLoading"
-            color-class="finishHimLeaderboard"
-          />
-
-          <!-- Theory Leaderboard -->
-          <TimedModeLeaderboardTable
-            :title="t('features.leaderboards.titles.theoryLeaderboard')"
-            :data="isExample ? exampleData?.theoryLeaderboard : theoryData"
-            :tabs="difficultyTabs"
-            :is-loading="isTheoryLoading"
+            :title="t('features.leaderboards.sections.strategic')"
+            :data="isExample ? exampleData?.strategicLeaderboard : dashboardData"
+            :tabs="strategicTabs"
+            :is-loading="isDashboardLoading"
             color-class="theoryLeaderboard"
-          />
-
-          <!-- Practical Leaderboard -->
-          <TimedModeLeaderboardTable
-            :title="t('features.leaderboards.titles.practicalLeaderboard')"
-            :data="isExample ? exampleData?.practicalLeaderboard : practicalData"
-            :tabs="difficultyTabs"
-            :is-loading="isPracticalLoading"
-            color-class="practicalLeaderboard"
           />
         </div>
       </section>

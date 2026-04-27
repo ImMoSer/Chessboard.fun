@@ -254,17 +254,20 @@ export interface GamePuzzle {
 export interface UnifiedLeaderboardEntry {
   id: string
   username: string
-  training_status: string
-  current_streak: number
   tier: string
-  sub_mode: string
+  game_mode?: string
+  sub_mode?: string
   maxRating: number
   avgRating: number
   highScore: number
   activeDays: number
   solved: number
   failed: number
-  rank: string
+  accuracy: number
+  totalAttempts: number
+  rank: number | string
+  training_status?: string
+  current_streak?: number
 }
 
 export type LeaderboardDifficulty = 'Novice' | 'Pro' | 'Master'
@@ -292,6 +295,8 @@ interface WorktableLeaderboards {
   theoryLeaderboard?: UnifiedLeaderboardResponse
   practicalLeaderboard?: UnifiedLeaderboardResponse
   tornadoLeaderboard?: UnifiedLeaderboardResponse
+  strategicLeaderboard?: UnifiedLeaderboardResponse
+  overallLeaderboard?: UnifiedLeaderboardResponse
 }
 
 export type SkillPeriod = '7' | '14' | '21' | '30'
