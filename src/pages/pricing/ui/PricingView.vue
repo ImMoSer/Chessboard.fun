@@ -29,10 +29,16 @@ const authStore = useAuthStore()
 
 // Subscription values and colors
 // Subscription values and colors
-const ROOK_COINS = 1500
-const QUEEN_COINS = 3000
+const PAWN_COINS = 250
+const KNIGHT_COINS = 500
+const BISHOP_COINS = 750
+const ROOK_COINS = 1000
+const QUEEN_COINS = 5000
 const KING_COINS = 0 // Displayed as LIMITLESS
 
+const PAWN_COLOR = 'var(--text-color-3)'
+const KNIGHT_COLOR = 'var(--neon-blue)'
+const BISHOP_COLOR = 'var(--neon-lime)'
 const ROOK_COLOR = 'var(--neon-purple)'
 const QUEEN_COLOR = 'var(--color-accent-error)'
 const KING_COLOR = 'var(--neon-gold)' // Gold for King
@@ -77,6 +83,38 @@ const isPolarCustomer = computed(() => {
 
 const subscriptionTiers = computed(() => {
   const baseTiers = [
+    {
+      id: 'pawn',
+      name: t('features.pricing.tiers.pawn.name'),
+      role: t('features.pricing.tiers.pawn.role'),
+      icon: '/piece/alpha/wP.svg',
+      pawncoins: PAWN_COINS,
+      color: PAWN_COLOR,
+      price: t('features.pricing.tiers.pawn.price'),
+      isPurchasable: false,
+    },
+    {
+      id: 'knight',
+      name: t('features.pricing.tiers.knight.name'),
+      role: t('features.pricing.tiers.knight.role'),
+      icon: '/piece/alpha/wN.svg',
+      pawncoins: KNIGHT_COINS,
+      color: KNIGHT_COLOR,
+      price: t('features.pricing.tiers.price.bonus'),
+      isPurchasable: false,
+      isBonus: true,
+    },
+    {
+      id: 'bishop',
+      name: t('features.pricing.tiers.bishop.name'),
+      role: t('features.pricing.tiers.bishop.role'),
+      icon: '/piece/alpha/wB.svg',
+      pawncoins: BISHOP_COINS,
+      color: BISHOP_COLOR,
+      price: t('features.pricing.tiers.price.bonus'),
+      isPurchasable: false,
+      isBonus: true,
+    },
     {
       id: 'rook',
       name: t('features.pricing.tiers.rook.name'),
@@ -148,7 +186,7 @@ const gameCosts = computed(() => {
     { name: t('nav.finishHim'), icon: '🎯', cost: 10 },
     { name: t('nav.diamondHunter'), icon: '💎', cost: 25 },
     { name: t('nav.openingExam'), icon: '🤺', cost: 25 },
-    { name: t('features.study.sidebar.replyTraining', 'Reply Training'), icon: '🔁', cost: 25 },
+    { name: t('features.study.replyTraining.title', 'Reply Training'), icon: '🔁', cost: 25 },
     { name: t('nav.speedrun'), icon: '🏃', cost: 25 },
     { name: t('features.pricing.repertoireGenerator'), icon: '📖', cost: 50 },
   ]
@@ -285,7 +323,7 @@ const handleCheckout = async (tier: SubscriptionTier) => {
           </n-space>
         </n-alert>
 
-        <n-grid cols="1 600:2 900:3" x-gap="16" y-gap="16">
+        <n-grid cols="1 600:2 900:3 1400:6" x-gap="16" y-gap="16">
           <n-gi v-for="tier in subscriptionTiers" :key="tier.name">
             <n-card
               hoverable
@@ -413,6 +451,12 @@ const handleCheckout = async (tier: SubscriptionTier) => {
         <n-space vertical :size="8">
           <n-tag type="info">{{ t('features.pricing.bonusInfo.knight') }}</n-tag>
           <n-tag type="warning">{{ t('features.pricing.bonusInfo.bishop') }}</n-tag>
+          <router-link
+            to="/bonus"
+            style="color: var(--neon-cyan); text-decoration: none; font-weight: bold; margin-top: 4px; display: inline-block;"
+          >
+            ➔ {{ t('features.pricing.bonusInfo.moreInfo') }}
+          </router-link>
         </n-space>
         <n-divider dashed />
         <n-text depth="3" italic style="font-size: 0.9em">

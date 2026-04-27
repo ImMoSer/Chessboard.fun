@@ -569,15 +569,18 @@
         "title": "Subscription Tiers",
         "pawn": {
           "name": "Pawn",
+          "role": "Free for everyone to get to know the app.",
           "description": "Daily replenishment up to {pawncoins} PawnCoins",
           "price": "Free forever"
         },
         "knight": {
           "name": "Knight",
+          "role": "Bonus tier for active community members.",
           "description": "Daily replenishment up to {pawncoins} PawnCoins"
         },
         "bishop": {
           "name": "Bishop",
+          "role": "Exclusive bonus for top performers in the club.",
           "description": "Daily replenishment up to {pawncoins} PawnCoins"
         },
         "rook": {
@@ -608,13 +611,20 @@
         "howItWorks": "📅 How does it work?",
         "p1": "Our bonus program rewards the most active members of the xtrapawn club on Lichess.",
         "p2": "Bonuses are assigned automatically. The calculation is done daily at 05:29 AM (UTC+1) based on performance over the last 30 days.",
-        "p3": "1st Place (King), 2nd Place (Queen), 3rd Place (Rook).",
-        "p4a": "Players with Vector 500+ receive Bishop.",
-        "p4b": "Players with Vector 250+ receive Knight.",
+        "p3": "1st Place (King - limitless), 2nd Place (Queen - 5000), 3rd Place (Rook - 1000).",
+        "p4a": "Players with Vector 500+ receive Bishop (750 PawnCoins).",
+        "p4b": "Players with Vector 250+ receive Knight (500 PawnCoins).",
         "p5": "Status is updated daily and remains valid until the next calculation.",
         "homepageLink": "Club Homepage",
         "alertText": "Prefer to earn instead of buy? Check out our",
-        "alertButton": "Bonus Program"
+        "alertButton": "Bonus Program",
+        "teamLink": "Join our Lichess team",
+        "knight": "Knight Status: From Vector 250+",
+        "bishop": "Bishop Status: From Vector 500+",
+        "p6": "Status calculation is rolling over the last 30 days.",
+        "p7": "Subject to changes in the bonus program.",
+        "p8": "Good luck with your training!",
+        "moreInfo": "More info here"
       },
       "costs": {
         "title": "Game Mode Costs",

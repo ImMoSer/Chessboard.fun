@@ -569,15 +569,18 @@
         "title": "Abo-Stufen",
         "pawn": {
           "name": "Bauer",
+          "role": "Kostenlos für alle, um die App kennenzulernen.",
           "description": "Tägliche Auffüllung auf bis zu {pawncoins} PawnCoins",
           "price": "Dauerhaft kostenlos"
         },
         "knight": {
           "name": "Springer",
+          "role": "Bonus-Stufe für aktive Community-Mitglieder.",
           "description": "Tägliche Auffüllung auf bis zu {pawncoins} PawnCoins"
         },
         "bishop": {
           "name": "Läufer",
+          "role": "Exklusiver Bonus für Top-Performer im Club.",
           "description": "Tägliche Auffüllung auf bis zu {pawncoins} PawnCoins"
         },
         "rook": {
@@ -608,13 +611,20 @@
         "howItWorks": "📅 Wie funktioniert es?",
         "p1": "Unser Bonus-Programm belohnt die aktivsten Mitglieder des xtrapawn Clubs auf Lichess.",
         "p2": "Die Boni werden automatisch vergeben. Die Berechnung erfolgt täglich um 05:29 Uhr (UTC+1) basierend auf der Performance der letzten 30 Tage.",
-        "p3": "Platz 1 (King), Platz 2 (Queen), Platz 3 (Rook).",
-        "p4a": "Spieler mit Vector 500+ erhalten Bishop.",
-        "p4b": "Spieler mit Vector 250+ erhalten Knight.",
+        "p3": "Platz 1 (King - unbegrenzt), Platz 2 (Queen - 5000), Platz 3 (Rook - 1000).",
+        "p4a": "Spieler mit Vector 500+ erhalten Bishop (750 PawnCoins).",
+        "p4b": "Spieler mit Vector 250+ erhalten Knight (500 PawnCoins).",
         "p5": "Der Status wird täglich aktualisiert und ist bis zur nächsten Berechnung gültig.",
         "homepageLink": "Club Homepage",
         "alertText": "Lieber erspielen statt kaufen? Schau dir unser",
-        "alertButton": "Bonus-Programm"
+        "alertButton": "Bonus-Programm",
+        "teamLink": "Tritt unserem Lichess-Team bei",
+        "knight": "Knight Status: Ab Vector 250+",
+        "bishop": "Bishop Status: Ab Vector 500+",
+        "p6": "Die Statusberechnung erfolgt rollierend über die letzten 30 Tage.",
+        "p7": "Änderungen am Bonusprogramm vorbehalten.",
+        "p8": "Viel Erfolg beim Training!",
+        "moreInfo": "Mehr Infos hier"
       },
       "costs": {
         "title": "Modul-Kosten",
