@@ -1,10 +1,12 @@
 import type {
   LeaderboardApiResponse,
   LeaderboardResponse,
+  SidebarLeaderboardResponse,
   UnifiedLeaderboardResponse,
 } from '@/shared/types/api.types'
 import { useQuery } from '@tanstack/vue-query'
 import { apiClient } from '../client'
+import { computed, toValue, type MaybeRefOrGetter } from 'vue'
 
 // Константы ключей для кэширования
 const LEADERBOARD_KEYS = {
@@ -16,6 +18,7 @@ const LEADERBOARD_KEYS = {
   finishHim: () => [...LEADERBOARD_KEYS.all, 'finish-him'] as const,
   practical: () => [...LEADERBOARD_KEYS.all, 'practical-chess'] as const,
   theory: () => [...LEADERBOARD_KEYS.all, 'theory'] as const,
+  sidebar: (params: Record<string, string>) => [...LEADERBOARD_KEYS.all, 'sidebar', params] as const,
 }
 
 /**
@@ -99,5 +102,29 @@ export const useTheoryLeaderboardQuery = (enabled: boolean = true) => {
     queryFn: () => apiClient<UnifiedLeaderboardResponse>('/leaderboards/theory'),
     enabled,
     staleTime: 5 * 60 * 1000,
+  })
+}
+
+/**
+ * Fetch Contextual Sidebar Leaderboard
+ */
+export const useSidebarLeaderboardQuery = (paramsRef: MaybeRefOrGetter<{
+  gameMode: string
+  subMode: string
+  theme: string
+  difficulty: string
+}>) => {
+  return useQuery<SidebarLeaderboardResponse, Error>({
+    queryKey: computed(() => LEADERBOARD_KEYS.sidebar(toValue(paramsRef))),
+    queryFn: () => {
+      const params = toValue(paramsRef)
+      const searchParams = new URLSearchParams(params)
+      return apiClient<SidebarLeaderboardResponse>(`/leaderboards/sidebar?${searchParams.toString()}`)
+    },
+    staleTime: 60 * 1000,
+    enabled: computed(() => {
+      const params = toValue(paramsRef)
+      return !!params.gameMode && !!params.subMode
+    }),
   })
 }

@@ -2,6 +2,7 @@
 <script setup lang="ts">
 import { useBoardStore, useGameStore } from '@/entities/game'
 import { AnalysisPanel, useAnalysisStore } from '@/features/analysis'
+import { SidebarLeaderboard } from '@/features/leaderboards'
 import { ThemeRoseChart, UserProfileWidget } from '@/features/profile'
 import { useSmartHintStore } from '@/features/smart-hint'
 import { type TornadoMode, useTornadoStore } from '@/features/tornado'
@@ -154,6 +155,12 @@ watch(
             :themes="currentTornadoThemes"
             :title="t('features.userCabinet.stats.modes.tornado')"
             @improve="handleImprove"
+          />
+          <SidebarLeaderboard
+            game-mode="tornado"
+            :sub-mode="activeModeStr"
+            :theme="tornadoStore.sessionTheme || (route.query.theme as string) || ''"
+            difficulty="Pro"
           />
         </template>
       </div>

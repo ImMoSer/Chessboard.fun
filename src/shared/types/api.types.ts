@@ -267,6 +267,20 @@ export interface UnifiedLeaderboardEntry {
 export type LeaderboardDifficulty = 'Novice' | 'Pro' | 'Master'
 export type UnifiedLeaderboardResponse = Record<string, UnifiedLeaderboardEntry[]>
 
+export interface SidebarLeaderboardEntry {
+  id: string
+  username: string
+  tier: string
+  solved: number
+  failed: number
+  highScore: number
+}
+
+export interface SidebarLeaderboardResponse {
+  top10: SidebarLeaderboardEntry[]
+  currentUser: SidebarLeaderboardEntry | null
+}
+
 interface WorktableLeaderboards {
   finishHimLeaderboard?: UnifiedLeaderboardResponse
   theoryLeaderboard?: UnifiedLeaderboardResponse

@@ -12,6 +12,7 @@ import { useI18n } from 'vue-i18n'
 import type { TheoryEndingType, GameLaunchOptions, TheoryEndingDifficulty, TheoryEndingCategory } from '@/shared/types/api.types'
 
 import { AnalysisPanel } from '@/features/analysis'
+import { SidebarLeaderboard } from '@/features/leaderboards'
 import { ThemeRoseChart, UserProfileWidget } from '@/features/profile'
 import { useActivePlanMatch } from '@/pages/user-cabinet/lib/composables/useActivePlanMatch'
 import TrainingPlanWidget from '@/pages/user-cabinet/ui/TrainingPlanWidget.vue'
@@ -205,6 +206,12 @@ watch(
             :themes="currentTheoryThemes"
             :title="currentTheoryTitle"
             @improve="handleImprove"
+          />
+          <SidebarLeaderboard
+            game-mode="theory"
+            :sub-mode="theoryStore.activeType || 'win'"
+            :theme="theoryStore.activeCategory || ''"
+            :difficulty="theoryStore.activeDifficulty || 'Novice'"
           />
         </template>
       </div>

@@ -795,6 +795,11 @@
         "theoryLeaderboard": "Теоретические эндшпили",
         "practicalLeaderboard": "Практические шахматы"
       },
+      "sidebar": {
+        "title": "Топ-10 (30 дней)",
+        "currentUser": "Вы",
+        "winRate": "%"
+      },
       "table": {
         "rank": "#",
         "player": "Игрок",

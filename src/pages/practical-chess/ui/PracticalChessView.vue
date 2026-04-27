@@ -10,6 +10,7 @@ import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
 import { AnalysisPanel } from '@/features/analysis'
+import { SidebarLeaderboard } from '@/features/leaderboards'
 import { YouMoveSelection } from '@/features/practical-chess'
 import { ThemeRoseChart, UserProfileWidget } from '@/features/profile'
 import { useActivePlanMatch } from '@/pages/user-cabinet/lib/composables/useActivePlanMatch'
@@ -171,6 +172,12 @@ watch(
             :themes="currentPracticalThemes"
             :title="t('features.userCabinet.stats.modes.practical')"
             @improve="handleImprove"
+          />
+          <SidebarLeaderboard
+            game-mode="practical"
+            sub-mode="win"
+            :theme="practicalStore.activeCategory || ''"
+            :difficulty="practicalStore.activeDifficulty || 'Novice'"
           />
         </template>
       </div>

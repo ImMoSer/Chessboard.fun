@@ -797,6 +797,11 @@
         "theoryLeaderboard": "Theoretical Endgames",
         "practicalLeaderboard": "Practical Chess"
       },
+      "sidebar": {
+        "title": "Top 10 (30 Days)",
+        "currentUser": "You",
+        "winRate": "Rate"
+      },
       "table": {
         "rank": "#",
         "player": "Player",

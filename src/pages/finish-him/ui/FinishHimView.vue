@@ -12,6 +12,7 @@ import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 
 import { useAuthStore } from '@/entities/user'
 import { AnalysisPanel } from '@/features/analysis'
+import { SidebarLeaderboard } from '@/features/leaderboards'
 import { ThemeRoseChart, UserProfileWidget } from '@/features/profile'
 import { useActivePlanMatch } from '@/pages/user-cabinet/lib/composables/useActivePlanMatch'
 import TrainingPlanWidget from '@/pages/user-cabinet/ui/TrainingPlanWidget.vue'
@@ -180,6 +181,12 @@ watch(
             :themes="currentFinishHimThemes"
             :title="t('features.userCabinet.stats.modes.finishHim')"
             @improve="handleImprove"
+          />
+          <SidebarLeaderboard
+            game-mode="finish_him"
+            sub-mode="win"
+            :theme="finishHimStore.selectedTheme || ''"
+            :difficulty="finishHimStore.selectedDifficulty"
           />
         </template>
       </div>

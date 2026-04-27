@@ -797,6 +797,11 @@
         "theoryLeaderboard": "Theoretische Endspiele",
         "practicalLeaderboard": "Praktisches Schach"
       },
+      "sidebar": {
+        "title": "Top 10 (30 Tage)",
+        "currentUser": "Du",
+        "winRate": "Quote"
+      },
       "table": {
         "rank": "#",
         "player": "Spieler",
