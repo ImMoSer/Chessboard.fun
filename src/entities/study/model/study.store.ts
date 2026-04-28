@@ -500,6 +500,15 @@ export const useStudyStore = defineStore('study', () => {
     const username = currentUsername.value
     if (!ownerId || !username) return null
 
+    if (type === 'community' && !tokenOverride) {
+      try {
+        const info = await lichessSyncService.fetchCommunityStudyInfo()
+        tokenOverride = info.token
+      } catch (e) {
+        console.error('Failed to fetch community token', e)
+      }
+    }
+
     if (!tokenOverride && !(await requireLichessAccess())) return null
 
     cloudLoading.value = true

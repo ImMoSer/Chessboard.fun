@@ -96,6 +96,8 @@ async function fetchLichessStudies() {
   const username = authStore.userProfile?.username
   if (!username) return
 
+  if (!(await studyStore.requireLichessAccess())) return
+
   isLoadingLichessStudies.value = true
   try {
     const studies = await lichessSyncService.fetchUserStudies(username)

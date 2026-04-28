@@ -61,15 +61,16 @@ onMounted(async () => {
   boardStore.setAnalysisMode(true)
   await analysisStore.showPanel() // Initialize analysis (threads, etc.) and set visible flag for watcher
 
-  const hasAccess = await studyStore.requireLichessAccess()
-  if (!hasAccess) {
-     return // Wait for user to authorize or cancel
-  }
-
-  await studyStore.initialize()
-
   const routeStudyId = route.params.studyId as string | undefined
   const routeChapterId = route.params.chapterId as string | undefined
+
+  if (!routeStudyId || routeStudyId === 'local') {
+    const hasAccess = await studyStore.requireLichessAccess()
+    if (!hasAccess) {
+       return // Wait for user to authorize or cancel
+    }
+  }
+  await studyStore.initialize()
 
   if (routeStudyId && routeStudyId !== 'local') {
     // 1. Check if study exists locally
