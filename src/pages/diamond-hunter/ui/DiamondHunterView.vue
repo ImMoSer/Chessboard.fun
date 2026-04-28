@@ -9,7 +9,7 @@ import {
   useDiamondHunterUi,
 } from '@/features/diamond-hunter'
 import { ArrowBack, DiamondOutline, FlashOutline, TelescopeOutline } from '@vicons/ionicons5'
-import { NButton, NIcon, NModal, NNumberAnimation, NSpace, NStatistic } from 'naive-ui'
+import { NButton, NIcon, NModal, NNumberAnimation, NSpace, NSpin, NStatistic } from 'naive-ui'
 import { onMounted, onUnmounted, ref } from 'vue'
 import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router'
 import { GameLayout, TopInfoPanel } from '@/widgets/game-layout'
@@ -24,26 +24,27 @@ const route = useRoute()
 // Initialize UI interactions
 useDiamondHunterUi()
 
-const isSettingsModalOpen = ref(true)
+const isSettingsModalOpen = ref(false)
 const isAnalysisView = ref(false)
-
-// Redundant FEN watcher removed.
-// Logic moved to diamondHunterStore.handleUserMove (via gameStore callback)
-// and explicit calls in startSession / handleSaveMove.
+const isInitializing = ref(false)
 
 onMounted(async () => {
   diamondHunterStore.reset()
 
-  // openingStore.initializeSession might do too much setup we don't need (like graph loading)
-  // But we need board setup.
+  const colorParam = (route.params.color || route.params.openingSlug) as string | undefined
+  const isAutoStart = colorParam?.startsWith('for_')
 
-  if (route.params.color) {
-    await handleRouteParams()
+  if (isAutoStart) {
+    isInitializing.value = true
+    await handleRouteParams(colorParam)
+    isInitializing.value = false
+  } else {
+    isSettingsModalOpen.value = true
   }
 })
 
-async function handleRouteParams() {
-  const colorParam = route.params.color as string | undefined
+async function handleRouteParams(param?: string) {
+  const colorParam = param || (route.params.color as string | undefined)
   let color: 'white' | 'black' = 'white'
 
   if (colorParam) {
@@ -125,6 +126,10 @@ function goBack() {
       <TopInfoPanel />
     </template>
 
+    <div v-if="isInitializing" class="loading-overlay">
+      <n-spin size="large" />
+    </div>
+
     <template #left-panel>
       <!-- Minimal Header (Hunt Mode) -->
       <div v-if="!isAnalysisView" class="diamond-header">
@@ -175,7 +180,7 @@ function goBack() {
       </div>
 
       <DiamondHunterSettingsModal
-        v-if="isSettingsModalOpen"
+        :show="isSettingsModalOpen"
         @start="startSession"
         @close="goBack"
       />
@@ -224,11 +229,10 @@ function goBack() {
 
       <!-- Reward Modal -->
       <n-modal
-        :show="diamondHunterStore.isActive"
+        :show="diamondHunterStore.state === 'REWARD' && !!diamondHunterStore.message"
         @close="goBack"
         :closable="true"
         :preset="'dialog'"
-        v-if="diamondHunterStore.message && diamondHunterStore.state === 'REWARD'"
         style="width: 400px; text-align: center"
       >
         <template #header>
@@ -273,11 +277,10 @@ function goBack() {
 
       <!-- Fail Modal -->
       <n-modal
-        :show="diamondHunterStore.isActive"
+        :show="diamondHunterStore.state === 'FAILED' && !!diamondHunterStore.message"
         @close="goBack"
         :closable="true"
         :preset="'dialog'"
-        v-if="diamondHunterStore.message && diamondHunterStore.state === 'FAILED'"
         style="width: 400px; text-align: center"
       >
         <template #header>
@@ -374,5 +377,18 @@ function goBack() {
   justify-content: center;
   height: 100%;
   min-height: 400px;
+}
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
 }
 </style>

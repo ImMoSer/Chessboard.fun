@@ -5,6 +5,9 @@ import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAnalysisEngineStore } from '@/entities/analysis'
 
+const props = defineProps<{
+  show: boolean
+}>()
 const emit = defineEmits(['start', 'close'])
 const { t } = useI18n()
 const analysisStore = useAnalysisEngineStore()
@@ -25,7 +28,7 @@ function startSession() {
 
 <template>
   <n-modal
-    :show="true"
+    :show="props.show"
     preset="card"
     :style="{ width: 'min(400px, calc(100vw - 32px))', borderRadius: '16px' }"
     class="settings-modal"
