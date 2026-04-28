@@ -18,7 +18,7 @@ const FALLBACK_TIMEOUT_MS = 1500
 
 // --- НОВАЯ КОНФИГУРАЦИЯ ДВИЖКОВ ---
 export const engineConfigs: Record<EngineId, EngineConfig> = {
-  'SF_2200': { type: 'local', depth: 18 },
+  'SF_2200': { type: 'local', depth: 15 },
   'maia-1900': { type: 'server', model: 'maia-1900', fallback: true },
   'maia-2200': { type: 'server', model: 'maia-2200', fallback: true },
   'maia-2400': { type: 'server', model: 'maia-2400', fallback: true },
