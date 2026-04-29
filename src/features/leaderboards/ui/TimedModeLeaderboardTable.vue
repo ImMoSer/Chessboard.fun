@@ -4,7 +4,7 @@ import type {
   UnifiedLeaderboardResponse,
 } from '@/shared/types/api.types'
 import type { DataTableColumns } from 'naive-ui'
-import { computed, h, type PropType } from 'vue'
+import { computed, h, ref, type PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 export interface LeaderboardTab {
@@ -13,7 +13,7 @@ export interface LeaderboardTab {
   icon: string
 }
 
-defineProps({
+const props = defineProps({
   title: { type: String, required: true },
   data: { type: Object as PropType<UnifiedLeaderboardResponse>, required: false, default: () => ({}) },
   tabs: { type: Array as PropType<LeaderboardTab[]>, required: true },
@@ -22,6 +22,8 @@ defineProps({
 })
 
 const { t } = useI18n()
+
+const activeTab = ref(props.tabs[0]?.id || '')
 
 const tierToPieceMap: Record<string, string> = {
   Pawn: 'wP.svg',
@@ -38,92 +40,95 @@ const getSubscriptionIcon = (tier?: string) => {
 }
 
 const columns = computed<DataTableColumns<UnifiedLeaderboardEntry>>(
-  () => [
-    {
-      title: '#',
-      key: 'rank',
-      align: 'center',
-      width: 30,
-      render: (row) => row.rank || '-'
-    },
-    {
-      title: t('features.leaderboards.table.player'),
-      key: 'username',
-      minWidth: 120,
-      ellipsis: { tooltip: true },
-      render(row) {
-        const tier = row.tier || 'Pawn'
-        const id = row.id
-        const icon = getSubscriptionIcon(tier)
-        return h('div', { style: { display: 'flex', alignItems: 'center' } }, [
-          icon ? h('img', { src: icon, class: 'tier-icon', style: { marginRight: '6px' } }) : null,
-          h(
-            'n-a',
-            {
-              href: `https://lichess.org/@/${id}`,
-              target: '_blank',
-              style: { fontWeight: 'bold' },
-            },
-            row.username,
-          ),
-        ])
+  () => {
+    const isOverall = activeTab.value === 'overall'
+    return [
+      {
+        title: '#',
+        key: 'rank',
+        align: 'center',
+        width: 30,
+        render: (row) => row.rank || '-'
       },
-    },
-    {
-      title: t('features.leaderboards.table.maxRating', 'maxRating'),
-      key: 'maxRating',
-      align: 'center',
-      width: 85,
-      render: (row) => h('span', { class: 'mode-score-value' }, row.maxRating)
-    },
-    {
-      title: t('features.leaderboards.table.avgRating', 'Avg'),
-      key: 'avgRating',
-      align: 'center',
-      width: 85,
-      render: (row) => h('span', { style: { color: 'var(--color-text-muted)' } }, row.avgRating)
-    },
-    {
-      title: t('features.leaderboards.table.bestDay', 'error'),
-      key: 'highScore',
-      align: 'center',
-      width: 100,
-      render: (row) => h('span', { style: { fontWeight: 'bold' } }, row.highScore)
-    },
-    {
-      title: t('features.leaderboards.table.activeDays', 'Days'),
-      key: 'activeDays',
-      align: 'center',
-      width: 100,
-      render: (row) => row.activeDays
-    },
-    {
-      title: t('features.leaderboards.table.played'),
-      key: 'played',
-      align: 'center',
-      width: 100,
-      render: (row) => row.solved + row.failed
-    },
-    {
-      title: '%',
-      key: 'accuracy',
-      align: 'right',
-      width: 45,
-      render(row) {
-        const total = row.solved + row.failed
-        if (total === 0) return '-'
-        const acc = (row.solved / total) * 100
-        return h('span', {
-          style: {
-            color: acc > 70 ? 'var(--color-accent-success)' : acc > 40 ? 'var(--color-accent-warning)' : 'var(--color-accent-error)',
-            fontWeight: 'bold'
-          }
+      {
+        title: t('features.leaderboards.table.player'),
+        key: 'username',
+        minWidth: 120,
+        ellipsis: { tooltip: true },
+        render(row) {
+          const tier = row.tier || 'Pawn'
+          const id = row.id
+          const icon = getSubscriptionIcon(tier)
+          return h('div', { style: { display: 'flex', alignItems: 'center' } }, [
+            icon ? h('img', { src: icon, class: 'tier-icon', style: { marginRight: '6px' } }) : null,
+            h(
+              'n-a',
+              {
+                href: `https://lichess.org/@/${id}`,
+                target: '_blank',
+                style: { fontWeight: 'bold' },
+              },
+              row.username,
+            ),
+          ])
         },
-          `${acc.toFixed(0)}`
-        )
+      },
+      {
+        title: isOverall ? 'Score' : t('features.leaderboards.table.maxRating', 'maxRating'),
+        key: isOverall ? 'score' : 'maxRating',
+        align: 'center' as const,
+        width: 85,
+        render: (row) => h('span', { class: 'mode-score-value' }, isOverall ? row.score : row.maxRating)
+      },
+      ...(!isOverall ? [{
+        title: t('features.leaderboards.table.avgRating', 'Avg'),
+        key: 'avgRating',
+        align: 'center' as const,
+        width: 85,
+        render: (row: UnifiedLeaderboardEntry) => h('span', { style: { color: 'var(--color-text-muted)' } }, row.avgRating)
+      }] : []),
+      {
+        title: t('features.leaderboards.table.bestDay', 'error'),
+        key: 'highScore',
+        align: 'center' as const,
+        width: 100,
+        render: (row) => h('span', { style: { fontWeight: 'bold' } }, row.highScore)
+      },
+      {
+        title: t('features.leaderboards.table.activeDays', 'Days'),
+        key: 'activeDays',
+        align: 'center' as const,
+        width: 100,
+        render: (row) => row.activeDays
+      },
+      {
+        title: t('features.leaderboards.table.played'),
+        key: 'played',
+        align: 'center' as const,
+        width: 100,
+        render: (row) => row.solved + row.failed
+      },
+      {
+        title: '%',
+        key: 'accuracy',
+        align: 'right' as const,
+        width: 45,
+        render(row) {
+          const total = row.solved + row.failed
+          if (total === 0) return '-'
+          const acc = (row.solved / total) * 100
+          return h('span', {
+            style: {
+              color: acc > 70 ? 'var(--color-accent-success)' : acc > 40 ? 'var(--color-accent-warning)' : 'var(--color-accent-error)',
+              fontWeight: 'bold'
+            }
+          },
+            `${acc.toFixed(0)}`
+          )
+        }
       }
-    }
-  ]
+    ]
+  }
 )
 </script>
 
@@ -139,7 +144,7 @@ const columns = computed<DataTableColumns<UnifiedLeaderboardEntry>>(
       <div v-if="isLoading" class="loading-wrapper">
         <n-spin size="large" />
       </div>
-      <n-tabs v-else type="segment" animated>
+      <n-tabs v-else v-model:value="activeTab" type="segment" animated>
         <n-tab-pane v-for="tab in tabs" :key="tab.id" :name="tab.id">
           <template #tab>
             <div class="tab-label">
@@ -149,7 +154,10 @@ const columns = computed<DataTableColumns<UnifiedLeaderboardEntry>>(
           <div class="mode-table-wrapper">
             <n-data-table
               :columns="columns"
-              :data="([...(data[tab.id] || [])].sort((a, b) => b.solved - a.solved)).map((row, idx) => ({...row, rank: row.rank || (idx + 1).toString()}))"
+              :data="([...(data[tab.id] || [])].sort((a, b) => {
+                if (tab.id === 'overall') return (b.score || 0) - (a.score || 0)
+                return b.solved - a.solved
+              })).map((row, idx) => ({...row, rank: row.rank || (idx + 1).toString()}))"
               :row-key="(row: UnifiedLeaderboardEntry) => row.id"
               size="small"
               striped

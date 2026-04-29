@@ -1,6 +1,7 @@
 import type {
   LeaderboardApiResponse,
   LeaderboardResponse,
+  PlanStreakLeaderboardEntry,
   SidebarLeaderboardResponse,
   UnifiedLeaderboardResponse,
 } from '@/shared/types/api.types'
@@ -19,7 +20,20 @@ const LEADERBOARD_KEYS = {
   practical: () => [...LEADERBOARD_KEYS.all, 'practical-chess'] as const,
   theory: () => [...LEADERBOARD_KEYS.all, 'theory'] as const,
   dashboard: () => [...LEADERBOARD_KEYS.all, 'dashboard'] as const,
+  planStreak: () => [...LEADERBOARD_KEYS.all, 'plan-streak'] as const,
   sidebar: (params: Record<string, string>) => [...LEADERBOARD_KEYS.all, 'sidebar', params] as const,
+}
+
+/**
+ * Fetch Training Plan Streak Leaderboard
+ */
+export const usePlanStreakLeaderboardQuery = (enabled: boolean = true) => {
+  return useQuery<PlanStreakLeaderboardEntry[], Error>({
+    queryKey: LEADERBOARD_KEYS.planStreak(),
+    queryFn: () => apiClient<PlanStreakLeaderboardEntry[]>('/leaderboards/plan-streak'),
+    enabled,
+    staleTime: 60 * 1000,
+  })
 }
 
 /**

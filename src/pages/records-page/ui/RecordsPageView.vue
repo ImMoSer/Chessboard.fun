@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {
+  usePlanStreakLeaderboardQuery,
   useTopTodayLeaderboardQuery,
   useUnifiedDashboardQuery,
 } from '@/shared/api/queries/leaderboard.queries'
@@ -9,7 +10,11 @@ import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
 // Import child components
-import { SkillLeaderboardTable, TimedModeLeaderboardTable } from '@/features/leaderboards'
+import {
+  PlanStreakLeaderboardTable,
+  SkillLeaderboardTable,
+  TimedModeLeaderboardTable,
+} from '@/features/leaderboards'
 
 const { t } = useI18n()
 
@@ -24,6 +29,12 @@ const {
   data: topTodayResponse,
   isFetching: isTopTodayLoading,
 } = useTopTodayLeaderboardQuery(!isExample.value)
+
+// Plan Streak Query
+const {
+  data: planStreakResponse,
+  isFetching: isPlanStreakLoading,
+} = usePlanStreakLeaderboardQuery(!isExample.value)
 
 const strategicTabs = computed(() => [
   { id: 'theory', name: t('features.leaderboards.titles.theoryLeaderboard'), icon: '' },
@@ -45,7 +56,8 @@ const isLoading = computed(() => {
   if (isExample.value) return false
   return (
     isTopTodayLoading.value ||
-    isDashboardLoading.value
+    isDashboardLoading.value ||
+    isPlanStreakLoading.value
   )
 })
 </script>
@@ -61,12 +73,21 @@ const isLoading = computed(() => {
     <div v-else class="records-page__grid">
       <!-- SECTION: HALL OF FAME (Overall) -->
       <section class="records-section">
-        <SkillLeaderboardTable
-          :title="t('features.leaderboards.titles.topToday')"
-          :entries="(isExample ? exampleData?.topTodayLeaderboard.entries : topTodayResponse?.entries) || []"
-          color-class="topToday"
-          :is-loading="isTopTodayLoading"
-        />
+        <div class="section-grid">
+          <PlanStreakLeaderboardTable
+            title="TrainingPlanStreak"
+            :entries="planStreakResponse || []"
+            color-class="planStreak"
+            :is-loading="isPlanStreakLoading"
+          />
+
+          <SkillLeaderboardTable
+            :title="t('features.leaderboards.titles.topToday')"
+            :entries="(isExample ? exampleData?.topTodayLeaderboard.entries : topTodayResponse?.entries) || []"
+            color-class="topToday"
+            :is-loading="isTopTodayLoading"
+          />
+        </div>
 
         <TimedModeLeaderboardTable
           :title="t('features.leaderboards.titles.overallSkill')"

@@ -199,6 +199,7 @@ export function generateRandomHallOfFame(): LeaderboardApiResponse {
           sub_mode: cat,
           maxRating: rating,
           avgRating: rating - getRandomInt(0, 100),
+          score: rating + getRandomInt(0, 500),
           highScore: getRandomInt(10, 100),
           activeDays: getRandomInt(1, 30),
           solved,

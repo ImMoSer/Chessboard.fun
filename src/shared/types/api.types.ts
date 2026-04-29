@@ -251,6 +251,14 @@ export interface GamePuzzle {
 
 
 
+export interface PlanStreakLeaderboardEntry {
+  id: string
+  username: string
+  tier: string
+  training_status: string
+  current_streak: number
+}
+
 export interface UnifiedLeaderboardEntry {
   id: string
   username: string
@@ -259,6 +267,7 @@ export interface UnifiedLeaderboardEntry {
   sub_mode?: string
   maxRating: number
   avgRating: number
+  score: number
   highScore: number
   activeDays: number
   solved: number
