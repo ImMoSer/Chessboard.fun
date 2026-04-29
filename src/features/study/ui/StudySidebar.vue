@@ -316,8 +316,10 @@ async function handlePush(chapter: StudyChapter, e: Event) {
               <div class="chapter-index">{{ index + 1 }}</div>
             </template>
             <template #header>
-              <NSpace align="center" :size="6" style="flex-wrap: nowrap; overflow: hidden; max-width: 100%;">
-                <span class="chapter-name">{{ chapter.name }}</span>
+              <div class="chapter-name">{{ chapter.name.replace(/->/g, '\n->') }}</div>
+            </template>
+            <template #header-extra>
+              <NSpace size="small" align="center" :wrap="false">
                 <template v-if="chapter.chapter_type === 'repertoire'">
                   <span v-if="isChapterTrimmed(chapter)" class="tag-reply" @click.stop="startReplyTraining(chapter)">REPLY</span>
                   <span v-else class="tag-trim" title="You have multiple choices defined. Trim the tree!">TRIM</span>
@@ -336,10 +338,6 @@ async function handlePush(chapter: StudyChapter, e: Event) {
                   </span>
                   <span v-else class="tag-result">RESULT</span>
                 </template>
-              </NSpace>
-            </template>
-            <template #header-extra>
-              <NSpace size="small" align="center">
                 <!-- Publish to Lichess -->
                 <NButton
                   v-if="studyStore.activeStudy?.lichessId && !chapter.lichessChapterId && !isCommunity"
@@ -457,9 +455,8 @@ async function handlePush(chapter: StudyChapter, e: Event) {
 .study-title {
   font-size: 1.1rem;
   color: var(--color-accent-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  word-break: break-word;
+  line-height: 1.3;
 }
 
 .chapter-count-badge {
@@ -508,9 +505,9 @@ async function handlePush(chapter: StudyChapter, e: Event) {
 .chapter-name {
   font-size: 0.9rem;
   font-weight: 500;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.3;
   min-width: 0;
   flex: 1;
 }
